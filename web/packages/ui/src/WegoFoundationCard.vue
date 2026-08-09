@@ -9,7 +9,7 @@ defineProps<{
 <template>
   <article
     :data-state="state"
-    class="rounded-[var(--wego-radius-card)] border border-wego-border bg-wego-surface p-6 shadow-sm"
+    class="rounded-wego-card border border-wego-border bg-wego-surface p-6 shadow-sm"
   >
     <div class="flex items-center justify-between gap-4">
       <h3 class="font-semibold">{{ title }}</h3>

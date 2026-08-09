@@ -16,6 +16,8 @@ Client customization uses configuration or explicit extension points. It never f
 
 Exactly one execution packet is active per implementation worktree. Work starts from an acceptance criterion and ends with executable evidence. A green test suite does not authorize the next mission. Commits, pushes, deployments, DNS changes, and production access require explicit authorization.
 
+Review intensity is proportionate to risk: authentication, authorization, payments, database migrations, multi-tenant/client-isolation boundaries, and real client PII require independent adversarial review with executable evidence before commit; other work requires one verified pass. See `docs/operations/REVIEW_INTENSITY.md`.
+
 ## 3. Architecture
 
 The deployable backend is a modular monolith. Modules expose intentional APIs and hide implementation packages. Business modules use `domain`, `application`, `infrastructure`, and `api` where those responsibilities exist; empty layers are not created.

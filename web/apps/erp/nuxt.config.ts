@@ -5,6 +5,17 @@ export default defineNuxtConfig({
   css: ["@wego/design-tokens/tokens.css", "~/assets/css/main.css"],
   devtools: { enabled: false },
   modules: ["@nuxt/eslint"],
+  app: {
+    // No default title/titleTemplate here — each page sets its own full,
+    // literal title via useHead (see index.vue/login.vue) rather than a
+    // templated suffix, since Nuxt config's app.head only accepts a plain
+    // string template, and a plain "%s · Wego Platform" would double up
+    // whenever a page's own title chunk is already "Wego Platform".
+    head: {
+      meta: [{ name: "theme-color", content: "#087f74" }],
+      link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
+    },
+  },
   typescript: {
     strict: true,
     typeCheck: true,

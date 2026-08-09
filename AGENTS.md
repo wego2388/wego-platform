@@ -10,3 +10,5 @@ Read `docs/ENGINEERING_CONSTITUTION.md` and `docs/execution/WEGO_EXECUTION_BOARD
 - Use Flyway exclusively for schema changes and jOOQ for primary SQL persistence.
 - Keep domain code independent of Spring MVC, HTTP, jOOQ generated records, Redis, provider SDKs, and infrastructure implementations.
 - Run the documented quality gates and report evidence; inspection alone is not proof.
+- Match review intensity to packet risk before requesting review or committing; see `docs/operations/REVIEW_INTENSITY.md`.
+- For Tier 1 packets, follow the implementer/reviewer protocol in `docs/operations/AGENT_COLLABORATION.md`.

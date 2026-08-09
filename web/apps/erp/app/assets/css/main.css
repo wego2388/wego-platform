@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@fontsource-variable/inter";
 @source "../../../../../packages/ui/src";
 
 @theme {
@@ -9,6 +10,14 @@
   --color-wego-border: var(--wego-color-border);
   --color-wego-accent: var(--wego-color-accent);
   --color-wego-accent-soft: var(--wego-color-accent-soft);
+  --color-wego-success: var(--wego-color-success);
+  --color-wego-success-soft: var(--wego-color-success-soft);
+  --color-wego-warning: var(--wego-color-warning);
+  --color-wego-warning-soft: var(--wego-color-warning-soft);
+  --color-wego-danger: var(--wego-color-danger);
+  --color-wego-danger-soft: var(--wego-color-danger-soft);
+  --radius-wego-card: var(--wego-radius-card);
+  --radius-wego-control: var(--wego-radius-control);
   --font-sans: var(--wego-font-sans);
 }
 
@@ -25,4 +34,15 @@ body {
 :focus-visible {
   outline: 3px solid var(--wego-color-focus);
   outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -53,7 +53,7 @@ const foundationItems = [
         </div>
         <NuxtLink
           to="/login"
-          class="shrink-0 rounded-lg bg-wego-accent px-5 py-2.5 text-sm font-semibold whitespace-nowrap text-white"
+          class="shrink-0 rounded-wego-control bg-wego-accent px-5 py-2.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"
         >
           Sign in
         </NuxtLink>

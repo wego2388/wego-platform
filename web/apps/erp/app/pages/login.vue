@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { WegoAlert, WegoButton, WegoInput } from "@wego/ui";
+
+useHead({ title: "Sign in · Wego Platform" });
 
 type LoginState = "idle" | "submitting" | "error" | "success";
 
@@ -161,50 +164,32 @@ function errorText(reason: string): string {
       <p class="text-sm font-semibold tracking-[0.18em] text-wego-accent uppercase">Wego Platform</p>
       <h1 class="mt-4 text-3xl font-semibold tracking-tight">Sign in</h1>
 
-      <p v-if="logoutWarning" role="status" class="mt-6 text-sm font-medium text-amber-600">
+      <WegoAlert v-if="logoutWarning" variant="warning" role="status" class="mt-6">
         Signed out on this device, but the server didn't confirm the session was revoked — it
         may still be valid elsewhere until it expires on its own.
-      </p>
+      </WegoAlert>
 
       <form v-if="state !== 'success'" class="mt-8 space-y-5" @submit.prevent="submit">
-        <div>
-          <label for="email" class="block text-sm font-medium text-wego-muted">Email</label>
-          <input
-            id="email"
-            v-model="email"
-            type="email"
-            required
-            autocomplete="username"
-            class="mt-2 w-full rounded-lg border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-          >
-        </div>
+        <WegoInput id="email" v-model="email" label="Email" type="email" required autocomplete="username" />
+        <WegoInput
+          id="password"
+          v-model="password"
+          label="Password"
+          type="password"
+          required
+          autocomplete="current-password"
+        />
 
-        <div>
-          <label for="password" class="block text-sm font-medium text-wego-muted">Password</label>
-          <input
-            id="password"
-            v-model="password"
-            type="password"
-            required
-            autocomplete="current-password"
-            class="mt-2 w-full rounded-lg border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-          >
-        </div>
-
-        <p v-if="state === 'error'" role="alert" class="text-sm font-medium text-red-600">
+        <WegoAlert v-if="state === 'error'" variant="danger">
           {{ errorText(errorMessage) }}
-        </p>
+        </WegoAlert>
 
-        <button
-          type="submit"
-          :disabled="state === 'submitting'"
-          class="w-full rounded-lg bg-wego-accent px-4 py-2.5 font-semibold text-white disabled:opacity-60"
-        >
+        <WegoButton type="submit" class="w-full" :disabled="state === 'submitting'" :loading="state === 'submitting'">
           {{ state === "submitting" ? "Signing in…" : "Sign in" }}
-        </button>
+        </WegoButton>
       </form>
 
-      <div v-else class="mt-8 rounded-[var(--wego-radius-card)] border border-wego-border bg-wego-surface p-6">
+      <div v-else class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
         <p class="font-semibold">Signed in as {{ authenticatedEmail }}</p>
         <p class="mt-2 text-sm text-wego-muted">
           Roles: {{ roles.length ? roles.join(", ") : "none" }}
@@ -212,13 +197,7 @@ function errorText(reason: string): string {
         <p class="mt-1 text-sm text-wego-muted">
           Permissions: {{ permissions.length ? permissions.join(", ") : "none" }}
         </p>
-        <button
-          type="button"
-          class="mt-4 rounded-lg border border-wego-border px-4 py-2 text-sm font-semibold text-wego-ink"
-          @click="logout"
-        >
-          Sign out
-        </button>
+        <WegoButton type="button" variant="secondary" class="mt-4" @click="logout">Sign out</WegoButton>
       </div>
     </div>
   </main>

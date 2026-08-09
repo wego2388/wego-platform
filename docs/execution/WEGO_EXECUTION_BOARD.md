@@ -101,6 +101,34 @@ Rule: exactly one implementation packet may be `ACTIVE` in a worktree. Parent mi
 - **Documentation changes:** Execution evidence, final statuses, and follow-up risk register only.
 - **Rollback considerations:** No production or shared external state is touched; any local service teardown is scoped to the Wego Compose project.
 
+## WEGO-000-H — Review intensity and agent collaboration governance
+
+- **Status:** COMPLETE
+- **Review intensity:** Tier 2 — documentation only, no code, no auth/payments/migration/tenant-isolation/PII logic touched.
+- **Objective:** Codify a risk-proportionate review policy (so future packets aren't all reviewed as heavily as WEGO-001) and a written working agreement between the implementer (Claude Code) and the Tier 1 reviewer (Codex CLI), so review effort and evidence expectations are explicit and repeatable instead of ad hoc.
+- **Scope:** `docs/operations/REVIEW_INTENSITY.md` (new), `docs/operations/AGENT_COLLABORATION.md` (new), a one-sentence addition to `docs/ENGINEERING_CONSTITUTION.md` §2, two guardrail bullets in `AGENTS.md`, a `**Review intensity:**` field added to this board's packet template and retrofitted onto the WEGO-001 section.
+- **Out of scope:** Any change to `scripts/repository-check.sh`'s `required_files` array (neither existing operations doc is enforced there either — adding these two would be inconsistent with that array's actual scope, which is foundation-baseline/contract files, not the operations category); retroactively re-tiering any completed packet; prescribing CLI invocation mechanics for either agent.
+- **Affected modules:** `docs/` only.
+- **Risks:** A written tier policy is only as good as whether it's actually followed when scoping the next packet — this is a documentation change, not an enforcement mechanism; `scripts/repository-check.sh` does not (and, per Out of scope above, deliberately does not) verify tier declarations.
+- **Acceptance criteria:** Both new docs exist, follow house style, and are cross-referenced from `AGENTS.md` and each other; the board's packet template and WEGO-001's own section carry the new field; `scripts/repository-check.sh` still passes unchanged.
+- **Tests:** `bash scripts/repository-check.sh`; manual read-through confirming cross-references resolve and the new field appears in both the template and WEGO-001's section.
+- **Documentation changes:** This packet *is* a documentation change — see Scope.
+- **Rollback considerations:** Documentation-only; no schema, runtime, or external state touched; reverting is a plain file revert.
+
+## WEGO-000-I — Web appearance polish
+
+- **Status:** COMPLETE
+- **Review intensity:** Tier 2 — UI/design-system completion of already-shipped, already-Tier-1-reviewed surfaces; no auth logic, no new API surface, no data model changes.
+- **Objective:** Complete the design-token system and polish the two pages and one shared component that already exist, so the product reads as professionally finished rather than a bare scaffold — without inventing new pages, features, or fictional UI.
+- **Scope:** Semantic color tokens (success/warning/danger) and a control-radius token in `web/packages/design-tokens`; self-hosting the already-specified Inter font; a placeholder favicon and basic page-head metadata; three shared components (`WegoButton`, `WegoInput`, `WegoAlert`) in `web/packages/ui` extracted from markup already duplicated in `login.vue`; rewiring `login.vue` and `index.vue` onto the completed system.
+- **Out of scope:** Dark mode; any new page, nav, or dashboard; animation beyond a loading spinner and simple transitions respecting `prefers-reduced-motion`; a custom spacing/type scale; a designed logo (the favicon is an explicit placeholder); a standalone test runner for `web/packages/ui`.
+- **Affected modules:** `web/apps/erp`, `web/packages/design-tokens`, `web/packages/ui`.
+- **Risks:** `web/apps/erp/test/Login.spec.ts` already asserts exact `id`/`role`/text-content selectors against the current hand-rolled markup — restructuring `login.vue` onto shared components must preserve every one of them exactly, or a real, already-hardened regression suite breaks silently.
+- **Acceptance criteria:** `pnpm run check` in `web/` stays green (lint, typecheck across all three packages, full Vitest run including the unmodified `Login.spec.ts` assertions, production build); Inter actually loads in a real browser rather than silently falling back; new semantic colors meet WCAG AA 4.5:1 against both surface and canvas; no backend/API file is touched.
+- **Tests:** `pnpm install` then `pnpm install --frozen-lockfile`; `pnpm run check` in `web/`; a real dev-server visual check; a manual contrast check.
+- **Documentation changes:** `web/README.md` gains a short section naming the completed token categories and the explicit deferred list above.
+- **Rollback considerations:** Frontend-only; no schema, migration, or backend runtime touched; reverting is a plain file revert plus a lockfile regeneration.
+
 ## Stage evidence log
 
 Evidence is appended as packets finish. A packet may become `COMPLETE` only after its acceptance criteria and tests are recorded here.
@@ -171,6 +199,7 @@ Evidence is appended as packets finish. A packet may become `COMPLETE` only afte
 ## WEGO-001 — Identity & Access foundation
 
 - **Status:** COMPLETE
+- **Review intensity:** Tier 1 — authentication, session, permission enforcement, account lockout. (See `docs/operations/REVIEW_INTENSITY.md`, retrofitted; this packet is that document's worked example.)
 - **Objective:** Replace the deny-by-default security skeleton with a real, minimal authenticated actor and enforceable permission model, so later product packets can authorize writes against a real user instead of building throwaway auth first.
 - **Scope:** `platform/kernel/identity` module (domain/application/infrastructure/api layers); users, credentials, sessions, roles, and role-permission schema via Flyway V2; email/password login and logout endpoints issuing an opaque bearer session token (SHA-256 hashed at rest); `SessionAuthenticationService`-backed request authentication wired into the existing Spring Security filter chain; RBAC enforcement via `@PreAuthorize`/`hasAuthority` against resolved `PermissionCode`s; an operator-run, console-interactive `bootstrap-admin` profile that creates exactly the first platform user and refuses once any user exists; an append-only `identity_audit_event` record for login success/failure/logout/permission-denial; a minimal email/password login screen in `web/apps/erp`.
 - **Out of scope:** OAuth/social login (Google/Apple/phone), password reset flow, MFA/TOTP/step-up, mobile authentication, full RBAC administration UI, control-plane identity, public self-registration.
@@ -887,3 +916,151 @@ No implementation/test files beyond the two named above were touched; the
 execution board was updated with evidence. No commit, push, or deploy has
 occurred — this remains pending the user's explicit go-ahead.
 - **NEXT PACKET:** Unchanged — WEGO-002 is not authorized and was not started.
+
+### 2026-08-10 — WEGO-000-H
+
+WEGO-001 shipped after six real review rounds, each finding genuine defects.
+The owner endorsed that rigor but asked for it to be made proportionate to
+risk going forward, and for the working relationship between the implementer
+(Claude Code) and the Tier 1 reviewer (Codex CLI) to be written down instead
+of staying ad hoc. This packet reopens WEGO-000 to do exactly that —
+documentation only, no runtime code touched.
+
+- **DONE:** Added `docs/operations/REVIEW_INTENSITY.md` (two-tier policy:
+  Tier 1 — heavy adversarial review — triggered by auth/authorization/session/
+  permission logic, payments, migrations, multi-tenant/client-isolation
+  boundaries, or real client PII; Tier 2 — one verified pass — the default
+  for everything else; names WEGO-001 directly as the worked Tier 1 example).
+  Added `docs/operations/AGENT_COLLABORATION.md` (implementer/reviewer role
+  split, the real-evidence standard WEGO-001 already set — Testcontainers/
+  Compose/real threads/controllable clocks, not code-reading — a structured
+  finding format with explicit BLOCKING/NON-BLOCKING severity, and the
+  execution board's evidence log as the shared memory both agents read/write
+  across sessions). Added one cross-referencing sentence to
+  `docs/ENGINEERING_CONSTITUTION.md` §2 and two guardrail bullets to
+  `AGENTS.md`. Added a `**Review intensity:**` field to the packet
+  convention and retrofitted it onto WEGO-001's own section.
+- **FILES CHANGED:** `docs/operations/REVIEW_INTENSITY.md` (new),
+  `docs/operations/AGENT_COLLABORATION.md` (new),
+  `docs/ENGINEERING_CONSTITUTION.md`, `AGENTS.md`,
+  `docs/execution/WEGO_EXECUTION_BOARD.md` (this file — mission table,
+  WEGO-001 retrofit, this packet).
+- **TESTS RUN:** `bash scripts/repository-check.sh` (clean — the required-files
+  array was deliberately left unchanged, since neither existing operations
+  doc is enforced there either); manual cross-reference check confirming
+  every backtick-quoted path in the two new docs, `AGENTS.md`, and the
+  Constitution actually resolves to a real file, in both directions.
+- **EVIDENCE:** `bash scripts/repository-check.sh` output:
+  "Repository structure and execution-board invariants are valid" after the
+  mission table moved WEGO-000 to IN PROGRESS and this packet went ACTIVE
+  then COMPLETE — proving the structural ACTIVE-packet/IN-PROGRESS-mission
+  linkage (added during WEGO-001's third review round) still holds under a
+  second real mission reopening, not just the original one it was written
+  for.
+- **RISKS:** A written tier policy only works if it's actually applied when
+  the next packet is scoped — this document doesn't enforce itself, and
+  `scripts/repository-check.sh` deliberately does not verify tier
+  declarations (see the policy's own "Out of scope" section for why).
+- **NEXT PACKET:** WEGO-000-I — Web appearance polish.
+
+### 2026-08-10 — WEGO-000-I
+
+The web app existed as a deliberate, coherent token foundation with almost no
+built-out surface on top of it: two pages, one shared component, a font
+that was specified but never actually loaded, no favicon, alert colors that
+bypassed the token system, and inconsistent radius between cards and
+controls. This packet completes the design-token system and polishes the
+two pages and one component that already exist — no new pages, features, or
+fictional UI.
+
+- **DONE:** Added semantic color tokens (`success`/`warning`/`danger`, each
+  with a `-soft` variant) and a `radius-control` token to
+  `web/packages/design-tokens`, wired through Tailwind's `@theme` in
+  `main.css` alongside the existing color tokens (the card radius was
+  previously used as a raw arbitrary value rather than a themed utility;
+  both radius tokens now share the same `wego-` namespace as the colors).
+  Self-hosted Inter via `@fontsource-variable/inter` (no CDN dependency) —
+  the token's stated font family now actually loads. Added a placeholder
+  favicon (`web/apps/erp/public/favicon.svg`, an explicit monogram, not a
+  designed logo) and page-head metadata (per-page titles, `theme-color`,
+  favicon link) via `nuxt.config.ts` and `useHead` calls in each page.
+  Extracted three shared components into `web/packages/ui`:
+  `WegoButton` (primary/secondary variants, loading spinner state),
+  `WegoInput` (label+input pair), and `WegoAlert` (success/warning/danger,
+  configurable `role`) — replacing markup `login.vue` previously duplicated
+  verbatim per input. Rewired `login.vue` and `index.vue` onto the
+  completed system; added a short "Design tokens and shared UI" section
+  (plus the explicit deferred list) to `web/README.md`, and corrected a
+  stale claim there that authentication was still deferred (WEGO-001
+  shipped it).
+- **A REAL REGRESSION FOUND AND FIXED DURING THIS PACKET, NOT BY A
+  SEPARATE REVIEWER:** adding a per-page `useHead()` call to `login.vue`
+  broke all 11 of its existing tests — `web/apps/erp/vitest.config.ts` runs
+  a plain `@vitejs/plugin-vue` + `happy-dom` environment with no Nuxt
+  runtime, so `useHead` (a Nuxt auto-import) was `undefined` at mount time.
+  This was a latent gap `index.vue`'s own pre-existing `useHead` call
+  already had — invisible only because `index.vue` was never mounted in a
+  unit test. Fixed with a `test/setup.ts` `beforeEach` stub
+  (`vi.stubGlobal("useHead", () => {})`), re-stubbed before every test
+  rather than once at startup because `Login.spec.ts`'s own `afterEach`
+  calls `vi.unstubAllGlobals()` to reset its `fetch` stubs, which would
+  otherwise silently remove this one too after the first test.
+- **NEW/CHANGED TESTS:** No new test *files* — this packet's job was to not
+  break the existing, already-hardened `Login.spec.ts` (11 cases covering
+  the full WEGO-001 login/logout/orphaned-session/rate-limit flows) while
+  restructuring its markup onto shared components. `test/setup.ts` is new
+  test infrastructure, not a new test.
+- **FILES CHANGED:** `web/packages/design-tokens/{src/tokens.css,
+  src/index.ts}`; `web/apps/erp/app/assets/css/main.css`;
+  `web/apps/erp/{package.json, nuxt.config.ts, vitest.config.ts}`;
+  `web/apps/erp/test/setup.ts` (new); `web/apps/erp/public/favicon.svg`
+  (new); `web/packages/ui/src/{WegoButton.vue, WegoInput.vue,
+  WegoAlert.vue}` (new), `web/packages/ui/src/{WegoFoundationCard.vue,
+  index.ts}`; `web/apps/erp/app/pages/{login.vue, index.vue}`;
+  `web/README.md`; `web/pnpm-lock.yaml` (regenerated).
+- **TESTS RUN:** `pnpm install` (regenerated the lockfile after adding
+  `@fontsource-variable/inter`), then `pnpm install --frozen-lockfile` to
+  prove reproducibility; `pnpm run check` in `web/` (ESLint zero-warnings
+  across `apps`+`packages`, `vue-tsc`/`nuxt typecheck` across all three
+  packages, full Vitest run, production build) — clean; **12 Vitest tests,
+  all passing** (the pre-existing 11-case `Login.spec.ts` plus
+  `WegoFoundationCard.spec.ts`, both unmodified in assertions);
+  `bash scripts/repository-check.sh` clean throughout (including the
+  ACTIVE-packet/IN-PROGRESS-mission transitions this packet's own start and
+  finish required); a manual secret-pattern scan across every file touched
+  in this round — no matches; confirmed no backend/API file was touched
+  anywhere in this packet.
+- **EVIDENCE:** A real dev server (fresh process, not the stale one left
+  running from an earlier session — killed and restarted to get a true
+  post-change check) was screenshotted via headless Chrome for both pages;
+  Inter's distinctive letterforms render (not a system-font fallback), the
+  teal accent/amber-adjacent focus system/soft card radius all render as
+  intended, and the new control radius reads as a smaller sibling of the
+  card radius rather than a mismatch. `curl` against the dev server
+  confirmed `favicon.svg` serves 200, the home page's `<title>` is
+  "Wego Platform", the login page's is "Sign in · Wego Platform", and the
+  `theme-color`/icon `<link>` tags are present in the server-rendered HTML.
+  The built production CSS was inspected directly (not assumed): the new
+  `@font-face` declarations and real `.woff2` asset files for Inter are
+  present in `.output/public/_nuxt/`, and the new `text-wego-success`/
+  `text-wego-warning`/`text-wego-danger`/`rounded-wego-control`/
+  `rounded-wego-card` utility classes appear in the compiled CSS only once
+  the components that use them were actually wired in — confirming
+  Tailwind's JIT scanning picked up the new components rather than the
+  classes being silently dropped. WCAG AA contrast (4.5:1) for all three
+  new semantic colors against both `wego-surface` and `wego-canvas` was
+  computed directly via the sRGB relative-luminance formula, not estimated:
+  success 5.03–5.42:1, warning 5.00–5.38:1, danger 6.06–6.54:1 — all clear
+  a wider margin than the existing accent color's own 4.53–4.89:1.
+- **RISKS:** Unchanged from the packet's own stated scope: no dark mode, no
+  new pages/nav/dashboard, no custom spacing/type scale, no designed logo —
+  all explicitly recorded as deferred in `web/README.md` rather than
+  silently absent. `web/packages/ui` still has no standalone test runner of
+  its own; its components are covered indirectly through `web/apps/erp`'s
+  Vitest suite (which exercises `WegoButton`/`WegoInput`/`WegoAlert` via
+  `login.vue`) and each package's own typecheck, matching WEGO-000-D's
+  original "executable responsibility only" scope decision for this
+  workspace.
+- **NEXT PACKET:** None authorized — WEGO-002 remains NOT AUTHORIZED per
+  the mission table. WEGO-000 returns to COMPLETE with WEGO-000-H and
+  WEGO-000-I both closed.
