@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "clientId": "sharm-divers-club",
+  "platformVersion": "0.1.0-SNAPSHOT",
+  "product": {
+    "id": "wego-divers",
+    "version": "0.1.0"
+  },
+  "contractVersions": {
+    "httpApi": "v1"
+  },
+  "modules": [
+    {
+      "id": "platform.events",
+      "version": "0.1.0-SNAPSHOT"
+    },
+    {
+      "id": "platform.identity",
+      "version": "0.1.0-SNAPSHOT"
+    },
+    {
+      "id": "platform.security",
+      "version": "0.1.0-SNAPSHOT"
+    },
+    {
+      "id": "product.divers",
+      "version": "0.1.0-SNAPSHOT"
+    }
+  ],
+  "manifestDigests": {
+    "client": "61d6a8d5b22ad52636e85a15c97afc131637207bcb06358bb9edd52065719914",
+    "product": "6ed9ffdb9f360d5919ecaa1d3b6998621da1a17bc7f42d416865052297ec469d",
+    "moduleCatalog": "9e6f34d7fe58c7ac5c2fc1093021cb7e3b8fc18d9678957643c8638667788eeb"
+  }
+}

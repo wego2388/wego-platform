@@ -1,0 +1,11 @@
+* text=auto eol=lf
+*.bat text eol=crlf
+# Two trailing spaces is Markdown's hard-line-break convention (see the
+# "Date:"/"Status:" metadata lines in docs/execution/*.md) — not a whitespace
+# error `git diff --check` should flag, unlike everywhere else in the repo.
+*.md whitespace=-trailing-space
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.jar binary

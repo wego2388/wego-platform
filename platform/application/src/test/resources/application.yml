@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/wego_test_not_connected
+    username: wego_test
+    password: wego_test
+  flyway:
+    enabled: false
+  modulith:
+    runtime:
+      verification-enabled: false
+
+logging:
+  level:
+    root: WARN

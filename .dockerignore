@@ -1,0 +1,15 @@
+.git
+.github
+.gradle
+.idea
+.vscode
+**/build
+**/node_modules
+**/.nuxt
+**/.output
+**/.kotlin
+infrastructure/data
+.env
+.env.*
+!.env.example
+*.log

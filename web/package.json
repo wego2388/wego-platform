@@ -1,0 +1,24 @@
+{
+  "name": "@wego/web-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.34.4",
+  "engines": {
+    "node": ">=24.11.0 <25",
+    "pnpm": "10.34.4"
+  },
+  "scripts": {
+    "prepare": "pnpm --filter @wego/erp prepare",
+    "lint": "eslint apps packages --max-warnings=0",
+    "typecheck": "pnpm --filter @wego/design-tokens typecheck && pnpm --filter @wego/ui typecheck && pnpm --filter @wego/erp typecheck",
+    "test": "pnpm --filter @wego/erp test",
+    "build": "pnpm --filter @wego/erp build",
+    "check": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "eslint": "10.8.1",
+    "typescript": "5.9.3",
+    "vue-tsc": "3.3.9"
+  }
+}

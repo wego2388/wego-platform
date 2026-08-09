@@ -1,0 +1,239 @@
+openapi: 3.1.1
+info:
+  title: Wego API
+  version: 1.0.0
+  description: >-
+    Version 1 of the product-neutral Wego HTTP contract. WEGO-001 adds the
+    first authenticated operations (login, logout, current identity);
+    business-domain operations remain a later authorized packet.
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
+servers:
+  - url: /
+    description: Current client instance
+tags:
+  - name: Operations
+    description: Instance health endpoints with no business-data access.
+  - name: Identity
+    description: Authentication and the current session's identity.
+paths:
+  /actuator/health:
+    get:
+      operationId: getHealth
+      summary: Read aggregate instance health
+      description: Returns only aggregate health because component details are disabled.
+      tags:
+        - Operations
+      security: []
+      responses:
+        "200":
+          $ref: "#/components/responses/HealthResponse"
+        "503":
+          $ref: "#/components/responses/HealthResponse"
+  /actuator/health/liveness:
+    get:
+      operationId: getLiveness
+      summary: Read application liveness
+      description: Indicates whether the application process can continue running.
+      tags:
+        - Operations
+      security: []
+      responses:
+        "200":
+          $ref: "#/components/responses/HealthResponse"
+        "503":
+          $ref: "#/components/responses/HealthResponse"
+  /actuator/health/readiness:
+    get:
+      operationId: getReadiness
+      summary: Read application readiness
+      description: Indicates whether the instance can accept traffic.
+      tags:
+        - Operations
+      security: []
+      responses:
+        "200":
+          $ref: "#/components/responses/HealthResponse"
+        "503":
+          $ref: "#/components/responses/HealthResponse"
+  /api/v1/identity/login:
+    post:
+      operationId: login
+      summary: Authenticate with email and password
+      description: >-
+        Issues a bearer session token on success. The failure response is
+        identical regardless of whether the email is unregistered, the
+        account is locked or disabled, or the password is wrong, so a caller
+        cannot enumerate registered emails from this endpoint alone.
+      tags:
+        - Identity
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Authenticated; a new session was issued.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: >-
+            Invalid credentials. Distinct from the other endpoints'
+            `UnauthenticatedResponse`: this is a rejected login attempt, not
+            a missing/invalid session, so it carries no `WWW-Authenticate`
+            challenge header.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginError"
+        "429":
+          $ref: "#/components/responses/RateLimitedResponse"
+  /api/v1/identity/logout:
+    post:
+      operationId: logout
+      summary: Revoke the current session
+      tags:
+        - Identity
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Session revoked.
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+  /api/v1/identity/me:
+    get:
+      operationId: getCurrentIdentity
+      summary: Read the current session's identity
+      description: The authenticated user's id, email, assigned roles, and resolved permissions.
+      tags:
+        - Identity
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current identity.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityProfile"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Opaque session token issued by POST /api/v1/identity/login.
+  responses:
+    HealthResponse:
+      description: Aggregate health without component details.
+      content:
+        application/vnd.spring-boot.actuator.v3+json:
+          schema:
+            $ref: "#/components/schemas/Health"
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Health"
+    UnauthenticatedResponse:
+      description: Missing, invalid, or expired session token.
+      headers:
+        WWW-Authenticate:
+          description: Always `Bearer` — the authentication scheme this API accepts.
+          schema:
+            type: string
+            enum:
+              - Bearer
+    RateLimitedResponse:
+      description: >-
+        Too many login attempts — from this network address (an edge-level
+        limit) or against this email (an application-level limit that closes
+        the same gap for a caller spreading attempts across many source
+        addresses). Both return this identical shape.
+      headers:
+        Retry-After:
+          description: Seconds to wait before the next attempt may succeed.
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/LoginError"
+  schemas:
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          maxLength: 320
+        password:
+          type: string
+    LoginResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - token
+        - expiresAt
+      properties:
+        token:
+          type: string
+          description: "Opaque bearer token; send as `Authorization: Bearer <token>`."
+        expiresAt:
+          type: string
+          format: date-time
+    LoginError:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - invalid_credentials
+            - rate_limited
+    IdentityProfile:
+      type: object
+      additionalProperties: false
+      required:
+        - userId
+        - email
+        - roles
+        - permissions
+      properties:
+        userId:
+          type: string
+          format: uuid
+        email:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        permissions:
+          type: array
+          items:
+            type: string
+    Health:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - UP
+            - DOWN
+            - OUT_OF_SERVICE
+            - UNKNOWN

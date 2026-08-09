@@ -1,0 +1,23 @@
+{
+  "name": "@wego/foundry-validation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.34.4",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "generate:lock": "node scripts/generate-release-lock.mjs",
+    "validate:manifests": "node scripts/validate-manifests.mjs",
+    "validate:openapi": "redocly lint ../platform/contracts/openapi/v1/wego-api.yaml",
+    "validate:repository-yaml": "node scripts/validate-repository-yaml.mjs",
+    "validate": "pnpm run validate:manifests && pnpm run validate:openapi && pnpm run validate:repository-yaml"
+  },
+  "devDependencies": {
+    "@redocly/cli": "2.46.0",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "yaml": "2.9.0"
+  }
+}

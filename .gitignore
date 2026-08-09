@@ -1,0 +1,46 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Kotlin, Java, and Gradle
+.gradle/
+**/build/
+out/
+*.class
+hs_err_pid*
+
+# Node and Nuxt
+node_modules/
+**/.nuxt/
+**/.output/
+**/.data/
+**/.nitro/
+coverage/
+*.tsbuildinfo
+
+# Kotlin Multiplatform
+**/.kotlin/
+**/composeApp/build/
+
+# Generated jOOQ sources are build outputs
+platform/application/src/generated/
+
+# Local infrastructure state
+infrastructure/data/
+*.log
+
+# Test artifacts
+test-results/
+reports/

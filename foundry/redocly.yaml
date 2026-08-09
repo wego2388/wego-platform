@@ -1,0 +1,6 @@
+extends:
+  - recommended
+rules:
+  no-server-example.com: off
+  # Foundation health endpoints are anonymous and have no truthful 4xx outcome.
+  operation-4xx-response: off

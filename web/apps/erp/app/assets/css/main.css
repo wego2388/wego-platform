@@ -1,0 +1,28 @@
+@import "tailwindcss";
+@source "../../../../../packages/ui/src";
+
+@theme {
+  --color-wego-canvas: var(--wego-color-canvas);
+  --color-wego-surface: var(--wego-color-surface);
+  --color-wego-ink: var(--wego-color-ink);
+  --color-wego-muted: var(--wego-color-muted);
+  --color-wego-border: var(--wego-color-border);
+  --color-wego-accent: var(--wego-color-accent);
+  --color-wego-accent-soft: var(--wego-color-accent-soft);
+  --font-sans: var(--wego-font-sans);
+}
+
+html {
+  background: var(--wego-color-canvas);
+  color: var(--wego-color-ink);
+  font-family: var(--wego-font-sans);
+}
+
+body {
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 3px solid var(--wego-color-focus);
+  outline-offset: 3px;
+}

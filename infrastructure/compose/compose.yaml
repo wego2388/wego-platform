@@ -1,0 +1,114 @@
+name: ${COMPOSE_PROJECT_NAME:-wego-foundation}
+
+services:
+  postgres:
+    image: public.ecr.aws/docker/library/postgres:18.4-alpine@sha256:9a8afca54e7861fd90fab5fdf4c42477a6b1cb7d293595148e674e0a3181de15
+    environment:
+      POSTGRES_DB: ${WEGO_POSTGRES_DB:-wego}
+      POSTGRES_USER: ${WEGO_POSTGRES_USER:-wego_app}
+      POSTGRES_PASSWORD: ${WEGO_POSTGRES_PASSWORD:-wego-local-postgres-only}
+    ports:
+      - "127.0.0.1:${WEGO_POSTGRES_PORT:-55432}:5432"
+    volumes:
+      # PostgreSQL 18 uses a major-version subdirectory to support pg_upgrade.
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - internal
+
+  redis:
+    image: public.ecr.aws/docker/library/redis:8.10.0-alpine@sha256:978f0e01593e65eed801f2402944efcd936d43b5027e4908a7897baf88ed6241
+    command:
+      - redis-server
+      - --save
+      - ""
+      - --appendonly
+      - "no"
+      - --requirepass
+      - ${WEGO_REDIS_PASSWORD:-wego-local-redis-only}
+    environment:
+      REDIS_PASSWORD: ${WEGO_REDIS_PASSWORD:-wego-local-redis-only}
+    ports:
+      - "127.0.0.1:${WEGO_REDIS_PORT:-56379}:6379"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - REDISCLI_AUTH="$${REDIS_PASSWORD}" redis-cli ping
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - internal
+
+  backend:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/backend.Dockerfile
+    environment:
+      WEGO_DB_URL: jdbc:postgresql://postgres:5432/${WEGO_POSTGRES_DB:-wego}
+      WEGO_DB_USERNAME: ${WEGO_POSTGRES_USER:-wego_app}
+      WEGO_DB_PASSWORD: ${WEGO_POSTGRES_PASSWORD:-wego-local-postgres-only}
+      WEGO_DB_POOL_SIZE: 5
+      WEGO_FLYWAY_ENABLED: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O - http://127.0.0.1:8080/actuator/health | grep -q '"status":"UP"'
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 20s
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    restart: unless-stopped
+    networks:
+      - internal
+
+  edge:
+    image: public.ecr.aws/docker/library/nginx:1.30.4-alpine@sha256:97d490c12ba55b4946b01546d1c3ed324e8d41ab1c9fcb2a616aa470620e5b46
+    user: "101:101"
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${WEGO_EDGE_PORT:-58080}:8080"
+    volumes:
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O - http://127.0.0.1:8080/healthz | grep -q '"status":"UP"'
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    restart: unless-stopped
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    name: ${COMPOSE_PROJECT_NAME:-wego-foundation}-postgres-data

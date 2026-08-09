@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "modules": [
+    {
+      "id": "platform.events",
+      "kind": "PLATFORM_KERNEL",
+      "owner": "platform",
+      "path": "platform/kernel/events",
+      "version": "0.1.0-SNAPSHOT",
+      "capabilities": ["platform.integration-events"]
+    },
+    {
+      "id": "platform.security",
+      "kind": "PLATFORM_KERNEL",
+      "owner": "platform",
+      "path": "platform/kernel/security",
+      "version": "0.1.0-SNAPSHOT",
+      "capabilities": ["platform.authorization"]
+    },
+    {
+      "id": "platform.identity",
+      "kind": "PLATFORM_KERNEL",
+      "owner": "platform",
+      "path": "platform/kernel/identity",
+      "version": "0.1.0-SNAPSHOT",
+      "capabilities": ["platform.identity-authentication"]
+    },
+    {
+      "id": "product.divers",
+      "kind": "PRODUCT_MARKER",
+      "owner": "wego-divers",
+      "path": "products/divers",
+      "version": "0.1.0-SNAPSHOT",
+      "capabilities": ["divers.product-boundary"]
+    }
+  ]
+}

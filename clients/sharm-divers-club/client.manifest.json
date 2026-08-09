@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "clientId": "sharm-divers-club",
+  "displayName": "Sharm Divers Club",
+  "product": {
+    "id": "wego-divers",
+    "version": "0.1.0"
+  },
+  "organization": {
+    "timezone": "Africa/Cairo",
+    "defaultLocale": "en",
+    "supportedLocales": ["ar", "en", "he"],
+    "currency": "EUR"
+  },
+  "experienceProfiles": ["STANDARD"],
+  "deploymentIsolation": "ISOLATED_INSTANCE"
+}

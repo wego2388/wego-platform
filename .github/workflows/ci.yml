@@ -1,0 +1,197 @@
+name: foundation-ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: foundation-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repository:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Verify repository invariants
+        run: bash scripts/repository-check.sh
+
+  contracts:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ff378ebe6b225b0680b81c1ad4498ae0d1d3a5e3 # v6.0.10
+        with:
+          version: 10.34.4
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          cache-dependency-path: foundry/pnpm-lock.yaml
+      - run: pnpm --dir foundry install --frozen-lockfile
+      - run: pnpm --dir foundry run validate
+
+  backend:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: "25"
+      - uses: gradle/actions/setup-gradle@67621b124fd2e251c5e8a0e6e3b91318f2287669 # v6.3.0
+      - run: ./gradlew :platform:application:check
+
+  mobile:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: "25"
+      - uses: gradle/actions/setup-gradle@67621b124fd2e251c5e8a0e6e3b91318f2287669 # v6.3.0
+      - run: ./gradlew :mobile:shared:check :mobile:apps:ops:check :mobile:apps:customer:check
+
+  web:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ff378ebe6b225b0680b81c1ad4498ae0d1d3a5e3 # v6.0.10
+        with:
+          version: 10.34.4
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - run: pnpm --dir web install --frozen-lockfile
+      - run: pnpm --dir web run check
+
+  infrastructure:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Validate Compose model
+        run: docker compose --env-file .env.example -f infrastructure/compose/compose.yaml config --quiet
+      - name: Build and start isolated foundation stack
+        run: docker compose --env-file .env.example -f infrastructure/compose/compose.yaml up --build --wait -d
+      - name: Verify edge health, deny-by-default, and login rate limiting
+        run: |
+          curl --fail --silent --show-error http://127.0.0.1:58080/healthz
+
+          # Deny-by-default for an unauthenticated caller is 401 (not
+          # authenticated) with a challenge header, not 403 (authenticated
+          # but forbidden) — see SecurityConfiguration/BearerAuthenticationEntryPoint.
+          deny_headers="$(curl --silent --dump-header - --output /dev/null http://127.0.0.1:58080/not-authorized)"
+          echo "$deny_headers" | grep -q '^HTTP/[0-9.]* 401'
+          echo "$deny_headers" | grep -qi '^WWW-Authenticate: *Bearer'
+
+          # Two independent rate limiters guard login (see SECURITY_MODEL.md):
+          # nginx per-IP (infrastructure/nginx/nginx.conf) and the
+          # application per-account (LoginAttemptThrottle). Reusing one email
+          # across every attempt only ever proves the *application* layer —
+          # it rejects the second attempt long before ten requests could
+          # exercise nginx's own counter — so each layer gets its own loop
+          # with the assertions and requests it needs to actually reach.
+
+          # Layer 1: the application-level per-account throttle. Same email
+          # every time; the second attempt must already be rejected.
+          app_rate_limited=0
+          for _ in $(seq 1 5); do
+            response="$(curl --silent --dump-header /tmp/app-rate-limit-headers.txt \
+              -X POST http://127.0.0.1:58080/api/v1/identity/login \
+              -H 'Content-Type: application/json' \
+              -d '{"email":"app-throttle-target@example.com","password":"wrong"}')"
+            if grep -q '^HTTP/[0-9.]* 429' /tmp/app-rate-limit-headers.txt; then
+              app_rate_limited=1
+              app_rate_limit_body="$response"
+              break
+            fi
+          done
+          test "$app_rate_limited" = "1"
+
+          # Layer 2: nginx's edge-level, per-IP limiter (login_rate zone:
+          # 5r/m, burst 3, nodelay). A distinct email per attempt keeps the
+          # application throttle out of the way entirely, so only nginx's
+          # own counter (keyed by $binary_remote_addr, not the request body)
+          # can be what eventually returns 429 here.
+          edge_rate_limited=0
+          for i in $(seq 1 10); do
+            response="$(curl --silent --dump-header /tmp/edge-rate-limit-headers.txt \
+              -X POST http://127.0.0.1:58080/api/v1/identity/login \
+              -H 'Content-Type: application/json' \
+              -d "{\"email\":\"edge-throttle-target-$i@example.com\",\"password\":\"wrong\"}")"
+            if grep -q '^HTTP/[0-9.]* 429' /tmp/edge-rate-limit-headers.txt; then
+              edge_rate_limited=1
+              edge_rate_limit_body="$response"
+              break
+            fi
+          done
+          test "$edge_rate_limited" = "1"
+
+          # Both layers must present the same JSON contract every other login
+          # response uses (see LoginError in the OpenAPI document), not
+          # nginx's default HTML error page, and both must carry Retry-After
+          # so a well-behaved client knows when to retry regardless of which
+          # layer caught it.
+          assert_rate_limit_contract() {
+            echo "$1" | grep -q '"error":"rate_limited"'
+            grep -qi '^Content-Type: *application/json' "$2"
+            grep -qi '^Retry-After: *[0-9]' "$2"
+          }
+          assert_rate_limit_contract "$app_rate_limit_body" /tmp/app-rate-limit-headers.txt
+          assert_rate_limit_contract "$edge_rate_limit_body" /tmp/edge-rate-limit-headers.txt
+      - name: Show logs after a failure
+        if: failure()
+        run: docker compose --env-file .env.example -f infrastructure/compose/compose.yaml logs --no-color
+      - name: Stop scoped foundation stack
+        if: always()
+        run: docker compose --env-file .env.example -f infrastructure/compose/compose.yaml down
+
+  secrets-and-node-dependencies:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: pnpm/action-setup@ff378ebe6b225b0680b81c1ad4498ae0d1d3a5e3 # v6.0.10
+        with:
+          version: 10.34.4
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+      - run: pnpm --dir foundry audit --audit-level=high
+      - run: pnpm --dir web audit --audit-level=high
+
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: high
+
+  gradle-dependency-submission:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: "25"
+      - uses: gradle/actions/dependency-submission@67621b124fd2e251c5e8a0e6e3b91318f2287669 # v6.3.0
