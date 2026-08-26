@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Sharm Divers Club mark">
+  <circle cx="32" cy="32" r="32" fill="#0A3A4A" />
+  <path d="M8 38c6-8 12 8 18 0s12 8 18 0s10 6 12 2" fill="none" stroke="#1FA9B8" stroke-width="4" stroke-linecap="round" />
+  <circle cx="24" cy="20" r="3.5" fill="#C9975A" />
+  <circle cx="34" cy="14" r="2.5" fill="#F1E1C3" />
+  <circle cx="41" cy="20" r="2" fill="#F1E1C3" />
+</svg>

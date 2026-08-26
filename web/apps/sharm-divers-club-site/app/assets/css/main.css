@@ -1,0 +1,98 @@
+@import "tailwindcss";
+@import "@fontsource-variable/fraunces";
+@import "@fontsource-variable/ibm-plex-sans";
+@import "@fontsource-variable/noto-sans-arabic";
+
+@theme {
+  --color-sdc-ink: var(--sdc-color-text-primary);
+  --color-sdc-muted: var(--sdc-color-text-secondary);
+  --color-sdc-deep: var(--sdc-color-brand-deep);
+  --color-sdc-deep-bright: var(--sdc-color-brand-deep-bright);
+  --color-sdc-turquoise: var(--sdc-color-brand-turquoise);
+  --color-sdc-turquoise-soft: var(--sdc-color-brand-turquoise-soft);
+  --color-sdc-sand: var(--sdc-color-brand-sand);
+  --color-sdc-sand-soft: var(--sdc-color-brand-sand-soft);
+  --color-sdc-canvas: var(--sdc-color-surface-canvas);
+  --color-sdc-surface: var(--sdc-color-surface-default);
+  --color-sdc-border: var(--sdc-color-border-default);
+  --color-sdc-info: var(--sdc-color-status-info);
+  --color-sdc-info-soft: var(--sdc-color-status-info-soft);
+  --color-sdc-success: var(--sdc-color-status-success);
+  --color-sdc-success-soft: var(--sdc-color-status-success-soft);
+  --color-sdc-warning: var(--sdc-color-status-warning);
+  --color-sdc-warning-soft: var(--sdc-color-status-warning-soft);
+  --color-sdc-danger: var(--sdc-color-status-danger);
+  --color-sdc-danger-soft: var(--sdc-color-status-danger-soft);
+  --font-sans: var(--wego-font-sans);
+  --font-display: var(--wego-font-display);
+}
+
+:root {
+  --sdc-color-brand-deep: #0a3a4a;
+  --sdc-color-brand-deep-bright: #12707f;
+  --sdc-color-brand-turquoise: #1fa9b8;
+  --sdc-color-brand-turquoise-soft: #d9f1f1;
+  --sdc-color-brand-sand: #c9975a;
+  --sdc-color-brand-sand-soft: #f1e1c3;
+  --sdc-color-surface-canvas: #faf6ee;
+  --sdc-color-surface-default: #ffffff;
+  --sdc-color-text-primary: #0b2027;
+  --sdc-color-text-secondary: #3c555c;
+  --sdc-color-border-default: #dde4e1;
+  --sdc-color-status-info: #155e75;
+  --sdc-color-status-info-soft: #cffafe;
+  --sdc-color-status-success: #0f7a3d;
+  --sdc-color-status-success-soft: #dcf5e4;
+  --sdc-color-status-warning: #8a5809;
+  --sdc-color-status-warning-soft: #fff1d8;
+  --sdc-color-status-danger: #b3261e;
+  --sdc-color-status-danger-soft: #fbdcd9;
+  --wego-color-accent: #0a3a4a;
+  --wego-color-accent-soft: #d9f1f1;
+  --wego-font-display: "Fraunces Variable", ui-serif, Georgia, serif;
+}
+
+html {
+  background: #faf6ee;
+  color: #0b2027;
+  font-family: var(--wego-font-sans);
+}
+
+body {
+  margin: 0;
+}
+
+html[dir="rtl"] {
+  --wego-font-sans: "Noto Sans Arabic Variable", "Noto Sans Arabic", Tahoma,
+    Arial, sans-serif;
+  --wego-font-display: "Noto Sans Arabic Variable", "Noto Sans Arabic", Tahoma,
+    Arial, sans-serif;
+}
+
+.money,
+.reference {
+  direction: ltr;
+  font-variant-numeric: tabular-nums;
+  unicode-bidi: isolate;
+}
+
+:focus-visible {
+  outline: 3px solid #c9975a;
+  outline-offset: 3px;
+}
+
+.sdc-hero {
+  background:
+    radial-gradient(circle at 18% 15%, rgb(31 169 184 / 25%), transparent 34%),
+    radial-gradient(circle at 88% 0%, rgb(201 151 90 / 22%), transparent 36%),
+    linear-gradient(160deg, #0a3a4a 0%, #0d4a5c 55%, #12707f 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
