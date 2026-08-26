@@ -1,10 +1,17 @@
 # Wego web workspace
 
-The foundation contains one product-neutral Nuxt application and only two
-shared packages with executable responsibilities:
+The foundation contains two Nuxt applications and only two shared packages
+with executable responsibilities:
 
 - `apps/erp`: authenticated-application shell boundary. Login/logout (WEGO-001)
   is real and functional; further business screens remain deferred.
+- `apps/sharm-divers-club-site`: Arabic/English public foundation for the
+  independent Sharm Divers Club client (`products/divers`, WEGO-002). Every
+  fact shown traces to `status=approved`/`publishable=true` entries in that
+  client's `approved-facts.json`; catalog prices are owner-review-pending and
+  always shown as preview. `products/divers` has no public booking-creation
+  endpoint, so every booking action routes to the real approved WhatsApp
+  channel instead of a fake checkout.
 - `packages/design-tokens`: framework-neutral Wego visual tokens.
 - `packages/ui`: reusable Vue presentation components; no client behavior.
 
@@ -44,4 +51,3 @@ beyond what already exists, animation beyond a loading spinner and simple
 `prefers-reduced-motion`-respecting transitions, a custom spacing or type
 scale (Tailwind's defaults are coherent at this size), and a designed logo
 (the current favicon is a placeholder monogram, not a finished mark).
-
