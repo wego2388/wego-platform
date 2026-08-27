@@ -82,10 +82,101 @@ html[dir="rtl"] {
 }
 
 .sdc-hero {
+  position: relative;
+  overflow: hidden;
   background:
     radial-gradient(circle at 18% 15%, rgb(31 169 184 / 25%), transparent 34%),
     radial-gradient(circle at 88% 0%, rgb(201 151 90 / 22%), transparent 36%),
     linear-gradient(160deg, #0a3a4a 0%, #0d4a5c 55%, #12707f 100%);
+}
+
+:root {
+  --sdc-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Bubble drift decoration for the hero — CSS-only, not photography. */
+.sdc-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle, rgb(255 255 255 / 20%) 0 3px, transparent 4px),
+    radial-gradient(circle, rgb(255 255 255 / 14%) 0 2px, transparent 3px),
+    radial-gradient(circle, rgb(255 255 255 / 18%) 0 2.5px, transparent 3.5px);
+  background-repeat: repeat-y;
+  background-position:
+    8% 0,
+    46% 40px,
+    82% 10px;
+  background-size:
+    120px 260px,
+    140px 300px,
+    110px 240px;
+  animation: sdc-bubbles 14s linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes sdc-bubbles {
+  from {
+    background-position:
+      8% 100%,
+      46% 140%,
+      82% 110%;
+  }
+  to {
+    background-position:
+      8% -20%,
+      46% -60%,
+      82% -30%;
+  }
+}
+
+.sdc-header.is-scrolled {
+  background: rgb(10 58 74 / 92%);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 30px rgb(10 58 74 / 25%);
+}
+
+.reveal-transition {
+  transition:
+    opacity 0.7s var(--sdc-ease),
+    transform 0.7s var(--sdc-ease);
+}
+
+.reveal-hidden {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.hover-lift {
+  transition:
+    transform 0.35s var(--sdc-ease),
+    box-shadow 0.35s var(--sdc-ease);
+}
+
+.hover-lift:hover,
+.hover-lift:focus-within {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 45px rgb(10 58 74 / 18%);
+}
+
+.wa-fab {
+  animation: sdc-pulse 2.6s var(--sdc-ease) infinite;
+}
+
+@keyframes sdc-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(31 169 184 / 55%);
+  }
+
+  70% {
+    box-shadow: 0 0 0 14px rgb(31 169 184 / 0%);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgb(31 169 184 / 0%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -93,6 +184,22 @@ html[dir="rtl"] {
   *::before,
   *::after {
     scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .reveal-hidden {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .hover-lift:hover,
+  .hover-lift:focus-within {
+    transform: none !important;
+  }
+
+  .sdc-hero::after {
+    display: none;
   }
 }

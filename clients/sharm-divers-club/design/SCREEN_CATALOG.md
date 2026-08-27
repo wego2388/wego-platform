@@ -11,8 +11,8 @@ Arabic copy, and narrow-mobile behavior — not only the ideal happy path
 | Priority | Screen | Required states | Status |
 |---|---|---|---|
 | P0 | Home (`/`) | default, locale switch (en/ar), reduced motion | Built |
-| P0 | Discover / categories (`/discover`) | default, pricing-pending notice on every card | Built |
-| P0 | Offering detail preview (`/offering-preview`) | preview-priced (illustrative, labeled), price-pending (hidden), WhatsApp CTA, `noindex` | Built — one exemplar offering, not a full catalog browser (that's P1, below) |
+| P0 | Discover / categories (`/discover`) | default, category filter, real-priced offering cards (12 diving offers, GOV-003) | Built |
+| P0 | Offering detail page (`/offering-preview`) | real approved price, duration/dive-count meta, WhatsApp inquiry CTA, `noindex` | Built — one exemplar offering (PC04), not a full per-offering catalog router (that's P1, below) |
 | P0 | About / trust (`/about`) | default, approved-facts-only | Built |
 | P0 | Contact (`/contact`) | WhatsApp, phone, email, location, hours — all from `approved-facts.json` | Built |
 | P0 | Living design system (`/design-system`) | tokens, type, controls, operational states, `noindex` | Built |

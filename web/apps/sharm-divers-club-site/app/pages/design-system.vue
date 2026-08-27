@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useScrollReveal } from "../composables/useScrollReveal";
 import { directionFor, type SdcLocale } from "../content/locales";
 
 const locale = ref<SdcLocale>("en");
@@ -21,6 +22,12 @@ const copy = computed(() => locale.value === "en" ? {
   secondary: "Secondary action",
   field: "Full name",
   statuses: ["Preview — pricing pending", "Approved fact", "Not yet approved", "Owner review required"],
+  motion: "Motion",
+  motionBody: "Every animation here respects prefers-reduced-motion — it snaps to its end state instead of playing.",
+  motionReveal: "Scroll reveal",
+  motionLift: "Hover lift",
+  motionLiftBody: "Hover or focus this card",
+  motionPulse: "WhatsApp pulse",
 } : {
   switchLanguage: "English",
   back: "العودة للاستكشاف",
@@ -37,7 +44,15 @@ const copy = computed(() => locale.value === "en" ? {
   secondary: "إجراء ثانوي",
   field: "الاسم الكامل",
   statuses: ["معاينة — السعر لسه مش معتمد", "حقيقة معتمدة", "مش معتمد بعد", "يحتاج مراجعة المالك"],
+  motion: "الحركة",
+  motionBody: "كل الحركات هنا بتحترم إعداد تقليل الحركة — بتظهر مباشرة في حالتها النهائية بدل ما تشتغل.",
+  motionReveal: "ظهور عند التمرير",
+  motionLift: "ارتفاع عند التحويم",
+  motionLiftBody: "مرّر الماوس أو ركّز على الكارت ده",
+  motionPulse: "نبضة واتساب",
 });
+
+const revealDemo = useScrollReveal();
 
 const swatches = [
   { name: "Deep ocean / primary", className: "bg-sdc-deep text-white", value: "#0a3a4a" },
@@ -107,6 +122,24 @@ useHead(() => ({
           <span class="rounded-full bg-sdc-success-soft px-4 py-3 text-sm font-semibold text-sdc-success">✓ {{ copy.statuses[1] }}</span>
           <span class="rounded-full bg-sdc-danger-soft px-4 py-3 text-sm font-semibold text-sdc-danger">! {{ copy.statuses[2] }}</span>
           <span class="rounded-full bg-sdc-info-soft px-4 py-3 text-sm font-semibold text-sdc-info">↺ {{ copy.statuses[3] }}</span>
+        </div>
+      </section>
+
+      <section
+        :ref="(node) => (revealDemo.el.value = node as HTMLElement | null)"
+        class="reveal-transition rounded-[1.75rem] border border-sdc-border bg-white p-6 lg:col-span-2"
+        :class="{ 'reveal-hidden': !revealDemo.visible.value }"
+      >
+        <h2 class="text-xl font-semibold">{{ copy.motion }}</h2>
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-sdc-muted">{{ copy.motionBody }}</p>
+        <div class="mt-6 grid gap-4 sm:grid-cols-3">
+          <div class="rounded-2xl bg-sdc-turquoise-soft p-4 text-sm font-semibold text-sdc-deep">{{ copy.motionReveal }} ✓</div>
+          <div class="hover-lift rounded-2xl border border-sdc-border bg-white p-4 text-sm font-semibold text-sdc-deep-bright">
+            {{ copy.motionLift }}<br><span class="font-normal text-sdc-muted">{{ copy.motionLiftBody }}</span>
+          </div>
+          <div class="relative flex items-center justify-center rounded-2xl bg-sdc-deep p-4">
+            <span class="wa-fab static inline-flex rounded-full bg-sdc-turquoise px-4 py-2 text-xs font-semibold text-white">{{ copy.motionPulse }}</span>
+          </div>
         </div>
       </section>
     </div>

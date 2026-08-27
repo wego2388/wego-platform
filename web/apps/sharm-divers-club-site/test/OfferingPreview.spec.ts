@@ -9,28 +9,27 @@ function mountPage() {
   });
 }
 
-function buttonWithText(wrapper: ReturnType<typeof mountPage>, label: string) {
-  const button = wrapper.findAll("button").find(candidate => candidate.text().trim() === label);
-  if (!button) throw new Error(`Button not found: ${label}`);
-  return button;
-}
-
-describe("Sharm Divers Club offering detail preview", () => {
-  it("hides the price by default and labels it illustrative once shown", async () => {
+describe("Sharm Divers Club offering detail page", () => {
+  it("shows the real, approved price for the exemplar offering", () => {
     const wrapper = mountPage();
 
-    expect(wrapper.text()).toContain("design evidence for one real catalog entry");
-    expect(wrapper.text()).not.toMatch(/350\s?EUR/);
-
-    await buttonWithText(wrapper, "Show illustrative price").trigger("click");
-    await flushPromises();
-
+    expect(wrapper.text()).toContain("PADI Open Water Diver");
     expect(wrapper.text()).toContain("350 EUR");
-    expect(wrapper.text()).toContain("not yet approved for publication");
+    expect(wrapper.text()).toContain("Approved 2026 price");
   });
 
-  it("always routes the booking action to the real WhatsApp channel", () => {
+  it("routes the inquiry action to the real WhatsApp channel with the offering pre-filled", () => {
     const wrapper = mountPage();
-    expect(wrapper.get('a[href="https://wa.me/201066461010"]')).toBeTruthy();
+    const link = wrapper.get('a[href^="https://wa.me/201066461010"]');
+    expect(decodeURIComponent(link.attributes("href") ?? "")).toContain("PADI Open Water Diver (PC04)");
+  });
+
+  it("switches to Arabic RTL", async () => {
+    const wrapper = mountPage();
+    await wrapper.get("button").trigger("click");
+    await flushPromises();
+
+    expect(wrapper.get("main").attributes("dir")).toBe("rtl");
+    expect(wrapper.text()).toContain("350 EUR");
   });
 });
