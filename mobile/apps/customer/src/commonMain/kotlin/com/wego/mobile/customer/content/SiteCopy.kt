@@ -1,0 +1,192 @@
+package com.wego.mobile.customer.content
+
+import com.wego.mobile.shared.catalog.LocalizedText
+
+/**
+ * Ported verbatim from
+ * `web/apps/sharm-divers-club-site/app/content/locales.ts` — same real,
+ * approved copy the website shows, so the app never says something the
+ * site doesn't (or vice versa). Not every field on the website is needed
+ * here (design-system preview, footer legal links, etc.) — only what the
+ * app's screens actually render.
+ */
+object SiteCopy {
+    const val WHATSAPP_URL = "https://wa.me/201066461010"
+    const val PHONE_DISPLAY = "+20 10 6646 1010"
+    const val EMAIL = "Sales@sharmdiversclub.com"
+
+    val location =
+        LocalizedText(
+            en = "Royal Grand Sharm Hotel, Hadabet Um Sid, Sharm El Sheikh, Egypt",
+            ar = "فندق Royal Grand Sharm، هضبة أم السيد، شرم الشيخ، مصر",
+        )
+    val hours = LocalizedText(en = "Daily 08:00–20:00", ar = "يوميًا 08:00–20:00")
+
+    object Nav {
+        val home = LocalizedText("Home", "الرئيسية")
+        val discover = LocalizedText("Discover", "استكشف")
+        val about = LocalizedText("About", "من نحن")
+        val faq = LocalizedText("FAQ", "الأسئلة الشائعة")
+        val contact = LocalizedText("Contact", "تواصل")
+    }
+
+    object Hero {
+        val eyebrow = LocalizedText("Sharm El Sheikh · PADI 5 Star Dive Center", "شرم الشيخ · مركز PADI 5 نجوم")
+        val title = LocalizedText("Red Sea confidence, personally guided.", "ثقة البحر الأحمر، بترتيب شخصي معاك.")
+        val body =
+            LocalizedText(
+                "From a first breath underwater to Ras Mohammed, Tiran and the Thistlegorm — Sharm Divers " +
+                    "Club plans it with you directly, one clear WhatsApp conversation at a time.",
+                "من أول نفس تحت الماء لحد رأس محمد وتيران وThistlegorm — Sharm Divers Club بيرتب معاك بشكل " +
+                    "مباشر، محادثة واحدة واضحة على واتساب.",
+            )
+        val browseCta = LocalizedText("Discover the categories", "استكشف الفئات")
+        val whatsappCta = LocalizedText("Message us on WhatsApp", "راسلنا على واتساب")
+    }
+
+    val guarantees =
+        listOf(
+            LocalizedText("PADI 5 Star Dive Center", "مركز PADI 5 نجوم"),
+            LocalizedText("CDWS accredited · #100601", "معتمد من CDWS · رقم 100601"),
+            LocalizedText("Send an inquiry on WhatsApp", "ابعت طلبك على واتساب"),
+            LocalizedText("Team speaks 5 languages", "الفريق بيتكلم 5 لغات"),
+        )
+
+    object Discover {
+        val heading = LocalizedText("Real 2026 prices, one inquiry away", "أسعار 2026 حقيقية، على بعد رسالة واحدة")
+        val body =
+            LocalizedText(
+                "Categories, sites, courses and prices shown here are real, approved 2026 rates. Dates, " +
+                    "availability and final details are always confirmed by our team on WhatsApp before " +
+                    "anything is booked.",
+                "الفئات والمواقع والدورات والأسعار الظاهرة هنا حقيقية ومعتمدة لسنة 2026. المواعيد والتوفر " +
+                    "والتفاصيل النهائية دايمًا بيأكدها فريقنا على واتساب قبل أي حجز.",
+            )
+        val pricingNotice = LocalizedText("2026 price · confirm dates on WhatsApp", "سعر 2026 · أكّد الموعد على واتساب")
+        val filterAll = LocalizedText("All categories", "كل الفئات")
+        val moreInCategory = LocalizedText("More in this category", "المزيد في نفس الفئة")
+        val whatsappCta = LocalizedText("Send an inquiry on WhatsApp", "ابعت طلبك على واتساب")
+        val back = LocalizedText("Back to the overview", "العودة للنظرة العامة")
+        val notFound = LocalizedText("We couldn't find that offering.", "معلش، مش لاقيين الخدمة دي.")
+    }
+
+    object About {
+        val heading = LocalizedText("A PADI 5 Star center, run directly", "مركز PADI 5 نجوم، بإدارة مباشرة")
+        val body =
+            LocalizedText(
+                "Sharm Divers Club is a PADI 5 Star Dive Center in Sharm El Sheikh, accredited with CDWS. " +
+                    "Every fact on this page is approved for publication — nothing here is invented.",
+                "Sharm Divers Club مركز PADI 5 نجوم في شرم الشيخ، معتمد من CDWS. كل معلومة في الصفحة دي " +
+                    "معتمدة للنشر — مفيش حاجة مختلقة.",
+            )
+        val factsHeading = LocalizedText("What we can confirm today", "اللي نقدر نأكده النهاردة")
+        val languagesHeading = LocalizedText("Team languages", "لغات الفريق")
+        val languagesBody =
+            LocalizedText(
+                "Our PADI profile lists Arabic, English, Russian, German and Italian as team languages. " +
+                    "This app is only available in Arabic and English for now — a full translation isn't " +
+                    "published yet.",
+                "ملف PADI بتاعنا بيذكر العربي والإنجليزي والروسي والألماني والإيطالي كلغات الفريق. التطبيق ده " +
+                    "متاح بالعربي والإنجليزي فقط حاليًا — الترجمة الكاملة لسه مش منشورة.",
+            )
+        val facts: List<Pair<LocalizedText, LocalizedText>> =
+            listOf(
+                LocalizedText("Positioning", "التوجه") to
+                    LocalizedText("PADI 5 Star Dive Center in Sharm El Sheikh", "مركز PADI 5 نجوم في شرم الشيخ"),
+                LocalizedText("Accreditation", "الاعتماد") to LocalizedText("CDWS #100601", "CDWS رقم 100601"),
+                LocalizedText("Location", "الموقع") to location,
+                LocalizedText("Hours", "المواعيد") to hours,
+            )
+    }
+
+    object Contact {
+        val heading = LocalizedText("Talk to us directly", "تواصل معنا مباشرة")
+        val body =
+            LocalizedText(
+                "Every channel below is the real, approved contact for Sharm Divers Club.",
+                "كل قناة تحت دي معتمدة وحقيقية لـSharm Divers Club.",
+            )
+        val whatsappLabel = LocalizedText("WhatsApp", "واتساب")
+        val whatsappBody =
+            LocalizedText(
+                "The fastest way to reach us and the only way to actually book today.",
+                "أسرع طريقة توصلنا بيها، والطريقة الوحيدة للحجز فعليًا النهاردة.",
+            )
+        val phoneLabel = LocalizedText("Phone", "الهاتف")
+        val emailLabel = LocalizedText("Email", "البريد الإلكتروني")
+        val locationLabel = LocalizedText("Location", "الموقع")
+        val hoursLabel = LocalizedText("Hours", "المواعيد")
+    }
+
+    object Faq {
+        val heading = LocalizedText("Frequently asked questions", "الأسئلة الشائعة")
+        val body =
+            LocalizedText(
+                "Straight answers where we have them — and an honest “ask us” where we don't, " +
+                    "instead of a guess.",
+                "إجابات واضحة لما نعرفها — وصراحة “اسأل فريقنا” لما لسه محسومة، بدل ما نخمّن.",
+            )
+        val knownHeading = LocalizedText("What we can tell you now", "اللي نقدر نقولك عليه دلوقتي")
+        val unknownHeading = LocalizedText("What we confirm with you directly", "اللي بيتأكد معاك مباشرة")
+        val unknownIntro =
+            LocalizedText(
+                "These depend on your exact trip, group and dates, so our team confirms them with you on " +
+                    "WhatsApp rather than publishing a one-size-fits-all answer.",
+                "دي بتعتمد على تفاصيل رحلتك ومجموعتك ومواعيدك، فريقنا بيأكدها معاك على واتساب بدل إجابة عامة " +
+                    "واحدة للكل.",
+            )
+        val whatsappCta = LocalizedText("Ask us on WhatsApp", "اسأل فريقنا على واتساب")
+
+        val known: List<Pair<LocalizedText, LocalizedText>> =
+            listOf(
+                LocalizedText("Do I need diving experience to try it?", "محتاج خبرة سابقة في الغوص عشان أجرب؟") to
+                    LocalizedText(
+                        "No — our intro dives are designed for complete first-timers, with a simple " +
+                            "briefing before you go in.",
+                        "لأ — الغطسات التجريبية مصممة للمبتدئين تمامًا، مع شرح بسيط قبل ما تنزل.",
+                    ),
+                LocalizedText("What languages does your team speak?", "الفريق بيتكلم إيه من اللغات؟") to
+                    LocalizedText("Arabic, English, Russian, German and Italian.", "عربي، إنجليزي، روسي، ألماني، وإيطالي."),
+                LocalizedText("How do I actually book a dive?", "أحجز غطسة إزاي فعليًا؟") to
+                    LocalizedText(
+                        "Message us on WhatsApp with what you're after. Our team confirms the date, group " +
+                            "size and price with you directly before anything is booked.",
+                        "راسلنا على واتساب بكل اللي محتاجه. فريقنا بيأكد معاك الموعد وعدد الأفراد والسعر قبل " +
+                            "أي حجز.",
+                    ),
+                LocalizedText("Where are you located?", "أنتم فين بالظبط؟") to location,
+                LocalizedText("What are your hours?", "مواعيد شغلكم إيه؟") to hours,
+                LocalizedText("Are you PADI accredited?", "أنتم معتمدين من PADI؟") to
+                    LocalizedText(
+                        "Yes — a PADI 5 Star Dive Center, accredited with CDWS (#100601).",
+                        "آه — مركز PADI 5 نجوم، ومعتمد من CDWS برقم 100601.",
+                    ),
+            )
+
+        val unknown: List<Pair<LocalizedText, LocalizedText>> =
+            listOf(
+                LocalizedText("What's your cancellation policy?", "سياسة الإلغاء عندكم إيه؟") to
+                    LocalizedText("Confirmed directly with you on WhatsApp before booking.", "بتتأكد معاك مباشرة على واتساب قبل الحجز."),
+                LocalizedText("What payment methods do you accept?", "بتقبلوا وسائل دفع إيه؟") to
+                    LocalizedText(
+                        "Ask us on WhatsApp — payment options are confirmed per booking.",
+                        "اسألنا على واتساب — وسائل الدفع بتتأكد لكل حجز.",
+                    ),
+                LocalizedText("Is there a minimum age for diving?", "فيه سن أدنى للغوص؟") to
+                    LocalizedText(
+                        "Age requirements depend on the specific activity — our team confirms this with you directly.",
+                        "بيعتمد على النشاط بالظبط — فريقنا بيأكدلك ده مباشرة.",
+                    ),
+                LocalizedText("What's included in a boat trip?", "رحلة القارب بتشمل إيه؟") to
+                    LocalizedText(
+                        "Exact inclusions are confirmed with you on WhatsApp for your specific trip.",
+                        "التفاصيل الدقيقة بتتأكد معاك على واتساب حسب رحلتك.",
+                    ),
+                LocalizedText("Do I need to pay a deposit?", "محتاج أدفع مقدم؟") to
+                    LocalizedText(
+                        "Deposit requirements, if any, are confirmed directly with our team before booking.",
+                        "لو مطلوب مقدم، بيتأكد معاك مباشرة قبل الحجز.",
+                    ),
+            )
+    }
+}
