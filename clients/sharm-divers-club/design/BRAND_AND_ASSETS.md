@@ -38,29 +38,33 @@ site. The corrected, actually-safe list:
   sites, PADI courses) — the category list itself is stable product
   structure, not a price or capacity claim.
 
-## Pricing — approved 2026-08-26, diving items only (decision GOV-003)
+## Pricing — approved 2026-08-26, diving + water sports (decision GOV-003)
 
 `data/catalog.dive-core.v1.json` was updated on 2026-08-26: every diving offer
-(`SD`, `BD`, `MP`, `HP`, `WC`, `PC` codes) now carries `status: "approved"` and
-`publishable: true`, under `governance/DECISION_LOG.md#GOV-003` ("the current
-workspace user is the pricing administrator; price changes do not require an
-additional owner-approval gate"), sourced from the real internal 2026
-pricelist. Real prices for these 12 offerings are now shown directly on
-`/discover` and `/offering-preview` — no more "pending"/"illustrative"
-framing for them.
+(`SD`, `BD`, `MP`, `HP`, `WC`, `PC` codes) and every water sports offer (`WS`
+codes) now carries `status: "approved"` and `publishable: true`, under
+`governance/DECISION_LOG.md#GOV-003` ("the current workspace user is the
+pricing administrator; price changes do not require an additional
+owner-approval gate"), sourced from the real internal 2026 pricelist. Real
+prices for these 18 offerings (12 diving, 6 water sports) are shown directly
+on `/discover` and each offering's own `/discover/[code]` page — no
+"pending"/"illustrative" framing for them.
 
-**Explicitly out of scope for now, by the owner's own decision (2026-08-27):**
-the same 2026-08-26 catalog update also added 24 new non-diving offers
-(`WS`/`DS`/`EX`/`SN`/`TR` — water sports, desert safari, sightseeing,
-snorkeling, transfers) across 5 new categories. The owner's instruction was
-explicit: **"Diving only for now, expand later."** These new offers, their
-categories, and the 8 newly `APPROVED` AI-generated cover images in
-`assets/ASSET_REGISTER.md` (`GEN-CAT-01` through `GEN-CAT-08`) are
-deliberately not used in this foundation yet — both because the scope
-decision excludes them and because that register's "Approved uses" column
-lists `Catalog, WhatsApp, Telegram, Meta organic content` without an explicit
-"website" entry, which needs confirming before use here even for the three
-diving-relevant covers (`GEN-CAT-01/02/03`).
+**Scope history:** 2026-08-27 the owner set "diving only for now, expand
+later." 2026-08-28 he explicitly asked to add water sports. Both are owner
+decisions, applied as given — this file is updated to match, not to
+second-guess the sequencing.
+
+**Still explicitly out of scope, by the same owner decisions:** the same
+2026-08-26 catalog update also added 18 more non-diving, non-water-sports
+offers (`DS`/`EX`/`SN`/`TR` — desert safari, sightseeing, snorkeling,
+transfers) across 4 more categories. These remain unused pending a further
+scope decision. The 8 `APPROVED` AI-generated cover images in
+`assets/ASSET_REGISTER.md` (`GEN-CAT-01` through `GEN-CAT-08`) are also still
+unused on the site — the register's "Approved uses" column lists `Catalog,
+WhatsApp, Telegram, Meta organic content` without an explicit "website"
+entry, which needs confirming before use here (this now matters more
+directly since `GEN-CAT-05` is a water-sports cover).
 
 `handoff/SHARM_DIVERS_EXECUTION_PLAN.md` in the marketing workspace is the
 authoritative execution plan behind this: it explicitly scopes the *backend*

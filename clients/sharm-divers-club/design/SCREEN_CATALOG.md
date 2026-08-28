@@ -11,8 +11,8 @@ Arabic copy, and narrow-mobile behavior — not only the ideal happy path
 | Priority | Screen | Required states | Status |
 |---|---|---|---|
 | P0 | Home (`/`) | default, locale switch (en/ar), reduced motion | Built |
-| P0 | Discover / categories (`/discover`) | default, category filter, real-priced offering cards (12 diving offers, GOV-003) | Built |
-| P0 | Offering detail page (`/offering-preview`) | real approved price, duration/dive-count meta, WhatsApp inquiry CTA, `noindex` | Built — one exemplar offering (PC04), not a full per-offering catalog router (that's P1, below) |
+| P0 | Discover / categories (`/discover`) | default, category filter, real-priced offering cards (18 offers: 12 diving + 6 water sports, GOV-003) | Built |
+| P0 | Offering detail page (`/discover/[code]`) | real approved price, duration/dive-count meta, related-offerings list, WhatsApp inquiry CTA, `Product`/`Offer` JSON-LD | Built — a real page per offering, not a single exemplar (the former `/offering-preview` is retired) |
 | P0 | About / trust (`/about`) | default, approved-facts-only | Built |
 | P0 | Contact (`/contact`) | WhatsApp, phone, email, location, hours — all from `approved-facts.json` | Built |
 | P0 | Living design system (`/design-system`) | tokens, type, controls, operational states, `noindex` | Built |
@@ -21,7 +21,7 @@ Arabic copy, and narrow-mobile behavior — not only the ideal happy path
 | P0 | Terms (`/terms`) | inquiry-only framing, prices real but subject to WhatsApp confirmation | Built |
 | P0 | Custom error page (`app/error.vue`) | branded 404/error state, locale-aware, WhatsApp + home CTA | Built |
 | P0 | Mobile navigation | hamburger menu in `SiteHeader`, all nav links reachable below `md` | Built |
-| P1 | Offering detail (live), full catalog browse | available, closed, capacity-limited — depends on a future public read API this packet does not add | Not built |
+| P1 | Live offering availability | available, closed, capacity-limited — depends on a future public read API this packet does not add; today's offering pages show a real price with no live availability claim | Not built |
 | P2 | Booking request (self-service) | depends on a future public booking-request endpoint — out of scope until that backend capability exists | Not built |
 
 ## Explicitly not attempted in this foundation

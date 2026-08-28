@@ -46,9 +46,9 @@ interface SiteCopy {
     back: string;
     whatsapp: string;
     viewSystem: string;
-    offeringPreview: string;
     pricingNotice: string;
     filterAll: string;
+    moreInCategory: string;
   };
   about: {
     heading: string;
@@ -122,7 +122,7 @@ export const siteCopy: Record<SdcLocale, SiteCopy> = {
       "Open daily 08:00–20:00",
       "Team speaks Arabic, English, Russian, German, Italian",
     ],
-    stats: { categories: "Dive categories", languages: "Team languages", padi: "PADI star rating" },
+    stats: { categories: "Categories", languages: "Team languages", padi: "PADI star rating" },
     categoriesHeading: "Start with the kind of dive you want",
     categoriesBody: "These are the real categories Sharm Divers Club runs, with real 2026 prices. Every trip is confirmed by our team on WhatsApp before it's booked.",
     categories: [
@@ -132,6 +132,7 @@ export const siteCopy: Record<SdcLocale, SiteCopy> = {
       { id: "signature", eyebrow: "The full route", title: "Signature packages", description: "\"Red Sea Icons\" — a proposed multi-day route across the region's best-known sites." },
       { id: "world-class", eyebrow: "The highlights", title: "World-class sites", description: "SS Thistlegorm, Dahab's Blue Hole & Canyon, Tiran drift diving, Ras Mohammed's Shark & Yolanda." },
       { id: "padi-courses", eyebrow: "Get certified", title: "PADI courses", description: "Open Water through Divemaster, plus Nitrox and Emergency First Response." },
+      { id: "water-sports", eyebrow: "Above the water", title: "Water sports", description: "Parasailing, banana boat, glass-bottom boat and more — real Red Sea water sports for the whole group." },
     ],
     personasHeading: "Built around who you are, not a generic offer list",
     personasBody: "Sharm Divers Club's own brand direction defines who this experience is designed for.",
@@ -164,9 +165,9 @@ export const siteCopy: Record<SdcLocale, SiteCopy> = {
       back: "Back to the overview",
       whatsapp: "Send an inquiry on WhatsApp",
       viewSystem: "View the living design system",
-      offeringPreview: "See a full offering detail page",
       pricingNotice: "2026 price · confirm dates on WhatsApp",
       filterAll: "All categories",
+      moreInCategory: "More in this category",
     },
     about: {
       heading: "A PADI 5 Star center, run directly",
@@ -271,7 +272,7 @@ export const siteCopy: Record<SdcLocale, SiteCopy> = {
       "مفتوح يوميًا 08:00–20:00",
       "الفريق بيتكلم عربي وإنجليزي وروسي وألماني وإيطالي",
     ],
-    stats: { categories: "فئات الغطس", languages: "لغات الفريق", padi: "تصنيف PADI بالنجوم" },
+    stats: { categories: "الفئات", languages: "لغات الفريق", padi: "تصنيف PADI بالنجوم" },
     categoriesHeading: "ابدأ بنوع الغطسة اللي تناسبك",
     categoriesBody: "دي الفئات الحقيقية لخدمات Sharm Divers Club، بأسعار 2026 حقيقية. كل رحلة بيتأكدها فريقنا على واتساب قبل ما تتحجز.",
     categories: [
@@ -281,6 +282,7 @@ export const siteCopy: Record<SdcLocale, SiteCopy> = {
       { id: "signature", eyebrow: "المسار الكامل", title: "الباقات المميزة", description: "\"أيقونات البحر الأحمر\" — مسار مقترح متعدد الأيام يغطي أشهر مواقع المنطقة." },
       { id: "world-class", eyebrow: "أهم المواقع", title: "مواقع عالمية", description: "حطام SS Thistlegorm، وBlue Hole وCanyon في دهب، وDrift Diving في تيران، وShark & Yolanda في رأس محمد." },
       { id: "padi-courses", eyebrow: "احصل على شهادة", title: "دورات PADI", description: "من Open Water لحد Divemaster، بالإضافة لـNitrox وEmergency First Response." },
+      { id: "water-sports", eyebrow: "فوق سطح الماء", title: "الرياضات المائية", description: "باراسيلينج، بانانا بوت، قارب زجاجي وأكتر — رياضات مائية حقيقية من البحر الأحمر لكل المجموعة." },
     ],
     personasHeading: "مبني حول شخصيتك، مش قائمة عروض عامة",
     personasBody: "توجه العلامة التجارية لـSharm Divers Club بيحدد لمين مصممة التجربة دي.",
@@ -313,9 +315,9 @@ export const siteCopy: Record<SdcLocale, SiteCopy> = {
       back: "العودة للنظرة العامة",
       whatsapp: "ابعت طلبك على واتساب",
       viewSystem: "شاهد نظام التصميم الحي",
-      offeringPreview: "شاهد صفحة تفاصيل خدمة كاملة",
       pricingNotice: "سعر 2026 · أكّد الموعد على واتساب",
       filterAll: "كل الفئات",
+      moreInCategory: "المزيد في نفس الفئة",
     },
     about: {
       heading: "مركز PADI 5 نجوم، بإدارة مباشرة",

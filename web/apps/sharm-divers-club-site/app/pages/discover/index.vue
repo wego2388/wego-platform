@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import OfferingCard from "../components/OfferingCard.vue";
-import SiteFooter from "../components/SiteFooter.vue";
-import SiteHeader from "../components/SiteHeader.vue";
-import { useScrollReveal } from "../composables/useScrollReveal";
-import { useSiteLocale } from "../composables/useSiteLocale";
-import { directionFor, siteCopy, whatsappUrl } from "../content/locales";
-import { offerings } from "../content/offerings";
+import OfferingCard from "../../components/OfferingCard.vue";
+import SiteFooter from "../../components/SiteFooter.vue";
+import SiteHeader from "../../components/SiteHeader.vue";
+import { useScrollReveal } from "../../composables/useScrollReveal";
+import { useSiteLocale } from "../../composables/useSiteLocale";
+import { directionFor, siteCopy, whatsappUrl } from "../../content/locales";
+import { offerings } from "../../content/offerings";
 
 const locale = useSiteLocale();
 const copy = computed(() => siteCopy[locale.value]);
@@ -66,9 +66,6 @@ const offeringsReveal = useScrollReveal();
           <a :href="whatsappUrl" target="_blank" rel="noopener" class="inline-flex rounded-full bg-sdc-deep px-6 py-3 font-semibold text-white transition-transform hover:-translate-y-0.5">
             {{ copy.discover.whatsapp }}
           </a>
-          <NuxtLink to="/offering-preview" class="inline-flex rounded-full border border-sdc-border bg-white px-6 py-3 font-semibold text-sdc-deep-bright">
-            {{ copy.discover.offeringPreview }}
-          </NuxtLink>
           <NuxtLink to="/design-system" class="inline-flex rounded-full border border-sdc-border bg-white px-6 py-3 font-semibold text-sdc-deep-bright">
             {{ copy.discover.viewSystem }}
           </NuxtLink>

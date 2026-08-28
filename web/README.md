@@ -7,13 +7,15 @@ with executable responsibilities:
   is real and functional; further business screens remain deferred.
 - `apps/sharm-divers-club-site`: Arabic/English public site for the
   independent Sharm Divers Club client (`products/divers`, WEGO-002). Home,
-  Discover (12 real, GOV-003-approved diving prices, filterable), an offering
-  detail page, About, FAQ, Contact, Privacy, Terms, and a living design
-  system, with a mobile nav menu and locale persisted per-visitor. Every
-  fact traces to `status=approved`/`publishable=true` entries in the
-  client's `approved-facts.json`/`catalog.dive-core.v1.json`. Diving-only by
-  the owner's explicit scope decision — the same catalog's newer non-diving
-  offers stay unused. `products/divers` has no public booking-creation
+  Discover (18 real, GOV-003-approved prices — 12 diving + 6 water sports —
+  filterable, each with its own `/discover/[code]` detail page), About, FAQ,
+  Contact, Privacy, Terms, and a living design system, with a mobile nav menu
+  and locale persisted per-visitor. Every fact traces to
+  `status=approved`/`publishable=true` entries in the client's
+  `approved-facts.json`/`catalog.dive-core.v1.json`. Diving + water sports by
+  the owner's explicit scope decisions — the same catalog's other non-diving
+  offers (desert safari, sightseeing, snorkeling, transfers) stay unused.
+  `products/divers` has no public booking-creation
   endpoint, so every inquiry action routes to the real approved WhatsApp
   channel instead of a fake checkout.
 - `packages/design-tokens`: framework-neutral Wego visual tokens.

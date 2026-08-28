@@ -57,7 +57,7 @@ function toggleLocale() {
   locale.value = locale.value === "en" ? "ar" : "en";
 }
 
-const categoriesCount = useCountUp(6);
+const categoriesCount = useCountUp(7);
 const languagesCount = useCountUp(5);
 const categoriesReveal = useScrollReveal();
 const personasReveal = useScrollReveal();
