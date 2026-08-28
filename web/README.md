@@ -5,12 +5,16 @@ with executable responsibilities:
 
 - `apps/erp`: authenticated-application shell boundary. Login/logout (WEGO-001)
   is real and functional; further business screens remain deferred.
-- `apps/sharm-divers-club-site`: Arabic/English public foundation for the
-  independent Sharm Divers Club client (`products/divers`, WEGO-002). Every
-  fact shown traces to `status=approved`/`publishable=true` entries in that
-  client's `approved-facts.json`; catalog prices are owner-review-pending and
-  always shown as preview. `products/divers` has no public booking-creation
-  endpoint, so every booking action routes to the real approved WhatsApp
+- `apps/sharm-divers-club-site`: Arabic/English public site for the
+  independent Sharm Divers Club client (`products/divers`, WEGO-002). Home,
+  Discover (12 real, GOV-003-approved diving prices, filterable), an offering
+  detail page, About, FAQ, Contact, Privacy, Terms, and a living design
+  system, with a mobile nav menu and locale persisted per-visitor. Every
+  fact traces to `status=approved`/`publishable=true` entries in the
+  client's `approved-facts.json`/`catalog.dive-core.v1.json`. Diving-only by
+  the owner's explicit scope decision — the same catalog's newer non-diving
+  offers stay unused. `products/divers` has no public booking-creation
+  endpoint, so every inquiry action routes to the real approved WhatsApp
   channel instead of a fake checkout.
 - `packages/design-tokens`: framework-neutral Wego visual tokens.
 - `packages/ui`: reusable Vue presentation components; no client behavior.

@@ -24,7 +24,7 @@ interface SiteCopy {
   languageName: string;
   preview: string;
   whatsappFab: string;
-  nav: { discover: string; about: string; contact: string; home: string };
+  nav: { discover: string; about: string; faq: string; contact: string; home: string; menu: string };
   hero: { eyebrow: string; title: string; body: string; browse: string; whatsapp: string };
   guarantees: string[];
   trustStrip: string[];
@@ -74,9 +74,26 @@ interface SiteCopy {
     companyHeading: string;
     contactHeading: string;
     exploreLinks: { discover: string; designSystem: string };
-    companyLinks: { about: string; contact: string };
+    companyLinks: { about: string; faq: string; contact: string };
     tripadvisor: string;
     rights: string;
+    legal: { privacy: string; terms: string };
+  };
+  faq: {
+    heading: string;
+    body: string;
+    knownHeading: string;
+    unknownHeading: string;
+    unknownIntro: string;
+    known: Array<{ q: string; a: string }>;
+    unknown: Array<{ q: string; a: string }>;
+    whatsapp: string;
+  };
+  legalPages: {
+    updated: string;
+    privacy: { heading: string; sections: Array<{ title: string; body: string }> };
+    terms: { heading: string; sections: Array<{ title: string; body: string }> };
+    back: string;
   };
 }
 
@@ -85,7 +102,7 @@ export const siteCopy: Record<SdcLocale, SiteCopy> = {
     languageName: "العربية",
     preview: "Product foundation preview",
     whatsappFab: "WhatsApp",
-    nav: { discover: "Discover", about: "About", contact: "Contact", home: "Sharm Divers Club home" },
+    nav: { discover: "Discover", about: "About", faq: "FAQ", contact: "Contact", home: "Sharm Divers Club home", menu: "Menu" },
     hero: {
       eyebrow: "Sharm El Sheikh · PADI 5 Star Dive Center",
       title: "Red Sea confidence, personally guided.",
@@ -180,16 +197,61 @@ export const siteCopy: Record<SdcLocale, SiteCopy> = {
       companyHeading: "Company",
       contactHeading: "Contact",
       exploreLinks: { discover: "Discover", designSystem: "Design system" },
-      companyLinks: { about: "About", contact: "Contact" },
+      companyLinks: { about: "About", faq: "FAQ", contact: "Contact" },
       tripadvisor: "Find us on TripAdvisor",
       rights: "Sharm Divers Club · Royal Grand Sharm Hotel, Hadabet Um Sid, Sharm El Sheikh",
+      legal: { privacy: "Privacy", terms: "Terms" },
+    },
+    faq: {
+      heading: "Frequently asked questions",
+      body: "Straight answers where we have them — and an honest \"ask us\" where we don't, instead of a guess.",
+      knownHeading: "What we can tell you now",
+      unknownHeading: "What we confirm with you directly",
+      unknownIntro: "These depend on your exact trip, group and dates, so our team confirms them with you on WhatsApp rather than publishing a one-size-fits-all answer.",
+      known: [
+        { q: "Do I need diving experience to try it?", a: "No — our intro dives are designed for complete first-timers, with a simple briefing before you go in." },
+        { q: "What languages does your team speak?", a: "Arabic, English, Russian, German and Italian." },
+        { q: "How do I actually book a dive?", a: "Message us on WhatsApp with what you're after. Our team confirms the date, group size and price with you directly before anything is booked." },
+        { q: "Where are you located?", a: "Royal Grand Sharm Hotel, Hadabet Um Sid, Sharm El Sheikh, Egypt." },
+        { q: "What are your hours?", a: "Daily, 08:00–20:00." },
+        { q: "Are you PADI accredited?", a: "Yes — a PADI 5 Star Dive Center, accredited with CDWS (#100601)." },
+      ],
+      unknown: [
+        { q: "What's your cancellation policy?", a: "Confirmed directly with you on WhatsApp before booking." },
+        { q: "What payment methods do you accept?", a: "Ask us on WhatsApp — payment options are confirmed per booking." },
+        { q: "Is there a minimum age for diving?", a: "Age requirements depend on the specific activity — our team confirms this with you directly." },
+        { q: "What's included in a boat trip?", a: "Exact inclusions are confirmed with you on WhatsApp for your specific trip." },
+        { q: "Do I need to pay a deposit?", a: "Deposit requirements, if any, are confirmed directly with our team before booking." },
+      ],
+      whatsapp: "Ask us on WhatsApp",
+    },
+    legalPages: {
+      updated: "Last updated: 2026-08-27",
+      back: "Back home",
+      privacy: {
+        heading: "Privacy Policy",
+        sections: [
+          { title: "What this site collects", body: "This website does not use cookies, does not run analytics, and has no contact form. It does not collect any personal data from visitors on its own." },
+          { title: "WhatsApp", body: "The only way to contact us from this site is WhatsApp. Any message you send is handled under WhatsApp's own privacy policy, not ours — we only see what you choose to send us in that conversation." },
+          { title: "Changes", body: "If this site ever adds a form, analytics, or any other way of collecting data, this page will say exactly what changed before that happens." },
+        ],
+      },
+      terms: {
+        heading: "Terms of Use",
+        sections: [
+          { title: "What this site is", body: "This site is informational. It describes Sharm Divers Club's real diving offerings and approved 2026 prices, but it does not create a booking or take payment by itself." },
+          { title: "How a booking actually happens", body: "Every booking is confirmed directly with our team on WhatsApp — that conversation, not this website, is where a booking, its final details, and payment are actually agreed." },
+          { title: "Prices", body: "Prices shown here are real, approved 2026 rates. They can change; the price confirmed with you on WhatsApp for your specific date is the one that applies." },
+          { title: "Policies not yet published", body: "Cancellation, deposit, and payment-method terms are still being finalized internally and aren't published on this site yet. Ask our team on WhatsApp for the current terms before booking." },
+        ],
+      },
     },
   },
   ar: {
     languageName: "English",
     preview: "معاينة لأساس المنتج",
     whatsappFab: "واتساب",
-    nav: { discover: "استكشف", about: "من نحن", contact: "تواصل", home: "الصفحة الرئيسية لـSharm Divers Club" },
+    nav: { discover: "استكشف", about: "من نحن", faq: "الأسئلة الشائعة", contact: "تواصل", home: "الصفحة الرئيسية لـSharm Divers Club", menu: "القائمة" },
     hero: {
       eyebrow: "شرم الشيخ · مركز PADI 5 نجوم",
       title: "ثقة البحر الأحمر، بترتيب شخصي معاك.",
@@ -284,9 +346,54 @@ export const siteCopy: Record<SdcLocale, SiteCopy> = {
       companyHeading: "الشركة",
       contactHeading: "تواصل",
       exploreLinks: { discover: "استكشف", designSystem: "نظام التصميم" },
-      companyLinks: { about: "من نحن", contact: "تواصل" },
+      companyLinks: { about: "من نحن", faq: "الأسئلة الشائعة", contact: "تواصل" },
       tripadvisor: "شوفنا على TripAdvisor",
       rights: "Sharm Divers Club · فندق Royal Grand Sharm، هضبة أم السيد، شرم الشيخ",
+      legal: { privacy: "الخصوصية", terms: "الشروط" },
+    },
+    faq: {
+      heading: "الأسئلة الشائعة",
+      body: "إجابات واضحة لما نعرفها — وصراحة \"اسأل فريقنا\" لما لسه محسومة، بدل ما نخمّن.",
+      knownHeading: "اللي نقدر نقولك عليه دلوقتي",
+      unknownHeading: "اللي بيتأكد معاك مباشرة",
+      unknownIntro: "دي بتعتمد على تفاصيل رحلتك ومجموعتك ومواعيدك، فريقنا بيأكدها معاك على واتساب بدل إجابة عامة واحدة للكل.",
+      known: [
+        { q: "محتاج خبرة سابقة في الغوص عشان أجرب؟", a: "لأ — الغطسات التجريبية مصممة للمبتدئين تمامًا، مع شرح بسيط قبل ما تنزل." },
+        { q: "الفريق بيتكلم إيه من اللغات؟", a: "عربي، إنجليزي، روسي، ألماني، وإيطالي." },
+        { q: "أحجز غطسة إزاي فعليًا؟", a: "راسلنا على واتساب بكل اللي محتاجه. فريقنا بيأكد معاك الموعد وعدد الأفراد والسعر قبل أي حجز." },
+        { q: "أنتم فين بالظبط؟", a: "فندق Royal Grand Sharm، هضبة أم السيد، شرم الشيخ، مصر." },
+        { q: "مواعيد شغلكم إيه؟", a: "يوميًا، من 08:00 لـ20:00." },
+        { q: "أنتم معتمدين من PADI؟", a: "آه — مركز PADI 5 نجوم، ومعتمد من CDWS برقم 100601." },
+      ],
+      unknown: [
+        { q: "سياسة الإلغاء عندكم إيه؟", a: "بتتأكد معاك مباشرة على واتساب قبل الحجز." },
+        { q: "بتقبلوا وسائل دفع إيه؟", a: "اسألنا على واتساب — وسائل الدفع بتتأكد لكل حجز." },
+        { q: "فيه سن أدنى للغوص؟", a: "بيعتمد على النشاط بالظبط — فريقنا بيأكدلك ده مباشرة." },
+        { q: "رحلة القارب بتشمل إيه؟", a: "التفاصيل الدقيقة بتتأكد معاك على واتساب حسب رحلتك." },
+        { q: "محتاج أدفع مقدم؟", a: "لو مطلوب مقدم، بيتأكد معاك مباشرة قبل الحجز." },
+      ],
+      whatsapp: "اسأل فريقنا على واتساب",
+    },
+    legalPages: {
+      updated: "آخر تحديث: 2026-08-27",
+      back: "العودة للرئيسية",
+      privacy: {
+        heading: "سياسة الخصوصية",
+        sections: [
+          { title: "اللي الموقع ده بيجمعه", body: "الموقع ده مش بيستخدم كوكيز، ومفيهوش تحليلات (analytics)، ومفيهوش فورم تواصل. مبيجمعش أي بيانات شخصية من الزوار بنفسه." },
+          { title: "واتساب", body: "الطريقة الوحيدة للتواصل معنا من الموقع هي واتساب. أي رسالة بتبعتها بتتعامل معاها حسب سياسة خصوصية واتساب نفسها، مش سياستنا — إحنا بنشوف بس اللي انت بتختار تبعته في المحادثة." },
+          { title: "التغييرات", body: "لو الموقع ده أضاف يومًا فورم أو تحليلات أو أي طريقة تانية لجمع البيانات، الصفحة دي هتوضح بالظبط اللي اتغير قبل ما يحصل." },
+        ],
+      },
+      terms: {
+        heading: "شروط الاستخدام",
+        sections: [
+          { title: "الموقع ده إيه", body: "الموقع ده معلوماتي. بيوضح خدمات الغوص الحقيقية عند Sharm Divers Club وأسعار 2026 المعتمدة، لكنه مش بينشئ حجز ولا بياخد دفع بنفسه." },
+          { title: "الحجز بيتم إزاي فعليًا", body: "كل حجز بيتأكد مباشرة مع فريقنا على واتساب — المحادثة دي، مش الموقع، هي اللي بيتفق فيها فعليًا على الحجز وتفاصيله النهائية والدفع." },
+          { title: "الأسعار", body: "الأسعار الظاهرة هنا حقيقية ومعتمدة لسنة 2026. ممكن تتغير؛ السعر اللي بيتأكد معاك على واتساب لموعدك المحدد هو اللي بيتطبق." },
+          { title: "سياسات لسه مش منشورة", body: "شروط الإلغاء والمقدم ووسائل الدفع لسه بيتم حسمها داخليًا ومش منشورة على الموقع ده لسه. اسأل فريقنا على واتساب عن الشروط الحالية قبل الحجز." },
+        ],
+      },
     },
   },
 };

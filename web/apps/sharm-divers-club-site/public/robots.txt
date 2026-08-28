@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /offering-preview
+Disallow: /design-system
+Allow: /
+
+Sitemap: https://sharmdiversclub.com/sitemap.xml

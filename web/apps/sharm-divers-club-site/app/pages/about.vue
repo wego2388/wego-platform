@@ -16,6 +16,7 @@ useHead(() => ({
     dir: direction.value,
     lang: locale.value,
   },
+  meta: [{ name: "description", content: copy.value.about.body }],
 }));
 
 function toggleLocale() {
@@ -34,9 +35,11 @@ const factsReveal = useScrollReveal();
       :home-label="copy.nav.home"
       :discover-label="copy.nav.discover"
       :about-label="copy.nav.about"
+      :faq-label="copy.nav.faq"
       :contact-label="copy.nav.contact"
       :language-name="copy.languageName"
       :whatsapp-label="copy.whatsappFab"
+      :menu-label="copy.nav.menu"
       @toggle-locale="toggleLocale"
     />
 

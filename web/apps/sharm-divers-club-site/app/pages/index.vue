@@ -11,12 +11,46 @@ const locale = useSiteLocale();
 const copy = computed(() => siteCopy[locale.value]);
 const direction = computed(() => directionFor(locale.value));
 
+const pageTitle = computed(() => locale.value === "ar" ? "Sharm Divers Club · ثقة البحر الأحمر" : "Sharm Divers Club · Red Sea confidence, personally guided");
+const pageDescription = computed(() => copy.value.hero.body);
+
 useHead(() => ({
-  title: locale.value === "ar" ? "Sharm Divers Club · ثقة البحر الأحمر" : "Sharm Divers Club · Red Sea confidence, personally guided",
+  title: pageTitle.value,
   htmlAttrs: {
     dir: direction.value,
     lang: locale.value,
   },
+  meta: [
+    { name: "description", content: pageDescription.value },
+    { property: "og:title", content: pageTitle.value },
+    { property: "og:description", content: pageDescription.value },
+    { property: "og:type", content: "website" },
+  ],
+  script: [
+    {
+      type: "application/ld+json",
+      innerHTML: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        name: "Sharm Divers Club",
+        description: "PADI 5 Star Dive Center in Sharm El Sheikh",
+        url: "https://sharmdiversclub.com/",
+        telephone: "+201066461010",
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: "Royal Grand Sharm Hotel, Hadabet Um Sid",
+          addressLocality: "Sharm El Sheikh",
+          addressCountry: "EG",
+        },
+        openingHoursSpecification: {
+          "@type": "OpeningHoursSpecification",
+          dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+          opens: "08:00",
+          closes: "20:00",
+        },
+      }),
+    },
+  ],
 }));
 
 function toggleLocale() {
@@ -40,9 +74,11 @@ const howReveal = useScrollReveal();
       :home-label="copy.nav.home"
       :discover-label="copy.nav.discover"
       :about-label="copy.nav.about"
+      :faq-label="copy.nav.faq"
       :contact-label="copy.nav.contact"
       :language-name="copy.languageName"
       :whatsapp-label="copy.whatsappFab"
+      :menu-label="copy.nav.menu"
       @toggle-locale="toggleLocale"
     />
 

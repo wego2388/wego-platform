@@ -16,6 +16,11 @@ Arabic copy, and narrow-mobile behavior — not only the ideal happy path
 | P0 | About / trust (`/about`) | default, approved-facts-only | Built |
 | P0 | Contact (`/contact`) | WhatsApp, phone, email, location, hours — all from `approved-facts.json` | Built |
 | P0 | Living design system (`/design-system`) | tokens, type, controls, operational states, `noindex` | Built |
+| P0 | FAQ (`/faq`) | two-tier accordion: answerable-now facts vs. WhatsApp-confirmed items (ODR-003/004/005/013) | Built |
+| P0 | Privacy (`/privacy`) | accurate to actual site behavior — no cookies/analytics/forms | Built |
+| P0 | Terms (`/terms`) | inquiry-only framing, prices real but subject to WhatsApp confirmation | Built |
+| P0 | Custom error page (`app/error.vue`) | branded 404/error state, locale-aware, WhatsApp + home CTA | Built |
+| P0 | Mobile navigation | hamburger menu in `SiteHeader`, all nav links reachable below `md` | Built |
 | P1 | Offering detail (live), full catalog browse | available, closed, capacity-limited — depends on a future public read API this packet does not add | Not built |
 | P2 | Booking request (self-service) | depends on a future public booking-request endpoint — out of scope until that backend capability exists | Not built |
 

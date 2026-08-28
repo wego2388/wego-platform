@@ -29,6 +29,7 @@ defineProps<{ locale: SdcLocale; copy: (typeof siteCopy)["en"]["footer"] }>();
         <h2 class="text-xs font-bold tracking-[0.12em] text-sdc-deep-bright uppercase">{{ copy.companyHeading }}</h2>
         <ul class="mt-4 grid gap-2 text-sm">
           <li><NuxtLink to="/about" class="text-sdc-muted hover:text-sdc-deep">{{ copy.companyLinks.about }}</NuxtLink></li>
+          <li><NuxtLink to="/faq" class="text-sdc-muted hover:text-sdc-deep">{{ copy.companyLinks.faq }}</NuxtLink></li>
           <li><NuxtLink to="/contact" class="text-sdc-muted hover:text-sdc-deep">{{ copy.companyLinks.contact }}</NuxtLink></li>
         </ul>
       </div>
@@ -41,8 +42,12 @@ defineProps<{ locale: SdcLocale; copy: (typeof siteCopy)["en"]["footer"] }>();
         </ul>
       </div>
     </div>
-    <div class="mx-auto mt-10 max-w-7xl border-t border-sdc-border pt-6 text-center text-sm text-sdc-muted">
-      {{ copy.rights }}
+    <div class="mx-auto mt-10 flex max-w-7xl flex-col items-center gap-3 border-t border-sdc-border pt-6 text-center text-sm text-sdc-muted sm:flex-row sm:justify-between">
+      <span>{{ copy.rights }}</span>
+      <span class="flex gap-4">
+        <NuxtLink to="/privacy" class="hover:text-sdc-deep">{{ copy.legal.privacy }}</NuxtLink>
+        <NuxtLink to="/terms" class="hover:text-sdc-deep">{{ copy.legal.terms }}</NuxtLink>
+      </span>
     </div>
   </footer>
 </template>
