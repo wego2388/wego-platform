@@ -5,8 +5,12 @@ import kotlinx.coroutines.flow.StateFlow
 private val stableIdentifierPattern = Regex("^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$")
 private val commandTypePattern = Regex("^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$")
 
-@JvmInline
-value class CommandId private constructor(
+// Plain data classes, not @JvmInline value classes: @JvmInline is JVM-only and
+// Kotlin/Native (iOS) has no equivalent, so a truly shared commonMain type
+// cannot use it. The cost is one extra allocation per ID on JVM/Android — not
+// a hot path here.
+@ConsistentCopyVisibility
+data class CommandId private constructor(
     val value: String,
 ) {
     companion object {
@@ -14,8 +18,8 @@ value class CommandId private constructor(
     }
 }
 
-@JvmInline
-value class IdempotencyKey private constructor(
+@ConsistentCopyVisibility
+data class IdempotencyKey private constructor(
     val value: String,
 ) {
     companion object {
@@ -23,8 +27,8 @@ value class IdempotencyKey private constructor(
     }
 }
 
-@JvmInline
-value class ActorId private constructor(
+@ConsistentCopyVisibility
+data class ActorId private constructor(
     val value: String,
 ) {
     companion object {
@@ -32,8 +36,8 @@ value class ActorId private constructor(
     }
 }
 
-@JvmInline
-value class DeviceId private constructor(
+@ConsistentCopyVisibility
+data class DeviceId private constructor(
     val value: String,
 ) {
     companion object {
@@ -41,8 +45,8 @@ value class DeviceId private constructor(
     }
 }
 
-@JvmInline
-value class CommandType private constructor(
+@ConsistentCopyVisibility
+data class CommandType private constructor(
     val value: String,
 ) {
     companion object {

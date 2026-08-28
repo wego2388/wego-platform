@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        google()
         gradlePluginPortal()
         mavenCentral()
     }
@@ -23,5 +24,6 @@ include(":platform:application")
 include(":mobile:shared")
 include(":mobile:apps:ops")
 include(":mobile:apps:customer")
+include(":mobile:apps:customer-android")
 
 project(":platform:application").projectDir = file("platform/application")
