@@ -1,7 +1,9 @@
 package com.wego.divers.infrastructure
 
 import com.wego.divers.application.AddServiceRecordService
+import com.wego.divers.application.AdvanceEnrollmentStageService
 import com.wego.divers.application.ArchiveDiverService
+import com.wego.divers.application.AssignInstructorService
 import com.wego.divers.application.BoatCharterAuditRecorder
 import com.wego.divers.application.BoatCharterQueryService
 import com.wego.divers.application.BoatCharterRepository
@@ -11,6 +13,10 @@ import com.wego.divers.application.BookingRepository
 import com.wego.divers.application.CancelBookingService
 import com.wego.divers.application.CloseOfferingService
 import com.wego.divers.application.CompleteMaintenanceService
+import com.wego.divers.application.CourseEnrollmentAuditRecorder
+import com.wego.divers.application.CourseEnrollmentQueryService
+import com.wego.divers.application.CourseEnrollmentRepository
+import com.wego.divers.application.CourseSkillEvaluationRepository
 import com.wego.divers.application.CreateBoatCharterService
 import com.wego.divers.application.CreateBookingService
 import com.wego.divers.application.CreateDiverService
@@ -20,6 +26,7 @@ import com.wego.divers.application.DiverAuditRecorder
 import com.wego.divers.application.DiverQueryService
 import com.wego.divers.application.DiverRepository
 import com.wego.divers.application.EndCharterService
+import com.wego.divers.application.EnrollDiverInCourseService
 import com.wego.divers.application.EquipmentAuditRecorder
 import com.wego.divers.application.EquipmentQueryService
 import com.wego.divers.application.EquipmentRentalRecordRepository
@@ -33,6 +40,7 @@ import com.wego.divers.application.OfferingQueryService
 import com.wego.divers.application.OfferingRepository
 import com.wego.divers.application.RecordRentalReturnService
 import com.wego.divers.application.RecordRentalService
+import com.wego.divers.application.RecordSkillEvaluationService
 import com.wego.divers.application.RefundBookingService
 import com.wego.divers.application.RetireEquipmentService
 import com.wego.divers.application.StartMaintenanceService
@@ -41,6 +49,7 @@ import com.wego.divers.application.UnlinkOfferingFromCharterService
 import com.wego.divers.application.UpdateBoatCharterService
 import com.wego.divers.application.UpdateDiverService
 import com.wego.divers.application.UpdateEquipmentService
+import com.wego.divers.application.WithdrawEnrollmentService
 import com.wego.events.OutboxWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -299,4 +308,60 @@ class DiversBeanConfiguration {
         linkRepository: OfferingBoatCharterLinkRepository,
         transactionRunner: TransactionRunner,
     ): UnlinkOfferingFromCharterService = UnlinkOfferingFromCharterService(linkRepository, transactionRunner)
+
+    @Bean
+    fun enrollDiverInCourseService(
+        diverRepository: DiverRepository,
+        offeringRepository: OfferingRepository,
+        enrollmentRepository: CourseEnrollmentRepository,
+        enrollmentAuditRecorder: CourseEnrollmentAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): EnrollDiverInCourseService =
+        EnrollDiverInCourseService(
+            diverRepository,
+            offeringRepository,
+            enrollmentRepository,
+            enrollmentAuditRecorder,
+            transactionRunner,
+            clock,
+        )
+
+    @Bean
+    fun assignInstructorService(
+        enrollmentRepository: CourseEnrollmentRepository,
+        transactionRunner: TransactionRunner,
+    ): AssignInstructorService = AssignInstructorService(enrollmentRepository, transactionRunner)
+
+    @Bean
+    fun advanceEnrollmentStageService(
+        enrollmentRepository: CourseEnrollmentRepository,
+        enrollmentAuditRecorder: CourseEnrollmentAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): AdvanceEnrollmentStageService =
+        AdvanceEnrollmentStageService(enrollmentRepository, enrollmentAuditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun withdrawEnrollmentService(
+        enrollmentRepository: CourseEnrollmentRepository,
+        enrollmentAuditRecorder: CourseEnrollmentAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): WithdrawEnrollmentService = WithdrawEnrollmentService(enrollmentRepository, enrollmentAuditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun recordSkillEvaluationService(
+        enrollmentRepository: CourseEnrollmentRepository,
+        skillEvaluationRepository: CourseSkillEvaluationRepository,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): RecordSkillEvaluationService =
+        RecordSkillEvaluationService(enrollmentRepository, skillEvaluationRepository, transactionRunner, clock)
+
+    @Bean
+    fun courseEnrollmentQueryService(
+        enrollmentRepository: CourseEnrollmentRepository,
+        skillEvaluationRepository: CourseSkillEvaluationRepository,
+    ): CourseEnrollmentQueryService = CourseEnrollmentQueryService(enrollmentRepository, skillEvaluationRepository)
 }

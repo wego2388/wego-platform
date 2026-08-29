@@ -75,9 +75,10 @@ async function request<T>(path: string, token: string, init: RequestInit = {}): 
 
 export function listOfferings(
   token: string,
-  params: { status?: OfferingStatus; page?: number; size?: number } = {},
+  params: { type?: OfferingType; status?: OfferingStatus; page?: number; size?: number } = {},
 ): Promise<Offering[]> {
   const query = new URLSearchParams();
+  if (params.type) query.set("type", params.type);
   if (params.status) query.set("status", params.status);
   query.set("page", String(params.page ?? 0));
   query.set("size", String(params.size ?? PAGE_SIZE));
@@ -456,4 +457,82 @@ export function linkOfferingBoatCharter(token: string, offeringId: string, boatC
 
 export async function unlinkOfferingBoatCharter(token: string, offeringId: string): Promise<void> {
   await request<unknown>(`/api/v1/divers/offerings/${offeringId}/boat-charter`, token, { method: "DELETE" });
+}
+
+export type EnrollmentStage = "LEAD" | "THEORY" | "POOL" | "OPEN_WATER" | "CERTIFIED" | "WITHDRAWN";
+
+export interface CourseEnrollment {
+  id: string;
+  diverId: string;
+  offeringId: string;
+  instructorUserId?: string;
+  stage: EnrollmentStage;
+  startedAt: string;
+  certifiedAt?: string;
+  withdrawnAt?: string;
+  createdAt: string;
+}
+
+export interface SkillEvaluation {
+  id: string;
+  enrollmentId: string;
+  skillName: string;
+  passed: boolean;
+  evaluatedByUserId?: string;
+  evaluatedOn: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export function listCourseEnrollments(
+  token: string,
+  params: { diverId?: string; offeringId?: string; stage?: EnrollmentStage; page?: number; size?: number } = {},
+): Promise<CourseEnrollment[]> {
+  const query = new URLSearchParams();
+  if (params.diverId) query.set("diverId", params.diverId);
+  if (params.offeringId) query.set("offeringId", params.offeringId);
+  if (params.stage) query.set("stage", params.stage);
+  query.set("page", String(params.page ?? 0));
+  query.set("size", String(params.size ?? PAGE_SIZE));
+  return request<CourseEnrollment[]>(`/api/v1/divers/course-enrollments?${query.toString()}`, token);
+}
+
+export function enrollDiverInCourse(token: string, diverId: string, offeringId: string): Promise<CourseEnrollment> {
+  return request<CourseEnrollment>("/api/v1/divers/course-enrollments", token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ diverId, offeringId }),
+  });
+}
+
+export function assignCourseInstructor(token: string, enrollmentId: string, instructorUserId: string): Promise<CourseEnrollment> {
+  return request<CourseEnrollment>(`/api/v1/divers/course-enrollments/${enrollmentId}/instructor`, token, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ instructorUserId }),
+  });
+}
+
+export function advanceCourseEnrollment(token: string, enrollmentId: string): Promise<CourseEnrollment> {
+  return request<CourseEnrollment>(`/api/v1/divers/course-enrollments/${enrollmentId}/advance`, token, { method: "POST" });
+}
+
+export function withdrawCourseEnrollment(token: string, enrollmentId: string): Promise<CourseEnrollment> {
+  return request<CourseEnrollment>(`/api/v1/divers/course-enrollments/${enrollmentId}/withdraw`, token, { method: "POST" });
+}
+
+export function listSkillEvaluations(token: string, enrollmentId: string): Promise<SkillEvaluation[]> {
+  return request<SkillEvaluation[]>(`/api/v1/divers/course-enrollments/${enrollmentId}/skill-evaluations`, token);
+}
+
+export function recordSkillEvaluation(
+  token: string,
+  enrollmentId: string,
+  body: { skillName: string; passed: boolean; evaluatedOn: string; notes?: string },
+): Promise<SkillEvaluation> {
+  return request<SkillEvaluation>(`/api/v1/divers/course-enrollments/${enrollmentId}/skill-evaluations`, token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
 }

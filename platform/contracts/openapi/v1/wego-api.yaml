@@ -36,6 +36,12 @@ tags:
       boats, it does not own a fleet). The one safety rule this registry
       exists for: a boat-diving offering can never claim more seats than
       the boat's real licensed passenger capacity.
+  - name: CourseEnrollments
+    description: >-
+      A real diver's progress through a real COURSE offering: Lead ->
+      Theory -> Pool -> Open Water -> Certified, forward-only, or
+      Withdrawn from any non-finished stage. Instructor assignment and a
+      real append-only skill-evaluation log.
 paths:
   /actuator/health:
     get:
@@ -1386,6 +1392,340 @@ paths:
           $ref: "#/components/responses/ForbiddenResponse"
         "404":
           description: This offering has no linked charter.
+  /api/v1/divers/course-enrollments:
+    post:
+      operationId: enrollDiverInCourse
+      summary: Enroll a real diver in a real course offering
+      description: >-
+        Requires `course:manage`. Starts at stage `LEAD`. Rejected if the
+        offering's `offeringType` isn't `COURSE`.
+      tags:
+        - CourseEnrollments
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnrollDiverInCourseRequest"
+      responses:
+        "201":
+          description: Enrolled.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseEnrollmentResponse"
+        "400":
+          description: The diver or offering id doesn't exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseEnrollmentErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "409":
+          description: The offering exists but isn't a COURSE offering.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseEnrollmentErrorResponse"
+    get:
+      operationId: listCourseEnrollments
+      summary: List course enrollments
+      description: Requires `course:view`. Paginated with `page`/`size`; filter by `diverId`, `offeringId`, or `stage`.
+      tags:
+        - CourseEnrollments
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: diverId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: offeringId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: stage
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/EnrollmentStage"
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Matching enrollments, one page.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CourseEnrollmentResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/divers/course-enrollments/{id}:
+    get:
+      operationId: getCourseEnrollment
+      summary: Read a single course enrollment
+      tags:
+        - CourseEnrollments
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The enrollment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseEnrollmentResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No enrollment with this id.
+  /api/v1/divers/course-enrollments/{id}/instructor:
+    put:
+      operationId: assignCourseInstructor
+      summary: Assign the instructor for an enrollment
+      description: Requires `course:manage`. Rejected for a finished (Certified or Withdrawn) enrollment.
+      tags:
+        - CourseEnrollments
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignInstructorRequest"
+      responses:
+        "200":
+          description: Instructor assigned.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseEnrollmentResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No enrollment with this id.
+        "409":
+          description: The enrollment has already finished.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseEnrollmentErrorResponse"
+  /api/v1/divers/course-enrollments/{id}/advance:
+    post:
+      operationId: advanceCourseEnrollment
+      summary: Move an enrollment one real stage forward
+      description: >-
+        Requires `course:manage`. Moves exactly one step through Lead ->
+        Theory -> Pool -> Open Water -> Certified — never skips a stage.
+        Rejected once the enrollment has finished.
+      tags:
+        - CourseEnrollments
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Advanced.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseEnrollmentResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No enrollment with this id.
+        "409":
+          description: The enrollment has already finished.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseEnrollmentErrorResponse"
+  /api/v1/divers/course-enrollments/{id}/withdraw:
+    post:
+      operationId: withdrawCourseEnrollment
+      summary: Withdraw an enrollment
+      description: Requires `course:manage`. Terminal, from any non-finished stage.
+      tags:
+        - CourseEnrollments
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Withdrawn.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseEnrollmentResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No enrollment with this id.
+        "409":
+          description: The enrollment has already finished.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseEnrollmentErrorResponse"
+  /api/v1/divers/course-enrollments/{id}/skill-evaluations:
+    get:
+      operationId: listSkillEvaluations
+      summary: List an enrollment's skill-evaluation log
+      tags:
+        - CourseEnrollments
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Skill evaluations, newest first.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SkillEvaluationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    post:
+      operationId: recordSkillEvaluation
+      summary: Log a real skill evaluation
+      description: Requires `course:manage`. Append-only — an evaluation is never edited or removed.
+      tags:
+        - CourseEnrollments
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecordSkillEvaluationRequest"
+      responses:
+        "201":
+          description: Evaluation recorded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SkillEvaluationResponse"
+        "400":
+          description: The request failed validation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No enrollment with this id.
   /api/v1/divers/bookings:
     post:
       operationId: createBooking
@@ -2446,6 +2786,134 @@ components:
           type: string
           format: date-time
     BoatCharterErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+    EnrollmentStage:
+      type: string
+      enum:
+        - LEAD
+        - THEORY
+        - POOL
+        - OPEN_WATER
+        - CERTIFIED
+        - WITHDRAWN
+    EnrollDiverInCourseRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - diverId
+        - offeringId
+      properties:
+        diverId:
+          type: string
+          format: uuid
+        offeringId:
+          type: string
+          format: uuid
+    AssignInstructorRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - instructorUserId
+      properties:
+        instructorUserId:
+          type: string
+          format: uuid
+    CourseEnrollmentResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - diverId
+        - offeringId
+        - stage
+        - startedAt
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        diverId:
+          type: string
+          format: uuid
+        offeringId:
+          type: string
+          format: uuid
+        instructorUserId:
+          type: string
+          format: uuid
+        stage:
+          $ref: "#/components/schemas/EnrollmentStage"
+        startedAt:
+          type: string
+          format: date-time
+        certifiedAt:
+          type: string
+          format: date-time
+        withdrawnAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+    RecordSkillEvaluationRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - skillName
+        - passed
+        - evaluatedOn
+      properties:
+        skillName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        passed:
+          type: boolean
+        evaluatedOn:
+          type: string
+          format: date
+        notes:
+          type: string
+          maxLength: 1000
+    SkillEvaluationResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - enrollmentId
+        - skillName
+        - passed
+        - evaluatedOn
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        enrollmentId:
+          type: string
+          format: uuid
+        skillName:
+          type: string
+        passed:
+          type: boolean
+        evaluatedByUserId:
+          type: string
+          format: uuid
+        evaluatedOn:
+          type: string
+          format: date
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    CourseEnrollmentErrorResponse:
       type: object
       additionalProperties: false
       required:
