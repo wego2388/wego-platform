@@ -1,0 +1,22 @@
+{
+  "name": "Sharm Divers Club",
+  "short_name": "Sharm Divers Club",
+  "description": "PADI 5 Star diving in Sharm El Sheikh, personally guided.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF6EE",
+  "theme_color": "#0a3a4a",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

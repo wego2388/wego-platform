@@ -28,7 +28,7 @@ function goHome() {
       <p class="mx-auto mt-4 max-w-md leading-7 text-sdc-muted">{{ text.body }}</p>
       <div class="mt-8 flex flex-wrap justify-center gap-3">
         <button type="button" class="rounded-full bg-sdc-deep px-6 py-3 font-semibold text-white" @click="goHome">{{ text.home }}</button>
-        <a :href="whatsappUrl" target="_blank" rel="noopener" class="rounded-full border border-sdc-border bg-white px-6 py-3 font-semibold text-sdc-deep-bright">
+        <a :href="whatsappUrl" target="_blank" rel="noopener" class="rounded-full border border-sdc-border bg-sdc-surface px-6 py-3 font-semibold text-sdc-deep-bright">
           {{ copy.whatsappFab }}
         </a>
       </div>

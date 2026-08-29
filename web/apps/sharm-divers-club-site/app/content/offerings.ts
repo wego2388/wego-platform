@@ -11,6 +11,9 @@ export interface OfferingSummary {
   durationMinutes: number | null;
   diveCount: number | null;
   priceEur: number;
+  /** Only set for offerings with a real, site-specific photo (see imageForOffering()). */
+  imageUrl?: string;
+  imageAlt?: Record<SdcLocale, string>;
 }
 
 /**
@@ -30,8 +33,28 @@ export const offerings: OfferingSummary[] = [
   { code: "MP04", categoryId: "multi-day", name: { en: "7 days / 14 dives", ar: "7 أيام / 14 غطسة" }, audience: "certified-diver", durationMinutes: null, diveCount: 14, priceEur: 590 },
   { code: "HP01", categoryId: "signature", name: { en: "Red Sea Icons — 3 days / 6 dives", ar: "أيقونات البحر الأحمر — 3 أيام / 6 غطسات" }, audience: "certified-diver", durationMinutes: null, diveCount: 6, priceEur: 430 },
   { code: "HP03", categoryId: "signature", name: { en: "Red Sea Icons — 5 days / 10 dives", ar: "أيقونات البحر الأحمر — 5 أيام / 10 غطسات" }, audience: "certified-diver", durationMinutes: null, diveCount: 10, priceEur: 575 },
-  { code: "WC01", categoryId: "world-class", name: { en: "SS Thistlegorm — two dives", ar: "حطام SS Thistlegorm — غطستان" }, audience: "qualified-certified-diver", durationMinutes: null, diveCount: 2, priceEur: 225 },
-  { code: "WC02", categoryId: "world-class", name: { en: "Dahab Blue Hole & Canyon — two dives", ar: "دهب Blue Hole وCanyon — غطستان" }, audience: "qualified-certified-diver", durationMinutes: null, diveCount: 2, priceEur: 205 },
+  {
+    code: "WC01",
+    categoryId: "world-class",
+    name: { en: "SS Thistlegorm — two dives", ar: "حطام SS Thistlegorm — غطستان" },
+    audience: "qualified-certified-diver",
+    durationMinutes: null,
+    diveCount: 2,
+    priceEur: 225,
+    imageUrl: "/images/offerings/offering-wc01-thistlegorm.webp",
+    imageAlt: { en: "Inside the SS Thistlegorm wreck", ar: "داخل حطام السفينة SS Thistlegorm" },
+  },
+  {
+    code: "WC02",
+    categoryId: "world-class",
+    name: { en: "Dahab Blue Hole & Canyon — two dives", ar: "دهب Blue Hole وCanyon — غطستان" },
+    audience: "qualified-certified-diver",
+    durationMinutes: null,
+    diveCount: 2,
+    priceEur: 205,
+    imageUrl: "/images/offerings/offering-wc02-blue-hole.webp",
+    imageAlt: { en: "Aerial view of Dahab's Blue Hole", ar: "منظر جوي لـBlue Hole في دهب" },
+  },
   { code: "PC04", categoryId: "padi-courses", name: { en: "PADI Open Water Diver", ar: "PADI Open Water Diver" }, audience: "beginner-course", durationMinutes: null, diveCount: 4, priceEur: 350 },
   { code: "PC11", categoryId: "padi-courses", name: { en: "PADI Divemaster", ar: "PADI Divemaster" }, audience: "professional-track", durationMinutes: null, diveCount: null, priceEur: 1499 },
   { code: "WS01", categoryId: "water-sports", name: { en: "Parasailing", ar: "باراسيلينج" }, audience: "general", durationMinutes: null, diveCount: null, priceEur: 30 },
@@ -83,4 +106,39 @@ const categoryIcons: Record<CategoryId, string> = {
 
 export function categoryIcon(categoryId: CategoryId): string {
   return categoryIcons[categoryId];
+}
+
+/**
+ * Real photos sourced from Sharm Divers Club's own existing website
+ * (sharmdiversclub.com), reviewed one by one for authenticity — generic
+ * stock and unrelated filler images from that site's media library were
+ * excluded. Only categories with a genuine, verifiably real match get one;
+ * shore-diving and water-sports have no authentic photo available yet.
+ */
+const categoryImages: Partial<Record<CategoryId, { url: string; alt: Record<SdcLocale, string> }>> = {
+  "boat-diving": {
+    url: "/images/offerings/category-boat-diving.webp",
+    alt: { en: "Guests on a Red Sea boat diving trip", ar: "ضيوف في رحلة غوص بالقارب في البحر الأحمر" },
+  },
+  "multi-day": {
+    url: "/images/offerings/category-multi-day.webp",
+    alt: { en: "Divers aboard a Red Sea dive boat", ar: "غواصين على متن قارب غوص في البحر الأحمر" },
+  },
+  signature: {
+    url: "/images/offerings/category-signature.webp",
+    alt: { en: "Certified divers surfacing after a Red Sea dive", ar: "غواصين معتمدين بيطلعوا بعد غطسة في البحر الأحمر" },
+  },
+  "padi-courses": {
+    url: "/images/offerings/category-padi-courses.webp",
+    alt: { en: "A diver in the Red Sea", ar: "غواص في البحر الأحمر" },
+  },
+};
+
+/** The image to show for an offering: its own real photo, or its category's, or none. */
+export function imageForOffering(offering: OfferingSummary, locale: SdcLocale): { url: string; alt: string } | null {
+  if (offering.imageUrl && offering.imageAlt) {
+    return { url: offering.imageUrl, alt: offering.imageAlt[locale] };
+  }
+  const categoryImage = categoryImages[offering.categoryId];
+  return categoryImage ? { url: categoryImage.url, alt: categoryImage.alt[locale] } : null;
 }

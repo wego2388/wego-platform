@@ -66,7 +66,7 @@ const howReveal = useScrollReveal();
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sdc-canvas text-sdc-ink">
+  <main id="main-content" tabindex="-1" :dir="direction" :lang="locale" class="min-h-screen bg-sdc-canvas text-sdc-ink">
     <SiteHeader
       variant="hero"
       :locale="locale"
@@ -147,7 +147,7 @@ const howReveal = useScrollReveal();
         <article
           v-for="(category, index) in copy.categories"
           :key="category.title"
-          class="hover-lift rounded-[1.75rem] border border-sdc-border bg-white p-6 shadow-sm"
+          class="hover-lift rounded-[1.75rem] border border-sdc-border bg-sdc-surface p-6 shadow-sm"
           :style="{ transitionDelay: categoriesReveal.visible.value ? `${index * 70}ms` : '0ms' }"
         >
           <div class="grid size-12 place-items-center rounded-2xl" :class="index % 2 === 0 ? 'bg-sdc-turquoise-soft text-sdc-deep' : 'bg-sdc-sand-soft text-sdc-deep'">
@@ -208,7 +208,7 @@ const howReveal = useScrollReveal();
       <h2 class="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{{ copy.how.heading }}</h2>
       <p class="mt-4 max-w-2xl leading-7 text-sdc-muted">{{ copy.how.body }}</p>
       <div class="mt-10 grid gap-5 md:grid-cols-3">
-        <article v-for="step in copy.how.steps" :key="step.title" class="hover-lift rounded-[1.75rem] border border-sdc-border bg-white p-6">
+        <article v-for="step in copy.how.steps" :key="step.title" class="hover-lift rounded-[1.75rem] border border-sdc-border bg-sdc-surface p-6">
           <h3 class="text-xl font-semibold">{{ step.title }}</h3>
           <p class="mt-3 leading-7 text-sdc-muted">{{ step.body }}</p>
         </article>

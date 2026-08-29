@@ -71,7 +71,7 @@ useHead(() => ({
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sdc-canvas px-5 py-6 text-sdc-ink lg:px-10">
+  <main id="main-content" tabindex="-1" :dir="direction" :lang="locale" class="min-h-screen bg-sdc-canvas px-5 py-6 text-sdc-ink lg:px-10">
     <header class="mx-auto flex max-w-7xl items-center justify-between gap-4">
       <NuxtLink to="/discover" class="font-semibold text-sdc-deep-bright">{{ direction === "rtl" ? "→" : "←" }} {{ copy.back }}</NuxtLink>
       <button type="button" class="min-h-11 rounded-full border border-sdc-border bg-white px-4 text-sm font-semibold" @click="locale = locale === 'en' ? 'ar' : 'en'">

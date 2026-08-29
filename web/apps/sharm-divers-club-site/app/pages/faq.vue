@@ -25,7 +25,7 @@ const unknownReveal = useScrollReveal();
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sdc-canvas text-sdc-ink">
+  <main id="main-content" tabindex="-1" :dir="direction" :lang="locale" class="min-h-screen bg-sdc-canvas text-sdc-ink">
     <SiteHeader
       variant="solid"
       :locale="locale"
@@ -53,7 +53,7 @@ const unknownReveal = useScrollReveal();
     >
       <h2 class="text-xs font-bold tracking-[0.15em] text-sdc-deep-bright uppercase">{{ copy.faq.knownHeading }}</h2>
       <div class="mt-4 grid gap-3">
-        <details v-for="item in copy.faq.known" :key="item.q" class="group rounded-2xl border border-sdc-border bg-white p-5 open:shadow-sm">
+        <details v-for="item in copy.faq.known" :key="item.q" class="group rounded-2xl border border-sdc-border bg-sdc-surface p-5 open:shadow-sm">
           <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
             {{ item.q }}
             <span class="shrink-0 text-sdc-deep-bright transition-transform group-open:rotate-45" aria-hidden="true">+</span>

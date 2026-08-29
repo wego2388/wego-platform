@@ -53,9 +53,34 @@
 }
 
 html {
-  background: #faf6ee;
-  color: #0b2027;
+  background: var(--sdc-color-surface-canvas);
+  color: var(--sdc-color-text-primary);
   font-family: var(--wego-font-sans);
+}
+
+/*
+ * Dark palette derived from the same brand tokens above (not a separate
+ * design) — mirrors the mapping already verified live on the mobile app's
+ * SdcDarkColors (mobile/apps/customer/.../theme/SdcTheme.kt): canvas/surface
+ * invert for real page/card contrast, brand-deep-bright brightens to the
+ * turquoise family since it's used as *text* (eyebrow labels, accents) and
+ * the original dark-navy value would fail contrast on a dark background.
+ * brand-deep itself is left unchanged — it's only ever used as a background
+ * fill (WhatsApp CTA cards, footer, hero), which stays legible either way.
+ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sdc-color-surface-canvas: #071b22;
+    --sdc-color-surface-default: #0f3547;
+    --sdc-color-text-primary: #faf6ee;
+    --sdc-color-text-secondary: #a9c6c6;
+    --sdc-color-border-default: #1f4753;
+    --sdc-color-brand-deep-bright: #1fa9b8;
+    --sdc-color-status-info-soft: #0d3a47;
+    --sdc-color-status-success-soft: #0f3a24;
+    --sdc-color-status-warning-soft: #3a2a0a;
+    --sdc-color-status-danger-soft: #3a1210;
+  }
 }
 
 body {
@@ -79,6 +104,23 @@ html[dir="rtl"] {
 :focus-visible {
   outline: 3px solid #c9975a;
   outline-offset: 3px;
+}
+
+.sdc-skip-link {
+  position: absolute;
+  z-index: 100;
+  top: -100%;
+  inset-inline-start: 1rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  background: var(--sdc-color-brand-deep);
+  color: #faf6ee;
+  font-weight: 600;
+  transition: top 0.2s var(--sdc-ease, ease);
+}
+
+.sdc-skip-link:focus {
+  top: 1rem;
 }
 
 .sdc-hero {

@@ -22,7 +22,7 @@ function toggleLocale() {
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sdc-canvas text-sdc-ink">
+  <main id="main-content" tabindex="-1" :dir="direction" :lang="locale" class="min-h-screen bg-sdc-canvas text-sdc-ink">
     <SiteHeader
       variant="solid"
       :locale="locale"

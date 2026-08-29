@@ -33,14 +33,14 @@ function closeMenu() {
     class="sdc-header sticky top-0 z-40"
     :class="props.variant === 'hero'
       ? (scrolled ? 'is-scrolled text-white' : 'bg-sdc-deep text-white')
-      : 'border-b border-sdc-border bg-white/95 backdrop-blur'"
+      : 'border-b border-sdc-border bg-sdc-surface/95 backdrop-blur'"
   >
     <header class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-10">
-      <NuxtLink to="/" class="flex items-center gap-3 font-semibold" :class="props.variant !== 'hero' && 'text-sdc-deep'" :aria-label="homeLabel" @click="closeMenu">
-        <span class="grid size-10 place-items-center rounded-2xl bg-sdc-sand font-display text-base font-black text-sdc-deep">SDC</span>
+      <NuxtLink to="/" class="flex items-center gap-3 font-semibold" :class="props.variant !== 'hero' && 'text-sdc-ink'" :aria-label="homeLabel" @click="closeMenu">
+        <span class="grid size-10 place-items-center rounded-2xl bg-sdc-sand font-display text-base font-black text-sdc-ink">SDC</span>
         <span class="hidden sm:inline">Sharm Divers Club</span>
       </NuxtLink>
-      <nav class="hidden items-center gap-6 text-sm font-semibold md:flex" :class="props.variant !== 'hero' && 'text-sdc-deep'" aria-label="Primary navigation">
+      <nav class="hidden items-center gap-6 text-sm font-semibold md:flex" :class="props.variant !== 'hero' && 'text-sdc-ink'" aria-label="Primary navigation">
         <NuxtLink to="/discover" class="transition-colors hover:text-sdc-sand">{{ discoverLabel }}</NuxtLink>
         <NuxtLink to="/about" class="transition-colors hover:text-sdc-sand">{{ aboutLabel }}</NuxtLink>
         <NuxtLink to="/faq" class="transition-colors hover:text-sdc-sand">{{ faqLabel }}</NuxtLink>
@@ -58,7 +58,7 @@ function closeMenu() {
         <button
           type="button"
           class="hidden min-h-10 rounded-full border px-4 text-sm font-semibold backdrop-blur transition-colors md:inline-flex"
-          :class="props.variant === 'hero' ? 'border-white/25 bg-white/10 hover:bg-white/20' : 'border-sdc-border bg-white text-sdc-deep hover:bg-sdc-canvas'"
+          :class="props.variant === 'hero' ? 'border-white/25 bg-white/10 hover:bg-white/20' : 'border-sdc-border bg-sdc-surface text-sdc-ink hover:bg-sdc-canvas'"
           @click="emit('toggle-locale')"
         >
           {{ languageName }}
@@ -66,7 +66,7 @@ function closeMenu() {
         <button
           type="button"
           class="grid min-h-10 min-w-10 place-items-center rounded-full border transition-colors md:hidden"
-          :class="props.variant === 'hero' ? 'border-white/25 bg-white/10 hover:bg-white/20' : 'border-sdc-border bg-white text-sdc-deep hover:bg-sdc-canvas'"
+          :class="props.variant === 'hero' ? 'border-white/25 bg-white/10 hover:bg-white/20' : 'border-sdc-border bg-sdc-surface text-sdc-ink hover:bg-sdc-canvas'"
           :aria-expanded="menuOpen"
           aria-controls="sdc-mobile-menu"
           :aria-label="menuLabel"
@@ -84,10 +84,10 @@ function closeMenu() {
       v-if="menuOpen"
       id="sdc-mobile-menu"
       class="border-t px-5 py-4 md:hidden"
-      :class="props.variant === 'hero' ? 'border-white/15 bg-sdc-deep' : 'border-sdc-border bg-white'"
+      :class="props.variant === 'hero' ? 'border-white/15 bg-sdc-deep' : 'border-sdc-border bg-sdc-surface'"
       aria-label="Mobile navigation"
     >
-      <div class="grid gap-1 text-sm font-semibold" :class="props.variant !== 'hero' && 'text-sdc-deep'">
+      <div class="grid gap-1 text-sm font-semibold" :class="props.variant !== 'hero' && 'text-sdc-ink'">
         <NuxtLink to="/discover" class="rounded-xl px-3 py-3 transition-colors hover:bg-white/10" @click="closeMenu">{{ discoverLabel }}</NuxtLink>
         <NuxtLink to="/about" class="rounded-xl px-3 py-3 transition-colors hover:bg-white/10" @click="closeMenu">{{ aboutLabel }}</NuxtLink>
         <NuxtLink to="/faq" class="rounded-xl px-3 py-3 transition-colors hover:bg-white/10" @click="closeMenu">{{ faqLabel }}</NuxtLink>
@@ -100,7 +100,7 @@ function closeMenu() {
         <button
           type="button"
           class="rounded-full border px-4 py-3 text-sm font-semibold"
-          :class="props.variant === 'hero' ? 'border-white/25 text-white' : 'border-sdc-border text-sdc-deep'"
+          :class="props.variant === 'hero' ? 'border-white/25 text-white' : 'border-sdc-border text-sdc-ink'"
           @click="emit('toggle-locale')"
         >
           {{ languageName }}

@@ -39,7 +39,7 @@ const offeringsReveal = useScrollReveal();
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sdc-canvas text-sdc-ink">
+  <main id="main-content" tabindex="-1" :dir="direction" :lang="locale" class="min-h-screen bg-sdc-canvas text-sdc-ink">
     <SiteHeader
       variant="solid"
       :locale="locale"
@@ -56,7 +56,7 @@ const offeringsReveal = useScrollReveal();
     />
 
     <section class="px-6 pt-10 pb-4 lg:px-10">
-      <div class="mx-auto max-w-3xl rounded-[2rem] border border-sdc-border bg-white p-8 text-center shadow-sm sm:p-12">
+      <div class="mx-auto max-w-3xl rounded-[2rem] border border-sdc-border bg-sdc-surface p-8 text-center shadow-sm sm:p-12">
         <span class="inline-flex rounded-full bg-sdc-sand-soft px-4 py-2 text-xs font-bold tracking-[0.13em] text-sdc-deep uppercase">
           {{ copy.discover.pricingNotice }}
         </span>
@@ -66,7 +66,7 @@ const offeringsReveal = useScrollReveal();
           <a :href="whatsappUrl" target="_blank" rel="noopener" class="inline-flex rounded-full bg-sdc-deep px-6 py-3 font-semibold text-white transition-transform hover:-translate-y-0.5">
             {{ copy.discover.whatsapp }}
           </a>
-          <NuxtLink to="/design-system" class="inline-flex rounded-full border border-sdc-border bg-white px-6 py-3 font-semibold text-sdc-deep-bright">
+          <NuxtLink to="/design-system" class="inline-flex rounded-full border border-sdc-border bg-sdc-surface px-6 py-3 font-semibold text-sdc-deep-bright">
             {{ copy.discover.viewSystem }}
           </NuxtLink>
         </div>
@@ -82,7 +82,7 @@ const offeringsReveal = useScrollReveal();
         <button
           type="button"
           class="min-h-11 rounded-full border px-4 text-sm font-semibold transition-colors"
-          :class="activeFilter === null ? 'border-sdc-deep bg-sdc-deep text-white' : 'border-sdc-border bg-white text-sdc-deep-bright'"
+          :class="activeFilter === null ? 'border-sdc-deep bg-sdc-deep text-white' : 'border-sdc-border bg-sdc-surface text-sdc-deep-bright'"
           :aria-pressed="activeFilter === null"
           @click="activeFilter = null"
         >
@@ -93,7 +93,7 @@ const offeringsReveal = useScrollReveal();
           :key="category.id"
           type="button"
           class="min-h-11 rounded-full border px-4 text-sm font-semibold transition-colors"
-          :class="activeFilter === category.id ? 'border-sdc-deep bg-sdc-deep text-white' : 'border-sdc-border bg-white text-sdc-deep-bright'"
+          :class="activeFilter === category.id ? 'border-sdc-deep bg-sdc-deep text-white' : 'border-sdc-border bg-sdc-surface text-sdc-deep-bright'"
           :aria-pressed="activeFilter === category.id"
           @click="activeFilter = category.id"
         >
@@ -105,7 +105,7 @@ const offeringsReveal = useScrollReveal();
         <article
           v-for="(category, index) in filteredCategories"
           :key="category.id"
-          class="hover-lift rounded-[1.75rem] border border-sdc-border bg-white p-6 shadow-sm"
+          class="hover-lift rounded-[1.75rem] border border-sdc-border bg-sdc-surface p-6 shadow-sm"
           :style="{ transitionDelay: gridReveal.visible.value ? `${index * 60}ms` : '0ms' }"
         >
           <p class="text-xs font-bold tracking-[0.15em] text-sdc-deep-bright uppercase">{{ category.eyebrow }}</p>

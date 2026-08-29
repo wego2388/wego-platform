@@ -27,7 +27,7 @@ const cardsReveal = useScrollReveal();
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sdc-canvas text-sdc-ink">
+  <main id="main-content" tabindex="-1" :dir="direction" :lang="locale" class="min-h-screen bg-sdc-canvas text-sdc-ink">
     <SiteHeader
       variant="solid"
       :locale="locale"
@@ -59,19 +59,19 @@ const cardsReveal = useScrollReveal();
           <p class="mt-2 reference text-lg font-semibold" dir="ltr">+20 10 6646 1010</p>
           <p class="mt-2 text-sm text-white/80">{{ copy.contact.whatsappBody }}</p>
         </a>
-        <div class="hover-lift rounded-[1.75rem] border border-sdc-border bg-white p-6 shadow-sm">
+        <div class="hover-lift rounded-[1.75rem] border border-sdc-border bg-sdc-surface p-6 shadow-sm">
           <p class="text-xs font-bold tracking-[0.12em] text-sdc-deep-bright uppercase">{{ copy.contact.phoneLabel }}</p>
           <p class="reference mt-2 text-lg font-semibold" dir="ltr">+20 10 6646 1010</p>
         </div>
-        <div class="hover-lift rounded-[1.75rem] border border-sdc-border bg-white p-6 shadow-sm">
+        <div class="hover-lift rounded-[1.75rem] border border-sdc-border bg-sdc-surface p-6 shadow-sm">
           <p class="text-xs font-bold tracking-[0.12em] text-sdc-deep-bright uppercase">{{ copy.contact.emailLabel }}</p>
           <p class="reference mt-2 text-lg font-semibold" dir="ltr">Sales@sharmdiversclub.com</p>
         </div>
-        <div class="hover-lift rounded-[1.75rem] border border-sdc-border bg-white p-6 shadow-sm">
+        <div class="hover-lift rounded-[1.75rem] border border-sdc-border bg-sdc-surface p-6 shadow-sm">
           <p class="text-xs font-bold tracking-[0.12em] text-sdc-deep-bright uppercase">{{ copy.contact.locationLabel }}</p>
           <p class="mt-2 font-semibold">Royal Grand Sharm Hotel, Hadabet Um Sid, Sharm El Sheikh, Egypt</p>
         </div>
-        <div class="hover-lift rounded-[1.75rem] border border-sdc-border bg-white p-6 shadow-sm">
+        <div class="hover-lift rounded-[1.75rem] border border-sdc-border bg-sdc-surface p-6 shadow-sm">
           <p class="text-xs font-bold tracking-[0.12em] text-sdc-deep-bright uppercase">{{ copy.contact.hoursLabel }}</p>
           <p class="reference mt-2 font-semibold" dir="ltr">Daily 08:00–20:00</p>
         </div>

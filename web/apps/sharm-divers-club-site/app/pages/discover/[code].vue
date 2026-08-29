@@ -4,7 +4,7 @@ import SiteFooter from "../../components/SiteFooter.vue";
 import SiteHeader from "../../components/SiteHeader.vue";
 import { useSiteLocale } from "../../composables/useSiteLocale";
 import { directionFor, siteCopy, whatsappUrl } from "../../content/locales";
-import { audienceLabel, categoryIcon, diveCountLabel, durationLabel, formatEur, offerings } from "../../content/offerings";
+import { audienceLabel, categoryIcon, diveCountLabel, durationLabel, formatEur, imageForOffering, offerings } from "../../content/offerings";
 
 const route = useRoute();
 const code = String(route.params.code).toUpperCase();
@@ -24,6 +24,7 @@ const dives = computed(() => diveCountLabel(locale.value, offering.diveCount));
 const audience = computed(() => audienceLabel(locale.value, offering.audience));
 const price = computed(() => formatEur(offering.priceEur));
 const icon = computed(() => categoryIcon(offering.categoryId));
+const photo = computed(() => imageForOffering(offering, locale.value));
 const related = computed(() => offerings.filter(item => item.categoryId === offering.categoryId && item.code !== offering.code));
 
 const askUrl = computed(() => {
@@ -64,7 +65,7 @@ function toggleLocale() {
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sdc-canvas text-sdc-ink">
+  <main id="main-content" tabindex="-1" :dir="direction" :lang="locale" class="min-h-screen bg-sdc-canvas text-sdc-ink">
     <SiteHeader
       variant="solid"
       :locale="locale"
@@ -86,7 +87,16 @@ function toggleLocale() {
       </NuxtLink>
 
       <div class="mt-6 grid gap-8 lg:grid-cols-[1fr_20rem]">
-        <div class="rounded-[1.75rem] border border-sdc-border bg-white p-6 sm:p-8">
+        <div class="overflow-hidden rounded-[1.75rem] border border-sdc-border bg-sdc-surface">
+          <img
+            v-if="photo"
+            :src="photo.url"
+            :alt="photo.alt"
+            width="1200"
+            height="800"
+            class="aspect-[3/2] w-full object-cover sm:aspect-[16/9]"
+          >
+          <div class="p-6 sm:p-8">
           <div class="grid size-14 place-items-center rounded-2xl bg-sdc-turquoise-soft text-sdc-deep">
             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path :d="icon" />
@@ -102,12 +112,13 @@ function toggleLocale() {
           </div>
 
           <div class="mt-8 border-t border-sdc-border pt-6">
-            <p class="money text-3xl font-semibold text-sdc-deep">{{ price }}</p>
+            <p class="money text-3xl font-semibold text-sdc-ink">{{ price }}</p>
             <p class="mt-2 text-xs font-semibold text-sdc-deep-bright">{{ copy.discover.pricingNotice }}</p>
+          </div>
           </div>
         </div>
 
-        <aside class="h-fit rounded-[1.75rem] border border-sdc-border bg-white p-6 shadow-sm">
+        <aside class="h-fit rounded-[1.75rem] border border-sdc-border bg-sdc-surface p-6 shadow-sm">
           <p class="reference text-sm leading-6 text-sdc-muted" dir="ltr">catalog.dive-core.v1.json · {{ offering.code }}</p>
           <a :href="askUrl" target="_blank" rel="noopener" class="mt-5 flex min-h-11 items-center justify-center rounded-full bg-sdc-deep px-5 text-sm font-semibold text-white">
             {{ copy.discover.whatsapp }}

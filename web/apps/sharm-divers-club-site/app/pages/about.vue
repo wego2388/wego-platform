@@ -9,6 +9,9 @@ import { directionFor, siteCopy } from "../content/locales";
 const locale = useSiteLocale();
 const copy = computed(() => siteCopy[locale.value]);
 const direction = computed(() => directionFor(locale.value));
+const officePhotoAlt = computed(() =>
+  locale.value === "ar" ? "مركز Sharm Divers Club الحقيقي في شرم الشيخ" : "Sharm Divers Club's real dive center in Sharm El Sheikh",
+);
 
 useHead(() => ({
   title: locale.value === "ar" ? "من نحن · Sharm Divers Club" : "About · Sharm Divers Club",
@@ -27,7 +30,7 @@ const factsReveal = useScrollReveal();
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sdc-canvas text-sdc-ink">
+  <main id="main-content" tabindex="-1" :dir="direction" :lang="locale" class="min-h-screen bg-sdc-canvas text-sdc-ink">
     <SiteHeader
       variant="solid"
       :locale="locale"
@@ -48,12 +51,22 @@ const factsReveal = useScrollReveal();
       <p class="mx-auto mt-5 max-w-2xl leading-8 text-sdc-muted">{{ copy.about.body }}</p>
     </section>
 
+    <section class="mx-auto mt-10 max-w-4xl px-6 lg:px-10">
+      <img
+        src="/images/offerings/about-office.webp"
+        :alt="officePhotoAlt"
+        width="1600"
+        height="702"
+        class="aspect-[21/9] w-full rounded-[1.75rem] border border-sdc-border object-cover"
+      >
+    </section>
+
     <section
       :ref="(node) => (factsReveal.el.value = node as HTMLElement | null)"
       class="reveal-transition mx-auto mt-12 max-w-4xl px-6 lg:px-10"
       :class="{ 'reveal-hidden': !factsReveal.visible.value }"
     >
-      <div class="hover-lift rounded-[1.75rem] border border-sdc-border bg-white p-8">
+      <div class="hover-lift rounded-[1.75rem] border border-sdc-border bg-sdc-surface p-8">
         <h2 class="text-xl font-semibold">{{ copy.about.factsHeading }}</h2>
         <dl class="mt-6 grid gap-5 sm:grid-cols-2">
           <div v-for="fact in copy.about.facts" :key="fact.label">
