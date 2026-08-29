@@ -37,6 +37,21 @@ sealed interface AppDestination {
 
         fun navRoute(code: String): String = "offering/$code"
     }
+
+    data object DiveSites : AppDestination {
+        override val route: String = "dive-sites"
+    }
+
+    data object DiveSiteDetail : AppDestination {
+        override val route: String = "dive-sites/{slug}"
+        const val ARG_SLUG = "slug"
+
+        fun navRoute(slug: String): String = "dive-sites/$slug"
+    }
+
+    data object PackageBuilder : AppDestination {
+        override val route: String = "package-builder"
+    }
 }
 
 /** Bottom navigation only shows the five top-level destinations, not the detail screen. */

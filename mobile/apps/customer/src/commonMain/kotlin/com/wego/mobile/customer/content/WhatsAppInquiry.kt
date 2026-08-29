@@ -1,6 +1,8 @@
 package com.wego.mobile.customer.content
 
+import com.wego.mobile.shared.catalog.DiveSite
 import com.wego.mobile.shared.catalog.Offering
+import com.wego.mobile.shared.catalog.formatEur
 import com.wego.mobile.shared.locale.AppLocale
 
 /**
@@ -19,6 +21,35 @@ fun offeringInquiryUrl(
         } else {
             "Hi, I'd like to ask about: $label (${offering.code})"
         }
+    return "${SiteCopy.WHATSAPP_URL}?text=${encodeUrlQueryComponent(text)}"
+}
+
+/** Same pattern as [offeringInquiryUrl], for a dive site rather than a single offering. */
+fun siteInquiryUrl(
+    site: DiveSite,
+    locale: AppLocale,
+): String {
+    val name = site.name.of(locale)
+    val text =
+        if (locale == AppLocale.AR) {
+            "مرحبًا، عايز أسأل عن رحلات $name"
+        } else {
+            "Hi, I'd like to ask about trips to $name"
+        }
+    return "${SiteCopy.WHATSAPP_URL}?text=${encodeUrlQueryComponent(text)}"
+}
+
+/** Same real, prefilled-inquiry pattern, listing every selected offering plus a real running total. */
+fun packageInquiryUrl(
+    offerings: List<Offering>,
+    totalEur: Int,
+    locale: AppLocale,
+): String {
+    val intro = if (locale == AppLocale.AR) "مرحبًا، عايز أسأل عن الباقة دي:" else "Hi, I'd like to ask about this package:"
+    val lines = offerings.map { offering -> "- ${offering.name.of(locale)} (${offering.code}) — ${formatEur(offering.priceEur)}" }
+    val totalLine =
+        if (locale == AppLocale.AR) "الإجمالي التقديري: ${formatEur(totalEur)}" else "Estimated total: ${formatEur(totalEur)}"
+    val text = (listOf(intro) + lines + totalLine).joinToString("\n")
     return "${SiteCopy.WHATSAPP_URL}?text=${encodeUrlQueryComponent(text)}"
 }
 

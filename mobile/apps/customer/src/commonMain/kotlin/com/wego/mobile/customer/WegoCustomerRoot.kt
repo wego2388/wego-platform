@@ -40,9 +40,12 @@ import com.wego.mobile.customer.theme.SdcTheme
 import com.wego.mobile.customer.ui.screens.AboutScreen
 import com.wego.mobile.customer.ui.screens.ContactScreen
 import com.wego.mobile.customer.ui.screens.DiscoverScreen
+import com.wego.mobile.customer.ui.screens.DiveSiteDetailScreen
+import com.wego.mobile.customer.ui.screens.DiveSitesScreen
 import com.wego.mobile.customer.ui.screens.FaqScreen
 import com.wego.mobile.customer.ui.screens.HomeScreen
 import com.wego.mobile.customer.ui.screens.OfferingDetailScreen
+import com.wego.mobile.customer.ui.screens.PackageBuilderScreen
 import com.wego.mobile.shared.catalog.CategoryId
 import com.wego.mobile.shared.experience.ExperienceProfile
 import com.wego.mobile.shared.locale.AppLocale
@@ -137,6 +140,8 @@ private fun WegoCustomerApp(localeState: AppLocaleState) {
                     },
                     onOpenWhatsApp = { uriHandler.openUri(SiteCopy.WHATSAPP_URL) },
                     onOpenTripAdvisor = { uriHandler.openUri(SiteCopy.TRIPADVISOR_URL) },
+                    onOpenDiveSites = { navController.navigate(AppDestination.DiveSites.route) },
+                    onOpenPackageBuilder = { navController.navigate(AppDestination.PackageBuilder.route) },
                 )
             }
             composable(
@@ -176,6 +181,32 @@ private fun WegoCustomerApp(localeState: AppLocaleState) {
                             launchSingleTop = true
                         }
                     },
+                    onOpenUrl = { url -> uriHandler.openUri(url) },
+                )
+            }
+            composable(AppDestination.DiveSites.route) {
+                DiveSitesScreen(
+                    locale = locale,
+                    onSiteClick = { site -> navController.navigate(AppDestination.DiveSiteDetail.navRoute(site.slug)) },
+                )
+            }
+            composable(
+                route = AppDestination.DiveSiteDetail.route,
+                arguments = listOf(navArgument(AppDestination.DiveSiteDetail.ARG_SLUG) { type = NavType.StringType }),
+            ) { entry ->
+                val slug = entry.arguments?.read { getStringOrNull(AppDestination.DiveSiteDetail.ARG_SLUG) }.orEmpty()
+                DiveSiteDetailScreen(
+                    slug = slug,
+                    locale = locale,
+                    onBack = { navController.popBackStack() },
+                    onOfferingClick = { offering -> navController.navigate(AppDestination.OfferingDetail.navRoute(offering.code)) },
+                    onOpenUrl = { url -> uriHandler.openUri(url) },
+                    onBuildPackage = { navController.navigate(AppDestination.PackageBuilder.route) },
+                )
+            }
+            composable(AppDestination.PackageBuilder.route) {
+                PackageBuilderScreen(
+                    locale = locale,
                     onOpenUrl = { url -> uriHandler.openUri(url) },
                 )
             }

@@ -37,6 +37,8 @@ fun HomeScreen(
     onCategoryClick: (CategoryId) -> Unit,
     onOpenWhatsApp: () -> Unit,
     onOpenTripAdvisor: () -> Unit,
+    onOpenDiveSites: () -> Unit,
+    onOpenPackageBuilder: () -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -78,6 +80,13 @@ fun HomeScreen(
                 StatBlock(SiteCopy.Stats.CATEGORIES_VALUE, SiteCopy.Stats.categoriesLabel.of(locale))
                 StatBlock(SiteCopy.Stats.LANGUAGES_VALUE, SiteCopy.Stats.languagesLabel.of(locale))
                 StatBlock(SiteCopy.Stats.PADI_VALUE, SiteCopy.Stats.padiLabel.of(locale))
+            }
+        }
+
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(SdcSpace.md)) {
+                OutlinedButton(onClick = onOpenDiveSites) { Text(SiteCopy.DiveSites.navLabel.of(locale)) }
+                OutlinedButton(onClick = onOpenPackageBuilder) { Text(SiteCopy.PackageBuilder.navLabel.of(locale)) }
             }
         }
 

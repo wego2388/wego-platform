@@ -217,6 +217,44 @@ object SiteCopy {
         val hoursLabel = LocalizedText("Hours", "المواعيد")
     }
 
+    object DiveSites {
+        val heading = LocalizedText("Real Red Sea sites, real trips to them", "مواقع حقيقية في البحر الأحمر، ورحلات حقيقية ليها")
+        val body =
+            LocalizedText(
+                "These are the named sites our real, approved boat trips actually visit. Always confirm the " +
+                    "day's plan with our team before you go.",
+                "دي المواقع اللي رحلاتنا الحقيقية والمعتمدة بالفعل بتروحلها. دايمًا أكّد خطة اليوم مع فريقنا قبل " +
+                    "ما تنزل.",
+            )
+        val offeringsHeading = LocalizedText("Real trips to this site", "رحلات حقيقية لهذا الموقع")
+        val whatsappCta = LocalizedText("Send an inquiry on WhatsApp", "ابعت طلبك على واتساب")
+        val buildPackageCta = LocalizedText("Build a package", "كوّن باقتك")
+        val back = LocalizedText("Back to dive sites", "العودة لمواقع الغوص")
+        val navLabel = LocalizedText("Dive Sites", "مواقع الغوص")
+    }
+
+    object PackageBuilder {
+        val heading = LocalizedText("Build your own package", "كوّن باقتك بنفسك")
+        val body =
+            LocalizedText(
+                "Add any of our real, approved offerings to see a running total, then send the whole list to " +
+                    "our team on WhatsApp — nothing here is booked or charged automatically.",
+                "ضيف أي من خدماتنا الحقيقية والمعتمدة عشان تشوف الإجمالي أول بأول، وبعدين ابعت القائمة كلها " +
+                    "لفريقنا على واتساب — مفيش هنا أي حجز أو دفع تلقائي.",
+            )
+        val addLabel = LocalizedText("Add", "ضيف")
+        val addedLabel = LocalizedText("Added", "مضاف")
+        val removeLabel = LocalizedText("Remove", "احذف")
+        val totalLabel = LocalizedText("Estimated total", "الإجمالي التقديري")
+        val emptyLabel =
+            LocalizedText(
+                "Nothing added yet — pick a few offerings below to start building a package.",
+                "لسه مفيش حاجة مضافة — اختار كام خدمة تحت عشان تبدأ تكوّن باقتك.",
+            )
+        val whatsappCta = LocalizedText("Send this package on WhatsApp", "ابعت الباقة دي على واتساب")
+        val navLabel = LocalizedText("Package", "الباقة")
+    }
+
     object Faq {
         val heading = LocalizedText("Frequently asked questions", "الأسئلة الشائعة")
         val body =
