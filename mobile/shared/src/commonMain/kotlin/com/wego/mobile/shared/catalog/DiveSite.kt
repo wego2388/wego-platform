@@ -8,7 +8,8 @@ package com.wego.mobile.shared.catalog
  * geography/history about the place itself — never invented depth,
  * visibility or marine-life detail, since no source-verified data exists
  * for those and this project's no-fabrication rule carves out no exception
- * for "obviously safe" invented numbers.
+ * for "obviously safe" invented numbers. Source and reviewer recorded in
+ * web/apps/sharm-divers-club-site/app/content/DIVE_SITE_SOURCES.md.
  */
 data class DiveSite(
     val slug: String,

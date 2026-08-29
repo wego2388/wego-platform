@@ -81,7 +81,7 @@ class DiverController(
         @RequestParam(required = false) search: String?,
         @RequestParam(required = false, defaultValue = "0") @Min(0) page: Int,
         @RequestParam(required = false, defaultValue = "50") @Min(1) @Max(200) size: Int,
-    ): List<DiverResponse> = diverQueryService.list(status, search, page, size).map { it.toResponse() }
+    ): List<DiverSummaryResponse> = diverQueryService.list(status, search, page, size).map { it.toSummaryResponse() }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('diver:view')")
@@ -162,6 +162,21 @@ private fun DiverCertification.toDto(): DiverCertificationDto =
         level = level,
         certificationNumber = certificationNumber,
         issuedOn = issuedOn,
+    )
+
+private fun Diver.toSummaryResponse() =
+    DiverSummaryResponse(
+        id = id.value,
+        fullName = fullName,
+        nationality = nationality,
+        primaryLanguage = primaryLanguage,
+        totalLoggedDives = totalLoggedDives,
+        maxDepthMeters = maxDepthMeters,
+        lastDiveOn = lastDiveOn,
+        certifications = certifications.map { DiverCertificationSummaryDto(agency = it.agency, level = it.level, issuedOn = it.issuedOn) },
+        status = status,
+        createdAt = createdAt,
+        archivedAt = archivedAt,
     )
 
 private fun Diver.toResponse() =

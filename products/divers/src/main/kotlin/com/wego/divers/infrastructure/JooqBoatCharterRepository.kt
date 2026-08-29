@@ -25,6 +25,17 @@ class JooqBoatCharterRepository(
         return toDomain(record)
     }
 
+    @Transactional
+    override fun findByIdForUpdate(id: BoatCharterId): BoatCharter? {
+        val record =
+            dsl
+                .selectFrom(DIVERS_BOAT_CHARTER)
+                .where(DIVERS_BOAT_CHARTER.ID.eq(id.value))
+                .forUpdate()
+                .fetchOne() ?: return null
+        return toDomain(record)
+    }
+
     @Transactional(readOnly = true)
     override fun findAll(
         charterType: CharterType?,

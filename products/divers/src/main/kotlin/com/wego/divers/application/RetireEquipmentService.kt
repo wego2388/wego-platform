@@ -32,7 +32,7 @@ class RetireEquipmentService(
         correlationId: UUID?,
     ): RetireEquipmentResult =
         transactionRunner.runInTransaction {
-            val equipment = equipmentRepository.findById(equipmentId) ?: return@runInTransaction RetireEquipmentResult.NotFound
+            val equipment = equipmentRepository.findByIdForUpdate(equipmentId) ?: return@runInTransaction RetireEquipmentResult.NotFound
             if (equipment.isRetired) return@runInTransaction RetireEquipmentResult.AlreadyRetired
             if (rentalRecordRepository.findOpenByEquipmentId(equipmentId) !=
                 null

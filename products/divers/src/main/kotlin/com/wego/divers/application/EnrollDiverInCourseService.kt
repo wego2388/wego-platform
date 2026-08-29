@@ -4,6 +4,7 @@ import com.wego.divers.domain.CourseEnrollment
 import com.wego.divers.domain.CourseEnrollmentId
 import com.wego.divers.domain.DiverId
 import com.wego.divers.domain.OfferingId
+import com.wego.divers.domain.OfferingStatus
 import com.wego.divers.domain.OfferingType
 import java.time.Clock
 import java.time.Instant
@@ -27,6 +28,12 @@ sealed interface EnrollDiverInCourseResult {
 
     /** Only a real COURSE offering has a certification pipeline — a dive trip or rental has nothing to enroll into. */
     data object OfferingIsNotACourse : EnrollDiverInCourseResult
+
+    /** An archived diver has ended their relationship with the center — starting a new course for them is a real-world error, not a state transition. */
+    data object DiverNotActive : EnrollDiverInCourseResult
+
+    /** A closed course offering no longer runs — nothing to enroll into. */
+    data object OfferingNotActive : EnrollDiverInCourseResult
 }
 
 class EnrollDiverInCourseService(
@@ -39,10 +46,12 @@ class EnrollDiverInCourseService(
 ) {
     fun enroll(command: EnrollDiverInCourseCommand): EnrollDiverInCourseResult =
         transactionRunner.runInTransaction {
-            if (diverRepository.findById(command.diverId) == null) return@runInTransaction EnrollDiverInCourseResult.DiverNotFound
+            val diver = diverRepository.findById(command.diverId) ?: return@runInTransaction EnrollDiverInCourseResult.DiverNotFound
+            if (!diver.isActive) return@runInTransaction EnrollDiverInCourseResult.DiverNotActive
             val offering =
                 offeringRepository.findById(command.offeringId) ?: return@runInTransaction EnrollDiverInCourseResult.OfferingNotFound
             if (offering.offeringType != OfferingType.COURSE) return@runInTransaction EnrollDiverInCourseResult.OfferingIsNotACourse
+            if (offering.status != OfferingStatus.ACTIVE) return@runInTransaction EnrollDiverInCourseResult.OfferingNotActive
 
             val now = Instant.now(clock)
             val enrollment =

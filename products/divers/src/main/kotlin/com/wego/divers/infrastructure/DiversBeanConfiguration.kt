@@ -43,6 +43,7 @@ import com.wego.divers.application.RecordRentalService
 import com.wego.divers.application.RecordSkillEvaluationService
 import com.wego.divers.application.RefundBookingService
 import com.wego.divers.application.RetireEquipmentService
+import com.wego.divers.application.StaffUserLookup
 import com.wego.divers.application.StartMaintenanceService
 import com.wego.divers.application.TransactionRunner
 import com.wego.divers.application.UnlinkOfferingFromCharterService
@@ -211,10 +212,12 @@ class DiversBeanConfiguration {
     @Bean
     fun startMaintenanceService(
         equipmentRepository: EquipmentRepository,
+        rentalRecordRepository: EquipmentRentalRecordRepository,
         equipmentAuditRecorder: EquipmentAuditRecorder,
         transactionRunner: TransactionRunner,
         clock: Clock,
-    ): StartMaintenanceService = StartMaintenanceService(equipmentRepository, equipmentAuditRecorder, transactionRunner, clock)
+    ): StartMaintenanceService =
+        StartMaintenanceService(equipmentRepository, rentalRecordRepository, equipmentAuditRecorder, transactionRunner, clock)
 
     @Bean
     fun completeMaintenanceService(
@@ -330,8 +333,9 @@ class DiversBeanConfiguration {
     @Bean
     fun assignInstructorService(
         enrollmentRepository: CourseEnrollmentRepository,
+        staffUserLookup: StaffUserLookup,
         transactionRunner: TransactionRunner,
-    ): AssignInstructorService = AssignInstructorService(enrollmentRepository, transactionRunner)
+    ): AssignInstructorService = AssignInstructorService(enrollmentRepository, staffUserLookup, transactionRunner)
 
     @Bean
     fun advanceEnrollmentStageService(

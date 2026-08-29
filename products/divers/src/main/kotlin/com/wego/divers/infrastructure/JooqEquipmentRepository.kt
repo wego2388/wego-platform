@@ -25,6 +25,17 @@ class JooqEquipmentRepository(
         return toDomain(record)
     }
 
+    @Transactional
+    override fun findByIdForUpdate(id: EquipmentId): Equipment? {
+        val record =
+            dsl
+                .selectFrom(DIVERS_EQUIPMENT)
+                .where(DIVERS_EQUIPMENT.ID.eq(id.value))
+                .forUpdate()
+                .fetchOne() ?: return null
+        return toDomain(record)
+    }
+
     @Transactional(readOnly = true)
     override fun findByQrCode(qrCode: String): Equipment? {
         val record = dsl.selectFrom(DIVERS_EQUIPMENT).where(DIVERS_EQUIPMENT.QR_CODE.eq(qrCode)).fetchOne() ?: return null

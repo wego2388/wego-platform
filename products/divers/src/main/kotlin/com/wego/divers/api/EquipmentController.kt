@@ -144,6 +144,8 @@ class EquipmentController(
             is StartMaintenanceResult.Started -> ResponseEntity.ok(result.equipment.toResponse())
             StartMaintenanceResult.NotFound -> ResponseEntity.notFound().build()
             StartMaintenanceResult.NotActive -> ResponseEntity.status(HttpStatus.CONFLICT).body(EquipmentErrorResponse("not_active"))
+            StartMaintenanceResult.HasOpenRental ->
+                ResponseEntity.status(HttpStatus.CONFLICT).body(EquipmentErrorResponse("has_open_rental"))
         }
     }
 

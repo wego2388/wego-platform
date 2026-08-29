@@ -104,6 +104,19 @@ class DiverTest {
     }
 
     @Test
+    fun `archiving redacts emergency contact and medical notes`() {
+        val diver = create()
+        assertThat(diver.medicalNotes).isNull()
+        assertThat(diver.emergencyContactName).isEqualTo("Anna Isaacs")
+
+        diver.archive(Instant.parse("2026-09-01T00:00:00Z"))
+
+        assertThat(diver.emergencyContactName).isNull()
+        assertThat(diver.emergencyContactPhone).isNull()
+        assertThat(diver.medicalNotes).isNull()
+    }
+
+    @Test
     fun `an already-archived diver cannot be archived again`() {
         val diver = create()
         diver.archive(Instant.parse("2026-09-01T00:00:00Z"))

@@ -28,7 +28,7 @@ class ArchiveDiverService(
         correlationId: UUID?,
     ): ArchiveDiverResult =
         transactionRunner.runInTransaction {
-            val diver = diverRepository.findById(diverId) ?: return@runInTransaction ArchiveDiverResult.NotFound
+            val diver = diverRepository.findByIdForUpdate(diverId) ?: return@runInTransaction ArchiveDiverResult.NotFound
             if (!diver.isActive) return@runInTransaction ArchiveDiverResult.AlreadyArchived
 
             val now = Instant.now(clock)

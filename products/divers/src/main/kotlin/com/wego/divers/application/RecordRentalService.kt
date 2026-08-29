@@ -36,7 +36,7 @@ class RecordRentalService(
     fun record(command: RecordRentalCommand): RecordRentalResult =
         transactionRunner.runInTransaction {
             val equipment =
-                equipmentRepository.findById(command.equipmentId) ?: return@runInTransaction RecordRentalResult.EquipmentNotFound
+                equipmentRepository.findByIdForUpdate(command.equipmentId) ?: return@runInTransaction RecordRentalResult.EquipmentNotFound
             if (equipment.status != EquipmentStatus.ACTIVE) return@runInTransaction RecordRentalResult.EquipmentNotAvailable
             if (rentalRecordRepository.findOpenByEquipmentId(command.equipmentId) != null) {
                 return@runInTransaction RecordRentalResult.AlreadyOut

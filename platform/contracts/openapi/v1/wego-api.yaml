@@ -394,7 +394,10 @@ paths:
       summary: List diver profiles
       description: >-
         Requires `diver:view`. Paginated with `page`/`size`; `search`
-        matches against the diver's full name.
+        matches against the diver's full name. Returns a roster projection —
+        email, phone, emergency contact, medical notes and certification
+        numbers are deliberately omitted; fetch a single diver by id for the
+        full record.
       tags:
         - DiverProfiles
       security:
@@ -437,7 +440,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/DiverResponse"
+                  $ref: "#/components/schemas/DiverSummaryResponse"
         "400":
           description: An invalid `page`/`size`/`status` query parameter.
           content:
@@ -2449,6 +2452,64 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DiverCertification"
+        status:
+          $ref: "#/components/schemas/DiverStatus"
+        createdAt:
+          type: string
+          format: date-time
+        archivedAt:
+          type: string
+          format: date-time
+    DiverCertificationSummary:
+      type: object
+      additionalProperties: false
+      required:
+        - agency
+        - level
+      properties:
+        agency:
+          type: string
+        level:
+          type: string
+        issuedOn:
+          type: string
+          format: date
+    DiverSummaryResponse:
+      type: object
+      additionalProperties: false
+      description: >-
+        The roster/list projection — deliberately omits email, phone,
+        emergency contact, medical notes and certification numbers (a real
+        over-exposure fix, not a trimmed-down convenience type). Fetch a
+        single diver by id for the full DiverResponse.
+      required:
+        - id
+        - fullName
+        - totalLoggedDives
+        - certifications
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        nationality:
+          type: string
+        primaryLanguage:
+          type: string
+        totalLoggedDives:
+          type: integer
+        maxDepthMeters:
+          type: number
+        lastDiveOn:
+          type: string
+          format: date
+        certifications:
+          type: array
+          items:
+            $ref: "#/components/schemas/DiverCertificationSummary"
         status:
           $ref: "#/components/schemas/DiverStatus"
         createdAt:

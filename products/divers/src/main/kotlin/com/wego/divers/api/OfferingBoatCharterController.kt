@@ -32,7 +32,7 @@ class OfferingBoatCharterController(
     private val boatCharterQueryService: BoatCharterQueryService,
 ) {
     @GetMapping
-    @PreAuthorize("hasAuthority('offering:view')")
+    @PreAuthorize("hasAuthority('boat-charter:view')")
     fun get(
         @PathVariable offeringId: UUID,
     ): ResponseEntity<OfferingBoatCharterLinkResponse> {

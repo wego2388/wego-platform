@@ -4,6 +4,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -59,10 +60,15 @@ class DiveSitesAndPackageBuilderTest {
             onNodeWithText("Package").performClick()
             onNodeWithText("Nothing added yet — pick a few offerings below to start building a package.").assertExists()
 
+            // DiveCatalog.offerings[0] is SD02 "Intro Dive — 30 minutes" at a real €50 — the first "Add" click
+            // must add exactly that offering, not a stand-in, so its real price shows in the running total too.
             onAllNodesWithText("Add")[0].performClick()
 
             onNodeWithText("Estimated total").assertExists()
             onNodeWithText("Remove").assertExists()
+            // "€50" now appears twice: once in the catalog row, once in the real running total — proves the
+            // total reflects the actual selected offering's price, not a placeholder or a stale label.
+            onAllNodesWithText("€50").assertCountEquals(2)
         }
 
     @Test

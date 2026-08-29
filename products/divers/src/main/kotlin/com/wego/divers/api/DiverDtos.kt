@@ -91,6 +91,35 @@ data class DiverResponse(
     val archivedAt: Instant?,
 )
 
+data class DiverCertificationSummaryDto(
+    val agency: String,
+    val level: String,
+    val issuedOn: LocalDate?,
+)
+
+/**
+ * The roster/list projection — deliberately excludes email, phone,
+ * emergency contact, medical notes and certification numbers. `diver:view`
+ * covers everyday search/browse, and bulk-serializing that sensitive PII
+ * for every row of a page-sized list (up to 200) was a real over-exposure
+ * Tier 1 review found. Dive stats and the certification agency/level
+ * (without the number) stay — they're operational, not personally
+ * sensitive. The full [DiverResponse] stays on the single-record `GET /{id}`.
+ */
+data class DiverSummaryResponse(
+    val id: UUID,
+    val fullName: String,
+    val nationality: String?,
+    val primaryLanguage: String?,
+    val totalLoggedDives: Int,
+    val maxDepthMeters: BigDecimal?,
+    val lastDiveOn: LocalDate?,
+    val certifications: List<DiverCertificationSummaryDto>,
+    val status: DiverStatus,
+    val createdAt: Instant,
+    val archivedAt: Instant?,
+)
+
 data class DiverErrorResponse(
     val error: String,
 )

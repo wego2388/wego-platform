@@ -48,7 +48,7 @@ class UpdateDiverService(
 ) {
     fun update(command: UpdateDiverCommand): UpdateDiverResult =
         transactionRunner.runInTransaction {
-            val existing = diverRepository.findById(command.diverId) ?: return@runInTransaction UpdateDiverResult.NotFound
+            val existing = diverRepository.findByIdForUpdate(command.diverId) ?: return@runInTransaction UpdateDiverResult.NotFound
             if (!existing.isActive) return@runInTransaction UpdateDiverResult.Archived
 
             val updated =

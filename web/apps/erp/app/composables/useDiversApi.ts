@@ -177,6 +177,32 @@ export interface DiverCertification {
   issuedOn?: string;
 }
 
+export interface DiverCertificationSummary {
+  agency: string;
+  level: string;
+  issuedOn?: string;
+}
+
+/**
+ * The roster/list projection returned by GET /divers — deliberately
+ * omits email, phone, emergency contact, medical notes and certification
+ * numbers (a real over-exposure fix, not a trimmed-down convenience type).
+ * Fetch a single diver by id (getDiver) for the full record.
+ */
+export interface DiverSummary {
+  id: string;
+  fullName: string;
+  nationality?: string;
+  primaryLanguage?: string;
+  totalLoggedDives: number;
+  maxDepthMeters?: string;
+  lastDiveOn?: string;
+  certifications: DiverCertificationSummary[];
+  status: DiverStatus;
+  createdAt: string;
+  archivedAt?: string;
+}
+
 export interface Diver {
   id: string;
   fullName: string;
@@ -220,13 +246,13 @@ export interface UpsertDiverBody {
 export function listDivers(
   token: string,
   params: { status?: DiverStatus; search?: string; page?: number; size?: number } = {},
-): Promise<Diver[]> {
+): Promise<DiverSummary[]> {
   const query = new URLSearchParams();
   if (params.status) query.set("status", params.status);
   if (params.search) query.set("search", params.search);
   query.set("page", String(params.page ?? 0));
   query.set("size", String(params.size ?? PAGE_SIZE));
-  return request<Diver[]>(`/api/v1/divers/divers?${query.toString()}`, token);
+  return request<DiverSummary[]>(`/api/v1/divers/divers?${query.toString()}`, token);
 }
 
 export function getDiver(token: string, id: string): Promise<Diver> {

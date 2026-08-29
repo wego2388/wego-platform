@@ -28,6 +28,17 @@ class JooqDiverRepository(
         return toDomain(record, certificationsFor(id))
     }
 
+    @Transactional
+    override fun findByIdForUpdate(id: DiverId): Diver? {
+        val record =
+            dsl
+                .selectFrom(DIVERS_DIVER)
+                .where(DIVERS_DIVER.ID.eq(id.value))
+                .forUpdate()
+                .fetchOne() ?: return null
+        return toDomain(record, certificationsFor(id))
+    }
+
     @Transactional(readOnly = true)
     override fun findAll(
         status: DiverStatus?,

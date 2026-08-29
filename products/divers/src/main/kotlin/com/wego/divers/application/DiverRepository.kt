@@ -7,6 +7,9 @@ import com.wego.divers.domain.DiverStatus
 interface DiverRepository {
     fun findById(id: DiverId): Diver?
 
+    /** Row-locked read for a read-modify-write cycle — see JooqOfferingRepository.findByIdForUpdate for the established pattern. */
+    fun findByIdForUpdate(id: DiverId): Diver?
+
     fun findAll(
         status: DiverStatus?,
         search: String?,

@@ -12,10 +12,14 @@ sealed interface AssignInstructorResult {
     data object NotFound : AssignInstructorResult
 
     data object EnrollmentFinished : AssignInstructorResult
+
+    /** Not a real, currently-active staff account — a disabled or unrelated user id must never be assignable as an instructor. */
+    data object InstructorNotActiveStaff : AssignInstructorResult
 }
 
 class AssignInstructorService(
     private val enrollmentRepository: CourseEnrollmentRepository,
+    private val staffUserLookup: StaffUserLookup,
     private val transactionRunner: TransactionRunner,
 ) {
     fun assign(
@@ -23,8 +27,12 @@ class AssignInstructorService(
         instructorUserId: UUID,
     ): AssignInstructorResult =
         transactionRunner.runInTransaction {
-            val enrollment = enrollmentRepository.findById(enrollmentId) ?: return@runInTransaction AssignInstructorResult.NotFound
+            val enrollment =
+                enrollmentRepository.findByIdForUpdate(enrollmentId) ?: return@runInTransaction AssignInstructorResult.NotFound
             if (enrollment.isFinished) return@runInTransaction AssignInstructorResult.EnrollmentFinished
+            if (!staffUserLookup.isActiveStaffUser(instructorUserId)) {
+                return@runInTransaction AssignInstructorResult.InstructorNotActiveStaff
+            }
 
             enrollment.assignInstructor(instructorUserId)
             enrollmentRepository.save(enrollment)

@@ -9,6 +9,9 @@ import com.wego.divers.domain.OfferingId
 interface CourseEnrollmentRepository {
     fun findById(id: CourseEnrollmentId): CourseEnrollment?
 
+    /** Row-locked read for a read-modify-write cycle — see JooqOfferingRepository.findByIdForUpdate for the established pattern. */
+    fun findByIdForUpdate(id: CourseEnrollmentId): CourseEnrollment?
+
     fun findAll(
         diverId: DiverId?,
         offeringId: OfferingId?,

@@ -9,6 +9,7 @@ import com.wego.identity.domain.RoleCode
 import com.wego.identity.domain.User
 import com.wego.identity.domain.UserId
 import com.wego.identity.domain.UserStatus
+import org.assertj.core.api.Assertions.assertThat
 import org.jooq.DSLContext
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -225,6 +226,72 @@ class DiverHttpTest {
             }.andExpect {
                 status { isConflict() }
                 jsonPath("$.error") { value("already_archived") }
+            }
+    }
+
+    @Test
+    fun `the roster list omits sensitive PII that only the single-record GET returns`() {
+        val token = login(staffEmail, staffPassword)
+        val createBody =
+            mockMvc
+                .post("/api/v1/divers/divers") {
+                    header("Authorization", "Bearer $token")
+                    contentType = MediaType.APPLICATION_JSON
+                    content = createDiverRequest("PII Sweep Diver")
+                }.andExpect { status { isCreated() } }
+                .andReturn()
+                .response.contentAsString
+        val diverId = jsonField(createBody, "id")
+
+        val listBody =
+            mockMvc
+                .get("/api/v1/divers/divers") {
+                    header("Authorization", "Bearer $token")
+                    param("search", "PII Sweep Diver")
+                }.andExpect { status { isOk() } }
+                .andReturn()
+                .response.contentAsString
+        assertThat(listBody).doesNotContain("ada@example.com")
+        assertThat(listBody).doesNotContain("Anna Isaacs")
+        assertThat(listBody).doesNotContain("AOW-12345")
+        assertThat(listBody).doesNotContain("emergencyContactName")
+        assertThat(listBody).doesNotContain("medicalNotes")
+
+        mockMvc
+            .get("/api/v1/divers/divers/$diverId") {
+                header("Authorization", "Bearer $token")
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.email") { value("ada@example.com") }
+                jsonPath("$.emergencyContactName") { value("Anna Isaacs") }
+            }
+    }
+
+    @Test
+    fun `archiving redacts emergency contact and medical notes, visible through the real GET afterward`() {
+        val token = login(staffEmail, staffPassword)
+        val createBody =
+            mockMvc
+                .post("/api/v1/divers/divers") {
+                    header("Authorization", "Bearer $token")
+                    contentType = MediaType.APPLICATION_JSON
+                    content = createDiverRequest("Redaction Sweep Diver")
+                }.andExpect { status { isCreated() } }
+                .andReturn()
+                .response.contentAsString
+        val diverId = jsonField(createBody, "id")
+
+        mockMvc.delete("/api/v1/divers/divers/$diverId") { header("Authorization", "Bearer $token") }
+
+        mockMvc
+            .get("/api/v1/divers/divers/$diverId") {
+                header("Authorization", "Bearer $token")
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.status") { value("ARCHIVED") }
+                jsonPath("$.emergencyContactName") { doesNotExist() }
+                jsonPath("$.emergencyContactPhone") { doesNotExist() }
+                jsonPath("$.medicalNotes") { doesNotExist() }
             }
     }
 

@@ -15,10 +15,14 @@ sealed interface StartMaintenanceResult {
     data object NotFound : StartMaintenanceResult
 
     data object NotActive : StartMaintenanceResult
+
+    /** Starting maintenance on an item currently out with a customer would silently orphan that open rental. */
+    data object HasOpenRental : StartMaintenanceResult
 }
 
 class StartMaintenanceService(
     private val equipmentRepository: EquipmentRepository,
+    private val rentalRecordRepository: EquipmentRentalRecordRepository,
     private val equipmentAuditRecorder: EquipmentAuditRecorder,
     private val transactionRunner: TransactionRunner,
     private val clock: Clock,
@@ -29,8 +33,11 @@ class StartMaintenanceService(
         correlationId: UUID?,
     ): StartMaintenanceResult =
         transactionRunner.runInTransaction {
-            val equipment = equipmentRepository.findById(equipmentId) ?: return@runInTransaction StartMaintenanceResult.NotFound
+            val equipment = equipmentRepository.findByIdForUpdate(equipmentId) ?: return@runInTransaction StartMaintenanceResult.NotFound
             if (equipment.status != EquipmentStatus.ACTIVE) return@runInTransaction StartMaintenanceResult.NotActive
+            if (rentalRecordRepository.findOpenByEquipmentId(equipmentId) != null) {
+                return@runInTransaction StartMaintenanceResult.HasOpenRental
+            }
 
             equipment.startMaintenance()
             equipmentRepository.save(equipment)

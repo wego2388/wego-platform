@@ -9,7 +9,9 @@ export interface DiveSite {
    * General public geography/history about the location itself — not a
    * Sharm Divers Club business claim, so it isn't gated by approved-facts.json.
    * No invented depth, visibility or marine-life detail: only what's
-   * verifiable, well-documented public knowledge about the place.
+   * verifiable, well-documented public knowledge about the place. Source
+   * and reviewer recorded in DIVE_SITE_SOURCES.md — update that file
+   * alongside any change here.
    */
   blurb: Record<SdcLocale, string>;
   /** Codes from offerings.ts whose real, approved name names this site. */

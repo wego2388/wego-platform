@@ -12,9 +12,9 @@ class Diver(
     val primaryLanguage: String?,
     val email: String?,
     val phone: String?,
-    val emergencyContactName: String?,
-    val emergencyContactPhone: String?,
-    val medicalNotes: String?,
+    emergencyContactName: String?,
+    emergencyContactPhone: String?,
+    medicalNotes: String?,
     val totalLoggedDives: Int,
     val maxDepthMeters: BigDecimal?,
     val lastDiveOn: LocalDate?,
@@ -33,6 +33,23 @@ class Diver(
     var archivedAt: Instant? = archivedAt
         private set
 
+    /**
+     * Redacted (set to null) at archive time — see [archive]. This is this
+     * project's retention/deletion answer for sensitive diver PII that has
+     * no other lifecycle: once the relationship with a diver has ended,
+     * their emergency contact and medical notes stop being retained
+     * indefinitely rather than sitting in the database forever with no
+     * documented handling policy.
+     */
+    var emergencyContactName: String? = emergencyContactName
+        private set
+
+    var emergencyContactPhone: String? = emergencyContactPhone
+        private set
+
+    var medicalNotes: String? = medicalNotes
+        private set
+
     init {
         require(fullName.isNotBlank()) { "Diver full name must not be blank" }
         // isNullOrBlank, not != null: a blank-but-present string must not
@@ -47,11 +64,18 @@ class Diver(
 
     val isActive: Boolean get() = status == DiverStatus.ACTIVE
 
-    /** Terminal: an already-archived profile cannot be archived again. */
+    /**
+     * Terminal: an already-archived profile cannot be archived again. Also
+     * redacts emergency-contact and medical-notes PII — see the fields'
+     * own doc comment for why.
+     */
     fun archive(now: Instant) {
         require(status == DiverStatus.ACTIVE) { "Only an active diver profile can be archived" }
         status = DiverStatus.ARCHIVED
         archivedAt = now
+        emergencyContactName = null
+        emergencyContactPhone = null
+        medicalNotes = null
     }
 
     /** Every field is otherwise immutable — an edit is a new value carrying the same identity, status, and creation metadata forward. */

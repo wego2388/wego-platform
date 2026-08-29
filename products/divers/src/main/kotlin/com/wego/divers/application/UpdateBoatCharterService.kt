@@ -32,7 +32,8 @@ class UpdateBoatCharterService(
 ) {
     fun update(command: UpdateBoatCharterCommand): UpdateBoatCharterResult =
         transactionRunner.runInTransaction {
-            val existing = boatCharterRepository.findById(command.charterId) ?: return@runInTransaction UpdateBoatCharterResult.NotFound
+            val existing =
+                boatCharterRepository.findByIdForUpdate(command.charterId) ?: return@runInTransaction UpdateBoatCharterResult.NotFound
 
             if (command.licensedCapacity < existing.licensedCapacity) {
                 val stillExceeds =

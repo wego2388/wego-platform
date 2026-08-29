@@ -324,6 +324,67 @@ class EquipmentHttpTest {
     }
 
     @Test
+    fun `a view-only role is forbidden from every mutation, not just create`() {
+        val token = login(staffEmail, staffPassword)
+        val viewToken = login(viewOnlyEmail, viewOnlyPassword)
+        val equipmentId =
+            mockMvc
+                .post("/api/v1/divers/equipment") {
+                    header("Authorization", "Bearer $token")
+                    contentType = MediaType.APPLICATION_JSON
+                    content = """{"equipmentType": "TANK", "label": "Permission Sweep Tank", "qrCode": "QR-HTTP-PERM-SWEEP"}"""
+                }.andExpect { status { isCreated() } }
+                .andReturn()
+                .response.contentAsString
+                .let { Regex(""""id"\s*:\s*"([^"]+)"""").find(it)!!.groupValues[1] }
+
+        mockMvc
+            .put("/api/v1/divers/equipment/$equipmentId") {
+                header("Authorization", "Bearer $viewToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"label": "Should Be Forbidden"}"""
+            }.andExpect { status { isForbidden() } }
+
+        mockMvc
+            .post("/api/v1/divers/equipment/$equipmentId/start-maintenance") {
+                header("Authorization", "Bearer $viewToken")
+            }.andExpect { status { isForbidden() } }
+
+        mockMvc
+            .post("/api/v1/divers/equipment/$equipmentId/retire") {
+                header("Authorization", "Bearer $viewToken")
+            }.andExpect { status { isForbidden() } }
+
+        mockMvc
+            .post("/api/v1/divers/equipment/$equipmentId/rentals") {
+                header("Authorization", "Bearer $viewToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"customerName": "Forbidden Customer", "rentedOn": "2026-09-01"}"""
+            }.andExpect { status { isForbidden() } }
+
+        mockMvc
+            .post("/api/v1/divers/equipment/$equipmentId/rentals/return") {
+                header("Authorization", "Bearer $viewToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"returnedOn": "2026-09-02"}"""
+            }.andExpect { status { isForbidden() } }
+
+        mockMvc
+            .post("/api/v1/divers/equipment/$equipmentId/service-records") {
+                header("Authorization", "Bearer $viewToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"servicedOn": "2026-09-01", "description": "Forbidden service record"}"""
+            }.andExpect { status { isForbidden() } }
+
+        // Start maintenance for real (as staff) so complete-maintenance has a real state to be forbidden from.
+        mockMvc.post("/api/v1/divers/equipment/$equipmentId/start-maintenance") { header("Authorization", "Bearer $token") }
+        mockMvc
+            .post("/api/v1/divers/equipment/$equipmentId/complete-maintenance") {
+                header("Authorization", "Bearer $viewToken")
+            }.andExpect { status { isForbidden() } }
+    }
+
+    @Test
     fun `an unknown equipment id is a clean 404`() {
         val token = login(staffEmail, staffPassword)
 

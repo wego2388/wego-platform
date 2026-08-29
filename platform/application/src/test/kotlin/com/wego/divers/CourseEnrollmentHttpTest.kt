@@ -19,6 +19,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
@@ -312,6 +313,107 @@ class CourseEnrollmentHttpTest {
                 contentType = MediaType.APPLICATION_JSON
                 content = """{"diverId": "${UUID.randomUUID()}", "offeringId": "${UUID.randomUUID()}"}"""
             }.andExpect { status { isForbidden() } }
+    }
+
+    @Test
+    fun `a course view-only role is forbidden from advance, withdraw, instructor assignment and skill evaluation`() {
+        val token = login(staffEmail, staffPassword)
+        val diverId = createDiver(token, "Permission Sweep Diver")
+        val offeringId = createOffering(token, "Permission Sweep Course")
+        val enrollmentId =
+            mockMvc
+                .post("/api/v1/divers/course-enrollments") {
+                    header("Authorization", "Bearer $token")
+                    contentType = MediaType.APPLICATION_JSON
+                    content = """{"diverId": "$diverId", "offeringId": "$offeringId"}"""
+                }.andExpect { status { isCreated() } }
+                .andReturn()
+                .response.contentAsString
+                .let { jsonField(it, "id") }
+        val instructorId = userRepository.findByEmail(EmailAddress.of(staffEmail))!!.id.value
+        val viewToken = login(viewOnlyEmail, viewOnlyPassword)
+
+        mockMvc
+            .put("/api/v1/divers/course-enrollments/$enrollmentId/instructor") {
+                header("Authorization", "Bearer $viewToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"instructorUserId": "$instructorId"}"""
+            }.andExpect { status { isForbidden() } }
+
+        mockMvc
+            .post("/api/v1/divers/course-enrollments/$enrollmentId/skill-evaluations") {
+                header("Authorization", "Bearer $viewToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"skillName": "Forbidden skill", "passed": true, "evaluatedOn": "2026-09-02"}"""
+            }.andExpect { status { isForbidden() } }
+
+        mockMvc
+            .post("/api/v1/divers/course-enrollments/$enrollmentId/advance") {
+                header("Authorization", "Bearer $viewToken")
+            }.andExpect { status { isForbidden() } }
+
+        mockMvc
+            .post("/api/v1/divers/course-enrollments/$enrollmentId/withdraw") {
+                header("Authorization", "Bearer $viewToken")
+            }.andExpect { status { isForbidden() } }
+    }
+
+    @Test
+    fun `rejects a duplicate active enrollment for the same diver and course`() {
+        val token = login(staffEmail, staffPassword)
+        val diverId = createDiver(token, "Duplicate Enrollment Diver")
+        val offeringId = createOffering(token, "Duplicate Enrollment Course")
+
+        mockMvc
+            .post("/api/v1/divers/course-enrollments") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"diverId": "$diverId", "offeringId": "$offeringId"}"""
+            }.andExpect { status { isCreated() } }
+
+        mockMvc
+            .post("/api/v1/divers/course-enrollments") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"diverId": "$diverId", "offeringId": "$offeringId"}"""
+            }.andExpect { status { isConflict() } }
+    }
+
+    @Test
+    fun `rejects enrolling an archived diver or a closed course`() {
+        val token = login(staffEmail, staffPassword)
+        val archivedDiverId = createDiver(token, "Archived Enrollment Diver")
+        mockMvc.delete("/api/v1/divers/divers/$archivedDiverId") { header("Authorization", "Bearer $token") }
+        val activeOfferingId = createOffering(token, "Archived Diver Course")
+
+        mockMvc
+            .post("/api/v1/divers/course-enrollments") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"diverId": "$archivedDiverId", "offeringId": "$activeOfferingId"}"""
+            }.andExpect {
+                status { isConflict() }
+                jsonPath("$.error") { value("diver_not_active") }
+            }
+
+        val diverId = createDiver(token, "Closed Course Diver")
+        val closedOfferingId = createOffering(token, "Closed Course")
+        mockMvc
+            .post("/api/v1/divers/offerings/$closedOfferingId/close") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"reason": "Closed for enrollment test"}"""
+            }.andExpect { status { isOk() } }
+
+        mockMvc
+            .post("/api/v1/divers/course-enrollments") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"diverId": "$diverId", "offeringId": "$closedOfferingId"}"""
+            }.andExpect {
+                status { isConflict() }
+                jsonPath("$.error") { value("offering_not_active") }
+            }
     }
 
     companion object {

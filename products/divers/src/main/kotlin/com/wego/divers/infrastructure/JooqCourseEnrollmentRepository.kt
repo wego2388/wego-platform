@@ -26,6 +26,17 @@ class JooqCourseEnrollmentRepository(
         return toDomain(record)
     }
 
+    @Transactional
+    override fun findByIdForUpdate(id: CourseEnrollmentId): CourseEnrollment? {
+        val record =
+            dsl
+                .selectFrom(DIVERS_COURSE_ENROLLMENT)
+                .where(DIVERS_COURSE_ENROLLMENT.ID.eq(id.value))
+                .forUpdate()
+                .fetchOne() ?: return null
+        return toDomain(record)
+    }
+
     @Transactional(readOnly = true)
     override fun findAll(
         diverId: DiverId?,

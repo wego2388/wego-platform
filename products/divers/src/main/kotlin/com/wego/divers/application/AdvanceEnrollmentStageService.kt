@@ -28,7 +28,8 @@ class AdvanceEnrollmentStageService(
         correlationId: UUID?,
     ): AdvanceEnrollmentStageResult =
         transactionRunner.runInTransaction {
-            val enrollment = enrollmentRepository.findById(enrollmentId) ?: return@runInTransaction AdvanceEnrollmentStageResult.NotFound
+            val enrollment =
+                enrollmentRepository.findByIdForUpdate(enrollmentId) ?: return@runInTransaction AdvanceEnrollmentStageResult.NotFound
             if (enrollment.isFinished) return@runInTransaction AdvanceEnrollmentStageResult.EnrollmentFinished
 
             val fromStage = enrollment.stage

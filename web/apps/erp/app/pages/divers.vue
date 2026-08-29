@@ -5,10 +5,11 @@ import { type AuthSession, clearAuthSession, hasPermission, readAuthSession } fr
 import {
   archiveDiver,
   createDiver,
-  type Diver,
   type DiverCertification,
   DiversApiError,
   type DiverStatus,
+  type DiverSummary,
+  getDiver,
   listDivers,
   PAGE_SIZE,
   updateDiver,
@@ -18,7 +19,7 @@ import {
 useHead({ title: "Divers · Wego Platform" });
 
 const session = ref<AuthSession | null>(null);
-const divers = ref<Diver[]>([]);
+const divers = ref<DiverSummary[]>([]);
 const listState = ref<"idle" | "loading" | "loaded" | "error">("idle");
 const listError = ref("");
 const page = ref(0);
@@ -127,7 +128,12 @@ function removeCertificationRow(index: number) {
   form.value.certifications = form.value.certifications.filter((_, i) => i !== index);
 }
 
-function startEdit(diver: Diver) {
+async function startEdit(summary: DiverSummary) {
+  if (!session.value) return;
+  // The list only carries the roster projection (no email/phone/emergency
+  // contact/medical notes/certification numbers) — fetch the full record
+  // to actually populate the edit form.
+  const diver = await getDiver(session.value.token, summary.id);
   editingDiverId.value = diver.id;
   form.value = {
     fullName: diver.fullName,
@@ -203,7 +209,7 @@ async function submitForm() {
   }
 }
 
-async function submitArchive(diver: Diver) {
+async function submitArchive(diver: DiverSummary) {
   if (!session.value) return;
   if (!window.confirm(`Archive "${diver.fullName}"'s profile? It stops appearing in the active list, but nothing is deleted.`)) return;
 
@@ -277,10 +283,10 @@ onMounted(() => {
                 <div class="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p class="font-semibold">{{ diver.fullName }}</p>
-                    <p class="mt-1 text-sm text-wego-muted">
-                      <span v-if="diver.nationality">{{ diver.nationality }} · </span>
-                      <span v-if="diver.primaryLanguage">{{ diver.primaryLanguage }} · </span>
-                      {{ diver.email || diver.phone || "no contact on file" }}
+                    <p v-if="diver.nationality || diver.primaryLanguage" class="mt-1 text-sm text-wego-muted">
+                      <span v-if="diver.nationality">{{ diver.nationality }}</span>
+                      <span v-if="diver.nationality && diver.primaryLanguage"> · </span>
+                      <span v-if="diver.primaryLanguage">{{ diver.primaryLanguage }}</span>
                     </p>
                     <p class="mt-1 text-sm text-wego-muted">
                       {{ diver.totalLoggedDives }} logged dives<span v-if="diver.maxDepthMeters">
@@ -290,7 +296,7 @@ onMounted(() => {
                     <p v-if="diver.certifications.length > 0" class="mt-2 flex flex-wrap gap-2">
                       <span
                         v-for="certification in diver.certifications"
-                        :key="certification.id ?? `${certification.agency}-${certification.level}`"
+                        :key="`${certification.agency}-${certification.level}`"
                         class="rounded-full bg-wego-canvas px-3 py-1 text-xs font-medium text-wego-muted"
                       >
                         {{ certification.agency }} · {{ certification.level }}

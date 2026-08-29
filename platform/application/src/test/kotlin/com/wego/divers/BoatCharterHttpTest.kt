@@ -1,5 +1,7 @@
 package com.wego.divers
 
+import com.wego.generated.jooq.tables.IdentityRole.IDENTITY_ROLE
+import com.wego.generated.jooq.tables.IdentityRolePermission.IDENTITY_ROLE_PERMISSION
 import com.wego.identity.application.PasswordHasher
 import com.wego.identity.application.UserRepository
 import com.wego.identity.domain.EmailAddress
@@ -7,6 +9,7 @@ import com.wego.identity.domain.RoleCode
 import com.wego.identity.domain.User
 import com.wego.identity.domain.UserId
 import com.wego.identity.domain.UserStatus
+import org.jooq.DSLContext
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -45,12 +48,42 @@ class BoatCharterHttpTest {
     @Autowired
     private lateinit var passwordHasher: PasswordHasher
 
+    @Autowired
+    private lateinit var dsl: DSLContext
+
     private val staffEmail = "charter-staff@example.com"
     private val staffPassword = "a-very-long-staff-password-123"
+    private val viewOnlyEmail = "charter-view-only@example.com"
+    private val viewOnlyPassword = "a-very-long-view-password-123"
+    private val offeringViewOnlyEmail = "charter-offering-view-only@example.com"
+    private val offeringViewOnlyPassword = "a-very-long-offering-view-password-123"
 
     @BeforeEach
     fun seedUsersIfNeeded() {
         seedUserIfNeeded(staffEmail, staffPassword, roles = setOf("platform-admin"))
+        seedLimitedUser(viewOnlyEmail, viewOnlyPassword, "boat-charter:view")
+        seedLimitedUser(offeringViewOnlyEmail, offeringViewOnlyPassword, "offering:view")
+    }
+
+    private fun seedLimitedUser(
+        email: String,
+        password: String,
+        permission: String,
+    ): UUID {
+        val roleCode = "test-only-${permission.replace(':', '-')}"
+        if (dsl.fetchOne(IDENTITY_ROLE, IDENTITY_ROLE.CODE.eq(roleCode)) == null) {
+            dsl
+                .insertInto(IDENTITY_ROLE)
+                .set(IDENTITY_ROLE.CODE, roleCode)
+                .set(IDENTITY_ROLE.DESCRIPTION, "Test-only role granting exactly $permission")
+                .execute()
+            dsl
+                .insertInto(IDENTITY_ROLE_PERMISSION)
+                .set(IDENTITY_ROLE_PERMISSION.ROLE_CODE, roleCode)
+                .set(IDENTITY_ROLE_PERMISSION.PERMISSION_CODE, permission)
+                .execute()
+        }
+        return seedUserIfNeeded(email, password, roles = setOf(roleCode))
     }
 
     private fun seedUserIfNeeded(
@@ -295,6 +328,80 @@ class BoatCharterHttpTest {
                 status { isConflict() }
                 jsonPath("$.error") { value("capacity_below_linked_offerings") }
             }
+    }
+
+    @Test
+    fun `an offering view-only account cannot read a charter link it has no boat-charter permission for`() {
+        val token = login(staffEmail, staffPassword)
+        val charterId = createCharter(token, "Al-Horeya HTTP Permission Leak", 40)
+        val offeringId = createOffering(token, "HTTP Boat Trip Permission Leak", capacity = 40)
+        mockMvc
+            .put("/api/v1/divers/offerings/$offeringId/boat-charter") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"boatCharterId": "$charterId"}"""
+            }.andExpect { status { isOk() } }
+
+        val offeringViewToken = login(offeringViewOnlyEmail, offeringViewOnlyPassword)
+
+        // Confirms the account genuinely only has offering:view, matching the real trigger scenario
+        // independent Tier 1 review reproduced: offering:view granted, boat-charter:view denied.
+        mockMvc
+            .get("/api/v1/divers/offerings/$offeringId") { header("Authorization", "Bearer $offeringViewToken") }
+            .andExpect { status { isOk() } }
+        mockMvc
+            .get("/api/v1/divers/boat-charters/$charterId") { header("Authorization", "Bearer $offeringViewToken") }
+            .andExpect { status { isForbidden() } }
+
+        mockMvc
+            .get("/api/v1/divers/offerings/$offeringId/boat-charter") {
+                header("Authorization", "Bearer $offeringViewToken")
+            }.andExpect { status { isForbidden() } }
+    }
+
+    @Test
+    fun `a boat-charter view-only role can read but is forbidden from every mutation`() {
+        val token = login(staffEmail, staffPassword)
+        val charterId = createCharter(token, "Al-Horeya HTTP View Only", 40)
+        val offeringId = createOffering(token, "HTTP Boat Trip View Only", capacity = 40)
+        val viewToken = login(viewOnlyEmail, viewOnlyPassword)
+
+        mockMvc
+            .get("/api/v1/divers/boat-charters/$charterId") { header("Authorization", "Bearer $viewToken") }
+            .andExpect { status { isOk() } }
+        mockMvc
+            .get("/api/v1/divers/offerings/$offeringId/boat-charter") {
+                header("Authorization", "Bearer $viewToken")
+            }.andExpect { status { isNotFound() } } // not linked yet — proves the read itself is permitted, not blocked
+
+        mockMvc
+            .post("/api/v1/divers/boat-charters") {
+                header("Authorization", "Bearer $viewToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"boatName": "Forbidden Boat", "charterType": "STANDING", "licensedCapacity": 10, "startsOn": "2026-01-01"}"""
+            }.andExpect { status { isForbidden() } }
+
+        mockMvc
+            .put("/api/v1/divers/boat-charters/$charterId") {
+                header("Authorization", "Bearer $viewToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"boatName": "Forbidden Rename", "licensedCapacity": 40, "startsOn": "2026-01-01"}"""
+            }.andExpect { status { isForbidden() } }
+
+        mockMvc
+            .post("/api/v1/divers/boat-charters/$charterId/end") { header("Authorization", "Bearer $viewToken") }
+            .andExpect { status { isForbidden() } }
+
+        mockMvc
+            .put("/api/v1/divers/offerings/$offeringId/boat-charter") {
+                header("Authorization", "Bearer $viewToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"boatCharterId": "$charterId"}"""
+            }.andExpect { status { isForbidden() } }
+
+        mockMvc
+            .delete("/api/v1/divers/offerings/$offeringId/boat-charter") { header("Authorization", "Bearer $viewToken") }
+            .andExpect { status { isForbidden() } }
     }
 
     companion object {

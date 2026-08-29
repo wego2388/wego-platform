@@ -29,7 +29,7 @@ class CompleteMaintenanceService(
         correlationId: UUID?,
     ): CompleteMaintenanceResult =
         transactionRunner.runInTransaction {
-            val equipment = equipmentRepository.findById(equipmentId) ?: return@runInTransaction CompleteMaintenanceResult.NotFound
+            val equipment = equipmentRepository.findByIdForUpdate(equipmentId) ?: return@runInTransaction CompleteMaintenanceResult.NotFound
             if (equipment.status != EquipmentStatus.IN_MAINTENANCE) return@runInTransaction CompleteMaintenanceResult.NotInMaintenance
 
             equipment.completeMaintenance()

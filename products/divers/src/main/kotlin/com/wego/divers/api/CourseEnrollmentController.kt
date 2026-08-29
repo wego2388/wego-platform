@@ -75,6 +75,10 @@ class CourseEnrollmentController(
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CourseEnrollmentErrorResponse("offering_not_found"))
             EnrollDiverInCourseResult.OfferingIsNotACourse ->
                 ResponseEntity.status(HttpStatus.CONFLICT).body(CourseEnrollmentErrorResponse("offering_is_not_a_course"))
+            EnrollDiverInCourseResult.DiverNotActive ->
+                ResponseEntity.status(HttpStatus.CONFLICT).body(CourseEnrollmentErrorResponse("diver_not_active"))
+            EnrollDiverInCourseResult.OfferingNotActive ->
+                ResponseEntity.status(HttpStatus.CONFLICT).body(CourseEnrollmentErrorResponse("offering_not_active"))
         }
     }
 
@@ -111,6 +115,8 @@ class CourseEnrollmentController(
             AssignInstructorResult.NotFound -> ResponseEntity.notFound().build()
             AssignInstructorResult.EnrollmentFinished ->
                 ResponseEntity.status(HttpStatus.CONFLICT).body(CourseEnrollmentErrorResponse("enrollment_finished"))
+            AssignInstructorResult.InstructorNotActiveStaff ->
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CourseEnrollmentErrorResponse("instructor_not_active_staff"))
         }
 
     @PostMapping("/{id}/advance")

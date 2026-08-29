@@ -28,7 +28,8 @@ class WithdrawEnrollmentService(
         correlationId: UUID?,
     ): WithdrawEnrollmentResult =
         transactionRunner.runInTransaction {
-            val enrollment = enrollmentRepository.findById(enrollmentId) ?: return@runInTransaction WithdrawEnrollmentResult.NotFound
+            val enrollment =
+                enrollmentRepository.findByIdForUpdate(enrollmentId) ?: return@runInTransaction WithdrawEnrollmentResult.NotFound
             if (enrollment.isFinished) return@runInTransaction WithdrawEnrollmentResult.EnrollmentFinished
 
             val fromStage = enrollment.stage

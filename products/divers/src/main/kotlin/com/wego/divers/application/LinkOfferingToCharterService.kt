@@ -29,6 +29,13 @@ sealed interface LinkOfferingToCharterResult {
     data object OfferingHasNoCapacity : LinkOfferingToCharterResult
 }
 
+/**
+ * Deliberately not restricted to [OfferingType.DIVE_TRIP][com.wego.divers.domain.OfferingType]/boat-diving
+ * offerings — any capacity-bearing offering that genuinely uses a boat (a course's boat day, a
+ * multi-day/signature package with a boat leg) can be linked. The real, enforced rule is the capacity
+ * check below, not the offering's category; a course or package that never touches a boat simply never
+ * gets linked in practice, so no extra type check is needed to keep that true.
+ */
 class LinkOfferingToCharterService(
     private val offeringRepository: OfferingRepository,
     private val boatCharterRepository: BoatCharterRepository,
@@ -41,7 +48,8 @@ class LinkOfferingToCharterService(
             val offering =
                 offeringRepository.findById(command.offeringId) ?: return@runInTransaction LinkOfferingToCharterResult.OfferingNotFound
             val charter =
-                boatCharterRepository.findById(command.boatCharterId) ?: return@runInTransaction LinkOfferingToCharterResult.CharterNotFound
+                boatCharterRepository.findByIdForUpdate(command.boatCharterId)
+                    ?: return@runInTransaction LinkOfferingToCharterResult.CharterNotFound
             if (!charter.isActive) return@runInTransaction LinkOfferingToCharterResult.CharterNotActive
 
             val capacity = offering.capacity ?: return@runInTransaction LinkOfferingToCharterResult.OfferingHasNoCapacity

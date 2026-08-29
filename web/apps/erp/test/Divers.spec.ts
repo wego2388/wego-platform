@@ -100,6 +100,37 @@ describe("divers page", () => {
     expect(wrapper.text()).toContain("New Diver");
   });
 
+  it("fetches the full diver record (including medical notes) when editing, since the list only carries the roster projection", async () => {
+    seedSession(["diver:view", "diver:manage"]);
+    const fullDiver = {
+      ...sampleDiver,
+      email: "ada@example.com",
+      phone: "+201000000000",
+      emergencyContactName: "Grace Hopper",
+      emergencyContactPhone: "+201000000001",
+      medicalNotes: "No known conditions.",
+      certifications: [{ id: "cert-1", agency: "PADI", level: "Advanced Open Water", certificationNumber: "PADI-123" }],
+    };
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = new URL(String(input), "http://localhost");
+      if (url.pathname === `/api/v1/divers/divers/${sampleDiver.id}`) {
+        return new Response(JSON.stringify(fullDiver), { status: 200 });
+      }
+      return new Response(JSON.stringify([sampleDiver]), { status: 200 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const wrapper = mount(DiversPage);
+    await flushPromises();
+
+    const editButton = wrapper.findAll("button").find((button) => button.text() === "Edit");
+    await editButton?.trigger("click");
+    await flushPromises();
+
+    const medicalNotesField = wrapper.get("#medicalNotes").element as HTMLTextAreaElement;
+    expect(medicalNotesField.value).toBe("No known conditions.");
+  });
+
   it("archives a diver profile after confirmation and removes it from the active list", async () => {
     seedSession(["diver:view", "diver:manage"]);
     vi.stubGlobal("confirm", vi.fn(() => true));

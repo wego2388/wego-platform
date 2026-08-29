@@ -9,6 +9,7 @@
 const LATITUDE = 27.9158;
 const LONGITUDE = 34.3299;
 const CACHE_TTL_MS = 10 * 60 * 1000;
+const FETCH_TIMEOUT_MS = 8000;
 
 interface ConditionsResponse {
   fetchedAt: string;
@@ -18,12 +19,28 @@ interface ConditionsResponse {
 
 let cache: { at: number; value: ConditionsResponse } | null = null;
 
+/**
+ * A stalled (accepted-but-never-completing) connection would otherwise hold
+ * the request open indefinitely — a plain `fetch` has no default timeout,
+ * so the "unavailable" fallback this route promises would never actually
+ * be reached.
+ */
+async function fetchWithTimeout(url: string): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function fetchAir(): Promise<ConditionsResponse["air"]> {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${LATITUDE}&longitude=${LONGITUDE}&current=temperature_2m,wind_speed_10m,weather_code&timezone=auto`;
-  const response = await fetch(url);
+  const response = await fetchWithTimeout(url);
   if (!response.ok) return null;
-  const data = (await response.json()) as { current?: { temperature_2m?: number; wind_speed_10m?: number; weather_code?: number } };
-  if (data.current?.temperature_2m === undefined || data.current.wind_speed_10m === undefined || data.current.weather_code === undefined) {
+  const data = (await response.json()) as { current?: { temperature_2m?: number | null; wind_speed_10m?: number | null; weather_code?: number | null } };
+  if (data.current?.temperature_2m == null || data.current.wind_speed_10m == null || data.current.weather_code == null) {
     return null;
   }
   return { tempC: data.current.temperature_2m, windKph: data.current.wind_speed_10m, weatherCode: data.current.weather_code };
@@ -31,10 +48,10 @@ async function fetchAir(): Promise<ConditionsResponse["air"]> {
 
 async function fetchSea(): Promise<ConditionsResponse["sea"]> {
   const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${LATITUDE}&longitude=${LONGITUDE}&current=wave_height,sea_surface_temperature&timezone=auto`;
-  const response = await fetch(url);
+  const response = await fetchWithTimeout(url);
   if (!response.ok) return null;
-  const data = (await response.json()) as { current?: { wave_height?: number; sea_surface_temperature?: number } };
-  if (data.current?.wave_height === undefined || data.current.sea_surface_temperature === undefined) return null;
+  const data = (await response.json()) as { current?: { wave_height?: number | null; sea_surface_temperature?: number | null } };
+  if (data.current?.wave_height == null || data.current.sea_surface_temperature == null) return null;
   return { tempC: data.current.sea_surface_temperature, waveHeightM: data.current.wave_height };
 }
 
