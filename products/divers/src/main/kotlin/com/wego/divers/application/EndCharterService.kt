@@ -28,7 +28,7 @@ class EndCharterService(
         correlationId: UUID?,
     ): EndCharterResult =
         transactionRunner.runInTransaction {
-            val charter = boatCharterRepository.findById(charterId) ?: return@runInTransaction EndCharterResult.NotFound
+            val charter = boatCharterRepository.findByIdForUpdate(charterId) ?: return@runInTransaction EndCharterResult.NotFound
             if (!charter.isActive) return@runInTransaction EndCharterResult.AlreadyEnded
 
             val now = Instant.now(clock)
