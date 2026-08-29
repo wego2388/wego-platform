@@ -8,16 +8,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.wego.mobile.customer.content.SiteCopy
+import com.wego.mobile.customer.design.SdcCard
+import com.wego.mobile.customer.design.SdcColor
+import com.wego.mobile.customer.design.SdcSpace
 import com.wego.mobile.shared.locale.AppLocale
 
 /**
@@ -32,8 +32,8 @@ fun FaqScreen(
     onOpenWhatsApp: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(SdcSpace.xxl),
+        verticalArrangement = Arrangement.spacedBy(SdcSpace.lg),
     ) {
         Text(SiteCopy.Faq.heading.of(locale), style = MaterialTheme.typography.headlineSmall)
         Text(SiteCopy.Faq.body.of(locale), style = MaterialTheme.typography.bodyLarge)
@@ -41,27 +41,27 @@ fun FaqScreen(
         Text(
             SiteCopy.Faq.knownHeading.of(locale),
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(top = 8.dp),
+            modifier = Modifier.padding(top = SdcSpace.sm),
         )
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(SdcSpace.sm)) {
             for ((question, answer) in SiteCopy.Faq.known) {
-                FaqCard(question.of(locale), answer.of(locale), MaterialTheme.colorScheme.surfaceVariant)
+                FaqCard(question.of(locale), answer.of(locale), SdcColor.turquoiseSoft)
             }
         }
 
         Text(
             SiteCopy.Faq.unknownHeading.of(locale),
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(top = 8.dp),
+            modifier = Modifier.padding(top = SdcSpace.sm),
         )
         Text(SiteCopy.Faq.unknownIntro.of(locale), style = MaterialTheme.typography.bodyMedium)
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(SdcSpace.sm)) {
             for ((question, answer) in SiteCopy.Faq.unknown) {
-                FaqCard(question.of(locale), answer.of(locale), MaterialTheme.colorScheme.errorContainer)
+                FaqCard(question.of(locale), answer.of(locale), SdcColor.sandSoft)
             }
         }
 
-        Button(onClick = onOpenWhatsApp, modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 24.dp)) {
+        Button(onClick = onOpenWhatsApp, modifier = Modifier.fillMaxWidth().padding(top = SdcSpace.sm, bottom = SdcSpace.xxl)) {
             Text(SiteCopy.Faq.whatsappCta.of(locale))
         }
     }
@@ -74,11 +74,8 @@ private fun FaqCard(
     answer: String,
     containerColor: Color,
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = containerColor),
-    ) {
-        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    SdcCard(modifier = Modifier.fillMaxWidth(), containerColor = containerColor) {
+        Column(modifier = Modifier.padding(SdcSpace.md + SdcSpace.xs), verticalArrangement = Arrangement.spacedBy(SdcSpace.xs)) {
             Text(question, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold))
             Text(answer, style = MaterialTheme.typography.bodyMedium)
         }

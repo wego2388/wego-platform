@@ -1,11 +1,14 @@
 package com.wego.mobile.customer
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -16,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
@@ -26,6 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.savedstate.read
 import com.wego.mobile.customer.content.SiteCopy
+import com.wego.mobile.customer.design.SdcColor
 import com.wego.mobile.customer.nav.AppDestination
 import com.wego.mobile.customer.nav.bottomNavDestinations
 import com.wego.mobile.customer.state.AppLocaleState
@@ -74,35 +79,38 @@ private fun WegoCustomerApp(localeState: AppLocaleState) {
             )
         },
         bottomBar = {
-            Surface {
-                Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-                    for (destination in bottomNavDestinations) {
-                        val selected = currentRoute == destination.route
-                        TextButton(
-                            modifier = Modifier.weight(1f),
-                            onClick = {
-                                if (!selected) {
-                                    navController.navigate(navRouteFor(destination)) {
-                                        popUpTo(AppDestination.Home.route) { saveState = true }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
+            NavigationBar(containerColor = SdcColor.surface) {
+                for (destination in bottomNavDestinations) {
+                    val selected = currentRoute == destination.route
+                    NavigationBarItem(
+                        selected = selected,
+                        onClick = {
+                            if (!selected) {
+                                navController.navigate(navRouteFor(destination)) {
+                                    popUpTo(AppDestination.Home.route) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                            },
-                        ) {
-                            Text(
-                                navLabel(destination, locale),
-                                color =
-                                    if (selected) {
-                                        MaterialTheme.colorScheme.primary
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                    },
+                            }
+                        },
+                        icon = {
+                            Box(
+                                modifier =
+                                    Modifier
+                                        .size(8.dp)
+                                        .clip(CircleShape)
+                                        .background(if (selected) SdcColor.deepBright else SdcColor.border),
                             )
-                        }
-                    }
+                        },
+                        label = { Text(navLabel(destination, locale)) },
+                        colors =
+                            NavigationBarItemDefaults.colors(
+                                selectedTextColor = SdcColor.deepBright,
+                                indicatorColor = SdcColor.turquoiseSoft,
+                                unselectedTextColor = SdcColor.textSecondary,
+                            ),
+                    )
                 }
-                HorizontalDivider()
             }
         },
     ) { innerPadding ->

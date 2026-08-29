@@ -7,14 +7,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.wego.mobile.customer.content.SiteCopy
+import com.wego.mobile.customer.design.SdcCard
+import com.wego.mobile.customer.design.SdcColor
+import com.wego.mobile.customer.design.SdcSpace
 import com.wego.mobile.shared.locale.AppLocale
 
 /** Mirrors `contact.vue` — every channel here is `status: approved` in approved-facts.json. */
@@ -25,32 +25,28 @@ fun ContactScreen(
     onOpenWhatsApp: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(SdcSpace.xxl),
+        verticalArrangement = Arrangement.spacedBy(SdcSpace.lg),
     ) {
         Text(SiteCopy.Contact.heading.of(locale), style = MaterialTheme.typography.headlineSmall)
         Text(SiteCopy.Contact.body.of(locale), style = MaterialTheme.typography.bodyLarge)
 
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
-            onClick = onOpenWhatsApp,
-        ) {
-            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        SdcCard(modifier = Modifier.fillMaxWidth(), containerColor = SdcColor.deep, onClick = onOpenWhatsApp) {
+            Column(modifier = Modifier.padding(SdcSpace.lg), verticalArrangement = Arrangement.spacedBy(SdcSpace.xs)) {
                 Text(
                     SiteCopy.Contact.whatsappLabel.of(locale),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = SdcColor.sand,
                 )
                 Text(
                     SiteCopy.PHONE_DISPLAY,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = SdcColor.surface,
                 )
                 Text(
                     SiteCopy.Contact.whatsappBody.of(locale),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = SdcColor.canvas,
                 )
             }
         }
@@ -68,12 +64,9 @@ private fun ContactFact(
     label: String,
     value: String,
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-    ) {
-        Column(modifier = Modifier.padding(14.dp)) {
-            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    SdcCard(modifier = Modifier.fillMaxWidth(), containerColor = SdcColor.turquoiseSoft) {
+        Column(modifier = Modifier.padding(SdcSpace.md + SdcSpace.xs)) {
+            Text(label, style = MaterialTheme.typography.labelSmall, color = SdcColor.deepBright)
             Text(value, style = MaterialTheme.typography.bodyMedium)
         }
     }
