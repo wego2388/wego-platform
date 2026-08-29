@@ -27,7 +27,7 @@ class OutboxMigrationIntegrationTest(
 ) {
     @Test
     fun `boot auto migrates postgres and generated jooq types honor constraints`() {
-        assertThat(flyway.info().applied().map { it.version.toString() }).containsExactly("1", "2", "3")
+        assertThat(flyway.info().applied().map { it.version.toString() }).containsExactly("1", "2", "3", "4")
 
         postgres.createConnection("").use { connection ->
             val dsl = DSL.using(connection, SQLDialect.POSTGRES)

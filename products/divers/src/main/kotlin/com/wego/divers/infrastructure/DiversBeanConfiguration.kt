@@ -1,18 +1,24 @@
 package com.wego.divers.infrastructure
 
+import com.wego.divers.application.ArchiveDiverService
 import com.wego.divers.application.BookingAuditRecorder
 import com.wego.divers.application.BookingQueryService
 import com.wego.divers.application.BookingRepository
 import com.wego.divers.application.CancelBookingService
 import com.wego.divers.application.CloseOfferingService
 import com.wego.divers.application.CreateBookingService
+import com.wego.divers.application.CreateDiverService
 import com.wego.divers.application.CreateOfferingService
+import com.wego.divers.application.DiverAuditRecorder
+import com.wego.divers.application.DiverQueryService
+import com.wego.divers.application.DiverRepository
 import com.wego.divers.application.MarkBookingPaidService
 import com.wego.divers.application.OfferingAuditRecorder
 import com.wego.divers.application.OfferingQueryService
 import com.wego.divers.application.OfferingRepository
 import com.wego.divers.application.RefundBookingService
 import com.wego.divers.application.TransactionRunner
+import com.wego.divers.application.UpdateDiverService
 import com.wego.events.OutboxWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -129,4 +135,31 @@ class DiversBeanConfiguration {
             diversEventObjectMapper,
             clock,
         )
+
+    @Bean
+    fun createDiverService(
+        diverRepository: DiverRepository,
+        diverAuditRecorder: DiverAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): CreateDiverService = CreateDiverService(diverRepository, diverAuditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun updateDiverService(
+        diverRepository: DiverRepository,
+        diverAuditRecorder: DiverAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): UpdateDiverService = UpdateDiverService(diverRepository, diverAuditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun archiveDiverService(
+        diverRepository: DiverRepository,
+        diverAuditRecorder: DiverAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): ArchiveDiverService = ArchiveDiverService(diverRepository, diverAuditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun diverQueryService(diverRepository: DiverRepository): DiverQueryService = DiverQueryService(diverRepository)
 }

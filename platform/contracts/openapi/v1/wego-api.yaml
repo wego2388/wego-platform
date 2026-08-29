@@ -20,6 +20,11 @@ tags:
     description: Authentication and the current session's identity.
   - name: Divers
     description: Diving offerings and staff-created bookings (trips, courses, equipment rental, packages).
+  - name: DiverProfiles
+    description: >-
+      Real diver profiles — certifications, dive-history summary,
+      medical/emergency contact, equipment sizing. Staff-managed records
+      only; never an automated risk score or a dive-safety decision.
 paths:
   /actuator/health:
     get:
@@ -326,6 +331,230 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BookingError"
+  /api/v1/divers/divers:
+    post:
+      operationId: createDiver
+      summary: Create a diver profile
+      description: >-
+        Requires `diver:manage`. At least one of `email`/`phone` must be
+        present and non-blank.
+      tags:
+        - DiverProfiles
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertDiverRequest"
+      responses:
+        "201":
+          description: Diver profile created.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiverResponse"
+        "400":
+          description: >-
+            The request failed validation — a malformed field, an
+            out-of-range value, or a diver with neither email nor phone.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    get:
+      operationId: listDivers
+      summary: List diver profiles
+      description: >-
+        Requires `diver:view`. Paginated with `page`/`size`; `search`
+        matches against the diver's full name.
+      tags:
+        - DiverProfiles
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/DiverStatus"
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Matching diver profiles, one page.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DiverResponse"
+        "400":
+          description: An invalid `page`/`size`/`status` query parameter.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/divers/divers/{id}:
+    get:
+      operationId: getDiver
+      summary: Read a single diver profile
+      tags:
+        - DiverProfiles
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The diver profile.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiverResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No diver profile with this id.
+    put:
+      operationId: updateDiver
+      summary: Replace a diver profile's editable fields
+      description: >-
+        Requires `diver:manage`. A full replace of every editable field,
+        including the certification list — this is not a partial patch.
+      tags:
+        - DiverProfiles
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertDiverRequest"
+      responses:
+        "200":
+          description: Diver profile updated.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiverResponse"
+        "400":
+          description: The request failed validation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No diver profile with this id.
+        "409":
+          description: The diver profile is archived and cannot be edited.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiverErrorResponse"
+    delete:
+      operationId: archiveDiver
+      summary: Archive a diver profile
+      description: >-
+        Requires `diver:manage`. Archiving is a soft, terminal state change
+        — the record is never deleted.
+      tags:
+        - DiverProfiles
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Diver profile archived.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiverResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No diver profile with this id.
+        "409":
+          description: The diver profile is already archived.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiverErrorResponse"
   /api/v1/divers/bookings:
     post:
       operationId: createBooking
@@ -912,6 +1141,159 @@ components:
         reason:
           type: string
           maxLength: 1000
+    DiverStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - ARCHIVED
+    DiverCertification:
+      type: object
+      additionalProperties: false
+      required:
+        - agency
+        - level
+      properties:
+        id:
+          type: string
+          format: uuid
+        agency:
+          type: string
+          minLength: 1
+          maxLength: 200
+        level:
+          type: string
+          minLength: 1
+          maxLength: 200
+        certificationNumber:
+          type: string
+          maxLength: 64
+        issuedOn:
+          type: string
+          format: date
+    UpsertDiverRequest:
+      type: object
+      additionalProperties: false
+      description: >-
+        At least one of `email`/`phone` must be present and non-blank. A
+        full replace on `PUT` — omitting a field clears it, including the
+        certification list.
+      required:
+        - fullName
+      properties:
+        fullName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        nationality:
+          type: string
+          maxLength: 100
+        primaryLanguage:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 320
+        phone:
+          type: string
+          maxLength: 32
+        emergencyContactName:
+          type: string
+          maxLength: 200
+        emergencyContactPhone:
+          type: string
+          maxLength: 32
+        medicalNotes:
+          type: string
+          maxLength: 4000
+          description: Staff reference only — never a dive-fitness clearance decision.
+        totalLoggedDives:
+          type: integer
+          minimum: 0
+          default: 0
+        maxDepthMeters:
+          type: number
+          minimum: 0
+        lastDiveOn:
+          type: string
+          format: date
+        bcdSize:
+          type: string
+          maxLength: 16
+        finSize:
+          type: string
+          maxLength: 16
+        wetsuitSize:
+          type: string
+          maxLength: 16
+        certifications:
+          type: array
+          default: []
+          items:
+            $ref: "#/components/schemas/DiverCertification"
+    DiverResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - fullName
+        - totalLoggedDives
+        - certifications
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        nationality:
+          type: string
+        primaryLanguage:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        emergencyContactName:
+          type: string
+        emergencyContactPhone:
+          type: string
+        medicalNotes:
+          type: string
+        totalLoggedDives:
+          type: integer
+        maxDepthMeters:
+          type: number
+        lastDiveOn:
+          type: string
+          format: date
+        bcdSize:
+          type: string
+        finSize:
+          type: string
+        wetsuitSize:
+          type: string
+        certifications:
+          type: array
+          items:
+            $ref: "#/components/schemas/DiverCertification"
+        status:
+          $ref: "#/components/schemas/DiverStatus"
+        createdAt:
+          type: string
+          format: date-time
+        archivedAt:
+          type: string
+          format: date-time
+    DiverErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
     CreateBookingRequest:
       type: object
       additionalProperties: false

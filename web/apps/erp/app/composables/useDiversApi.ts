@@ -165,3 +165,89 @@ export function refundBooking(token: string, id: string, reason: string): Promis
     body: JSON.stringify({ reason }),
   });
 }
+
+export type DiverStatus = "ACTIVE" | "ARCHIVED";
+
+export interface DiverCertification {
+  id?: string;
+  agency: string;
+  level: string;
+  certificationNumber?: string;
+  issuedOn?: string;
+}
+
+export interface Diver {
+  id: string;
+  fullName: string;
+  nationality?: string;
+  primaryLanguage?: string;
+  email?: string;
+  phone?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  medicalNotes?: string;
+  totalLoggedDives: number;
+  maxDepthMeters?: string;
+  lastDiveOn?: string;
+  bcdSize?: string;
+  finSize?: string;
+  wetsuitSize?: string;
+  certifications: DiverCertification[];
+  status: DiverStatus;
+  createdAt: string;
+  archivedAt?: string;
+}
+
+export interface UpsertDiverBody {
+  fullName: string;
+  nationality?: string;
+  primaryLanguage?: string;
+  email?: string;
+  phone?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  medicalNotes?: string;
+  totalLoggedDives: number;
+  maxDepthMeters?: number;
+  lastDiveOn?: string;
+  bcdSize?: string;
+  finSize?: string;
+  wetsuitSize?: string;
+  certifications: DiverCertification[];
+}
+
+export function listDivers(
+  token: string,
+  params: { status?: DiverStatus; search?: string; page?: number; size?: number } = {},
+): Promise<Diver[]> {
+  const query = new URLSearchParams();
+  if (params.status) query.set("status", params.status);
+  if (params.search) query.set("search", params.search);
+  query.set("page", String(params.page ?? 0));
+  query.set("size", String(params.size ?? PAGE_SIZE));
+  return request<Diver[]>(`/api/v1/divers/divers?${query.toString()}`, token);
+}
+
+export function getDiver(token: string, id: string): Promise<Diver> {
+  return request<Diver>(`/api/v1/divers/divers/${id}`, token);
+}
+
+export function createDiver(token: string, body: UpsertDiverBody): Promise<Diver> {
+  return request<Diver>("/api/v1/divers/divers", token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+export function updateDiver(token: string, id: string, body: UpsertDiverBody): Promise<Diver> {
+  return request<Diver>(`/api/v1/divers/divers/${id}`, token, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+export function archiveDiver(token: string, id: string): Promise<Diver> {
+  return request<Diver>(`/api/v1/divers/divers/${id}`, token, { method: "DELETE" });
+}
