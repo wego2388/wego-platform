@@ -25,6 +25,11 @@ tags:
       Real diver profiles — certifications, dive-history summary,
       medical/emergency contact, equipment sizing. Staff-managed records
       only; never an automated risk score or a dive-safety decision.
+  - name: Equipment
+    description: >-
+      QR-coded equipment and tanks with a maintenance log and rental
+      history. No RFID, no fleet telemetry — a real, staff-scanned
+      registry sized for one dive center's actual inventory.
 paths:
   /actuator/health:
     get:
@@ -555,6 +560,516 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DiverErrorResponse"
+  /api/v1/divers/equipment:
+    post:
+      operationId: createEquipment
+      summary: Register a new piece of equipment or a tank
+      description: Requires `equipment:manage`. `qrCode` must be unique.
+      tags:
+        - Equipment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEquipmentRequest"
+      responses:
+        "201":
+          description: Equipment created.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EquipmentResponse"
+        "400":
+          description: The request failed validation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "409":
+          description: Another item already uses this QR code.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EquipmentErrorResponse"
+    get:
+      operationId: listEquipment
+      summary: List equipment and tanks
+      description: >-
+        Requires `equipment:view`. Paginated with `page`/`size`; `search`
+        fuzzy-matches label, QR code, or serial number. `qrCode` is a
+        separate exact match for a real scanned code — QR codes are unique,
+        so this bypasses pagination and every other filter and returns at
+        most one item, or an empty array if nothing has that code.
+      tags:
+        - Equipment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: type
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/EquipmentType"
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/EquipmentStatus"
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: qrCode
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Matching equipment, one page.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EquipmentResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/divers/equipment/{id}:
+    get:
+      operationId: getEquipment
+      summary: Read a single piece of equipment
+      tags:
+        - Equipment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The equipment.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EquipmentResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No equipment with this id.
+    put:
+      operationId: updateEquipment
+      summary: Edit an equipment item's descriptive fields
+      description: >-
+        Requires `equipment:manage`. Label, size, and serial number only —
+        the QR code and lifecycle status are never changed here.
+      tags:
+        - Equipment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateEquipmentRequest"
+      responses:
+        "200":
+          description: Equipment updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EquipmentResponse"
+        "400":
+          description: The request failed validation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No equipment with this id.
+  /api/v1/divers/equipment/{id}/start-maintenance:
+    post:
+      operationId: startEquipmentMaintenance
+      summary: Move an active item into maintenance
+      tags:
+        - Equipment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Equipment is now in maintenance.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EquipmentResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No equipment with this id.
+        "409":
+          description: The item is not currently active.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EquipmentErrorResponse"
+  /api/v1/divers/equipment/{id}/complete-maintenance:
+    post:
+      operationId: completeEquipmentMaintenance
+      summary: Return an item from maintenance to active
+      tags:
+        - Equipment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Equipment is active again.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EquipmentResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No equipment with this id.
+        "409":
+          description: The item is not currently in maintenance.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EquipmentErrorResponse"
+  /api/v1/divers/equipment/{id}/retire:
+    post:
+      operationId: retireEquipment
+      summary: Permanently retire an item
+      description: >-
+        Requires `equipment:manage`. Terminal. Rejected if the item
+        currently has an open rental.
+      tags:
+        - Equipment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Equipment retired.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EquipmentResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No equipment with this id.
+        "409":
+          description: Already retired, or currently out on an open rental.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EquipmentErrorResponse"
+  /api/v1/divers/equipment/{id}/service-records:
+    get:
+      operationId: listServiceRecords
+      summary: List an item's maintenance log
+      tags:
+        - Equipment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Service records, newest first.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ServiceRecordResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    post:
+      operationId: addServiceRecord
+      summary: Log a maintenance event
+      description: Requires `equipment:manage`. Append-only — a record is never edited or removed.
+      tags:
+        - Equipment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddServiceRecordRequest"
+      responses:
+        "201":
+          description: Service record added.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceRecordResponse"
+        "400":
+          description: The request failed validation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No equipment with this id.
+  /api/v1/divers/equipment/{id}/rentals:
+    get:
+      operationId: listRentals
+      summary: List an item's rental history
+      tags:
+        - Equipment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Rental records, newest first.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RentalRecordResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    post:
+      operationId: recordRental
+      summary: Start a rental
+      description: >-
+        Requires `equipment:manage`. Rejected if the item isn't active, or
+        already has an open rental — one open rental per item at a time,
+        enforced at the database level too.
+      tags:
+        - Equipment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecordRentalRequest"
+      responses:
+        "201":
+          description: Rental recorded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RentalRecordResponse"
+        "400":
+          description: The request failed validation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No equipment with this id.
+        "409":
+          description: The item is not active, or already has an open rental.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EquipmentErrorResponse"
+  /api/v1/divers/equipment/{id}/rentals/return:
+    post:
+      operationId: recordRentalReturn
+      summary: Close an item's open rental
+      tags:
+        - Equipment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecordRentalReturnRequest"
+      responses:
+        "200":
+          description: Rental closed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RentalRecordResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "409":
+          description: The item has no open rental.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EquipmentErrorResponse"
   /api/v1/divers/bookings:
     post:
       operationId: createBooking
@@ -1287,6 +1802,201 @@ components:
           type: string
           format: date-time
     DiverErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+    EquipmentType:
+      type: string
+      enum:
+        - BCD
+        - REGULATOR
+        - TANK
+        - WETSUIT
+        - FIN
+        - MASK
+        - DIVE_COMPUTER
+        - OTHER
+    EquipmentStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - IN_MAINTENANCE
+        - RETIRED
+    CreateEquipmentRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - equipmentType
+        - label
+        - qrCode
+      properties:
+        equipmentType:
+          $ref: "#/components/schemas/EquipmentType"
+        label:
+          type: string
+          minLength: 1
+          maxLength: 200
+        qrCode:
+          type: string
+          minLength: 1
+          maxLength: 128
+        itemSize:
+          type: string
+          maxLength: 16
+        serialNumber:
+          type: string
+          maxLength: 64
+    UpdateEquipmentRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - label
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 200
+        itemSize:
+          type: string
+          maxLength: 16
+        serialNumber:
+          type: string
+          maxLength: 64
+    EquipmentResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - equipmentType
+        - label
+        - qrCode
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        equipmentType:
+          $ref: "#/components/schemas/EquipmentType"
+        label:
+          type: string
+        qrCode:
+          type: string
+        itemSize:
+          type: string
+        serialNumber:
+          type: string
+        status:
+          $ref: "#/components/schemas/EquipmentStatus"
+        createdAt:
+          type: string
+          format: date-time
+        retiredAt:
+          type: string
+          format: date-time
+    AddServiceRecordRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - servicedOn
+        - description
+      properties:
+        servicedOn:
+          type: string
+          format: date
+        description:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        performedBy:
+          type: string
+          maxLength: 200
+    ServiceRecordResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - equipmentId
+        - servicedOn
+        - description
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        equipmentId:
+          type: string
+          format: uuid
+        servicedOn:
+          type: string
+          format: date
+        description:
+          type: string
+        performedBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    RecordRentalRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - customerName
+        - rentedOn
+      properties:
+        customerName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        rentedOn:
+          type: string
+          format: date
+        notes:
+          type: string
+          maxLength: 1000
+    RecordRentalReturnRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - returnedOn
+      properties:
+        returnedOn:
+          type: string
+          format: date
+    RentalRecordResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - equipmentId
+        - customerName
+        - rentedOn
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        equipmentId:
+          type: string
+          format: uuid
+        customerName:
+          type: string
+        rentedOn:
+          type: string
+          format: date
+        returnedOn:
+          type: string
+          format: date
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    EquipmentErrorResponse:
       type: object
       additionalProperties: false
       required:

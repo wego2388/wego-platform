@@ -1,6 +1,7 @@
 package com.wego.divers.api
 
 import jakarta.validation.ConstraintViolationException
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -78,6 +79,17 @@ class DiversExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleUnreadableBody(exception: HttpMessageNotReadableException): ResponseEntity<ValidationErrorResponse> =
         badRequest("Request body is malformed or contains an unrecognized field")
+
+    /**
+     * A real DB-level unique constraint fired despite an application-layer
+     * pre-check having passed — the true backstop against a race between
+     * two concurrent requests (e.g. the same equipment QR code, or two
+     * rentals starting on the same item at once), not the everyday path.
+     * A clean 409, never the raw constraint name or a 500.
+     */
+    @ExceptionHandler(DataIntegrityViolationException::class)
+    fun handleDataIntegrityViolation(exception: DataIntegrityViolationException): ResponseEntity<ValidationErrorResponse> =
+        ResponseEntity.status(HttpStatus.CONFLICT).body(ValidationErrorResponse(message = "This conflicts with an existing record"))
 
     private fun badRequest(message: String): ResponseEntity<ValidationErrorResponse> =
         ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ValidationErrorResponse(message = message))

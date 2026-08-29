@@ -251,3 +251,126 @@ export function updateDiver(token: string, id: string, body: UpsertDiverBody): P
 export function archiveDiver(token: string, id: string): Promise<Diver> {
   return request<Diver>(`/api/v1/divers/divers/${id}`, token, { method: "DELETE" });
 }
+
+export type EquipmentType = "BCD" | "REGULATOR" | "TANK" | "WETSUIT" | "FIN" | "MASK" | "DIVE_COMPUTER" | "OTHER";
+export type EquipmentStatus = "ACTIVE" | "IN_MAINTENANCE" | "RETIRED";
+
+export interface Equipment {
+  id: string;
+  equipmentType: EquipmentType;
+  label: string;
+  qrCode: string;
+  itemSize?: string;
+  serialNumber?: string;
+  status: EquipmentStatus;
+  createdAt: string;
+  retiredAt?: string;
+}
+
+export interface ServiceRecord {
+  id: string;
+  equipmentId: string;
+  servicedOn: string;
+  description: string;
+  performedBy?: string;
+  createdAt: string;
+}
+
+export interface RentalRecord {
+  id: string;
+  equipmentId: string;
+  customerName: string;
+  rentedOn: string;
+  returnedOn?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export function listEquipment(
+  token: string,
+  params: { type?: EquipmentType; status?: EquipmentStatus; search?: string; qrCode?: string; page?: number; size?: number } = {},
+): Promise<Equipment[]> {
+  const query = new URLSearchParams();
+  if (params.type) query.set("type", params.type);
+  if (params.status) query.set("status", params.status);
+  if (params.search) query.set("search", params.search);
+  if (params.qrCode) query.set("qrCode", params.qrCode);
+  query.set("page", String(params.page ?? 0));
+  query.set("size", String(params.size ?? PAGE_SIZE));
+  return request<Equipment[]>(`/api/v1/divers/equipment?${query.toString()}`, token);
+}
+
+export function createEquipment(
+  token: string,
+  body: { equipmentType: EquipmentType; label: string; qrCode: string; itemSize?: string; serialNumber?: string },
+): Promise<Equipment> {
+  return request<Equipment>("/api/v1/divers/equipment", token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+export function updateEquipment(
+  token: string,
+  id: string,
+  body: { label: string; itemSize?: string; serialNumber?: string },
+): Promise<Equipment> {
+  return request<Equipment>(`/api/v1/divers/equipment/${id}`, token, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+export function startEquipmentMaintenance(token: string, id: string): Promise<Equipment> {
+  return request<Equipment>(`/api/v1/divers/equipment/${id}/start-maintenance`, token, { method: "POST" });
+}
+
+export function completeEquipmentMaintenance(token: string, id: string): Promise<Equipment> {
+  return request<Equipment>(`/api/v1/divers/equipment/${id}/complete-maintenance`, token, { method: "POST" });
+}
+
+export function retireEquipment(token: string, id: string): Promise<Equipment> {
+  return request<Equipment>(`/api/v1/divers/equipment/${id}/retire`, token, { method: "POST" });
+}
+
+export function listServiceRecords(token: string, equipmentId: string): Promise<ServiceRecord[]> {
+  return request<ServiceRecord[]>(`/api/v1/divers/equipment/${equipmentId}/service-records`, token);
+}
+
+export function addServiceRecord(
+  token: string,
+  equipmentId: string,
+  body: { servicedOn: string; description: string; performedBy?: string },
+): Promise<ServiceRecord> {
+  return request<ServiceRecord>(`/api/v1/divers/equipment/${equipmentId}/service-records`, token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+export function listRentals(token: string, equipmentId: string): Promise<RentalRecord[]> {
+  return request<RentalRecord[]>(`/api/v1/divers/equipment/${equipmentId}/rentals`, token);
+}
+
+export function recordRental(
+  token: string,
+  equipmentId: string,
+  body: { customerName: string; rentedOn: string; notes?: string },
+): Promise<RentalRecord> {
+  return request<RentalRecord>(`/api/v1/divers/equipment/${equipmentId}/rentals`, token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+export function recordRentalReturn(token: string, equipmentId: string, returnedOn: string): Promise<RentalRecord> {
+  return request<RentalRecord>(`/api/v1/divers/equipment/${equipmentId}/rentals/return`, token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ returnedOn }),
+  });
+}
