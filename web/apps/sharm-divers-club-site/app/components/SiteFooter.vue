@@ -22,6 +22,8 @@ defineProps<{ locale: SdcLocale; copy: (typeof siteCopy)["en"]["footer"] }>();
         <h2 class="text-xs font-bold tracking-[0.12em] text-sdc-deep-bright uppercase">{{ copy.exploreHeading }}</h2>
         <ul class="mt-4 grid gap-2 text-sm">
           <li><NuxtLink to="/discover" class="text-sdc-muted hover:text-sdc-ink">{{ copy.exploreLinks.discover }}</NuxtLink></li>
+          <li><NuxtLink to="/dive-sites" class="text-sdc-muted hover:text-sdc-ink">{{ copy.exploreLinks.diveSites }}</NuxtLink></li>
+          <li><NuxtLink to="/package-builder" class="text-sdc-muted hover:text-sdc-ink">{{ copy.exploreLinks.packageBuilder }}</NuxtLink></li>
           <li><NuxtLink to="/design-system" class="text-sdc-muted hover:text-sdc-ink">{{ copy.exploreLinks.designSystem }}</NuxtLink></li>
         </ul>
       </div>

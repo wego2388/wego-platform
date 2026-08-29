@@ -66,6 +66,12 @@ const offeringsReveal = useScrollReveal();
           <a :href="whatsappUrl" target="_blank" rel="noopener" class="inline-flex rounded-full bg-sdc-deep px-6 py-3 font-semibold text-white transition-transform hover:-translate-y-0.5">
             {{ copy.discover.whatsapp }}
           </a>
+          <NuxtLink to="/dive-sites" class="inline-flex rounded-full border border-sdc-border bg-sdc-surface px-6 py-3 font-semibold text-sdc-deep-bright">
+            {{ copy.footer.exploreLinks.diveSites }}
+          </NuxtLink>
+          <NuxtLink to="/package-builder" class="inline-flex rounded-full border border-sdc-border bg-sdc-surface px-6 py-3 font-semibold text-sdc-deep-bright">
+            {{ copy.footer.exploreLinks.packageBuilder }}
+          </NuxtLink>
           <NuxtLink to="/design-system" class="inline-flex rounded-full border border-sdc-border bg-sdc-surface px-6 py-3 font-semibold text-sdc-deep-bright">
             {{ copy.discover.viewSystem }}
           </NuxtLink>

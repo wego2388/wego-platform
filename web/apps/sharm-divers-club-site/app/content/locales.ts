@@ -73,11 +73,37 @@ interface SiteCopy {
     exploreHeading: string;
     companyHeading: string;
     contactHeading: string;
-    exploreLinks: { discover: string; designSystem: string };
+    exploreLinks: { discover: string; designSystem: string; diveSites: string; packageBuilder: string };
     companyLinks: { about: string; faq: string; contact: string };
     tripadvisor: string;
     rights: string;
     legal: { privacy: string; terms: string };
+  };
+  diveSites: {
+    heading: string;
+    body: string;
+    back: string;
+    conditionsHeading: string;
+    loadingLabel: string;
+    unavailableLabel: string;
+    airLabel: string;
+    seaLabel: string;
+    windLabel: string;
+    waveLabel: string;
+    offeringsHeading: string;
+    whatsapp: string;
+    buildPackageCta: string;
+  };
+  packageBuilder: {
+    heading: string;
+    body: string;
+    addLabel: string;
+    addedLabel: string;
+    removeLabel: string;
+    totalLabel: string;
+    emptyLabel: string;
+    whatsapp: string;
+    exploreSitesCta: string;
   };
   faq: {
     heading: string;
@@ -197,7 +223,7 @@ export const siteCopy: Record<SdcLocale, SiteCopy> = {
       exploreHeading: "Explore",
       companyHeading: "Company",
       contactHeading: "Contact",
-      exploreLinks: { discover: "Discover", designSystem: "Design system" },
+      exploreLinks: { discover: "Discover", designSystem: "Design system", diveSites: "Dive sites", packageBuilder: "Package builder" },
       companyLinks: { about: "About", faq: "FAQ", contact: "Contact" },
       tripadvisor: "Find us on TripAdvisor",
       rights: "Sharm Divers Club · Royal Grand Sharm Hotel, Hadabet Um Sid, Sharm El Sheikh",
@@ -225,6 +251,32 @@ export const siteCopy: Record<SdcLocale, SiteCopy> = {
         { q: "Do I need to pay a deposit?", a: "Deposit requirements, if any, are confirmed directly with our team before booking." },
       ],
       whatsapp: "Ask us on WhatsApp",
+    },
+    diveSites: {
+      heading: "Real Red Sea sites, real trips to them",
+      body: "These are the named sites our real, approved boat trips actually visit. Live sea and weather conditions below are pulled from a public marine forecast — always confirm the day's plan with our team before you go.",
+      back: "Back to dive sites",
+      conditionsHeading: "Live conditions",
+      loadingLabel: "Checking live conditions…",
+      unavailableLabel: "Live conditions unavailable right now — ask our team on WhatsApp for today's sea state.",
+      airLabel: "Air",
+      seaLabel: "Sea",
+      windLabel: "Wind",
+      waveLabel: "Wave height",
+      offeringsHeading: "Real trips to this site",
+      whatsapp: "Send an inquiry on WhatsApp",
+      buildPackageCta: "Build a package",
+    },
+    packageBuilder: {
+      heading: "Build your own package",
+      body: "Add any of our real, approved offerings to see a running total, then send the whole list to our team on WhatsApp — nothing here is booked or charged automatically.",
+      addLabel: "Add",
+      addedLabel: "Added",
+      removeLabel: "Remove",
+      totalLabel: "Estimated total",
+      emptyLabel: "Nothing added yet — pick a few offerings below to start building a package.",
+      whatsapp: "Send this package on WhatsApp",
+      exploreSitesCta: "Explore dive sites",
     },
     legalPages: {
       updated: "Last updated: 2026-08-27",
@@ -347,7 +399,7 @@ export const siteCopy: Record<SdcLocale, SiteCopy> = {
       exploreHeading: "استكشف",
       companyHeading: "الشركة",
       contactHeading: "تواصل",
-      exploreLinks: { discover: "استكشف", designSystem: "نظام التصميم" },
+      exploreLinks: { discover: "استكشف", designSystem: "نظام التصميم", diveSites: "مواقع الغوص", packageBuilder: "كوّن باقتك" },
       companyLinks: { about: "من نحن", faq: "الأسئلة الشائعة", contact: "تواصل" },
       tripadvisor: "شوفنا على TripAdvisor",
       rights: "Sharm Divers Club · فندق Royal Grand Sharm، هضبة أم السيد، شرم الشيخ",
@@ -375,6 +427,32 @@ export const siteCopy: Record<SdcLocale, SiteCopy> = {
         { q: "محتاج أدفع مقدم؟", a: "لو مطلوب مقدم، بيتأكد معاك مباشرة قبل الحجز." },
       ],
       whatsapp: "اسأل فريقنا على واتساب",
+    },
+    diveSites: {
+      heading: "مواقع حقيقية في البحر الأحمر، ورحلات حقيقية ليها",
+      body: "دي المواقع اللي رحلاتنا الحقيقية والمعتمدة بالفعل بتروحلها. حالة البحر والطقس تحت دي بيانات حية من توقعات بحرية عامة — دايمًا أكّد خطة اليوم مع فريقنا قبل ما تنزل.",
+      back: "العودة لمواقع الغوص",
+      conditionsHeading: "الحالة الحية",
+      loadingLabel: "بنجيب الحالة الحية...",
+      unavailableLabel: "الحالة الحية مش متاحة دلوقتي — اسأل فريقنا على واتساب عن حالة البحر النهارده.",
+      airLabel: "الجو",
+      seaLabel: "البحر",
+      windLabel: "الرياح",
+      waveLabel: "ارتفاع الموج",
+      offeringsHeading: "رحلات حقيقية لهذا الموقع",
+      whatsapp: "ابعت طلبك على واتساب",
+      buildPackageCta: "كوّن باقتك",
+    },
+    packageBuilder: {
+      heading: "كوّن باقتك بنفسك",
+      body: "ضيف أي من خدماتنا الحقيقية والمعتمدة عشان تشوف الإجمالي أول بأول، وبعدين ابعت القائمة كلها لفريقنا على واتساب — مفيش هنا أي حجز أو دفع تلقائي.",
+      addLabel: "ضيف",
+      addedLabel: "مضاف",
+      removeLabel: "احذف",
+      totalLabel: "الإجمالي التقديري",
+      emptyLabel: "لسه مفيش حاجة مضافة — اختار كام خدمة تحت عشان تبدأ تكوّن باقتك.",
+      whatsapp: "ابعت الباقة دي على واتساب",
+      exploreSitesCta: "استكشف مواقع الغوص",
     },
     legalPages: {
       updated: "آخر تحديث: 2026-08-27",
