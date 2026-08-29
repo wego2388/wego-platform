@@ -3,14 +3,20 @@ import { onMounted, ref } from "vue";
 import { WegoAlert, WegoButton, WegoInput } from "@wego/ui";
 import { type AuthSession, clearAuthSession, hasPermission, readAuthSession } from "../composables/useAuthSession";
 import {
+  type BoatCharter,
   closeOffering,
   createOffering,
   DiversApiError,
+  getOfferingBoatCharter,
+  linkOfferingBoatCharter,
+  listBoatCharters,
   listOfferings,
   type Offering,
+  type OfferingBoatCharterLink,
   type OfferingType,
-  type PricingBasis,
   PAGE_SIZE,
+  type PricingBasis,
+  unlinkOfferingBoatCharter,
 } from "../composables/useDiversApi";
 
 useHead({ title: "Offerings · Wego Platform" });
@@ -50,6 +56,18 @@ const closeReason = ref<Record<string, string>>({});
 
 const canManage = () => hasPermission(session.value, "offering:manage");
 const canView = () => hasPermission(session.value, "offering:view");
+const canManageCharter = () => hasPermission(session.value, "boat-charter:manage");
+const canViewCharter = () => hasPermission(session.value, "boat-charter:view");
+
+// Boat-charter linking, expanded per offering on demand rather than
+// eagerly for every row — a page full of non-boat offerings shouldn't
+// fire an extra request per row just to find out none of them are linked.
+const expandedCharterOfferingId = ref<string | null>(null);
+const activeCharters = ref<BoatCharter[]>([]);
+const charterLinks = ref<Record<string, OfferingBoatCharterLink | null>>({});
+const charterState = ref<Record<string, "idle" | "loading" | "submitting" | "error">>({});
+const charterError = ref<Record<string, string>>({});
+const selectedCharterId = ref<Record<string, string>>({});
 
 // A 401 means the persisted session is no longer valid server-side
 // (expired/revoked elsewhere) — drop it locally too, so the page falls
@@ -67,6 +85,9 @@ function errorText(error: unknown): string {
     if (error.status === 401) return "Your session has expired. Please sign in again.";
     if (error.status === 403) return "You don't have permission for this.";
     if (error.errorCode === "already_closed") return "That offering is already closed.";
+    if (error.errorCode === "charter_not_active") return "That charter has ended.";
+    if (error.errorCode === "offering_has_no_capacity") return "Set a capacity on this offering before linking a charter.";
+    if (error.errorCode === "offering_capacity_exceeds_charter") return "This offering's capacity is more than that boat is licensed for.";
     if (error.status === 404) return "Not found.";
     return `Request failed (${error.errorCode}).`;
   }
@@ -165,6 +186,65 @@ async function submitClose(offering: Offering) {
   }
 }
 
+async function toggleCharterPanel(offering: Offering) {
+  if (expandedCharterOfferingId.value === offering.id) {
+    expandedCharterOfferingId.value = null;
+    return;
+  }
+  expandedCharterOfferingId.value = offering.id;
+  if (!session.value) return;
+
+  charterState.value[offering.id] = "loading";
+  charterError.value[offering.id] = "";
+  try {
+    if (activeCharters.value.length === 0 && canManageCharter()) {
+      activeCharters.value = await listBoatCharters(session.value.token, { status: "ACTIVE" });
+    }
+    charterLinks.value[offering.id] = await getOfferingBoatCharter(session.value.token, offering.id);
+    charterState.value[offering.id] = "idle";
+  } catch (error) {
+    handleApiError(error);
+    charterState.value[offering.id] = "error";
+    charterError.value[offering.id] = errorText(error);
+  }
+}
+
+async function submitLinkCharter(offering: Offering) {
+  if (!session.value) return;
+  const boatCharterId = selectedCharterId.value[offering.id];
+  if (!boatCharterId) return;
+
+  charterState.value[offering.id] = "submitting";
+  charterError.value[offering.id] = "";
+  try {
+    charterLinks.value[offering.id] = await linkOfferingBoatCharter(session.value.token, offering.id, boatCharterId);
+    charterState.value[offering.id] = "idle";
+  } catch (error) {
+    handleApiError(error);
+    charterState.value[offering.id] = "error";
+    charterError.value[offering.id] = errorText(error);
+  }
+}
+
+async function submitUnlinkCharter(offering: Offering) {
+  if (!session.value) return;
+  charterState.value[offering.id] = "submitting";
+  charterError.value[offering.id] = "";
+  try {
+    await unlinkOfferingBoatCharter(session.value.token, offering.id);
+    charterLinks.value[offering.id] = null;
+    charterState.value[offering.id] = "idle";
+  } catch (error) {
+    handleApiError(error);
+    charterState.value[offering.id] = "error";
+    charterError.value[offering.id] = errorText(error);
+  }
+}
+
+function charterNameFor(boatCharterId: string): string {
+  return activeCharters.value.find((charter) => charter.id === boatCharterId)?.boatName ?? boatCharterId;
+}
+
 onMounted(() => {
   session.value = readAuthSession();
   if (session.value) loadOfferings();
@@ -230,6 +310,61 @@ onMounted(() => {
                 >
                   Close offering
                 </WegoButton>
+              </div>
+
+              <div v-if="canViewCharter() && offering.capacity" class="mt-3">
+                <WegoButton type="button" variant="secondary" @click="toggleCharterPanel(offering)">
+                  {{ expandedCharterOfferingId === offering.id ? "Hide boat charter" : "Boat charter" }}
+                </WegoButton>
+
+                <div v-if="expandedCharterOfferingId === offering.id" class="mt-3 rounded-wego-control border border-wego-border p-3">
+                  <p v-if="charterState[offering.id] === 'loading'" class="text-sm text-wego-muted">Loading…</p>
+                  <template v-else>
+                    <p v-if="charterLinks[offering.id]" class="text-sm">
+                      Linked to <strong>{{ charterNameFor(charterLinks[offering.id]!.boatCharterId) }}</strong>
+                    </p>
+                    <p v-else class="text-sm text-wego-muted">Not linked to a boat charter.</p>
+
+                    <WegoAlert v-if="charterState[offering.id] === 'error'" variant="danger" class="mt-2">
+                      {{ charterError[offering.id] }}
+                    </WegoAlert>
+
+                    <div v-if="canManageCharter()" class="mt-3 flex flex-wrap items-end gap-2">
+                      <WegoButton
+                        v-if="charterLinks[offering.id]"
+                        type="button"
+                        variant="secondary"
+                        :disabled="charterState[offering.id] === 'submitting'"
+                        @click="submitUnlinkCharter(offering)"
+                      >
+                        Unlink
+                      </WegoButton>
+                      <template v-else>
+                        <div>
+                          <label :for="`charter-select-${offering.id}`" class="block text-sm font-medium text-wego-muted">Link to</label>
+                          <select
+                            :id="`charter-select-${offering.id}`"
+                            v-model="selectedCharterId[offering.id]"
+                            class="mt-2 rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
+                          >
+                            <option value="" disabled>Select a charter…</option>
+                            <option v-for="charter in activeCharters" :key="charter.id" :value="charter.id">
+                              {{ charter.boatName }} (licensed {{ charter.licensedCapacity }})
+                            </option>
+                          </select>
+                        </div>
+                        <WegoButton
+                          type="button"
+                          variant="secondary"
+                          :disabled="charterState[offering.id] === 'submitting' || !selectedCharterId[offering.id]"
+                          @click="submitLinkCharter(offering)"
+                        >
+                          Link
+                        </WegoButton>
+                      </template>
+                    </div>
+                  </template>
+                </div>
               </div>
             </li>
           </ul>

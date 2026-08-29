@@ -30,6 +30,12 @@ tags:
       QR-coded equipment and tanks with a maintenance log and rental
       history. No RFID, no fleet telemetry — a real, staff-scanned
       registry sized for one dive center's actual inventory.
+  - name: BoatCharters
+    description: >-
+      Real charter agreements for chartered boats (this business charters
+      boats, it does not own a fleet). The one safety rule this registry
+      exists for: a boat-diving offering can never claim more seats than
+      the boat's real licensed passenger capacity.
 paths:
   /actuator/health:
     get:
@@ -1070,6 +1076,316 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EquipmentErrorResponse"
+  /api/v1/divers/boat-charters:
+    post:
+      operationId: createBoatCharter
+      summary: Register a real boat charter agreement
+      description: Requires `boat-charter:manage`.
+      tags:
+        - BoatCharters
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBoatCharterRequest"
+      responses:
+        "201":
+          description: Charter created.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoatCharterResponse"
+        "400":
+          description: The request failed validation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    get:
+      operationId: listBoatCharters
+      summary: List boat charters
+      description: Requires `boat-charter:view`. Paginated with `page`/`size`; `search` matches the boat name.
+      tags:
+        - BoatCharters
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: type
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/CharterType"
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/CharterStatus"
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Matching charters, one page.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BoatCharterResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/divers/boat-charters/{id}:
+    get:
+      operationId: getBoatCharter
+      summary: Read a single boat charter
+      tags:
+        - BoatCharters
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The charter.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoatCharterResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No charter with this id.
+    put:
+      operationId: updateBoatCharter
+      summary: Edit a charter's operational details
+      description: >-
+        Requires `boat-charter:manage`. Rejected if lowering
+        `licensedCapacity` would leave a currently linked offering claiming
+        more seats than the boat is licensed for.
+      tags:
+        - BoatCharters
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBoatCharterRequest"
+      responses:
+        "200":
+          description: Charter updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoatCharterResponse"
+        "400":
+          description: The request failed validation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No charter with this id.
+        "409":
+          description: Lowering the capacity would leave a linked offering exceeding it.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoatCharterErrorResponse"
+  /api/v1/divers/boat-charters/{id}/end:
+    post:
+      operationId: endBoatCharter
+      summary: End a charter agreement
+      description: Requires `boat-charter:manage`. Terminal.
+      tags:
+        - BoatCharters
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Charter ended.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoatCharterResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No charter with this id.
+        "409":
+          description: Already ended.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoatCharterErrorResponse"
+  /api/v1/divers/offerings/{offeringId}/boat-charter:
+    get:
+      operationId: getOfferingBoatCharter
+      summary: Read the boat charter linked to an offering
+      tags:
+        - BoatCharters
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: offeringId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The link.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OfferingBoatCharterLinkResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: This offering has no linked charter.
+    put:
+      operationId: linkOfferingBoatCharter
+      summary: Link an offering to a boat charter
+      description: >-
+        Requires `boat-charter:manage`. The real safety rule: rejected if
+        the offering's `capacity` exceeds the charter's `licensedCapacity`,
+        if the charter isn't currently active, or if the offering has no
+        fixed capacity to check. An offering has at most one link —
+        linking again replaces the previous one.
+      tags:
+        - BoatCharters
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: offeringId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LinkBoatCharterRequest"
+      responses:
+        "200":
+          description: Linked.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OfferingBoatCharterLinkResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No offering with this id.
+        "409":
+          description: >-
+            The charter doesn't exist, isn't active, the offering has no
+            fixed capacity, or the offering's capacity exceeds the
+            charter's licensed capacity.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoatCharterErrorResponse"
+    delete:
+      operationId: unlinkOfferingBoatCharter
+      summary: Remove an offering's boat-charter link
+      tags:
+        - BoatCharters
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: offeringId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Unlinked.
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: This offering has no linked charter.
   /api/v1/divers/bookings:
     post:
       operationId: createBooking
@@ -1997,6 +2313,139 @@ components:
           type: string
           format: date-time
     EquipmentErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+    CharterType:
+      type: string
+      enum:
+        - STANDING
+        - DAILY
+        - SAFARI
+    CharterStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - ENDED
+    CreateBoatCharterRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - boatName
+        - charterType
+        - licensedCapacity
+        - startsOn
+      properties:
+        boatName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        charterType:
+          $ref: "#/components/schemas/CharterType"
+        licensedCapacity:
+          type: integer
+          minimum: 1
+        startsOn:
+          type: string
+          format: date
+        endsOn:
+          type: string
+          format: date
+        notes:
+          type: string
+          maxLength: 1000
+    UpdateBoatCharterRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - boatName
+        - licensedCapacity
+        - startsOn
+      properties:
+        boatName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        licensedCapacity:
+          type: integer
+          minimum: 1
+        startsOn:
+          type: string
+          format: date
+        endsOn:
+          type: string
+          format: date
+        notes:
+          type: string
+          maxLength: 1000
+    BoatCharterResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - boatName
+        - charterType
+        - licensedCapacity
+        - startsOn
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        boatName:
+          type: string
+        charterType:
+          $ref: "#/components/schemas/CharterType"
+        licensedCapacity:
+          type: integer
+        startsOn:
+          type: string
+          format: date
+        endsOn:
+          type: string
+          format: date
+        notes:
+          type: string
+        status:
+          $ref: "#/components/schemas/CharterStatus"
+        createdAt:
+          type: string
+          format: date-time
+        endedAt:
+          type: string
+          format: date-time
+    LinkBoatCharterRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - boatCharterId
+      properties:
+        boatCharterId:
+          type: string
+          format: uuid
+    OfferingBoatCharterLinkResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - offeringId
+        - boatCharterId
+        - linkedAt
+      properties:
+        offeringId:
+          type: string
+          format: uuid
+        boatCharterId:
+          type: string
+          format: uuid
+        linkedAt:
+          type: string
+          format: date-time
+    BoatCharterErrorResponse:
       type: object
       additionalProperties: false
       required:

@@ -2,12 +2,16 @@ package com.wego.divers.infrastructure
 
 import com.wego.divers.application.AddServiceRecordService
 import com.wego.divers.application.ArchiveDiverService
+import com.wego.divers.application.BoatCharterAuditRecorder
+import com.wego.divers.application.BoatCharterQueryService
+import com.wego.divers.application.BoatCharterRepository
 import com.wego.divers.application.BookingAuditRecorder
 import com.wego.divers.application.BookingQueryService
 import com.wego.divers.application.BookingRepository
 import com.wego.divers.application.CancelBookingService
 import com.wego.divers.application.CloseOfferingService
 import com.wego.divers.application.CompleteMaintenanceService
+import com.wego.divers.application.CreateBoatCharterService
 import com.wego.divers.application.CreateBookingService
 import com.wego.divers.application.CreateDiverService
 import com.wego.divers.application.CreateEquipmentService
@@ -15,13 +19,16 @@ import com.wego.divers.application.CreateOfferingService
 import com.wego.divers.application.DiverAuditRecorder
 import com.wego.divers.application.DiverQueryService
 import com.wego.divers.application.DiverRepository
+import com.wego.divers.application.EndCharterService
 import com.wego.divers.application.EquipmentAuditRecorder
 import com.wego.divers.application.EquipmentQueryService
 import com.wego.divers.application.EquipmentRentalRecordRepository
 import com.wego.divers.application.EquipmentRepository
 import com.wego.divers.application.EquipmentServiceRecordRepository
+import com.wego.divers.application.LinkOfferingToCharterService
 import com.wego.divers.application.MarkBookingPaidService
 import com.wego.divers.application.OfferingAuditRecorder
+import com.wego.divers.application.OfferingBoatCharterLinkRepository
 import com.wego.divers.application.OfferingQueryService
 import com.wego.divers.application.OfferingRepository
 import com.wego.divers.application.RecordRentalReturnService
@@ -30,6 +37,8 @@ import com.wego.divers.application.RefundBookingService
 import com.wego.divers.application.RetireEquipmentService
 import com.wego.divers.application.StartMaintenanceService
 import com.wego.divers.application.TransactionRunner
+import com.wego.divers.application.UnlinkOfferingFromCharterService
+import com.wego.divers.application.UpdateBoatCharterService
 import com.wego.divers.application.UpdateDiverService
 import com.wego.divers.application.UpdateEquipmentService
 import com.wego.events.OutboxWriter
@@ -244,4 +253,50 @@ class DiversBeanConfiguration {
         serviceRecordRepository: EquipmentServiceRecordRepository,
         rentalRecordRepository: EquipmentRentalRecordRepository,
     ): EquipmentQueryService = EquipmentQueryService(equipmentRepository, serviceRecordRepository, rentalRecordRepository)
+
+    @Bean
+    fun createBoatCharterService(
+        boatCharterRepository: BoatCharterRepository,
+        boatCharterAuditRecorder: BoatCharterAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): CreateBoatCharterService = CreateBoatCharterService(boatCharterRepository, boatCharterAuditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun updateBoatCharterService(
+        boatCharterRepository: BoatCharterRepository,
+        linkRepository: OfferingBoatCharterLinkRepository,
+        offeringRepository: OfferingRepository,
+        transactionRunner: TransactionRunner,
+    ): UpdateBoatCharterService = UpdateBoatCharterService(boatCharterRepository, linkRepository, offeringRepository, transactionRunner)
+
+    @Bean
+    fun endCharterService(
+        boatCharterRepository: BoatCharterRepository,
+        boatCharterAuditRecorder: BoatCharterAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): EndCharterService = EndCharterService(boatCharterRepository, boatCharterAuditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun boatCharterQueryService(
+        boatCharterRepository: BoatCharterRepository,
+        linkRepository: OfferingBoatCharterLinkRepository,
+    ): BoatCharterQueryService = BoatCharterQueryService(boatCharterRepository, linkRepository)
+
+    @Bean
+    fun linkOfferingToCharterService(
+        offeringRepository: OfferingRepository,
+        boatCharterRepository: BoatCharterRepository,
+        linkRepository: OfferingBoatCharterLinkRepository,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): LinkOfferingToCharterService =
+        LinkOfferingToCharterService(offeringRepository, boatCharterRepository, linkRepository, transactionRunner, clock)
+
+    @Bean
+    fun unlinkOfferingFromCharterService(
+        linkRepository: OfferingBoatCharterLinkRepository,
+        transactionRunner: TransactionRunner,
+    ): UnlinkOfferingFromCharterService = UnlinkOfferingFromCharterService(linkRepository, transactionRunner)
 }

@@ -374,3 +374,86 @@ export function recordRentalReturn(token: string, equipmentId: string, returnedO
     body: JSON.stringify({ returnedOn }),
   });
 }
+
+export type CharterType = "STANDING" | "DAILY" | "SAFARI";
+export type CharterStatus = "ACTIVE" | "ENDED";
+
+export interface BoatCharter {
+  id: string;
+  boatName: string;
+  charterType: CharterType;
+  licensedCapacity: number;
+  startsOn: string;
+  endsOn?: string;
+  notes?: string;
+  status: CharterStatus;
+  createdAt: string;
+  endedAt?: string;
+}
+
+export interface OfferingBoatCharterLink {
+  offeringId: string;
+  boatCharterId: string;
+  linkedAt: string;
+}
+
+export function listBoatCharters(
+  token: string,
+  params: { type?: CharterType; status?: CharterStatus; search?: string; page?: number; size?: number } = {},
+): Promise<BoatCharter[]> {
+  const query = new URLSearchParams();
+  if (params.type) query.set("type", params.type);
+  if (params.status) query.set("status", params.status);
+  if (params.search) query.set("search", params.search);
+  query.set("page", String(params.page ?? 0));
+  query.set("size", String(params.size ?? PAGE_SIZE));
+  return request<BoatCharter[]>(`/api/v1/divers/boat-charters?${query.toString()}`, token);
+}
+
+export function createBoatCharter(
+  token: string,
+  body: { boatName: string; charterType: CharterType; licensedCapacity: number; startsOn: string; endsOn?: string; notes?: string },
+): Promise<BoatCharter> {
+  return request<BoatCharter>("/api/v1/divers/boat-charters", token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+export function updateBoatCharter(
+  token: string,
+  id: string,
+  body: { boatName: string; licensedCapacity: number; startsOn: string; endsOn?: string; notes?: string },
+): Promise<BoatCharter> {
+  return request<BoatCharter>(`/api/v1/divers/boat-charters/${id}`, token, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+export function endBoatCharter(token: string, id: string): Promise<BoatCharter> {
+  return request<BoatCharter>(`/api/v1/divers/boat-charters/${id}/end`, token, { method: "POST" });
+}
+
+export async function getOfferingBoatCharter(token: string, offeringId: string): Promise<OfferingBoatCharterLink | null> {
+  try {
+    return await request<OfferingBoatCharterLink>(`/api/v1/divers/offerings/${offeringId}/boat-charter`, token);
+  } catch (error) {
+    if (error instanceof DiversApiError && error.status === 404) return null;
+    throw error;
+  }
+}
+
+export function linkOfferingBoatCharter(token: string, offeringId: string, boatCharterId: string): Promise<OfferingBoatCharterLink> {
+  return request<OfferingBoatCharterLink>(`/api/v1/divers/offerings/${offeringId}/boat-charter`, token, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ boatCharterId }),
+  });
+}
+
+export async function unlinkOfferingBoatCharter(token: string, offeringId: string): Promise<void> {
+  await request<unknown>(`/api/v1/divers/offerings/${offeringId}/boat-charter`, token, { method: "DELETE" });
+}

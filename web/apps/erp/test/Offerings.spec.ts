@@ -194,4 +194,39 @@ describe("offerings page", () => {
 
     expect(wrapper.text()).toContain("You need to sign in");
   });
+
+  it("links a capacity-bearing offering to an active boat charter", async () => {
+    seedSession(["offering:view", "offering:manage", "boat-charter:view", "boat-charter:manage"]);
+    const boatOffering = { ...sampleOffering, capacity: 40 };
+    const charter = { id: "charter-1", boatName: "Al-Horeya", licensedCapacity: 40, charterType: "STANDING", startsOn: "2026-01-01", status: "ACTIVE", createdAt: "2026-01-01T00:00:00Z" };
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = new URL(String(input), "http://localhost");
+      if (url.pathname === "/api/v1/divers/offerings") return new Response(JSON.stringify([boatOffering]), { status: 200 });
+      if (url.pathname === "/api/v1/divers/boat-charters") return new Response(JSON.stringify([charter]), { status: 200 });
+      if (url.pathname.endsWith("/boat-charter") && init?.method === "PUT") {
+        return new Response(JSON.stringify({ offeringId: boatOffering.id, boatCharterId: charter.id, linkedAt: "2026-08-29T00:00:00Z" }), {
+          status: 200,
+        });
+      }
+      if (url.pathname.endsWith("/boat-charter")) return new Response(null, { status: 404 });
+      return new Response(JSON.stringify([]), { status: 200 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const wrapper = mount(OfferingsPage);
+    await flushPromises();
+
+    const toggleButton = wrapper.findAll("button").find((button) => button.text() === "Boat charter");
+    await toggleButton?.trigger("click");
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Not linked to a boat charter");
+
+    await wrapper.get("select").setValue(charter.id);
+    const linkButton = wrapper.findAll("button").find((button) => button.text() === "Link");
+    await linkButton?.trigger("click");
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Al-Horeya");
+  });
 });
