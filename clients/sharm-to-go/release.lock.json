@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "clientId": "sharm-to-go",
+  "platformVersion": "0.1.0-SNAPSHOT",
+  "product": {
+    "id": "wego-travel-marketplace",
+    "version": "0.1.0"
+  },
+  "contractVersions": {
+    "httpApi": "v1"
+  },
+  "modules": [
+    {
+      "id": "platform.events",
+      "version": "0.1.0-SNAPSHOT"
+    },
+    {
+      "id": "platform.identity",
+      "version": "0.1.0-SNAPSHOT"
+    },
+    {
+      "id": "platform.security",
+      "version": "0.1.0-SNAPSHOT"
+    },
+    {
+      "id": "product.travel-marketplace",
+      "version": "0.1.0-SNAPSHOT"
+    }
+  ],
+  "manifestDigests": {
+    "client": "92bfd12737f1c605cb8089e4383a651878cbaf592cf4271202d8f2ca6cb9f6a3",
+    "product": "35b5d3afab5ef29886ddc41930c2a026b634527bb4f878dfcc784a3106cd5020",
+    "moduleCatalog": "ffac9c68f25417ec2395daec7c552780df0136af788be9d22a33585d8d400d2d"
+  }
+}

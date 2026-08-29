@@ -1,0 +1,91 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/noto-sans-arabic";
+
+@theme {
+  --color-sharm-ink: var(--stg-color-text-primary);
+  --color-sharm-muted: var(--stg-color-text-secondary);
+  --color-sharm-sea: var(--stg-color-brand-sea);
+  --color-sharm-sea-bright: var(--stg-color-brand-sea-bright);
+  --color-sharm-lagoon: var(--stg-color-brand-lagoon);
+  --color-sharm-sand: var(--stg-color-brand-sand);
+  --color-sharm-sun: var(--stg-color-brand-sun);
+  --color-sharm-canvas: var(--stg-color-surface-canvas);
+  --color-sharm-surface: var(--stg-color-surface-default);
+  --color-sharm-border: var(--stg-color-border-default);
+  --color-sharm-info: var(--stg-color-status-info);
+  --color-sharm-info-soft: var(--stg-color-status-info-soft);
+  --color-sharm-success: var(--stg-color-status-success);
+  --color-sharm-success-soft: var(--stg-color-status-success-soft);
+  --color-sharm-warning: var(--stg-color-status-warning);
+  --color-sharm-warning-soft: var(--stg-color-status-warning-soft);
+  --color-sharm-danger: var(--stg-color-status-danger);
+  --color-sharm-danger-soft: var(--stg-color-status-danger-soft);
+  --font-sans: var(--wego-font-sans);
+}
+
+:root {
+  --stg-color-brand-sea: #075f67;
+  --stg-color-brand-sea-bright: #0b8691;
+  --stg-color-brand-lagoon: #d8f1ef;
+  --stg-color-brand-sand: #f4dec0;
+  --stg-color-brand-sun: #f2a93b;
+  --stg-color-surface-canvas: #f7fbfa;
+  --stg-color-surface-default: #ffffff;
+  --stg-color-text-primary: #102f35;
+  --stg-color-text-secondary: #587078;
+  --stg-color-border-default: #d5e1df;
+  --stg-color-status-info: #155e75;
+  --stg-color-status-info-soft: #cffafe;
+  --stg-color-status-success: #0f7a3d;
+  --stg-color-status-success-soft: #dcf5e4;
+  --stg-color-status-warning: #8a5809;
+  --stg-color-status-warning-soft: #fff1d8;
+  --stg-color-status-danger: #b3261e;
+  --stg-color-status-danger-soft: #fbdcd9;
+  --wego-color-accent: #075f67;
+  --wego-color-accent-soft: #d8f1ef;
+}
+
+html {
+  background: #f7fbfa;
+  color: #102f35;
+  font-family: var(--wego-font-sans);
+}
+
+body {
+  margin: 0;
+}
+
+html[dir="rtl"] {
+  --wego-font-sans: "Noto Sans Arabic Variable", "Noto Sans Arabic", Tahoma,
+    Arial, sans-serif;
+}
+
+.money,
+.reference {
+  direction: ltr;
+  font-variant-numeric: tabular-nums;
+  unicode-bidi: isolate;
+}
+
+:focus-visible {
+  outline: 3px solid #f2a93b;
+  outline-offset: 3px;
+}
+
+.sharm-hero {
+  background:
+    radial-gradient(circle at 18% 20%, rgb(244 222 192 / 75%), transparent 31%),
+    radial-gradient(circle at 85% 0%, rgb(216 241 239 / 90%), transparent 34%),
+    linear-gradient(135deg, #f7fbfa 0%, #edf8f6 58%, #fff8ee 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

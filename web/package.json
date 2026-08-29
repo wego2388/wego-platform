@@ -8,11 +8,11 @@
     "pnpm": "10.34.4"
   },
   "scripts": {
-    "prepare": "pnpm --filter @wego/erp prepare && pnpm --filter @wego/sharm-divers-club-site prepare",
+    "prepare": "pnpm --filter @wego/erp prepare && pnpm --filter @wego/sharm-to-go-site prepare && pnpm --filter @wego/sharm-to-go-erp prepare && pnpm --filter @wego/sharm-divers-club-site prepare",
     "lint": "eslint apps packages --max-warnings=0",
-    "typecheck": "pnpm --filter @wego/design-tokens typecheck && pnpm --filter @wego/ui typecheck && pnpm --filter @wego/erp typecheck && pnpm --filter @wego/sharm-divers-club-site typecheck",
-    "test": "pnpm --filter @wego/erp test && pnpm --filter @wego/sharm-divers-club-site test",
-    "build": "pnpm --filter @wego/erp build && pnpm --filter @wego/sharm-divers-club-site build",
+    "typecheck": "pnpm --filter @wego/design-tokens typecheck && pnpm --filter @wego/ui typecheck && pnpm --filter @wego/erp typecheck && pnpm --filter @wego/sharm-to-go-site typecheck && pnpm --filter @wego/sharm-to-go-erp typecheck && pnpm --filter @wego/sharm-divers-club-site typecheck",
+    "test": "pnpm --filter @wego/erp test && pnpm --filter @wego/sharm-to-go-site test && pnpm --filter @wego/sharm-to-go-erp test && pnpm --filter @wego/sharm-divers-club-site test",
+    "build": "pnpm --filter @wego/erp build && pnpm --filter @wego/sharm-to-go-site build && pnpm --filter @wego/sharm-to-go-erp build && pnpm --filter @wego/sharm-divers-club-site build",
     "check": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build"
   },
   "devDependencies": {

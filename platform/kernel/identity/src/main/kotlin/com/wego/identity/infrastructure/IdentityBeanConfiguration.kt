@@ -34,6 +34,11 @@ class IdentityBeanConfiguration {
         filter: BearerTokenAuthenticationFilter,
     ): FilterRegistrationBean<BearerTokenAuthenticationFilter> = FilterRegistrationBean(filter).apply { isEnabled = false }
 
+    /** Same reasoning as [bearerTokenAuthenticationFilterRegistration] — [CorrelationIdFilter] is wired explicitly, not auto-registered. */
+    @Bean
+    fun correlationIdFilterRegistration(filter: CorrelationIdFilter): FilterRegistrationBean<CorrelationIdFilter> =
+        FilterRegistrationBean(filter).apply { isEnabled = false }
+
     @Bean
     fun loginService(
         userRepository: UserRepository,

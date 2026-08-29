@@ -32,6 +32,14 @@
       "path": "products/divers",
       "version": "0.1.0-SNAPSHOT",
       "capabilities": ["divers.product-boundary"]
+    },
+    {
+      "id": "product.travel-marketplace",
+      "kind": "PRODUCT_MARKER",
+      "owner": "wego-travel-marketplace",
+      "path": "products/travel-marketplace",
+      "version": "0.1.0-SNAPSHOT",
+      "capabilities": ["travel-marketplace.product-boundary"]
     }
   ]
 }

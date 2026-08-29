@@ -1,0 +1,43 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/noto-sans-arabic";
+
+@theme {
+  --color-sharm-ink: #102f35;
+  --color-sharm-muted: #64777b;
+  --color-sharm-sea: #075f67;
+  --color-sharm-lagoon: #d8f1ef;
+  --color-sharm-canvas: #f3f7f6;
+  --color-sharm-surface: #ffffff;
+  --color-sharm-border: #d5e1df;
+  --color-sharm-warning: #8a5809;
+  --color-sharm-warning-soft: #fff1d8;
+  --font-sans: var(--wego-font-sans);
+}
+
+html {
+  background: #f3f7f6;
+  color: #102f35;
+  font-family: var(--wego-font-sans);
+}
+
+body {
+  margin: 0;
+}
+
+html[dir="rtl"] {
+  --wego-font-sans: "Noto Sans Arabic Variable", "Noto Sans Arabic", Tahoma,
+    Arial, sans-serif;
+}
+
+.money,
+.reference {
+  direction: ltr;
+  font-variant-numeric: tabular-nums;
+  unicode-bidi: isolate;
+}
+
+:focus-visible {
+  outline: 3px solid #f2a93b;
+  outline-offset: 3px;
+}

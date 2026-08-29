@@ -82,17 +82,62 @@ jobs:
         run: docker compose --env-file .env.example -f infrastructure/compose/compose.yaml config --quiet
       - name: Build and start isolated foundation stack
         run: docker compose --env-file .env.example -f infrastructure/compose/compose.yaml up --build --wait -d
-      - name: Verify edge health, deny-by-default, and login rate limiting
+      - name: Verify edge health, ERP HTML, and API protection
         run: |
           curl --fail --silent --show-error http://127.0.0.1:58080/healthz
 
-          # Deny-by-default for an unauthenticated caller is 401 (not
-          # authenticated) with a challenge header, not 403 (authenticated
-          # but forbidden) — see SecurityConfiguration/BearerAuthenticationEntryPoint.
-          deny_headers="$(curl --silent --dump-header - --output /dev/null http://127.0.0.1:58080/not-authorized)"
+          # Everything not under /api/** or /healthz now routes to the web
+          # (Nuxt) service, not the backend — see infrastructure/nginx/nginx.conf's
+          # split. /login is a real ERP page and must render actual HTML,
+          # not the backend's JSON, and must carry the CSP/frame/nosniff
+          # headers nginx adds for that location.
+          erp_headers="$(curl --silent --dump-header - --output /tmp/erp-login.html http://127.0.0.1:58080/login)"
+          echo "$erp_headers" | grep -q '^HTTP/[0-9.]* 200'
+          echo "$erp_headers" | grep -qi '^Content-Type: *text/html'
+          echo "$erp_headers" | grep -qi '^Content-Security-Policy:'
+          echo "$erp_headers" | grep -qi '^X-Frame-Options: *DENY'
+          grep -qi '<title' /tmp/erp-login.html
+
+          # Deny-by-default for an unauthenticated caller against the API is
+          # 401 (not authenticated) with a challenge header, not 403
+          # (authenticated but forbidden) — see
+          # SecurityConfiguration/BearerAuthenticationEntryPoint. Must stay
+          # true through the /api/ prefix location, not just at the root.
+          deny_headers="$(curl --silent --dump-header - --output /dev/null http://127.0.0.1:58080/api/v1/identity/me)"
           echo "$deny_headers" | grep -q '^HTTP/[0-9.]* 401'
           echo "$deny_headers" | grep -qi '^WWW-Authenticate: *Bearer'
-
+      - uses: pnpm/action-setup@ff378ebe6b225b0680b81c1ad4498ae0d1d3a5e3 # v6.0.10
+        with:
+          version: 10.34.4
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          cache-dependency-path: e2e/pnpm-lock.yaml
+      - run: pnpm --dir e2e install --frozen-lockfile
+      - name: Install Playwright's Chromium
+        run: pnpm --dir e2e exec playwright install --with-deps chromium
+      - name: Seed the E2E staff user and pagination fixture data
+        env:
+          WEGO_POSTGRES_PORT: 55432
+          WEGO_POSTGRES_USER: wego_app
+          WEGO_POSTGRES_PASSWORD: wego-local-postgres-only
+          WEGO_POSTGRES_DB: wego
+          WEGO_E2E_SEED_CONFIRM: yes-this-is-a-disposable-e2e-database
+        run: pnpm --dir e2e run seed
+      - name: Run the authenticated ERP browser lifecycle (Playwright)
+        env:
+          WEGO_E2E_BASE_URL: http://127.0.0.1:58080
+        run: pnpm --dir e2e run test
+      - name: Verify login rate limiting
+        # Deliberately last: this step exhausts nginx's edge-level login
+        # limiter (login_rate: 5r/m, burst 3) on purpose. Running it before
+        # the Playwright E2E step risked the E2E login's very first request
+        # landing inside that same exhausted window and failing with 429 —
+        # reproduced live against this exact ordering before being moved
+        # here, not a theoretical concern.
+        run: |
           # Two independent rate limiters guard login (see SECURITY_MODEL.md):
           # nginx per-IP (infrastructure/nginx/nginx.conf) and the
           # application per-account (LoginAttemptThrottle). Reusing one email
@@ -148,6 +193,13 @@ jobs:
           }
           assert_rate_limit_contract "$app_rate_limit_body" /tmp/app-rate-limit-headers.txt
           assert_rate_limit_contract "$edge_rate_limit_body" /tmp/edge-rate-limit-headers.txt
+      - name: Upload Playwright report after a failure
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: playwright-report
+          path: e2e/test-results
+          retention-days: 7
       - name: Show logs after a failure
         if: failure()
         run: docker compose --env-file .env.example -f infrastructure/compose/compose.yaml logs --no-color
@@ -173,6 +225,7 @@ jobs:
           node-version-file: .nvmrc
       - run: pnpm --dir foundry audit --audit-level=high
       - run: pnpm --dir web audit --audit-level=high
+      - run: pnpm --dir e2e audit --audit-level=high
 
   dependency-review:
     if: github.event_name == 'pull_request'

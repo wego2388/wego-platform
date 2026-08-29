@@ -1,5 +1,6 @@
 package com.wego.identity.api
 
+import com.wego.events.CorrelationContext
 import com.wego.identity.application.AuthenticatedPrincipal
 import com.wego.identity.application.LoginService
 import com.wego.identity.application.LogoutService
@@ -9,10 +10,8 @@ import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
 
 @RestController
 @RequestMapping("/api/v1/identity")
@@ -23,10 +22,8 @@ class IdentityController(
     @PostMapping("/login")
     fun login(
         @RequestBody request: LoginRequest,
-        @RequestHeader("X-Correlation-Id", required = false) correlationIdHeader: String?,
     ): ResponseEntity<Any> {
-        val correlationId = correlationIdHeader?.let { runCatching { UUID.fromString(it) }.getOrNull() }
-        val result = loginService.login(request.email, request.password, correlationId)
+        val result = loginService.login(request.email, request.password, CorrelationContext.currentCorrelationId())
 
         if (!result.success) {
             val reason = result.failureReason ?: LoginService.FAILURE_REASON
@@ -53,7 +50,7 @@ class IdentityController(
     @PostMapping("/logout")
     fun logout(authentication: Authentication): ResponseEntity<Void> {
         val principal = authentication.principal as AuthenticatedPrincipal
-        logoutService.logout(principal.session, principal.user.id, null)
+        logoutService.logout(principal.session, principal.user.id, CorrelationContext.currentCorrelationId())
         return ResponseEntity.noContent().build()
     }
 

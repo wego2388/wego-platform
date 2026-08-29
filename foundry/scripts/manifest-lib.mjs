@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { access, readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -8,10 +8,9 @@ const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 export const repositoryRoot = path.resolve(scriptDirectory, "../..");
 
 export const paths = Object.freeze({
-  client: path.join(repositoryRoot, "clients/sharm-divers-club/client.manifest.json"),
-  lock: path.join(repositoryRoot, "clients/sharm-divers-club/release.lock.json"),
+  clientsDirectory: path.join(repositoryRoot, "clients"),
   moduleCatalog: path.join(repositoryRoot, "foundry/catalog/modules.json"),
-  product: path.join(repositoryRoot, "products/divers/product.manifest.json"),
+  productsDirectory: path.join(repositoryRoot, "products"),
 });
 
 export async function readJson(filePath) {
@@ -37,23 +36,85 @@ export function sha256(value) {
   return createHash("sha256").update(canonicalJson(value)).digest("hex");
 }
 
-export async function loadReleaseInputs() {
-  const [client, product, moduleCatalog] = await Promise.all([
-    readJson(paths.client),
-    readJson(paths.product),
-    readJson(paths.moduleCatalog),
+async function manifestDirectories(parentDirectory, manifestName) {
+  const entries = (await readdir(parentDirectory, { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory() && !entry.name.startsWith("."))
+    .sort((left, right) => left.name.localeCompare(right.name));
+
+  if (entries.length === 0) {
+    throw new Error(`No composition directories found under ${path.relative(repositoryRoot, parentDirectory)}`);
+  }
+
+  return Promise.all(
+    entries.map(async (entry) => {
+      const directory = path.join(parentDirectory, entry.name);
+      const manifestPath = path.join(directory, manifestName);
+      await access(manifestPath);
+      return { directory, directoryName: entry.name, manifestPath };
+    }),
+  );
+}
+
+export async function discoverCompositionFiles() {
+  const [clientDirectories, productDirectories] = await Promise.all([
+    manifestDirectories(paths.clientsDirectory, "client.manifest.json"),
+    manifestDirectories(paths.productsDirectory, "product.manifest.json"),
   ]);
 
-  return { client, product, moduleCatalog };
+  return {
+    clients: clientDirectories.map((entry) => ({ ...entry, lockPath: path.join(entry.directory, "release.lock.json") })),
+    products: productDirectories,
+  };
+}
+
+export async function loadFoundryInputs() {
+  const [files, moduleCatalog] = await Promise.all([discoverCompositionFiles(), readJson(paths.moduleCatalog)]);
+  const [clients, products] = await Promise.all([
+    Promise.all(
+      files.clients.map(async (file) => ({
+        ...file,
+        manifest: await readJson(file.manifestPath),
+        releaseLock: await readJson(file.lockPath),
+      })),
+    ),
+    Promise.all(files.products.map(async (file) => ({ ...file, manifest: await readJson(file.manifestPath) }))),
+  ]);
+
+  return { clients, products, moduleCatalog };
+}
+
+export function indexUnique(items, keyOf, label) {
+  const index = new Map();
+  for (const item of items) {
+    const key = keyOf(item);
+    if (index.has(key)) {
+      throw new Error(`Duplicate ${label}: ${key}`);
+    }
+    index.set(key, item);
+  }
+  return index;
+}
+
+export function resolveProductForClient(client, productsById) {
+  const product = productsById.get(client.product.id);
+  if (!product) {
+    throw new Error(`Client ${client.clientId} references missing product ${client.product.id}`);
+  }
+  if (client.product.version !== product.version) {
+    throw new Error(
+      `Client ${client.clientId} requests ${client.product.id}@${client.product.version}, but the manifest is ${product.version}`,
+    );
+  }
+  return product;
 }
 
 export function buildReleaseLock({ client, product, moduleCatalog }) {
-  const modulesById = new Map(moduleCatalog.modules.map((module) => [module.id, module]));
+  const modulesById = indexUnique(moduleCatalog.modules, (module) => module.id, "module id");
   const modules = product.requiredModules
     .map((moduleId) => {
       const module = modulesById.get(moduleId);
       if (!module) {
-        throw new Error(`Product references unknown module: ${moduleId}`);
+        throw new Error(`Product ${product.productId} references unknown module: ${moduleId}`);
       }
       return { id: module.id, version: module.version };
     })

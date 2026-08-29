@@ -8,7 +8,61 @@ Rule: exactly one implementation packet may be `ACTIVE` in a worktree. Parent mi
 |---|---|---|
 | WEGO-000 | Establish a small, tested production foundation | COMPLETE |
 | WEGO-001 | Identity & Access foundation | COMPLETE |
-| WEGO-002+ | Product/domain delivery | NOT AUTHORIZED — deliberately undefined until WEGO-001 closes |
+| WEGO-002 | Diving bookings foundation (trips, courses, rental, packages) | COMPLETE |
+| WEGO-003 | Reliable integration delivery and replay | NOT AUTHORIZED — roadmap only |
+| WEGO-004 | Customer communications, consent, and first channel delivery | NOT AUTHORIZED — roadmap only |
+| WEGO-005 | Divers inquiry, lead intake, attribution, and staff follow-up | NOT AUTHORIZED — roadmap only |
+| WEGO-006 | Divers Journey Pass, quote snapshot, and readiness workflow | NOT AUTHORIZED — roadmap only |
+| WEGO-007 | Proven automation recipes and operations surface (Wego Flow) | NOT AUTHORIZED — roadmap only |
+| WEGO-008 | Wego Growth Command Center and first end-to-end channel | NOT AUTHORIZED — roadmap only |
+| WEGO-009 | Safe omnichannel auto-response and Growth Copilot | NOT AUTHORIZED — roadmap only |
+| WEGO-010 | Travel Marketplace product and Sharm To Go client foundation | IN PROGRESS |
+
+## Automation and growth roadmap guardrails
+
+WEGO-003 through WEGO-009 are sequenced discovery targets, not authorization to
+implement. WEGO-002 remains the only active packet. The owner must explicitly
+activate exactly one later packet after its predecessor is complete, at which
+time its scope, review tier, affected modules, data classification, and current
+provider constraints are revalidated against the implemented repository.
+
+- PostgreSQL remains durable truth. Redis may hold only ephemeral coordination,
+  rate-limit, or cache state; n8n and external providers never read Wego tables.
+- Business transitions, scheduling authority, consent, authorization,
+  idempotency, retry policy, approval, and audit stay in Wego. n8n, if selected,
+  is a least-privilege channel/integration adapter receiving minimized signed
+  payloads, not a workflow authority or a second system of record.
+- `/home/wego/projects/clients` is a separate human marketing/growth workspace.
+  It must become independently versioned before automation work, but it never
+  becomes a build, runtime, CI, or direct data dependency of this repository.
+- Lead capture creates an inquiry, never a booking. Booking requires a selected
+  dated offering, validated capacity, explicit customer intent, and the owning
+  product's domain checks.
+- Dive readiness and safety rules remain in `products/divers`. Cross-product
+  Journey or automation primitives move into `platform/` only after another
+  real product proves the same invariants; names such as "Wego Flow" do not by
+  themselves justify a shared module.
+- Initial automation definitions are versioned, typed recipes with known
+  triggers, guards, actions, and approval policies. Arbitrary SQL, scripts,
+  SpEL, provider credentials, or user-authored executable code are forbidden.
+- The creative-production toolset is intentionally limited to Canva for fast,
+  template-led design and DaVinci Resolve for professional video. Wego owns the
+  approved facts, assets, rights, manifests, workflow state, and publication
+  evidence; neither tool is a source of commercial truth. DaVinci runs on an
+  editor workstation, never as a Wego server or VPS runtime dependency. No
+  additional editor, digital-asset manager, or review platform is planned.
+- Channel rollout is value-ordered and incremental: WhatsApp first; Instagram
+  and Messenger; website chat and email; Google Business/Search/Ads; then
+  TikTok and YouTube. Any other social, travel, or marketplace platform is added
+  only when its current official API/partner access and business value are
+  proven. A manual task/export is the honest fallback for a closed platform.
+- AI may draft, translate, classify, summarize, and recommend. After WEGO-009 it
+  may send only an allowlisted low-risk one-to-one reply whose current facts
+  come through typed Wego tools and whose channel, consent, confidence, and
+  policy checks pass. Publication, bulk communication, discounts, booking
+  confirmation, price changes, cancellation, refund, medical/safety judgment,
+  complaints, and payment disputes require the owning use case and explicit
+  human authority. A human can take over and disable automation immediately.
 
 ## WEGO-000-A — Governance and architecture baseline
 
@@ -128,6 +182,149 @@ Rule: exactly one implementation packet may be `ACTIVE` in a worktree. Parent mi
 - **Tests:** `pnpm install` then `pnpm install --frozen-lockfile`; `pnpm run check` in `web/`; a real dev-server visual check; a manual contrast check.
 - **Documentation changes:** `web/README.md` gains a short section naming the completed token categories and the explicit deferred list above.
 - **Rollback considerations:** Frontend-only; no schema, migration, or backend runtime touched; reverting is a plain file revert plus a lockfile regeneration.
+
+## WEGO-002 — Diving bookings foundation
+
+- **Status:** COMPLETE
+- **Status note:** Independent Tier 1 review closed after two rounds with zero blocking findings; final executable evidence is recorded in the 2026-08-25 round-2 entry below. No commit, push, or deploy was performed.
+- **Review intensity:** Tier 1 — this packet adds a database migration (schema) and a new authorization surface (seven `PermissionCode`s, including two added during remediation specifically to separate payment actions from `booking:create`), both explicit Tier 1 triggers per `docs/operations/REVIEW_INTENSITY.md`. Same standard as WEGO-001: real Testcontainers/concurrency evidence, independent adversarial review, zero blocking findings before commit.
+- **Objective:** Deliver the first real Wego Divers product capability — staff-created bookings covering dive trips, courses, equipment rental, and multi-day packages, with unambiguous pricing, a real payment/refund authorization state machine, capacity/idempotency correctness under concurrency, and a staff-usable ERP surface served through the real production topology (Compose + Nginx + Nuxt) — so the platform's first vertical-industry behavior exists on top of the WEGO-001 identity/authorization foundation, remediated against a full Tier 1 defect list (below) rather than left at its first working draft.
+- **Scope (post-remediation):**
+  - **Idempotency (A):** `BookingFingerprint` — a canonical SHA-256 hash of `(offeringId, partySize, normalized customer contact)` — stored per booking and compared on every replay of `(actorUserId, Idempotency-Key)`. A matching fingerprint replays the original booking unchanged (no duplicate audit/outbox write); a mismatched fingerprint is rejected as `idempotency_key_conflict` (409). Concurrency safety across *different* offerings sharing one key comes from `pg_advisory_xact_lock` in `JooqBookingRepository.lockIdempotencyKey`, always acquired before the offering row lock — a fixed lock order that keeps this deadlock-free by construction. 1–128 length enforced before the DB.
+  - **Payment/refund authorization (B):** `booking:payment-update` (mark paid) and `booking:refund` are new permissions, distinct from `booking:create` and from each other, enforced on two separate endpoints/services (`MarkBookingPaidService`, `RefundBookingService`). `Booking.markPaid()`/`Booking.refund(reason)` implement an explicit `UNPAID -> PAID -> REFUNDED` state machine (`PaymentTransitionResult`: `Applied`/`AlreadyInTargetState`/`Rejected`) — `UNPAID -> REFUNDED` and `REFUNDED -> PAID` are both rejected as `invalid_payment_transition` (409); repeating an already-applied transition is a documented no-op, never a duplicate audit/outbox write. Cancellation now requires a non-blank `reason` and is independent of payment status (a cancelled-but-paid booking can still be refunded). Audit rows carry structured `from_status`/`to_status`/`reason`/`correlation_id` columns, not one opaque `detail` string.
+  - **Explicit pricing (C):** `PricingBasis` (`PER_PARTICIPANT`/`FLAT`) is required on every offering; `BookingPricing` is an immutable snapshot (`pricingBasis`, `unitPrice`, `billableQuantity`, `totalPrice`) captured at booking creation and never affected by a later change to the offering's own price. `Money.amount.scale()` is a hard application-domain invariant (`REQUIRED_SCALE = 2`); PostgreSQL persists the value in `numeric(10,2)`, but cannot independently reject over-scale input because numeric coercion occurs before a CHECK can inspect the original value (review round 1, finding 17).
+  - **Validation/error contract (D):** Real Bean Validation on every divers DTO and header (`@Size`/`@Pattern`/`@Positive`/`@Email`/pagination bounds); `DiversExceptionHandler` unifies five distinct failure paths into one `{"error":"validation_failed","message":"..."}` 400 contract; a new app-wide `com.wego.JacksonConfiguration` enables `FAIL_ON_UNKNOWN_PROPERTIES` (Jackson 3's `JsonMapper` does not fail on unknown properties by default — verified empirically, not assumed, via a real HTTP test that first caught this gap live).
+  - **Offering close lifecycle + ERP UI (E):** `POST /offerings/{id}/close` (`offering:manage`), row-locked against a concurrent `CreateBookingService` call on the same offering (same lock `CreateBookingService` already takes); real Previous/Next pagination (`page`/`size`, capped at 200) on both `/offerings` and `/bookings` ERP pages, proven against a real 50-row-plus-one boundary, not just a unit assertion; bookings page shows offering name/date (backfilled per-booking via `GET /offerings/{id}` when outside the bulk-fetched first page, never silently falling back to a raw id), contact info, unit/total price, and status/payment; cancel/refund require a typed reason plus a `window.confirm` dialog; mark-paid/refund buttons are gated on the session's actual resolved permissions (`booking:payment-update`/`booking:refund`), not just `booking:create`.
+  - **Correlation/observability (F):** `CorrelationIdFilter` (in `com.wego.identity.infrastructure`, ahead of the bearer filter) accepts a valid incoming `X-Correlation-Id` UUID or generates one, sets it on `CorrelationContext` (module-root `com.wego.events`) and the response header; every divers controller threads it into its service call, and audit/outbox writes carry it — proven end to end by a dedicated HTTP test asserting one shared id across the response, the audit row, and the outbox row for one booking mutation. Nginx now logs `$sent_http_x_correlation_id` on every access-log line (the id actually sent, including the server-generated-fallback case).
+  - **Web in the real topology (G):** `infrastructure/docker/web.Dockerfile` — Node 24.19.0 pinned by digest (verified to match `web/.nvmrc` exactly), non-root (uid 10001), builds `apps/erp` via the pnpm workspace, runs the Nitro `node-server` output. `web` is now a Compose service (`read_only`, `tmpfs /tmp`, its own healthcheck against `/login`); Nginx splits `/api/**`+`/healthz` to `backend` and everything else to `web`, with `X-Content-Type-Options`/`X-Frame-Options`/`Referrer-Policy`/`Content-Security-Policy` on every location (nginx's `add_header` does not inherit once a location defines its own, so each location repeats the full set explicitly). CSP allows `'unsafe-inline'` for `script-src` only — Nuxt 4's default `node-server` build (no CSP-nonce module configured) ships a real executable inline hydration bootstrap script, not an inert JSON island; a strict `script-src 'self'` was tried first, broke hydration (confirmed live via a headless run against this exact config, not assumed), and was corrected. Independent review proved `style-src 'self'` works through the full lifecycle, so its unnecessary exception was removed. A Playwright E2E suite (`e2e/`) runs the full authenticated lifecycle — login, create offering, create booking, page through a real 50-offering boundary, mark paid, cancel with a reason, refund with a reason, logout — against the isolated Compose stack, seeded via a synthetic Postgres-level user (`e2e/seed.mjs`, bcrypt-hashed, never through a test-only backend endpoint; `AdminBootstrapRunner`'s deliberate TTY-only bootstrap is untouched).
+  - **CI (H):** the `infrastructure` job's ERP/API checks were repointed from an arbitrary root path to `/login` (real HTML) and `/api/v1/identity/me` (401 challenge) now that `/` routes to `web`, not `backend`; the job now also installs Playwright's Chromium, seeds the E2E fixture data, and runs the E2E suite against the same already-running isolated stack, uploading the Playwright report as an artifact on failure.
+  - Unchanged from the original scope: `products/divers` domain/application/infrastructure/api layers; Flyway `V3__divers_booking_foundation.sql`; the first real outbox-writer implementation in `platform/kernel/events` (`OutboxWriter` port + `JooqOutboxWriter`).
+- **Out of scope:** Any public/customer-facing booking UI (staff/ops-only per the owner's explicit decision); payment gateway/processing integration (price + payment status only); recurring-schedule/session generation; date-interval-aware equipment inventory (v1 capacity is a flat counter per offering); a managed Customer/CRM aggregate; a new `divers-staff` role; an outbox dispatcher/relay; a `PENDING` booking state or confirm step; MFA/password reset/control-plane/mobile/AI/CRM/WhatsApp (explicitly excluded from this remediation round); a nonce-based CSP (would require a dedicated Nuxt security module — a real follow-up, not done here); HttpOnly-cookie session transport (the sessionStorage bearer token from WEGO-001 remains a documented residual risk, not rebuilt); production TLS/backups/monitoring/runbook.
+- **Affected modules:** `products/divers` (domain/application/infrastructure/api rewritten for A–E above); `platform/kernel/events` (`OutboxWriter`, `CorrelationContext`); `platform/kernel/identity` (`CorrelationIdFilter`, `SecurityConfiguration`/`IdentityBeanConfiguration` wiring); `platform/application` (`V3` migration rewritten in place — never released/registered before this round, so legal to edit directly; jOOQ codegen; `com.wego.JacksonConfiguration`; the full `com.wego.divers`/`com.wego.events` test packages); `platform/contracts/openapi/v1/wego-api.yaml` (rewritten for every new/changed endpoint, permission, and schema); `web/apps/erp` (`/offerings`, `/bookings`, `useDiversApi.ts` rewritten for pricing/pagination/close/mark-paid/refund); `infrastructure/` (`web.Dockerfile`, `compose.yaml`, `nginx.conf`); `.github/workflows/ci.yml`; `e2e/` (new — Playwright suite and Postgres seed script).
+- **Risks:** `com.wego.identity.application.TransactionRunner` is still not at its module's Modulith-public root, so divers still cannot reuse it — resolved by a small divers-local duplicate; flagged for reviewer judgment since a third consumer would change that call. Capacity and idempotency correctness both depend on every booking-creation path going through the single `CreateBookingService` entry point that acquires the advisory lock then the offering row lock in that fixed order — bypassing it would silently reopen either race. Booking PII (name/email/phone) has no retention/anonymization policy yet. Equipment rental's flat-counter capacity model still doesn't detect overlapping-date-range double-bookings within one offering. The ERP bookings page's create-booking dropdown fetches active offerings at the API's hard cap of `size=200` — correct for any realistic near-term catalog, but not a permanent fix if the client's *total ever-active* offering count exceeds that. CSP's `script-src` permits `'unsafe-inline'`, a real (if standard-for-Nuxt) weakening versus a nonce-based policy. The sessionStorage bearer token (WEGO-001) remains unaddressed.
+- **Acceptance criteria:** All of WEGO-001's original criteria, plus: `booking:create` alone cannot mark a booking paid or refund it (proven over real HTTP with a genuinely single-permission seeded role, not `platform-admin`); refund requires a non-blank reason and only succeeds `PAID -> REFUNDED`; the same actor reusing an `Idempotency-Key` against a different offering, party size, or customer is rejected as a conflict, never silently replayed and never a raw unique-constraint 500, proven under real concurrent requests across two different offerings (one `Created`, the rest `Replayed`/`Conflict` depending on which offering they targeted); a booking's `unitPrice`/`billableQuantity`/`totalPrice` are explicit and survive a later change to the offering's own price; malformed input (oversized field, wrong money scale, unknown JSON property, page/size out of range) is always a clean 400, never a 500; one booking mutation's response, audit row, and outbox row share one correlation id; the ERP `/offerings` and `/bookings` pages page through a real 50-item boundary in a real browser and never silently hide anything past it; the full authenticated lifecycle (login → create offering → create booking → paginate → mark paid → cancel with reason → refund with reason → logout) passes as a real Playwright run against the isolated Compose stack, not just an unauthenticated curl smoke check.
+- **Tests:** `DiversDomainTest` (now including `BookingFingerprintTest`, `BookingPricingTest`), `CreateBookingServiceTest`, `CancelBookingServiceTest`, `MarkBookingPaidServiceTest`, `RefundBookingServiceTest` (fakes, no Spring); `DiversMigrationIntegrationTest`, `BookingCapacityConcurrencyIntegrationTest`, `IdempotencyKeyConcurrencyIntegrationTest` (new — cross-offering advisory-lock proof plus a rollback-leaves-no-partial-state proof), `DiversHttpTest` (rewritten — 13 HTTP tests including limited-permission-role proofs for every payment/refund permission combination), `CorrelationPropagationHttpTest` (new), `OutboxWriterIntegrationTest` (real Testcontainers PostgreSQL); `OutboxMigrationIntegrationTest` (version-count updated); full architecture/Modulith suite; `Offerings.spec.ts`/`Bookings.spec.ts` (Vitest, rewritten for pricing basis, pagination, close, mark-paid/refund permission gating, confirmation dialogs); `e2e/tests/erp-lifecycle.spec.ts` (new — Playwright, the full authenticated browser lifecycle against an isolated Compose stack).
+- **Documentation changes:** This entry; `platform/contracts/openapi/v1/wego-api.yaml`; `web/README.md` (the stale "business screens deferred" line corrected — the diving offerings/bookings screens are real).
+- **Rollback considerations:** Schema is additive only (`V3` doesn't alter `V1`/`V2`, and was itself still unreleased/unregistered before this remediation round, so its in-place rewrite carries no migration-history risk); no production booking data exists yet, so the packet can be reverted or redesigned via a forward-fixing migration before any live client data is recorded.
+
+## WEGO-010-A — Travel Marketplace composition and Sharm To Go client foundation
+
+- **Status:** ACTIVE
+- **Review intensity:** Tier 1 — this packet establishes a second product/client composition and therefore changes an explicit client-isolation boundary. It does not add booking, payment, or PII persistence, but the composition resolver itself must still receive independent adversarial review before completion.
+- **Objective:** Add Sharm To Go correctly inside the existing Wego Platform as the first client of a reusable Wego Travel Marketplace product, while keeping Wego Divers/Sharm Divers Club intact and independently composable.
+- **Scope:** Generalize Foundry validation and deterministic release-lock generation from one hard-coded client/product pair to discovery of every versioned product and client manifest; add the `product.travel-marketplace` product boundary and `wego-travel-marketplace` manifest; add the isolated `clients/sharm-to-go` profile and lock; establish original product, UX-reference, locale, content, service-ownership, and phased-delivery documentation; add separately buildable Sharm To Go public-site and Arabic/English operations-dashboard foundations without deploying them or inventing live inventory, prices, reviews, provider accounts, or translations; establish a complete repo-owned design handoff package (semantic tokens, information architecture, screen catalog, responsive/accessibility rules, booking/checkout/payment and dashboard specifications); add an explicitly non-transactional Arabic/English booking and checkout design prototype plus living component inventory so the approved interaction can be tested before any business schema or gateway exists.
+- **Out of scope:** Travel catalog/availability/booking/provider/payment/refund/settlement database schemas or APIs; production authentication changes; a transactional public checkout or payment-provider integration; real provider onboarding; publishing unverified services, prices, photos, ratings, copy, or translations; copying Egyptra code/assets/content; DNS, TLS, secrets, production deployment, commit, push, or merge; changing the existing Divers domain or Sharm Divers Club composition.
+- **Affected modules:** `foundry/`; `products/travel-marketplace/`; `clients/sharm-to-go/`; new client-specific applications under `web/apps/`; web workspace orchestration and documentation; this execution board. Existing `products/divers` and `clients/sharm-divers-club` are regression-only consumers.
+- **Risks:** A generic discovery algorithm could silently pair a client with the wrong product, fail to validate a new manifest, produce nondeterministic locks, or let duplicate IDs overwrite each other. UI shells or sample booking amounts could imply live commercial capability that does not exist. Locale switches can falsely suggest translation coverage. Design JSON and executable CSS can drift. These are controlled by strict cross-reference/duplicate/path/lock tests, visibly persistent prototype/readiness labels, semantic-token consistency tests, and real browser checks of both directions and responsive widths.
+- **Acceptance criteria:** Foundry discovers and strictly validates both products and both clients; every client resolves exactly one declared product; duplicate IDs, missing products, version mismatches, unknown modules/capabilities, stale locks, and missing physical paths fail validation; generating locks for all clients is deterministic and changes neither lock on a second run; the original Sharm Divers lock remains semantically valid; Sharm To Go has an isolated manifest, original blueprint, explicit owned-vs-marketplace service policy, honest ar/en-first locale matrix, complete repo-owned design handoff package, and machine-readable semantic tokens reflected in the executable UI; both new web apps lint, typecheck, test, and build without being added to the current Divers Compose deployment; the booking prototype exercises date/time/language/party/add-on/payment selection and an updating price summary in both Arabic and English while remaining unambiguously non-live; no commercial fact or external asset is represented as verified data.
+- **Tests:** Foundry positive/negative multi-composition tests and double-generation diff; existing OpenAPI/repository YAML validation; Kotlin architecture/marker compile; public-site, booking-prototype, token-contract and dashboard unit/accessibility-smoke tests; headless-browser checks at mobile/desktop widths and both directions; full web lint/typecheck/test/build; existing backend/mobile regression gates; repository invariant and whitespace checks.
+- **Documentation changes:** Sharm To Go README, product blueprint, reference study, service ownership model, locale/content matrix, phased execution plan, complete `clients/sharm-to-go/design` handoff package, Foundry multi-composition instructions, root/web indexes where needed, and this packet's evidence log.
+- **Rollback considerations:** Entirely additive except the Foundry resolver/workspace orchestration changes; no database, production, or external state. Remove the new client/product/apps and restore single-composition scripts only if both existing deterministic locks and validations remain provably unchanged.
+
+## WEGO-003 — Reliable integration delivery and replay
+
+- **Status:** NOT AUTHORIZED — roadmap only; WEGO-002 must close first and owner activation is still required.
+- **Review intensity:** Tier 1 — expected migration/locking behavior, a new replay permission, and externally visible delivery semantics; revalidate at activation.
+- **Objective:** Turn the existing write-only PostgreSQL transactional outbox into a bounded, observable, retryable delivery backbone without adding Kafka, a service mesh, or another durable source of truth.
+- **Dependencies:** Completed WEGO-002 lifecycle events and their versioned payloads.
+- **Scope:** A small `platform/kernel/events` dispatcher/repository boundary; deterministic bounded batch claiming ordered by `available_at`, `occurred_at`, and `id`; PostgreSQL row claiming/leases suitable for concurrent workers; at-least-once delivery through registered typed adapters; exponential retry with jitter and a maximum-attempt terminal failure; abandoned-lease recovery; event-version rejection rather than best-effort guessing; correlation/causation propagation; health/metrics for pending, processing, retrying, terminally failed, and oldest-event age; an authorized and audited replay command that reuses the original event identity; only the forward Flyway changes the implemented V1 schema proves necessary.
+- **Out of scope:** WhatsApp/email/push providers; n8n; arbitrary webhook destinations; Kafka or another broker; business workflow decisions; exactly-once claims; deleting failed evidence automatically.
+- **Affected modules:** `platform/kernel/events`, `platform/application`, Flyway/jOOQ generation, a narrow operations API only if replay cannot remain operator-local, OpenAPI if an HTTP surface is approved, and Foundry metadata only for a genuinely new physical module/capability.
+- **Risks:** At-least-once delivery can duplicate effects; a poison event can starve healthy work if claim ordering/batching is wrong; lease recovery can race a slow but live worker; replay can become an authorization bypass; payload logging can leak PII.
+- **Acceptance criteria:** A committed event is eventually offered to its adapter; an uncommitted event is never visible; two real workers cannot own one lease concurrently; a transient failure retries no earlier than its persisted schedule; a crashed worker's lease is recovered; a terminal failure stays observable and does not block later events; replay requires permission/reason, is audited, and cannot create a second business event; provider failure never rolls back the originating booking transaction.
+- **Tests:** Domain/unit tests with a controllable clock; real PostgreSQL Testcontainers tests for concurrent claims, rollback visibility, lease expiry, backoff, terminal failure, and replay races; duplicate-delivery tests against an idempotent fake consumer; Modulith/ArchUnit verification; metrics/health assertions; full backend and repository gates.
+- **Documentation changes:** `WEGO_ARCHITECTURE.md` delivery topology and at-least-once contract; operations runbook for backlog, terminal failure, replay, and shutdown; OpenAPI/event schema version notes where applicable; ADR only if implementation departs from the explicit PostgreSQL worker baseline.
+- **Rollback considerations:** Stop the dispatcher before rollback so no new claims occur; additive schema changes are forward-fixed; already delivered external effects are not reversible and remain in the delivery/audit record.
+
+## WEGO-004 — Customer communications, consent, and first channel delivery
+
+- **Status:** NOT AUTHORIZED — roadmap only; WEGO-003 must close first and owner activation is still required.
+- **Review intensity:** Tier 1 — real contact PII, consent/opt-out state, provider credentials, callback authentication, permissions, and expected schema changes.
+- **Objective:** Deliver one production-shaped customer communication path whose policy and durable state belong to Wego while the external channel remains replaceable.
+- **Dependencies:** WEGO-003 delivery/retry backbone and WEGO-002 booking events.
+- **Scope:** Purpose-specific communication requests (`OPERATIONAL` versus `MARKETING`); recipient/contact normalization and minimization; consent evidence, source, time, and revocation; channel preferences and quiet-hours evaluation in the organization timezone; immutable template versions with locale/fallback rules and parameter schemas; a delivery ledger separated from business aggregates; provider message IDs and idempotent, signature-verified, out-of-order status callbacks; one first channel selected at activation (expected WhatsApp Cloud API) behind a provider port; one end-to-end booking communication proving post-commit isolation; an ADR-backed choice between a direct provider adapter and a hardened isolated n8n transport, not two competing paths. If n8n is selected: digest-pinned deployment, private editor, least-privilege Wego service identity, HMAC-signed minimized payloads, no Wego database access, no secrets in exported workflows, and no community/code nodes by default.
+- **Out of scope:** Conversational chatbot behavior; campaign/broadcast UI; multiple production providers; pricing/booking decisions in templates or n8n; polling Wego tables; scraping customer contacts; a generic visual automation builder.
+- **Affected modules:** A narrowly justified `platform/capabilities/communications` module, `platform/kernel/events`, `products/divers` only for mapping owned booking facts into a communication request, `platform/application`, OpenAPI/provider callback contracts, infrastructure/secret documentation, Foundry module metadata, and a minimal ERP delivery-status surface only if required for supportability.
+- **Risks:** Mixing marketing and operational purposes can violate consent; templates can leak excess PII; duplicate/out-of-order callbacks can regress delivery state; provider or n8n compromise can expose credentials; timezone/DST mistakes can send at the wrong local hour; a provider outage can create an unbounded backlog.
+- **Acceptance criteria:** No message is sent without a declared purpose and applicable policy; opt-out blocks marketing immediately without corrupting permitted operational messages; the original booking remains committed when delivery fails; duplicate requests and callbacks are harmless; template version/locale and exact approved parameters are recorded; callbacks reject invalid signatures; staff can see delivery state without provider credentials or raw sensitive payloads; global/channel/recipient kill switches stop new sends safely.
+- **Tests:** Pure consent/template/quiet-hours tests with DST boundaries; real PostgreSQL lifecycle/idempotency tests; concurrent callback ordering tests; provider contract tests against a local stub; signature/tamper/replay tests; failure/backlog/recovery tests through the real dispatcher; a Compose smoke test of the selected adapter without production secrets; architecture, OpenAPI, secret-scan, and full repository gates.
+- **Documentation changes:** Communication data classification/retention; consent and purpose policy; template/version lifecycle; provider/n8n threat model and credential rotation; incident procedure and kill switches; explicit update replacing the current polling/direct-booking n8n marketing note.
+- **Rollback considerations:** Disable the channel and drain/cancel only unsent jobs according to recorded policy; preserve consent, opt-out, delivery, and audit evidence; external messages already accepted by a provider cannot be recalled.
+
+## WEGO-005 — Divers inquiry, lead intake, attribution, and staff follow-up
+
+- **Status:** NOT AUTHORIZED — roadmap only; WEGO-004 must close first and owner activation is still required.
+- **Review intensity:** Tier 1 — public intake, real client/customer PII, consent, new authorization, webhook authentication, and schema/concurrency invariants.
+- **Objective:** Replace the unsafe `Meta Lead -> booking` idea with an owned Divers inquiry lifecycle that preserves source attribution, staff accountability, and explicit conversion into a real booking.
+- **Dependencies:** WEGO-002 booking use cases and WEGO-004 communication/consent path.
+- **Scope:** A `DiveInquiry` aggregate in `products/divers` as the first real owner rather than a premature shared CRM; manual/public/signed-provider intake; stable idempotency and source-event identity; normalized but purpose-limited contact snapshot; attribution snapshot (`source`, `channel`, `campaign`, `ad/creative`, partner/referral code, landing link) with no PII in URLs; explicit consent evidence; duplicate-candidate detection without silently merging people; states for new, assigned, contacted, qualified, converted, lost, and closed with reasons; staff assignment and response-SLA follow-up; communication acknowledgment after commit; conversion that calls the existing booking application service with a selected dated offering instead of writing booking rows directly; a small ERP inquiry queue and detail screen.
+- **Out of scope:** A generic platform CRM; AI lead scoring; automatic booking/confirmation; browser fingerprinting; buying/enriching external personal data; arbitrary campaign analytics; cross-client identity matching.
+- **Affected modules:** `products/divers` domain/application/infrastructure/api, `platform/capabilities/communications` public API, `platform/kernel/events`, `platform/application`, OpenAPI, ERP screens, and client configuration only for validated attribution/source codes and SLA values.
+- **Risks:** Over-aggressive deduplication can join different people; weak deduplication can create repeated follow-ups; forged webhooks can generate spam/PII; last-touch-only attribution can misrepresent performance; indefinite lead retention creates privacy exposure; an automation can bypass capacity if conversion does not use the booking use case.
+- **Acceptance criteria:** A repeated provider webhook creates one inquiry; concurrent same-key intake remains single; a lead cannot reserve capacity or become a booking by itself; conversion requires permission, a real active offering, explicit intent, and the WEGO-002 booking invariants; attribution and consent provenance survive conversion; SLA breach creates one visible staff action; opt-out/closure cancels eligible follow-ups; retention/anonymization behavior is explicit and executable.
+- **Tests:** Domain transition/failure tests; real PostgreSQL unique/concurrency/idempotency tests; webhook signature/replay/rate-limit tests; conversion integration tests proving capacity/idempotency are not bypassed; consent/opt-out and SLA tests with a controllable clock; ERP lint/typecheck/unit/build; OpenAPI, Modulith, ArchUnit, secret-scan, and full repository gates.
+- **Documentation changes:** Divers inquiry lifecycle and ownership; public intake threat model; attribution semantics; PII purpose/retention/anonymization policy; staff operating procedure; marketing workspace updated to reference inquiry endpoints rather than booking endpoints only when this packet actually ships.
+- **Rollback considerations:** Disable public/provider intake first; preserve inquiries, consent, attribution, and conversion audit; queued communication jobs are cancelled by policy, while already converted bookings remain valid independent aggregates.
+
+## WEGO-006 — Divers Journey Pass, quote snapshot, and readiness workflow
+
+- **Status:** NOT AUTHORIZED — roadmap only; WEGO-005 must close first and owner activation is still required.
+- **Review intensity:** Tier 1 — customer PII, bearer-like public access grants, new permissions, safety-adjacent data, quote/money snapshots, and expected migrations.
+- **Objective:** Give a qualified diving customer one secure, personalized path from proposal through readiness and confirmed itinerary without duplicating PADI or pretending marketing chat is an operational record.
+- **Dependencies:** WEGO-002 dated offerings/bookings, WEGO-004 communications, and WEGO-005 inquiries.
+- **Scope:** A Divers-owned Journey aggregate linked to an inquiry and, after conversion, booking IDs; immutable/versioned quote snapshots with currency, inclusions/exclusions, expiry, and source offering references; itinerary items and pickup information; opaque high-entropy, expiring, revocable customer access grants stored hashed; minimal customer acceptance/change-request events; a readiness checklist for certification evidence, declared experience/last-dive facts, required documents, equipment needs, and product-owned scheduling advisories such as no-fly/altitude conflicts; staff verification and override only through permission, reason, and audit; responsive customer web surface plus staff ERP view; post-commit reminders through communications.
+- **Out of scope:** Cross-product Safari/Watersports composition; payment gateway/checkout; electronic medical diagnosis or clearance; replacing certification agencies/logbooks; storing unrestricted medical narratives; autonomous safety decisions; full waiver/e-signature platform; social login; native mobile delivery.
+- **Affected modules:** `products/divers` (Journey/readiness rules stay here), `platform/kernel/security` only for intentional permission codes, `platform/capabilities/communications`, `platform/kernel/events`, `platform/application`, OpenAPI, `web/apps/erp`, and a customer web surface created only when its executable responsibility is proven.
+- **Risks:** A leaked link can expose PII; stale quotes can be mistaken for current prices; safety guidance can be misrepresented as medical authorization; mutable itinerary/pricing can destroy the accepted record; cross-product ambitions can incorrectly push unproven Journey rules into `platform/`.
+- **Acceptance criteria:** Access tokens are unguessable, hashed, expiring, revocable, rate-limited, and reveal only the intended Journey; quote acceptance binds to an exact non-expired snapshot and cannot mutate it; readiness status is derived from explicit evidence/verification rather than AI; staff override records actor, permission, reason, before/after, and time; a Journey can reference multiple Divers bookings without weakening their capacity/payment invariants; customer changes produce a request/event, not a direct privileged mutation.
+- **Tests:** Token entropy/hash/revocation/expiry and authorization tests; real PostgreSQL concurrent acceptance/version tests; quote money/currency/expiry invariants; readiness/no-fly boundary tests with a controllable clock and timezone; PII redaction/log tests; end-to-end inquiry -> Journey -> accepted quote -> booking path; accessibility checks for `STANDARD`, `SIMPLIFIED`, and extensible `VOICE_FIRST`; web production build and full architecture/security gates.
+- **Documentation changes:** Journey/readiness domain model; safety/medical boundary and data classification; access-grant threat model; quote snapshot semantics; customer support/revocation procedure; explicit note that cross-product promotion requires another real product.
+- **Rollback considerations:** Revoke all active Journey grants and disable the customer route; preserve accepted quote/readiness/audit history and bookings; no rollback may silently alter or delete a previously accepted commercial snapshot.
+
+## WEGO-007 — Proven automation recipes and operations surface (Wego Flow)
+
+- **Status:** NOT AUTHORIZED — roadmap only; WEGO-006 must close first and owner activation is still required.
+- **Review intensity:** Tier 1 — durable scheduling/migrations, permissions, bulk-effect risk, replay, kill switches, and customer PII; revalidate exact triggers at activation.
+- **Objective:** Extract only the automation invariants proven by at least three real workflows into a controlled Wego Flow surface, with simulation and operations controls before broader reuse.
+- **Dependencies:** At minimum three working concrete recipes from earlier packets: inquiry acknowledgment, inquiry response-SLA escalation, and booking/Journey readiness reminder. If three real recipes do not exist, this packet is not activated.
+- **Scope:** Versioned typed recipe definitions with known trigger/event versions, guards, schedule calculations, actions, approval policy, retry class, cancellation conditions, and owning module; each execution pinned to the recipe version it started with; durable scheduled jobs and idempotent action keys; recipient/channel/recipe/global kill switches; dry-run simulation against a bounded historical snapshot with zero side effects; staff operations UI for scheduled/running/retry/failed/cancelled/waiting-approval executions; permissioned cancellation/replay with reason/audit; metrics for throughput, age, failure, suppression, and SLA; extraction into `platform/` only for invariants demonstrably shared beyond Divers, otherwise recipe ownership and orchestration stay local to `products/divers` plus existing platform event/communication APIs.
+- **Out of scope:** Drag-and-drop workflow builder; arbitrary SQL, scripts, SpEL, HTTP URLs, class names, provider credentials, or code nodes; user-created action types; AI-authored executable recipes; Kafka/Temporal/Airflow; sensitive automatic cancellation/refund/price changes/bulk sends; cross-client orchestration.
+- **Affected modules:** Existing `products/divers`, `platform/kernel/events`, and `platform/capabilities/communications`; a new `platform/capabilities/automation` module only if the activation boundary review proves shared invariants; `platform/application`, OpenAPI, ERP operations UI, Foundry metadata, and client configuration limited to validated recipe selection/parameters.
+- **Risks:** A bad recipe can amplify one event into mass communication; changing definitions can alter in-flight behavior; replay can duplicate effects; timezone calculations can mis-schedule; a generic DSL can become an authorization or remote-code-execution surface; kill switches can report success while workers continue from stale state.
+- **Acceptance criteria:** Every execution names owner, trigger ID, recipe/version, subject, correlation, schedule, guard result, action idempotency key, outcome, and actor/approval where applicable; a duplicate event cannot produce a duplicate effect; cancelling a booking/inquiry suppresses its pending eligible actions; dry-run performs no write/provider call and reports exactly which guards suppress/allow; kill switches are effective across real concurrent workers within a documented bound; old executions retain old semantics after a recipe update; no configured value can invoke arbitrary code or bypass application use cases.
+- **Tests:** Recipe schema positive/negative tests; deterministic scheduling/guard tests with a controllable clock and DST; real PostgreSQL concurrent-worker, duplicate-event, cancellation, retry, replay, and kill-switch tests; simulator no-side-effect proof using write/provider spies plus database snapshot; permission/audit tests; live Compose operations smoke test; architecture, OpenAPI, security, secret-scan, and full repository gates.
+- **Documentation changes:** Wego Flow ownership and non-goals; recipe/version contract; operator runbook for simulation, activation, kill, replay, backlog, and incident response; ADR for promotion into a shared platform capability if and only if promotion occurs.
+- **Rollback considerations:** Disable recipes globally before code/schema rollback; drain or explicitly cancel scheduled jobs; retain execution/audit records; in-flight external provider requests and completed effects are not reversible.
+
+## WEGO-008 — Wego Growth Command Center and first end-to-end channel
+
+- **Status:** NOT AUTHORIZED — roadmap only; WEGO-007 must close first and owner activation is still required.
+- **Review intensity:** Tier 1 — the intended slice combines external OAuth/provider credentials, publication effects, campaign/attribution data, staff permissions, and expected schema changes.
+- **Objective:** Deliver one coherent Wego Growth application that takes a campaign from approved commercial truth through content production, human approval, channel delivery, inquiry, booking attribution, and revenue evidence, while proving one real channel end to end before adding more connectors.
+- **Dependencies:** Stable offering/quote identifiers from WEGO-002/006; communication, inquiry, attribution, and Wego Flow contracts from WEGO-004/005/007; the external `/home/wego/projects/clients` workspace must receive its own Git baseline without becoming a Wego runtime dependency.
+- **Scope:** A Growth Command Center showing today's work, campaigns, calendar, approvals, connector health, inquiry funnel, and attributed booking revenue; Wego-owned campaign briefs, audiences/markets/locales, creative variants, rights-aware assets, approvals, publication attempts, tracking links, and immutable publication manifests; machine-readable approved brand/contact/offer/claim facts with provenance, approver, `verifiedAt`, and optional `expiresAt`; a versioned, read-only, PII-free marketing projection for deterministic generation and stale-output detection; a channel capability registry that records whether each configured account can receive messages, publish, manage comments/reviews, report analytics, or requires a manual step; one provider/channel selected at activation and proven from approved campaign to real result, with subsequent connectors activated one at a time in the documented priority order; Canva templates/handoff and an official Canva API only if current account access and cost justify it, always with review/export fallback; a DaVinci production package containing the approved brief, script, shot list, subtitles, assets, rights, and export manifest, plus an optional least-privilege workstation bridge only after the file-based flow is proven; a read model that joins campaign/attribution identifiers to existing inquiry, booking, and payment outcomes without duplicating their aggregates.
+- **Out of scope:** Integrating every platform in one packet; browser-based image/video editing inside Wego; running DaVinci on a server; any second creative/review suite; making Canva or DaVinci a source of price, availability, customer, approval, or rights truth; automatic AI publishing; automatic ad-budget/bid changes; scraping, bought personal data, review gating, guaranteed search ranking, or bypassing a provider's approval/policy; making `/home/wego/projects/clients` a build, runtime, CI, or direct database dependency; a second Foundry.
+- **Affected modules:** A justified Growth application/domain boundary whose shared-versus-Divers placement is decided from implemented invariants at activation; existing communications, inquiries, events, automation, contracts, security, and file/asset boundaries through public application APIs; `web/apps/erp` initially rather than a premature standalone web app; the separately versioned Growth workspace for human content sources/templates; client configuration for connector accounts and market/brand policy, never credentials; Foundry metadata only for physical modules that actually exist.
+- **Risks:** A broad dashboard can become a second CRM/booking system; a connector can expose excessive OAuth scope or violate changing platform policy; wrong approved facts can produce wrong content at scale; rights can be lost across Canva/DaVinci exports; webhook retries can duplicate publication; attribution can over-credit one touch; a closed platform can tempt unsupported browser automation; expanding all channels together can leave many unreliable half-integrations.
+- **Acceptance criteria:** One campaign completes the full approved-fact -> creative package -> human approval -> publish/export -> inquiry -> booking/revenue evidence path; changing one approved price/contact/claim marks every dependent draft stale and blocks publication until regenerated/reapproved; no generic template contains Sharm identity; every asset has source/rights status and every publication records exact input/output hashes, actor, channel account, provider ID, and outcome; unsupported channel actions appear as explicit manual tasks rather than false automation; DaVinci is absent from server/container builds and Wego remains operable when Canva or the external Growth workspace is unavailable; duplicate provider calls/webhooks cannot create duplicate Wego effects; a second channel cannot be enabled merely by configuration without its own contract/policy/security evidence.
+- **Tests:** Campaign/approval/publication invariant tests; real PostgreSQL idempotency/concurrency and outbox tests; JSON Schema positive/negative fixtures for approved facts and DaVinci packages; banned/expired/unresolved claim and stale-dependency tests; deterministic golden output/hash tests; asset-rights and cross-client-contamination fixtures; connector OAuth/scope, webhook signature/replay, timeout/retry, and local-stub contract tests for the selected provider; ERP lint/typecheck/unit/build and an end-to-end Compose smoke path; repository independence, secret/PII scan, OpenAPI, Modulith, ArchUnit, and full quality gates.
+- **Documentation changes:** Growth Command Center boundaries and screen map; channel capability/rollout matrix; marketing truth and claim lifecycle; asset-rights and publication-manifest contract; Canva handoff; DaVinci workstation package/bridge and explicit non-runtime boundary; search/reputation/advertising policy including honest limits; provider onboarding, credential rotation, kill-switch, correction, and incident runbooks.
+- **Rollback considerations:** Disable the selected connector and stop new publications before rollback; preserve campaign, approval, attribution, rights, provider, and audit evidence; revoke provider credentials if the adapter is removed; previously published content or ad effects require an explicit correction/stop at the provider and cannot be undone by a code or Git rollback.
+
+## WEGO-009 — Safe omnichannel auto-response and Growth Copilot
+
+- **Status:** NOT AUTHORIZED — roadmap only; WEGO-008 must close first and owner activation is still required.
+- **Review intensity:** Tier 1 — inbound customer PII, external model processing, automatic communication, typed-tool permissions, prompt injection, consent/channel policy, audit, and human handoff form a sensitive operational boundary.
+- **Objective:** Turn supported channel messages into one accountable agent inbox and provide fast multilingual assistance: automatic replies only for proven low-risk intents, live Wego facts through typed tools, and immediate human takeover for uncertainty or sensitive decisions.
+- **Dependencies:** The WEGO-004 communication/consent ledger, WEGO-005 inquiry lifecycle and attribution, WEGO-007 audited recipes/kill switches, WEGO-008 channel registry and approved marketing truth, and `AI_GOVERNANCE.md`.
+- **Scope:** A provider-neutral conversation model for channel identity, conversation, message, delivery state, assignment, SLA, automation mode, and explicit human takeover without guessing that identities on different platforms are one person; webhook normalization through channel adapters and the existing durable delivery path; an agent desk with queue, language/intent, concise history summary, suggested reply, current owner, SLA, related inquiry/Journey/booking, and visible automation status; a Kotlin/Spring AI provider abstraction with one production provider chosen by evaluation and another added only after proving a task-specific quality, privacy, reliability, or cost advantage; typed tools initially limited to approved offer/contact/transfer facts, dated availability reads, inquiry creation/update, content drafting/translation, conversation summarization, and next-action suggestion; an allowlisted response-policy matrix separating deterministic replies, tool-backed low-risk replies, draft-only subjects, and mandatory human escalation; multilingual text replies, with voice-note transcription/reply deferred until the text safety boundary is proven; confidence/evidence checks, redaction, purpose-minimized context, schema validation, prompt-injection defenses, per-conversation/channel/global kill switches, budgets, rate limits, audit, and an offline evaluation suite using synthetic or explicitly approved fixtures.
+- **Out of scope:** Unrestricted SQL/repository/network/provider access; model-written recipes or arbitrary tools; identity merging by AI; autonomous social publication, campaigns, bulk marketing, ad spend, discounts, booking confirmation, price mutation, payment/refund/cancellation, complaint resolution, medical fitness, dive-safety judgment, emergencies, or legal decisions; scraping or training on client conversations; silent fallback to a provider with a different data policy; a Python runtime without a justified ML/CV workload.
+- **Affected modules:** A minimal justified slice under `platform/intelligence`; existing communications, Divers inquiry/Journey, Growth, events, automation, security, audit, and contracts only through public application use cases; ERP Growth agent desk; provider adapters and operations configuration; no model-specific types in domain modules.
+- **Risks:** A fluent wrong answer can cause commercial or safety harm; customer text can attempt prompt/tool injection; identity resolution can join different people; an incorrect confidence threshold can over-automate; provider/model drift can change behavior; translation can alter money, time, or safety meaning; outages can strand messages; automation can hide poor service behind fast responses; PII or secrets can leak through prompts/logs.
+- **Acceptance criteria:** A supported inbound message is deduplicated, attributed, queued, and either answered or handed off exactly once under a visible policy decision; low-risk automatic answers use current typed Wego evidence and never model memory for price/availability; missing evidence, low confidence, tool/provider failure, sensitive intent, or staff takeover produces no speculative send and creates a clear human action; a malicious message cannot expand tool scope or change state outside authorized use cases; the model receives no database/provider credential and no unnecessary raw PII; booking, discount, cancellation, refund, payment, complaint, medical, safety, emergency, bulk-send, and publication actions remain human-owned; every AI call/reply records identity, purpose, model/version, minimized-input hash, evidence/tool calls, policy result, send outcome, and later correction without logging secrets; disabling AI leaves the deterministic inbox and manual response path usable.
+- **Tests:** Conversation/delivery state and identity-separation tests; duplicate/out-of-order webhook and concurrent assignment/takeover tests against real PostgreSQL; provider-contract and structured-schema tests; allow/deny/escalation policy table tests; malicious prompt/tool-injection and data-exfiltration fixtures; hallucinated/expired fact and unavailable-tool tests; PII redaction/log-capture tests; multilingual preservation fixtures for money, time, product codes, and safety wording; provider timeout/rate-limit/circuit-break and kill-switch tests; eval thresholds that block release on unsafe regression; ERP accessibility/lint/typecheck/unit/build, live Compose channel-stub smoke, OpenAPI, architecture, security, secret-scan, and full repository gates.
+- **Documentation changes:** Omnichannel conversation ownership and capability matrix; auto-response policy and mandatory-human subjects; consent/retention/data-processing decisions; AI provider/evaluation ADR; typed-tool and confirmation registry; prompt-injection, takeover, outage, correction, cost, credential, and kill-switch runbooks; clear customer disclosure/escalation behavior.
+- **Rollback considerations:** Switch all conversations to human-only mode before disabling the model/provider; preserve messages, consent, assignment, delivery, correction, and redacted audit evidence; revoke provider credentials; pending automatic actions become staff tasks rather than being silently dropped; external messages already sent cannot be recalled.
 
 ## Stage evidence log
 
@@ -1064,3 +1261,380 @@ fictional UI.
 - **NEXT PACKET:** None authorized — WEGO-002 remains NOT AUTHORIZED per
   the mission table. WEGO-000 returns to COMPLETE with WEGO-000-H and
   WEGO-000-I both closed.
+
+### 2026-08-18 — WEGO-002 (implementation complete, self-review evidence; independent review still pending)
+
+- **STATUS:** `ACTIVE`, not `COMPLETE`. This entry exists because the rule
+  above requires evidence recorded before a packet *can* close, not because
+  the close itself has happened yet. The packet's own stated Tier 1
+  standard — independent adversarial review, zero blocking findings before
+  commit — has not been met: the automated multi-agent review (`/code-review
+  max`) was attempted six separate times across this packet's work and
+  failed every time on the session's own API rate limit, never completing.
+  Nothing here should be read as satisfying that requirement; it records
+  what a thorough first-party self-review found and fixed while that
+  requirement remains open.
+- **DONE:** Full backend slice (`products/divers` domain/application/
+  infrastructure/api, `V3` migration, the first real `OutboxWriter`) and
+  the staff-facing ERP screens (`/offerings`, `/bookings`) both built,
+  tested, and verified per the packet's already-recorded Scope. On top of
+  that, a deliberate second-pass self-review (performed directly, not
+  delegated, after the automated review tooling proved unusable) found and
+  fixed four real defects — not stylistic findings:
+  1. `CreateBookingService`'s idempotency check returned the existing
+     booking on a key match without checking it belonged to the *same*
+     offering — a key reused against a different offering silently
+     returned the wrong booking rather than rejecting the mismatch. Fixed
+     with a new `IdempotencyKeyConflict` result (HTTP 409
+     `idempotency_key_conflict`), proven by a real HTTP test creating two
+     offerings and reusing one key across both.
+  2. `bookings.vue` generated a fresh `crypto.randomUUID()` on every
+     `submitCreate()` call instead of once per attempt — a retry after a
+     network error (where the original request may have already reached
+     the server) would have created a genuine duplicate booking, defeating
+     the idempotency mechanism this same packet built. Fixed by generating
+     the key once and only rotating it after a confirmed success; proven
+     by a test asserting the header is identical across a failed attempt
+     and its retry.
+  3. Domain validation failures (`Booking`/`Offering`/`Money`/
+     `CustomerContact`'s `require(...)` checks — e.g. `partySize = 0`)
+     propagated as unhandled 500s instead of a clean 400, an inconsistency
+     with `LoginService`'s own deliberate handling of the equivalent case
+     for `EmailAddress.of(...)`. Fixed with a package-scoped
+     `DiversExceptionHandler` (`@RestControllerAdvice(basePackages =
+     ["com.wego.divers.api"])`) returning `400 validation_failed` with the
+     `require` message, which is already written as safe, human-readable
+     text; proven by a real HTTP test.
+  4. `MoneyDto.amount` was typed `BigDecimal` in the API layer, which
+     Jackson serializes as a bare JSON number — contradicting the OpenAPI
+     contract's own `type: string` for `Money.amount` and the web client's
+     `Money.amount: string` TypeScript type. Confirmed directly (not
+     assumed) by a temporary debug probe against a real response body:
+     `"unitPrice":{"amount":45.00,...}`, a numeric token, not `"45.00"`.
+     Fixed by making the API-layer type a `String` end to end
+     (`BigDecimal.toPlainString()` out, `String.toBigDecimalOrNull()` in,
+     which reuses the same new exception handler on a malformed value);
+     proven by real HTTP tests asserting `jsonPath` string equality against
+     the amount field, which fails against a numeric JSON token by
+     construction.
+- **FILES CHANGED:** `products/divers/src/main/kotlin/com/wego/divers/`
+  (`domain`, `application`, `infrastructure`, `api` — all new); `platform/
+  application/src/main/resources/db/migration/V3__divers_booking_
+  foundation.sql` (new); `platform/kernel/events/src/main/kotlin/com/wego/
+  events/{OutboxWriter.kt, infrastructure/JooqOutboxWriter.kt}` (new);
+  `platform/kernel/identity/src/main/kotlin/com/wego/identity/
+  {AuthenticatedUser.kt (new), application/AuthenticatedPrincipal.kt,
+  infrastructure/SecurityConfiguration.kt}`; `platform/contracts/openapi/
+  v1/wego-api.yaml`; `web/apps/erp/app/{composables/ (new), pages/
+  {offerings.vue (new), bookings.vue (new), login.vue, index.vue}}`;
+  `web/apps/erp/test/{Offerings.spec.ts, Bookings.spec.ts (new), setup.ts}`;
+  test packages under `com.wego.divers` and `com.wego.events`; updated
+  `OutboxMigrationIntegrationTest`, `IdentityMigrationIntegrationTest`,
+  `IdentityHttpTest` (permission-count assertion, not behavior).
+- **TESTS RUN:** `./gradlew :platform:application:check` (ktlint,
+  `ModuleArchitectureTest`/`DomainIsolationTest`, full suite) repeated after
+  every fix, ending at 93 backend tests, zero failures; `pnpm run check` in
+  `web/` (lint, typecheck across all three packages, Vitest, production
+  build), ending at 24 frontend tests, zero failures; `redocly lint` on the
+  OpenAPI contract, clean; `bash scripts/repository-check.sh`, clean;
+  manual secret-pattern scan across every changed file, no matches.
+- **EVIDENCE:** The real Docker Compose stack (`infrastructure/compose/
+  compose.yaml`) was built and brought up healthy from a clean volume
+  (an earlier run's volume had a stale Flyway checksum for the
+  hand-edited, not-yet-committed `V3` — expected Flyway behavior, not an
+  application defect; resolved by removing the local dev volume, not by
+  touching Flyway config); `curl` confirmed `/healthz` returns 200 and
+  `/api/v1/divers/{offerings,bookings}` both return 401 with no bearer
+  token, proving `SecurityConfiguration`'s new deny-by-default matcher
+  actually took effect in the packaged artifact. A real `nuxt dev` server
+  was started and `curl`ed directly: `/offerings` and `/bookings` render
+  the sign-in prompt server-side with no session, and `/` carries both new
+  nav links in its server-rendered HTML.
+- **RISKS:** Unchanged from the packet's original recorded risks, plus the
+  independent-review gap stated above as the primary open item. The
+  divers-local `TransactionRunner`/`SpringTransactionRunner` duplication
+  (renamed `DiversSpringTransactionRunner` after a real bean-name collision
+  with identity's own `SpringTransactionRunner` surfaced this during
+  verification) remains a flagged judgment call, not a promotion to a
+  shared module.
+- **NEXT PACKET:** None authorized yet. WEGO-002 stays `ACTIVE` until an
+  independent Tier 1 review actually completes (automated or run by the
+  owner) with zero blocking findings, and the owner explicitly authorizes
+  a commit — neither has happened.
+
+### 2026-08-25 — WEGO-002 (full remediation round: idempotency, payment/refund authorization, pricing, validation, offering lifecycle, correlation, web-in-Compose, CI — implementation and self-review complete, independent Tier 1 Codex review pending)
+
+- **STATUS:** `ACTIVE`, not `COMPLETE`. This entry records a full remediation
+  pass against an explicit, owner-supplied Tier 1 defect list (problems
+  A–H below) covering real design/security/operational gaps the earlier
+  2026-08-18 self-review did not reach — not new features. As before,
+  nothing here satisfies the packet's own Tier 1 bar by itself: an
+  **independent Tier 1 Codex review is still required and has not run**.
+  No commit, push, merge, deploy, or production/DNS/secret change was made.
+- **DONE (by problem letter):**
+  1. **A — Idempotency.** Replaced the earlier `(offeringId)`-only conflict
+     check with `BookingFingerprint` — a SHA-256 hash of
+     `(offeringId, partySize, normalized customer contact)` — stored per
+     booking. A same-actor/same-key/same-fingerprint replay returns the
+     original booking unchanged (no duplicate audit/outbox write); a
+     same-key/different-fingerprint reuse is rejected as
+     `idempotency_key_conflict` (409). The offering row lock alone cannot
+     serialize two concurrent requests sharing a key but targeting
+     *different* offerings, so a `pg_advisory_xact_lock` keyed on
+     `actorUserId:idempotencyKey` (`JooqBookingRepository.lockIdempotencyKey`)
+     is now acquired first, in a fixed order before the offering lock —
+     deadlock-free by construction, since no other code path acquires both.
+     1–128-length enforced before touching the DB.
+  2. **B — Payment/refund authorization.** New `booking:payment-update` and
+     `booking:refund` permissions, neither granted by `booking:create`,
+     enforced on two separate endpoints/services. `Booking.markPaid()`/
+     `refund(reason)` implement an explicit `UNPAID -> PAID -> REFUNDED`
+     state machine (`PaymentTransitionResult`); `UNPAID -> REFUNDED` and
+     `REFUNDED -> PAID` are both rejected; a repeated already-applied
+     transition is a documented no-op, never a duplicate write. Cancel now
+     requires a non-blank reason and is independent of payment status.
+     Audit rows gained structured `from_status`/`to_status`/`reason`/
+     `correlation_id` columns, replacing one opaque `detail` text column.
+  3. **C — Pricing.** `PricingBasis` (`PER_PARTICIPANT`/`FLAT`) is required
+     on every offering; `BookingPricing` snapshots `unitPrice`/
+     `billableQuantity`/`totalPrice` at creation, immune to a later change
+     to the offering's own price. `Money` now hard-enforces a 2-decimal
+     scale as a domain invariant, matched by a DB CHECK.
+  4. **D — Validation/error contract.** Real Bean Validation added to every
+     divers DTO and header; `DiversExceptionHandler` unifies five distinct
+     failure paths (domain `require`, body validation, parameter
+     validation, constraint violation, malformed/unknown-property JSON)
+     into one `{"error":"validation_failed","message":"..."}` 400. A real
+     HTTP test proved unknown JSON properties were **not** rejected by
+     Jackson 3's default `JsonMapper` (a genuine gap the packet's own
+     "don't assume, verify" instruction was written to catch) — fixed with
+     a new app-wide `com.wego.JacksonConfiguration`
+     (`JsonMapperBuilderCustomizer` enabling `FAIL_ON_UNKNOWN_PROPERTIES`,
+     the officially supported Boot 4.1/Jackson 3 extension point, confirmed
+     by decompiling `spring-boot-jackson-4.1.0.jar`).
+  5. **E — Offering lifecycle + ERP UI.** `POST /offerings/{id}/close`
+     (`offering:manage`), row-locked against a concurrent booking creation
+     on the same offering. `/offerings` and `/bookings` gained real
+     Previous/Next pagination (bounded `page`/`size`, capped at 200),
+     proven against a real 50-item boundary in both Vitest and Playwright,
+     not just asserted. Bookings now show offering name/date (backfilled
+     per-booking via a single-offering `GET` when outside the bulk-fetched
+     first page — never a raw id), contact info, unit/total price, and
+     status/payment; cancel/refund require a typed reason plus a
+     confirmation dialog; mark-paid/refund controls are gated on the
+     session's actual `booking:payment-update`/`booking:refund`
+     permissions, not `booking:create`.
+  6. **F — Correlation/observability.** `CorrelationIdFilter` accepts a
+     valid incoming `X-Correlation-Id` UUID or generates one, threaded
+     through every divers controller into its service call, its audit
+     write, and its outbox write — proven by a dedicated HTTP test
+     asserting one shared id across a booking mutation's response, audit
+     row, and outbox row. Nginx now logs `$sent_http_x_correlation_id` (the
+     id actually sent, including the generated-fallback case) on every
+     access-log line.
+  7. **G — Web in the real topology.** New `infrastructure/docker/
+     web.Dockerfile`: Node pinned by digest to the exact version
+     `web/.nvmrc` names (verified with `docker run ... node --version`
+     before pinning, not assumed), non-root (uid 10001), builds the pnpm
+     workspace and runs the Nitro `node-server` output. `web` is now a
+     Compose service (`read_only`, `tmpfs /tmp`, its own healthcheck).
+     Nginx now splits `/api/**`+`/healthz` to `backend` and everything else
+     to `web`, with security headers (`X-Content-Type-Options`,
+     `X-Frame-Options`, `Referrer-Policy`, `Content-Security-Policy`) on
+     every location — nginx does not inherit `add_header` once a location
+     defines its own, so each location repeats the full set rather than
+     relying on inheritance working for some and silently not for others.
+     A strict `script-src 'self'` CSP was tried first and **broke Nuxt
+     hydration outright** (`Cannot read properties of undefined (reading
+     'app')`) — Nuxt 4's default build ships a real executable inline
+     bootstrap script, not an inert JSON island, confirmed live with a
+     headless Chromium run against the actual config, not assumed from
+     documentation; corrected to allow `'unsafe-inline'` for both
+     `script-src` and `style-src`, documented as a residual risk below. New
+     `e2e/` package (Playwright): `erp-lifecycle.spec.ts` runs the full
+     authenticated browser lifecycle — login, create offering, create
+     booking, page through a real 50-offering boundary to reach it, mark
+     paid, cancel with a reason, refund with a reason, logout (re-entered
+     since `login.vue` doesn't rehydrate its signed-in panel from storage
+     on a fresh mount) — against the isolated Compose stack. Fixture data
+     (one staff user, 50 padding offerings) is seeded directly in Postgres
+     via `e2e/seed.mjs` (bcrypt-hashed with `{bcrypt}` prefix matching
+     Spring Security's `DelegatingPasswordEncoder`, verified by a real
+     login round-trip) — never through a test-only backend endpoint (none
+     exists), and without touching `AdminBootstrapRunner`'s deliberate
+     TTY-only design.
+  8. **H — CI.** The `infrastructure` job's ERP/API-protection checks were
+     repointed from an arbitrary root path (now served by `web`, not
+     `backend`) to `/login` (asserts real HTML + CSP/frame headers) and
+     `/api/v1/identity/me` (asserts the 401 challenge still reaches the
+     backend through the new `/api/` prefix location). The job now also
+     installs Playwright's Chromium, seeds the E2E fixture, and runs the
+     E2E suite against the same already-running isolated stack, uploading
+     the Playwright report as an artifact on failure. No branch protection,
+     PR, or Dependabot setting was touched; no unrelated dependency bump.
+  9. **Two additional Tier 1 defects found during this round's own
+     self-review, fixed, not just reported:**
+     - `booking:payment-update`'s permission code was drafted as
+       `booking:payment:update` (two colons). `PermissionCode.of()`'s
+       format regex (`^[a-z][a-z0-9-]*:[a-z][a-z0-9-]*$`) only allows one
+       colon — `JooqPermissionResolver` calls this on every permission
+       fetched from the DB at login/authorization time, so **any** user
+       holding that permission (including `platform-admin`, which holds
+       every permission) would have thrown `IllegalArgumentException` on
+       login. Caught by the codebase's own existing `IdentityHttpTest`
+       failing for an apparently unrelated reason the moment the V3 seed
+       carried the bad code; fixed by renaming to the existing
+       `<resource>:<action>` single-colon convention
+       (`booking:payment-update`) across the migration seed, service,
+       controller, and tests.
+     - The ERP bookings page's create-booking offering dropdown fetched
+       only the first unpaginated page (implicit `size=50`) of `ACTIVE`
+       offerings — past 50 concurrently active offerings, a real one would
+       have silently been impossible to select, the same "silently hides
+       past 50" failure mode this packet's own pagination requirement
+       exists to prevent, just in a selector instead of a list. Fixed by
+       requesting the API's own hard cap (`size=200`) for that specific
+       fetch, documented as a residual limit above that.
+- **FILES CHANGED:** `platform/application/src/main/resources/db/migration/
+  V3__divers_booking_foundation.sql` (rewritten in place — legal, since it
+  was still unreleased/unregistered before this round); `products/divers/`
+  domain/application/infrastructure/api (rewritten); `platform/kernel/
+  events/` (`CorrelationContext`); `platform/kernel/identity/`
+  (`CorrelationIdFilter`, `SecurityConfiguration`, `IdentityBeanConfiguration`);
+  `platform/application/src/main/kotlin/com/wego/JacksonConfiguration.kt`
+  (new); `platform/application/build.gradle.kts` (added
+  `spring-boot-starter-validation`); the full `com.wego.divers`/
+  `com.wego.events` test packages under `platform/application/src/test/
+  kotlin/` (rewritten/added, including two new files:
+  `IdempotencyKeyConcurrencyIntegrationTest.kt`,
+  `CorrelationPropagationHttpTest.kt`); `platform/contracts/openapi/v1/
+  wego-api.yaml` (every divers path/schema/permission rewritten; new
+  reusable `X-Correlation-Id` parameter/header); `web/apps/erp/app/
+  composables/useDiversApi.ts`, `pages/offerings.vue`, `pages/bookings.vue`
+  (rewritten for pricing/pagination/close/mark-paid/refund); `web/apps/erp/
+  test/Offerings.spec.ts`, `Bookings.spec.ts` (rewritten); `web/README.md`
+  (stale "business screens deferred" line corrected); `infrastructure/
+  docker/web.Dockerfile` (new); `infrastructure/compose/compose.yaml` (new
+  `web` service); `infrastructure/nginx/nginx.conf` (upstream split,
+  security headers, correlation-id logging); `.github/workflows/ci.yml`
+  (`infrastructure` job extended); `e2e/` (new package: `package.json`,
+  `playwright.config.ts`, `seed.mjs`, `tests/erp-lifecycle.spec.ts`); this
+  entry.
+- **TESTS RUN:** `./gradlew check :platform:application:bootJar
+  --rerun-tasks` from the repository root (all modules — `platform`,
+  `products`, `mobile`) — `BUILD SUCCESSFUL`, 142 backend JUnit tests
+  across 35 suites in `platform:application`, zero failures/errors/skipped
+  (individually confirmed per-suite from the JUnit XML, not just the
+  aggregate count), including every Testcontainers-backed suite (no
+  disabled/skipped tests). `pnpm run check` in `web/` (lint zero warnings,
+  typecheck across `design-tokens`/`ui`/`erp`, Vitest — 34 tests across 4
+  files, production build) — all green. `pnpm run validate` in `foundry/`
+  (manifests, `redocly lint` on the OpenAPI contract — zero warnings,
+  GitHub workflow/Dependabot YAML and immutable-action-pin validation —
+  this caught one genuinely wrong pinned SHA I had typed for
+  `actions/upload-artifact@v4.6.2`, corrected against `git ls-remote` before
+  it could have broken real CI). `bash scripts/repository-check.sh` —
+  clean. `git diff --check` — clean, no whitespace errors. A manual
+  grep-based secret scan across every new/changed CI/infra/e2e file — only
+  matches were the same class of already-committed, clearly-fake
+  local-only dev credential already in `.env.example`, and the E2E
+  suite's own synthetic, non-production test password. A full isolated
+  Compose run (`COMPOSE_PROJECT_NAME=wego-remediation-smoke`, a project
+  name distinct from the developer's own `wego-foundation` volume, which
+  was never touched): `docker compose ... config --quiet`, `up --build
+  --wait -d` — all five services (`postgres`, `redis`, `backend`, `web`,
+  `edge`) became healthy; `curl` proved `/healthz`, `/login` (real HTML +
+  CSP/frame headers), `/` (same), and `/api/v1/identity/me` (401 +
+  `WWW-Authenticate: Bearer`) all routed correctly through the new
+  nginx split; the E2E fixture was seeded and `pnpm --dir e2e run test`
+  (Playwright, Chromium) ran the full authenticated lifecycle end to end —
+  1 passed. The isolated stack and its volume were torn down
+  (`down -v`) afterward.
+- **EVIDENCE:** Every mandatory command from the remediation brief was run
+  for real, not asserted: the permission-code typo and the unknown-JSON-
+  property gap were both caught by tests actually failing, not by
+  inspection, matching the brief's own "don't consider passing tests
+  sufficient proof" instruction — in both cases a test failure is what
+  found the defect, then the fix was verified by the same test turning
+  green. The CSP break was caught by an actual headless-browser console
+  error (`Executing inline script violates ... script-src 'self'`), not
+  predicted from documentation. The idempotency cross-offering concurrency
+  test needed its own expectations corrected once (it initially expected
+  all non-winning attempts to be `IdempotencyKeyConflict`, when half of
+  them are legitimately `Replayed` — same offering as the winner, matching
+  fingerprint) — the underlying implementation was correct on the first
+  run; only the test's own assertions were wrong, fixed, and re-verified.
+- **RISKS:** Everything listed under this packet's own Scope/Risks fields
+  above, plus: the CSP's `'unsafe-inline'` on `script-src`/`style-src` is a
+  real (if standard-for-unmodified-Nuxt) weakening versus a nonce-based
+  policy, not tightened further in this round; the sessionStorage bearer
+  token from WEGO-001 remains unaddressed; `TransactionRunner` duplication
+  is unchanged; the active-offerings dropdown's `size=200` cap is a
+  mitigation, not a permanent fix, if the client's total ever-active
+  offering count someday exceeds it.
+- **NEXT PACKET:** None authorized. WEGO-002 stays `ACTIVE`. An independent
+  Tier 1 Codex review of this remediation round has not run — the owner
+  can trigger it explicitly ("اعمل Independent Tier 1 review لـ WEGO-002").
+  No commit, push, merge, or deploy has occurred; `git status` at the time
+  of this entry shows only the working-tree changes listed above, nothing
+  staged or committed.
+
+### 2026-08-25 — WEGO-002 (independent Tier 1 review round 1 — Codex CLI; 12 BLOCKING + 2 NON-BLOCKING findings fixed, 2 assessed and deferred with reasoning, 2 declined as out of scope)
+
+- **STATUS:** `ACTIVE`, not `COMPLETE`. Per `docs/operations/AGENT_COLLABORATION.md`, the owner triggered the independent reviewer (`codex review --title "WEGO-002 remediation — Independent Tier 1 review" ...`, model `gpt-5.6-sol`, reasoning effort `xhigh`) against every uncommitted change for this packet. The reviewer worked from a fresh context, read this board's own prior evidence without trusting it, and reproduced several findings live against its own isolated Compose stack (`wego-codex-review`, built, exercised, and torn down with `-v`) rather than reading the diff alone — matching the evidence standard this document itself defines. This round is the fix-and-re-verify half of that cycle; the reviewer has not yet re-reviewed the fixes.
+- **FOUND AND FIXED (BLOCKING):**
+  1. `docs/execution/WEGO_EXECUTION_BOARD.md:187` — the packet's own `- **Status:** ACTIVE — ...` line (written in the prior round) had prose appended after `ACTIVE`, which broke `scripts/repository-check.sh`'s `rg -c '^- \*\*Status:\*\* ACTIVE$'` exact-match parser (`found 0` instead of 1) — reproduced directly (`bash scripts/repository-check.sh` failed with exactly that message) before fixing. Split into a bare `- **Status:** ACTIVE` line plus a new `- **Status note:** ...` line; re-ran the script clean.
+  2. `products/divers/.../CreateBookingService.kt` capacity check — `currentPartySize + command.partySize > capacity` used unchecked `Int` addition; `partySize`/`capacity` are validated `@Positive` only, no upper bound, so a crafted pair of requests near `Int.MAX_VALUE` overflows the sum negative and silently defeats the capacity check. Fixed with `Long` arithmetic, the same pattern `Pagination.offsetFor` already uses.
+  3. `products/divers/.../Money.kt` — no upper bound on `amount`; a computed `totalPrice` (`unitPrice x billableQuantity`) could exceed what `numeric(10,2)` holds even when every individual input passed its own field-level pattern, reaching Postgres as a raw overflow instead of the clean 400 problem D was supposed to guarantee. Added `MAX_AMOUNT = 99999999.99` as a domain invariant, enforced on every `Money` construction, not just totals.
+  4. `products/divers/.../DiversDtos.kt` — `CreateOfferingRequest.unitPrice: MoneyDto` had no `@Valid`, so `MoneyDto`'s own field constraints (`@Pattern`, currency format) never actually ran during Bean Validation; a malformed value fell through the DTO validator entirely and reached `parseMoney()`. Added `@field:Valid`. (Finding #3's `Money.MAX_AMOUNT` already closed the specific overflow this enabled, but the missing cascade was a real, independent gap worth its own fix.)
+  5. `e2e/seed.mjs` — no safety marker before upserting a known-password `platform-admin` account by email; the script always dials `127.0.0.1` but that doesn't rule out a port-forward/SSH tunnel to a real database with matching `WEGO_POSTGRES_*` values. Added a required `WEGO_E2E_SEED_CONFIRM=yes-this-is-a-disposable-e2e-database` opt-in that the script refuses to proceed without; wired into `.github/workflows/ci.yml`'s seed step.
+  6. `web/apps/erp/app/pages/login.vue` — never read `readAuthSession()` on mount, so returning to or refreshing `/login` with a valid stored session showed the plain sign-in form instead of the signed-in panel, and signing in again would silently create a second server-side session while the first stayed valid. Added an `onMounted` hook rehydrating the same local refs the "Signed in as ..." panel already reads from — same shape `offerings.vue`/`bookings.vue` already use.
+  7. `web/apps/erp/app/pages/bookings.vue` `loadAll()` — called `listBookings`/`listOfferings` (twice) unconditionally in one `Promise.all`, regardless of the session's actual `booking:view`/`offering:view` grants, directly contradicting this packet's own stated requirement E ("UI never calls an endpoint the user lacks permission for"). A `booking:create`-only session got a blanket 403 for the whole page and an unexplained empty offering dropdown. Gated each fetch behind its own `hasPermission` check; added specific in-page messages for the two degraded states (no `booking:view`, no `offering:view`) instead of one generic error banner.
+  8. `platform/kernel/identity/.../IdentityController.kt` + `AuditingAccessDeniedHandler.kt` — did their own local `X-Correlation-Id` header re-parsing (login) or hardcoded `null` (logout, permission-denial), entirely bypassing the `CorrelationContext`/`CorrelationIdFilter` mechanism this same remediation round built — directly contradicting requirement F's own stated goal ("threaded through... without per-controller parsing"). A headerless login, any logout, or a 403 got a correlation id on the response header that never matched its identity audit row. All three now call `CorrelationContext.currentCorrelationId()`.
+  9. `platform/contracts/openapi/v1/wego-api.yaml` `CreateBookingRequest` + `products/divers/.../CustomerContact.kt` — the domain's "at least one contact" check was `email != null || phone != null`, so `"customerEmail": ""` satisfied it despite being useless; the contract didn't document the constraint at all. Fixed the domain check to `!email.isNullOrBlank() || !phone.isNullOrBlank()`; added `minLength: 1` to both OpenAPI fields plus a description documenting the cross-field rule JSON Schema can't express directly on a flat object.
+  10. `platform/application/.../V3__divers_booking_foundation.sql` — no constraint tied `billable_quantity` to `pricing_basis`/`party_size` (only `total_price = unit_price * billable_quantity` was checked), unlike every other domain invariant in this migration, which mirrors its Kotlin counterpart at the DB level. Added `divers_booking_billable_quantity_matches_basis` (`PER_PARTICIPANT` must bill exactly `party_size`; `FLAT` must bill exactly `1`); added a dedicated migration-integration test proving it fires, and fixed one existing test whose crafted row incidentally also violated the new constraint before it could reach its own intended one.
+  11. `products/divers/.../JooqOfferingRepository.kt` + `JooqBookingRepository.kt` — offset pagination ordered only by `starts_on`/`created_at`, with no tie-breaker; this packet's own seed data (50 padding offerings across 28 distinct dates) guarantees ties, and offset pagination without a full deterministic ordering can skip or duplicate rows across two separate page queries whenever any rows share a value — not only under concurrent writes. Added `.ID` as an explicit secondary sort key to both.
+  12. `.github/workflows/ci.yml` — the login-rate-limit verification step deliberately exhausts nginx's edge-level `login_rate` limiter (~15 requests) and ran immediately before the Playwright E2E step's own real login, with nothing but incidental step-timing between them. The reviewer reproduced this live: a fast run hit the E2E login with a still-exhausted limiter and failed at the very first step. Reordered so the destructive rate-limit step runs last, after the E2E suite, eliminating the timing dependency entirely rather than papering over it with a sleep.
+  13. `platform/kernel/identity/.../IdentityDtos.kt` (new `IdentityExceptionHandler.kt`) — `com.wego.JacksonConfiguration`'s app-wide `FAIL_ON_UNKNOWN_PROPERTIES` (added in the prior round) has no matching identity-side handler for `HttpMessageNotReadableException` (`DiversExceptionHandler` is scoped to `com.wego.divers.api` only), so a malformed/unknown-property `/login` body fell through to Spring's default `/error`, which the deny-by-default security chain rejects as 401 — a validation problem that looked like a credentials problem. This exact failure mode did not exist before this round's own Jackson change, making it this round's responsibility. Added `IdentityExceptionHandler`, returning the existing `LoginErrorResponse` shape with a new `validation_failed` code; documented in OpenAPI's `LoginError` enum and the login path's new `400` response.
+- **FOUND AND FIXED (NON-BLOCKING):**
+  14. `web/apps/erp/app/pages/bookings.vue` — the "Mark paid" control didn't check `booking.status`, so a cancelled-but-unpaid booking still showed it; the backend already correctly rejects marking a cancelled booking paid (`Booking.markPaid()`), so this was a UX papercut, not a data-integrity gap. Added `booking.status !== 'CANCELLED'` to the control's `v-if`.
+  15. `e2e/package.json` — the new lockfile was installed and executed in CI but covered by neither the `pnpm audit` job nor Dependabot. Added `pnpm --dir e2e audit --audit-level=high` to `secrets-and-node-dependencies` and an `npm`/`/e2e` entry to `.github/dependabot.yml`.
+- **ASSESSED AND VERIFIED, ONE FIX APPLIED, ONE DECLINED WITH REASONING:**
+  16. `infrastructure/nginx/nginx.conf`'s CSP `style-src 'self' 'unsafe-inline'` — the reviewer's claim that `style-src 'self'` alone was sufficient was verified independently, not taken on trust: a temporary edit removing only the style-src exception, a forced recreate of the isolated stack's `edge` container (a bind-mounted single file needs this — an in-place edit alone left the old inode mounted, a real gotcha hit again here), and a live headless-Chromium run across `/login`, `/offerings`, and the full booking lifecycle recorded zero CSP console violations. Kept the tightened policy; the full Playwright E2E suite was re-run against it afterward and passed. `script-src`'s `'unsafe-inline'` stays — verified in the prior round to be load-bearing for Nuxt 4's inline hydration bootstrap, not something this claim was about.
+  17. `numeric(10,2)`'s silent rounding of an over-scale value before any `CHECK` constraint can see the original input — verified this is not a fixable gap at the database layer at all, not merely deferred: Postgres coerces (rounds) a value to its column's declared type *before* row construction reaches any `CHECK` or trigger, so no SQL-level mechanism can observe "this value had more decimal places than the column's scale before it was stored." `Money`'s existing `scale() == 2` domain invariant (every construction path) is the only enforcement point that can actually see the un-rounded value, and it already does. Documented as an accepted, application-layer-only-enforced invariant rather than left silently unaddressed.
+  18. `e2e/tests/erp-lifecycle.spec.ts` not covering the bookings page's own pagination boundary (only offerings) — assessed as correctly NON-BLOCKING in practice, not fixed: `Bookings.spec.ts`'s own Vitest test already asserts real `page=0`/`page=1` query-parameter behavior for the bookings list, and extending the E2E suite to also prove a real 50-booking boundary would require seeding 50 real bookings (heavier than the 50 padding offerings already seeded) for a narrow residual risk (a browser-only click-wiring regression a Vitest/jsdom test can't see). Recorded as a deliberate scope decision, not an oversight, so it can be revisited if the owner disagrees.
+- **DECLINED — OUT OF SCOPE FOR WEGO-002:** Two findings against `clients/sharm-divers-club/PLATFORM_REFERENCE.md` (a lead-capture-into-booking-creation reference inconsistent with the inquiry-only guardrail, and stale booking route documentation) were not touched. That file predates this remediation round entirely (created during an earlier, unrelated session phase, never edited by this packet's own diff) and describes a future WEGO-005 (lead intake) concern — fixing it here would violate this packet's own explicit constraint against expanding scope into a later, not-yet-authorized packet. Flagged for whoever activates WEGO-005.
+- **TESTS RUN AFTER FIXES:** `./gradlew check :platform:application:bootJar --rerun-tasks` — `BUILD SUCCESSFUL`, 142 backend JUnit tests across 35 suites, zero failures/errors/skipped (one existing `DiversMigrationIntegrationTest` case needed its own crafted test row fixed — it incidentally tripped the new `billable_quantity` constraint before reaching the `total_price` constraint it was written to test; one new case added proving the new constraint directly). `pnpm run check` in `web/` — lint/typecheck/34 Vitest tests/production build all green (two `Bookings.spec.ts` cases needed `offering:view` added to their seeded permissions — a real, correct consequence of fix #7 above, not a regression). `bash scripts/repository-check.sh`, `git diff --check`, `pnpm run validate` in `foundry/` (manifests, OpenAPI, GitHub YAML/action-pin validation — the pin validator would have caught a manually mistyped `actions/upload-artifact` SHA from the prior round had it been wrong; it was correct) — all clean. `pnpm audit --audit-level=high` for `web/`, `foundry/`, and `e2e/` — zero known vulnerabilities. A full fresh isolated Compose run (`wego-remediation-verify`, later `wego-remediation-final`, distinct from the developer's own `wego-foundation` volume, torn down with `-v` after each use) rebuilt both `backend` and `web` images with every fix and re-ran the full Playwright E2E lifecycle against the tightened CSP — passed.
+- **RISKS:** Unchanged from the prior round's list, plus: this fix round has not itself been independently re-reviewed — per `docs/operations/AGENT_COLLABORATION.md`, review repeats until zero blocking findings remain, and this is round 1's fixes, not a closed loop yet.
+- **NEXT PACKET:** None authorized. WEGO-002 stays `ACTIVE`. The owner should trigger a re-review round against these fixes before considering the packet's Tier 1 bar met. No commit, push, merge, or deploy has occurred.
+
+### 2026-08-25 — WEGO-002 (independent Tier 1 review round 2 — APPROVED; zero BLOCKING findings, four NON-BLOCKING cleanups applied)
+
+- **STATUS:** `COMPLETE`. The round-1 remediation was reviewed from the current executable worktree, not accepted from its evidence claims. The reviewer read the domain/application/repository/controller/security/correlation/outbox/migration/UI/CI paths, ran every full gate again, and rebuilt an isolated five-service stack from the reviewed files. No blocking authorization, payment-state, capacity, idempotency, transaction-atomicity, migration, PII-exposure, or deployment-topology defect remained.
+- **FINDINGS (all NON-BLOCKING, fixed in this round):**
+  1. `products/divers/src/main/kotlin/com/wego/divers/api/DiversExceptionHandler.kt:63` — framework binding failures such as `page=not-an-integer` or a missing required `Idempotency-Key` were not covered by the otherwise unified Divers validation advice, so their error body was framework-dependent instead of the documented `validation_failed` JSON; added handlers for `MethodArgumentTypeMismatchException` and `ServletRequestBindingException`, with a real HTTP regression test for both triggers.
+  2. `platform/application/src/main/resources/db/migration/V3__divers_booking_foundation.sql:98` — the application/domain correctly rejected blank email+phone, but the database contact-presence CHECK still accepted non-null empty/whitespace strings; strengthened the unreleased V3 constraint and added a Testcontainers migration test proving the crafted row is rejected.
+  3. `platform/contracts/openapi/v1/wego-api.yaml:915` and `:594` — the booking schema described the email-or-phone rule without expressing it even though OpenAPI 3.1 JSON Schema can do so, and mark-paid's 409 description omitted the CANCELLED rejection path; added `anyOf`, non-whitespace patterns, email format, and the complete 409 semantics. Redocly validates the result with zero warnings.
+  4. `web/apps/erp/app/pages/offerings.vue:51` — the offerings page still called the read endpoint for a manage-only session lacking `offering:view`, producing a guaranteed 403 even though the page could honestly keep the separately authorized create form usable; gated the list request on `offering:view`, added the degraded-state message, and added a Vitest assertion that no request is made.
+- **TESTS RUN:** `./gradlew check :platform:application:bootJar --rerun-tasks` with Temurin 25.0.3 — `BUILD SUCCESSFUL`, 143 backend tests across 35 suites, zero failures/errors/skips. `pnpm run check` in `web/` with Node 24.19.0/pnpm 10.34.4 — lint/typecheck, 35 Vitest tests across four files, and Nuxt production build all passed. `pnpm run validate` in `foundry/` — manifests, deterministic lock, OpenAPI (zero warnings), GitHub YAML and action pins all passed. `bash scripts/repository-check.sh` and `git diff --check` passed.
+- **LIVE EVIDENCE:** A fresh isolated Compose project `wego-codex-r2` built the backend and web images from the reviewed worktree and brought PostgreSQL, Redis, backend, web, and edge healthy. `/healthz` returned UP, `/login` returned real HTML, and unauthenticated `/api/v1/identity/me` returned 401. The safety-gated synthetic seed ran only against that disposable database; Playwright Chromium then completed login → create offering → create booking → real pagination → mark paid → cancel with reason → refund with reason → logout (`1 passed`). The stack, network, and named test volume were removed with `down -v`; unrelated Docker projects were untouched.
+- **RISKS:** Only the packet's already-documented residual risks remain: no booking-PII retention policy yet, `sessionStorage` bearer transport, the active-offering selector's 200-item cap, single-offering flat capacity for rentals, and Nuxt's required inline hydration script. None is concealed as completed functionality, and each remains outside this packet's authorized scope.
+- **NEXT PACKET:** WEGO-010-A is now the sole active packet, explicitly authorized by the owner to create Sharm To Go cleanly inside `/home/wego/wego-platform`. No commit, push, merge, deploy, production secret, or production data action occurred.
+
+### 2026-08-25 — WEGO-010-A (implementation and self-review — foundation gates green; independent Tier 1 review pending)
+
+- **STATUS:** `ACTIVE`, not `COMPLETE`. The authorized composition and UI foundation is implemented and locally verified, but this packet changes the client-composition resolver and therefore still requires the independent Tier 1 review declared in its packet before completion.
+- **IMPLEMENTED:** Replaced the one-client Foundry assumptions with strict discovery of every direct product/client manifest, duplicate-ID rejection, physical-path and product/version/module/capability cross-reference validation, and deterministic lock generation for every client. Added `wego-travel-marketplace`/`product.travel-marketplace`, the isolated `sharm-to-go` client and lock, and its marker source in the application compile boundary. Added original, separately buildable Nuxt public-site and operations-dashboard foundations with English/Arabic content, live `ltr`/`rtl` document metadata, clear partner fulfilment disclosure, and explicit foundation/readiness messaging instead of invented inventory or totals. Added the blueprint, service-ownership rules, locale/content matrix, reference study, phased execution plan, and repository/web/Foundry indexes. Sharm Divers remains independently composed; its regenerated lock changes only because the shared module-catalog digest now includes the second physical product marker.
+- **TESTS RUN:** `./gradlew check :platform:application:bootJar --rerun-tasks` with Temurin 25.0.3 — `BUILD SUCCESSFUL`, including 143 backend tests across 35 suites plus the current mobile checks. `pnpm run check` in `web/` with Node 24.19.0/pnpm 10.34.4 — lint/typecheck, the existing ERP's 35 tests, two Sharm To Go site tests, two Sharm To Go dashboard tests, and production builds of all three Nuxt applications passed. Foundry lock generation was run twice and both client locks compared byte-for-byte; `pnpm --dir foundry run validate` passed for two products, two clients, deterministic locks, negative graph cases, OpenAPI, repository YAML, and immutable action pins. `bash scripts/repository-check.sh` and `git diff --check` passed.
+- **LIVE UI EVIDENCE:** Both built Nitro outputs were started on isolated localhost ports and inspected in headless Chromium at 375px and 1440px. The public site and dashboard each changed the document and main-content attributes from `lang=en dir=ltr` to `lang=ar dir=rtl`; neither viewport had horizontal overflow. Full-page English/Arabic site and dashboard captures were visually inspected: the marketplace/provider boundary and not-yet-connected status are prominent, with no external photo, copied review, fake availability, fake price, or fake business metric.
+- **REMAINING GATE:** Independent Tier 1 adversarial review of the generic composition boundary and current diff. Business Phase 1 also remains intentionally blocked on at least one complete real service data set using `clients/sharm-to-go/design/SERVICE_CONTENT_TEMPLATE.md`; no catalog, provider, booking, payment, refund, settlement, production authentication, database migration, public deployment, DNS, secret, commit, push, or merge was added or performed.
+
+### 2026-08-26 — WEGO-010-A (complete design handoff and booking/payment interaction prototype)
+
+- **STATUS:** `ACTIVE`, not `COMPLETE`. The owner authorized a complete design foundation and chose a normal, simple catalog → date/party/options → details → payment → result booking experience. This round implements and verifies that design direction without crossing the packet's explicit boundary into live catalog, booking or payment state. The generic multi-client resolver still needs the packet's independent Tier 1 review.
+- **DESIGN SOURCE:** Added the repo-owned `clients/sharm-to-go/design` package: versioned machine-readable semantic tokens; design-system character/type/color/component/status rules; public/dashboard information architecture; P0/P1/P2 screen catalog and full state inventory; booking/checkout/confirmation rules; Paymob/Fawry/CIB/cash payment composition and security boundary; operations-dashboard queues/editors/permissions; responsive/WCAG/RTL test matrix; handoff/release checklist; original foundation SVG plus media-rights register; fillable service-content intake template; and privacy-minimized SEO/analytics plan. The client README and phased execution plan link the package and now reflect the owner's simpler customer model rather than requiring a provider workflow to be visible in the customer experience.
+- **EXECUTABLE DESIGN:** Added `/booking-preview` with an always-visible non-live warning, date/availability cards, guide language and time selection, adult/child steppers, optional pickup, dynamic EGP sample breakdown, prototype-only cart feedback, minimum customer details/validation, planned card/mobile-wallet/Fawry/cash choices, CIB settlement explanation, policy consent, and a completion state that explicitly confirms no booking/payment was created. Added `/design-system` as the living semantic-token/type/control/status inventory. Both routes are `noindex,nofollow`; neither calls an API. Added self-hosted Noto Sans Arabic 5.3.0 alongside Inter, real document/container RTL/LTR switching, bidirectional-safe money/reference styling, 44px controls, focus behavior and mobile sticky total/action. The readiness dashboard was simplified to Services, Calendar, Bookings and Payments and now asks for real service content instead of abstract marketplace decisions.
+- **AUTOMATED EVIDENCE:** `pnpm run check` in `web/` with Node 24.19.0/pnpm 10.34.4 passed lint/typecheck, 44 Vitest tests (35 existing ERP, 7 public/design/booking/token/asset tests, 2 Sharm dashboard) and production builds for all three Nuxt apps. Token tests compare the repo JSON contract with executable CSS and the registered SVG with the public favicon. `pnpm audit --audit-level=high` in both `web/` and `foundry/` reported no known vulnerabilities. Foundry generated both locks twice with byte-identical results and validated two products/two clients, negative graph cases, OpenAPI, repository YAML and action pins. Repository invariants and `git diff --check` passed.
+- **BROWSER EVIDENCE:** The built site ran on an isolated localhost port. Headless Chromium completed the booking prototype through Arabic customer details to the payment-method step and loaded the living design system. Full-page captures were visually inspected at 1440×1000 English and 390×844 Arabic; `html` reported the correct language/direction, neither width had document overflow, and no console/page error occurred. The desktop summary remained sticky; mobile presented a sticky total/action while retaining all content below it.
+- **BACKEND REGRESSION EVIDENCE:** The full Gradle gate compiled/checked the application and mobile modules and built the application jar, but the first Testcontainers phase attempted to resolve `postgres:18.4-alpine` from an unavailable Docker Hub endpoint and 13 container-backed suites timed out before test execution. Docker already held the exact Compose-approved PostgreSQL 18.4 image under its ECR tag/digest; adding a local alias for that same image (no pull or code change) removed the network dependency. A clean `:platform:application:test --rerun-tasks` then passed all 143 backend tests. The failure was retained as environment evidence rather than misreported as a green first run.
+- **NOT LIVE:** Sample dates and amounts are visibly labelled design data. No service/product row, capacity, customer record, booking, payment attempt, merchant credential, callback, refund, provider payout, database migration, deployment, DNS, commit, push or merge was created. Phase 1 now needs completed real service intake forms; live payment work later needs approved Paymob/Fawry sandbox accounts and signed CIB/merchant settlement terms.

@@ -23,6 +23,7 @@ class SecurityConfiguration {
     @Bean
     fun securityFilterChain(
         http: HttpSecurity,
+        correlationIdFilter: CorrelationIdFilter,
         bearerTokenAuthenticationFilter: BearerTokenAuthenticationFilter,
         bearerAuthenticationEntryPoint: BearerAuthenticationEntryPoint,
         auditingAccessDeniedHandler: AuditingAccessDeniedHandler,
@@ -35,6 +36,8 @@ class SecurityConfiguration {
                     .requestMatchers("/api/v1/identity/login")
                     .permitAll()
                     .requestMatchers("/api/v1/identity/**")
+                    .authenticated()
+                    .requestMatchers("/api/v1/divers/**")
                     .authenticated()
                     .anyRequest()
                     .denyAll()
@@ -54,6 +57,7 @@ class SecurityConfiguration {
                     .authenticationEntryPoint(bearerAuthenticationEntryPoint)
                     .accessDeniedHandler(auditingAccessDeniedHandler)
             }.addFilterBefore(bearerTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(correlationIdFilter, BearerTokenAuthenticationFilter::class.java)
 
         return http.build()
     }

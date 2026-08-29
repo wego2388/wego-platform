@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { WegoAlert, WegoButton, WegoInput } from "@wego/ui";
+import { clearAuthSession, readAuthSession, writeAuthSession } from "../composables/useAuthSession";
 
 useHead({ title: "Sign in · Wego Platform" });
 
@@ -105,6 +106,11 @@ async function submit() {
     roles.value = me.roles;
     permissions.value = me.permissions;
     state.value = "success";
+    // Persisted so /offerings and /bookings (a fresh page load, not a
+    // client-side navigation within this same component) can read the
+    // session too — this component's own local refs above are what the
+    // rendered "Signed in as ..." panel still reads from directly.
+    writeAuthSession({ token: issuedToken, email: me.email, roles: me.roles, permissions: me.permissions });
   } catch {
     // A thrown fetch (network failure, DNS, CORS) must still leave the form
     // usable — without this, "submitting" was the last state ever set and
@@ -136,7 +142,23 @@ async function logout() {
   roles.value = [];
   permissions.value = [];
   state.value = "idle";
+  clearAuthSession();
 }
+
+// Without this, a stored session (written by a prior successful submit())
+// is invisible to this component on a fresh mount — returning to or
+// refreshing /login would show the plain sign-in form even though a valid
+// session already exists, and signing in again would silently create a
+// second server-side session instead of reusing the first.
+onMounted(() => {
+  const session = readAuthSession();
+  if (!session) return;
+  token.value = session.token;
+  authenticatedEmail.value = session.email;
+  roles.value = session.roles;
+  permissions.value = session.permissions;
+  state.value = "success";
+});
 
 function formatWait(totalSeconds: number): string {
   if (totalSeconds < 60) {
@@ -197,7 +219,11 @@ function errorText(reason: string): string {
         <p class="mt-1 text-sm text-wego-muted">
           Permissions: {{ permissions.length ? permissions.join(", ") : "none" }}
         </p>
-        <WegoButton type="button" variant="secondary" class="mt-4" @click="logout">Sign out</WegoButton>
+        <div class="mt-4 flex flex-wrap items-center gap-4">
+          <WegoButton type="button" variant="secondary" @click="logout">Sign out</WegoButton>
+          <NuxtLink to="/offerings" class="text-sm font-semibold text-wego-accent underline">Offerings</NuxtLink>
+          <NuxtLink to="/bookings" class="text-sm font-semibold text-wego-accent underline">Bookings</NuxtLink>
+        </div>
       </div>
     </div>
   </main>

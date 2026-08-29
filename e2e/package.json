@@ -1,0 +1,16 @@
+{
+  "name": "@wego/e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "seed": "node seed.mjs",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.60.0",
+    "@types/node": "24.13.3",
+    "@types/pg": "8.15.6",
+    "bcryptjs": "3.0.3",
+    "pg": "8.16.3"
+  }
+}

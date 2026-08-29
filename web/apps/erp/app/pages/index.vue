@@ -29,8 +29,8 @@ const foundationItems = [
   },
   {
     title: "Business modules",
-    state: "planned" as const,
-    description: "Operational capabilities arrive only through separately approved work packets.",
+    state: "ready" as const,
+    description: "Wego Divers bookings are live — see Offerings and Bookings above.",
   },
 ];
 </script>
@@ -51,12 +51,16 @@ const foundationItems = [
             workflows and makes no authorization decisions.
           </p>
         </div>
-        <NuxtLink
-          to="/login"
-          class="shrink-0 rounded-wego-control bg-wego-accent px-5 py-2.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"
-        >
-          Sign in
-        </NuxtLink>
+        <div class="flex shrink-0 flex-wrap items-center gap-4">
+          <NuxtLink to="/offerings" class="text-sm font-semibold text-wego-accent underline">Offerings</NuxtLink>
+          <NuxtLink to="/bookings" class="text-sm font-semibold text-wego-accent underline">Bookings</NuxtLink>
+          <NuxtLink
+            to="/login"
+            class="rounded-wego-control bg-wego-accent px-5 py-2.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"
+          >
+            Sign in
+          </NuxtLink>
+        </div>
       </header>
 
       <section aria-labelledby="foundation-status" class="mt-14">

@@ -1,5 +1,6 @@
 package com.wego.identity.infrastructure
 
+import com.wego.events.CorrelationContext
 import com.wego.identity.application.AuthenticatedPrincipal
 import com.wego.identity.application.IdentityAuditRecorder
 import jakarta.servlet.http.HttpServletRequest
@@ -37,7 +38,7 @@ class AuditingAccessDeniedHandler(
                 principal.user.id,
                 requiredPermissionOrFallback(accessDeniedException, request),
                 Instant.now(clock),
-                null,
+                CorrelationContext.currentCorrelationId(),
             )
         }
         response.status = HttpServletResponse.SC_FORBIDDEN

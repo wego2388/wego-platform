@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "clientId": "sharm-to-go",
+  "displayName": "Sharm To Go",
+  "product": {
+    "id": "wego-travel-marketplace",
+    "version": "0.1.0"
+  },
+  "organization": {
+    "timezone": "Africa/Cairo",
+    "defaultLocale": "en",
+    "supportedLocales": ["ar", "en"],
+    "currency": "EGP"
+  },
+  "experienceProfiles": ["STANDARD"],
+  "deploymentIsolation": "ISOLATED_INSTANCE"
+}

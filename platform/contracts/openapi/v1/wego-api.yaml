@@ -5,7 +5,8 @@ info:
   description: >-
     Version 1 of the product-neutral Wego HTTP contract. WEGO-001 adds the
     first authenticated operations (login, logout, current identity);
-    business-domain operations remain a later authorized packet.
+    WEGO-002 adds the first business-domain operations (diving offerings and
+    staff-created bookings).
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -17,6 +18,8 @@ tags:
     description: Instance health endpoints with no business-data access.
   - name: Identity
     description: Authentication and the current session's identity.
+  - name: Divers
+    description: Diving offerings and staff-created bookings (trips, courses, equipment rental, packages).
 paths:
   /actuator/health:
     get:
@@ -82,6 +85,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/LoginResponse"
+        "400":
+          description: Malformed JSON body or an unrecognized property.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginError"
         "401":
           description: >-
             Invalid credentials. Distinct from the other endpoints'
@@ -125,6 +134,526 @@ paths:
                 $ref: "#/components/schemas/IdentityProfile"
         "401":
           $ref: "#/components/responses/UnauthenticatedResponse"
+  /api/v1/divers/offerings:
+    post:
+      operationId: createOffering
+      summary: Create a bookable diving offering
+      description: >-
+        A manually created, already-dated instance (trip, course, rental
+        window, or package) — not a recurring template. Requires
+        `pricingBasis`; the offering's price is `PER_PARTICIPANT` (multiplied
+        by a booking's party size) or `FLAT` (a single total regardless of
+        party size).
+      tags:
+        - Divers
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOfferingRequest"
+      responses:
+        "201":
+          description: Offering created.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OfferingResponse"
+        "400":
+          description: >-
+            The request failed validation — a malformed field, an out-of-range
+            value, or an unrecognized JSON property.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    get:
+      operationId: listOfferings
+      summary: List diving offerings
+      description: >-
+        Paginated with `page`/`size`; use `Link`-free explicit
+        previous/next paging on the client by incrementing `page` — the
+        response never silently truncates past `size` without a way to
+        reach the rest.
+      tags:
+        - Divers
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: type
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/OfferingType"
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/OfferingStatus"
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Matching offerings, one page.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OfferingResponse"
+        "400":
+          description: An invalid `page`/`size`/`type`/`status` query parameter.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/divers/offerings/{id}:
+    get:
+      operationId: getOffering
+      summary: Read a single offering
+      tags:
+        - Divers
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The offering.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OfferingResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No offering with this id.
+  /api/v1/divers/offerings/{id}/close:
+    post:
+      operationId: closeOffering
+      summary: Close an offering to further bookings
+      description: >-
+        Terminal — closing is not reversible in this packet. Row-locked
+        against a concurrent `createBooking` on the same offering, so a
+        close and an in-flight booking attempt against the same offering
+        resolve deterministically under real concurrency, never a race.
+      tags:
+        - Divers
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CloseOfferingRequest"
+      responses:
+        "200":
+          description: The offering was closed.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OfferingResponse"
+        "400":
+          description: The request failed validation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No offering with this id.
+        "409":
+          description: The offering is already closed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookingError"
+  /api/v1/divers/bookings:
+    post:
+      operationId: createBooking
+      summary: Create a booking against a dated offering
+      description: >-
+        Confirms immediately — there is no pending state. Capacity is
+        enforced under real concurrency via a row lock on the offering.
+        Idempotency is enforced by a canonical fingerprint of
+        (offeringId, partySize, normalized customer contact): the same
+        actor replaying the same `Idempotency-Key` with the same
+        fingerprint returns the original booking unchanged (200); the same
+        actor reusing the key with a *different* fingerprint — a different
+        offering, party size, or customer — is rejected as
+        `idempotency_key_conflict` (409), never silently applied and never
+        a raw unique-constraint 500.
+      tags:
+        - Divers
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBookingRequest"
+      responses:
+        "201":
+          description: A new booking was created and confirmed.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookingResponse"
+        "200":
+          description: >-
+            Idempotent replay — a booking already exists for this actor's
+            Idempotency-Key with an identical request fingerprint, returned
+            unchanged.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookingResponse"
+        "400":
+          description: >-
+            The request failed validation — a malformed field, an
+            out-of-range value, or an unrecognized JSON property.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No offering with this id.
+        "409":
+          description: >-
+            The offering is closed, its capacity is already reached, or
+            this Idempotency-Key was already used for a different request
+            fingerprint.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookingError"
+    get:
+      operationId: listBookings
+      summary: List bookings
+      description: >-
+        Paginated with `page`/`size` — never silently hides bookings past
+        the first page; callers must page through `page` to see the rest.
+      tags:
+        - Divers
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: offeringId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/BookingStatus"
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Matching bookings, one page.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BookingResponse"
+        "400":
+          description: An invalid `page`/`size`/`offeringId`/`status` query parameter.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/divers/bookings/{id}:
+    get:
+      operationId: getBooking
+      summary: Read a single booking
+      tags:
+        - Divers
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The booking.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookingResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No booking with this id.
+  /api/v1/divers/bookings/{id}/cancel:
+    post:
+      operationId: cancelBooking
+      summary: Cancel a confirmed booking
+      description: >-
+        Terminal — cancel only succeeds from CONFIRMED. Requires a
+        non-blank `reason`. Independent of payment status: a paid booking
+        that gets cancelled is not automatically refunded — refund is a
+        separate, separately permissioned action.
+      tags:
+        - Divers
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelBookingRequest"
+      responses:
+        "200":
+          description: The booking was cancelled.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookingResponse"
+        "400":
+          description: A blank or oversized `reason`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No booking with this id.
+        "409":
+          description: The booking is already cancelled.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookingError"
+  /api/v1/divers/bookings/{id}/mark-paid:
+    patch:
+      operationId: markBookingPaid
+      summary: Mark a booking's payment as received
+      description: >-
+        `UNPAID -> PAID` only. Requires `booking:payment-update` — a
+        distinct permission from `booking:create`; a user who can create
+        bookings cannot mark them paid unless separately granted this
+        permission. Repeating the same call on an already-`PAID` booking is
+        a documented no-op (200, no duplicate audit/outbox write), not an
+        error.
+      tags:
+        - Divers
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Payment recorded (or already recorded — idempotent).
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookingResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No booking with this id.
+        "409":
+          description: The booking is CANCELLED or REFUNDED, so payment cannot be marked received.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookingError"
+  /api/v1/divers/bookings/{id}/refund:
+    patch:
+      operationId: refundBooking
+      summary: Refund a paid booking
+      description: >-
+        `PAID -> REFUNDED` only, and only with a non-blank `reason`.
+        Requires `booking:refund` — a distinct permission from both
+        `booking:create` and `booking:payment-update`, treated as the more
+        sensitive of the two payment actions. Refunding an UNPAID booking
+        is rejected, not applied. A cancelled booking may still be
+        refunded if it was PAID before cancellation.
+      tags:
+        - Divers
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefundBookingRequest"
+      responses:
+        "200":
+          description: Refund recorded (or already recorded — idempotent).
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookingResponse"
+        "400":
+          description: A blank or oversized `reason`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No booking with this id.
+        "409":
+          description: The booking is UNPAID — there is nothing to refund.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookingError"
 components:
   securitySchemes:
     bearerAuth:
@@ -150,6 +679,8 @@ components:
             type: string
             enum:
               - Bearer
+    ForbiddenResponse:
+      description: Authenticated, but missing the permission this operation requires.
     RateLimitedResponse:
       description: >-
         Too many login attempts — from this network address (an edge-level
@@ -165,6 +696,31 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/LoginError"
+  parameters:
+    CorrelationIdHeader:
+      name: X-Correlation-Id
+      in: header
+      required: false
+      description: >-
+        A caller-supplied correlation id, which must be a valid UUID.
+        Echoed back on the response's `X-Correlation-Id` header and
+        threaded through this request's audit and outbox records. If
+        omitted or not a valid UUID, a new id is generated instead —
+        malformed input never fails the request and never breaks
+        traceability, it only replaces the id.
+      schema:
+        type: string
+        format: uuid
+  headers:
+    CorrelationIdResponseHeader:
+      description: >-
+        The correlation id that applies to this request — the caller's
+        own `X-Correlation-Id`, or a newly generated one if none was
+        supplied or the supplied value was rejected. The same id appears
+        on this request's audit and outbox records.
+      schema:
+        type: string
+        format: uuid
   schemas:
     LoginRequest:
       type: object
@@ -202,6 +758,7 @@ components:
           enum:
             - invalid_credentials
             - rate_limited
+            - validation_failed
     IdentityProfile:
       type: object
       additionalProperties: false
@@ -224,6 +781,285 @@ components:
           type: array
           items:
             type: string
+    OfferingType:
+      type: string
+      enum:
+        - DIVE_TRIP
+        - COURSE
+        - EQUIPMENT_RENTAL
+        - PACKAGE
+    OfferingStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - CLOSED
+    BookingStatus:
+      type: string
+      enum:
+        - CONFIRMED
+        - CANCELLED
+    PaymentStatus:
+      type: string
+      enum:
+        - UNPAID
+        - PAID
+        - REFUNDED
+    PricingBasis:
+      type: string
+      description: >-
+        How an offering's `unitPrice` combines with a booking's party size
+        to produce the booking's total. `PER_PARTICIPANT` multiplies
+        `unitPrice` by `partySize`; `FLAT` charges `unitPrice` once
+        regardless of party size (e.g. a whole-boat charter or a
+        flat-rate equipment rental).
+      enum:
+        - PER_PARTICIPANT
+        - FLAT
+    Money:
+      type: object
+      additionalProperties: false
+      required:
+        - amount
+        - currencyCode
+      properties:
+        amount:
+          type: string
+          pattern: "^\\d{1,8}\\.\\d{2}$"
+          description: >-
+            Decimal string with exactly 2 places, e.g. "45.00" — never a
+            binary float, never a different scale.
+        currencyCode:
+          type: string
+          pattern: "^[A-Z]{3}$"
+    CreateOfferingRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - offeringType
+        - title
+        - startsOn
+        - pricingBasis
+        - unitPrice
+      properties:
+        offeringType:
+          $ref: "#/components/schemas/OfferingType"
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 4000
+        startsOn:
+          type: string
+          format: date
+        endsOn:
+          type: string
+          format: date
+        capacity:
+          type: integer
+          minimum: 1
+        pricingBasis:
+          $ref: "#/components/schemas/PricingBasis"
+        unitPrice:
+          $ref: "#/components/schemas/Money"
+    OfferingResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - offeringType
+        - title
+        - startsOn
+        - pricingBasis
+        - unitPrice
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        offeringType:
+          $ref: "#/components/schemas/OfferingType"
+        title:
+          type: string
+        description:
+          type: string
+        startsOn:
+          type: string
+          format: date
+        endsOn:
+          type: string
+          format: date
+        capacity:
+          type: integer
+        pricingBasis:
+          $ref: "#/components/schemas/PricingBasis"
+        unitPrice:
+          $ref: "#/components/schemas/Money"
+        status:
+          $ref: "#/components/schemas/OfferingStatus"
+        createdAt:
+          type: string
+          format: date-time
+        closedAt:
+          type: string
+          format: date-time
+    CloseOfferingRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        reason:
+          type: string
+          maxLength: 1000
+    CreateBookingRequest:
+      type: object
+      additionalProperties: false
+      description: >-
+        At least one of `customerEmail`/`customerPhone` must be present and
+        non-blank — a value that is blank or all-whitespace does not count
+        as present, even if the property itself is included. The schema and
+        `CustomerContact` domain invariant both enforce this rule.
+      required:
+        - offeringId
+        - partySize
+        - customerName
+      anyOf:
+        - required:
+            - customerEmail
+        - required:
+            - customerPhone
+      properties:
+        offeringId:
+          type: string
+          format: uuid
+        partySize:
+          type: integer
+          minimum: 1
+        customerName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        customerEmail:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 320
+          pattern: "\\S"
+        customerPhone:
+          type: string
+          minLength: 1
+          maxLength: 32
+          pattern: "\\S"
+    BookingResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - offeringId
+        - partySize
+        - customerName
+        - status
+        - paymentStatus
+        - pricingBasis
+        - unitPrice
+        - billableQuantity
+        - totalPrice
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        offeringId:
+          type: string
+          format: uuid
+        partySize:
+          type: integer
+        customerName:
+          type: string
+        customerEmail:
+          type: string
+        customerPhone:
+          type: string
+        status:
+          $ref: "#/components/schemas/BookingStatus"
+        paymentStatus:
+          $ref: "#/components/schemas/PaymentStatus"
+        pricingBasis:
+          $ref: "#/components/schemas/PricingBasis"
+        unitPrice:
+          allOf:
+            - $ref: "#/components/schemas/Money"
+          description: >-
+            The per-unit price snapshotted from the offering at the time
+            this booking was created — unaffected by any later change to
+            the offering's own price.
+        billableQuantity:
+          type: integer
+          description: >-
+            `partySize` when `pricingBasis` is `PER_PARTICIPANT`, always
+            `1` when `pricingBasis` is `FLAT`.
+        totalPrice:
+          allOf:
+            - $ref: "#/components/schemas/Money"
+          description: "`unitPrice.amount * billableQuantity`, snapshotted at creation time."
+        createdAt:
+          type: string
+          format: date-time
+        cancelledAt:
+          type: string
+          format: date-time
+        cancellationReason:
+          type: string
+    CancelBookingRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - reason
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+    RefundBookingRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - reason
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+    ValidationErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          enum:
+            - validation_failed
+        message:
+          type: string
+          description: A safe, human-readable description of which rule failed.
+    BookingError:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - offering_closed
+            - already_closed
+            - capacity_exceeded
+            - already_cancelled
+            - invalid_payment_transition
+            - idempotency_key_conflict
     Health:
       type: object
       additionalProperties: false

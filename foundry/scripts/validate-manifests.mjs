@@ -8,10 +8,11 @@ import addFormats from "ajv-formats";
 import {
   buildReleaseLock,
   canonicalJson,
-  loadReleaseInputs,
-  paths,
+  indexUnique,
+  loadFoundryInputs,
   readJson,
   repositoryRoot,
+  resolveProductForClient,
 } from "./manifest-lib.mjs";
 
 const schemaDirectory = path.join(repositoryRoot, "foundry/schemas");
@@ -25,9 +26,7 @@ const schemas = {
 const ajv = new Ajv2020({ allErrors: true, strict: true });
 addFormats(ajv);
 
-const validators = Object.fromEntries(
-  Object.entries(schemas).map(([name, schema]) => [name, ajv.compile(schema)]),
-);
+const validators = Object.fromEntries(Object.entries(schemas).map(([name, schema]) => [name, ajv.compile(schema)]));
 
 function assertValid(name, value) {
   const validator = validators[name];
@@ -46,47 +45,66 @@ function assertInvalid(name, value) {
   );
 }
 
-const inputs = await loadReleaseInputs();
-const releaseLock = await readJson(paths.lock);
-
-assertValid("client", inputs.client);
-assertValid("product", inputs.product);
+const inputs = await loadFoundryInputs();
 assertValid("moduleCatalog", inputs.moduleCatalog);
-assertValid("lock", releaseLock);
 
-const moduleIds = inputs.moduleCatalog.modules.map((module) => module.id);
-assert.equal(new Set(moduleIds).size, moduleIds.length, "Module IDs must be unique");
+const products = inputs.products.map((entry) => entry.manifest);
+const clients = inputs.clients.map((entry) => entry.manifest);
+for (const product of products) assertValid("product", product);
+for (const client of clients) assertValid("client", client);
+for (const entry of inputs.clients) assertValid("lock", entry.releaseLock);
 
-const capabilityIds = inputs.moduleCatalog.modules.flatMap((module) => module.capabilities);
-assert.equal(new Set(capabilityIds).size, capabilityIds.length, "Capability IDs must be unique");
+const productsById = indexUnique(products, (product) => product.productId, "product id");
+indexUnique(clients, (client) => client.clientId, "client id");
+const modulesById = indexUnique(inputs.moduleCatalog.modules, (module) => module.id, "module id");
+const allCapabilities = inputs.moduleCatalog.modules.flatMap((module) => module.capabilities);
+indexUnique(allCapabilities, (capability) => capability, "capability id");
 
 for (const module of inputs.moduleCatalog.modules) {
   await access(path.join(repositoryRoot, module.path));
 }
 
-assert.equal(inputs.client.product.id, inputs.product.productId, "Client must reference this product");
-assert.equal(
-  inputs.client.product.version,
-  inputs.product.version,
-  "Client product version must match the product manifest",
-);
-assert.ok(
-  inputs.client.organization.supportedLocales.includes(inputs.client.organization.defaultLocale),
-  "Default locale must be included in supported locales",
-);
-
-for (const moduleId of inputs.product.requiredModules) {
-  assert.ok(moduleIds.includes(moduleId), `Product references unknown module: ${moduleId}`);
-}
-for (const capabilityId of inputs.product.requiredCapabilities) {
-  assert.ok(capabilityIds.includes(capabilityId), `Product references unknown capability: ${capabilityId}`);
+for (const entry of inputs.products) {
+  const product = entry.manifest;
+  for (const moduleId of product.requiredModules) {
+    assert.ok(modulesById.has(moduleId), `Product ${product.productId} references unknown module: ${moduleId}`);
+  }
+  for (const capabilityId of product.requiredCapabilities) {
+    assert.ok(allCapabilities.includes(capabilityId), `Product ${product.productId} references unknown capability: ${capabilityId}`);
+  }
 }
 
-const expectedLock = buildReleaseLock(inputs);
-assert.equal(
-  canonicalJson(releaseLock),
-  canonicalJson(expectedLock),
-  "Release lock is stale; run pnpm run generate:lock",
+for (const entry of inputs.clients) {
+  const client = entry.manifest;
+  assert.equal(entry.directoryName, client.clientId, `Client directory must match clientId ${client.clientId}`);
+  assert.ok(
+    client.organization.supportedLocales.includes(client.organization.defaultLocale),
+    `Client ${client.clientId} default locale must be included in supported locales`,
+  );
+  const product = resolveProductForClient(client, productsById);
+  const expectedLock = buildReleaseLock({ client, product, moduleCatalog: inputs.moduleCatalog });
+  assert.equal(
+    canonicalJson(entry.releaseLock),
+    canonicalJson(expectedLock),
+    `Release lock for ${client.clientId} is stale; run pnpm run generate:lock`,
+  );
+}
+
+assert.throws(
+  () => indexUnique([...products, products[0]], (product) => product.productId, "product id"),
+  /Duplicate product id/,
+);
+assert.throws(
+  () => resolveProductForClient({ ...clients[0], product: { id: "wego-missing", version: "0.1.0" } }, productsById),
+  /references missing product/,
+);
+assert.throws(
+  () =>
+    resolveProductForClient(
+      { ...clients[0], product: { ...clients[0].product, version: "99.0.0" } },
+      productsById,
+    ),
+  /requests .* but the manifest is/,
 );
 
 assertInvalid(
@@ -98,4 +116,6 @@ assertInvalid(
   await readJson(path.join(repositoryRoot, "foundry/fixtures/invalid/client-secret-field.json")),
 );
 
-console.log("Validated product/client composition, module catalog, negative fixtures, and deterministic lock");
+console.log(
+  `Validated ${products.length} products, ${clients.length} clients, every deterministic lock, negative graph cases, and the module catalog`,
+);

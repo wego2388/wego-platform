@@ -169,7 +169,12 @@ class IdentityHttpTest {
                 status { isOk() }
                 jsonPath("$.email") { value(adminEmail) }
                 jsonPath("$.roles[0]") { value("platform-admin") }
-                jsonPath("$.permissions[0]") { value("identity:administer") }
+                // Not permissions[0]/an exact-size assertion: platform-admin's
+                // permission set has grown since WEGO-002 seeded five more
+                // (booking:*/offering:*) alongside identity:administer, and
+                // MeResponse sorts permissions alphabetically, so
+                // "booking:*" now sorts ahead of "identity:administer".
+                jsonPath("$.permissions") { value(org.hamcrest.Matchers.hasItem("identity:administer")) }
             }
 
         mockMvc

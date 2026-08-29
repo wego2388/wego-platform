@@ -10,4 +10,8 @@ import { beforeEach, vi } from "vitest";
 // this one out too after the first test in the file.
 beforeEach(() => {
   vi.stubGlobal("useHead", () => {});
+  // login.vue now persists the session to sessionStorage; without this,
+  // a test that logs in successfully would leak that session into the
+  // next test in the same file (happy-dom's storage isn't reset per test).
+  sessionStorage.clear();
 });
