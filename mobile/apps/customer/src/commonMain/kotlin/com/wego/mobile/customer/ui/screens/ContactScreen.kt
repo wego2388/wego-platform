@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.wego.mobile.customer.content.SiteCopy
 import com.wego.mobile.customer.design.SdcCard
-import com.wego.mobile.customer.design.SdcColor
 import com.wego.mobile.customer.design.SdcSpace
 import com.wego.mobile.shared.locale.AppLocale
 
@@ -31,22 +30,22 @@ fun ContactScreen(
         Text(SiteCopy.Contact.heading.of(locale), style = MaterialTheme.typography.headlineSmall)
         Text(SiteCopy.Contact.body.of(locale), style = MaterialTheme.typography.bodyLarge)
 
-        SdcCard(modifier = Modifier.fillMaxWidth(), containerColor = SdcColor.deep, onClick = onOpenWhatsApp) {
+        SdcCard(modifier = Modifier.fillMaxWidth(), containerColor = MaterialTheme.colorScheme.primary, onClick = onOpenWhatsApp) {
             Column(modifier = Modifier.padding(SdcSpace.lg), verticalArrangement = Arrangement.spacedBy(SdcSpace.xs)) {
                 Text(
                     SiteCopy.Contact.whatsappLabel.of(locale),
                     style = MaterialTheme.typography.labelSmall,
-                    color = SdcColor.sand,
+                    color = MaterialTheme.colorScheme.tertiary,
                 )
                 Text(
                     SiteCopy.PHONE_DISPLAY,
                     style = MaterialTheme.typography.titleMedium,
-                    color = SdcColor.surface,
+                    color = MaterialTheme.colorScheme.onPrimary,
                 )
                 Text(
                     SiteCopy.Contact.whatsappBody.of(locale),
                     style = MaterialTheme.typography.bodySmall,
-                    color = SdcColor.canvas,
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
                 )
             }
         }
@@ -64,9 +63,9 @@ private fun ContactFact(
     label: String,
     value: String,
 ) {
-    SdcCard(modifier = Modifier.fillMaxWidth(), containerColor = SdcColor.turquoiseSoft) {
+    SdcCard(modifier = Modifier.fillMaxWidth(), containerColor = MaterialTheme.colorScheme.surfaceVariant) {
         Column(modifier = Modifier.padding(SdcSpace.md + SdcSpace.xs)) {
-            Text(label, style = MaterialTheme.typography.labelSmall, color = SdcColor.deepBright)
+            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
             Text(value, style = MaterialTheme.typography.bodyMedium)
         }
     }

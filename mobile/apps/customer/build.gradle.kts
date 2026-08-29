@@ -41,5 +41,9 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
+        jvmTest.dependencies {
+            implementation(libs.compose.ui.test)
+            runtimeOnly(libs.skiko.awt.runtime.linux.x64)
+        }
     }
 }

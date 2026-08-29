@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import com.wego.mobile.customer.content.SiteCopy
 import com.wego.mobile.customer.content.offeringInquiryUrl
 import com.wego.mobile.customer.design.SdcCard
-import com.wego.mobile.customer.design.SdcColor
 import com.wego.mobile.customer.design.SdcMockPhoto
 import com.wego.mobile.customer.design.SdcSpace
 import com.wego.mobile.shared.catalog.Categories
@@ -65,10 +64,14 @@ fun OfferingDetailScreen(
             Text(
                 category.title.of(locale),
                 style = MaterialTheme.typography.labelLarge,
-                color = SdcColor.deepBright,
+                color = MaterialTheme.colorScheme.primary,
             )
             Text(offering.name.of(locale), style = MaterialTheme.typography.headlineSmall)
-            Text(offering.audience.label(locale), style = MaterialTheme.typography.bodyMedium, color = SdcColor.textSecondary)
+            Text(
+                offering.audience.label(locale),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
 
         val meta =
@@ -80,7 +83,7 @@ fun OfferingDetailScreen(
             Text(
                 meta,
                 style = MaterialTheme.typography.labelMedium,
-                color = SdcColor.deepBright,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(top = SdcSpace.md),
             )
         }
@@ -91,7 +94,7 @@ fun OfferingDetailScreen(
         Text(
             SiteCopy.Discover.pricingNotice.of(locale),
             style = MaterialTheme.typography.labelMedium,
-            color = SdcColor.deepBright,
+            color = MaterialTheme.colorScheme.primary,
         )
 
         Button(
@@ -111,7 +114,7 @@ fun OfferingDetailScreen(
                 for (item in related) {
                     SdcCard(
                         modifier = Modifier.fillMaxWidth(),
-                        containerColor = SdcColor.turquoiseSoft,
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
                         onClick = { onOfferingClick(item) },
                     ) {
                         Row(
@@ -119,7 +122,11 @@ fun OfferingDetailScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
                             Text(item.name.of(locale), style = MaterialTheme.typography.bodyMedium)
-                            Text(formatEur(item.priceEur), style = MaterialTheme.typography.bodyMedium, color = SdcColor.deepBright)
+                            Text(
+                                formatEur(item.priceEur),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
                         }
                     }
                 }

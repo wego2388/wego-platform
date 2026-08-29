@@ -16,7 +16,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import com.wego.mobile.customer.content.SiteCopy
 import com.wego.mobile.customer.design.SdcCard
-import com.wego.mobile.customer.design.SdcColor
 import com.wego.mobile.customer.design.SdcSpace
 import com.wego.mobile.shared.locale.AppLocale
 
@@ -45,7 +44,7 @@ fun FaqScreen(
         )
         Column(verticalArrangement = Arrangement.spacedBy(SdcSpace.sm)) {
             for ((question, answer) in SiteCopy.Faq.known) {
-                FaqCard(question.of(locale), answer.of(locale), SdcColor.turquoiseSoft)
+                FaqCard(question.of(locale), answer.of(locale), MaterialTheme.colorScheme.surfaceVariant)
             }
         }
 
@@ -57,7 +56,7 @@ fun FaqScreen(
         Text(SiteCopy.Faq.unknownIntro.of(locale), style = MaterialTheme.typography.bodyMedium)
         Column(verticalArrangement = Arrangement.spacedBy(SdcSpace.sm)) {
             for ((question, answer) in SiteCopy.Faq.unknown) {
-                FaqCard(question.of(locale), answer.of(locale), SdcColor.sandSoft)
+                FaqCard(question.of(locale), answer.of(locale), MaterialTheme.colorScheme.tertiaryContainer)
             }
         }
 

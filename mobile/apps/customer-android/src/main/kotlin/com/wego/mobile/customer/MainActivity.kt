@@ -9,8 +9,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val localeStore = AndroidLocaleStore(applicationContext)
         setContent {
-            WegoCustomerRoot()
+            WegoCustomerRoot(localeStore = localeStore)
         }
     }
 }

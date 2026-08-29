@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 fun SdcCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
-    containerColor: Color = SdcColor.surface,
+    containerColor: Color = MaterialTheme.colorScheme.surface,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val shape = RoundedCornerShape(SdcRadius.card)
@@ -51,11 +51,11 @@ fun SdcBadge(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(SdcRadius.pill),
-        color = SdcColor.turquoiseSoft,
+        color = MaterialTheme.colorScheme.surfaceVariant,
     ) {
         Text(
             text,
-            color = SdcColor.deepBright,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.labelMedium,
             modifier = Modifier.padding(horizontal = SdcSpace.md, vertical = SdcSpace.sm),
         )

@@ -1,11 +1,13 @@
 package com.wego.mobile.customer
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -28,9 +30,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import androidx.savedstate.read
 import com.wego.mobile.customer.content.SiteCopy
-import com.wego.mobile.customer.design.SdcColor
 import com.wego.mobile.customer.nav.AppDestination
 import com.wego.mobile.customer.nav.bottomNavDestinations
 import com.wego.mobile.customer.state.AppLocaleState
@@ -44,12 +46,17 @@ import com.wego.mobile.customer.ui.screens.OfferingDetailScreen
 import com.wego.mobile.shared.catalog.CategoryId
 import com.wego.mobile.shared.experience.ExperienceProfile
 import com.wego.mobile.shared.locale.AppLocale
+import com.wego.mobile.shared.locale.LocaleStore
+import com.wego.mobile.shared.locale.NoOpLocaleStore
 
 @Composable
 @Suppress("FunctionName")
-fun WegoCustomerRoot(experienceProfile: ExperienceProfile = ExperienceProfile.STANDARD) {
-    val localeState = remember { AppLocaleState() }
-    SdcTheme(locale = localeState.locale) {
+fun WegoCustomerRoot(
+    experienceProfile: ExperienceProfile = ExperienceProfile.STANDARD,
+    localeStore: LocaleStore = NoOpLocaleStore,
+) {
+    val localeState = remember { AppLocaleState(store = localeStore) }
+    SdcTheme(locale = localeState.locale, useDarkColors = isSystemInDarkTheme()) {
         Surface {
             WegoCustomerApp(localeState)
         }
@@ -79,7 +86,7 @@ private fun WegoCustomerApp(localeState: AppLocaleState) {
             )
         },
         bottomBar = {
-            NavigationBar(containerColor = SdcColor.surface) {
+            NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
                 for (destination in bottomNavDestinations) {
                     val selected = currentRoute == destination.route
                     NavigationBarItem(
@@ -99,15 +106,17 @@ private fun WegoCustomerApp(localeState: AppLocaleState) {
                                     Modifier
                                         .size(8.dp)
                                         .clip(CircleShape)
-                                        .background(if (selected) SdcColor.deepBright else SdcColor.border),
+                                        .background(
+                                            if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                        ),
                             )
                         },
                         label = { Text(navLabel(destination, locale)) },
                         colors =
                             NavigationBarItemDefaults.colors(
-                                selectedTextColor = SdcColor.deepBright,
-                                indicatorColor = SdcColor.turquoiseSoft,
-                                unselectedTextColor = SdcColor.textSecondary,
+                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                indicatorColor = MaterialTheme.colorScheme.surfaceVariant,
+                                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                             ),
                     )
                 }
@@ -127,6 +136,7 @@ private fun WegoCustomerApp(localeState: AppLocaleState) {
                         navController.navigate(AppDestination.Discover.navRoute(categoryId))
                     },
                     onOpenWhatsApp = { uriHandler.openUri(SiteCopy.WHATSAPP_URL) },
+                    onOpenTripAdvisor = { uriHandler.openUri(SiteCopy.TRIPADVISOR_URL) },
                 )
             }
             composable(
@@ -150,6 +160,11 @@ private fun WegoCustomerApp(localeState: AppLocaleState) {
             composable(
                 route = AppDestination.OfferingDetail.route,
                 arguments = listOf(navArgument(AppDestination.OfferingDetail.ARG_CODE) { type = NavType.StringType }),
+                deepLinks =
+                    listOf(
+                        navDeepLink { uriPattern = "sharmdiversclub://discover/{code}" },
+                        navDeepLink { uriPattern = "https://sharmdiversclub.com/discover/{code}" },
+                    ),
             ) { entry ->
                 val code = entry.arguments?.read { getStringOrNull(AppDestination.OfferingDetail.ARG_CODE) }.orEmpty()
                 OfferingDetailScreen(

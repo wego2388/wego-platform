@@ -31,5 +31,6 @@ android {
 
 dependencies {
     implementation(project(":mobile:apps:customer"))
+    implementation(project(":mobile:shared"))
     implementation(libs.androidx.activity.compose)
 }

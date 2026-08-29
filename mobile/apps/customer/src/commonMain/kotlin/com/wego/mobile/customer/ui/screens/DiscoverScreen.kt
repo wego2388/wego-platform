@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.wego.mobile.customer.content.SiteCopy
 import com.wego.mobile.customer.design.SdcCard
-import com.wego.mobile.customer.design.SdcColor
+import com.wego.mobile.customer.design.SdcCategoryIcon
 import com.wego.mobile.customer.design.SdcMockPhoto
 import com.wego.mobile.customer.design.SdcSpace
 import com.wego.mobile.shared.catalog.Categories
@@ -73,6 +73,7 @@ fun DiscoverScreen(
                     selected = selectedCategory == category.id,
                     onClick = { selectedCategory = category.id },
                     label = { Text(category.title.of(locale)) },
+                    leadingIcon = { SdcCategoryIcon(category.id, tint = MaterialTheme.colorScheme.primary, iconSize = 16.dp) },
                 )
             }
         }
@@ -111,20 +112,24 @@ fun OfferingRow(
             SdcMockPhoto(modifier = Modifier.size(64.dp))
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(SdcSpace.xs)) {
                 Text(offering.name.of(locale), style = MaterialTheme.typography.titleMedium)
-                Text(offering.audience.label(locale), style = MaterialTheme.typography.bodySmall, color = SdcColor.textSecondary)
+                Text(
+                    offering.audience.label(locale),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 val meta =
                     listOfNotNull(
                         durationLabel(locale, offering.durationMinutes),
                         diveCountLabel(locale, offering.diveCount),
                     ).joinToString(" · ")
                 if (meta.isNotEmpty()) {
-                    Text(meta, style = MaterialTheme.typography.labelSmall, color = SdcColor.deepBright)
+                    Text(meta, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                 }
             }
             Text(
                 formatEur(offering.priceEur),
                 style = MaterialTheme.typography.titleMedium,
-                color = SdcColor.deepBright,
+                color = MaterialTheme.colorScheme.primary,
             )
         }
     }

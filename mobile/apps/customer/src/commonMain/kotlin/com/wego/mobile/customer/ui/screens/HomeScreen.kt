@@ -14,13 +14,16 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.wego.mobile.customer.content.SiteCopy
 import com.wego.mobile.customer.design.SdcBadge
 import com.wego.mobile.customer.design.SdcCard
-import com.wego.mobile.customer.design.SdcColor
+import com.wego.mobile.customer.design.SdcCategoryIcon
 import com.wego.mobile.customer.design.SdcSpace
 import com.wego.mobile.shared.catalog.Categories
 import com.wego.mobile.shared.catalog.CategoryId
@@ -33,6 +36,7 @@ fun HomeScreen(
     onBrowseAll: () -> Unit,
     onCategoryClick: (CategoryId) -> Unit,
     onOpenWhatsApp: () -> Unit,
+    onOpenTripAdvisor: () -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -44,7 +48,7 @@ fun HomeScreen(
                 Text(
                     SiteCopy.Hero.eyebrow.of(locale),
                     style = MaterialTheme.typography.labelLarge,
-                    color = SdcColor.deepBright,
+                    color = MaterialTheme.colorScheme.primary,
                 )
                 Text(SiteCopy.Hero.title.of(locale), style = MaterialTheme.typography.headlineMedium)
                 Text(SiteCopy.Hero.body.of(locale), style = MaterialTheme.typography.bodyLarge)
@@ -67,6 +71,17 @@ fun HomeScreen(
         }
 
         item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                StatBlock(SiteCopy.Stats.CATEGORIES_VALUE, SiteCopy.Stats.categoriesLabel.of(locale))
+                StatBlock(SiteCopy.Stats.LANGUAGES_VALUE, SiteCopy.Stats.languagesLabel.of(locale))
+                StatBlock(SiteCopy.Stats.PADI_VALUE, SiteCopy.Stats.padiLabel.of(locale))
+            }
+        }
+
+        item {
             Text(
                 SiteCopy.Discover.heading.of(locale),
                 style = MaterialTheme.typography.titleLarge,
@@ -77,17 +92,27 @@ fun HomeScreen(
         items(Categories.all) { category ->
             SdcCard(
                 modifier = Modifier.fillMaxWidth(),
-                containerColor = SdcColor.turquoiseSoft,
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
                 onClick = { onCategoryClick(category.id) },
             ) {
-                Column(modifier = Modifier.padding(SdcSpace.lg), verticalArrangement = Arrangement.spacedBy(SdcSpace.xs)) {
-                    Text(
-                        category.eyebrow.of(locale),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = SdcColor.deepBright,
-                    )
-                    Text(category.title.of(locale), style = MaterialTheme.typography.titleMedium, color = SdcColor.textPrimary)
-                    Text(category.description.of(locale), style = MaterialTheme.typography.bodyMedium, color = SdcColor.textSecondary)
+                Row(
+                    modifier = Modifier.padding(SdcSpace.lg),
+                    horizontalArrangement = Arrangement.spacedBy(SdcSpace.md),
+                ) {
+                    SdcCategoryIcon(category.id, tint = MaterialTheme.colorScheme.primary, iconSize = 28.dp)
+                    Column(verticalArrangement = Arrangement.spacedBy(SdcSpace.xs)) {
+                        Text(
+                            category.eyebrow.of(locale),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                        Text(category.title.of(locale), style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            category.description.of(locale),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
         }
@@ -97,8 +122,77 @@ fun HomeScreen(
                 SiteCopy.Discover.pricingNotice.of(locale),
                 style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.Start,
-                modifier = Modifier.fillMaxWidth().padding(top = SdcSpace.xs, bottom = SdcSpace.xxl),
+                modifier = Modifier.fillMaxWidth().padding(top = SdcSpace.xs),
             )
         }
+
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(SdcSpace.sm), modifier = Modifier.padding(top = SdcSpace.md)) {
+                Text(SiteCopy.How.heading.of(locale), style = MaterialTheme.typography.titleLarge)
+                Text(SiteCopy.How.body.of(locale), style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+
+        items(SiteCopy.How.steps) { (title, body) ->
+            SdcCard(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(SdcSpace.lg), verticalArrangement = Arrangement.spacedBy(SdcSpace.xs)) {
+                    Text(title.of(locale), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                    Text(body.of(locale), style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        }
+
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(SdcSpace.sm), modifier = Modifier.padding(top = SdcSpace.md)) {
+                Text(SiteCopy.Personas.heading.of(locale), style = MaterialTheme.typography.titleLarge)
+                Text(SiteCopy.Personas.body.of(locale), style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+
+        items(SiteCopy.Personas.items) { (name, body) ->
+            SdcCard(modifier = Modifier.fillMaxWidth(), containerColor = MaterialTheme.colorScheme.tertiaryContainer) {
+                Column(modifier = Modifier.padding(SdcSpace.lg), verticalArrangement = Arrangement.spacedBy(SdcSpace.xs)) {
+                    Text(name.of(locale), style = MaterialTheme.typography.titleMedium)
+                    Text(body.of(locale), style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        }
+
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(SdcSpace.sm), modifier = Modifier.padding(top = SdcSpace.md)) {
+                Text(SiteCopy.Why.heading.of(locale), style = MaterialTheme.typography.titleLarge)
+                Text(SiteCopy.Why.body.of(locale), style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+
+        items(SiteCopy.Why.items) { (title, body) ->
+            SdcCard(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(SdcSpace.lg), verticalArrangement = Arrangement.spacedBy(SdcSpace.xs)) {
+                    Text(title.of(locale), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                    Text(body.of(locale), style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        }
+
+        item {
+            TextButton(
+                onClick = onOpenTripAdvisor,
+                modifier = Modifier.fillMaxWidth().padding(top = SdcSpace.sm, bottom = SdcSpace.xxl),
+            ) {
+                Text(SiteCopy.tripadvisorLabel.of(locale))
+            }
+        }
+    }
+}
+
+@Composable
+@Suppress("FunctionName")
+private fun StatBlock(
+    value: String,
+    label: String,
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(value, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

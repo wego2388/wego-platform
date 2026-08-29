@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.wego.mobile.customer.content.SiteCopy
 import com.wego.mobile.customer.design.SdcCard
-import com.wego.mobile.customer.design.SdcColor
 import com.wego.mobile.customer.design.SdcSpace
 import com.wego.mobile.shared.locale.AppLocale
 
@@ -35,12 +34,12 @@ fun AboutScreen(locale: AppLocale) {
         )
         Column(verticalArrangement = Arrangement.spacedBy(SdcSpace.sm)) {
             for ((label, value) in SiteCopy.About.facts) {
-                SdcCard(modifier = Modifier.fillMaxWidth(), containerColor = SdcColor.turquoiseSoft) {
+                SdcCard(modifier = Modifier.fillMaxWidth(), containerColor = MaterialTheme.colorScheme.surfaceVariant) {
                     Column(modifier = Modifier.padding(SdcSpace.md + SdcSpace.xs)) {
                         Text(
                             label.of(locale),
                             style = MaterialTheme.typography.labelSmall,
-                            color = SdcColor.deepBright,
+                            color = MaterialTheme.colorScheme.primary,
                         )
                         Text(value.of(locale), style = MaterialTheme.typography.bodyMedium)
                     }

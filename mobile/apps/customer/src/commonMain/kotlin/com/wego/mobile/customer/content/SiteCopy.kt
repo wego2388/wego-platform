@@ -14,6 +14,9 @@ object SiteCopy {
     const val WHATSAPP_URL = "https://wa.me/201066461010"
     const val PHONE_DISPLAY = "+20 10 6646 1010"
     const val EMAIL = "Sales@sharmdiversclub.com"
+    const val TRIPADVISOR_URL =
+        "https://www.tripadvisor.com/Attraction_Review-g297555-d27124030-Reviews-Sharm_Divers_Club-" +
+            "Sharm_El_Sheikh_South_Sinai_Red_Sea_and_Sinai.html"
 
     val location =
         LocalizedText(
@@ -51,6 +54,102 @@ object SiteCopy {
             LocalizedText("Send an inquiry on WhatsApp", "ابعت طلبك على واتساب"),
             LocalizedText("Team speaks 5 languages", "الفريق بيتكلم 5 لغات"),
         )
+
+    object Stats {
+        val categoriesLabel = LocalizedText("Categories", "الفئات")
+        val languagesLabel = LocalizedText("Team languages", "لغات الفريق")
+        val padiLabel = LocalizedText("PADI star rating", "تصنيف PADI بالنجوم")
+        const val CATEGORIES_VALUE = "7"
+        const val LANGUAGES_VALUE = "5"
+        const val PADI_VALUE = "5★"
+    }
+
+    object How {
+        val heading = LocalizedText("A conversation first, a confirmation second", "الأول محادثة، وبعدها تأكيد")
+        val body =
+            LocalizedText(
+                "There is no self-service checkout in this app yet — every booking is created by our team, " +
+                    "so every request starts as a direct WhatsApp conversation.",
+                "مفيش حجز ذاتي فوري في التطبيق لسه — كل حجز بيتعمل من فريقنا، فكل طلب بيبدأ بمحادثة مباشرة على " +
+                    "واتساب.",
+            )
+        val steps: List<Pair<LocalizedText, LocalizedText>> =
+            listOf(
+                LocalizedText("1. Message us", "١. راسلنا") to
+                    LocalizedText(
+                        "Tell us what you're after — a first dive, a certification, or a multi-day plan.",
+                        "قولنا محتاج إيه — غطسة أولى، شهادة، أو خطة عدة أيام.",
+                    ),
+                LocalizedText("2. We confirm details", "٢. نأكد التفاصيل") to
+                    LocalizedText(
+                        "Our team checks the date, group size and price with you before anything is booked.",
+                        "فريقنا بيتأكد معاك من الموعد وعدد الأفراد والسعر قبل أي حجز.",
+                    ),
+                LocalizedText("3. You're booked", "٣. اتحجزت") to
+                    LocalizedText(
+                        "Once confirmed, your dive or course is on our schedule — no separate account needed.",
+                        "بعد التأكيد، غطستك أو دورتك تبقى في جدولنا — من غير أي حساب إضافي.",
+                    ),
+            )
+    }
+
+    object Why {
+        val heading = LocalizedText("Clear before. Personal during. Memorable after.", "قبل الرحلة وضوح. أثناءها اهتمام شخصي. وبعدها ذكرى.")
+        val body =
+            LocalizedText(
+                "Sharm Divers Club's own promise to every diver, not a marketing slogan invented for this app.",
+                "وعد Sharm Divers Club لكل غواص، مش شعار تسويقي مختلق لأجل التطبيق ده.",
+            )
+        val items: List<Pair<LocalizedText, LocalizedText>> =
+            listOf(
+                LocalizedText("Before the dive", "قبل الرحلة") to
+                    LocalizedText("No ambiguity about the plan or what's expected of you.", "مفيش غموض في البرنامج ولا في المطلوب منك."),
+                LocalizedText("During the experience", "أثناء التجربة") to
+                    LocalizedText(
+                        "You always know who's responsible for you and what happens next.",
+                        "دايمًا عارف مين المسؤول عنك والخطوة الجاية إيه.",
+                    ),
+                LocalizedText("After you surface", "بعد ما تطلع") to
+                    LocalizedText(
+                        "We follow up after your dive — and give you a real reason to come back.",
+                        "بنتابع معاك بعد الغطسة — وبنديك سبب حقيقي للرجوع.",
+                    ),
+            )
+    }
+
+    object Personas {
+        val heading = LocalizedText("Built around who you are, not a generic offer list", "مبني حول شخصيتك، مش قائمة عروض عامة")
+        val body =
+            LocalizedText(
+                "Sharm Divers Club's own brand direction defines who this experience is designed for.",
+                "توجه العلامة التجارية لـSharm Divers Club بيحدد لمين مصممة التجربة دي.",
+            )
+        val items: List<Pair<LocalizedText, LocalizedText>> =
+            listOf(
+                LocalizedText("First Breath", "First Breath") to
+                    LocalizedText(
+                        "Never dived before, and a little nervous about it. Gets a simple explanation, not a wall of jargon.",
+                        "ماغطسش قبل كده وحاسس بتوتر شوية. بياخد شرح بسيط، مش مصطلحات معقدة.",
+                    ),
+                LocalizedText("Certified Explorer", "Certified Explorer") to
+                    LocalizedText(
+                        "Has a certification and limited time. Wants clear logistics and honest availability.",
+                        "معاه شهادة ووقته محدود. عايز لوجستيات واضحة وتوفر حقيقي.",
+                    ),
+                LocalizedText("Red Sea Collector", "Red Sea Collector") to
+                    LocalizedText(
+                        "A repeat diver chasing Tiran, Ras Mohammed, Thistlegorm and Dahab, plus a real dive record.",
+                        "غواص متكرر بيدور على تيران ورأس محمد وThistlegorm ودهب، وسجل غطسات حقيقي.",
+                    ),
+                LocalizedText("Partner Planner", "Partner Planner") to
+                    LocalizedText(
+                        "A hotel, agent or group organizer who needs speed, clear terms and one responsible contact.",
+                        "فندق أو وكيل أو منظم مجموعات محتاج سرعة وشروط واضحة ومسؤول واحد.",
+                    ),
+            )
+    }
+
+    val tripadvisorLabel = LocalizedText("Find us on TripAdvisor", "شوفنا على TripAdvisor")
 
     object Discover {
         val heading = LocalizedText("Real 2026 prices, one inquiry away", "أسعار 2026 حقيقية، على بعد رسالة واحدة")
