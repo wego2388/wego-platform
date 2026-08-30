@@ -41,8 +41,8 @@ export const diveSites: DiveSite[] = [
     slug: "thistlegorm",
     name: { en: "SS Thistlegorm", ar: "SS Thistlegorm" },
     blurb: {
-      en: "SS Thistlegorm is a British WWII cargo ship that sank in the northern Red Sea in 1941 — one of the world's best-known wreck dives.",
-      ar: "SS Thistlegorm سفينة شحن بريطانية غرقت في شمال البحر الأحمر عام 1941 خلال الحرب العالمية الثانية — من أشهر مواقع غوص الحطام في العالم.",
+      en: "SS Thistlegorm is a British WWII cargo ship that sank in the northern Red Sea in 1941 — named one of the world's top ten wreck dives by The Times.",
+      ar: "SS Thistlegorm سفينة شحن بريطانية غرقت في شمال البحر الأحمر عام 1941 خلال الحرب العالمية الثانية — اختارتها صحيفة The Times كواحدة من أفضل 10 مواقع غوص حطام في العالم.",
     },
     offeringCodes: ["WC01"],
   },
@@ -50,8 +50,8 @@ export const diveSites: DiveSite[] = [
     slug: "dahab-blue-hole-canyon",
     name: { en: "Dahab Blue Hole & Canyon", ar: "دهب Blue Hole وCanyon" },
     blurb: {
-      en: "The Blue Hole and Canyon are well-known dive sites on Sinai's Gulf of Aqaba coast, near Dahab.",
-      ar: "Blue Hole وCanyon من أشهر مواقع الغوص على ساحل خليج العقبة في سيناء، بالقرب من دهب.",
+      en: "The Blue Hole and Canyon are well-known dive sites on Sinai's Red Sea coast, near Dahab.",
+      ar: "Blue Hole وCanyon من أشهر مواقع الغوص على ساحل البحر الأحمر في سيناء، بالقرب من دهب.",
     },
     offeringCodes: ["WC02"],
   },

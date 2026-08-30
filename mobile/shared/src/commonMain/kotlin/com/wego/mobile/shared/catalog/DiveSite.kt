@@ -50,9 +50,9 @@ object DiveSites {
                 blurb =
                     LocalizedText(
                         "SS Thistlegorm is a British WWII cargo ship that sank in the northern Red Sea in 1941 " +
-                            "— one of the world's best-known wreck dives.",
+                            "— named one of the world's top ten wreck dives by The Times.",
                         "SS Thistlegorm سفينة شحن بريطانية غرقت في شمال البحر الأحمر عام 1941 خلال الحرب العالمية " +
-                            "الثانية — من أشهر مواقع غوص الحطام في العالم.",
+                            "الثانية — اختارتها صحيفة The Times كواحدة من أفضل 10 مواقع غوص حطام في العالم.",
                     ),
                 offeringCodes = listOf("WC01"),
             ),
@@ -61,9 +61,9 @@ object DiveSites {
                 name = LocalizedText("Dahab Blue Hole & Canyon", "دهب Blue Hole وCanyon"),
                 blurb =
                     LocalizedText(
-                        "The Blue Hole and Canyon are well-known dive sites on Sinai's Gulf of Aqaba coast, near " +
+                        "The Blue Hole and Canyon are well-known dive sites on Sinai's Red Sea coast, near " +
                             "Dahab.",
-                        "Blue Hole وCanyon من أشهر مواقع الغوص على ساحل خليج العقبة في سيناء، بالقرب من دهب.",
+                        "Blue Hole وCanyon من أشهر مواقع الغوص على ساحل البحر الأحمر في سيناء، بالقرب من دهب.",
                     ),
                 offeringCodes = listOf("WC02"),
             ),
