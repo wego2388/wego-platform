@@ -51,6 +51,25 @@ class JooqUserRepository(
         return toDomain(record)
     }
 
+    @Transactional
+    override fun findByIdForUpdate(id: UserId): User? {
+        val record =
+            dsl
+                .selectFrom(IDENTITY_USER)
+                .where(IDENTITY_USER.ID.eq(id.value))
+                .forUpdate()
+                .fetchOne() ?: return null
+        return toDomain(record)
+    }
+
+    @Transactional(readOnly = true)
+    override fun findAll(): List<User> =
+        dsl
+            .selectFrom(IDENTITY_USER)
+            .orderBy(IDENTITY_USER.CREATED_AT.desc(), IDENTITY_USER.ID)
+            .fetch()
+            .map(::toDomain)
+
     @Transactional(readOnly = true)
     override fun existsAny(): Boolean = dsl.fetchExists(dsl.selectFrom(IDENTITY_USER))
 

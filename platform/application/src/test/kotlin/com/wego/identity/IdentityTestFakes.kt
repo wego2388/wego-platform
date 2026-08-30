@@ -72,6 +72,10 @@ internal class InMemoryUserRepository : UserRepository {
 
     override fun findById(id: UserId): User? = byId[id]
 
+    override fun findByIdForUpdate(id: UserId): User? = findById(id)
+
+    override fun findAll(): List<User> = byId.values.sortedByDescending { it.createdAt }
+
     override fun existsAny(): Boolean = byId.isNotEmpty()
 
     override fun lockBootstrap() = Unit
@@ -186,5 +190,78 @@ internal class RecordingAuditRecorder : IdentityAuditRecorder {
         correlationId: UUID?,
     ) {
         permissionDenials += userId to permission
+    }
+
+    val userCreations = mutableListOf<Pair<UserId, UserId>>()
+    val userDisables = mutableListOf<Pair<UserId, UserId>>()
+    val userEnables = mutableListOf<Pair<UserId, UserId>>()
+    val userPasswordResets = mutableListOf<Pair<UserId, UserId>>()
+    val userRoleChanges = mutableListOf<Triple<UserId, UserId, Set<String>>>()
+    val roleCreations = mutableListOf<Pair<UserId, String>>()
+    val rolePermissionChanges = mutableListOf<Triple<UserId, String, Set<String>>>()
+
+    override fun recordUserCreated(
+        actorUserId: UserId,
+        targetUserId: UserId,
+        occurredAt: Instant,
+        correlationId: UUID?,
+    ) {
+        userCreations += actorUserId to targetUserId
+    }
+
+    override fun recordUserDisabled(
+        actorUserId: UserId,
+        targetUserId: UserId,
+        occurredAt: Instant,
+        correlationId: UUID?,
+    ) {
+        userDisables += actorUserId to targetUserId
+    }
+
+    override fun recordUserEnabled(
+        actorUserId: UserId,
+        targetUserId: UserId,
+        occurredAt: Instant,
+        correlationId: UUID?,
+    ) {
+        userEnables += actorUserId to targetUserId
+    }
+
+    override fun recordUserPasswordReset(
+        actorUserId: UserId,
+        targetUserId: UserId,
+        occurredAt: Instant,
+        correlationId: UUID?,
+    ) {
+        userPasswordResets += actorUserId to targetUserId
+    }
+
+    override fun recordUserRolesChanged(
+        actorUserId: UserId,
+        targetUserId: UserId,
+        newRoles: Set<String>,
+        occurredAt: Instant,
+        correlationId: UUID?,
+    ) {
+        userRoleChanges += Triple(actorUserId, targetUserId, newRoles)
+    }
+
+    override fun recordRoleCreated(
+        actorUserId: UserId,
+        roleCode: String,
+        occurredAt: Instant,
+        correlationId: UUID?,
+    ) {
+        roleCreations += actorUserId to roleCode
+    }
+
+    override fun recordRolePermissionsChanged(
+        actorUserId: UserId,
+        roleCode: String,
+        newPermissions: Set<String>,
+        occurredAt: Instant,
+        correlationId: UUID?,
+    ) {
+        rolePermissionChanges += Triple(actorUserId, roleCode, newPermissions)
     }
 }

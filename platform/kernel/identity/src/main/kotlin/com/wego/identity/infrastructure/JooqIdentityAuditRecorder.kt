@@ -81,6 +81,78 @@ class JooqIdentityAuditRecorder(
         )
     }
 
+    @Transactional
+    override fun recordUserCreated(
+        actorUserId: UserId,
+        targetUserId: UserId,
+        occurredAt: Instant,
+        correlationId: UUID?,
+    ) = insert("USER_CREATED", occurredAt, actorUserId.value, null, targetUserId.value.toString(), correlationId)
+
+    @Transactional
+    override fun recordUserDisabled(
+        actorUserId: UserId,
+        targetUserId: UserId,
+        occurredAt: Instant,
+        correlationId: UUID?,
+    ) = insert("USER_DISABLED", occurredAt, actorUserId.value, null, targetUserId.value.toString(), correlationId)
+
+    @Transactional
+    override fun recordUserEnabled(
+        actorUserId: UserId,
+        targetUserId: UserId,
+        occurredAt: Instant,
+        correlationId: UUID?,
+    ) = insert("USER_ENABLED", occurredAt, actorUserId.value, null, targetUserId.value.toString(), correlationId)
+
+    @Transactional
+    override fun recordUserPasswordReset(
+        actorUserId: UserId,
+        targetUserId: UserId,
+        occurredAt: Instant,
+        correlationId: UUID?,
+    ) = insert("USER_PASSWORD_RESET", occurredAt, actorUserId.value, null, targetUserId.value.toString(), correlationId)
+
+    @Transactional
+    override fun recordUserRolesChanged(
+        actorUserId: UserId,
+        targetUserId: UserId,
+        newRoles: Set<String>,
+        occurredAt: Instant,
+        correlationId: UUID?,
+    ) = insert(
+        "USER_ROLES_CHANGED",
+        occurredAt,
+        actorUserId.value,
+        null,
+        "${targetUserId.value} -> ${newRoles.sorted().joinToString(",")}",
+        correlationId,
+    )
+
+    @Transactional
+    override fun recordRoleCreated(
+        actorUserId: UserId,
+        roleCode: String,
+        occurredAt: Instant,
+        correlationId: UUID?,
+    ) = insert("ROLE_CREATED", occurredAt, actorUserId.value, null, roleCode, correlationId)
+
+    @Transactional
+    override fun recordRolePermissionsChanged(
+        actorUserId: UserId,
+        roleCode: String,
+        newPermissions: Set<String>,
+        occurredAt: Instant,
+        correlationId: UUID?,
+    ) = insert(
+        "ROLE_PERMISSIONS_CHANGED",
+        occurredAt,
+        actorUserId.value,
+        null,
+        "$roleCode -> ${newPermissions.sorted().joinToString(",")}",
+        correlationId,
+    )
+
     private fun insert(
         eventType: String,
         occurredAt: Instant,

@@ -62,20 +62,85 @@ class UserTest {
     @Test
     fun `a disabled user cannot authenticate even without lockout`() {
         val user = bootstrapUser()
-        // status is only mutable via package-internal transitions in later packets;
-        // this test documents current behaviour via the constructor directly.
-        val disabled =
-            User(
-                id = user.id,
-                email = user.email,
-                passwordHash = user.passwordHash,
-                status = UserStatus.DISABLED,
-                roles = user.roles,
-                createdAt = user.createdAt,
-                failedLoginCount = 0,
-                lockedUntil = null,
+        user.disable()
+        assertThat(user.canAuthenticate(now)).isFalse()
+    }
+
+    @Test
+    fun `disabling an already-disabled account is rejected`() {
+        val user = bootstrapUser()
+        user.disable()
+        assertThatIllegalArgumentException().isThrownBy { user.disable() }
+    }
+
+    @Test
+    fun `enabling a disabled account restores authentication`() {
+        val user = bootstrapUser()
+        user.disable()
+        user.enable()
+        assertThat(user.status).isEqualTo(UserStatus.ACTIVE)
+        assertThat(user.canAuthenticate(now)).isTrue()
+    }
+
+    @Test
+    fun `enabling an already-active account is rejected`() {
+        val user = bootstrapUser()
+        assertThatIllegalArgumentException().isThrownBy { user.enable() }
+    }
+
+    @Test
+    fun `re-enabling does not clear a real lockout still in effect`() {
+        val user = bootstrapUser()
+        repeat(5) { user.registerFailedLogin(now, maxAttempts = 5, lockoutDuration = Duration.ofMinutes(15)) }
+        assertThat(user.isLocked(now)).isTrue()
+
+        user.disable()
+        user.enable()
+
+        assertThat(user.isLocked(now)).isTrue()
+        assertThat(user.canAuthenticate(now)).isFalse()
+    }
+
+    @Test
+    fun `changing the password replaces the stored hash`() {
+        val user = bootstrapUser()
+        val newHash = HashedPassword.of("a-different-hash")
+        user.changePassword(newHash)
+        assertThat(user.passwordHash).isEqualTo(newHash)
+    }
+
+    @Test
+    fun `assigning roles replaces the full role set`() {
+        val user = bootstrapUser()
+        user.assignRoles(setOf(RoleCode.of("front-desk"), RoleCode.of("accountant")))
+        assertThat(user.roles).containsExactlyInAnyOrder(RoleCode.of("front-desk"), RoleCode.of("accountant"))
+    }
+
+    @Test
+    fun `assigning an empty role set is rejected`() {
+        val user = bootstrapUser()
+        assertThatIllegalArgumentException().isThrownBy { user.assignRoles(emptySet()) }
+    }
+
+    @Test
+    fun `create rejects an empty role set`() {
+        assertThatIllegalArgumentException().isThrownBy {
+            User.create(EmailAddress.of("new@example.com"), HashedPassword.of("hash"), emptySet(), now)
+        }
+    }
+
+    @Test
+    fun `create builds a real active user with the given roles`() {
+        val user =
+            User.create(
+                EmailAddress.of("new@example.com"),
+                HashedPassword.of("hash"),
+                setOf(RoleCode.of("front-desk")),
+                now,
             )
-        assertThat(disabled.canAuthenticate(now)).isFalse()
+        assertThat(user.status).isEqualTo(UserStatus.ACTIVE)
+        assertThat(user.roles).containsExactly(RoleCode.of("front-desk"))
+        assertThat(user.canAuthenticate(now)).isTrue()
     }
 
     @Test

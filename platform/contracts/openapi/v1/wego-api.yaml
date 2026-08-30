@@ -156,6 +156,355 @@ paths:
                 $ref: "#/components/schemas/IdentityProfile"
         "401":
           $ref: "#/components/responses/UnauthenticatedResponse"
+  /api/v1/identity/users:
+    get:
+      operationId: listStaffUsers
+      summary: List staff accounts
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: All staff accounts.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StaffUser"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    post:
+      operationId: createStaffUser
+      summary: Create a staff account
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStaffUserRequest"
+      responses:
+        "201":
+          description: Account created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffUser"
+        "400":
+          description: An unknown role code was requested.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityAdminError"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "409":
+          description: The email is already in use.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityAdminError"
+  /api/v1/identity/users/{id}/disable:
+    post:
+      operationId: disableStaffUser
+      summary: Disable a staff account
+      description: An account cannot disable itself — see `cannot_disable_self`.
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Account disabled.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffUser"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No account with that id.
+        "409":
+          description: Already disabled, or the caller tried to disable their own account.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityAdminError"
+  /api/v1/identity/users/{id}/enable:
+    post:
+      operationId: enableStaffUser
+      summary: Re-enable a disabled staff account
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Account re-enabled.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffUser"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No account with that id.
+        "409":
+          description: Already active.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityAdminError"
+  /api/v1/identity/users/{id}/reset-password:
+    post:
+      operationId: resetStaffUserPassword
+      summary: Admin-set a staff account's password
+      description: >-
+        Sets the password directly — no email/token flow. The admin tells the
+        new password to the employee outside the system.
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - newPassword
+              properties:
+                newPassword:
+                  type: string
+      responses:
+        "200":
+          description: Password reset.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffUser"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No account with that id.
+  /api/v1/identity/users/{id}/roles:
+    put:
+      operationId: assignStaffUserRoles
+      summary: Replace a staff account's roles
+      description: An account cannot change its own roles — see `cannot_change_own_roles`.
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - roleCodes
+              properties:
+                roleCodes:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: Roles replaced.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffUser"
+        "400":
+          description: An unknown role code was requested.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityAdminError"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No account with that id.
+        "409":
+          description: The caller tried to change their own roles.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityAdminError"
+  /api/v1/identity/roles:
+    get:
+      operationId: listRoles
+      summary: List roles and their permissions
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: All roles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StaffRole"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    post:
+      operationId: createRole
+      summary: Create a role
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRoleRequest"
+      responses:
+        "201":
+          description: Role created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffRole"
+        "400":
+          description: An unknown permission code was requested.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityAdminError"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "409":
+          description: A role with that code already exists.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityAdminError"
+  /api/v1/identity/permissions:
+    get:
+      operationId: listPermissions
+      summary: List the full permission catalog
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Every permission code the platform enforces.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PermissionCatalogEntry"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/identity/roles/{code}/permissions:
+    put:
+      operationId: updateRolePermissions
+      summary: Replace a role's permission set
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - permissionCodes
+              properties:
+                permissionCodes:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: Permissions replaced.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffRole"
+        "400":
+          description: An unknown permission code was requested.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityAdminError"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No role with that code.
   /api/v1/divers/offerings:
     post:
       operationId: createOffering
@@ -2184,6 +2533,105 @@ components:
           type: array
           items:
             type: string
+    StaffUser:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - email
+        - status
+        - roles
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - DISABLED
+        roles:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+    CreateStaffUserRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - email
+        - password
+        - roleCodes
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        roleCodes:
+          type: array
+          items:
+            type: string
+    StaffRole:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - description
+        - permissions
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+    CreateRoleRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - description
+        - permissionCodes
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        permissionCodes:
+          type: array
+          items:
+            type: string
+    PermissionCatalogEntry:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - description
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    IdentityAdminError:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: >-
+            One of: email_already_in_use, unknown_role:<code>,
+            cannot_disable_self, already_disabled, already_active,
+            cannot_change_own_roles, role_already_exists,
+            unknown_permission:<code>.
     OfferingType:
       type: string
       enum:
