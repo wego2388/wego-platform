@@ -23,7 +23,10 @@ nested inside or coupled to the other.
 - [Service ownership model](SERVICE_OWNERSHIP.md)
 - [Locale and content matrix](LOCALES_AND_CONTENT.md)
 - [Reference study](REFERENCE_STUDY.md)
-- [Execution plan](EXECUTION_PLAN.md)
+- [Execution plan](EXECUTION_PLAN.md) — phase overview; see
+  [Technical execution plan](TECHNICAL_EXECUTION_PLAN.md) for the real
+  schema/screens/tests detail behind each phase, across website, dashboard,
+  and the new dedicated mobile app.
 - [Complete design handoff](design/README.md)
 
 ## Executable design routes
