@@ -90,8 +90,11 @@ class DiveSitesAndPackageBuilderTest {
             onAllNodesWithText("Add")[0].performClick()
             onNodeWithText("Send this package on WhatsApp").performClick()
 
+            // DiveCatalog.offerings[0] is SD02 at a real €50 — assert the actual offering code and its
+            // percent-encoded price ("€" -> %E2%82%AC) appear in the URL, not just the generic wrapper
+            // words ("Estimated"/"total") every package would produce regardless of which offering it holds.
             val url = openedUrls.single()
-            assertTrue(url.contains("Estimated"), url)
-            assertTrue(url.contains("total"), url)
+            assertTrue(url.contains("SD02"), url)
+            assertTrue(url.contains("%E2%82%AC50"), url)
         }
 }

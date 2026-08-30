@@ -51,17 +51,32 @@ describe("GET /api/conditions", () => {
     expect(result.sea).toBeNull();
   });
 
-  it("falls back to null instead of throwing when the upstream request is aborted", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => {
-        throw new DOMException("The operation was aborted", "AbortError");
-      }),
-    );
+  it("falls back to null instead of throwing when the upstream request genuinely times out", async () => {
+    // Deliberately does NOT fake an immediate AbortError — a mock that rejects on its own would pass
+    // even if fetchWithTimeout's real AbortController/setTimeout logic were deleted entirely. Instead
+    // the mock hangs forever and only rejects when the real `signal` it was given actually fires its
+    // "abort" event, so this test only passes if the real 8s timer genuinely aborts the real signal.
+    vi.useFakeTimers();
+    try {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn((_url: string, init?: { signal?: AbortSignal }) => {
+          return new Promise<Response>((_resolve, reject) => {
+            init?.signal?.addEventListener("abort", () => {
+              reject(new DOMException("The operation was aborted", "AbortError"));
+            });
+          });
+        }),
+      );
 
-    const result = await handler({} as never);
+      const resultPromise = handler({} as never);
+      await vi.advanceTimersByTimeAsync(8000);
+      const result = await resultPromise;
 
-    expect(result.air).toBeNull();
-    expect(result.sea).toBeNull();
+      expect(result.air).toBeNull();
+      expect(result.sea).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

@@ -218,6 +218,7 @@ class BoatCharterCapacityConcurrencyIntegrationTest {
         val ready = CountDownLatch(actions.size)
         val start = CountDownLatch(1)
         val done = CountDownLatch(actions.size)
+        val errors = java.util.Collections.synchronizedList(mutableListOf<Throwable>())
 
         actions.forEach { action ->
             pool.submit {
@@ -225,8 +226,8 @@ class BoatCharterCapacityConcurrencyIntegrationTest {
                 start.await()
                 try {
                     action()
-                } catch (_: Exception) {
-                    // A rejected outcome under real contention is expected.
+                } catch (error: Throwable) {
+                    errors += error
                 } finally {
                     done.countDown()
                 }
@@ -237,6 +238,9 @@ class BoatCharterCapacityConcurrencyIntegrationTest {
         start.countDown()
         assertThat(done.await(60, TimeUnit.SECONDS)).isTrue()
         pool.shutdown()
+        // Every outcome here is a sealed Result value, not a thrown exception — a real exception under
+        // concurrency is a bug, not an expected rejection, so it must fail the test, not vanish silently.
+        assertThat(errors).withFailMessage { "Unexpected exceptions under concurrency: ${errors.map { it.toString() }}" }.isEmpty()
     }
 
     companion object {

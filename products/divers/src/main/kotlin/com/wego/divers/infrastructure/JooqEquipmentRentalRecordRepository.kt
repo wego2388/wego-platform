@@ -51,6 +51,18 @@ class JooqEquipmentRentalRecordRepository(
     }
 
     @Transactional
+    override fun findOpenByEquipmentIdForUpdate(equipmentId: EquipmentId): EquipmentRentalRecord? {
+        val record =
+            dsl
+                .selectFrom(DIVERS_EQUIPMENT_RENTAL_RECORD)
+                .where(DIVERS_EQUIPMENT_RENTAL_RECORD.EQUIPMENT_ID.eq(equipmentId.value))
+                .and(DIVERS_EQUIPMENT_RENTAL_RECORD.RETURNED_ON.isNull())
+                .forUpdate()
+                .fetchOne() ?: return null
+        return toDomain(record)
+    }
+
+    @Transactional
     override fun save(record: EquipmentRentalRecord) {
         dsl
             .insertInto(DIVERS_EQUIPMENT_RENTAL_RECORD)

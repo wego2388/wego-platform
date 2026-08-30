@@ -36,6 +36,7 @@ class DiverTest {
         totalLoggedDives: Int = 0,
         maxDepthMeters: BigDecimal? = null,
         certifications: List<DiverCertification> = emptyList(),
+        medicalNotes: String? = null,
     ): Diver =
         Diver.create(
             id = DiverId.generate(),
@@ -46,7 +47,7 @@ class DiverTest {
             phone = phone,
             emergencyContactName = "Anna Isaacs",
             emergencyContactPhone = "+201066461010",
-            medicalNotes = null,
+            medicalNotes = medicalNotes,
             totalLoggedDives = totalLoggedDives,
             maxDepthMeters = maxDepthMeters,
             lastDiveOn = LocalDate.of(2026, 1, 1),
@@ -105,8 +106,8 @@ class DiverTest {
 
     @Test
     fun `archiving redacts emergency contact and medical notes`() {
-        val diver = create()
-        assertThat(diver.medicalNotes).isNull()
+        val diver = create(medicalNotes = "Mild penicillin allergy")
+        assertThat(diver.medicalNotes).isEqualTo("Mild penicillin allergy")
         assertThat(diver.emergencyContactName).isEqualTo("Anna Isaacs")
 
         diver.archive(Instant.parse("2026-09-01T00:00:00Z"))

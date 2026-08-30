@@ -22,9 +22,14 @@ class UpdateEquipmentService(
     private val equipmentRepository: EquipmentRepository,
     private val transactionRunner: TransactionRunner,
 ) {
+    // Row-locked: `withUpdatedDetails` copies the read `status` unchanged into the saved row, so an
+    // unlocked read here can race RetireEquipmentService/StartMaintenanceService — a plain label/size
+    // edit that read the row just before a concurrent retire/maintenance commit would overwrite that
+    // terminal status back to the stale pre-transition value. See EquipmentRepository.findByIdForUpdate.
     fun update(command: UpdateEquipmentCommand): UpdateEquipmentResult =
         transactionRunner.runInTransaction {
-            val existing = equipmentRepository.findById(command.equipmentId) ?: return@runInTransaction UpdateEquipmentResult.NotFound
+            val existing =
+                equipmentRepository.findByIdForUpdate(command.equipmentId) ?: return@runInTransaction UpdateEquipmentResult.NotFound
             val updated = existing.withUpdatedDetails(command.label, command.itemSize, command.serialNumber)
             equipmentRepository.save(updated)
             UpdateEquipmentResult.Updated(updated)

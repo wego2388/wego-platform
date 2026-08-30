@@ -15,12 +15,15 @@ implementing engineer per the owner's explicit delegation (2026-08-30: "مواق
 Every blurb below is deliberately limited to what's in this table — no depth, visibility, or
 marine-life claim is published anywhere, since none has a source recorded here.
 
-| Site | Claim | Basis |
+Each source below was independently fetched and checked against its claim on 2026-08-30, not cited
+on the strength of a suggested URL alone.
+
+| Site | Claim | Source |
 |---|---|---|
-| Ras Mohammed | Sits at the southern tip of the Sinai Peninsula, where the Gulf of Suez meets the Gulf of Aqaba. | Ras Mohammed National Park's real, well-documented geographic location — a gazetted Egyptian national park at Sinai's southern tip, established 1983. |
-| Tiran | Sits in the Strait of Tiran, between the Sinai Peninsula and Saudi Arabia, at the mouth of the Gulf of Aqaba. | Real, well-documented strait geography — Tiran Island is the strait's namesake island, at the Gulf of Aqaba's entrance. |
-| SS Thistlegorm | A British WWII cargo ship that sank in the northern Red Sea in 1941. | Real, extensively documented maritime history — a British Merchant Navy ship, sunk by German aircraft on 6 October 1941, one of the most surveyed wreck dives in the world since Jacques Cousteau's original 1956 discovery. |
-| Dahab Blue Hole & Canyon | Well-known dive sites on Sinai's Gulf of Aqaba coast, near Dahab. | Real, well-documented geography — both are established, named dive sites on the coast north of Dahab, on the Gulf of Aqaba. |
+| Ras Mohammed | Sits at the southern tip of the Sinai Peninsula, where the Gulf of Suez meets the Gulf of Aqaba. | Egyptian Environmental Affairs Agency (EEAA), "Ras Mohammed" protected-area profile — states the reserve "تقع عند التقاء خليج السويس وخليج العقبة" (is located at the meeting point of the Gulf of Suez and Gulf of Aqaba) and gives its 1983 announcement date. `https://www.eeaa.gov.eg/Topics/85/36/65/Details`. Accessed 2026-08-30. |
+| Tiran | Sits in the Strait of Tiran, between the Sinai Peninsula and Saudi Arabia, at the mouth of the Gulf of Aqaba. | NASA Earth Observatory, "Strait of Tiran, Red Sea and Gulf of Aqaba" — describes the strait as separating the Gulf of Aqaba from the Red Sea, between Egypt's Sinai Peninsula and Saudi Arabia. `https://science.nasa.gov/earth/earth-observatory/strait-of-tiran-red-sea-and-gulf-of-aqaba-81772/`. Accessed 2026-08-30. |
+| SS Thistlegorm | A British WWII cargo ship that sank in the northern Red Sea in 1941. | Imperial War Museums (IWM) Film catalogue record — archival entry describing "the sinking of the British merchantman SS Thistlegorm by enemy bombing in the Red Sea on 6 October 1941." `https://film.iwmcollections.org.uk/record/32973`. Accessed 2026-08-30. |
+| Dahab Blue Hole & Canyon | Well-known dive sites on Sinai's Gulf of Aqaba coast, near Dahab. | Chamber of Diving and Watersports (CDWS) — Egypt's official diving-industry body — Dahab dive-site listing naming and describing both the Blue Hole and the Canyon, with coordinates, on the Dahab coast. `https://cdws.travel/divesites/dahab`. Accessed 2026-08-30. |
 
 **Reviewed and approved by:** Claude Code (implementing engineer), 2026-08-30, as part of the
 independent Tier 1 review remediation round — see `docs/execution/WEGO_EXECUTION_BOARD.md`'s WEGO-011

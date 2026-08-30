@@ -3,9 +3,14 @@ package com.wego.divers
 import com.wego.divers.application.CreateEquipmentCommand
 import com.wego.divers.application.CreateEquipmentService
 import com.wego.divers.application.RecordRentalCommand
+import com.wego.divers.application.RecordRentalReturnResult
+import com.wego.divers.application.RecordRentalReturnService
 import com.wego.divers.application.RecordRentalService
 import com.wego.divers.application.RetireEquipmentService
 import com.wego.divers.application.StartMaintenanceService
+import com.wego.divers.application.UpdateEquipmentCommand
+import com.wego.divers.application.UpdateEquipmentService
+import com.wego.divers.domain.EquipmentId
 import com.wego.divers.domain.EquipmentType
 import com.wego.generated.jooq.tables.DiversEquipment.DIVERS_EQUIPMENT
 import com.wego.generated.jooq.tables.DiversEquipmentRentalRecord.DIVERS_EQUIPMENT_RENTAL_RECORD
@@ -47,6 +52,12 @@ class EquipmentConcurrencyIntegrationTest {
 
     @Autowired
     private lateinit var recordRentalService: RecordRentalService
+
+    @Autowired
+    private lateinit var recordRentalReturnService: RecordRentalReturnService
+
+    @Autowired
+    private lateinit var updateEquipmentService: UpdateEquipmentService
 
     @Autowired
     private lateinit var dsl: DSLContext
@@ -174,11 +185,146 @@ class EquipmentConcurrencyIntegrationTest {
         }
     }
 
+    @Test
+    fun `updating equipment details never resurrects a status a racing retire already committed`() {
+        // Real gap independent Tier 1 re-review found: UpdateEquipmentService's read was unlocked, and
+        // withUpdatedDetails copies the read `status` unchanged into the saved row — so a plain label
+        // edit that read the row just before a concurrent retire() commit could overwrite RETIRED back
+        // to the stale ACTIVE value it read. Now both use findByIdForUpdate. Deterministic invariant:
+        // since no rental is ever opened here, retire() must always succeed, and the fixed lock makes
+        // the final status RETIRED regardless of which transaction happens to commit first.
+        val trials = 30
+        val equipmentIds =
+            (1..trials).map { index ->
+                (
+                    createEquipmentService.create(
+                        CreateEquipmentCommand(
+                            equipmentType = EquipmentType.TANK,
+                            label = "Update-Retire Race Tank $index",
+                            qrCode = "update-retire-race-$index",
+                            itemSize = null,
+                            serialNumber = null,
+                            createdByUserId = null,
+                            correlationId = null,
+                        ),
+                    ) as com.wego.divers.application.CreateEquipmentResult.Created
+                ).equipment.id
+            }
+
+        runConcurrently(
+            equipmentIds.flatMap { equipmentId ->
+                listOf(
+                    {
+                        retireEquipmentService.retire(equipmentId, null, null)
+                        Unit
+                    },
+                    {
+                        updateEquipmentService.update(
+                            UpdateEquipmentCommand(
+                                equipmentId = equipmentId,
+                                label = "Updated Label",
+                                itemSize = null,
+                                serialNumber = null,
+                            ),
+                        )
+                        Unit
+                    },
+                )
+            },
+        )
+
+        for (equipmentId in equipmentIds) {
+            val status =
+                dsl.select(DIVERS_EQUIPMENT.STATUS).from(DIVERS_EQUIPMENT).where(DIVERS_EQUIPMENT.ID.eq(equipmentId.value)).fetchOne(
+                    0,
+                    String::class.java,
+                )
+            assertThat(status)
+                .withFailMessage(
+                    "Equipment $equipmentId ended $status — a concurrent update() resurrected it after retire() committed RETIRED",
+                ).isEqualTo("RETIRED")
+        }
+    }
+
+    @Test
+    fun `two concurrent returns for the same open rental never both succeed`() {
+        // Real gap independent Tier 1 re-review found: RecordRentalReturnService's open-rental lookup
+        // was unlocked, so two concurrent returnItem() calls could both read the same open row and both
+        // "succeed" (an UPSERT by id), with whichever commits last silently overwriting the other's
+        // returnedOn date. Now findOpenByEquipmentIdForUpdate makes the second caller's locked read
+        // correctly see the first caller's already-committed non-null returnedOn and reject as NoOpenRental.
+        val trials = 30
+        val equipmentIds =
+            (1..trials).map { index ->
+                (
+                    createEquipmentService.create(
+                        CreateEquipmentCommand(
+                            equipmentType = EquipmentType.TANK,
+                            label = "Return-Race Tank $index",
+                            qrCode = "return-race-$index",
+                            itemSize = null,
+                            serialNumber = null,
+                            createdByUserId = null,
+                            correlationId = null,
+                        ),
+                    ) as com.wego.divers.application.CreateEquipmentResult.Created
+                ).equipment.id
+            }
+        equipmentIds.forEach { equipmentId ->
+            recordRentalService.record(
+                RecordRentalCommand(
+                    equipmentId = equipmentId,
+                    customerName = "Race Customer",
+                    rentedOn = LocalDate.parse("2026-09-01"),
+                    notes = null,
+                ),
+            )
+        }
+
+        val results = java.util.Collections.synchronizedList(mutableListOf<Pair<EquipmentId, RecordRentalReturnResult>>())
+        runConcurrently(
+            equipmentIds.flatMap { equipmentId ->
+                listOf(
+                    {
+                        val result = recordRentalReturnService.returnItem(equipmentId, LocalDate.parse("2026-09-05"))
+                        results += equipmentId to result
+                        Unit
+                    },
+                    {
+                        val result = recordRentalReturnService.returnItem(equipmentId, LocalDate.parse("2026-09-06"))
+                        results += equipmentId to result
+                        Unit
+                    },
+                )
+            },
+        )
+
+        for (equipmentId in equipmentIds) {
+            val returnedCount = results.count { it.first == equipmentId && it.second is RecordRentalReturnResult.Returned }
+            assertThat(returnedCount)
+                .withFailMessage(
+                    "Equipment $equipmentId had $returnedCount successful returns from 2 concurrent calls — expected exactly 1",
+                ).isEqualTo(1)
+
+            val hasOpenRental =
+                dsl.fetchExists(
+                    dsl
+                        .selectFrom(DIVERS_EQUIPMENT_RENTAL_RECORD)
+                        .where(DIVERS_EQUIPMENT_RENTAL_RECORD.EQUIPMENT_ID.eq(equipmentId.value))
+                        .and(DIVERS_EQUIPMENT_RENTAL_RECORD.RETURNED_ON.isNull),
+                )
+            assertThat(hasOpenRental)
+                .withFailMessage("Equipment $equipmentId still shows an open rental after both concurrent return calls completed")
+                .isFalse()
+        }
+    }
+
     private fun runConcurrently(actions: List<() -> Any?>) {
         val pool = Executors.newFixedThreadPool(minOf(actions.size, 64))
         val ready = CountDownLatch(actions.size)
         val start = CountDownLatch(1)
         val done = CountDownLatch(actions.size)
+        val errors = java.util.Collections.synchronizedList(mutableListOf<Throwable>())
 
         actions.forEach { action ->
             pool.submit {
@@ -186,8 +332,8 @@ class EquipmentConcurrencyIntegrationTest {
                 start.await()
                 try {
                     action()
-                } catch (_: Exception) {
-                    // A rejected outcome under real contention is expected.
+                } catch (error: Throwable) {
+                    errors += error
                 } finally {
                     done.countDown()
                 }
@@ -198,6 +344,9 @@ class EquipmentConcurrencyIntegrationTest {
         start.countDown()
         assertThat(done.await(60, TimeUnit.SECONDS)).isTrue()
         pool.shutdown()
+        // Every outcome here is a sealed Result value, not a thrown exception — a real exception under
+        // concurrency is a bug, not an expected rejection, so it must fail the test, not vanish silently.
+        assertThat(errors).withFailMessage { "Unexpected exceptions under concurrency: ${errors.map { it.toString() }}" }.isEmpty()
     }
 
     companion object {

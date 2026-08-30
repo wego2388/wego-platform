@@ -132,8 +132,10 @@ class DiverHttpTest {
         return requireNotNull(match) { "No $field field in response body: $body" }.groupValues[1]
     }
 
-    private fun createDiverRequest(fullName: String) =
-        """
+    private fun createDiverRequest(
+        fullName: String,
+        medicalNotes: String? = null,
+    ) = """
         {
           "fullName": "$fullName",
           "nationality": "British",
@@ -142,6 +144,7 @@ class DiverHttpTest {
           "phone": "+201066461010",
           "emergencyContactName": "Anna Isaacs",
           "emergencyContactPhone": "+201066461011",
+          ${if (medicalNotes != null) """"medicalNotes": "$medicalNotes",""" else ""}
           "totalLoggedDives": 12,
           "maxDepthMeters": 18.5,
           "lastDiveOn": "2026-08-01",
@@ -275,9 +278,11 @@ class DiverHttpTest {
                 .post("/api/v1/divers/divers") {
                     header("Authorization", "Bearer $token")
                     contentType = MediaType.APPLICATION_JSON
-                    content = createDiverRequest("Redaction Sweep Diver")
-                }.andExpect { status { isCreated() } }
-                .andReturn()
+                    content = createDiverRequest("Redaction Sweep Diver", medicalNotes = "Mild penicillin allergy")
+                }.andExpect {
+                    status { isCreated() }
+                    jsonPath("$.medicalNotes") { value("Mild penicillin allergy") }
+                }.andReturn()
                 .response.contentAsString
         val diverId = jsonField(createBody, "id")
 

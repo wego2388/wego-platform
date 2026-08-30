@@ -44,12 +44,20 @@ class EnrollDiverInCourseService(
     private val transactionRunner: TransactionRunner,
     private val clock: Clock,
 ) {
+    // Locks both the diver and the offering row — in that fixed order, always — for the duration of the
+    // check-then-create. Without this, a concurrent ArchiveDiverService/CloseOfferingService call (which lock
+    // the same rows) can commit its own transition in between this service's unlocked read and its insert,
+    // leaving a real enrollment attached to a diver/offering that was already archived/closed by the time this
+    // transaction committed. No other path in this codebase locks both a diver and an offering row in one
+    // transaction, so this fixed order (diver first) cannot deadlock against anything else.
     fun enroll(command: EnrollDiverInCourseCommand): EnrollDiverInCourseResult =
         transactionRunner.runInTransaction {
-            val diver = diverRepository.findById(command.diverId) ?: return@runInTransaction EnrollDiverInCourseResult.DiverNotFound
+            val diver =
+                diverRepository.findByIdForUpdate(command.diverId) ?: return@runInTransaction EnrollDiverInCourseResult.DiverNotFound
             if (!diver.isActive) return@runInTransaction EnrollDiverInCourseResult.DiverNotActive
             val offering =
-                offeringRepository.findById(command.offeringId) ?: return@runInTransaction EnrollDiverInCourseResult.OfferingNotFound
+                offeringRepository.findByIdForUpdate(command.offeringId)
+                    ?: return@runInTransaction EnrollDiverInCourseResult.OfferingNotFound
             if (offering.offeringType != OfferingType.COURSE) return@runInTransaction EnrollDiverInCourseResult.OfferingIsNotACourse
             if (offering.status != OfferingStatus.ACTIVE) return@runInTransaction EnrollDiverInCourseResult.OfferingNotActive
 
