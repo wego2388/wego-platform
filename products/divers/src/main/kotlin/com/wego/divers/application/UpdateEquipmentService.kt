@@ -1,7 +1,7 @@
 package com.wego.divers.application
-
 import com.wego.divers.domain.Equipment
 import com.wego.divers.domain.EquipmentId
+import com.wego.transaction.TransactionRunner
 
 data class UpdateEquipmentCommand(
     val equipmentId: EquipmentId,

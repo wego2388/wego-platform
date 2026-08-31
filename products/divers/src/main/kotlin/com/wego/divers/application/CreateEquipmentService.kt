@@ -1,8 +1,8 @@
 package com.wego.divers.application
-
 import com.wego.divers.domain.Equipment
 import com.wego.divers.domain.EquipmentId
 import com.wego.divers.domain.EquipmentType
+import com.wego.transaction.TransactionRunner
 import java.time.Clock
 import java.time.Instant
 import java.util.UUID

@@ -45,13 +45,13 @@ import com.wego.divers.application.RefundBookingService
 import com.wego.divers.application.RetireEquipmentService
 import com.wego.divers.application.StaffUserLookup
 import com.wego.divers.application.StartMaintenanceService
-import com.wego.divers.application.TransactionRunner
 import com.wego.divers.application.UnlinkOfferingFromCharterService
 import com.wego.divers.application.UpdateBoatCharterService
 import com.wego.divers.application.UpdateDiverService
 import com.wego.divers.application.UpdateEquipmentService
 import com.wego.divers.application.WithdrawEnrollmentService
 import com.wego.events.OutboxWriter
+import com.wego.transaction.TransactionRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import tools.jackson.databind.ObjectMapper

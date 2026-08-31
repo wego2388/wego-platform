@@ -39,6 +39,8 @@ class SecurityConfiguration {
                     .authenticated()
                     .requestMatchers("/api/v1/divers/**")
                     .authenticated()
+                    .requestMatchers("/api/v1/hr/**")
+                    .authenticated()
                     .anyRequest()
                     .denyAll()
             }.sessionManagement { sessions ->

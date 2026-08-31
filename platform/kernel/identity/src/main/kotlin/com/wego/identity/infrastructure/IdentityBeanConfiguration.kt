@@ -19,9 +19,9 @@ import com.wego.identity.application.RoleRepository
 import com.wego.identity.application.SessionAuthenticationService
 import com.wego.identity.application.SessionRepository
 import com.wego.identity.application.SessionTokenGenerator
-import com.wego.identity.application.TransactionRunner
 import com.wego.identity.application.UpdateRolePermissionsService
 import com.wego.identity.application.UserRepository
+import com.wego.transaction.TransactionRunner
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

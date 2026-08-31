@@ -6,7 +6,6 @@ import com.wego.identity.application.PasswordHasher
 import com.wego.identity.application.SessionRepository
 import com.wego.identity.application.SessionTokenGenerator
 import com.wego.identity.application.ThrottleDecision
-import com.wego.identity.application.TransactionRunner
 import com.wego.identity.application.UserRepository
 import com.wego.identity.domain.EmailAddress
 import com.wego.identity.domain.HashedPassword
@@ -14,6 +13,7 @@ import com.wego.identity.domain.Session
 import com.wego.identity.domain.SessionId
 import com.wego.identity.domain.User
 import com.wego.identity.domain.UserId
+import com.wego.transaction.TransactionRunner
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary

@@ -108,6 +108,7 @@ const foundationItems = [
           <NuxtLink to="/course-enrollments" class="text-sm font-semibold text-wego-accent underline">Courses</NuxtLink>
           <NuxtLink to="/accounts" class="text-sm font-semibold text-wego-accent underline">Accounts</NuxtLink>
           <NuxtLink to="/roles" class="text-sm font-semibold text-wego-accent underline">Roles</NuxtLink>
+          <NuxtLink to="/employees" class="text-sm font-semibold text-wego-accent underline">Employees</NuxtLink>
           <NuxtLink
             to="/login"
             class="rounded-wego-control bg-wego-accent px-5 py-2.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"

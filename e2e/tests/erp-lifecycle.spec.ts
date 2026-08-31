@@ -14,7 +14,7 @@ test.describe("ERP diving bookings lifecycle", () => {
     page.on("dialog", (dialog) => dialog.accept());
 
     await test.step("login", async () => {
-      await page.goto("/login");
+      await page.goto("/login", { waitUntil: "networkidle" });
       await page.locator("#email").fill(E2E_STAFF_EMAIL);
       await page.locator("#password").fill(E2E_STAFF_PASSWORD);
       await page.getByRole("button", { name: "Sign in" }).click();
@@ -56,7 +56,7 @@ test.describe("ERP diving bookings lifecycle", () => {
       // offerings.vue has no in-page nav back to /bookings (only the
       // index/login success panels do) — a direct navigation is the real
       // path a bookmark or address-bar entry would take too.
-      await page.goto("/bookings");
+      await page.goto("/bookings", { waitUntil: "networkidle" });
       await expect(page).toHaveURL(/\/bookings$/);
 
       await page.locator("#offeringId").selectOption({ label: `${OFFERING_TITLE} — ${OFFERING_STARTS_ON} (45.00 EUR)` });
@@ -94,13 +94,77 @@ test.describe("ERP diving bookings lifecycle", () => {
       // login.vue rehydrates its signed-in panel from the stored session on
       // mount, so returning to /login while still authenticated shows
       // "Signed in as ..." directly — no need to re-enter credentials.
-      await page.goto("/login");
+      await page.goto("/login", { waitUntil: "networkidle" });
       await expect(page.getByText(`Signed in as ${E2E_STAFF_EMAIL}`)).toBeVisible();
 
       await page.getByRole("button", { name: "Sign out" }).click();
 
-      await page.goto("/offerings");
+      await page.goto("/offerings", { waitUntil: "networkidle" });
       await expect(page.getByText("You need to sign in to view offerings.")).toBeVisible();
+    });
+  });
+});
+
+const EMPLOYEE_NAME = "E2E Lifecycle Employee";
+
+test.describe("ERP HR employee lifecycle", () => {
+  test("login, create employee, roster omits salary, edit reveals salary, terminate removes from active list", async ({ page }) => {
+    page.on("dialog", (dialog) => dialog.accept());
+
+    await test.step("login", async () => {
+      await page.goto("/login", { waitUntil: "networkidle" });
+      await page.locator("#email").fill(E2E_STAFF_EMAIL);
+      await page.locator("#password").fill(E2E_STAFF_PASSWORD);
+      await page.getByRole("button", { name: "Sign in" }).click();
+      await expect(page.getByText(`Signed in as ${E2E_STAFF_EMAIL}`)).toBeVisible();
+    });
+
+    await test.step("create employee", async () => {
+      // login.vue's signed-in panel only links to Offerings/Bookings (the
+      // two modules that existed when it was first written) — same as
+      // Divers/Equipment/Accounts/Roles, a direct navigation is the real
+      // path a bookmark or address-bar entry would take too.
+      await page.goto("/employees", { waitUntil: "networkidle" });
+      await expect(page).toHaveURL(/\/employees$/);
+
+      await page.locator("#fullName").fill(EMPLOYEE_NAME);
+      await page.locator("#position").fill("Dive Instructor");
+      await page.locator("#hireDate").fill("2026-01-01");
+      await page.locator("#amount").fill("15000.00");
+      await page.locator("#currencyCode").fill("EGP");
+      await page.getByRole("button", { name: "Create employee" }).click();
+
+      await expect(page.getByText(EMPLOYEE_NAME)).toBeVisible();
+    });
+
+    const employeeRow = page.locator("li", { hasText: EMPLOYEE_NAME });
+
+    await test.step("roster omits salary — a fresh load re-fetches the summary projection", async () => {
+      await page.reload();
+      await expect(employeeRow.getByText("Dive Instructor")).toBeVisible();
+      await expect(page.getByText("15000.00")).not.toBeVisible();
+    });
+
+    await test.step("edit fetches the full record, revealing the salary", async () => {
+      await employeeRow.getByRole("button", { name: "Edit" }).click();
+      await expect(page.locator("#amount")).toHaveValue("15000.00");
+      await page.getByRole("button", { name: "Cancel" }).click();
+    });
+
+    await test.step("terminate removes the employee from the active list", async () => {
+      await employeeRow.locator('[id^="terminate-reason-"]').fill("E2E test termination");
+      await employeeRow.getByRole("button", { name: "Terminate" }).click();
+      await expect(page.getByText(EMPLOYEE_NAME)).not.toBeVisible();
+    });
+
+    await test.step("logout ends the session", async () => {
+      await page.goto("/login", { waitUntil: "networkidle" });
+      await expect(page.getByText(`Signed in as ${E2E_STAFF_EMAIL}`)).toBeVisible();
+
+      await page.getByRole("button", { name: "Sign out" }).click();
+
+      await page.goto("/employees", { waitUntil: "networkidle" });
+      await expect(page.getByText("You need to sign in to view employee records.")).toBeVisible();
     });
   });
 });

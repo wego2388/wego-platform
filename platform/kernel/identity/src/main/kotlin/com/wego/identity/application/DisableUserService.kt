@@ -1,8 +1,8 @@
 package com.wego.identity.application
-
 import com.wego.identity.domain.User
 import com.wego.identity.domain.UserId
 import com.wego.identity.domain.UserStatus
+import com.wego.transaction.TransactionRunner
 import java.time.Clock
 import java.time.Instant
 import java.util.UUID

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "productId": "wego-hr",
+  "displayName": "Wego HR",
+  "version": "0.1.0",
+  "platformVersion": "0.1.0-SNAPSHOT",
+  "requiredModules": [
+    "platform.events",
+    "platform.security",
+    "platform.identity",
+    "platform.transaction",
+    "product.hr"
+  ],
+  "requiredCapabilities": [
+    "hr.product-boundary",
+    "platform.authorization",
+    "platform.identity-authentication",
+    "platform.integration-events",
+    "platform.transaction-boundary"
+  ]
+}

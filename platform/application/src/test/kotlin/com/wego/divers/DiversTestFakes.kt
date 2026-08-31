@@ -4,7 +4,6 @@ import com.wego.divers.application.BookingAuditRecorder
 import com.wego.divers.application.BookingRepository
 import com.wego.divers.application.OfferingAuditRecorder
 import com.wego.divers.application.OfferingRepository
-import com.wego.divers.application.TransactionRunner
 import com.wego.divers.domain.Booking
 import com.wego.divers.domain.BookingId
 import com.wego.divers.domain.BookingStatus
@@ -16,6 +15,7 @@ import com.wego.divers.domain.OfferingType
 import com.wego.divers.domain.PaymentStatus
 import com.wego.events.IntegrationEventEnvelope
 import com.wego.events.OutboxWriter
+import com.wego.transaction.TransactionRunner
 import java.math.RoundingMode
 import java.time.Instant
 import java.time.LocalDate

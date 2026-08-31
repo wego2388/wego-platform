@@ -42,6 +42,18 @@ tags:
       Theory -> Pool -> Open Water -> Certified, forward-only, or
       Withdrawn from any non-finished stage. Instructor assignment and a
       real append-only skill-evaluation log.
+  - name: Dashboard
+    description: >-
+      Real business KPIs for a super-admin/operations dashboard. One
+      endpoint per existing module's own view permission — a caller only
+      ever sees the sections their real role already grants them,
+      enforced server-side.
+  - name: HumanResources
+    description: >-
+      Real employee records — position, department, hire date, contact
+      details, base salary, and an optional link to a staff login account.
+      Termination is a terminal, staff-managed status change; a rehire
+      gets a brand-new record.
 paths:
   /actuator/health:
     get:
@@ -2406,6 +2418,332 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BookingError"
+  /api/v1/divers/dashboard/bookings:
+    get:
+      operationId: getBookingsDashboard
+      summary: Booking KPIs for the dashboard
+      description: >-
+        Requires `booking:view`. `paidRevenueThisMonth` is grouped by
+        currency and approximates "this month" using booking `createdAt`,
+        not a true payment date (none exists yet).
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Booking KPIs.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookingsDashboardResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/divers/dashboard/offerings:
+    get:
+      operationId: getOfferingsDashboard
+      summary: Upcoming-offerings KPI for the dashboard
+      description: Requires `offering:view`.
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Upcoming offerings.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OfferingsDashboardResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/divers/dashboard/divers:
+    get:
+      operationId: getDiversDashboard
+      summary: Active-divers KPI for the dashboard
+      description: Requires `diver:view`.
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Active-diver count.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiversDashboardResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/divers/dashboard/equipment:
+    get:
+      operationId: getEquipmentDashboard
+      summary: Equipment status-breakdown KPI for the dashboard
+      description: Requires `equipment:view`.
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Equipment counts by status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EquipmentDashboardResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/hr/employees:
+    post:
+      operationId: createEmployee
+      summary: Create an employee record
+      description: >-
+        Requires `hr:employee-manage`. `linkedUserId`, if present, must be
+        an active staff user (see `linked_user_not_active_staff`).
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertEmployeeRequest"
+      responses:
+        "201":
+          description: Employee record created.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeResponse"
+        "400":
+          description: >-
+            The request failed field validation, or `linkedUserId` was not
+            an active staff user.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+                  - $ref: "#/components/schemas/EmployeeErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    get:
+      operationId: listEmployees
+      summary: List employee records
+      description: >-
+        Requires `hr:employee-view`. Paginated with `page`/`size`; `search`
+        matches against the employee's full name. Returns a roster
+        projection — salary, email and phone are deliberately omitted;
+        fetch a single employee by id for the full record.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/EmployeeStatus"
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Matching employee records, one page.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EmployeeSummaryResponse"
+        "400":
+          description: An invalid `page`/`size`/`status` query parameter.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/hr/employees/{id}:
+    get:
+      operationId: getEmployee
+      summary: Read a single employee record
+      description: Requires `hr:employee-view`.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The employee record.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No employee record with this id.
+    put:
+      operationId: updateEmployee
+      summary: Replace an employee record's editable fields
+      description: >-
+        Requires `hr:employee-manage`. A full replace of every editable
+        field — this is not a partial patch. Status and termination
+        timestamp are not editable here; see the terminate action.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertEmployeeRequest"
+      responses:
+        "200":
+          description: Employee record updated.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeResponse"
+        "400":
+          description: >-
+            The request failed field validation, or `linkedUserId` was not
+            an active staff user.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+                  - $ref: "#/components/schemas/EmployeeErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No employee record with this id.
+  /api/v1/hr/employees/{id}/terminate:
+    post:
+      operationId: terminateEmployee
+      summary: Terminate an employee
+      description: >-
+        Requires `hr:employee-manage`. Terminal — there is no reinstate
+        action; a rehire gets a brand-new employee record. Salary and
+        contact fields are deliberately not redacted on termination (an
+        ongoing accounting/audit need), unlike `Diver.archive()`.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TerminateEmployeeRequest"
+      responses:
+        "200":
+          description: Employee terminated.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeResponse"
+        "400":
+          description: An oversized `reason`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No employee record with this id.
+        "409":
+          description: The employee is already terminated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeErrorResponse"
 components:
   securitySchemes:
     bearerAuth:
@@ -3591,3 +3929,189 @@ components:
             - DOWN
             - OUT_OF_SERVICE
             - UNKNOWN
+    UpcomingOfferingResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - offeringType
+        - title
+        - startsOn
+      properties:
+        id:
+          type: string
+          format: uuid
+        offeringType:
+          $ref: "#/components/schemas/OfferingType"
+        title:
+          type: string
+        startsOn:
+          type: string
+          format: date
+    BookingsDashboardResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - bookingsToday
+        - paidRevenueThisMonth
+      properties:
+        bookingsToday:
+          type: integer
+        paidRevenueThisMonth:
+          type: array
+          items:
+            $ref: "#/components/schemas/Money"
+    OfferingsDashboardResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - upcomingTrips
+      properties:
+        upcomingTrips:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpcomingOfferingResponse"
+    DiversDashboardResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - activeDivers
+      properties:
+        activeDivers:
+          type: integer
+    EquipmentDashboardResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - active
+        - inMaintenance
+        - retired
+      properties:
+        active:
+          type: integer
+        inMaintenance:
+          type: integer
+        retired:
+          type: integer
+    EmployeeStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - TERMINATED
+    UpsertEmployeeRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - fullName
+        - position
+        - hireDate
+      properties:
+        fullName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        position:
+          type: string
+          minLength: 1
+          maxLength: 200
+        department:
+          type: string
+          maxLength: 200
+        hireDate:
+          type: string
+          format: date
+        email:
+          type: string
+          format: email
+          maxLength: 320
+        phone:
+          type: string
+          maxLength: 32
+        baseSalary:
+          $ref: "#/components/schemas/Money"
+        linkedUserId:
+          type: string
+          format: uuid
+    TerminateEmployeeRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        reason:
+          type: string
+          maxLength: 1000
+    EmployeeResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - fullName
+        - position
+        - hireDate
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        position:
+          type: string
+        department:
+          type: string
+        hireDate:
+          type: string
+          format: date
+        email:
+          type: string
+        phone:
+          type: string
+        baseSalary:
+          $ref: "#/components/schemas/Money"
+        linkedUserId:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/EmployeeStatus"
+        createdAt:
+          type: string
+          format: date-time
+        terminatedAt:
+          type: string
+          format: date-time
+    EmployeeSummaryResponse:
+      type: object
+      additionalProperties: false
+      description: >-
+        The roster/list projection — deliberately omits salary, email and
+        phone (the same PII-minimization discipline `DiverSummaryResponse`
+        already established). Fetch a single employee by id for the full
+        EmployeeResponse.
+      required:
+        - id
+        - fullName
+        - position
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        position:
+          type: string
+        department:
+          type: string
+        status:
+          $ref: "#/components/schemas/EmployeeStatus"
+    EmployeeErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - linked_user_not_active_staff
+            - already_terminated

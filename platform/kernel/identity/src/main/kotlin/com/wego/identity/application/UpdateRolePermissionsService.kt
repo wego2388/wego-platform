@@ -1,10 +1,10 @@
 package com.wego.identity.application
-
 import com.wego.identity.domain.Permission
 import com.wego.identity.domain.Role
 import com.wego.identity.domain.RoleCode
 import com.wego.identity.domain.UserId
 import com.wego.security.PermissionCode
+import com.wego.transaction.TransactionRunner
 import java.time.Clock
 import java.time.Instant
 import java.util.UUID

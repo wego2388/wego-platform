@@ -7,7 +7,6 @@ import com.wego.divers.application.CreateBookingService
 import com.wego.divers.application.CreateOfferingCommand
 import com.wego.divers.application.CreateOfferingService
 import com.wego.divers.application.OfferingRepository
-import com.wego.divers.application.TransactionRunner
 import com.wego.divers.domain.Booking
 import com.wego.divers.domain.BookingFingerprint
 import com.wego.divers.domain.BookingId
@@ -20,6 +19,7 @@ import com.wego.generated.jooq.tables.DiversBooking.DIVERS_BOOKING
 import com.wego.generated.jooq.tables.DiversBookingAuditEvent.DIVERS_BOOKING_AUDIT_EVENT
 import com.wego.generated.jooq.tables.IdentityUser.IDENTITY_USER
 import com.wego.generated.jooq.tables.IntegrationOutbox.INTEGRATION_OUTBOX
+import com.wego.transaction.TransactionRunner
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.jooq.DSLContext
