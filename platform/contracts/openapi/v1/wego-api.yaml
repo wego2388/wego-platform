@@ -53,7 +53,10 @@ tags:
       Real employee records — position, department, hire date, contact
       details, base salary, and an optional link to a staff login account.
       Termination is a terminal, staff-managed status change; a rehire
-      gets a brand-new record.
+      gets a brand-new record. Also covers day-by-day attendance (an
+      upsert per employee per date) and a real leave-request approval
+      workflow (PENDING -> APPROVED/REJECTED or PENDING -> CANCELLED),
+      both staff-recorded on an employee's behalf, not self-service.
 paths:
   /actuator/health:
     get:
@@ -2744,6 +2747,378 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EmployeeErrorResponse"
+  /api/v1/hr/attendance:
+    post:
+      operationId: recordAttendance
+      summary: Record (or correct) one employee's attendance for one day
+      description: >-
+        Requires `hr:attendance-manage`. Recording again for the same
+        employee and date corrects that day's record rather than adding a
+        second one — an upsert, so this always returns 200, never 201.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecordAttendanceRequest"
+      responses:
+        "200":
+          description: Attendance recorded or corrected.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceRecordResponse"
+        "400":
+          description: >-
+            The request failed field validation, the employee does not
+            exist, the employee is terminated, or the date is in the
+            future.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+                  - $ref: "#/components/schemas/AttendanceErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    get:
+      operationId: listAttendance
+      summary: List attendance records
+      description: Requires `hr:attendance-view`. Paginated with `page`/`size`; filterable by `employeeId` and a `from`/`to` date range.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: employeeId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Matching attendance records, one page.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AttendanceRecordResponse"
+        "400":
+          description: An invalid `page`/`size`/`employeeId` query parameter.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/hr/leave-requests:
+    post:
+      operationId: submitLeaveRequest
+      summary: Submit a leave request on an employee's behalf
+      description: Requires `hr:leave-manage`. Staff-recorded, not employee self-service — see the HumanResources tag description.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitLeaveRequestRequest"
+      responses:
+        "201":
+          description: Leave request submitted, status PENDING.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequestResponse"
+        "400":
+          description: The request failed field validation, the employee does not exist, or the employee is terminated.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+                  - $ref: "#/components/schemas/LeaveRequestErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    get:
+      operationId: listLeaveRequests
+      summary: List leave requests
+      description: Requires `hr:leave-view`. Paginated with `page`/`size`; filterable by `employeeId` and `status`.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: employeeId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/LeaveRequestStatus"
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Matching leave requests, one page.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeaveRequestResponse"
+        "400":
+          description: An invalid `page`/`size`/`employeeId`/`status` query parameter.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/hr/leave-requests/{id}:
+    get:
+      operationId: getLeaveRequest
+      summary: Read a single leave request
+      description: Requires `hr:leave-view`.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The leave request.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequestResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No leave request with this id.
+  /api/v1/hr/leave-requests/{id}/approve:
+    post:
+      operationId: approveLeaveRequest
+      summary: Approve a pending leave request
+      description: >-
+        Requires `hr:leave-manage`. Rejected with a clean 409 if this
+        employee already has another APPROVED leave overlapping this date
+        range — see `overlaps_approved_leave`.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeaveDecisionRequest"
+      responses:
+        "200":
+          description: Leave request approved.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequestResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No leave request with this id.
+        "409":
+          description: The request is no longer pending, or it overlaps another already-approved leave for the same employee.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequestErrorResponse"
+  /api/v1/hr/leave-requests/{id}/reject:
+    post:
+      operationId: rejectLeaveRequest
+      summary: Reject a pending leave request
+      description: Requires `hr:leave-manage`.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeaveDecisionRequest"
+      responses:
+        "200":
+          description: Leave request rejected.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequestResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No leave request with this id.
+        "409":
+          description: The request is no longer pending.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequestErrorResponse"
+  /api/v1/hr/leave-requests/{id}/cancel:
+    post:
+      operationId: cancelLeaveRequest
+      summary: Cancel a pending leave request
+      description: Requires `hr:leave-manage`. A withdrawal, not a decision — see the LeaveRequest schema's own note.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Leave request cancelled.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequestResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No leave request with this id.
+        "409":
+          description: The request is no longer pending.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequestErrorResponse"
 components:
   securitySchemes:
     bearerAuth:
@@ -4115,3 +4490,191 @@ components:
           enum:
             - linked_user_not_active_staff
             - already_terminated
+    AttendanceStatus:
+      type: string
+      enum:
+        - PRESENT
+        - ABSENT
+        - LATE
+        - HALF_DAY
+    RecordAttendanceRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - employeeId
+        - attendanceDate
+        - status
+      properties:
+        employeeId:
+          type: string
+          format: uuid
+        attendanceDate:
+          type: string
+          format: date
+        status:
+          $ref: "#/components/schemas/AttendanceStatus"
+        clockIn:
+          type: string
+          format: date-time
+        clockOut:
+          type: string
+          format: date-time
+        notes:
+          type: string
+          maxLength: 1000
+    AttendanceRecordResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - employeeId
+        - attendanceDate
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        employeeId:
+          type: string
+          format: uuid
+        attendanceDate:
+          type: string
+          format: date
+        status:
+          $ref: "#/components/schemas/AttendanceStatus"
+        clockIn:
+          type: string
+          format: date-time
+        clockOut:
+          type: string
+          format: date-time
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    AttendanceErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - employee_not_found
+            - employee_not_active
+            - attendance_date_in_future
+    LeaveType:
+      type: string
+      enum:
+        - ANNUAL
+        - SICK
+        - UNPAID
+        - OTHER
+    LeaveRequestStatus:
+      type: string
+      enum:
+        - PENDING
+        - APPROVED
+        - REJECTED
+        - CANCELLED
+    SubmitLeaveRequestRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - employeeId
+        - leaveType
+        - startDate
+        - endDate
+      properties:
+        employeeId:
+          type: string
+          format: uuid
+        leaveType:
+          $ref: "#/components/schemas/LeaveType"
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        reason:
+          type: string
+          maxLength: 1000
+    LeaveDecisionRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        notes:
+          type: string
+          maxLength: 1000
+    LeaveRequestResponse:
+      type: object
+      additionalProperties: false
+      description: >-
+        A real approval workflow: PENDING moves to either APPROVED/REJECTED
+        (a decision — decidedByUserId/decidedAt) or CANCELLED (a withdrawal
+        — cancelledAt), never both.
+      required:
+        - id
+        - employeeId
+        - leaveType
+        - startDate
+        - endDate
+        - status
+        - requestedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        employeeId:
+          type: string
+          format: uuid
+        leaveType:
+          $ref: "#/components/schemas/LeaveType"
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        reason:
+          type: string
+        status:
+          $ref: "#/components/schemas/LeaveRequestStatus"
+        requestedByUserId:
+          type: string
+          format: uuid
+        requestedAt:
+          type: string
+          format: date-time
+        decidedByUserId:
+          type: string
+          format: uuid
+        decidedAt:
+          type: string
+          format: date-time
+        decisionNotes:
+          type: string
+        cancelledAt:
+          type: string
+          format: date-time
+    LeaveRequestErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - employee_not_found
+            - employee_not_active
+            - not_pending
+            - overlaps_approved_leave

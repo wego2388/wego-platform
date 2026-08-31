@@ -168,3 +168,73 @@ test.describe("ERP HR employee lifecycle", () => {
     });
   });
 });
+
+const ATTENDANCE_EMPLOYEE_NAME = "E2E Attendance Employee";
+
+test.describe("ERP HR attendance and leave lifecycle", () => {
+  test("login, create employee, correct attendance for the same day, submit and approve a leave request", async ({ page }) => {
+    page.on("dialog", (dialog) => dialog.accept());
+
+    await test.step("login", async () => {
+      await page.goto("/login", { waitUntil: "networkidle" });
+      await page.locator("#email").fill(E2E_STAFF_EMAIL);
+      await page.locator("#password").fill(E2E_STAFF_PASSWORD);
+      await page.getByRole("button", { name: "Sign in" }).click();
+      await expect(page.getByText(`Signed in as ${E2E_STAFF_EMAIL}`)).toBeVisible();
+    });
+
+    await test.step("create an employee to attach records to", async () => {
+      await page.goto("/employees", { waitUntil: "networkidle" });
+      await page.locator("#fullName").fill(ATTENDANCE_EMPLOYEE_NAME);
+      await page.locator("#position").fill("Front Desk");
+      await page.locator("#hireDate").fill("2026-01-01");
+      await page.getByRole("button", { name: "Create employee" }).click();
+      await expect(page.getByText(ATTENDANCE_EMPLOYEE_NAME)).toBeVisible();
+    });
+
+    await test.step("recording attendance twice for the same day corrects it, not duplicates it", async () => {
+      await page.goto("/attendance", { waitUntil: "networkidle" });
+      await page.locator("#employeeId").selectOption({ label: ATTENDANCE_EMPLOYEE_NAME });
+      await page.locator("#attendanceDate").fill("2026-08-30");
+      await page.locator("#status").selectOption("LATE");
+      await page.locator("#notes").fill("Traffic");
+      await page.getByRole("button", { name: "Record attendance" }).click();
+      await expect(page.getByText("Traffic")).toBeVisible();
+
+      await page.locator("#employeeId").selectOption({ label: ATTENDANCE_EMPLOYEE_NAME });
+      await page.locator("#attendanceDate").fill("2026-08-30");
+      await page.locator("#status").selectOption("PRESENT");
+      await page.locator("#notes").fill("Actually on time");
+      await page.getByRole("button", { name: "Record attendance" }).click();
+
+      await page.reload();
+      await expect(page.getByText("Actually on time")).toBeVisible();
+      await expect(page.getByText("Traffic")).not.toBeVisible();
+    });
+
+    await test.step("submit a leave request and approve it", async () => {
+      await page.goto("/leave-requests", { waitUntil: "networkidle" });
+      await page.locator("#employeeId").selectOption({ label: ATTENDANCE_EMPLOYEE_NAME });
+      await page.locator("#startDate").fill("2026-09-01");
+      await page.locator("#endDate").fill("2026-09-05");
+      await page.locator("#reason").fill("E2E leave reason");
+      await page.getByRole("button", { name: "Submit request" }).click();
+      await expect(page.getByText("E2E leave reason")).toBeVisible();
+
+      const requestRow = page.locator("li", { hasText: "E2E leave reason" });
+      await requestRow.getByRole("button", { name: "Approve" }).click();
+      // The default filter is PENDING, so an approved request disappears from view.
+      await expect(page.getByText("E2E leave reason")).not.toBeVisible();
+    });
+
+    await test.step("logout ends the session", async () => {
+      await page.goto("/login", { waitUntil: "networkidle" });
+      await expect(page.getByText(`Signed in as ${E2E_STAFF_EMAIL}`)).toBeVisible();
+
+      await page.getByRole("button", { name: "Sign out" }).click();
+
+      await page.goto("/attendance", { waitUntil: "networkidle" });
+      await expect(page.getByText("You need to sign in to view attendance records.")).toBeVisible();
+    });
+  });
+});

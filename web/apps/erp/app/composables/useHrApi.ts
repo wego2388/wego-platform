@@ -124,3 +124,115 @@ export function terminateEmployee(token: string, id: string, reason?: string): P
     body: JSON.stringify({ reason: reason || undefined }),
   });
 }
+
+export type AttendanceStatus = "PRESENT" | "ABSENT" | "LATE" | "HALF_DAY";
+
+export interface AttendanceRecord {
+  id: string;
+  employeeId: string;
+  attendanceDate: string;
+  status: AttendanceStatus;
+  clockIn?: string;
+  clockOut?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RecordAttendanceBody {
+  employeeId: string;
+  attendanceDate: string;
+  status: AttendanceStatus;
+  clockIn?: string;
+  clockOut?: string;
+  notes?: string;
+}
+
+/** Recording again for the same employee/date corrects that day's record, so this always returns 200 — never a 201. */
+export function recordAttendance(token: string, body: RecordAttendanceBody): Promise<AttendanceRecord> {
+  return request<AttendanceRecord>("/api/v1/hr/attendance", token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+export function listAttendance(
+  token: string,
+  params: { employeeId?: string; from?: string; to?: string; page?: number; size?: number } = {},
+): Promise<AttendanceRecord[]> {
+  const query = new URLSearchParams();
+  if (params.employeeId) query.set("employeeId", params.employeeId);
+  if (params.from) query.set("from", params.from);
+  if (params.to) query.set("to", params.to);
+  query.set("page", String(params.page ?? 0));
+  query.set("size", String(params.size ?? HR_PAGE_SIZE));
+  return request<AttendanceRecord[]>(`/api/v1/hr/attendance?${query.toString()}`, token);
+}
+
+export type LeaveType = "ANNUAL" | "SICK" | "UNPAID" | "OTHER";
+export type LeaveRequestStatus = "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+
+export interface LeaveRequest {
+  id: string;
+  employeeId: string;
+  leaveType: LeaveType;
+  startDate: string;
+  endDate: string;
+  reason?: string;
+  status: LeaveRequestStatus;
+  requestedByUserId?: string;
+  requestedAt: string;
+  decidedByUserId?: string;
+  decidedAt?: string;
+  decisionNotes?: string;
+  cancelledAt?: string;
+}
+
+export interface SubmitLeaveRequestBody {
+  employeeId: string;
+  leaveType: LeaveType;
+  startDate: string;
+  endDate: string;
+  reason?: string;
+}
+
+export function submitLeaveRequest(token: string, body: SubmitLeaveRequestBody): Promise<LeaveRequest> {
+  return request<LeaveRequest>("/api/v1/hr/leave-requests", token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+export function listLeaveRequests(
+  token: string,
+  params: { employeeId?: string; status?: LeaveRequestStatus; page?: number; size?: number } = {},
+): Promise<LeaveRequest[]> {
+  const query = new URLSearchParams();
+  if (params.employeeId) query.set("employeeId", params.employeeId);
+  if (params.status) query.set("status", params.status);
+  query.set("page", String(params.page ?? 0));
+  query.set("size", String(params.size ?? HR_PAGE_SIZE));
+  return request<LeaveRequest[]>(`/api/v1/hr/leave-requests?${query.toString()}`, token);
+}
+
+export function approveLeaveRequest(token: string, id: string, notes?: string): Promise<LeaveRequest> {
+  return request<LeaveRequest>(`/api/v1/hr/leave-requests/${id}/approve`, token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ notes: notes || undefined }),
+  });
+}
+
+export function rejectLeaveRequest(token: string, id: string, notes?: string): Promise<LeaveRequest> {
+  return request<LeaveRequest>(`/api/v1/hr/leave-requests/${id}/reject`, token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ notes: notes || undefined }),
+  });
+}
+
+export function cancelLeaveRequest(token: string, id: string): Promise<LeaveRequest> {
+  return request<LeaveRequest>(`/api/v1/hr/leave-requests/${id}/cancel`, token, { method: "POST" });
+}
