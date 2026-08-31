@@ -67,6 +67,14 @@ class JooqAccountRepository(
             .map(::toDomain)
     }
 
+    @Transactional(readOnly = true)
+    override fun findAllAccounts(): List<Account> =
+        dsl
+            .selectFrom(ACCOUNTING_ACCOUNT)
+            .orderBy(ACCOUNTING_ACCOUNT.CODE)
+            .fetch()
+            .map(::toDomain)
+
     @Transactional
     override fun save(account: Account) {
         dsl

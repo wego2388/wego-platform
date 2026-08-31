@@ -162,3 +162,69 @@ export function reverseJournalEntry(token: string, id: string, reason: string): 
     body: JSON.stringify({ reason }),
   });
 }
+
+export interface TrialBalanceLine {
+  accountId: string;
+  code: string;
+  name: string;
+  accountType: AccountType;
+  debitBalance: string;
+  creditBalance: string;
+}
+
+export interface TrialBalance {
+  asOfDate: string;
+  lines: TrialBalanceLine[];
+  totalDebits: string;
+  totalCredits: string;
+}
+
+export function getTrialBalance(token: string, asOfDate: string): Promise<TrialBalance> {
+  const query = new URLSearchParams({ asOfDate });
+  return request<TrialBalance>(`/api/v1/accounting/reports/trial-balance?${query.toString()}`, token);
+}
+
+export interface IncomeStatementLine {
+  accountId: string;
+  code: string;
+  name: string;
+  amount: string;
+}
+
+export interface IncomeStatement {
+  from: string;
+  to: string;
+  revenueLines: IncomeStatementLine[];
+  expenseLines: IncomeStatementLine[];
+  totalRevenue: string;
+  totalExpenses: string;
+  netIncome: string;
+}
+
+export function getIncomeStatement(token: string, from: string, to: string): Promise<IncomeStatement> {
+  const query = new URLSearchParams({ from, to });
+  return request<IncomeStatement>(`/api/v1/accounting/reports/income-statement?${query.toString()}`, token);
+}
+
+/** `accountId`/`code` are absent on exactly one line — the synthesized "Retained Earnings (accumulated)" figure, which has no backing account row. */
+export interface BalanceSheetLine {
+  accountId?: string;
+  code?: string;
+  name: string;
+  amount: string;
+}
+
+export interface BalanceSheet {
+  asOfDate: string;
+  assetLines: BalanceSheetLine[];
+  liabilityLines: BalanceSheetLine[];
+  equityLines: BalanceSheetLine[];
+  totalAssets: string;
+  totalLiabilities: string;
+  totalEquity: string;
+}
+
+export function getBalanceSheet(token: string, asOfDate: string): Promise<BalanceSheet> {
+  const query = new URLSearchParams({ asOfDate });
+  return request<BalanceSheet>(`/api/v1/accounting/reports/balance-sheet?${query.toString()}`, token);
+}

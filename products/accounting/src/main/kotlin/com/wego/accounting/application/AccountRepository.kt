@@ -21,4 +21,7 @@ interface AccountRepository {
     ): List<Account>
 
     fun save(account: Account)
+
+    /** The full chart of accounts, unpaginated — reports genuinely need every account to build a correct trial balance/income statement/balance sheet, not one page of them. */
+    fun findAllAccounts(): List<Account>
 }

@@ -1,5 +1,6 @@
 package com.wego.accounting.infrastructure
 
+import com.wego.accounting.application.AccountDirectionTotal
 import com.wego.accounting.application.JournalEntryRepository
 import com.wego.accounting.domain.AccountId
 import com.wego.accounting.domain.JournalEntry
@@ -11,8 +12,10 @@ import com.wego.generated.jooq.tables.AccountingJournalEntry.ACCOUNTING_JOURNAL_
 import com.wego.generated.jooq.tables.AccountingJournalLine.ACCOUNTING_JOURNAL_LINE
 import com.wego.generated.jooq.tables.records.AccountingJournalEntryRecord
 import com.wego.generated.jooq.tables.records.AccountingJournalLineRecord
+import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
+import org.jooq.impl.DSL.sum
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -103,6 +106,31 @@ class JooqJournalEntryRepository(
                 .execute()
         }
     }
+
+    @Transactional(readOnly = true)
+    override fun sumLinesAsOf(asOfDate: LocalDate): List<AccountDirectionTotal> = sumLines(ACCOUNTING_JOURNAL_ENTRY.ENTRY_DATE.le(asOfDate))
+
+    @Transactional(readOnly = true)
+    override fun sumLinesBetween(
+        from: LocalDate,
+        to: LocalDate,
+    ): List<AccountDirectionTotal> = sumLines(ACCOUNTING_JOURNAL_ENTRY.ENTRY_DATE.ge(from).and(ACCOUNTING_JOURNAL_ENTRY.ENTRY_DATE.le(to)))
+
+    private fun sumLines(dateCondition: Condition): List<AccountDirectionTotal> =
+        dsl
+            .select(ACCOUNTING_JOURNAL_LINE.ACCOUNT_ID, ACCOUNTING_JOURNAL_LINE.DIRECTION, sum(ACCOUNTING_JOURNAL_LINE.AMOUNT))
+            .from(ACCOUNTING_JOURNAL_LINE)
+            .join(ACCOUNTING_JOURNAL_ENTRY)
+            .on(ACCOUNTING_JOURNAL_LINE.JOURNAL_ENTRY_ID.eq(ACCOUNTING_JOURNAL_ENTRY.ID))
+            .where(dateCondition)
+            .groupBy(ACCOUNTING_JOURNAL_LINE.ACCOUNT_ID, ACCOUNTING_JOURNAL_LINE.DIRECTION)
+            .fetch {
+                AccountDirectionTotal(
+                    accountId = AccountId(it.value1()),
+                    direction = JournalLineDirection.valueOf(it.value2()),
+                    total = it.value3(),
+                )
+            }
 
     private fun linesFor(entryIds: List<UUID>): Map<UUID, List<JournalLine>> {
         if (entryIds.isEmpty()) return emptyMap()

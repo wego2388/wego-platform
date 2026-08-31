@@ -21,4 +21,13 @@ interface JournalEntryRepository {
     fun findReversalOf(id: JournalEntryId): JournalEntry?
 
     fun save(journalEntry: JournalEntry)
+
+    /** Every account's DEBIT/CREDIT totals across all entries dated on or before [asOfDate] — the raw material for a trial balance or a balance sheet, both cumulative-to-date reports. */
+    fun sumLinesAsOf(asOfDate: LocalDate): List<AccountDirectionTotal>
+
+    /** Every account's DEBIT/CREDIT totals across entries dated within [from]..[to] inclusive — the raw material for an income statement, a period report, not a cumulative one. */
+    fun sumLinesBetween(
+        from: LocalDate,
+        to: LocalDate,
+    ): List<AccountDirectionTotal>
 }

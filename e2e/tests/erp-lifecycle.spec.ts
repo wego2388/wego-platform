@@ -385,3 +385,108 @@ test.describe("ERP payroll lifecycle", () => {
     });
   });
 });
+
+// Distinct from every other account code this suite creates elsewhere
+// (e.g. the accounting-lifecycle test's own 9910/9920) — account codes
+// are unique, and this suite runs all its describe blocks against one
+// shared database in one run.
+const REPORT_CASH_CODE = "9930";
+const REPORT_REVENUE_CODE = "9940";
+
+test.describe("ERP financial reports lifecycle", () => {
+  test("login, post a real entry, and all three reports reflect it while the fundamental invariants hold", async ({ page }) => {
+    page.on("dialog", (dialog) => dialog.accept());
+
+    await test.step("login", async () => {
+      await page.goto("/login", { waitUntil: "networkidle" });
+      await page.locator("#email").fill(E2E_STAFF_EMAIL);
+      await page.locator("#password").fill(E2E_STAFF_PASSWORD);
+      await page.getByRole("button", { name: "Sign in" }).click();
+      await expect(page.getByText(`Signed in as ${E2E_STAFF_EMAIL}`)).toBeVisible();
+    });
+
+    await test.step("create two real accounts and post a real balanced entry between them", async () => {
+      await page.goto("/chart-of-accounts", { waitUntil: "networkidle" });
+      await page.locator("#code").fill(REPORT_CASH_CODE);
+      await page.locator("#name").fill("E2E Report Cash");
+      await page.locator("#accountType").selectOption("ASSET");
+      await page.getByRole("button", { name: "Create account" }).click();
+      await expect(page.getByText(`${REPORT_CASH_CODE} · E2E Report Cash`)).toBeVisible();
+
+      await page.locator("#code").fill(REPORT_REVENUE_CODE);
+      await page.locator("#name").fill("E2E Report Revenue");
+      await page.locator("#accountType").selectOption("REVENUE");
+      await page.getByRole("button", { name: "Create account" }).click();
+      await expect(page.getByText(`${REPORT_REVENUE_CODE} · E2E Report Revenue`)).toBeVisible();
+
+      await page.goto("/journal-entries", { waitUntil: "networkidle" });
+      await page.locator("#entryDate").fill("2026-08-20");
+      await page.locator("#description").fill("E2E report test posting");
+      await page.locator("#line-account-0").selectOption({ label: `${REPORT_CASH_CODE} · E2E Report Cash` });
+      await page.locator("#line-amount-0").fill("321.00");
+      await page.locator("#line-account-1").selectOption({ label: `${REPORT_REVENUE_CODE} · E2E Report Revenue` });
+      await page.locator("#line-direction-1").selectOption("CREDIT");
+      await page.locator("#line-amount-1").fill("321.00");
+      await page.getByRole("button", { name: "Post entry" }).click();
+      await expect(page.getByText("E2E report test posting")).toBeVisible();
+    });
+
+    await test.step("the trial balance shows the real posted amounts and genuinely balances", async () => {
+      await page.goto("/reports", { waitUntil: "networkidle" });
+      await page.locator("#trialBalanceDate").fill("2026-08-31");
+      const runButtons = page.getByRole("button", { name: "Run" });
+      await runButtons.nth(0).click();
+
+      await expect(page.getByText(`${REPORT_CASH_CODE} · E2E Report Cash`)).toBeVisible();
+      await expect(page.getByText(`${REPORT_REVENUE_CODE} · E2E Report Revenue`)).toBeVisible();
+      const totalsText = page.getByText(/Total debits [\d,.]+ · Total credits [\d,.]+/);
+      await expect(totalsText).toBeVisible();
+      const totals = await totalsText.textContent();
+      const [, debits, credits] = totals?.match(/Total debits ([\d.]+) · Total credits ([\d.]+)/) ?? [];
+      expect(debits).toBe(credits);
+    });
+
+    await test.step("the income statement shows the real revenue line", async () => {
+      await page.locator("#incomeFrom").fill("2026-08-01");
+      await page.locator("#incomeTo").fill("2026-08-31");
+      const runButtons = page.getByRole("button", { name: "Run" });
+      await runButtons.nth(1).click();
+
+      await expect(page.getByText(`${REPORT_REVENUE_CODE} · E2E Report Revenue`)).toBeVisible();
+      // Exact match: the trial balance section above still renders its own
+      // totals line (e.g. "Total debits 15321.00 · ..."), which contains
+      // "321.00" as a loose substring.
+      await expect(page.getByText("321.00", { exact: true })).toBeVisible();
+    });
+
+    await test.step("the balance sheet includes the synthesized retained earnings line and genuinely balances", async () => {
+      await page.locator("#balanceSheetDate").fill("2026-08-31");
+      const runButtons = page.getByRole("button", { name: "Run" });
+      await runButtons.nth(2).click();
+
+      await expect(page.getByText(`${REPORT_CASH_CODE} · E2E Report Cash`)).toBeVisible();
+      await expect(page.getByText("Retained Earnings (accumulated)")).toBeVisible();
+      // Other lifecycle tests in this shared suite post real entries against
+      // the same ledger (e.g. payroll posts a real salaries expense), so
+      // equity here can genuinely be negative — the regexes must allow a
+      // leading "-", not just digits.
+      const assetsText = await page.getByText(/Total assets -?[\d,.]+/).textContent();
+      const equityText = await page.getByText(/Total equity -?[\d,.]+/).textContent();
+      const liabilitiesText = await page.getByText(/Total liabilities -?[\d,.]+/).textContent();
+      const totalAssets = Number(assetsText?.match(/Total assets (-?[\d.]+)/)?.[1]);
+      const totalEquity = Number(equityText?.match(/Total equity (-?[\d.]+)/)?.[1]);
+      const totalLiabilities = Number(liabilitiesText?.match(/Total liabilities (-?[\d.]+)/)?.[1]);
+      expect(totalAssets).toBeCloseTo(totalLiabilities + totalEquity, 2);
+    });
+
+    await test.step("logout ends the session", async () => {
+      await page.goto("/login", { waitUntil: "networkidle" });
+      await expect(page.getByText(`Signed in as ${E2E_STAFF_EMAIL}`)).toBeVisible();
+
+      await page.getByRole("button", { name: "Sign out" }).click();
+
+      await page.goto("/reports", { waitUntil: "networkidle" });
+      await expect(page.getByText("You need to sign in to view financial reports.")).toBeVisible();
+    });
+  });
+});

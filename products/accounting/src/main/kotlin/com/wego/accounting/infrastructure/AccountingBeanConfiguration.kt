@@ -8,6 +8,7 @@ import com.wego.accounting.application.JournalEntryQueryService
 import com.wego.accounting.application.JournalEntryRepository
 import com.wego.accounting.application.PostJournalEntryService
 import com.wego.accounting.application.ReactivateAccountService
+import com.wego.accounting.application.ReportingQueryService
 import com.wego.accounting.application.ReverseJournalEntryService
 import com.wego.accounting.application.UpdateAccountService
 import com.wego.transaction.TransactionRunner
@@ -66,4 +67,10 @@ class AccountingBeanConfiguration {
     @Bean
     fun journalEntryQueryService(journalEntryRepository: JournalEntryRepository): JournalEntryQueryService =
         JournalEntryQueryService(journalEntryRepository)
+
+    @Bean
+    fun reportingQueryService(
+        accountRepository: AccountRepository,
+        journalEntryRepository: JournalEntryRepository,
+    ): ReportingQueryService = ReportingQueryService(accountRepository, journalEntryRepository)
 }
