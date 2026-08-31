@@ -56,6 +56,14 @@
       "path": "products/hr",
       "version": "0.1.0-SNAPSHOT",
       "capabilities": ["hr.product-boundary"]
+    },
+    {
+      "id": "product.accounting",
+      "kind": "PRODUCT_MARKER",
+      "owner": "wego-accounting",
+      "path": "products/accounting",
+      "version": "0.1.0-SNAPSHOT",
+      "capabilities": ["accounting.product-boundary"]
     }
   ]
 }

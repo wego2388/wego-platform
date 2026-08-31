@@ -38,6 +38,7 @@ kotlin {
             "../../products/divers/src/main/kotlin",
             "../../products/travel-marketplace/src/main/kotlin",
             "../../products/hr/src/main/kotlin",
+            "../../products/accounting/src/main/kotlin",
         )
     }
 }

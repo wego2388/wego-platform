@@ -238,3 +238,75 @@ test.describe("ERP HR attendance and leave lifecycle", () => {
     });
   });
 });
+
+const CASH_ACCOUNT_CODE = "9910";
+const REVENUE_ACCOUNT_CODE = "9920";
+
+test.describe("ERP accounting lifecycle", () => {
+  test("login, real seeded starter chart of accounts, create accounts, post a balanced entry, reverse it", async ({ page }) => {
+    page.on("dialog", (dialog) => dialog.accept());
+
+    await test.step("login", async () => {
+      await page.goto("/login", { waitUntil: "networkidle" });
+      await page.locator("#email").fill(E2E_STAFF_EMAIL);
+      await page.locator("#password").fill(E2E_STAFF_PASSWORD);
+      await page.getByRole("button", { name: "Sign in" }).click();
+      await expect(page.getByText(`Signed in as ${E2E_STAFF_EMAIL}`)).toBeVisible();
+    });
+
+    await test.step("the real seeded starter chart of accounts is visible", async () => {
+      await page.goto("/chart-of-accounts", { waitUntil: "networkidle" });
+      await expect(page.getByText("1000 · Cash on Hand")).toBeVisible();
+      await expect(page.getByText("4000 · Service Revenue")).toBeVisible();
+    });
+
+    await test.step("create two real accounts for this test", async () => {
+      await page.locator("#code").fill(CASH_ACCOUNT_CODE);
+      await page.locator("#name").fill("E2E Test Cash");
+      await page.locator("#accountType").selectOption("ASSET");
+      await page.getByRole("button", { name: "Create account" }).click();
+      await expect(page.getByText(`${CASH_ACCOUNT_CODE} · E2E Test Cash`)).toBeVisible();
+
+      await page.locator("#code").fill(REVENUE_ACCOUNT_CODE);
+      await page.locator("#name").fill("E2E Test Revenue");
+      await page.locator("#accountType").selectOption("REVENUE");
+      await page.getByRole("button", { name: "Create account" }).click();
+      await expect(page.getByText(`${REVENUE_ACCOUNT_CODE} · E2E Test Revenue`)).toBeVisible();
+    });
+
+    await test.step("post a real balanced journal entry", async () => {
+      await page.goto("/journal-entries", { waitUntil: "networkidle" });
+      await page.locator("#entryDate").fill("2026-08-31");
+      await page.locator("#description").fill("E2E test booking revenue");
+      await page.locator("#line-account-0").selectOption({ label: `${CASH_ACCOUNT_CODE} · E2E Test Cash` });
+      await page.locator("#line-amount-0").fill("500.00");
+      await page.locator("#line-account-1").selectOption({ label: `${REVENUE_ACCOUNT_CODE} · E2E Test Revenue` });
+      await page.locator("#line-direction-1").selectOption("CREDIT");
+      await page.locator("#line-amount-1").fill("500.00");
+      await page.getByRole("button", { name: "Post entry" }).click();
+
+      await expect(page.getByText("E2E test booking revenue")).toBeVisible();
+      const entryRow = page.locator("li", { hasText: "E2E test booking revenue" });
+      await expect(entryRow.getByText("500.00 EGP debit / 500.00 EGP credit")).toBeVisible();
+    });
+
+    await test.step("reverse the entry, flipping every line", async () => {
+      const entryRow = page.locator("li", { hasText: "E2E test booking revenue" }).first();
+      await entryRow.locator('[id^="reverse-reason-"]').fill("E2E test reversal");
+      await entryRow.getByRole("button", { name: "Reverse" }).click();
+
+      await page.reload();
+      await expect(page.getByText("reverses another entry")).toBeVisible();
+    });
+
+    await test.step("logout ends the session", async () => {
+      await page.goto("/login", { waitUntil: "networkidle" });
+      await expect(page.getByText(`Signed in as ${E2E_STAFF_EMAIL}`)).toBeVisible();
+
+      await page.getByRole("button", { name: "Sign out" }).click();
+
+      await page.goto("/chart-of-accounts", { waitUntil: "networkidle" });
+      await expect(page.getByText("You need to sign in to view the chart of accounts.")).toBeVisible();
+    });
+  });
+});
