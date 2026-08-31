@@ -21,4 +21,6 @@ class DiverQueryService(
             limit = Pagination.boundedSize(size),
             offset = Pagination.offsetFor(page, size),
         )
+
+    fun countActive(): Int = diverRepository.countByStatus(DiverStatus.ACTIVE)
 }

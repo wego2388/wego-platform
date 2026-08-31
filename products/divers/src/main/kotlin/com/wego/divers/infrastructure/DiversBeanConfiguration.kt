@@ -89,10 +89,16 @@ class DiversBeanConfiguration {
         )
 
     @Bean
-    fun offeringQueryService(offeringRepository: OfferingRepository): OfferingQueryService = OfferingQueryService(offeringRepository)
+    fun offeringQueryService(
+        offeringRepository: OfferingRepository,
+        clock: Clock,
+    ): OfferingQueryService = OfferingQueryService(offeringRepository, clock)
 
     @Bean
-    fun bookingQueryService(bookingRepository: BookingRepository): BookingQueryService = BookingQueryService(bookingRepository)
+    fun bookingQueryService(
+        bookingRepository: BookingRepository,
+        clock: Clock,
+    ): BookingQueryService = BookingQueryService(bookingRepository, clock)
 
     @Bean
     fun createBookingService(

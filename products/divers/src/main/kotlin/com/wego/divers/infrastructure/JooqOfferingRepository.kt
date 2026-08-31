@@ -14,6 +14,7 @@ import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -65,6 +66,21 @@ class JooqOfferingRepository(
             .fetch()
             .map(::toDomain)
     }
+
+    @Transactional(readOnly = true)
+    override fun findUpcoming(
+        from: LocalDate,
+        to: LocalDate,
+        limit: Int,
+    ): List<Offering> =
+        dsl
+            .selectFrom(DIVERS_OFFERING)
+            .where(DIVERS_OFFERING.STATUS.eq(OfferingStatus.ACTIVE.name))
+            .and(DIVERS_OFFERING.STARTS_ON.between(from, to))
+            .orderBy(DIVERS_OFFERING.STARTS_ON, DIVERS_OFFERING.ID)
+            .limit(limit)
+            .fetch()
+            .map(::toDomain)
 
     @Transactional
     override fun save(offering: Offering) {

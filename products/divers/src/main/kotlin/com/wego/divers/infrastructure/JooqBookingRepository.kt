@@ -16,6 +16,7 @@ import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
+import java.math.RoundingMode
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -111,6 +112,35 @@ class JooqBookingRepository(
             .fetch()
             .map(::toDomain)
     }
+
+    @Transactional(readOnly = true)
+    override fun countCreatedBetween(
+        from: Instant,
+        to: Instant,
+    ): Int =
+        dsl.fetchCount(
+            dsl
+                .selectFrom(DIVERS_BOOKING)
+                .where(DIVERS_BOOKING.CREATED_AT.ge(toOffset(from)))
+                .and(DIVERS_BOOKING.CREATED_AT.lt(toOffset(to))),
+        )
+
+    @Transactional(readOnly = true)
+    override fun sumPaidTotalsCreatedBetween(
+        from: Instant,
+        to: Instant,
+    ): List<Money> =
+        dsl
+            .select(DIVERS_BOOKING.CURRENCY_CODE, DSL.sum(DIVERS_BOOKING.TOTAL_PRICE))
+            .from(DIVERS_BOOKING)
+            .where(DIVERS_BOOKING.STATUS.eq(BookingStatus.CONFIRMED.name))
+            .and(DIVERS_BOOKING.PAYMENT_STATUS.eq(PaymentStatus.PAID.name))
+            .and(DIVERS_BOOKING.CREATED_AT.ge(toOffset(from)))
+            .and(DIVERS_BOOKING.CREATED_AT.lt(toOffset(to)))
+            .groupBy(DIVERS_BOOKING.CURRENCY_CODE)
+            .fetch { record ->
+                Money(record.value2()!!.setScale(Money.REQUIRED_SCALE, RoundingMode.HALF_UP), record.value1())
+            }
 
     @Transactional
     override fun save(booking: Booking) {

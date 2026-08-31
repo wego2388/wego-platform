@@ -69,6 +69,10 @@ class JooqDiverRepository(
         return records.map { toDomain(it, certsByDiver[DiverId(it.id)] ?: emptyList()) }
     }
 
+    @Transactional(readOnly = true)
+    override fun countByStatus(status: DiverStatus): Int =
+        dsl.fetchCount(dsl.selectFrom(DIVERS_DIVER).where(DIVERS_DIVER.STATUS.eq(status.name)))
+
     @Transactional
     override fun save(diver: Diver) {
         dsl
