@@ -64,6 +64,14 @@
       "path": "products/accounting",
       "version": "0.1.0-SNAPSHOT",
       "capabilities": ["accounting.product-boundary"]
+    },
+    {
+      "id": "product.payroll",
+      "kind": "PRODUCT_MARKER",
+      "owner": "wego-payroll",
+      "path": "products/payroll",
+      "version": "0.1.0-SNAPSHOT",
+      "capabilities": ["payroll.product-boundary"]
     }
   ]
 }

@@ -43,6 +43,8 @@ class SecurityConfiguration {
                     .authenticated()
                     .requestMatchers("/api/v1/accounting/**")
                     .authenticated()
+                    .requestMatchers("/api/v1/payroll/**")
+                    .authenticated()
                     .anyRequest()
                     .denyAll()
             }.sessionManagement { sessions ->

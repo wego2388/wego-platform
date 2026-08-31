@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "productId": "wego-payroll",
+  "displayName": "Wego Payroll",
+  "version": "0.1.0",
+  "platformVersion": "0.1.0-SNAPSHOT",
+  "requiredModules": [
+    "platform.events",
+    "platform.security",
+    "platform.identity",
+    "platform.transaction",
+    "product.hr",
+    "product.accounting",
+    "product.payroll"
+  ],
+  "requiredCapabilities": [
+    "payroll.product-boundary",
+    "platform.authorization",
+    "platform.identity-authentication",
+    "platform.integration-events",
+    "platform.transaction-boundary",
+    "hr.product-boundary",
+    "accounting.product-boundary"
+  ]
+}

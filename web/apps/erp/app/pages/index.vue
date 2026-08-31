@@ -113,6 +113,7 @@ const foundationItems = [
           <NuxtLink to="/leave-requests" class="text-sm font-semibold text-wego-accent underline">Leave Requests</NuxtLink>
           <NuxtLink to="/chart-of-accounts" class="text-sm font-semibold text-wego-accent underline">Chart of Accounts</NuxtLink>
           <NuxtLink to="/journal-entries" class="text-sm font-semibold text-wego-accent underline">Journal Entries</NuxtLink>
+          <NuxtLink to="/payroll" class="text-sm font-semibold text-wego-accent underline">Payroll</NuxtLink>
           <NuxtLink
             to="/login"
             class="rounded-wego-control bg-wego-accent px-5 py-2.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"

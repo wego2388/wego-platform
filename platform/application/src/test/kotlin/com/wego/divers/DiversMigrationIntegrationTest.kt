@@ -32,7 +32,7 @@ class DiversMigrationIntegrationTest(
     fun `boot auto migrates the divers schema and generated jooq types honor its constraints`() {
         assertThat(
             flyway.info().applied().map { it.version.toString() },
-        ).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12")
+        ).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13")
 
         postgres.createConnection("").use { connection ->
             val dsl = DSL.using(connection, SQLDialect.POSTGRES)

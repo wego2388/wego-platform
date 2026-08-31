@@ -65,6 +65,17 @@ tags:
       shared currency) and, once posted, is never edited or deleted — a
       mistake is corrected with a real reversing entry, standard
       accounting practice.
+  - name: Payroll
+    description: >-
+      A real payroll run: a DRAFT preview (one line per active,
+      salaried employee, a snapshot of their base salary — never a live
+      reference) that has no ledger consequence until explicitly posted.
+      Posting creates one real, balanced journal entry against the real
+      Salaries Expense / Wages Payable accounts and is permanent — the
+      run itself is never edited afterward. A DRAFT can be freely
+      discarded; a cash-disbursement entry, once wages are actually
+      transferred, is posted separately through Accounting's own journal
+      endpoint.
 paths:
   /actuator/health:
     get:
@@ -3584,6 +3595,217 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/JournalEntryErrorResponse"
+  /api/v1/payroll/runs:
+    post:
+      operationId: createPayrollRun
+      summary: Create a draft payroll run
+      description: >-
+        Requires `payroll:manage`. Includes one line per currently active
+        employee with a base salary set — a snapshot at creation time, not
+        a live reference. Nothing is posted to the ledger yet.
+      tags:
+        - Payroll
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePayrollRunRequest"
+      responses:
+        "201":
+          description: Draft payroll run created.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayrollRunResponse"
+        "400":
+          description: >-
+            The request failed field validation, no active employee has a
+            base salary set, or eligible employees span more than one
+            currency.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+                  - $ref: "#/components/schemas/PayrollErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "409":
+          description: This pay period overlaps an existing run.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayrollErrorResponse"
+    get:
+      operationId: listPayrollRuns
+      summary: List payroll runs
+      description: Requires `payroll:view`. Paginated with `page`/`size`; filterable by `status`.
+      tags:
+        - Payroll
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/PayrollRunStatus"
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Matching payroll runs, one page.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PayrollRunResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/payroll/runs/{id}:
+    get:
+      operationId: getPayrollRun
+      summary: Read a single payroll run
+      description: Requires `payroll:view`.
+      tags:
+        - Payroll
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The payroll run.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayrollRunResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No payroll run with this id.
+  /api/v1/payroll/runs/{id}/post:
+    post:
+      operationId: postPayrollRun
+      summary: Post a draft payroll run
+      description: >-
+        Requires `payroll:manage`. Creates one real, balanced journal
+        entry (DEBIT Salaries Expense, CREDIT Wages Payable, both for the
+        run's total) against the real accounts seeded by V12. Permanent —
+        the run is never editable again afterward.
+      tags:
+        - Payroll
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Payroll run posted.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayrollRunResponse"
+        "400":
+          description: The required Salaries Expense or Wages Payable account is missing or inactive.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayrollErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No payroll run with this id.
+        "409":
+          description: This run is no longer a draft.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayrollErrorResponse"
+  /api/v1/payroll/runs/{id}/discard:
+    post:
+      operationId: discardPayrollRun
+      summary: Discard a draft payroll run
+      description: Requires `payroll:manage`. Only a DRAFT run can be discarded — a POSTED run is permanent.
+      tags:
+        - Payroll
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Payroll run discarded.
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No payroll run with this id.
+        "409":
+          description: This run is no longer a draft.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayrollErrorResponse"
 components:
   securitySchemes:
     bearerAuth:
@@ -5381,3 +5603,101 @@ components:
             - account_not_found
             - account_inactive
             - already_reversed
+    PayrollRunStatus:
+      type: string
+      enum:
+        - DRAFT
+        - POSTED
+    CreatePayrollRunRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - payPeriodStart
+        - payPeriodEnd
+      properties:
+        payPeriodStart:
+          type: string
+          format: date
+        payPeriodEnd:
+          type: string
+          format: date
+    PayrollLineResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - employeeId
+        - amount
+      properties:
+        employeeId:
+          type: string
+          format: uuid
+        amount:
+          type: string
+    PayrollRunResponse:
+      type: object
+      additionalProperties: false
+      description: >-
+        A DRAFT run has no ledger consequence — it can be discarded
+        freely. Posting is permanent: journalEntryId is set only once, and
+        the run is never editable again afterward.
+      required:
+        - id
+        - payPeriodStart
+        - payPeriodEnd
+        - currencyCode
+        - totalAmount
+        - status
+        - lines
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        payPeriodStart:
+          type: string
+          format: date
+        payPeriodEnd:
+          type: string
+          format: date
+        currencyCode:
+          type: string
+        totalAmount:
+          type: string
+        status:
+          $ref: "#/components/schemas/PayrollRunStatus"
+        lines:
+          type: array
+          items:
+            $ref: "#/components/schemas/PayrollLineResponse"
+        createdByUserId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        postedByUserId:
+          type: string
+          format: uuid
+        postedAt:
+          type: string
+          format: date-time
+        journalEntryId:
+          type: string
+          format: uuid
+    PayrollErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - no_eligible_employees
+            - mixed_currencies
+            - overlaps_existing_run
+            - not_draft
+            - salaries_expense_account_not_found
+            - salaries_expense_account_inactive
+            - wages_payable_account_not_found
+            - wages_payable_account_inactive

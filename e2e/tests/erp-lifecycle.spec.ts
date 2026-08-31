@@ -310,3 +310,78 @@ test.describe("ERP accounting lifecycle", () => {
     });
   });
 });
+
+const PAYROLL_EMPLOYEE_NAME = "E2E Payroll Employee";
+
+test.describe("ERP payroll lifecycle", () => {
+  test("login, create a salaried employee, draft payroll, post it, and the real journal entry balances", async ({ page }) => {
+    page.on("dialog", (dialog) => dialog.accept());
+
+    await test.step("login", async () => {
+      await page.goto("/login", { waitUntil: "networkidle" });
+      await page.locator("#email").fill(E2E_STAFF_EMAIL);
+      await page.locator("#password").fill(E2E_STAFF_PASSWORD);
+      await page.getByRole("button", { name: "Sign in" }).click();
+      await expect(page.getByText(`Signed in as ${E2E_STAFF_EMAIL}`)).toBeVisible();
+    });
+
+    await test.step("create a real salaried employee", async () => {
+      await page.goto("/employees", { waitUntil: "networkidle" });
+      await page.locator("#fullName").fill(PAYROLL_EMPLOYEE_NAME);
+      await page.locator("#position").fill("Dive Instructor");
+      await page.locator("#hireDate").fill("2026-01-01");
+      await page.locator("#amount").fill("15000.00");
+      await page.locator("#currencyCode").fill("EGP");
+      await page.getByRole("button", { name: "Create employee" }).click();
+      await expect(page.getByText(PAYROLL_EMPLOYEE_NAME)).toBeVisible();
+    });
+
+    let runRow = page.locator("li", { hasText: "2026-08-01 – 2026-08-31" });
+
+    await test.step("create a draft payroll run", async () => {
+      await page.goto("/payroll", { waitUntil: "networkidle" });
+      await page.locator("#payPeriodStart").fill("2026-08-01");
+      await page.locator("#payPeriodEnd").fill("2026-08-31");
+      await page.getByRole("button", { name: "Create draft" }).click();
+
+      await expect(runRow).toBeVisible();
+      await expect(runRow.getByText("DRAFT")).toBeVisible();
+      await expect(runRow.getByText(PAYROLL_EMPLOYEE_NAME)).toBeVisible();
+    });
+
+    await test.step("post the draft, creating a real journal entry", async () => {
+      await runRow.getByRole("button", { name: "Post" }).click();
+      await page.reload();
+      runRow = page.locator("li", { hasText: "2026-08-01 – 2026-08-31" });
+      await expect(runRow.getByText("POSTED")).toBeVisible();
+    });
+
+    await test.step("the real journal entry it created actually balances", async () => {
+      await page.goto("/journal-entries", { waitUntil: "networkidle" });
+      const entryRow = page.locator("li", { hasText: "Payroll for 2026-08-01 to 2026-08-31" });
+      await expect(entryRow).toBeVisible();
+      await expect(entryRow.getByText("15000.00 EGP debit / 15000.00 EGP credit")).toBeVisible();
+      await expect(entryRow.getByText("DEBIT 15000.00")).toBeVisible();
+      await expect(entryRow.getByText("CREDIT 15000.00")).toBeVisible();
+    });
+
+    await test.step("a posted run can no longer be posted or discarded", async () => {
+      await page.goto("/payroll", { waitUntil: "networkidle" });
+      runRow = page.locator("li", { hasText: "2026-08-01 – 2026-08-31" });
+      // Post/Discard are only rendered for DRAFT runs — the real proof
+      // this run is permanent is that neither button exists anymore.
+      await expect(runRow.getByRole("button", { name: "Post" })).toHaveCount(0);
+      await expect(runRow.getByRole("button", { name: "Discard" })).toHaveCount(0);
+    });
+
+    await test.step("logout ends the session", async () => {
+      await page.goto("/login", { waitUntil: "networkidle" });
+      await expect(page.getByText(`Signed in as ${E2E_STAFF_EMAIL}`)).toBeVisible();
+
+      await page.getByRole("button", { name: "Sign out" }).click();
+
+      await page.goto("/payroll", { waitUntil: "networkidle" });
+      await expect(page.getByText("You need to sign in to view payroll runs.")).toBeVisible();
+    });
+  });
+});
