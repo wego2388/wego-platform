@@ -8,3 +8,10 @@
 # First surfaced 2026-08-31 when this repository's accumulated history was
 # pushed to origin for the first time and gitleaks actually ran against it.
 82b3834d6012b04acd6814ada7332c8f17724157:platform/application/src/test/kotlin/com/wego/divers/CorrelationPropagationHttpTest.kt:generic-api-key:120
+
+# Same underlying non-secret, reproduced by quoting it in the execution
+# board entry documenting the finding above — gitleaks flagged that quote
+# too, on the very next push. Fixed by rephrasing the board entry to
+# describe the value instead of quoting it; this fingerprint covers the
+# already-pushed commit where the quote briefly existed.
+c673f2674f148711ace30aef63f4ea46f4c3656a:docs/execution/WEGO_EXECUTION_BOARD.md:generic-api-key:1919
