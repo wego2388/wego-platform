@@ -1,0 +1,10 @@
+# Fingerprints of confirmed gitleaks false positives, in gitleaks's own
+# "<commit>:<file>:<rule-id>:<line>" format (https://github.com/gitleaks/gitleaks#gitleaksignore).
+# Each entry below must be individually verified as NOT a real secret before
+# being added here — never used to silence a genuine finding.
+
+# generic-api-key false positive: a hardcoded, synthetic Idempotency-Key
+# test header value ("correlation-propagation-key-1"), not a credential.
+# First surfaced 2026-08-31 when this repository's accumulated history was
+# pushed to origin for the first time and gitleaks actually ran against it.
+82b3834d6012b04acd6814ada7332c8f17724157:platform/application/src/test/kotlin/com/wego/divers/CorrelationPropagationHttpTest.kt:generic-api-key:120

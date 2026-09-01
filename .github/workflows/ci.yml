@@ -17,6 +17,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install ripgrep
+        # scripts/repository-check.sh depends on `rg`, which ubuntu-24.04
+        # runners do not ship by default.
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
       - name: Verify repository invariants
         run: bash scripts/repository-check.sh
 
@@ -56,7 +60,7 @@ jobs:
           distribution: temurin
           java-version: "25"
       - uses: gradle/actions/setup-gradle@67621b124fd2e251c5e8a0e6e3b91318f2287669 # v6.3.0
-      - run: ./gradlew :mobile:shared:check :mobile:apps:ops:check :mobile:apps:customer:check
+      - run: ./gradlew :mobile:shared:check :mobile:apps:ops:check :mobile:apps:customer:check :mobile:apps:customer-android:assembleDebug
 
   web:
     runs-on: ubuntu-24.04
