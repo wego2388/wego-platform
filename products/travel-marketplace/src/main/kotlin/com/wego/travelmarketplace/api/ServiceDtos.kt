@@ -1,5 +1,6 @@
 package com.wego.travelmarketplace.api
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.wego.travelmarketplace.domain.ConfirmationType
 import com.wego.travelmarketplace.domain.FulfilmentModel
 import com.wego.travelmarketplace.domain.PriceBasis
@@ -19,6 +20,11 @@ data class ServiceOptionDto(
     @field:Valid val label: LocalizedTextDto,
     val durationMinutes: Int?,
     @field:Positive val maxParticipants: Int,
+    // Serialized as a JSON string (matches the OpenAPI contract's
+    // `priceAmount: type: string`) — plain BigDecimal serialization was
+    // caught live sending an unquoted JSON number instead, silently
+    // dropping the ".00" a client would need for exact currency display.
+    @field:JsonFormat(shape = JsonFormat.Shape.STRING)
     @field:DecimalMin("0.00") @field:Digits(integer = 8, fraction = 2) val priceAmount: BigDecimal,
     // Restricted to the client's one real organizational currency
     // (LOCALES_AND_CONTENT.md), not any well-formed 3-letter code — an
@@ -81,6 +87,7 @@ data class PublicServiceOptionResponse(
     val label: LocalizedTextDto,
     val durationMinutes: Int?,
     val maxParticipants: Int,
+    @field:JsonFormat(shape = JsonFormat.Shape.STRING)
     val priceAmount: BigDecimal,
     val priceCurrency: String,
     val priceBasis: PriceBasis,

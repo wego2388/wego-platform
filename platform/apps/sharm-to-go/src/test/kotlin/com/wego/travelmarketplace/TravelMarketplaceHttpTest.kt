@@ -252,13 +252,22 @@ class TravelMarketplaceHttpTest {
             }
 
         // Now visible on the real public, unauthenticated catalog.
-        mockMvc
-            .get("/api/v1/travel-marketplace/public/services/$serviceId")
-            .andExpect {
-                status { isOk() }
-                jsonPath("$.name.en") { value("Desert Safari") }
-                jsonPath("$.operatedBy") { doesNotExist() }
-            }
+        val publicBody =
+            mockMvc
+                .get("/api/v1/travel-marketplace/public/services/$serviceId")
+                .andExpect {
+                    status { isOk() }
+                    jsonPath("$.name.en") { value("Desert Safari") }
+                    jsonPath("$.operatedBy") { doesNotExist() }
+                }.andReturn()
+                .response.contentAsString
+
+        // Plain BigDecimal serialization silently sent this as an unquoted
+        // JSON number (dropping trailing zeros a client needs for exact
+        // currency display) despite the contract declaring it a string —
+        // caught live against a real running instance, not a same-JVM
+        // round trip. Assert the raw wire format, not just the parsed value.
+        assertThat(publicBody).contains(""""priceAmount":"50.00"""")
 
         mockMvc
             .post("/api/v1/travel-marketplace/services/$serviceId/suspend") {

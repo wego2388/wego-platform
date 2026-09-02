@@ -16,4 +16,12 @@ export default defineNuxtConfig({
   },
   typescript: { strict: true, typeCheck: true },
   vite: { plugins: [tailwindcss()] },
+  runtimeConfig: {
+    // Server-only (not under `public`) — the browser never talks to this
+    // backend directly; it goes through server/api/catalog/* (same-origin,
+    // no CORS). See WEGO-010-A Packet 0R for why this is a separate
+    // app/port from every other client. Override with
+    // NUXT_TRAVEL_MARKETPLACE_API_BASE in real deployments.
+    travelMarketplaceApiBase: "http://localhost:8081",
+  },
 });
