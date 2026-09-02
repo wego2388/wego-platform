@@ -26,6 +26,13 @@ picking up a phase should actually start reading.
 Exit: both current clients compose independently; all builds/tests pass; no
 surface claims live inventory or deployment.
 
+**Packet 0R (2026-09-02, self-verified, independent Tier 1 review
+outstanding):** the two clients now compose independently as real, separate,
+running backends (`platform/apps/sharm-to-go`, its own migrations, its own
+permission catalog), not only as Foundry manifests — see
+`TECHNICAL_EXECUTION_PLAN.md`'s own Packet 0R section and the WEGO-010-A
+execution-board entry for the full evidence.
+
 ## Phase 1 — service catalog
 
 - Enter the first real categories and services through one reusable model.

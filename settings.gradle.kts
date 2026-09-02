@@ -21,9 +21,11 @@ dependencyResolutionManagement {
 rootProject.name = "wego-platform"
 
 include(":platform:application")
+include(":platform:apps:sharm-to-go")
 include(":mobile:shared")
 include(":mobile:apps:ops")
 include(":mobile:apps:customer")
 include(":mobile:apps:customer-android")
 
 project(":platform:application").projectDir = file("platform/application")
+project(":platform:apps:sharm-to-go").projectDir = file("platform/apps/sharm-to-go")

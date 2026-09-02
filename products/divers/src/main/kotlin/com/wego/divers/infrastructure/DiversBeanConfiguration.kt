@@ -52,6 +52,7 @@ import com.wego.divers.application.UpdateDiverService
 import com.wego.divers.application.UpdateEquipmentService
 import com.wego.divers.application.WithdrawEnrollmentService
 import com.wego.events.OutboxWriter
+import com.wego.identity.AuthenticatedApiPrefix
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import tools.jackson.databind.ObjectMapper
@@ -59,6 +60,14 @@ import java.time.Clock
 
 @Configuration(proxyBeanMethods = false)
 class DiversBeanConfiguration {
+    // Declares this product's own API surface to kernel security — see
+    // AuthenticatedApiPrefix's doc comment. An application built without
+    // this module on its compile classpath (e.g. the Sharm To Go app) never
+    // registers this bean, so this path space is denied by default there
+    // instead of merely lacking a controller to answer it.
+    @Bean
+    fun diversAuthenticatedApiPrefix(): AuthenticatedApiPrefix = AuthenticatedApiPrefix("/api/v1/divers/**")
+
     @Bean
     fun diversEventObjectMapper(): ObjectMapper = ObjectMapper()
 

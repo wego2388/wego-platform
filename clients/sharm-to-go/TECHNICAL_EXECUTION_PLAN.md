@@ -12,6 +12,54 @@ right now, per this repository's single-active-packet rule). This document is
 planning only — no code, schema, or commit happens against it until the owner
 resumes WEGO-010-A and it becomes the board's `ACTIVE` packet again.
 
+**Updated 2026-09-02:** the owner resumed WEGO-010-A (WEGO-011 closed
+`COMPLETE` to free the board's single-`ACTIVE` slot) and asked to build this
+client "بدون ما يأثر على مشروع شرم دايفرز كلوب" (without affecting Sharm
+Divers Club). Before any of the phases below could start for real, that
+required first proving the two clients are actually isolated as *running
+backends*, not merely as Foundry manifests — see "Packet 0R" immediately
+below, now done and self-verified. Phase 1 (service catalog) is the next real
+step once an independent Tier 1 review of Packet 0R has run.
+
+## Packet 0R — executable client composition (done 2026-09-02, self-verified)
+
+Before this packet, `products/divers` and `products/travel-marketplace` were
+both compiled into the one existing Spring Boot application
+(`:platform:application`), sharing one global Flyway migration location — so
+"the two clients compose independently" was true only for Foundry's manifests
+and locks, not for a runnable backend. A Sharm To Go deployment would have
+booted with every Divers table, permission, and route silently present.
+
+**What was built:** a second, separate, real Spring Boot application module,
+`:platform:apps:sharm-to-go` (`platform/apps/sharm-to-go`), alongside the
+existing one. Its Kotlin source set adds `platform/kernel/{security,events,
+identity}` and `products/travel-marketplace` only — `products/divers` is not
+on its compile classpath at all, the same way `:platform:application` already
+adds product source directories directly rather than through a real Gradle
+dependency graph. Its own migration folder physically contains only
+`V1__platform_foundation.sql` and `V2__identity_foundation.sql` (copied from
+`:platform:application`, not shared — see the board entry's accepted-risk
+note on that duplication). Kernel's `SecurityConfiguration` no longer
+hardcodes the Divers route; it now authorizes whatever `AuthenticatedApiPrefix`
+beans a product actually contributes (`DiversBeanConfiguration` contributes
+one for the Divers app; nothing contributes one here), and denies everything
+else by default.
+
+**Proven live**, not just by unit test: both apps' jars built and run for
+real against separate fresh throwaway PostgreSQL containers. The Sharm To Go
+app's real database ends up with zero `divers_*` tables and only
+`identity:administer` in its permission catalog; its jar contains zero
+`com.wego.divers.*` classes. The Divers app is unaffected — full regression
+re-run green, same 17 `divers_*` tables, same 16 real permissions as before.
+Full evidence is on the WEGO-010-A execution-board entry dated 2026-09-02, not
+duplicated here.
+
+**Still open:** an independent Tier 1 review (this changes an explicit
+client-isolation/schema boundary, a Tier 1 trigger per
+`docs/operations/REVIEW_INTENSITY.md`) has not yet run. Nothing has been
+committed to `main`, pushed, or deployed — this was built in an isolated
+worktree (`.claude/worktrees/wego-010a-0r-isolation`).
+
 ## The one rule that overrides everything else here
 
 **No invented service, price, provider, photo, or policy — ever.** Every other

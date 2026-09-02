@@ -1,5 +1,6 @@
 package com.wego.identity.infrastructure
 
+import com.wego.identity.AuthenticatedApiPrefix
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -27,6 +28,7 @@ class SecurityConfiguration {
         bearerTokenAuthenticationFilter: BearerTokenAuthenticationFilter,
         bearerAuthenticationEntryPoint: BearerAuthenticationEntryPoint,
         auditingAccessDeniedHandler: AuditingAccessDeniedHandler,
+        authenticatedApiPrefixes: List<AuthenticatedApiPrefix>,
     ): SecurityFilterChain {
         http
             .authorizeHttpRequests { requests ->
@@ -37,10 +39,10 @@ class SecurityConfiguration {
                     .permitAll()
                     .requestMatchers("/api/v1/identity/**")
                     .authenticated()
-                    .requestMatchers("/api/v1/divers/**")
-                    .authenticated()
-                    .anyRequest()
-                    .denyAll()
+                for (prefix in authenticatedApiPrefixes) {
+                    requests.requestMatchers(prefix.pattern).authenticated()
+                }
+                requests.anyRequest().denyAll()
             }.sessionManagement { sessions ->
                 sessions.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }.requestCache { cache -> cache.disable() }

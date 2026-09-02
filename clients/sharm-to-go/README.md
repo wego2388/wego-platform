@@ -10,7 +10,17 @@ nested inside or coupled to the other.
 - `client.manifest.json` declares the client, product, Cairo timezone, initial
   Arabic/English locales, EGP organizational currency, and isolated deployment.
 - `release.lock.json` deterministically resolves only the Travel Marketplace
-  product and its platform dependencies.
+  product and its platform dependencies as Foundry metadata. As of Packet 0R
+  (2026-09-02, self-verified, independent Tier 1 review outstanding — see
+  `TECHNICAL_EXECUTION_PLAN.md` and the WEGO-010-A board entry), this is also
+  a proven runtime claim: `platform/apps/sharm-to-go` is a separate, real
+  Spring Boot application from `platform/application` (Sharm Divers Club),
+  compiled with `products/travel-marketplace` on its classpath and
+  `products/divers` deliberately absent, with its own Flyway migration
+  location containing only the shared platform/identity foundation. A live
+  run against a real throwaway PostgreSQL confirmed zero `divers_*` tables,
+  zero Divers permissions, and zero `com.wego.divers.*` classes in this
+  app's jar.
 - `web/apps/sharm-to-go-site` is an original Arabic/English public foundation.
   It shows discovery categories and provider responsibility, not fake services.
 - `web/apps/sharm-to-go-erp` is an Arabic/English readiness dashboard. It is not
