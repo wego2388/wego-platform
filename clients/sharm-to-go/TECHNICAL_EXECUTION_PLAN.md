@@ -18,8 +18,11 @@ client "بدون ما يأثر على مشروع شرم دايفرز كلوب" (
 Divers Club). Before any of the phases below could start for real, that
 required first proving the two clients are actually isolated as *running
 backends*, not merely as Foundry manifests — see "Packet 0R" immediately
-below, now done and self-verified. Phase 1 (service catalog) is the next real
-step once an independent Tier 1 review of Packet 0R has run.
+below, now done and self-verified. The owner then asked to continue with the
+services ("كمل الخدمات") before that review ran — see "Packet 1A" below,
+also now done and self-verified, backend-only (no dashboard/website/mobile
+work yet). An independent Tier 1 review covering both packets together is
+the next real step before 1B (dashboard).
 
 ## Packet 0R — executable client composition (done 2026-09-02, self-verified)
 
@@ -59,6 +62,67 @@ client-isolation/schema boundary, a Tier 1 trigger per
 `docs/operations/REVIEW_INTENSITY.md`) has not yet run. Nothing has been
 committed to `main`, pushed, or deployed — this was built in an isolated
 worktree (`.claude/worktrees/wego-010a-0r-isolation`).
+
+## Packet 1A — catalog contract, domain, schema, ops API, public API (done 2026-09-02, self-verified)
+
+Backend only, per this document's own packet-map rule (1B dashboard/1C
+website/1D mobile are separate rows, not started). Full evidence is on the
+WEGO-010-A board entry dated 2026-09-02 — this section is the durable
+technical summary, not a duplicate of it.
+
+**What was built:** `Provider`/`Category`/`Service`/`ServiceOption`/
+`ServiceMedia` domain types in `products/travel-marketplace`, mirroring
+Divers' aggregate conventions exactly. `Service`'s lifecycle is `DRAFT ->
+REVIEW -> APPROVED -> PUBLISHED`, with `SUSPENDED` reachable from
+`PUBLISHED` (and re-publishable from there) and `ARCHIVED` terminal from any
+non-archived state; `publish()` requires at least one option and one
+rights-cleared media asset per `SERVICE_CONTENT_TEMPLATE.md`'s closing rule.
+Migration `V3__travel_marketplace_catalog.sql` under
+`platform/apps/sharm-to-go/src/main/resources/db/migration/` — see the
+correction to the "Migration" bullet below, which originally pointed at the
+Divers app before Packet 0R existed. New `service:view`/`service:manage`/
+`provider:view`/`provider:manage` permissions granted to `platform-admin`,
+inherently scoped to this client alone by Packet 0R's separate-database
+architecture. Full staff CRUD + lifecycle-transition endpoints, plus an
+unauthenticated `/api/v1/travel-marketplace/public/{categories,services}`
+projection returning only `PUBLISHED`/`ACTIVE` records in the narrow
+`SERVICE_OWNERSHIP.md` "Simple public model" shape. A new kernel
+`PublicApiPrefix` type (sibling to Packet 0R's `AuthenticatedApiPrefix`)
+lets a product mark part of its own route tree as unauthenticated without
+kernel security code hardcoding it. A new, separate
+`platform/contracts/openapi/v1/sharm-to-go-api.yaml` — this client's own
+complete contract, not appended to the Divers app's `wego-api.yaml`.
+
+**A second real isolation gap found while building this, not by luck:**
+`:platform:application`'s build script still added
+`products/travel-marketplace` to the Divers app's own source set — harmless
+before this packet (empty product), a real compile break once the product
+gained real code, and a real re-introduction of the exact composition
+Packet 0R exists to prevent. Fixed by removing that line.
+
+**Proven live**, not just by test: real `bootstrap-admin` staff account,
+then a real `curl` walkthrough — create category → create DIRECT service
+with one option and one rights-cleared media asset → confirm public 404
+while `DRAFT` → submit-for-review → approve → publish → confirm real,
+correct bilingual content on the unauthenticated public list/detail/
+categories endpoints → confirm `/api/v1/divers/**` still 401s on this app.
+34 new automated tests (domain + full HTTP lifecycle + permission
+separation + public-shape assertions), all green; the Divers app re-verified
+with zero regressions after the build-script fix.
+
+**Accepted scope simplifications:** one generic audit table for all three
+aggregates instead of Divers' one-per-aggregate convention; content fields
+are a plain required `en`/`ar` pair, not `LOCALES_AND_CONTENT.md`'s full
+per-field translation-lifecycle/staleness tracking (a real, separate
+sub-system deferred to a future packet); `SERVICE_CONTENT_TEMPLATE.md`'s
+short/full description split collapsed to one field for now. No real
+service, category, price, provider, or photo was created outside test
+fixtures and the disposable live-verification run above — none of
+`SERVICE_OWNERSHIP.md`'s "Proposed launch categories" were seeded.
+
+**Still open:** the same independent Tier 1 review noted for Packet 0R,
+now covering both packets together. 1B (dashboard) is next per the packet
+map, not started.
 
 ## The one rule that overrides everything else here
 
@@ -223,19 +287,21 @@ detail across all three surfaces.
   `companion object { fun create(...) }`, named lifecycle methods
   (`submitForReview()`, `publish()`, `suspend()`, `archive()`) that
   `require()`-guard valid transitions.
-- Migration: first `V<n>__travel_marketplace_catalog.sql` under
-  `platform/application/src/main/resources/db/migration/` (continuing the
-  same global Flyway version sequence this repo already uses — check the
-  current highest `Vn` at the time this phase actually starts, do not assume
-  a fixed number here since other packets add migrations in between). New
+- Migration: **done as `V3__travel_marketplace_catalog.sql`, under
+  `platform/apps/sharm-to-go/src/main/resources/db/migration/`** — this
+  instruction originally said `platform/application/` (the Divers app), but
+  that was written before Packet 0R existed and is now wrong: Sharm To Go
+  has its own application and its own Flyway version sequence (which only
+  had V1/V2 before this packet), completely separate from the Divers app's
+  V3-V8. New
   `service:view`/`service:manage`, `provider:view`/`provider:manage`
-  permissions, granted to `platform-admin` plus whatever real Sharm To Go
-  staff role gets defined (not necessarily `platform-admin` reused blindly —
-  a real decision for this phase, since `platform-admin` today is shared
-  across both existing clients' data and a Sharm To Go staff account should
-  not implicitly gain Divers permissions or vice versa; confirm the identity
-  module's role model supports per-client role scoping before assuming it
-  does, since neither existing client has needed this yet).
+  permissions, **done as granted to `platform-admin` directly** — the
+  per-client role-scoping concern this bullet originally raised turned out
+  to be resolved automatically by Packet 0R's architecture, not by a new
+  feature: each client is now a separate application with its own separate
+  identity database, so a Sharm To Go `platform-admin` account and a Divers
+  `platform-admin` account are different rows in different databases from
+  the start, sharing nothing.
 - Application/infrastructure/api layers: same file-per-operation service
   pattern, jOOQ repositories, `@PreAuthorize`, OpenAPI paths/schemas, exactly
   as every WEGO-011 phase. `GET /api/v1/travel-marketplace/services` public

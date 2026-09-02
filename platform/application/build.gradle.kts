@@ -28,6 +28,13 @@ kotlin {
         jvmTarget.set(JvmTarget.JVM_25)
         freeCompilerArgs.add("-Xjsr305=strict")
     }
+    // This is the executable Sharm Divers Club application. It must never
+    // add `products/travel-marketplace` (that is `:platform:apps:sharm-to-go`'s
+    // job) — see WEGO-010-A Packet 0R. Before Packet 0R this line was
+    // harmless because that product was an empty shell; once it gained real
+    // domain/application/infrastructure/api code, leaving it here would have
+    // recompiled it into this app too and reintroduced the exact composition
+    // this packet exists to prevent.
     sourceSets.named("main") {
         kotlin.srcDirs(
             "src/main/kotlin",
@@ -35,7 +42,6 @@ kotlin {
             "../kernel/events/src/main/kotlin",
             "../kernel/identity/src/main/kotlin",
             "../../products/divers/src/main/kotlin",
-            "../../products/travel-marketplace/src/main/kotlin",
         )
     }
 }

@@ -1,6 +1,7 @@
 package com.wego.identity.infrastructure
 
 import com.wego.identity.AuthenticatedApiPrefix
+import com.wego.identity.PublicApiPrefix
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -29,6 +30,7 @@ class SecurityConfiguration {
         bearerAuthenticationEntryPoint: BearerAuthenticationEntryPoint,
         auditingAccessDeniedHandler: AuditingAccessDeniedHandler,
         authenticatedApiPrefixes: List<AuthenticatedApiPrefix>,
+        publicApiPrefixes: List<PublicApiPrefix>,
     ): SecurityFilterChain {
         http
             .authorizeHttpRequests { requests ->
@@ -37,8 +39,17 @@ class SecurityConfiguration {
                     .permitAll()
                     .requestMatchers("/api/v1/identity/login")
                     .permitAll()
-                    .requestMatchers("/api/v1/identity/**")
-                    .authenticated()
+                // Every public prefix is registered before any authenticated
+                // one (including the general "/api/v1/identity/**" rule
+                // below) — Spring Security's authorizeHttpRequests matches in
+                // registration order, so a product's own public sub-path
+                // (e.g. ".../public/**") must be added first to take
+                // precedence over that same product's broader authenticated
+                // prefix, not be shadowed by it.
+                for (prefix in publicApiPrefixes) {
+                    requests.requestMatchers(prefix.pattern).permitAll()
+                }
+                requests.requestMatchers("/api/v1/identity/**").authenticated()
                 for (prefix in authenticatedApiPrefixes) {
                     requests.requestMatchers(prefix.pattern).authenticated()
                 }

@@ -10,7 +10,7 @@
   "scripts": {
     "generate:lock": "node scripts/generate-release-lock.mjs",
     "validate:manifests": "node scripts/validate-manifests.mjs",
-    "validate:openapi": "redocly lint ../platform/contracts/openapi/v1/wego-api.yaml",
+    "validate:openapi": "redocly lint ../platform/contracts/openapi/v1/wego-api.yaml ../platform/contracts/openapi/v1/sharm-to-go-api.yaml",
     "validate:repository-yaml": "node scripts/validate-repository-yaml.mjs",
     "validate": "pnpm run validate:manifests && pnpm run validate:openapi && pnpm run validate:repository-yaml"
   },

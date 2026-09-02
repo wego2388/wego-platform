@@ -50,6 +50,14 @@ Exit: one real approved service can be published and suspended with audit,
 without yet accepting a booking; the mobile app's catalog screens render the
 same real published services the website and dashboard show.
 
+**Packet 1A (2026-09-02, self-verified, independent Tier 1 review
+outstanding):** the backend half of this phase is done — catalog/provider
+domain, schema, permissions, full staff CRUD + publish workflow, and the
+public projection, all proven live against a real database. Dashboard
+(1B), website (1C), and mobile (1D) have not started — see
+`TECHNICAL_EXECUTION_PLAN.md`'s Packet 1A section and the WEGO-010-A board
+entry for the full evidence.
+
 ## Phase 2 — normal booking flow
 
 - Calendar/slots, capacity, price snapshot, customer details, idempotency and

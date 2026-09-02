@@ -1,0 +1,1368 @@
+openapi: 3.1.1
+info:
+  title: Sharm To Go API
+  version: 1.0.0
+  description: >-
+    The Sharm To Go (Travel Marketplace) client's own HTTP contract — a
+    separate, real Spring Boot application from the Divers client's
+    `wego-api.yaml`, with no Divers route, permission, or table on its
+    compile classpath (see WEGO-010-A Packet 0R). Identity endpoints repeat
+    the same shared `platform/kernel/identity` contract as `wego-api.yaml`
+    by design, not by accident — each client application defines its own
+    complete contract rather than importing a shared spec fragment.
+    WEGO-010-A Packet 1A adds the first business-domain operations: a staff
+    catalog (providers, categories, services) and its unauthenticated public
+    projection.
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
+servers:
+  - url: /
+    description: Current client instance
+tags:
+  - name: Operations
+    description: Instance health endpoints with no business-data access.
+  - name: Identity
+    description: Authentication and the current session's identity.
+  - name: Providers
+    description: >-
+      The organization operationally/legally delivering a service when it is
+      not Sharm To Go itself. Deliberately minimal — no commission, payout,
+      or self-service login (SERVICE_OWNERSHIP.md).
+  - name: Categories
+    description: Staff-defined navigation groupings for services. None are seeded; only staff-created real categories exist.
+  - name: Services
+    description: >-
+      The marketplace catalog aggregate and its `DRAFT -> REVIEW -> APPROVED
+      -> PUBLISHED` publication lifecycle (plus suspend/republish/archive).
+      Publication is gated on price/capacity, cancellation wording, and
+      rights-cleared media — see `SERVICE_CONTENT_TEMPLATE.md`'s closing rule.
+  - name: PublicCatalog
+    description: >-
+      Unauthenticated, customer-facing reads. Only `PUBLISHED` services and
+      `ACTIVE` categories are ever visible here, and provider contact/media
+      rights details are never included — see `SERVICE_OWNERSHIP.md`'s
+      "Simple public model."
+paths:
+  /actuator/health:
+    get:
+      operationId: getHealth
+      summary: Read aggregate instance health
+      tags:
+        - Operations
+      security: []
+      responses:
+        "200":
+          $ref: "#/components/responses/HealthResponse"
+        "503":
+          $ref: "#/components/responses/HealthResponse"
+  /api/v1/identity/login:
+    post:
+      operationId: login
+      summary: Authenticate with email and password
+      description: >-
+        Issues a bearer session token on success. The failure response is
+        identical regardless of whether the email is unregistered, the
+        account is locked or disabled, or the password is wrong.
+      tags:
+        - Identity
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Authenticated; a new session was issued.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginError"
+        "429":
+          $ref: "#/components/responses/RateLimitedResponse"
+  /api/v1/identity/logout:
+    post:
+      operationId: logout
+      summary: Revoke the current session
+      tags:
+        - Identity
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Session revoked.
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+  /api/v1/identity/me:
+    get:
+      operationId: getCurrentIdentity
+      summary: Read the current session's identity
+      tags:
+        - Identity
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current identity.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityProfile"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+  /api/v1/travel-marketplace/providers:
+    post:
+      operationId: createProvider
+      summary: Create a provider
+      tags:
+        - Providers
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertProviderRequest"
+      responses:
+        "201":
+          description: Provider created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProviderResponse"
+        "400":
+          $ref: "#/components/responses/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    get:
+      operationId: listProviders
+      summary: List providers
+      tags:
+        - Providers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/ProviderStatus"
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: A page of providers.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProviderResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/travel-marketplace/providers/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdPathParameter"
+    get:
+      operationId: getProvider
+      summary: Read one provider
+      tags:
+        - Providers
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: The provider.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProviderResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No provider with this id.
+    put:
+      operationId: updateProvider
+      summary: Replace a provider's details
+      tags:
+        - Providers
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertProviderRequest"
+      responses:
+        "200":
+          description: Provider updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProviderResponse"
+        "400":
+          $ref: "#/components/responses/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No provider with this id.
+        "409":
+          description: The provider is archived.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogErrorResponse"
+    delete:
+      operationId: archiveProvider
+      summary: Archive a provider
+      description: Terminal — a second archive attempt is a clean 409, never a silent success.
+      tags:
+        - Providers
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Provider archived.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProviderResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No provider with this id.
+        "409":
+          description: Already archived.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogErrorResponse"
+  /api/v1/travel-marketplace/categories:
+    post:
+      operationId: createCategory
+      summary: Create a category
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertCategoryRequest"
+      responses:
+        "201":
+          description: Category created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+        "400":
+          $ref: "#/components/responses/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "409":
+          description: A category with this code already exists.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogErrorResponse"
+    get:
+      operationId: listCategories
+      summary: List categories (every status, staff-facing)
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/CategoryStatus"
+      responses:
+        "200":
+          description: All matching categories.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/travel-marketplace/categories/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdPathParameter"
+    get:
+      operationId: getCategory
+      summary: Read one category
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: The category.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No category with this id.
+    put:
+      operationId: updateCategory
+      summary: Replace a category's details
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertCategoryRequest"
+      responses:
+        "200":
+          description: Category updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+        "400":
+          $ref: "#/components/responses/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No category with this id.
+        "409":
+          description: The category is archived.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogErrorResponse"
+    delete:
+      operationId: archiveCategory
+      summary: Archive a category
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Category archived.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No category with this id.
+        "409":
+          description: Already archived.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogErrorResponse"
+  /api/v1/travel-marketplace/services:
+    post:
+      operationId: createService
+      summary: Create a service (starts DRAFT)
+      tags:
+        - Services
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertServiceRequest"
+      responses:
+        "201":
+          description: Service created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceResponse"
+        "400":
+          description: Validation failure, an unknown category, or an unknown provider.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    get:
+      operationId: listServices
+      summary: List services (every status, staff-facing)
+      tags:
+        - Services
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/ServiceStatus"
+        - name: categoryId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: A page of services.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ServiceResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/travel-marketplace/services/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdPathParameter"
+    get:
+      operationId: getService
+      summary: Read one service (staff-facing, any status)
+      tags:
+        - Services
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: The service.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No service with this id.
+    put:
+      operationId: updateService
+      summary: Replace a service's details, options, and media
+      description: Never resets lifecycle status back to DRAFT — a live PUBLISHED service can still be edited.
+      tags:
+        - Services
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertServiceRequest"
+      responses:
+        "200":
+          description: Service updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceResponse"
+        "400":
+          description: Validation failure, an unknown category, or an unknown provider.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No service with this id.
+        "409":
+          description: The service is archived.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogErrorResponse"
+  /api/v1/travel-marketplace/services/{id}/submit-for-review:
+    post:
+      operationId: submitServiceForReview
+      summary: "DRAFT -> REVIEW"
+      tags:
+        - Services
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPathParameter"
+      responses:
+        "200":
+          description: Now under review.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No service with this id.
+        "409":
+          description: Not currently DRAFT.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogErrorResponse"
+  /api/v1/travel-marketplace/services/{id}/approve:
+    post:
+      operationId: approveService
+      summary: "REVIEW -> APPROVED"
+      tags:
+        - Services
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPathParameter"
+      responses:
+        "200":
+          description: Approved.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No service with this id.
+        "409":
+          description: Not currently REVIEW.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogErrorResponse"
+  /api/v1/travel-marketplace/services/{id}/publish:
+    post:
+      operationId: publishService
+      summary: "APPROVED|SUSPENDED -> PUBLISHED"
+      description: >-
+        Requires at least one option and one rights-cleared media asset —
+        `SERVICE_CONTENT_TEMPLATE.md`'s closing rule, enforced as a real
+        domain guard.
+      tags:
+        - Services
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPathParameter"
+      responses:
+        "200":
+          description: Published.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No service with this id.
+        "409":
+          description: Not eligible to publish (wrong status, no option, or no rights-cleared media).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogErrorResponse"
+  /api/v1/travel-marketplace/services/{id}/suspend:
+    post:
+      operationId: suspendService
+      summary: "PUBLISHED -> SUSPENDED"
+      tags:
+        - Services
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPathParameter"
+      responses:
+        "200":
+          description: Suspended.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No service with this id.
+        "409":
+          description: Not currently PUBLISHED.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogErrorResponse"
+  /api/v1/travel-marketplace/services/{id}/archive:
+    post:
+      operationId: archiveService
+      summary: Archive a service (terminal, from any non-archived state)
+      tags:
+        - Services
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPathParameter"
+      responses:
+        "200":
+          description: Archived.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No service with this id.
+        "409":
+          description: Already archived.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogErrorResponse"
+  /api/v1/travel-marketplace/public/categories:
+    get:
+      operationId: listPublicCategories
+      summary: List active categories (unauthenticated)
+      tags:
+        - PublicCatalog
+      security: []
+      responses:
+        "200":
+          description: Active categories.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PublicCategoryResponse"
+  /api/v1/travel-marketplace/public/services:
+    get:
+      operationId: listPublicServices
+      summary: List published services (unauthenticated)
+      tags:
+        - PublicCatalog
+      security: []
+      parameters:
+        - name: categoryId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Published services only.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PublicServiceResponse"
+  /api/v1/travel-marketplace/public/services/{id}:
+    get:
+      operationId: getPublicService
+      summary: Read one published service (unauthenticated)
+      description: 404 for an unknown id and for a real service that is not currently PUBLISHED — the two are indistinguishable to a public caller.
+      tags:
+        - PublicCatalog
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/IdPathParameter"
+      responses:
+        "200":
+          description: The published service.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicServiceResponse"
+        "404":
+          description: No published service with this id.
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Opaque session token issued by POST /api/v1/identity/login.
+  parameters:
+    IdPathParameter:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    HealthResponse:
+      description: Aggregate health without component details.
+      content:
+        application/vnd.spring-boot.actuator.v3+json:
+          schema:
+            $ref: "#/components/schemas/Health"
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Health"
+    UnauthenticatedResponse:
+      description: Missing, invalid, or expired session token.
+      headers:
+        WWW-Authenticate:
+          description: Always `Bearer`.
+          schema:
+            type: string
+            enum:
+              - Bearer
+    ForbiddenResponse:
+      description: Authenticated, but missing the permission this operation requires.
+    RateLimitedResponse:
+      description: Too many login attempts.
+      headers:
+        Retry-After:
+          description: Seconds to wait before the next attempt may succeed.
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/LoginError"
+    ValidationErrorResponse:
+      description: The request failed validation — a malformed field, an out-of-range value, or an unrecognized JSON property.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ValidationErrorResponse"
+  schemas:
+    Health:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - UP
+            - DOWN
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          maxLength: 320
+        password:
+          type: string
+    LoginResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - token
+        - expiresAt
+      properties:
+        token:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+    LoginError:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - invalid_credentials
+            - rate_limited
+            - validation_failed
+    IdentityProfile:
+      type: object
+      additionalProperties: false
+      required:
+        - userId
+        - email
+        - roles
+        - permissions
+      properties:
+        userId:
+          type: string
+          format: uuid
+        email:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        permissions:
+          type: array
+          items:
+            type: string
+    ValidationErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          enum:
+            - validation_failed
+        message:
+          type: string
+    CatalogErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - archived
+            - already_archived
+            - duplicate_code
+            - category_not_found
+            - provider_not_found
+            - invalid_transition
+            - missing_publishable_option
+            - missing_rights_cleared_media
+    LocalizedText:
+      type: object
+      additionalProperties: false
+      required:
+        - en
+        - ar
+      properties:
+        en:
+          type: string
+          minLength: 1
+        ar:
+          type: string
+          minLength: 1
+    ProviderStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - ARCHIVED
+    CategoryStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - ARCHIVED
+    ServiceStatus:
+      type: string
+      enum:
+        - DRAFT
+        - REVIEW
+        - APPROVED
+        - PUBLISHED
+        - SUSPENDED
+        - ARCHIVED
+    FulfilmentModel:
+      type: string
+      enum:
+        - DIRECT
+        - PARTNER
+    ConfirmationType:
+      type: string
+      enum:
+        - INSTANT
+        - STAFF_REVIEW
+    PriceBasis:
+      type: string
+      enum:
+        - PER_PERSON
+        - PER_GROUP
+        - PER_VEHICLE
+        - FLAT
+    UpsertProviderRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+        contactEmail:
+          type:
+            - string
+            - "null"
+        contactPhone:
+          type:
+            - string
+            - "null"
+    ProviderResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        contactEmail:
+          type:
+            - string
+            - "null"
+        contactPhone:
+          type:
+            - string
+            - "null"
+        status:
+          $ref: "#/components/schemas/ProviderStatus"
+        createdAt:
+          type: string
+          format: date-time
+        archivedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+    UpsertCategoryRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - name
+        - displayOrder
+      properties:
+        code:
+          type: string
+          pattern: "^[a-z][a-z0-9-]*$"
+        name:
+          $ref: "#/components/schemas/LocalizedText"
+        description:
+          oneOf:
+            - $ref: "#/components/schemas/LocalizedText"
+            - type: "null"
+        displayOrder:
+          type: integer
+          minimum: 0
+    CategoryResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - code
+        - name
+        - displayOrder
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          $ref: "#/components/schemas/LocalizedText"
+        description:
+          oneOf:
+            - $ref: "#/components/schemas/LocalizedText"
+            - type: "null"
+        displayOrder:
+          type: integer
+        status:
+          $ref: "#/components/schemas/CategoryStatus"
+        createdAt:
+          type: string
+          format: date-time
+        archivedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+    ServiceOption:
+      type: object
+      additionalProperties: false
+      required:
+        - label
+        - maxParticipants
+        - priceAmount
+        - priceCurrency
+        - priceBasis
+      properties:
+        id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        label:
+          $ref: "#/components/schemas/LocalizedText"
+        durationMinutes:
+          type:
+            - integer
+            - "null"
+        maxParticipants:
+          type: integer
+          minimum: 1
+        priceAmount:
+          type: string
+          description: Decimal string, 2 places.
+        priceCurrency:
+          type: string
+          pattern: "^[A-Z]{3}$"
+        priceBasis:
+          $ref: "#/components/schemas/PriceBasis"
+    ServiceMedia:
+      type: object
+      additionalProperties: false
+      required:
+        - assetReference
+        - rightsEvidence
+        - locale
+      properties:
+        id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        assetReference:
+          type: string
+          minLength: 1
+        rightsEvidence:
+          type: string
+          minLength: 1
+        locale:
+          type: string
+          minLength: 1
+    PublicServiceOption:
+      type: object
+      additionalProperties: false
+      required:
+        - label
+        - maxParticipants
+        - priceAmount
+        - priceCurrency
+        - priceBasis
+      properties:
+        label:
+          $ref: "#/components/schemas/LocalizedText"
+        durationMinutes:
+          type:
+            - integer
+            - "null"
+        maxParticipants:
+          type: integer
+        priceAmount:
+          type: string
+        priceCurrency:
+          type: string
+        priceBasis:
+          $ref: "#/components/schemas/PriceBasis"
+    PublicServiceMedia:
+      type: object
+      additionalProperties: false
+      required:
+        - assetReference
+        - locale
+      properties:
+        assetReference:
+          type: string
+        locale:
+          type: string
+    UpsertServiceRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - categoryId
+        - name
+        - description
+        - fulfilmentModel
+        - confirmationType
+        - cancellationPolicy
+        - options
+        - media
+      properties:
+        categoryId:
+          type: string
+          format: uuid
+        name:
+          $ref: "#/components/schemas/LocalizedText"
+        description:
+          $ref: "#/components/schemas/LocalizedText"
+        fulfilmentModel:
+          $ref: "#/components/schemas/FulfilmentModel"
+        providerId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        confirmationType:
+          $ref: "#/components/schemas/ConfirmationType"
+        cancellationPolicy:
+          $ref: "#/components/schemas/LocalizedText"
+        pickupInfo:
+          oneOf:
+            - $ref: "#/components/schemas/LocalizedText"
+            - type: "null"
+        inclusions:
+          oneOf:
+            - $ref: "#/components/schemas/LocalizedText"
+            - type: "null"
+        exclusions:
+          oneOf:
+            - $ref: "#/components/schemas/LocalizedText"
+            - type: "null"
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceOption"
+        media:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceMedia"
+    ServiceResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - categoryId
+        - name
+        - description
+        - fulfilmentModel
+        - confirmationType
+        - cancellationPolicy
+        - options
+        - media
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        categoryId:
+          type: string
+          format: uuid
+        name:
+          $ref: "#/components/schemas/LocalizedText"
+        description:
+          $ref: "#/components/schemas/LocalizedText"
+        fulfilmentModel:
+          $ref: "#/components/schemas/FulfilmentModel"
+        providerId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        confirmationType:
+          $ref: "#/components/schemas/ConfirmationType"
+        cancellationPolicy:
+          $ref: "#/components/schemas/LocalizedText"
+        pickupInfo:
+          oneOf:
+            - $ref: "#/components/schemas/LocalizedText"
+            - type: "null"
+        inclusions:
+          oneOf:
+            - $ref: "#/components/schemas/LocalizedText"
+            - type: "null"
+        exclusions:
+          oneOf:
+            - $ref: "#/components/schemas/LocalizedText"
+            - type: "null"
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceOption"
+        media:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceMedia"
+        status:
+          $ref: "#/components/schemas/ServiceStatus"
+        createdAt:
+          type: string
+          format: date-time
+        publishedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        archivedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+    PublicCategoryResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - code
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          $ref: "#/components/schemas/LocalizedText"
+        description:
+          oneOf:
+            - $ref: "#/components/schemas/LocalizedText"
+            - type: "null"
+    PublicServiceResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - categoryId
+        - name
+        - description
+        - confirmationType
+        - cancellationPolicy
+        - options
+        - media
+      properties:
+        id:
+          type: string
+          format: uuid
+        categoryId:
+          type: string
+          format: uuid
+        name:
+          $ref: "#/components/schemas/LocalizedText"
+        description:
+          $ref: "#/components/schemas/LocalizedText"
+        confirmationType:
+          $ref: "#/components/schemas/ConfirmationType"
+        cancellationPolicy:
+          $ref: "#/components/schemas/LocalizedText"
+        pickupInfo:
+          oneOf:
+            - $ref: "#/components/schemas/LocalizedText"
+            - type: "null"
+        inclusions:
+          oneOf:
+            - $ref: "#/components/schemas/LocalizedText"
+            - type: "null"
+        exclusions:
+          oneOf:
+            - $ref: "#/components/schemas/LocalizedText"
+            - type: "null"
+        operatedBy:
+          type:
+            - string
+            - "null"
+          description: The provider's name — present only for a PARTNER service. Never contact/commission details.
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicServiceOption"
+        media:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicServiceMedia"

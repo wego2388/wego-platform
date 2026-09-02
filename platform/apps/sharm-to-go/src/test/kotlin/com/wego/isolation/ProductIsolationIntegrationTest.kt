@@ -15,12 +15,15 @@ import org.testcontainers.postgresql.PostgreSQLContainer
  * The database half of WEGO-010-A Packet 0R's proof (see
  * `com.wego.security.SecurityConfigurationTest` for the route half). This
  * application's Flyway location (`src/main/resources/db/migration`)
- * physically contains only V1 (platform foundation) and V2 (identity
- * foundation) — the Divers product's V3-V8 files do not exist under this
- * module at all, copied by hand from `:platform:application` rather than
- * shared, an accepted duplication risk recorded on the WEGO-010-A board
- * entry. This test proves the *database* consequence of that: a real,
- * freshly migrated Sharm To Go database contains zero Divers tables.
+ * physically contains V1 (platform foundation), V2 (identity foundation,
+ * both copied by hand from `:platform:application` rather than shared — an
+ * accepted duplication risk recorded on the WEGO-010-A board entry), and
+ * this module's own V3 (Packet 1A travel marketplace catalog) — the Divers
+ * product's V3-V8 files (a disjoint numbering sequence in a different
+ * application) do not exist under this module at all. This test proves the
+ * *database* consequence of that: a real, freshly migrated Sharm To Go
+ * database contains the travel marketplace catalog tables and zero Divers
+ * tables.
  */
 @Testcontainers(disabledWithoutDocker = true)
 @SpringBootTest
@@ -28,8 +31,8 @@ class ProductIsolationIntegrationTest(
     @Autowired private val flyway: Flyway,
 ) {
     @Test
-    fun `boots and migrates only the shared platform and identity foundation, never any Divers table`() {
-        assertThat(flyway.info().applied().map { it.version.toString() }).containsExactly("1", "2")
+    fun `boots and migrates only the shared platform, identity, and travel marketplace catalog foundation, never any Divers table`() {
+        assertThat(flyway.info().applied().map { it.version.toString() }).containsExactly("1", "2", "3")
 
         postgres.createConnection("").use { connection ->
             val tableNames =
@@ -40,8 +43,18 @@ class ProductIsolationIntegrationTest(
                 }
 
             assertThat(tableNames)
-                .contains("identity_user", "identity_role", "identity_session", "integration_outbox")
-                .noneMatch { it.startsWith("divers_") }
+                .contains(
+                    "identity_user",
+                    "identity_role",
+                    "identity_session",
+                    "integration_outbox",
+                    "travel_provider",
+                    "travel_category",
+                    "travel_service",
+                    "travel_service_option",
+                    "travel_service_media",
+                    "travel_marketplace_audit_event",
+                ).noneMatch { it.startsWith("divers_") }
         }
     }
 
