@@ -12,5 +12,20 @@ export default defineNuxtConfig({
     },
   },
   typescript: { strict: true, typeCheck: true },
-  vite: { plugins: [tailwindcss()] },
+  vite: {
+    plugins: [tailwindcss()],
+    server: {
+      // Same same-origin-in-production shape as web/apps/erp's own proxy —
+      // see that config's comment. Points at the Sharm To Go backend
+      // (:platform:apps:sharm-to-go), a separate real application from the
+      // Divers backend on :8080 (see WEGO-010-A Packet 0R) — run it locally
+      // with `--server.port=8081` so both backends can run side by side.
+      proxy: {
+        "/api": {
+          target: "http://localhost:8081",
+          changeOrigin: true,
+        },
+      },
+    },
+  },
 });

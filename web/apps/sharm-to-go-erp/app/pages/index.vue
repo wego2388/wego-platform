@@ -55,6 +55,13 @@ function toggleLocale() {
         </button>
       </header>
 
+      <nav class="mt-6 flex flex-wrap gap-4" aria-label="Catalog operations">
+        <NuxtLink to="/login" class="text-sm font-semibold text-sharm-sea underline">Sign in</NuxtLink>
+        <NuxtLink to="/providers" class="text-sm font-semibold text-sharm-sea underline">Providers</NuxtLink>
+        <NuxtLink to="/categories" class="text-sm font-semibold text-sharm-sea underline">Categories</NuxtLink>
+        <NuxtLink to="/services" class="text-sm font-semibold text-sharm-sea underline">Services</NuxtLink>
+      </nav>
+
       <div class="mt-8 rounded-2xl border border-amber-200 bg-sharm-warning-soft p-5 text-sharm-warning" role="status">
         <p class="font-semibold">{{ copy.noticeTitle }}</p>
         <p class="mt-2 text-sm leading-6">{{ copy.noticeBody }}</p>

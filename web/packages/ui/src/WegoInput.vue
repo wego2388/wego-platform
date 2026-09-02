@@ -6,11 +6,13 @@ withDefaults(
     modelValue: string;
     type?: string;
     required?: boolean;
+    disabled?: boolean;
     autocomplete?: string;
   }>(),
   {
     type: "text",
     required: false,
+    disabled: false,
     autocomplete: undefined,
   },
 );
@@ -28,8 +30,9 @@ defineEmits<{
       :type="type"
       :value="modelValue"
       :required="required"
+      :disabled="disabled"
       :autocomplete="autocomplete"
-      class="mt-2 w-full rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
+      class="mt-2 w-full rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink disabled:cursor-not-allowed disabled:opacity-60"
       @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
     >
   </div>
