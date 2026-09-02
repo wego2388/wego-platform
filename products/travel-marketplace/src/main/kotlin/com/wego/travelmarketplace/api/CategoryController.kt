@@ -91,6 +91,7 @@ class CategoryController(
                 updateCategoryService.update(
                     UpdateCategoryCommand(
                         CategoryId(id),
+                        request.code,
                         request.name.toDomain(),
                         request.description?.toDomain(),
                         request.displayOrder,
@@ -101,6 +102,7 @@ class CategoryController(
             is UpdateCategoryResult.Updated -> ResponseEntity.ok(result.category.toResponse())
             UpdateCategoryResult.NotFound -> ResponseEntity.notFound().build()
             UpdateCategoryResult.Archived -> ResponseEntity.status(HttpStatus.CONFLICT).body(CategoryErrorResponse("archived"))
+            UpdateCategoryResult.CodeImmutable -> ResponseEntity.status(HttpStatus.CONFLICT).body(CategoryErrorResponse("code_immutable"))
         }
     }
 

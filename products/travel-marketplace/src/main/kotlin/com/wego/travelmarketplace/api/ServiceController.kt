@@ -119,6 +119,10 @@ class ServiceController(
                     .status(
                         HttpStatus.BAD_REQUEST,
                     ).body(ServiceErrorResponse("provider_not_found"))
+            UpdateServiceResult.WouldInvalidatePublishedContent ->
+                ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(ServiceErrorResponse("would_invalidate_published_content"))
         }
     }
 

@@ -20,7 +20,14 @@ data class ServiceOptionDto(
     val durationMinutes: Int?,
     @field:Positive val maxParticipants: Int,
     @field:DecimalMin("0.00") @field:Digits(integer = 8, fraction = 2) val priceAmount: BigDecimal,
-    @field:Pattern(regexp = "^[A-Z]{3}$") val priceCurrency: String,
+    // Restricted to the client's one real organizational currency
+    // (LOCALES_AND_CONTENT.md), not any well-formed 3-letter code — an
+    // independent review caught live that "ZZZ" (a real ISO 4217 pattern
+    // match, but not an assigned currency) was accepted with 201. Multi-
+    // currency display is explicitly deferred in that same document; widen
+    // this only when that deferral is actually lifted, with a real list of
+    // supported codes, not a bare format check.
+    @field:Pattern(regexp = "^EGP$") val priceCurrency: String,
     val priceBasis: PriceBasis,
 )
 

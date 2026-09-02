@@ -37,6 +37,9 @@ nested inside or coupled to the other.
   [Technical execution plan](TECHNICAL_EXECUTION_PLAN.md) for the real
   schema/screens/tests detail behind each phase, across website, dashboard,
   and the new dedicated mobile app.
+- [Marketplace expansion plan](MARKETPLACE_EXPANSION_PLAN.md) — the
+  owner-approved sequencing beyond Activities: Dining, Accommodation, Car
+  rental, and why WhatsApp/social automation stays deliberately deferred.
 - [Complete design handoff](design/README.md)
 
 ## Executable design routes

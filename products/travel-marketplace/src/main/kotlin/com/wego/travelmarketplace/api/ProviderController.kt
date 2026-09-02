@@ -13,6 +13,8 @@ import com.wego.travelmarketplace.domain.Provider
 import com.wego.travelmarketplace.domain.ProviderId
 import com.wego.travelmarketplace.domain.ProviderStatus
 import jakarta.validation.Valid
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -57,8 +59,8 @@ class ProviderController(
     fun list(
         @RequestParam(required = false) status: ProviderStatus?,
         @RequestParam(required = false) search: String?,
-        @RequestParam(required = false, defaultValue = "0") page: Int,
-        @RequestParam(required = false, defaultValue = "50") size: Int,
+        @RequestParam(required = false, defaultValue = "0") @Min(0) page: Int,
+        @RequestParam(required = false, defaultValue = "50") @Min(1) @Max(200) size: Int,
     ): List<ProviderResponse> = providerQueryService.list(status, search, page, size).map { it.toResponse() }
 
     @GetMapping("/{id}")

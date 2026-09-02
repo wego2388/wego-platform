@@ -22,6 +22,7 @@ import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.put
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
@@ -508,6 +509,106 @@ class TravelMarketplaceHttpTest {
                 status { isBadRequest() }
                 jsonPath("$.error") { value("category_not_found") }
             }
+    }
+
+    // The next four tests cover real gaps an independent Tier 1 review found
+    // live against a running instance (see the WEGO-010-A board's Packet 0R/1A
+    // remediation entry) — each one reproduces the exact scenario that review
+    // used, not a paraphrase of it.
+
+    @Test
+    fun `provider list rejects an out-of-range page or size as a clean 400, never a raw 409`() {
+        val token = login(staffEmail, staffPassword)
+
+        mockMvc
+            .get("/api/v1/travel-marketplace/providers") {
+                header("Authorization", "Bearer $token")
+                param("page", "-1")
+            }.andExpect { status { isBadRequest() } }
+
+        mockMvc
+            .get("/api/v1/travel-marketplace/providers") {
+                header("Authorization", "Bearer $token")
+                param("size", "500")
+            }.andExpect { status { isBadRequest() } }
+    }
+
+    @Test
+    fun `a category update attempting to change the immutable code is a clean 409, not a silent no-op 200`() {
+        val token = login(staffEmail, staffPassword)
+        val categoryId = createCategory(token, code = "immutable-code-test")
+
+        mockMvc
+            .put("/api/v1/travel-marketplace/categories/$categoryId") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    """{"code": "a-different-code", "name": {"en": "Renamed", "ar": "معاد تسميته"}, "description": null, "displayOrder": 0}"""
+            }.andExpect {
+                status { isConflict() }
+                jsonPath("$.error") { value("code_immutable") }
+            }
+
+        mockMvc
+            .get("/api/v1/travel-marketplace/categories/$categoryId") {
+                header("Authorization", "Bearer $token")
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.code") { value("immutable-code-test") }
+            }
+    }
+
+    @Test
+    fun `updating a PUBLISHED service to have no options or media is rejected, not a silent 200 that empties a live listing`() {
+        val token = login(staffEmail, staffPassword)
+        val categoryId = createCategory(token)
+        val createBody =
+            mockMvc
+                .post("/api/v1/travel-marketplace/services") {
+                    header("Authorization", "Bearer $token")
+                    contentType = MediaType.APPLICATION_JSON
+                    content = createServiceRequest(categoryId, name = "Still Live Service")
+                }.andExpect { status { isCreated() } }
+                .andReturn()
+                .response.contentAsString
+        val serviceId = jsonField(createBody, "id")
+        mockMvc.post("/api/v1/travel-marketplace/services/$serviceId/submit-for-review") { header("Authorization", "Bearer $token") }
+        mockMvc.post("/api/v1/travel-marketplace/services/$serviceId/approve") { header("Authorization", "Bearer $token") }
+        mockMvc.post("/api/v1/travel-marketplace/services/$serviceId/publish") { header("Authorization", "Bearer $token") }
+
+        mockMvc
+            .put("/api/v1/travel-marketplace/services/$serviceId") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content = createServiceRequest(categoryId, name = "Still Live Service", withOptions = false, withMedia = false)
+            }.andExpect {
+                status { isConflict() }
+                jsonPath("$.error") { value("would_invalidate_published_content") }
+            }
+
+        // The rejected attempt must not have partially applied — the service
+        // stays fully intact and fully published on the real public catalog.
+        mockMvc
+            .get("/api/v1/travel-marketplace/public/services/$serviceId")
+            .andExpect {
+                status { isOk() }
+                jsonPath("$.options.length()") { value(1) }
+                jsonPath("$.media.length()") { value(1) }
+            }
+    }
+
+    @Test
+    fun `an unassigned currency code is a clean 400, never accepted as if it were EGP`() {
+        val token = login(staffEmail, staffPassword)
+        val categoryId = createCategory(token)
+
+        mockMvc
+            .post("/api/v1/travel-marketplace/services") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    createServiceRequest(categoryId).replace("\"priceCurrency\": \"EGP\"", "\"priceCurrency\": \"ZZZ\"")
+            }.andExpect { status { isBadRequest() } }
     }
 
     companion object {

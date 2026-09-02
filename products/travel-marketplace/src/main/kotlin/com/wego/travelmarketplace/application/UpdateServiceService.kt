@@ -44,6 +44,8 @@ sealed interface UpdateServiceResult {
     data object CategoryNotFound : UpdateServiceResult
 
     data object ProviderNotFound : UpdateServiceResult
+
+    data object WouldInvalidatePublishedContent : UpdateServiceResult
 }
 
 /**
@@ -52,6 +54,15 @@ sealed interface UpdateServiceResult {
  * its lifecycle status back to `DRAFT`; that would silently un-publish a
  * live service as a side effect of a typo fix, which is worse than allowing
  * the (rare, staff-only, permission-gated) edit-while-live case.
+ *
+ * A currently `PUBLISHED` or `SUSPENDED` service's own publish invariant
+ * (at least one option, at least one rights-cleared media asset — see
+ * [PublishServiceService]) must keep holding after an edit. An independent
+ * review caught this live before it shipped as a real gap: a real `PUT`
+ * against a `PUBLISHED` service with `options: []`/`media: []` returned 200
+ * and left the service `PUBLISHED` with genuinely empty content, still
+ * visible on the public catalog — a listing with nothing left to book,
+ * still marketed as bookable.
  */
 class UpdateServiceService(
     private val serviceRepository: ServiceRepository,
@@ -70,6 +81,10 @@ class UpdateServiceService(
             if (categoryRepository.findById(command.categoryId) == null) return@runInTransaction UpdateServiceResult.CategoryNotFound
             if (command.providerId != null && providerRepository.findById(command.providerId) == null) {
                 return@runInTransaction UpdateServiceResult.ProviderNotFound
+            }
+            val isLiveOrWasLive = existing.status == ServiceStatus.PUBLISHED || existing.status == ServiceStatus.SUSPENDED
+            if (isLiveOrWasLive && (command.options.isEmpty() || command.media.isEmpty())) {
+                return@runInTransaction UpdateServiceResult.WouldInvalidatePublishedContent
             }
 
             val updated =
