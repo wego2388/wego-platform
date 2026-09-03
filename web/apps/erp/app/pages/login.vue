@@ -221,6 +221,12 @@ function errorText(reason: string): string {
         </p>
         <div class="mt-4 flex flex-wrap items-center gap-4">
           <WegoButton type="button" variant="secondary" @click="logout">Sign out</WegoButton>
+          <!-- The full nav (Divers, HR, Accounting, Payroll, Reports, ...)
+               lives on the home dashboard, not hardcoded here — this page
+               only kept its own Offerings/Bookings shortcuts from before
+               that dashboard existed. Real gap: a first-time sign-in had no
+               visible way to reach anything else. -->
+          <NuxtLink to="/" class="text-sm font-semibold text-wego-accent underline">Dashboard</NuxtLink>
           <NuxtLink to="/offerings" class="text-sm font-semibold text-wego-accent underline">Offerings</NuxtLink>
           <NuxtLink to="/bookings" class="text-sm font-semibold text-wego-accent underline">Bookings</NuxtLink>
         </div>
