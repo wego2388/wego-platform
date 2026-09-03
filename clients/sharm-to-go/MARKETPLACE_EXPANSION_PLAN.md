@@ -75,7 +75,7 @@ until that foundation is built and separately authorized.
 
 | # | Vertical | What "done" looks like | Depends on |
 |---|---|---|---|
-| 1 | **Activities/Experiences** | Packets 1A (backend), 1B (dashboard), and 1C (website) done. 1D (mobile) is next; 1E needs real approved content. | Nothing further for 1D; owner app identity required before release |
+| 1 | **Activities/Experiences** | Packets 1A (backend), 1B (dashboard), 1C (website), and 1D (mobile) done. 1E needs real approved content. | Nothing further; owner release-identity confirmation required before any store submission |
 | 2 | **Dining** (restaurants, cafés) | A real directory: browse by cuisine/area, real photos with rights evidence, WhatsApp inquiry. No booking engine. | 1 substantially done (reuses its dashboard/website/mobile shell) |
 | 3 | **Accommodation** | Partner-listing directory (Model A below), not live rate/availability integration | Real partner hotels under agreement — owner-supplied |
 | 4 | **Car rental** | Same directory pattern as Dining/Accommodation | Real partner agencies under agreement — owner-supplied |
@@ -318,8 +318,8 @@ retrofit onto whatever ad hoc WhatsApp links exist by then.
 ## What happens next
 
 Per the owner's approved order, the immediate next implementation step is
-Activities Packet 1D (the dedicated mobile catalog), followed by Packet 1E's
-real-content publication rehearsal — **before** Dining backend work starts,
-not in parallel with it. Packets 1B and 1C are already implemented. This plan's
-Dining section exists so its design is ready when Activities reaches the agreed
-handoff point, not so implementation jumps ahead of that sequence.
+Activities Packet 1E's real-content publication rehearsal — **before** Dining
+backend work starts, not in parallel with it. Packets 1B, 1C, and 1D are
+already implemented. This plan's Dining section exists so its design is ready
+when Activities reaches the agreed handoff point, not so implementation jumps
+ahead of that sequence.

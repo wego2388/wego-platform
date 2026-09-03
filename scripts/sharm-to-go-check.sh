@@ -33,11 +33,25 @@ if [[ -z "$expected_pnpm" || "$pnpm_version" != "$expected_pnpm" ]]; then
   exit 1
 fi
 
+android_home="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+if [[ -z "$android_home" && -d /home/wego/android-sdk ]]; then
+  android_home="/home/wego/android-sdk"
+fi
+if [[ -z "$android_home" || ! -d "$android_home/platforms" ]]; then
+  echo "An Android SDK is required (mobile/apps/sharm-to-go* modules, added in Packet 1D)." >&2
+  echo "Set ANDROID_HOME/ANDROID_SDK_ROOT, or write sdk.dir=<path> to a local, gitignored local.properties." >&2
+  exit 1
+fi
+
 export JAVA_HOME="$jdk_home"
 export PATH="$JAVA_HOME/bin:$PATH"
+export ANDROID_HOME="$android_home"
+export ANDROID_SDK_ROOT="$android_home"
 
 cd "$repository_root"
 ./gradlew :platform:apps:sharm-to-go:check :platform:application:check
+./gradlew :mobile:shared:check :mobile:apps:customer:check :mobile:apps:customer-android:check \
+  :mobile:apps:sharm-to-go:check :mobile:apps:sharm-to-go-android:check
 
 cd "$repository_root/web"
 pnpm --filter @wego/sharm-to-go-site run lint

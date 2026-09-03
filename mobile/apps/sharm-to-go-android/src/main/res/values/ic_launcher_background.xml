@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Matches the rounded-square fill in web/apps/sharm-to-go-site/public/favicon.svg (StgColor.sea). -->
+    <color name="ic_launcher_background">#075F67</color>
+</resources>

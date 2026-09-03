@@ -7,13 +7,12 @@ detail WEGO-011 (Sharm Divers Club's DiveOS work) was built at, so a session
 picking this up later can execute directly instead of re-deriving it.
 
 **Current handoff (2026-09-03):** read [`CLAUDE_HANDOFF.md`](CLAUDE_HANDOFF.md)
-before acting. Packets 0R, 1A, 1B, and 1C exist on the isolated
+before acting. Packets 0R, 1A, 1B, 1C, and 1D exist on the isolated
 `worktree-wego-010a-0r-isolation` branch. Historical text below describes the
 state at the time each packet was started; it must not be read as a claim that
-later packets are still unstarted. Packet 1D (dedicated mobile catalog) is the
-next planned implementation packet, followed by 1E real-content publication
-rehearsal. Booking, payment, Dining, Accommodation, and Car Rental remain later
-work.
+later packets are still unstarted. Packet 1E (real-content publication
+rehearsal) is the next planned implementation packet. Booking, payment,
+Dining, Accommodation, and Car Rental remain later work.
 
 **Written 2026-08-30**, at the owner's explicit request, while WEGO-010-A
 stays `PAUSED` on the execution board (WEGO-011 is the sole `ACTIVE` packet
@@ -441,10 +440,13 @@ setup, not something to assume can share infrastructure without checking.
 2. **A real Sharm To Go staff role decision** — who are the actual first
    dashboard users, and should their permissions be scoped separately from
    `platform-admin` (see Phase 1's backend note above)?
-3. **The mobile-app-naming/branding decision** — confirm `mobile/apps/
-   sharm-to-go` (module name) and the real customer-facing app name/icon
-   before Phase 1's mobile work starts, so it is not built under a
-   placeholder name and renamed later.
+3. **Confirm the mobile app's final release identity before any store
+   submission** — Packet 1D built `mobile/apps/sharm-to-go` using the
+   already-real, already-approved `displayName` and `favicon.svg` mark
+   rather than a placeholder, so this is a confirmation gate on release, not
+   an engineering blocker: the store listing name, `applicationId`
+   (`com.wego.mobile.sharmtogo`), and launcher icon all need the owner's
+   explicit go-ahead before a store submission.
 4. **Payment activation inputs**, only when Phase 3 actually starts — signed
    merchant contracts, legal merchant name, CIB details, Paymob/Fawry
    credentials (sandbox first), webhook signing method — never committed to

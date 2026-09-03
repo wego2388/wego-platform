@@ -35,7 +35,10 @@ nested inside or coupled to the other.
 - `web/apps/sharm-to-go-erp` now has the Packet 1B login and real provider,
   category, and service-management screens. It is not deployed and contains
   no real client data.
-- Packet 1D, the dedicated mobile catalog application, has not started.
+- `mobile/apps/sharm-to-go` (+ `-android`) now has the Packet 1D Home/
+  Experiences list/detail screens, backed by `mobile/shared`'s
+  `TravelCatalogSnapshot` (bundled, versioned per release). A real debug APK
+  builds. Packet 1E, a real owner-approved launch service, has not started.
 
 ## Decision documents
 

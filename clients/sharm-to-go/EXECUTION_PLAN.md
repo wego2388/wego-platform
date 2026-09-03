@@ -54,9 +54,9 @@ same real published services the website and dashboard show.
 backend half of this phase is done — catalog/provider
 domain, schema, permissions, full staff CRUD + publish workflow, and the
 public projection, all proven live against a real database. Packet 1B's real
-staff dashboard and Packet 1C's public catalog list/detail are also implemented
-and self-verified. Mobile (1D) has not started, and no real service has passed
-the publication rehearsal (1E) — see
+staff dashboard, Packet 1C's public catalog list/detail, and Packet 1D's
+mobile catalog app are also implemented and self-verified. No real service
+has passed the publication rehearsal (1E) yet — see
 `TECHNICAL_EXECUTION_PLAN.md`'s Packet 1A section and the WEGO-010-A board
 entry for the full evidence.
 
@@ -116,8 +116,12 @@ eight simple fields in `SERVICE_OWNERSHIP.md` (template in
 `design/SERVICE_CONTENT_TEMPLATE.md`). Merchant sandbox credentials are
 needed only when Phase 3 starts and must never be committed to this repository.
 
-Also needed before Phase 1's mobile work starts (added 2026-08-30): the real
-customer-facing app name/icon for the new dedicated mobile app, and a decision
-on whether Sharm To Go's first dashboard staff accounts should be a role
-scoped separately from `platform-admin` — see `TECHNICAL_EXECUTION_PLAN.md`'s
-"What the owner supplies" section for the full list.
+Packet 1D's mobile app used the already-established real facts for its name
+and icon (`client.manifest.json`'s `displayName`, `web/apps/sharm-to-go-site/
+public/favicon.svg`) rather than inventing new ones or blocking engineering
+work — the owner still needs to separately confirm the release identity
+(store listing name, `applicationId`, icon) before any store submission, and
+a decision on whether Sharm To Go's first dashboard staff accounts should be
+a role scoped separately from `platform-admin` — see
+`TECHNICAL_EXECUTION_PLAN.md`'s "What the owner supplies" section for the
+full list.
