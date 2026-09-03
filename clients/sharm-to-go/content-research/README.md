@@ -22,6 +22,15 @@ offer without completing the repository's service-content approval process.
   adds 23 non-duplicate, bilingual concepts for sea, desert, nature, family,
   transfer, heritage, long-distance, and overnight services. It also gives a
   risk-based rollout order and original short copy for every concept.
+- [`SHARM_TO_GO_SERVICE_INTAKE_SHEETS.md`](SHARM_TO_GO_SERVICE_INTAKE_SHEETS.md)
+  reformats all 37 concepts, field-for-field, into the exact structure
+  `design/SERVICE_CONTENT_TEMPLATE.md` requires before publication. Every
+  field this research can responsibly fill in already is; every field only
+  a real operator/owner decision can supply (identity, EGP price, capacity,
+  schedule, cancellation wording, media rights) is marked `TO CONFIRM`, not
+  guessed. This is the fastest real path from research to Packet 1E — fill
+  one block's `TO CONFIRM` lines with real facts and it becomes the actual
+  input for creating that service through the real staff workflow.
 
 The research catalog therefore contains **37 original, non-duplicate Sharm To
 Go concepts**: 14 from the private-tour subset and 23 from the broader gap
