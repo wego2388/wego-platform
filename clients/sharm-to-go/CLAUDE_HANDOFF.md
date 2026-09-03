@@ -1,6 +1,6 @@
 # Sharm To Go — continuation handoff
 
-Status refreshed: 2026-09-03 (Packet 1D added).
+Status refreshed: 2026-09-03 (Packet 1D and full Sharm service-gap research added).
 
 ## Start here
 
@@ -49,6 +49,19 @@ That needs at least one real service record with approved Arabic/English
 copy, price/policy/provider facts, and rights-cleared media. Synthetic
 fixtures may be used in engineering tests but must never be presented as real
 inventory.
+
+The owner subsequently requested text-only research from Egyptra's Sharm
+listings. Start at `clients/sharm-to-go/content-research/README.md`. The earlier
+24-card private subset became 14 consolidated concepts. The later broad audit
+checked five result pages (123 returned cards, 122 unique source slugs), mapped
+the repeated listings into 23 additional concepts, and documented deliberate
+holds for dolphin experiences and for diving that belongs in the Sharm Divers
+Club ownership path. The resulting 37-concept research catalog is explicitly
+`RESEARCH_ONLY`: no source image, review, rating, or long marketing description
+was copied, EUR values are competitor snapshots rather than Sharm To Go prices,
+and operational conflicts are documented. Do not seed or publish these drafts.
+They help the owner interview real operators and complete the service intake
+template; they do not satisfy Packet 1E's approval gate.
 
 Before any store release of the mobile app, the owner must separately confirm
 the release identity is final (Play Store listing name, `applicationId`

@@ -42,6 +42,10 @@ nested inside or coupled to the other.
 
 ## Decision documents
 
+- [Service content research](content-research/README.md) — text-only source
+  inventories and 37 original Sharm To Go draft concepts spanning the earlier
+  private-tour subset and the broader Sharm gap audit; research only, never
+  approved inventory or publishable prices.
 - [Product blueprint](PRODUCT_BLUEPRINT.md)
 - [Service ownership model](SERVICE_OWNERSHIP.md)
 - [Locale and content matrix](LOCALES_AND_CONTENT.md)
