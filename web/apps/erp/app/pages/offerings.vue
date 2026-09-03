@@ -94,6 +94,16 @@ function errorText(error: unknown): string {
   return "Could not reach the server. Check your connection and try again.";
 }
 
+// Guards against a real race: a page-load fetch and a create/close can
+// resolve out of order. Without this, a slow initial GET (e.g. 50 seeded
+// offerings under CI load) that started before a fast create's response
+// can arrive *after* it and silently overwrite the optimistically-updated
+// list with the pre-create snapshot, making the just-created offering
+// disappear. Every write to `offerings.value` bumps this counter; a load
+// result is only applied if the counter hasn't moved since that load
+// started.
+let requestGeneration = 0;
+
 async function loadOfferings() {
   if (!session.value) return;
   // The create permission is intentionally distinct from the read
@@ -106,17 +116,26 @@ async function loadOfferings() {
     listState.value = "loaded";
     return;
   }
+  const generation = ++requestGeneration;
   listState.value = "loading";
   listError.value = "";
   try {
     const result = await listOfferings(session.value.token, { page: page.value });
-    offerings.value = result;
-    hasNextPage.value = result.length === PAGE_SIZE;
+    // A stale response (a create/close/newer load happened while this was
+    // in flight) must not overwrite newer data — but it must still clear
+    // "loading", or the page gets stuck showing "Loading…" forever even
+    // though offerings.value already has the right content.
+    if (generation === requestGeneration) {
+      offerings.value = result;
+      hasNextPage.value = result.length === PAGE_SIZE;
+    }
     listState.value = "loaded";
   } catch (error) {
-    handleApiError(error);
+    if (generation === requestGeneration) {
+      handleApiError(error);
+      listError.value = errorText(error);
+    }
     listState.value = "error";
-    listError.value = errorText(error);
   }
 }
 
@@ -146,6 +165,7 @@ async function submitCreate() {
       pricingBasis: form.value.pricingBasis,
       unitPrice: { amount: form.value.amount, currencyCode: form.value.currencyCode },
     });
+    requestGeneration++;
     offerings.value = [created, ...offerings.value];
     form.value = {
       offeringType: "DIVE_TRIP",
@@ -177,6 +197,7 @@ async function submitClose(offering: Offering) {
   closeError.value[offering.id] = "";
   try {
     const updated = await closeOffering(session.value.token, offering.id, reason);
+    requestGeneration++;
     offerings.value = offerings.value.map((existing) => (existing.id === updated.id ? updated : existing));
     closeState.value[offering.id] = "idle";
   } catch (error) {

@@ -142,6 +142,51 @@ describe("offerings page", () => {
     expect(body).toMatchObject({ offeringType: "COURSE", title: "Open Water Course", startsOn: "2026-09-05", pricingBasis: "FLAT" });
   });
 
+  it("a slow initial list fetch cannot clobber a faster create's optimistic update (regression)", async () => {
+    // Real bug, reproduced live in CI: onMounted's initial GET and a
+    // create's POST can resolve out of order. If the GET (which started
+    // first but is slower — e.g. 50 seeded rows under load) resolves
+    // *after* the create's optimistic prepend, it must not silently
+    // overwrite the list with its now-stale, create-less snapshot.
+    seedSession(["offering:manage", "offering:view"]);
+    let resolveList!: (value: Response) => void;
+    const listPromise = new Promise<Response>((resolve) => {
+      resolveList = resolve;
+    });
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes("/api/v1/divers/offerings") && (!init || init.method === undefined)) {
+        return listPromise;
+      }
+      if (url.endsWith("/api/v1/divers/offerings") && init?.method === "POST") {
+        return new Response(
+          JSON.stringify({ ...sampleOffering, id: "22222222-2222-2222-2222-222222222222", title: "Race Winner Trip" }),
+          { status: 201 },
+        );
+      }
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const wrapper = mount(OfferingsPage);
+    await flushPromises();
+
+    await wrapper.get("#title").setValue("Race Winner Trip");
+    await wrapper.get("#startsOn").setValue("2026-09-05");
+    await wrapper.get("#amount").setValue("45.00");
+    await wrapper.get("form").trigger("submit.prevent");
+    await flushPromises();
+
+    // The initial GET is still pending here, so the page correctly shows
+    // its own loading state rather than the list — that's not the bug.
+    // The bug is what happens once that slow GET *does* resolve, after
+    // the create already landed.
+    resolveList(new Response(JSON.stringify([]), { status: 200 }));
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Race Winner Trip");
+  });
+
   it("closes an active offering after confirmation when the user has offering:manage", async () => {
     seedSession(["offering:manage", "offering:view"]);
     vi.stubGlobal("confirm", vi.fn(() => true));
