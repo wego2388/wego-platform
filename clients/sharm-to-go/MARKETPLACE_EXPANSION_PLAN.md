@@ -11,12 +11,12 @@ vertical's own detailed plan (Phases 0–5), and this document is where the
 *other* verticals and the cross-cutting WhatsApp/social booking mechanism get
 designed before they become real packets.
 
-**Status: planning only.** No code exists yet for anything this document
-describes beyond what `TECHNICAL_EXECUTION_PLAN.md`'s Packet 0R/1A sections
-already cover (Activities backend). Nothing here authorizes implementation
-by itself — each numbered phase below still needs its own board entry,
-review-tier classification, and (where Tier 1) independent review before
-commit, per `docs/ENGINEERING_CONSTITUTION.md` §2 and
+**Status: expansion planning only.** Activities Packets 0R and 1A–1C now exist;
+this document's Dining, Accommodation, Car Rental, and automation phases remain
+planning only. Nothing here authorizes their implementation by itself — each
+numbered phase below still needs its own board entry, review-tier
+classification, and (where Tier 1) independent review before commit, per
+`docs/ENGINEERING_CONSTITUTION.md` §2 and
 `docs/operations/REVIEW_INTENSITY.md`.
 
 ## The real product shape, stated once
@@ -75,7 +75,7 @@ until that foundation is built and separately authorized.
 
 | # | Vertical | What "done" looks like | Depends on |
 |---|---|---|---|
-| 1 | **Activities/Experiences** | Packet 1A (backend) done. 1B (dashboard), 1C (website), 1D (mobile) — not started. | Nothing further |
+| 1 | **Activities/Experiences** | Packets 1A (backend), 1B (dashboard), and 1C (website) done. 1D (mobile) is next; 1E needs real approved content. | Nothing further for 1D; owner app identity required before release |
 | 2 | **Dining** (restaurants, cafés) | A real directory: browse by cuisine/area, real photos with rights evidence, WhatsApp inquiry. No booking engine. | 1 substantially done (reuses its dashboard/website/mobile shell) |
 | 3 | **Accommodation** | Partner-listing directory (Model A below), not live rate/availability integration | Real partner hotels under agreement — owner-supplied |
 | 4 | **Car rental** | Same directory pattern as Dining/Accommodation | Real partner agencies under agreement — owner-supplied |
@@ -317,18 +317,9 @@ retrofit onto whatever ad hoc WhatsApp links exist by then.
 
 ## What happens next
 
-Per the owner's own approved order, the immediate next *implementation*
-step is finishing Activities' remaining surfaces — Packet 1B (ERP catalog/
-content dashboard) is next per `TECHNICAL_EXECUTION_PLAN.md`'s packet map,
-then 1C (website) and 1D (mobile) — **before** Dining backend work starts,
-not in parallel with it. This plan's Dining section exists now so the
-design is ready and reviewed by the time the roadmap reaches it, not so
-implementation jumps ahead of Activities' own completion.
-
-Real code for Packet 1B does not start until the currently outstanding
-independent Tier 1 review of Packet 0R/1A returns (see the WEGO-010-A board
-entries dated 2026-09-02) — 1B builds a UI directly on top of the `Provider`/
-`Category`/`Service` APIs that review is auditing right now; starting UI
-work against an API surface that might still need a blocking fix is exactly
-the kind of avoidable rework this repository's own review discipline exists
-to prevent.
+Per the owner's approved order, the immediate next implementation step is
+Activities Packet 1D (the dedicated mobile catalog), followed by Packet 1E's
+real-content publication rehearsal — **before** Dining backend work starts,
+not in parallel with it. Packets 1B and 1C are already implemented. This plan's
+Dining section exists so its design is ready when Activities reaches the agreed
+handoff point, not so implementation jumps ahead of that sequence.

@@ -12,7 +12,7 @@ proven app architecture, not its content. Added 2026-08-30 at the owner's
 request; this file stays the short overview, that file is where a session
 picking up a phase should actually start reading.
 
-## Phase 0 — composition and honest UI foundation (current)
+## Phase 0 — composition and honest UI foundation
 
 - Multi-product/client Foundry discovery and deterministic locks.
 - Travel Marketplace product boundary and isolated Sharm To Go profile.
@@ -50,11 +50,13 @@ Exit: one real approved service can be published and suspended with audit,
 without yet accepting a booking; the mobile app's catalog screens render the
 same real published services the website and dashboard show.
 
-**Packet 1A (2026-09-02, self-verified, independent Tier 1 review
-outstanding):** the backend half of this phase is done — catalog/provider
+**Packet 1A (2026-09-02, self-verified; owner accepted that evidence):** the
+backend half of this phase is done — catalog/provider
 domain, schema, permissions, full staff CRUD + publish workflow, and the
-public projection, all proven live against a real database. Dashboard
-(1B), website (1C), and mobile (1D) have not started — see
+public projection, all proven live against a real database. Packet 1B's real
+staff dashboard and Packet 1C's public catalog list/detail are also implemented
+and self-verified. Mobile (1D) has not started, and no real service has passed
+the publication rehearsal (1E) — see
 `TECHNICAL_EXECUTION_PLAN.md`'s Packet 1A section and the WEGO-010-A board
 entry for the full evidence.
 

@@ -7,6 +7,10 @@ nested inside or coupled to the other.
 
 ## What is executable now
 
+- Start with [`CLAUDE_HANDOFF.md`](CLAUDE_HANDOFF.md) before continuing work.
+  It records the current branch/worktree boundary, completed packets, next
+  authorized scope, required toolchains, and the exact quality gate.
+
 - `client.manifest.json` declares the client, product, Cairo timezone, initial
   Arabic/English locales, EGP organizational currency, and isolated deployment.
 - `release.lock.json` deterministically resolves only the Travel Marketplace
@@ -21,11 +25,17 @@ nested inside or coupled to the other.
   run against a real throwaway PostgreSQL confirmed zero `divers_*` tables,
   zero Divers permissions, and zero `com.wego.divers.*` classes in this
   app's jar.
-- `web/apps/sharm-to-go-site` is an original Arabic/English public foundation.
-  It shows discovery categories and provider responsibility, not fake services.
-- `web/apps/sharm-to-go-erp` is an Arabic/English readiness dashboard. It is not
-  deployed, authenticated, or connected to business APIs yet, and says so in
-  the UI.
+- `products/travel-marketplace` now contains the real Packet 1A catalog domain
+  and API for providers, categories, services, publication workflow, and the
+  narrow public projection. No launch content is seeded.
+- `web/apps/sharm-to-go-site` now has the Packet 1C Arabic/English public
+  catalog list and service-detail routes backed by that public projection. It
+  retains an honest empty state while no real service is published, and its
+  `/booking-preview` route remains explicitly non-transactional.
+- `web/apps/sharm-to-go-erp` now has the Packet 1B login and real provider,
+  category, and service-management screens. It is not deployed and contains
+  no real client data.
+- Packet 1D, the dedicated mobile catalog application, has not started.
 
 ## Decision documents
 
@@ -44,6 +54,9 @@ nested inside or coupled to the other.
 
 ## Executable design routes
 
+- `/experiences` — real public catalog list; empty until approved content is
+  published through the catalog workflow.
+- `/experiences/:id` — real public service detail for a published service.
 - `/booking-preview` — Arabic/English responsive booking and payment pattern;
   explicitly creates no booking or payment.
 - `/design-system` — living semantic-token and component-state inventory.

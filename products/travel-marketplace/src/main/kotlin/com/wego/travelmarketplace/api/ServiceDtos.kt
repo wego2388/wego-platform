@@ -25,7 +25,9 @@ data class ServiceOptionDto(
     // caught live sending an unquoted JSON number instead, silently
     // dropping the ".00" a client would need for exact currency display.
     @field:JsonFormat(shape = JsonFormat.Shape.STRING)
-    @field:DecimalMin("0.00") @field:Digits(integer = 8, fraction = 2) val priceAmount: BigDecimal,
+    @field:DecimalMin("0.00")
+    @field:Digits(integer = 8, fraction = 2)
+    val priceAmount: BigDecimal,
     // Restricted to the client's one real organizational currency
     // (LOCALES_AND_CONTENT.md), not any well-formed 3-letter code — an
     // independent review caught live that "ZZZ" (a real ISO 4217 pattern

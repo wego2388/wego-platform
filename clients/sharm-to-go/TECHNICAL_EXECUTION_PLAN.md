@@ -6,6 +6,15 @@ schema, real endpoints, real screens, and real tests — the same level of
 detail WEGO-011 (Sharm Divers Club's DiveOS work) was built at, so a session
 picking this up later can execute directly instead of re-deriving it.
 
+**Current handoff (2026-09-03):** read [`CLAUDE_HANDOFF.md`](CLAUDE_HANDOFF.md)
+before acting. Packets 0R, 1A, 1B, and 1C exist on the isolated
+`worktree-wego-010a-0r-isolation` branch. Historical text below describes the
+state at the time each packet was started; it must not be read as a claim that
+later packets are still unstarted. Packet 1D (dedicated mobile catalog) is the
+next planned implementation packet, followed by 1E real-content publication
+rehearsal. Booking, payment, Dining, Accommodation, and Car Rental remain later
+work.
+
 **Written 2026-08-30**, at the owner's explicit request, while WEGO-010-A
 stays `PAUSED` on the execution board (WEGO-011 is the sole `ACTIVE` packet
 right now, per this repository's single-active-packet rule). This document is
@@ -20,9 +29,9 @@ required first proving the two clients are actually isolated as *running
 backends*, not merely as Foundry manifests — see "Packet 0R" immediately
 below, now done and self-verified. The owner then asked to continue with the
 services ("كمل الخدمات") before that review ran — see "Packet 1A" below,
-also now done and self-verified, backend-only (no dashboard/website/mobile
-work yet). An independent Tier 1 review covering both packets together is
-the next real step before 1B (dashboard).
+also now done and self-verified. Packets 1B (dashboard) and 1C (public catalog
+website) were subsequently implemented; the execution board and handoff above
+are the current status authority.
 
 ## Packet 0R — executable client composition (done 2026-09-02, self-verified)
 
