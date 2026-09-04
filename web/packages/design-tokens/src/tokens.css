@@ -2,27 +2,106 @@
   color-scheme: light;
   --wego-color-canvas: #f4f7f6;
   --wego-color-surface: #ffffff;
+  --wego-color-surface-raised: #ffffff;
+  --wego-color-surface-sunken: #eef3f2;
+  --wego-color-surface-hover: #eef3f2;
+  --wego-color-surface-pressed: #e3ebe9;
+  --wego-color-surface-overlay: rgb(16 42 46 / 50%);
+  --wego-color-surface-inverse: #102a2e;
   --wego-color-ink: #102a2e;
+  --wego-color-ink-inverse: #eaf3f1;
   --wego-color-muted: #52686b;
   --wego-color-border: #cfdddc;
+  /* Meets WCAG 1.4.11 (>=3:1) non-text/UI-component contrast against
+     --wego-color-surface, for boundaries that carry meaning (input focus
+     rings excluded — those use --wego-color-focus) — --wego-color-border
+     itself is decorative-only and has no contrast floor. */
+  --wego-color-border-strong: #63817e;
   --wego-color-accent: #087f74;
-  --wego-color-accent-soft: #d9f2ee;
-  --wego-color-focus: #ffb000;
+  --wego-color-accent-soft: #eefaf8;
+  --wego-color-focus: #a35f00;
   /* WCAG AA verified (>=4.5:1) against both --wego-color-surface and
      --wego-color-canvas: success 5.03-5.42:1, warning 5.00-5.38:1,
      danger 6.06-6.54:1 — see docs/execution/WEGO_EXECUTION_BOARD.md's
-     WEGO-000-I evidence entry for the exact computation. */
+     WEGO-000-I evidence entry for the exact computation. info added in
+     WEGO-014 Phase 2, same standard: 5.82-6.27:1. Every dark-mode
+     equivalent below is independently verified the same way — see that
+     packet's own evidence entry, not this comment, for the exact numbers. */
   --wego-color-success: #0f7a3d;
   --wego-color-success-soft: #dcf5e4;
   --wego-color-warning: #92600a;
   --wego-color-warning-soft: #fbead0;
   --wego-color-danger: #b3261e;
   --wego-color-danger-soft: #fbdcd9;
+  --wego-color-info: #1d5fb4;
+  --wego-color-info-soft: #dbe9fb;
   --wego-radius-card: 1.25rem;
   /* Sized for a ~44px control (input/button), not a scaled-down card
      radius — same soft-geometry family as --wego-radius-card, deliberately
      smaller so controls don't read as pill-shaped. */
   --wego-radius-control: 0.75rem;
+  --wego-radius-pill: 999px;
   --wego-font-sans: "Inter Variable", Inter, ui-sans-serif, system-ui, -apple-system,
     BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* WEGO-014: a real coordinated stacking order — every dropdown, sticky
+     header, backdrop, dialog, and toast in the platform positions itself
+     from this scale instead of an ad hoc z-index, so a dialog can never
+     silently render under a dropdown or vice versa. */
+  --wego-z-dropdown: 1000;
+  --wego-z-sticky: 1100;
+  --wego-z-overlay: 1200;
+  --wego-z-modal: 1300;
+  --wego-z-toast: 1400;
+  /* Motion vocabulary tied to purpose, not arbitrary per-component
+     guesses: fast for hover/press feedback, standard for
+     disclosure/dropdown/tab transitions, slow for a dialog or panel's
+     own entrance. Respected only when the user hasn't asked for reduced
+     motion — see the guard below, unchanged from WEGO-000-I. */
+  --wego-motion-duration-fast: 120ms;
+  --wego-motion-duration-standard: 200ms;
+  --wego-motion-duration-slow: 320ms;
+  --wego-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --wego-motion-easing-decelerate: cubic-bezier(0, 0, 0, 1);
+  --wego-motion-easing-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  /* WCAG 2.5.5/2.5.8: the minimum hit target for any interactive control,
+     independent of its visual/padding size. */
+  --wego-size-control-min: 2.75rem;
+}
+
+/* Opt-in only — this file is shared by every Wego web app, most of which
+   have never built or verified their own dark-mode rendering. A bare
+   OS-color-scheme media query here would silently darken native form
+   controls and any un-verified page in every one of those apps the
+   moment a visitor's OS is in dark mode. Dark values apply only
+   when the *consuming app* deliberately opts a page in by setting
+   `data-theme="dark"` on an ancestor element — see
+   web/apps/erp/app/composables/useTheme.ts for the one real consumer
+   today. Every color above still has a value here; nothing is
+   reintroduced from scratch. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --wego-color-canvas: #0b1817;
+  --wego-color-surface: #112120;
+  --wego-color-surface-raised: #16302e;
+  --wego-color-surface-sunken: #0d1c1b;
+  --wego-color-surface-hover: #1a3230;
+  --wego-color-surface-pressed: #1f3a37;
+  --wego-color-surface-overlay: rgb(5 12 12 / 60%);
+  --wego-color-surface-inverse: #eaf3f1;
+  --wego-color-ink: #eaf3f1;
+  --wego-color-ink-inverse: #102a2e;
+  --wego-color-muted: #9db3b0;
+  --wego-color-border: #24403d;
+  --wego-color-border-strong: #4d7975;
+  --wego-color-accent: #35d6bd;
+  --wego-color-accent-soft: #123634;
+  --wego-color-focus: #ffc247;
+  --wego-color-success: #4ade80;
+  --wego-color-success-soft: #113220;
+  --wego-color-warning: #f5b942;
+  --wego-color-warning-soft: #3a2a0d;
+  --wego-color-danger: #ff6b61;
+  --wego-color-danger-soft: #3a1512;
+  --wego-color-info: #7db2f2;
+  --wego-color-info-soft: #132a44;
 }

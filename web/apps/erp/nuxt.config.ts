@@ -14,6 +14,29 @@ export default defineNuxtConfig({
     head: {
       meta: [{ name: "theme-color", content: "#087f74" }],
       link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
+      script: [
+        {
+          // Runs before Vue mounts, so the very first paint already has
+          // the right theme — without this, a stored/system dark
+          // preference would render light for one frame (or longer,
+          // waiting on hydration) and then visibly flip. Deliberately
+          // duplicates useTheme.ts's own read/resolve logic rather than
+          // importing it: this has to run as a synchronous, dependency-
+          // free script tag in <head>, before any bundle executes.
+          innerHTML: `(function () {
+            try {
+              var stored = window.localStorage.getItem("wego-erp-theme");
+              var preference = stored === "light" || stored === "dark" ? stored : "system";
+              var dark = preference === "dark" || (preference === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+              if (dark) {
+                document.documentElement.setAttribute("data-theme", "dark");
+                var meta = document.querySelector('meta[name="theme-color"]');
+                if (meta) meta.setAttribute("content", "#35d6bd");
+              }
+            } catch (e) {}
+          })();`,
+        },
+      ],
     },
   },
   typescript: {
