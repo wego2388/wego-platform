@@ -5,9 +5,17 @@
 @theme {
   --color-wego-canvas: var(--wego-color-canvas);
   --color-wego-surface: var(--wego-color-surface);
+  --color-wego-surface-raised: var(--wego-color-surface-raised);
+  --color-wego-surface-sunken: var(--wego-color-surface-sunken);
+  --color-wego-surface-hover: var(--wego-color-surface-hover);
+  --color-wego-surface-pressed: var(--wego-color-surface-pressed);
+  --color-wego-surface-overlay: var(--wego-color-surface-overlay);
+  --color-wego-surface-inverse: var(--wego-color-surface-inverse);
   --color-wego-ink: var(--wego-color-ink);
+  --color-wego-ink-inverse: var(--wego-color-ink-inverse);
   --color-wego-muted: var(--wego-color-muted);
   --color-wego-border: var(--wego-color-border);
+  --color-wego-border-strong: var(--wego-color-border-strong);
   --color-wego-accent: var(--wego-color-accent);
   --color-wego-accent-soft: var(--wego-color-accent-soft);
   --color-wego-success: var(--wego-color-success);
@@ -16,8 +24,12 @@
   --color-wego-warning-soft: var(--wego-color-warning-soft);
   --color-wego-danger: var(--wego-color-danger);
   --color-wego-danger-soft: var(--wego-color-danger-soft);
+  --color-wego-info: var(--wego-color-info);
+  --color-wego-info-soft: var(--wego-color-info-soft);
+  --color-wego-focus: var(--wego-color-focus);
   --radius-wego-card: var(--wego-radius-card);
   --radius-wego-control: var(--wego-radius-control);
+  --radius-wego-pill: var(--wego-radius-pill);
   --font-sans: var(--wego-font-sans);
 }
 
