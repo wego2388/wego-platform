@@ -85,7 +85,22 @@ jobs:
       - name: Validate Compose model
         run: docker compose --env-file .env.example -f infrastructure/compose/compose.yaml config --quiet
       - name: Build and start isolated foundation stack
-        run: docker compose --env-file .env.example -f infrastructure/compose/compose.yaml up --build --wait -d
+        run: |
+          # Anonymous pulls of the pinned public.ecr.aws/docker/library/{postgres,redis,nginx}
+          # images intermittently return "toomanyrequests: Rate exceeded" under GitHub Actions'
+          # shared runner IP pool — a registry-side throttle, not a problem with the pinned
+          # digests themselves (the same images have passed cleanly on every other run this
+          # week). Retry with backoff instead of failing the whole job on a transient throttle.
+          attempt=1
+          until docker compose --env-file .env.example -f infrastructure/compose/compose.yaml up --build --wait -d; do
+            if [ "$attempt" -ge 5 ]; then
+              echo "::error::Foundation stack failed to start after $attempt attempts"
+              exit 1
+            fi
+            echo "Attempt $attempt failed to start the stack, retrying in $((attempt * 20))s..."
+            sleep "$((attempt * 20))"
+            attempt=$((attempt + 1))
+          done
       - name: Verify edge health, ERP HTML, and API protection
         run: |
           curl --fail --silent --show-error http://127.0.0.1:58080/healthz
