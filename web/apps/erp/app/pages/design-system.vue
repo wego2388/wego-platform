@@ -72,8 +72,8 @@ function cancelDialog() {
           </WegoButton>
         </div>
         <p class="mt-3 text-sm text-wego-muted">
-          Current preference: <strong>{{ preference }}</strong> — persisted, and this is the same mechanism the
-          navigation shell's own toggle (Phase 4) will call.
+          Current preference: <strong>{{ preference }}</strong> — persisted, and the same mechanism the
+          navigation shell's own theme control calls.
         </p>
       </WegoPanel>
 

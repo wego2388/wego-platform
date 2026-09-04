@@ -12,6 +12,7 @@ export default defineNuxtConfig({
     // string template, and a plain "%s · Wego Platform" would double up
     // whenever a page's own title chunk is already "Wego Platform".
     head: {
+      htmlAttrs: { lang: "en" },
       meta: [{ name: "theme-color", content: "#087f74" }],
       link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
       script: [
