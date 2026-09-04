@@ -31,6 +31,11 @@
   --radius-wego-control: var(--wego-radius-control);
   --radius-wego-pill: var(--wego-radius-pill);
   --font-sans: var(--wego-font-sans);
+  --z-wego-dropdown: var(--wego-z-dropdown);
+  --z-wego-sticky: var(--wego-z-sticky);
+  --z-wego-overlay: var(--wego-z-overlay);
+  --z-wego-modal: var(--wego-z-modal);
+  --z-wego-toast: var(--wego-z-toast);
 }
 
 html {

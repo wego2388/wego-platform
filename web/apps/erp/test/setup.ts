@@ -10,6 +10,12 @@ import { beforeEach, vi } from "vitest";
 // this one out too after the first test in the file.
 beforeEach(() => {
   vi.stubGlobal("useHead", () => {});
+  // Same reason as useHead above: definePageMeta (WEGO-014's layout: "app-shell"
+  // declarations) is also a Nuxt build-time macro, unavailable here. Tests
+  // mount pages directly and don't exercise Nuxt's own layout-selection
+  // mechanism — that's covered separately by mounting app-shell.vue itself
+  // (see AppShell.spec.ts) and by the real E2E suite against the built app.
+  vi.stubGlobal("definePageMeta", () => {});
   // login.vue now persists the session to sessionStorage; without this,
   // a test that logs in successfully would leak that session into the
   // next test in the same file (happy-dom's storage isn't reset per test).
