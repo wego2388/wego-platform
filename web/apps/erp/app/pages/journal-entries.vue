@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { WegoAlert, WegoButton, WegoInput } from "@wego/ui";
+import { WegoAlert, WegoButton, WegoInput, WegoPageHeader, WegoPanel, WegoSelect } from "@wego/ui";
 import { type AuthSession, clearAuthSession, hasPermission, readAuthSession } from "../composables/useAuthSession";
 import {
   type Account,
@@ -12,6 +12,8 @@ import {
   postJournalEntry,
   reverseJournalEntry,
 } from "../composables/useAccountingApi";
+
+definePageMeta({ layout: "app-shell" });
 
 useHead({ title: "Journal Entries · Wego Platform" });
 
@@ -162,131 +164,116 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-wego-canvas px-6 py-12 text-wego-ink sm:px-10 lg:px-16">
-    <div class="mx-auto max-w-4xl">
-      <p class="text-sm font-semibold tracking-[0.18em] text-wego-accent uppercase">Wego Platform</p>
-      <h1 class="mt-4 text-3xl font-semibold tracking-tight">Journal Entries</h1>
+  <WegoPageHeader title="Journal Entries" description="Every posted debit and credit, and its reversal history." />
 
-      <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-        <p>You need to sign in to view journal entries.</p>
-        <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
-      </div>
+  <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
+    <p>You need to sign in to view journal entries.</p>
+    <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
+  </div>
 
+  <template v-else>
+    <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+
+    <WegoPanel title="Entries" class="mt-8">
+      <p v-if="!canView()" class="text-sm text-wego-muted">
+        Your account doesn't have permission to view journal entries (accounting:journal-view).
+      </p>
       <template v-else>
-        <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+        <div class="flex flex-wrap items-end gap-3">
+          <WegoSelect id="accountFilter" v-model="accountFilter" label="Account" @change="runFilter">
+            <option value="">All accounts</option>
+            <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.code }} · {{ account.name }}</option>
+          </WegoSelect>
+        </div>
 
-        <section class="mt-8">
-          <h2 class="text-xl font-semibold">Entries</h2>
-          <p v-if="!canView()" class="mt-3 text-sm text-wego-muted">
-            Your account doesn't have permission to view journal entries (accounting:journal-view).
-          </p>
-          <template v-else>
-            <div class="mt-4 flex flex-wrap items-end gap-3">
-              <div>
-                <label for="accountFilter" class="block text-sm font-medium text-wego-muted">Account</label>
-                <select
-                  id="accountFilter"
-                  v-model="accountFilter"
-                  class="mt-2 rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-                  @change="runFilter"
-                >
-                  <option value="">All accounts</option>
-                  <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.code }} · {{ account.name }}</option>
-                </select>
-              </div>
-            </div>
-
-            <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
-            <p v-else-if="listState === 'loaded' && entries.length === 0" class="mt-3 text-sm text-wego-muted">No journal entries yet.</p>
-            <ul v-else class="mt-4 space-y-3">
-              <li v-for="entry in entries" :key="entry.id" class="rounded-wego-card border border-wego-border bg-wego-surface p-4">
-                <p class="font-semibold">
-                  {{ entry.entryDate }} · {{ entry.description }}<span v-if="entry.reference"> · {{ entry.reference }}</span>
-                </p>
-                <p class="mt-1 text-sm text-wego-muted">
-                  {{ entry.debitTotal }} {{ entry.currencyCode }} debit / {{ entry.creditTotal }} {{ entry.currencyCode }} credit
-                  <span v-if="entry.reversalOfEntryId"> · reverses another entry</span>
-                </p>
-                <ul class="mt-2 space-y-1">
-                  <li v-for="line in entry.lines" :key="line.id" class="text-sm text-wego-muted">
-                    {{ line.direction }} {{ line.amount }} — {{ accountLabel(line.accountId) }}
-                  </li>
-                </ul>
-                <WegoAlert v-if="rowState[entry.id] === 'error'" variant="danger" class="mt-2">{{ rowError[entry.id] }}</WegoAlert>
-
-                <div
-                  v-if="canManage() && !entry.reversalOfEntryId && !alreadyReversed(entry)"
-                  class="mt-3 flex flex-wrap items-end gap-2"
-                >
-                  <WegoInput
-                    :id="`reverse-reason-${entry.id}`"
-                    :model-value="reverseReason[entry.id] ?? ''"
-                    label="Reversal reason"
-                    class="min-w-0 flex-1"
-                    @update:model-value="(value) => (reverseReason[entry.id] = value)"
-                  />
-                  <WegoButton
-                    type="button"
-                    variant="secondary"
-                    :disabled="rowState[entry.id] === 'submitting' || !reverseReason[entry.id]"
-                    @click="submitReverse(entry)"
-                  >
-                    Reverse
-                  </WegoButton>
-                </div>
+        <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
+        <p v-else-if="listState === 'loaded' && entries.length === 0" class="mt-3 text-sm text-wego-muted">No journal entries yet.</p>
+        <!--
+          This entry's own <li> and the two exact text runs below (the
+          debit/credit summary paragraph and each line's "DIRECTION amount
+          — account" text) are frozen on purpose: the real E2E suite
+          locates each entry with locator("li", { hasText: DESCRIPTION })
+          and asserts these exact substrings inside it
+          ("500.00 EGP debit / 500.00 EGP credit", "DEBIT 15000.00"). Only
+          the surrounding chrome (WegoPanel/WegoSelect/WegoInput) changed.
+        -->
+        <ul v-else class="mt-4 space-y-3">
+          <li v-for="entry in entries" :key="entry.id" class="rounded-wego-control border border-wego-border p-4">
+            <p class="font-semibold">
+              {{ entry.entryDate }} · {{ entry.description }}<span v-if="entry.reference"> · {{ entry.reference }}</span>
+            </p>
+            <p class="mt-1 text-sm text-wego-muted">
+              {{ entry.debitTotal }} {{ entry.currencyCode }} debit / {{ entry.creditTotal }} {{ entry.currencyCode }} credit
+              <span v-if="entry.reversalOfEntryId"> · reverses another entry</span>
+            </p>
+            <ul class="mt-2 space-y-1">
+              <li v-for="line in entry.lines" :key="line.id" class="text-sm text-wego-muted">
+                {{ line.direction }} {{ line.amount }} — {{ accountLabel(line.accountId) }}
               </li>
             </ul>
-          </template>
-        </section>
+            <WegoAlert v-if="rowState[entry.id] === 'error'" variant="danger" class="mt-2">{{ rowError[entry.id] }}</WegoAlert>
 
-        <section v-if="canManage()" class="mt-10 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-          <h2 class="text-xl font-semibold">Post a journal entry</h2>
-          <form class="mt-6 space-y-5" @submit.prevent="submitForm">
-            <div class="grid gap-5 sm:grid-cols-2">
-              <WegoInput id="entryDate" v-model="form.entryDate" label="Date" type="date" required />
-              <WegoInput id="currencyCode" v-model="form.currencyCode" label="Currency" required />
+            <div
+              v-if="canManage() && !entry.reversalOfEntryId && !alreadyReversed(entry)"
+              class="mt-3 flex flex-wrap items-end gap-2"
+            >
+              <WegoInput
+                :id="`reverse-reason-${entry.id}`"
+                :model-value="reverseReason[entry.id] ?? ''"
+                label="Reversal reason"
+                class="min-w-0 flex-1"
+                @update:model-value="(value) => (reverseReason[entry.id] = value)"
+              />
+              <WegoButton
+                type="button"
+                variant="secondary"
+                :disabled="rowState[entry.id] === 'submitting' || !reverseReason[entry.id]"
+                @click="submitReverse(entry)"
+              >
+                Reverse
+              </WegoButton>
             </div>
-            <WegoInput id="description" v-model="form.description" label="Description" required />
-            <WegoInput id="reference" v-model="form.reference" label="Reference (optional)" />
-
-            <div>
-              <div class="flex items-center justify-between">
-                <span class="block text-sm font-medium text-wego-muted">Lines (must balance)</span>
-                <WegoButton type="button" variant="secondary" @click="addLine">Add line</WegoButton>
-              </div>
-              <div v-for="(line, index) in form.lines" :key="index" class="mt-3 grid gap-3 sm:grid-cols-4">
-                <select
-                  :id="`line-account-${index}`"
-                  v-model="line.accountId"
-                  required
-                  class="rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-                >
-                  <option value="" disabled>Select an account…</option>
-                  <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.code }} · {{ account.name }}</option>
-                </select>
-                <select
-                  :id="`line-direction-${index}`"
-                  v-model="line.direction"
-                  class="rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-                >
-                  <option value="DEBIT">DEBIT</option>
-                  <option value="CREDIT">CREDIT</option>
-                </select>
-                <WegoInput :id="`line-amount-${index}`" v-model="line.amount" label="Amount" placeholder="0.00" />
-                <WegoButton type="button" variant="secondary" :disabled="form.lines.length <= 2" @click="removeLine(index)">
-                  Remove
-                </WegoButton>
-              </div>
-            </div>
-
-            <WegoAlert v-if="formState === 'error'" variant="danger">{{ formError }}</WegoAlert>
-
-            <WegoButton type="submit" :disabled="formState === 'submitting'" :loading="formState === 'submitting'">
-              Post entry
-            </WegoButton>
-          </form>
-        </section>
+          </li>
+        </ul>
       </template>
-    </div>
-  </main>
+    </WegoPanel>
+
+    <WegoPanel v-if="canManage()" title="Post a journal entry" class="mt-8">
+      <form class="space-y-5" @submit.prevent="submitForm">
+        <div class="grid gap-5 sm:grid-cols-2">
+          <WegoInput id="entryDate" v-model="form.entryDate" label="Date" type="date" required />
+          <WegoInput id="currencyCode" v-model="form.currencyCode" label="Currency" required />
+        </div>
+        <WegoInput id="description" v-model="form.description" label="Description" required />
+        <WegoInput id="reference" v-model="form.reference" label="Reference (optional)" />
+
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="block text-sm font-medium text-wego-muted">Lines (must balance)</span>
+            <WegoButton type="button" variant="secondary" @click="addLine">Add line</WegoButton>
+          </div>
+          <div v-for="(line, index) in form.lines" :key="index" class="mt-3 grid gap-3 sm:grid-cols-4">
+            <WegoSelect :id="`line-account-${index}`" v-model="line.accountId" label="Account" required>
+              <option value="" disabled>Select an account…</option>
+              <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.code }} · {{ account.name }}</option>
+            </WegoSelect>
+            <WegoSelect :id="`line-direction-${index}`" v-model="line.direction" label="Direction">
+              <option value="DEBIT">DEBIT</option>
+              <option value="CREDIT">CREDIT</option>
+            </WegoSelect>
+            <WegoInput :id="`line-amount-${index}`" v-model="line.amount" label="Amount" placeholder="0.00" />
+            <WegoButton type="button" variant="secondary" :disabled="form.lines.length <= 2" @click="removeLine(index)">
+              Remove
+            </WegoButton>
+          </div>
+        </div>
+
+        <WegoAlert v-if="formState === 'error'" variant="danger">{{ formError }}</WegoAlert>
+
+        <WegoButton type="submit" :disabled="formState === 'submitting'" :loading="formState === 'submitting'">
+          Post entry
+        </WegoButton>
+      </form>
+    </WegoPanel>
+  </template>
 </template>

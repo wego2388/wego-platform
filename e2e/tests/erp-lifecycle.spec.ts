@@ -434,8 +434,7 @@ test.describe("ERP financial reports lifecycle", () => {
     await test.step("the trial balance shows the real posted amounts and genuinely balances", async () => {
       await page.goto("/reports", { waitUntil: "networkidle" });
       await page.locator("#trialBalanceDate").fill("2026-08-31");
-      const runButtons = page.getByRole("button", { name: "Run" });
-      await runButtons.nth(0).click();
+      await page.getByRole("button", { name: "Run trial balance" }).click();
 
       await expect(page.getByText(`${REPORT_CASH_CODE} · E2E Report Cash`)).toBeVisible();
       await expect(page.getByText(`${REPORT_REVENUE_CODE} · E2E Report Revenue`)).toBeVisible();
@@ -449,8 +448,7 @@ test.describe("ERP financial reports lifecycle", () => {
     await test.step("the income statement shows the real revenue line", async () => {
       await page.locator("#incomeFrom").fill("2026-08-01");
       await page.locator("#incomeTo").fill("2026-08-31");
-      const runButtons = page.getByRole("button", { name: "Run" });
-      await runButtons.nth(1).click();
+      await page.getByRole("button", { name: "Run income statement" }).click();
 
       await expect(page.getByText(`${REPORT_REVENUE_CODE} · E2E Report Revenue`)).toBeVisible();
       // Exact match: the trial balance section above still renders its own
@@ -461,8 +459,7 @@ test.describe("ERP financial reports lifecycle", () => {
 
     await test.step("the balance sheet includes the synthesized retained earnings line and genuinely balances", async () => {
       await page.locator("#balanceSheetDate").fill("2026-08-31");
-      const runButtons = page.getByRole("button", { name: "Run" });
-      await runButtons.nth(2).click();
+      await page.getByRole("button", { name: "Run balance sheet" }).click();
 
       await expect(page.getByText(`${REPORT_CASH_CODE} · E2E Report Cash`)).toBeVisible();
       await expect(page.getByText("Retained Earnings (accumulated)")).toBeVisible();

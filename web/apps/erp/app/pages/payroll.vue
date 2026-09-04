@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { WegoAlert, WegoButton, WegoInput } from "@wego/ui";
+import { WegoAlert, WegoButton, WegoInput, WegoPageHeader, WegoPanel, WegoSelect } from "@wego/ui";
 import { type AuthSession, clearAuthSession, hasPermission, readAuthSession } from "../composables/useAuthSession";
 import { type EmployeeSummary, listEmployees } from "../composables/useHrApi";
 import {
@@ -12,6 +12,8 @@ import {
   listPayrollRuns,
   type PayrollRunStatus,
 } from "../composables/usePayrollApi";
+
+definePageMeta({ layout: "app-shell" });
 
 useHead({ title: "Payroll · Wego Platform" });
 
@@ -147,89 +149,81 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-wego-canvas px-6 py-12 text-wego-ink sm:px-10 lg:px-16">
-    <div class="mx-auto max-w-4xl">
-      <p class="text-sm font-semibold tracking-[0.18em] text-wego-accent uppercase">Wego Platform</p>
-      <h1 class="mt-4 text-3xl font-semibold tracking-tight">Payroll</h1>
+  <WegoPageHeader title="Payroll" description="Draft, review, and post payroll runs. Nothing posts to the ledger until you say so." />
 
-      <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-        <p>You need to sign in to view payroll runs.</p>
-        <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
-      </div>
+  <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
+    <p>You need to sign in to view payroll runs.</p>
+    <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
+  </div>
 
+  <template v-else>
+    <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+
+    <WegoPanel title="Payroll runs" class="mt-8">
+      <p v-if="!canView()" class="text-sm text-wego-muted">
+        Your account doesn't have permission to view payroll runs (payroll:view).
+      </p>
       <template v-else>
-        <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+        <div class="flex flex-wrap items-end gap-3">
+          <WegoSelect id="statusFilter" v-model="statusFilter" label="Status" @change="runFilter">
+            <option value="">All</option>
+            <option value="DRAFT">Draft</option>
+            <option value="POSTED">Posted</option>
+          </WegoSelect>
+        </div>
 
-        <section class="mt-8">
-          <h2 class="text-xl font-semibold">Payroll runs</h2>
-          <p v-if="!canView()" class="mt-3 text-sm text-wego-muted">
-            Your account doesn't have permission to view payroll runs (payroll:view).
-          </p>
-          <template v-else>
-            <div class="mt-4 flex flex-wrap items-end gap-3">
-              <div>
-                <label for="statusFilter" class="block text-sm font-medium text-wego-muted">Status</label>
-                <select
-                  id="statusFilter"
-                  v-model="statusFilter"
-                  class="mt-2 rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-                  @change="runFilter"
-                >
-                  <option value="">All</option>
-                  <option value="DRAFT">Draft</option>
-                  <option value="POSTED">Posted</option>
-                </select>
-              </div>
-            </div>
-
-            <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
-            <p v-else-if="listState === 'loaded' && runs.length === 0" class="mt-3 text-sm text-wego-muted">No payroll runs yet.</p>
-            <ul v-else class="mt-4 space-y-3">
-              <li v-for="run in runs" :key="run.id" class="rounded-wego-card border border-wego-border bg-wego-surface p-4">
-                <p class="font-semibold">{{ run.payPeriodStart }} – {{ run.payPeriodEnd }} · {{ run.status }}</p>
-                <p class="mt-1 text-sm text-wego-muted">{{ run.totalAmount }} {{ run.currencyCode }} across {{ run.lines.length }} employees</p>
-                <ul class="mt-2 space-y-1">
-                  <li v-for="line in run.lines" :key="line.employeeId" class="text-sm text-wego-muted">
-                    {{ employeeName(line.employeeId) }} — {{ line.amount }} {{ run.currencyCode }}
-                  </li>
-                </ul>
-                <WegoAlert v-if="rowState[run.id] === 'error'" variant="danger" class="mt-2">{{ rowError[run.id] }}</WegoAlert>
-
-                <div v-if="canManage() && run.status === 'DRAFT'" class="mt-3 flex gap-2">
-                  <WegoButton type="button" :disabled="rowState[run.id] === 'submitting'" @click="submitPost(run)">Post</WegoButton>
-                  <WegoButton
-                    type="button"
-                    variant="secondary"
-                    :disabled="rowState[run.id] === 'submitting'"
-                    @click="submitDiscard(run)"
-                  >
-                    Discard
-                  </WegoButton>
-                </div>
+        <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
+        <p v-else-if="listState === 'loaded' && runs.length === 0" class="mt-3 text-sm text-wego-muted">No payroll runs yet.</p>
+        <!--
+          This run's own <li>, its "start – end · STATUS" paragraph, and
+          each line's "name — amount CURRENCY" text stay byte-identical on
+          purpose: the real E2E suite locates each run with
+          locator("li", { hasText: "start – end" }) three separate times
+          across the draft/post/permanence steps, and asserts "DRAFT",
+          "POSTED", and the employee name as exact text inside that row.
+          Only the surrounding chrome (WegoPanel/WegoSelect/WegoInput)
+          changed — same discipline as bookings.vue in Phase 5.
+        -->
+        <ul v-else class="mt-4 space-y-3">
+          <li v-for="run in runs" :key="run.id" class="rounded-wego-control border border-wego-border p-4">
+            <p class="font-semibold">{{ run.payPeriodStart }} – {{ run.payPeriodEnd }} · {{ run.status }}</p>
+            <p class="mt-1 text-sm text-wego-muted">{{ run.totalAmount }} {{ run.currencyCode }} across {{ run.lines.length }} employees</p>
+            <ul class="mt-2 space-y-1">
+              <li v-for="line in run.lines" :key="line.employeeId" class="text-sm text-wego-muted">
+                {{ employeeName(line.employeeId) }} — {{ line.amount }} {{ run.currencyCode }}
               </li>
             </ul>
-          </template>
-        </section>
+            <WegoAlert v-if="rowState[run.id] === 'error'" variant="danger" class="mt-2">{{ rowError[run.id] }}</WegoAlert>
 
-        <section v-if="canManage()" class="mt-10 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-          <h2 class="text-xl font-semibold">New payroll run</h2>
-          <p class="mt-2 text-sm text-wego-muted">
-            Includes every currently active employee with a base salary set. Nothing is posted to the ledger until you Post it.
-          </p>
-          <form class="mt-6 space-y-5" @submit.prevent="submitForm">
-            <div class="grid gap-5 sm:grid-cols-2">
-              <WegoInput id="payPeriodStart" v-model="form.payPeriodStart" label="Pay period start" type="date" required />
-              <WegoInput id="payPeriodEnd" v-model="form.payPeriodEnd" label="Pay period end" type="date" required />
+            <div v-if="canManage() && run.status === 'DRAFT'" class="mt-3 flex gap-2">
+              <WegoButton type="button" :disabled="rowState[run.id] === 'submitting'" @click="submitPost(run)">Post</WegoButton>
+              <WegoButton
+                type="button"
+                variant="secondary"
+                :disabled="rowState[run.id] === 'submitting'"
+                @click="submitDiscard(run)"
+              >
+                Discard
+              </WegoButton>
             </div>
-
-            <WegoAlert v-if="formState === 'error'" variant="danger">{{ formError }}</WegoAlert>
-
-            <WegoButton type="submit" :disabled="formState === 'submitting'" :loading="formState === 'submitting'">
-              Create draft
-            </WegoButton>
-          </form>
-        </section>
+          </li>
+        </ul>
       </template>
-    </div>
-  </main>
+    </WegoPanel>
+
+    <WegoPanel v-if="canManage()" title="New payroll run" description="Includes every currently active employee with a base salary set. Nothing is posted to the ledger until you Post it." class="mt-8">
+      <form class="space-y-5" @submit.prevent="submitForm">
+        <div class="grid gap-5 sm:grid-cols-2">
+          <WegoInput id="payPeriodStart" v-model="form.payPeriodStart" label="Pay period start" type="date" required />
+          <WegoInput id="payPeriodEnd" v-model="form.payPeriodEnd" label="Pay period end" type="date" required />
+        </div>
+
+        <WegoAlert v-if="formState === 'error'" variant="danger">{{ formError }}</WegoAlert>
+
+        <WegoButton type="submit" :disabled="formState === 'submitting'" :loading="formState === 'submitting'">
+          Create draft
+        </WegoButton>
+      </form>
+    </WegoPanel>
+  </template>
 </template>

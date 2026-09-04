@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { WegoAlert, WegoButton, WegoInput } from "@wego/ui";
+import { WegoAlert, WegoBadge, WegoButton, WegoCheckbox, WegoInput, WegoPageHeader, WegoPanel, WegoSelect } from "@wego/ui";
 import { type AuthSession, clearAuthSession, hasPermission, readAuthSession } from "../composables/useAuthSession";
 import {
   type Account,
@@ -12,6 +12,8 @@ import {
   reactivateAccount,
   updateAccount,
 } from "../composables/useAccountingApi";
+
+definePageMeta({ layout: "app-shell" });
 
 useHead({ title: "Chart of Accounts · Wego Platform" });
 
@@ -153,106 +155,80 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-wego-canvas px-6 py-12 text-wego-ink sm:px-10 lg:px-16">
-    <div class="mx-auto max-w-4xl">
-      <p class="text-sm font-semibold tracking-[0.18em] text-wego-accent uppercase">Wego Platform</p>
-      <h1 class="mt-4 text-3xl font-semibold tracking-tight">Chart of Accounts</h1>
+  <WegoPageHeader title="Chart of Accounts" description="The ledger accounts everything else in accounting posts against." />
 
-      <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-        <p>You need to sign in to view the chart of accounts.</p>
-        <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
-      </div>
+  <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
+    <p>You need to sign in to view the chart of accounts.</p>
+    <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
+  </div>
 
+  <template v-else>
+    <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+
+    <WegoPanel title="Accounts" class="mt-8">
+      <p v-if="!canView()" class="text-sm text-wego-muted">
+        Your account doesn't have permission to view the chart of accounts (accounting:coa-view).
+      </p>
       <template v-else>
-        <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+        <div class="flex flex-wrap items-end gap-4">
+          <WegoSelect id="typeFilter" v-model="typeFilter" label="Type" @change="runFilter">
+            <option value="">All types</option>
+            <option v-for="type in accountTypes" :key="type" :value="type">{{ type }}</option>
+          </WegoSelect>
+          <WegoCheckbox id="showInactive" v-model="showInactive" @change="runFilter">Show inactive</WegoCheckbox>
+        </div>
 
-        <section class="mt-8">
-          <h2 class="text-xl font-semibold">Accounts</h2>
-          <p v-if="!canView()" class="mt-3 text-sm text-wego-muted">
-            Your account doesn't have permission to view the chart of accounts (accounting:coa-view).
-          </p>
-          <template v-else>
-            <div class="mt-4 flex flex-wrap items-end gap-3">
+        <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
+        <p v-else-if="listState === 'loaded' && accounts.length === 0" class="mt-3 text-sm text-wego-muted">No accounts yet.</p>
+        <ul v-else class="mt-4 space-y-3">
+          <li v-for="account in accounts" :key="account.id" class="rounded-wego-control border border-wego-border p-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <label for="typeFilter" class="block text-sm font-medium text-wego-muted">Type</label>
-                <select
-                  id="typeFilter"
-                  v-model="typeFilter"
-                  class="mt-2 rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-                  @change="runFilter"
-                >
-                  <option value="">All types</option>
-                  <option v-for="type in accountTypes" :key="type" :value="type">{{ type }}</option>
-                </select>
-              </div>
-              <label class="flex items-center gap-2 text-sm">
-                <input v-model="showInactive" type="checkbox" @change="runFilter" >
-                Show inactive
-              </label>
-            </div>
-
-            <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
-            <p v-else-if="listState === 'loaded' && accounts.length === 0" class="mt-3 text-sm text-wego-muted">No accounts yet.</p>
-            <ul v-else class="mt-4 space-y-3">
-              <li v-for="account in accounts" :key="account.id" class="rounded-wego-card border border-wego-border bg-wego-surface p-4">
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p class="font-semibold">{{ account.code }} · {{ account.name }}</p>
-                    <p class="mt-1 text-sm text-wego-muted">
-                      {{ account.accountType }} · normal balance {{ account.normalBalance }} ·
-                      {{ account.active ? "ACTIVE" : "INACTIVE" }}
-                    </p>
-                    <p v-if="account.description" class="mt-1 text-sm text-wego-muted">{{ account.description }}</p>
-                  </div>
-                  <div v-if="canManage()" class="flex shrink-0 gap-2">
-                    <WegoButton type="button" variant="secondary" @click="startEdit(account)">Edit</WegoButton>
-                    <WegoButton
-                      type="button"
-                      variant="secondary"
-                      :disabled="rowState[account.id] === 'submitting'"
-                      @click="toggleActive(account)"
-                    >
-                      {{ account.active ? "Deactivate" : "Reactivate" }}
-                    </WegoButton>
-                  </div>
+                <div class="flex items-center gap-2">
+                  <p class="font-semibold">{{ account.code }} · {{ account.name }}</p>
+                  <WegoBadge :tone="account.active ? 'success' : 'neutral'">{{ account.active ? "ACTIVE" : "INACTIVE" }}</WegoBadge>
                 </div>
-                <WegoAlert v-if="rowState[account.id] === 'error'" variant="danger" class="mt-2">{{ rowError[account.id] }}</WegoAlert>
-              </li>
-            </ul>
-          </template>
-        </section>
-
-        <section v-if="canManage()" class="mt-10 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-          <h2 class="text-xl font-semibold">{{ editingAccountId ? "Edit account" : "New account" }}</h2>
-          <form class="mt-6 space-y-5" @submit.prevent="submitForm">
-            <div class="grid gap-5 sm:grid-cols-2">
-              <WegoInput id="code" v-model="form.code" label="Code" required :disabled="!!editingAccountId" />
-              <div>
-                <label for="accountType" class="block text-sm font-medium text-wego-muted">Type</label>
-                <select
-                  id="accountType"
-                  v-model="form.accountType"
-                  :disabled="!!editingAccountId"
-                  class="mt-2 w-full rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
+                <p class="mt-1 text-sm text-wego-muted">{{ account.accountType }} · normal balance {{ account.normalBalance }}</p>
+                <p v-if="account.description" class="mt-1 text-sm text-wego-muted">{{ account.description }}</p>
+              </div>
+              <div v-if="canManage()" class="flex shrink-0 gap-2">
+                <WegoButton type="button" variant="secondary" @click="startEdit(account)">Edit</WegoButton>
+                <WegoButton
+                  type="button"
+                  variant="secondary"
+                  :disabled="rowState[account.id] === 'submitting'"
+                  @click="toggleActive(account)"
                 >
-                  <option v-for="type in accountTypes" :key="type" :value="type">{{ type }}</option>
-                </select>
+                  {{ account.active ? "Deactivate" : "Reactivate" }}
+                </WegoButton>
               </div>
             </div>
-            <WegoInput id="name" v-model="form.name" label="Name" required />
-            <WegoInput id="description" v-model="form.description" label="Description (optional)" />
-
-            <WegoAlert v-if="formState === 'error'" variant="danger">{{ formError }}</WegoAlert>
-
-            <div class="flex gap-3">
-              <WegoButton type="submit" :disabled="formState === 'submitting'" :loading="formState === 'submitting'">
-                {{ editingAccountId ? "Save changes" : "Create account" }}
-              </WegoButton>
-              <WegoButton v-if="editingAccountId" type="button" variant="secondary" @click="cancelEdit">Cancel</WegoButton>
-            </div>
-          </form>
-        </section>
+            <WegoAlert v-if="rowState[account.id] === 'error'" variant="danger" class="mt-2">{{ rowError[account.id] }}</WegoAlert>
+          </li>
+        </ul>
       </template>
-    </div>
-  </main>
+    </WegoPanel>
+
+    <WegoPanel v-if="canManage()" :title="editingAccountId ? 'Edit account' : 'New account'" class="mt-8">
+      <form class="space-y-5" @submit.prevent="submitForm">
+        <div class="grid gap-5 sm:grid-cols-2">
+          <WegoInput id="code" v-model="form.code" label="Code" required :disabled="!!editingAccountId" />
+          <WegoSelect id="accountType" v-model="form.accountType" label="Type" :disabled="!!editingAccountId">
+            <option v-for="type in accountTypes" :key="type" :value="type">{{ type }}</option>
+          </WegoSelect>
+        </div>
+        <WegoInput id="name" v-model="form.name" label="Name" required />
+        <WegoInput id="description" v-model="form.description" label="Description (optional)" />
+
+        <WegoAlert v-if="formState === 'error'" variant="danger">{{ formError }}</WegoAlert>
+
+        <div class="flex gap-3">
+          <WegoButton type="submit" :disabled="formState === 'submitting'" :loading="formState === 'submitting'">
+            {{ editingAccountId ? "Save changes" : "Create account" }}
+          </WegoButton>
+          <WegoButton v-if="editingAccountId" type="button" variant="secondary" @click="cancelEdit">Cancel</WegoButton>
+        </div>
+      </form>
+    </WegoPanel>
+  </template>
 </template>

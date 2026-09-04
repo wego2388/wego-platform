@@ -86,8 +86,8 @@ describe("reports page", () => {
     await flushPromises();
 
     await wrapper.get("#trialBalanceDate").setValue("2026-08-31");
-    const runButtons = wrapper.findAll("button").filter((button) => button.text() === "Run");
-    await runButtons[0]?.trigger("click");
+    const runButton = wrapper.findAll("button").find((button) => button.text() === "Run trial balance");
+    await runButton?.trigger("click");
     await flushPromises();
 
     expect(wrapper.text()).toContain("800.00 DR");
@@ -104,8 +104,8 @@ describe("reports page", () => {
 
     await wrapper.get("#incomeFrom").setValue("2026-08-01");
     await wrapper.get("#incomeTo").setValue("2026-08-31");
-    const runButtons = wrapper.findAll("button").filter((button) => button.text() === "Run");
-    await runButtons[1]?.trigger("click");
+    const runButton = wrapper.findAll("button").find((button) => button.text() === "Run income statement");
+    await runButton?.trigger("click");
     await flushPromises();
 
     expect(wrapper.text()).toContain("Service Revenue");
@@ -121,8 +121,8 @@ describe("reports page", () => {
     await flushPromises();
 
     await wrapper.get("#balanceSheetDate").setValue("2026-08-31");
-    const runButtons = wrapper.findAll("button").filter((button) => button.text() === "Run");
-    await runButtons[2]?.trigger("click");
+    const runButton = wrapper.findAll("button").find((button) => button.text() === "Run balance sheet");
+    await runButton?.trigger("click");
     await flushPromises();
 
     expect(wrapper.text()).toContain("Retained Earnings (accumulated)");
