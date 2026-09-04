@@ -15,7 +15,7 @@
     "validate": "pnpm run validate:manifests && pnpm run validate:openapi && pnpm run validate:repository-yaml"
   },
   "devDependencies": {
-    "@redocly/cli": "2.46.0",
+    "@redocly/cli": "2.49.0",
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1",
     "yaml": "2.9.0"

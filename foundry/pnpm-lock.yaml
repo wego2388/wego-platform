@@ -12,8 +12,8 @@ importers:
   .:
     devDependencies:
       '@redocly/cli':
-        specifier: 2.46.0
-        version: 2.46.0
+        specifier: 2.49.0
+        version: 2.49.0
       ajv:
         specifier: 8.20.0
         version: 8.20.0
@@ -26,8 +26,8 @@ importers:
 
 packages:
 
-  '@redocly/cli@2.46.0':
-    resolution: {integrity: sha512-Hx4dIYwFhMkE6fZXDl0TwuVsvE8INX7dzEOgAcEhl0mhTkHC95o/rhUTlVLbNRg4mWHQ27jbdgKXPZBJJANWYA==}
+  '@redocly/cli@2.49.0':
+    resolution: {integrity: sha512-87UuARXYrPIiHhd/UriamL4BApuPgB0E91coBtoPG6PK4giTwiuo3dI4RoyMGhsC7TwgAnL8PJuhCwGymgwbVA==}
     engines: {node: '>=22.12.0 || >=20.19.0 <21.0.0', npm: '>=10'}
     hasBin: true
 
@@ -62,7 +62,7 @@ packages:
 
 snapshots:
 
-  '@redocly/cli@2.46.0': {}
+  '@redocly/cli@2.49.0': {}
 
   ajv-formats@3.0.1(ajv@8.20.0):
     optionalDependencies:
