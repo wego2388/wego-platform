@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { WegoAlert, WegoButton, WegoInput } from "@wego/ui";
+import { WegoAlert, WegoBadge, WegoButton, WegoInput, WegoPageHeader, WegoPanel, WegoSelect } from "@wego/ui";
 import { type AuthSession, clearAuthSession, hasPermission, readAuthSession } from "../composables/useAuthSession";
 import {
   approveLeaveRequest,
@@ -15,6 +15,8 @@ import {
   rejectLeaveRequest,
   submitLeaveRequest,
 } from "../composables/useHrApi";
+
+definePageMeta({ layout: "app-shell" });
 
 useHead({ title: "Leave Requests · Wego Platform" });
 
@@ -32,6 +34,13 @@ const leaveTypes: LeaveType[] = ["ANNUAL", "SICK", "UNPAID", "OTHER"];
 
 function employeeName(employeeId: string): string {
   return employees.value.find((employee) => employee.id === employeeId)?.fullName ?? employeeId;
+}
+
+function statusTone(status: LeaveRequestStatus): "success" | "danger" | "warning" | "neutral" {
+  if (status === "APPROVED") return "success";
+  if (status === "REJECTED") return "danger";
+  if (status === "PENDING") return "warning";
+  return "neutral";
 }
 
 function handleApiError(error: unknown) {
@@ -160,136 +169,107 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-wego-canvas px-6 py-12 text-wego-ink sm:px-10 lg:px-16">
-    <div class="mx-auto max-w-4xl">
-      <p class="text-sm font-semibold tracking-[0.18em] text-wego-accent uppercase">Wego Platform</p>
-      <h1 class="mt-4 text-3xl font-semibold tracking-tight">Leave Requests</h1>
+  <WegoPageHeader title="Leave Requests" description="Time-off requests, approvals, and rejections." />
 
-      <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-        <p>You need to sign in to view leave requests.</p>
-        <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
-      </div>
+  <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
+    <p>You need to sign in to view leave requests.</p>
+    <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
+  </div>
 
+  <template v-else>
+    <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+
+    <WegoPanel title="Requests" class="mt-8">
+      <p v-if="!canView()" class="text-sm text-wego-muted">
+        Your account doesn't have permission to view leave requests (hr:leave-view).
+      </p>
       <template v-else>
-        <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+        <div class="flex flex-wrap items-end gap-3">
+          <WegoSelect id="statusFilter" v-model="statusFilter" label="Status" @change="runFilter">
+            <option value="PENDING">Pending</option>
+            <option value="APPROVED">Approved</option>
+            <option value="REJECTED">Rejected</option>
+            <option value="CANCELLED">Cancelled</option>
+            <option value="">All</option>
+          </WegoSelect>
+        </div>
 
-        <section class="mt-8">
-          <h2 class="text-xl font-semibold">Requests</h2>
-          <p v-if="!canView()" class="mt-3 text-sm text-wego-muted">
-            Your account doesn't have permission to view leave requests (hr:leave-view).
-          </p>
-          <template v-else>
-            <div class="mt-4 flex flex-wrap items-end gap-3">
+        <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
+        <p v-else-if="listState === 'loaded' && leaveRequests.length === 0" class="mt-3 text-sm text-wego-muted">
+          No leave requests here.
+        </p>
+        <ul v-else class="mt-4 space-y-3">
+          <li v-for="request in leaveRequests" :key="request.id" class="rounded-wego-control border border-wego-border p-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <label for="statusFilter" class="block text-sm font-medium text-wego-muted">Status</label>
-                <select
-                  id="statusFilter"
-                  v-model="statusFilter"
-                  class="mt-2 rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-                  @change="runFilter"
-                >
-                  <option value="PENDING">Pending</option>
-                  <option value="APPROVED">Approved</option>
-                  <option value="REJECTED">Rejected</option>
-                  <option value="CANCELLED">Cancelled</option>
-                  <option value="">All</option>
-                </select>
+                <div class="flex items-center gap-2">
+                  <p class="font-semibold">{{ employeeName(request.employeeId) }}</p>
+                  <WegoBadge :tone="statusTone(request.status)">{{ request.status }}</WegoBadge>
+                </div>
+                <p class="mt-1 text-sm text-wego-muted">{{ request.leaveType }} · {{ request.startDate }} – {{ request.endDate }}</p>
+                <p v-if="request.reason" class="mt-1 text-sm text-wego-muted">{{ request.reason }}</p>
               </div>
             </div>
+            <WegoAlert v-if="rowState[request.id] === 'error'" variant="danger" class="mt-2">{{ rowError[request.id] }}</WegoAlert>
 
-            <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
-            <p v-else-if="listState === 'loaded' && leaveRequests.length === 0" class="mt-3 text-sm text-wego-muted">
-              No leave requests here.
-            </p>
-            <ul v-else class="mt-4 space-y-3">
-              <li v-for="request in leaveRequests" :key="request.id" class="rounded-wego-card border border-wego-border bg-wego-surface p-4">
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p class="font-semibold">{{ employeeName(request.employeeId) }}</p>
-                    <p class="mt-1 text-sm text-wego-muted">
-                      {{ request.leaveType }} · {{ request.startDate }} – {{ request.endDate }} · {{ request.status }}
-                    </p>
-                    <p v-if="request.reason" class="mt-1 text-sm text-wego-muted">{{ request.reason }}</p>
-                  </div>
-                </div>
-                <WegoAlert v-if="rowState[request.id] === 'error'" variant="danger" class="mt-2">{{ rowError[request.id] }}</WegoAlert>
-
-                <div v-if="canManage() && request.status === 'PENDING'" class="mt-3 flex flex-wrap items-end gap-2">
-                  <WegoInput
-                    :id="`decision-notes-${request.id}`"
-                    :model-value="decisionNotes[request.id] ?? ''"
-                    label="Notes (optional)"
-                    class="min-w-0 flex-1"
-                    @update:model-value="(value) => (decisionNotes[request.id] = value)"
-                  />
-                  <WegoButton
-                    type="button"
-                    :disabled="rowState[request.id] === 'submitting'"
-                    @click="decide(request, 'approve')"
-                  >
-                    Approve
-                  </WegoButton>
-                  <WegoButton
-                    type="button"
-                    variant="secondary"
-                    :disabled="rowState[request.id] === 'submitting'"
-                    @click="decide(request, 'reject')"
-                  >
-                    Reject
-                  </WegoButton>
-                  <WegoButton
-                    type="button"
-                    variant="secondary"
-                    :disabled="rowState[request.id] === 'submitting'"
-                    @click="decide(request, 'cancel')"
-                  >
-                    Cancel
-                  </WegoButton>
-                </div>
-              </li>
-            </ul>
-          </template>
-        </section>
-
-        <section v-if="canManage()" class="mt-10 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-          <h2 class="text-xl font-semibold">New leave request</h2>
-          <form class="mt-6 space-y-5" @submit.prevent="submitForm">
-            <div>
-              <label for="employeeId" class="block text-sm font-medium text-wego-muted">Employee</label>
-              <select
-                id="employeeId"
-                v-model="form.employeeId"
-                required
-                class="mt-2 w-full rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
+            <div v-if="canManage() && request.status === 'PENDING'" class="mt-3 flex flex-wrap items-end gap-2">
+              <WegoInput
+                :id="`decision-notes-${request.id}`"
+                :model-value="decisionNotes[request.id] ?? ''"
+                label="Notes (optional)"
+                class="min-w-0 flex-1"
+                @update:model-value="(value) => (decisionNotes[request.id] = value)"
+              />
+              <WegoButton
+                type="button"
+                :disabled="rowState[request.id] === 'submitting'"
+                @click="decide(request, 'approve')"
               >
-                <option value="" disabled>Select an employee…</option>
-                <option v-for="employee in employees" :key="employee.id" :value="employee.id">{{ employee.fullName }}</option>
-              </select>
-            </div>
-            <div>
-              <label for="leaveType" class="block text-sm font-medium text-wego-muted">Leave type</label>
-              <select
-                id="leaveType"
-                v-model="form.leaveType"
-                class="mt-2 w-full rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
+                Approve
+              </WegoButton>
+              <WegoButton
+                type="button"
+                variant="secondary"
+                :disabled="rowState[request.id] === 'submitting'"
+                @click="decide(request, 'reject')"
               >
-                <option v-for="type in leaveTypes" :key="type" :value="type">{{ type }}</option>
-              </select>
+                Reject
+              </WegoButton>
+              <WegoButton
+                type="button"
+                variant="secondary"
+                :disabled="rowState[request.id] === 'submitting'"
+                @click="decide(request, 'cancel')"
+              >
+                Cancel
+              </WegoButton>
             </div>
-            <div class="grid gap-5 sm:grid-cols-2">
-              <WegoInput id="startDate" v-model="form.startDate" label="Start date" type="date" required />
-              <WegoInput id="endDate" v-model="form.endDate" label="End date" type="date" required />
-            </div>
-            <WegoInput id="reason" v-model="form.reason" label="Reason (optional)" />
-
-            <WegoAlert v-if="formState === 'error'" variant="danger">{{ formError }}</WegoAlert>
-
-            <WegoButton type="submit" :disabled="formState === 'submitting'" :loading="formState === 'submitting'">
-              Submit request
-            </WegoButton>
-          </form>
-        </section>
+          </li>
+        </ul>
       </template>
-    </div>
-  </main>
+    </WegoPanel>
+
+    <WegoPanel v-if="canManage()" title="New leave request" class="mt-8">
+      <form class="space-y-5" @submit.prevent="submitForm">
+        <WegoSelect id="employeeId" v-model="form.employeeId" label="Employee" required>
+          <option value="" disabled>Select an employee…</option>
+          <option v-for="employee in employees" :key="employee.id" :value="employee.id">{{ employee.fullName }}</option>
+        </WegoSelect>
+        <WegoSelect id="leaveType" v-model="form.leaveType" label="Leave type">
+          <option v-for="type in leaveTypes" :key="type" :value="type">{{ type }}</option>
+        </WegoSelect>
+        <div class="grid gap-5 sm:grid-cols-2">
+          <WegoInput id="startDate" v-model="form.startDate" label="Start date" type="date" required />
+          <WegoInput id="endDate" v-model="form.endDate" label="End date" type="date" required />
+        </div>
+        <WegoInput id="reason" v-model="form.reason" label="Reason (optional)" />
+
+        <WegoAlert v-if="formState === 'error'" variant="danger">{{ formError }}</WegoAlert>
+
+        <WegoButton type="submit" :disabled="formState === 'submitting'" :loading="formState === 'submitting'">
+          Submit request
+        </WegoButton>
+      </form>
+    </WegoPanel>
+  </template>
 </template>

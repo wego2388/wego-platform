@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { WegoAlert, WegoButton, WegoInput } from "@wego/ui";
+import { WegoAlert, WegoBadge, WegoButton, WegoInput, WegoPageHeader, WegoPanel } from "@wego/ui";
 import { type AuthSession, clearAuthSession, hasPermission, readAuthSession } from "../composables/useAuthSession";
 import {
   createRole,
@@ -11,6 +11,8 @@ import {
   type Role,
   updateRolePermissions,
 } from "../composables/useIdentityAdminApi";
+
+definePageMeta({ layout: "app-shell" });
 
 useHead({ title: "Roles & Permissions · Wego Platform" });
 
@@ -124,87 +126,74 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-wego-canvas px-6 py-12 text-wego-ink sm:px-10 lg:px-16">
-    <div class="mx-auto max-w-4xl">
-      <p class="text-sm font-semibold tracking-[0.18em] text-wego-accent uppercase">Wego Platform</p>
-      <h1 class="mt-4 text-3xl font-semibold tracking-tight">Roles &amp; Permissions</h1>
+  <WegoPageHeader title="Roles &amp; Permissions" description="What each role can do across the platform." />
 
-      <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-        <p>You need to sign in to view roles.</p>
-        <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
-      </div>
+  <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
+    <p>You need to sign in to view roles.</p>
+    <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
+  </div>
 
+  <template v-else>
+    <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+
+    <WegoPanel title="Roles" class="mt-8">
+      <p v-if="!canView()" class="text-sm text-wego-muted">
+        Your account doesn't have permission to view roles (identity:role-view).
+      </p>
       <template v-else>
-        <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+        <p v-if="listState === 'loading'" class="text-sm text-wego-muted">Loading…</p>
+        <ul v-else class="space-y-3">
+          <li v-for="role in roles" :key="role.code" class="rounded-wego-control border border-wego-border p-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p class="font-semibold">{{ role.code }}</p>
+                <p class="mt-1 text-sm text-wego-muted">{{ role.description }}</p>
+                <p class="mt-2 flex flex-wrap gap-2">
+                  <WegoBadge v-for="permission in role.permissions" :key="permission" tone="neutral">{{ permission }}</WegoBadge>
+                </p>
+              </div>
+              <WegoButton v-if="canManage()" type="button" variant="secondary" @click="startEditPermissions(role)">
+                Edit permissions
+              </WegoButton>
+            </div>
+            <WegoAlert v-if="rowState[role.code] === 'error'" variant="danger" class="mt-2">{{ rowError[role.code] }}</WegoAlert>
 
-        <section class="mt-8">
-          <h2 class="text-xl font-semibold">Roles</h2>
-          <p v-if="!canView()" class="mt-3 text-sm text-wego-muted">
-            Your account doesn't have permission to view roles (identity:role-view).
-          </p>
-          <template v-else>
-            <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
-            <ul v-else class="mt-4 space-y-3">
-              <li v-for="role in roles" :key="role.code" class="rounded-wego-card border border-wego-border bg-wego-surface p-4">
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p class="font-semibold">{{ role.code }}</p>
-                    <p class="mt-1 text-sm text-wego-muted">{{ role.description }}</p>
-                    <p class="mt-2 flex flex-wrap gap-2">
-                      <span
-                        v-for="permission in role.permissions"
-                        :key="permission"
-                        class="rounded-full bg-wego-canvas px-3 py-1 text-xs font-medium text-wego-muted"
-                      >
-                        {{ permission }}
-                      </span>
-                    </p>
-                  </div>
-                  <WegoButton v-if="canManage()" type="button" variant="secondary" @click="startEditPermissions(role)">
-                    Edit permissions
-                  </WegoButton>
-                </div>
-                <WegoAlert v-if="rowState[role.code] === 'error'" variant="danger" class="mt-2">{{ rowError[role.code] }}</WegoAlert>
-
-                <div v-if="editingCodeFor === role.code" class="mt-4 rounded-wego-control border border-wego-border p-4">
-                  <p class="text-sm font-medium text-wego-muted">Permissions for {{ role.code }}</p>
-                  <div class="mt-2 grid gap-2 sm:grid-cols-2">
-                    <label v-for="permission in permissions" :key="permission.code" class="flex items-center gap-2 text-sm">
-                      <input v-model="editingPermissions" type="checkbox" :value="permission.code" >
-                      {{ permission.code }}
-                    </label>
-                  </div>
-                  <div class="mt-3 flex gap-2">
-                    <WegoButton type="button" :disabled="rowState[role.code] === 'submitting'" @click="submitPermissions(role)">
-                      Save permissions
-                    </WegoButton>
-                    <WegoButton type="button" variant="secondary" @click="cancelEditPermissions">Cancel</WegoButton>
-                  </div>
-                </div>
-              </li>
-            </ul>
-          </template>
-        </section>
-
-        <section v-if="canManage()" class="mt-10 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-          <h2 class="text-xl font-semibold">New role</h2>
-          <form class="mt-6 space-y-5" @submit.prevent="submitCreate">
-            <WegoInput id="newRoleCode" v-model="createForm.code" label="Code (lowercase-with-hyphens)" required />
-            <WegoInput id="newRoleDescription" v-model="createForm.description" label="Description" required />
-            <div>
-              <span class="block text-sm font-medium text-wego-muted">Permissions</span>
+            <div v-if="editingCodeFor === role.code" class="mt-4 rounded-wego-control border border-wego-border p-4">
+              <p class="text-sm font-medium text-wego-muted">Permissions for {{ role.code }}</p>
               <div class="mt-2 grid gap-2 sm:grid-cols-2">
                 <label v-for="permission in permissions" :key="permission.code" class="flex items-center gap-2 text-sm">
-                  <input v-model="createForm.permissionCodes" type="checkbox" :value="permission.code" >
+                  <input v-model="editingPermissions" type="checkbox" :value="permission.code" >
                   {{ permission.code }}
                 </label>
               </div>
+              <div class="mt-3 flex gap-2">
+                <WegoButton type="button" :disabled="rowState[role.code] === 'submitting'" @click="submitPermissions(role)">
+                  Save permissions
+                </WegoButton>
+                <WegoButton type="button" variant="secondary" @click="cancelEditPermissions">Cancel</WegoButton>
+              </div>
             </div>
-            <WegoAlert v-if="createState === 'error'" variant="danger">{{ createError }}</WegoAlert>
-            <WegoButton type="submit" :disabled="createState === 'submitting'" :loading="createState === 'submitting'">Create role</WegoButton>
-          </form>
-        </section>
+          </li>
+        </ul>
       </template>
-    </div>
-  </main>
+    </WegoPanel>
+
+    <WegoPanel v-if="canManage()" title="New role" class="mt-8">
+      <form class="space-y-5" @submit.prevent="submitCreate">
+        <WegoInput id="newRoleCode" v-model="createForm.code" label="Code (lowercase-with-hyphens)" required />
+        <WegoInput id="newRoleDescription" v-model="createForm.description" label="Description" required />
+        <div>
+          <span class="block text-sm font-medium text-wego-muted">Permissions</span>
+          <div class="mt-2 grid gap-2 sm:grid-cols-2">
+            <label v-for="permission in permissions" :key="permission.code" class="flex items-center gap-2 text-sm">
+              <input v-model="createForm.permissionCodes" type="checkbox" :value="permission.code" >
+              {{ permission.code }}
+            </label>
+          </div>
+        </div>
+        <WegoAlert v-if="createState === 'error'" variant="danger">{{ createError }}</WegoAlert>
+        <WegoButton type="submit" :disabled="createState === 'submitting'" :loading="createState === 'submitting'">Create role</WegoButton>
+      </form>
+    </WegoPanel>
+  </template>
 </template>

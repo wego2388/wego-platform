@@ -122,12 +122,10 @@ describe("accounts page", () => {
     expect(wrapper.text()).toContain("DISABLED");
   });
 
-  it("resets a password via the prompt flow and never sends a blank password when the admin cancels", async () => {
+  it("opens a real dialog for password reset and never sends a request when the admin cancels", async () => {
     seedSession(["identity:user-view", "identity:user-manage"]);
     const fetchMock = stubFetchFor([sampleUser]);
     vi.stubGlobal("fetch", fetchMock);
-    vi.stubGlobal("prompt", vi.fn(() => null));
-    vi.stubGlobal("alert", vi.fn());
 
     const wrapper = mount(AccountsPage);
     await flushPromises();
@@ -136,7 +134,49 @@ describe("accounts page", () => {
     await resetButton?.trigger("click");
     await flushPromises();
 
+    const dialog = wrapper.get("dialog");
+    expect((dialog.element as HTMLDialogElement).open).toBe(true);
+
+    const cancelButton = dialog.findAll("button").find((button) => button.text() === "Cancel");
+    await cancelButton?.trigger("click");
+    await flushPromises();
+
     expect(fetchMock).not.toHaveBeenCalledWith(expect.stringContaining("reset-password"), expect.anything());
+    expect((dialog.element as HTMLDialogElement).open).toBe(false);
+  });
+
+  it("resets a password via the dialog and sends the entered value, then shows a confirmation", async () => {
+    seedSession(["identity:user-view", "identity:user-manage"]);
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = new URL(String(input), "http://localhost");
+      if (init?.method === "POST" && url.pathname === `/api/v1/identity/users/${sampleUser.id}/reset-password`) {
+        return new Response(JSON.stringify(sampleUser), { status: 200 });
+      }
+      if (url.pathname === "/api/v1/identity/users") return new Response(JSON.stringify([sampleUser]), { status: 200 });
+      if (url.pathname === "/api/v1/identity/roles") return new Response(JSON.stringify(sampleRoles), { status: 200 });
+      return new Response(JSON.stringify(null), { status: 200 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const wrapper = mount(AccountsPage);
+    await flushPromises();
+
+    const resetButton = wrapper.findAll("button").find((button) => button.text() === "Reset password");
+    await resetButton?.trigger("click");
+    await flushPromises();
+
+    await wrapper.get("#newPassword").setValue("a-real-password-123456");
+    const dialog = wrapper.get("dialog");
+    const confirmButton = dialog.findAll("button").find((button) => button.text() === "Reset password");
+    await confirmButton?.trigger("click");
+    await flushPromises();
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining(`/identity/users/${sampleUser.id}/reset-password`),
+      expect.objectContaining({ method: "POST", body: JSON.stringify({ newPassword: "a-real-password-123456" }) }),
+    );
+    expect((dialog.element as HTMLDialogElement).open).toBe(false);
+    expect(wrapper.text()).toContain("Password reset.");
   });
 
   it("reassigns roles for a staff account", async () => {

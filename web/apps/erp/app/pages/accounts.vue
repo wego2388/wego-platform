@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { WegoAlert, WegoButton, WegoInput } from "@wego/ui";
+import { WegoAlert, WegoBadge, WegoButton, WegoDialog, WegoInput, WegoPageHeader, WegoPanel } from "@wego/ui";
 import { type AuthSession, clearAuthSession, hasPermission, readAuthSession } from "../composables/useAuthSession";
 import {
   assignUserRoles,
@@ -14,6 +14,8 @@ import {
   type Role,
   type StaffUser,
 } from "../composables/useIdentityAdminApi";
+
+definePageMeta({ layout: "app-shell" });
 
 useHead({ title: "Accounts · Wego Platform" });
 
@@ -110,19 +112,36 @@ async function toggleStatus(user: StaffUser) {
   }
 }
 
-async function promptResetPassword(user: StaffUser) {
-  if (!session.value) return;
-  // A prompt(), not a full form: matches divers.vue's window.confirm() for archive — a
-  // right-sized, no-extra-screen action for a small staff, same discipline as the admin
-  // reset flow itself (no email/token round trip either — see ResetUserPasswordService).
-  const newPassword = window.prompt(`New password for ${user.email} (at least 12 characters):`);
-  if (!newPassword) return;
+// A real dialog, not window.prompt()/window.alert() — same admin-reset
+// discipline as before (no email/token round trip; see
+// ResetUserPasswordService), just an accessible, focus-managed UI for it.
+// The password value is cleared the instant the dialog closes for any
+// reason (confirm, cancel, or Escape) — never logged, never left sitting
+// in page state.
+const resettingPasswordFor = ref<string | null>(null);
+const newPasswordInput = ref("");
+const resetConfirmation = ref<Record<string, string>>({});
+
+function openResetDialog(user: StaffUser) {
+  resettingPasswordFor.value = user.id;
+  newPasswordInput.value = "";
+  rowError.value[user.id] = "";
+}
+
+function closeResetDialog() {
+  resettingPasswordFor.value = null;
+  newPasswordInput.value = "";
+}
+
+async function confirmResetPassword(user: StaffUser) {
+  if (!session.value || !newPasswordInput.value) return;
   rowState.value[user.id] = "submitting";
   rowError.value[user.id] = "";
   try {
-    await resetUserPassword(session.value.token, user.id, newPassword);
+    await resetUserPassword(session.value.token, user.id, newPasswordInput.value);
     rowState.value[user.id] = "idle";
-    window.alert(`Password reset. Tell ${user.email} their new password directly.`);
+    resetConfirmation.value[user.id] = `Password reset. Tell ${user.email} their new password directly.`;
+    closeResetDialog();
   } catch (error) {
     handleApiError(error);
     rowState.value[user.id] = "error";
@@ -165,88 +184,111 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-wego-canvas px-6 py-12 text-wego-ink sm:px-10 lg:px-16">
-    <div class="mx-auto max-w-4xl">
-      <p class="text-sm font-semibold tracking-[0.18em] text-wego-accent uppercase">Wego Platform</p>
-      <h1 class="mt-4 text-3xl font-semibold tracking-tight">Accounts</h1>
+  <WegoPageHeader title="Staff Accounts" description="Sign-in accounts and role assignments for the whole team." />
 
-      <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-        <p>You need to sign in to view staff accounts.</p>
-        <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
-      </div>
+  <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
+    <p>You need to sign in to view staff accounts.</p>
+    <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
+  </div>
 
+  <template v-else>
+    <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+
+    <WegoPanel title="Staff accounts" class="mt-8">
+      <p v-if="!canView()" class="text-sm text-wego-muted">
+        Your account doesn't have permission to view staff accounts (identity:user-view).
+      </p>
       <template v-else>
-        <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
-
-        <section class="mt-8">
-          <h2 class="text-xl font-semibold">Staff accounts</h2>
-          <p v-if="!canView()" class="mt-3 text-sm text-wego-muted">
-            Your account doesn't have permission to view staff accounts (identity:user-view).
-          </p>
-          <template v-else>
-            <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
-            <p v-else-if="listState === 'loaded' && users.length === 0" class="mt-3 text-sm text-wego-muted">No staff accounts yet.</p>
-            <ul v-else class="mt-4 space-y-3">
-              <li v-for="user in users" :key="user.id" class="rounded-wego-card border border-wego-border bg-wego-surface p-4">
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p class="font-semibold">{{ user.email }}</p>
-                    <p class="mt-1 text-sm text-wego-muted">{{ user.status }} · {{ user.roles.join(", ") || "no roles" }}</p>
-                  </div>
-                  <div v-if="canManage()" class="flex shrink-0 flex-wrap gap-2">
-                    <WegoButton type="button" variant="secondary" @click="startEditRoles(user)">Change roles</WegoButton>
-                    <WegoButton type="button" variant="secondary" @click="promptResetPassword(user)">Reset password</WegoButton>
-                    <WegoButton
-                      type="button"
-                      variant="secondary"
-                      :disabled="rowState[user.id] === 'submitting'"
-                      @click="toggleStatus(user)"
-                    >
-                      {{ user.status === "ACTIVE" ? "Disable" : "Enable" }}
-                    </WegoButton>
-                  </div>
+        <p v-if="listState === 'loading'" class="text-sm text-wego-muted">Loading…</p>
+        <p v-else-if="listState === 'loaded' && users.length === 0" class="text-sm text-wego-muted">No staff accounts yet.</p>
+        <ul v-else class="space-y-3">
+          <li v-for="user in users" :key="user.id" class="rounded-wego-control border border-wego-border p-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <p class="font-semibold">{{ user.email }}</p>
+                  <WegoBadge :tone="user.status === 'ACTIVE' ? 'success' : 'neutral'">{{ user.status }}</WegoBadge>
                 </div>
-                <WegoAlert v-if="rowState[user.id] === 'error'" variant="danger" class="mt-2">{{ rowError[user.id] }}</WegoAlert>
+                <p class="mt-1 text-sm text-wego-muted">{{ user.roles.join(", ") || "no roles" }}</p>
+              </div>
+              <div v-if="canManage()" class="flex shrink-0 flex-wrap gap-2">
+                <WegoButton type="button" variant="secondary" @click="startEditRoles(user)">Change roles</WegoButton>
+                <WegoButton type="button" variant="secondary" @click="openResetDialog(user)">Reset password</WegoButton>
+                <WegoButton
+                  type="button"
+                  variant="secondary"
+                  :disabled="rowState[user.id] === 'submitting'"
+                  @click="toggleStatus(user)"
+                >
+                  {{ user.status === "ACTIVE" ? "Disable" : "Enable" }}
+                </WegoButton>
+              </div>
+            </div>
+            <WegoAlert v-if="rowState[user.id] === 'error'" variant="danger" class="mt-2">{{ rowError[user.id] }}</WegoAlert>
+            <WegoAlert v-if="resetConfirmation[user.id]" variant="success" class="mt-2">{{ resetConfirmation[user.id] }}</WegoAlert>
 
-                <div v-if="editingRolesFor === user.id" class="mt-4 rounded-wego-control border border-wego-border p-4">
-                  <p class="text-sm font-medium text-wego-muted">Roles for {{ user.email }}</p>
-                  <div class="mt-2 flex flex-wrap gap-3">
-                    <label v-for="role in roles" :key="role.code" class="flex items-center gap-2 text-sm">
-                      <input v-model="editingRoles" type="checkbox" :value="role.code" >
-                      {{ role.code }}
-                    </label>
-                  </div>
-                  <div class="mt-3 flex gap-2">
-                    <WegoButton type="button" :disabled="rowState[user.id] === 'submitting'" @click="submitRoles(user)">Save roles</WegoButton>
-                    <WegoButton type="button" variant="secondary" @click="cancelEditRoles">Cancel</WegoButton>
-                  </div>
-                </div>
-              </li>
-            </ul>
-          </template>
-        </section>
-
-        <section v-if="canManage()" class="mt-10 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-          <h2 class="text-xl font-semibold">New staff account</h2>
-          <form class="mt-6 space-y-5" @submit.prevent="submitCreate">
-            <WegoInput id="newUserEmail" v-model="createForm.email" label="Email" type="email" required />
-            <WegoInput id="newUserPassword" v-model="createForm.password" label="Password (at least 12 characters)" type="password" required />
-            <div>
-              <span class="block text-sm font-medium text-wego-muted">Roles</span>
+            <div v-if="editingRolesFor === user.id" class="mt-4 rounded-wego-control border border-wego-border p-4">
+              <p class="text-sm font-medium text-wego-muted">Roles for {{ user.email }}</p>
               <div class="mt-2 flex flex-wrap gap-3">
                 <label v-for="role in roles" :key="role.code" class="flex items-center gap-2 text-sm">
-                  <input v-model="createForm.roleCodes" type="checkbox" :value="role.code" >
+                  <input v-model="editingRoles" type="checkbox" :value="role.code" >
                   {{ role.code }}
                 </label>
               </div>
+              <div class="mt-3 flex gap-2">
+                <WegoButton type="button" :disabled="rowState[user.id] === 'submitting'" @click="submitRoles(user)">Save roles</WegoButton>
+                <WegoButton type="button" variant="secondary" @click="cancelEditRoles">Cancel</WegoButton>
+              </div>
             </div>
-            <WegoAlert v-if="createState === 'error'" variant="danger">{{ createError }}</WegoAlert>
-            <WegoButton type="submit" :disabled="createState === 'submitting'" :loading="createState === 'submitting'">
-              Create account
-            </WegoButton>
-          </form>
-        </section>
+
+            <WegoDialog
+              :open="resettingPasswordFor === user.id"
+              title="Reset password"
+              @close="closeResetDialog"
+            >
+              <p class="text-sm text-wego-muted">New password for {{ user.email }} (at least 12 characters).</p>
+              <WegoInput
+                id="newPassword"
+                v-model="newPasswordInput"
+                label="New password"
+                type="password"
+                class="mt-3"
+                autocomplete="new-password"
+              />
+              <template #actions>
+                <WegoButton type="button" variant="secondary" @click="closeResetDialog">Cancel</WegoButton>
+                <WegoButton
+                  type="button"
+                  :disabled="!newPasswordInput || rowState[user.id] === 'submitting'"
+                  @click="confirmResetPassword(user)"
+                >
+                  Reset password
+                </WegoButton>
+              </template>
+            </WegoDialog>
+          </li>
+        </ul>
       </template>
-    </div>
-  </main>
+    </WegoPanel>
+
+    <WegoPanel v-if="canManage()" title="New staff account" class="mt-8">
+      <form class="space-y-5" @submit.prevent="submitCreate">
+        <WegoInput id="newUserEmail" v-model="createForm.email" label="Email" type="email" required />
+        <WegoInput id="newUserPassword" v-model="createForm.password" label="Password (at least 12 characters)" type="password" required />
+        <div>
+          <span class="block text-sm font-medium text-wego-muted">Roles</span>
+          <div class="mt-2 flex flex-wrap gap-3">
+            <label v-for="role in roles" :key="role.code" class="flex items-center gap-2 text-sm">
+              <input v-model="createForm.roleCodes" type="checkbox" :value="role.code" >
+              {{ role.code }}
+            </label>
+          </div>
+        </div>
+        <WegoAlert v-if="createState === 'error'" variant="danger">{{ createError }}</WegoAlert>
+        <WegoButton type="submit" :disabled="createState === 'submitting'" :loading="createState === 'submitting'">
+          Create account
+        </WegoButton>
+      </form>
+    </WegoPanel>
+  </template>
 </template>
