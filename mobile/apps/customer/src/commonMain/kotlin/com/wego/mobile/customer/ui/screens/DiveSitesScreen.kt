@@ -35,7 +35,10 @@ fun DiveSitesScreen(
     onSiteClick: (DiveSite) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.padding(horizontal = SdcSpace.xxl, vertical = SdcSpace.lg), verticalArrangement = Arrangement.spacedBy(SdcSpace.xs)) {
+        Column(
+            modifier = Modifier.padding(horizontal = SdcSpace.xxl, vertical = SdcSpace.lg),
+            verticalArrangement = Arrangement.spacedBy(SdcSpace.xs),
+        ) {
             Text(SiteCopy.DiveSites.heading.of(locale), style = MaterialTheme.typography.titleLarge)
             Text(SiteCopy.DiveSites.body.of(locale), style = MaterialTheme.typography.bodyMedium)
         }

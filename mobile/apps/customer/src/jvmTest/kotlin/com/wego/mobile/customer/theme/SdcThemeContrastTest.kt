@@ -18,16 +18,19 @@ import kotlin.test.assertTrue
  * reimplemented here since this module has no shared color-math utility.
  */
 class SdcThemeContrastTest {
-    private fun channel(component: Float): Double =
-        if (component <= 0.03928) component / 12.92 else ((component + 0.055) / 1.055).pow(2.4)
+    private fun channel(component: Float): Double = if (component <= 0.03928) component / 12.92 else ((component + 0.055) / 1.055).pow(2.4)
 
     private fun relativeLuminance(color: Color): Double =
         0.2126 * channel(color.red) + 0.7152 * channel(color.green) + 0.0722 * channel(color.blue)
 
-    private fun contrastRatio(a: Color, b: Color): Double {
-        val (lighter, darker) = relativeLuminance(a).let { la ->
-            relativeLuminance(b).let { lb -> max(la, lb) to min(la, lb) }
-        }
+    private fun contrastRatio(
+        a: Color,
+        b: Color,
+    ): Double {
+        val (lighter, darker) =
+            relativeLuminance(a).let { la ->
+                relativeLuminance(b).let { lb -> max(la, lb) to min(la, lb) }
+            }
         return (lighter + 0.05) / (darker + 0.05)
     }
 

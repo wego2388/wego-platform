@@ -47,7 +47,10 @@ fun PackageBuilderScreen(
     val total = selectedOfferings.sumOf { it.priceEur }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.padding(horizontal = SdcSpace.xxl, vertical = SdcSpace.lg), verticalArrangement = Arrangement.spacedBy(SdcSpace.xs)) {
+        Column(
+            modifier = Modifier.padding(horizontal = SdcSpace.xxl, vertical = SdcSpace.lg),
+            verticalArrangement = Arrangement.spacedBy(SdcSpace.xs),
+        ) {
             Text(SiteCopy.PackageBuilder.heading.of(locale), style = MaterialTheme.typography.titleLarge)
             Text(SiteCopy.PackageBuilder.body.of(locale), style = MaterialTheme.typography.bodyMedium)
         }
