@@ -8,20 +8,38 @@
   fact unless explicitly stated as such.
 - **What is filled in already:** the name, description, category, duration,
   and price basis this research already established, plus the "critical
-  check"/verification items an operator interview must resolve.
-- **What is marked `TO CONFIRM` and why it is not guessed:** operator
-  identity/contact, capacity, exact schedule, EGP price, cancellation
-  wording, and media rights are exactly the fields `Service.publish()`
+  check"/verification items an operator interview must resolve. **Updated
+  2026-09-05:** every one of the 37 concepts now also has a `DECIDED`
+  fulfilment model (`DIRECT` for the three car-and-driver transfer
+  concepts Sharm To Go can operate itself; `PARTNER` for the other 34,
+  which genuinely need a real vessel/vehicle/venue/permit the platform
+  does not own) and a `DECIDED` cancellation policy (one of two
+  platform-wide tiers, see that section near the end of this file) — both
+  made at the owner's explicit direction ("المشغل شرم تو جو، السعر
+  بالجنيه، السعة والسياسة اعملها انت وفكر"), delegated with an explicit
+  right to change any of it later. `STG-TRN-001`/`STG-TRN-002`/`STG-PT-007`
+  additionally have `DECIDED` prices/capacity, since Sharm To Go directly
+  controls that cost structure; the 34 `PARTNER` concepts' prices stay
+  `TO CONFIRM` because they genuinely depend on a real, not-yet-signed
+  operator's own costs — a business fact, not a business judgment call.
+- **What is still marked `TO CONFIRM` and why it is not guessed:** the real
+  operator identity/contact for every `PARTNER` concept, exact capacity/
+  schedule for anything not owner-decided above, EGP price for `PARTNER`
+  concepts, and media rights are exactly the fields `Service.publish()`
   enforces as mandatory in `products/travel-marketplace` — a fabricated
   value here would either block real customers with wrong information or,
   worse, misrepresent a real, uninvolved business as a Sharm To Go partner.
   A market-reference line is kept under each concept only as a competitor
   benchmark, never as a proposed Sharm To Go price.
-- **How to use this:** fill in the `TO CONFIRM` lines for one concept (start
-  with the owner-flagged priority below), then that block becomes the real
-  input for creating the Provider/Category/Service records through the ERP
-  dashboard or the staff API — the same Packet 1A workflow already proven
-  live (DRAFT → REVIEW → APPROVED → PUBLISHED).
+- **How to use this:** the three `DIRECT` transfer concepts are ready to
+  enter the real workflow as soon as one real photo with rights evidence
+  exists (proven live for `STG-TRN-001` already — see the WEGO-010-A board
+  entry dated 2026-09-05). For any `PARTNER` concept, fill in the real
+  operator/price/capacity `TO CONFIRM` lines once that operator is signed;
+  that block then becomes the real input for creating the Provider/
+  Category/Service records through the ERP dashboard or the staff API —
+  the same Packet 1A workflow already proven live (DRAFT → REVIEW →
+  APPROVED → PUBLISHED).
 
 ---
 
@@ -86,6 +104,13 @@ Approval date and expiry: TO CONFIRM
 - **Rollout note:** Owner-requested first launch candidate — operationally simplest, no marine/animal/attraction dependency.
 ### STG-TRN-002 — Private Venue Return Transfer
 
+**DECIDED 2026-09-05 at the owner's direction** (same delegation and same
+reasoning as `STG-TRN-001`: a car-and-driver service Sharm To Go can
+operate directly, no specialized vessel/permit/venue agreement needed for
+the transport itself — venue entry stays explicitly excluded and
+`TO CONFIRM`, since that genuinely depends on a real venue relationship
+this decision cannot substitute for.
+
 ```text
 Internal service ID: STG-TRN-002
 Publication status: DRAFT
@@ -95,36 +120,36 @@ English name: Private Venue Return Transfer
 Arabic name: انتقال خاص ذهابًا وعودة إلى وجهة داخل شرم
 English short description: Book private transport to a confirmed Sharm venue with either one-way travel or a pre-agreed return pickup time; venue entry and reservations remain separate unless explicitly included.
 Arabic short description: احجز انتقالًا خاصًا إلى وجهة محددة داخل شرم في اتجاه واحد أو مع موعد عودة متفق عليه مسبقًا، ولا تشمل الخدمة الدخول أو الحجز في المكان إلا إذا تم النص على ذلك بوضوح.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — A private, pre-booked transfer between your hotel and a confirmed venue inside Sharm El Sheikh, operated directly by Sharm To Go. Choose one-way travel or a round trip with an agreed waiting window. Venue entry, tickets, and table reservations are never included — only the transport.
+Arabic full description: DECIDED — انتقال خاص محجوز مسبقًا بين فندقك ووجهة مؤكدة داخل شرم الشيخ، يتم تشغيله مباشرة بواسطة Sharm To Go. اختر اتجاهًا واحدًا أو ذهاب وعودة مع فترة انتظار متفق عليها. لا يشمل السعر دخول المكان أو التذاكر أو حجز الطاولات — الانتقال فقط.
 
-Duration: Route plus an agreed waiting/return window (a Farsha example in the source runs about 3 hours).
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Duration: One-way ~30-60 minutes depending on the venue's distance; round trip includes an agreed waiting window (up to 2 hours by default).
+Confirmation: STAFF_REVIEW (kept as the safer default for the first real launch)
+Maximum people: DECIDED — 3 passengers per vehicle (standard private sedan)
+Available weekdays/dates: DECIDED — every day, no blackout dates
+Start times: DECIDED — matched to the guest's requested pickup time, not a fixed schedule
 
 Price basis: PER_VEHICLE
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
-Infant rule: TO CONFIRM
-Add-ons and prices: One-way; round trip; additional waiting time.
+Adult price: DECIDED — EGP 400.00 one-way, EGP 650.00 round trip with up to 2 hours of waiting (two separate ServiceOptions) — initial launch prices set at the owner's direction, expected to change
+Child age range and price: DECIDED — no separate child price; PER_VEHICLE pricing covers the whole party up to the 3-passenger limit
+Infant rule: DECIDED — infants in arms do not count toward the 3-passenger limit
+Add-ons and prices: One-way; round trip with up to 2 hours waiting (extra waiting time beyond that: TO CONFIRM real per-hour rate).
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, this service is the pickup
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Sharm old town)
+Meeting point: DECIDED — hotel lobby at the confirmed time; return leg from the venue's main entrance
+Pickup timing wording: DECIDED — pickup time agreed in advance; the driver waits at the venue for the agreed window on a round trip
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
+Included: DECIDED — private vehicle, driver, fuel for the agreed route (and the agreed waiting window on a round trip)
+Excluded: DECIDED — venue entry, tickets, table reservations, and any waiting time beyond the agreed window
 What to bring: TO CONFIRM
-Restrictions/accessibility: Destination access/opening, reservation ownership, pickup/drop-off points, waiting duration, overtime, capacity, child seats, mobility needs, late guest/venue policy, venue-full contingency.
-Cancellation/refund wording: TO CONFIRM
+Restrictions/accessibility: Destination access/opening, reservation ownership, pickup/drop-off points, waiting duration, overtime, capacity, child seats, mobility needs, late guest/venue policy, venue-full contingency — all still real open questions about the *venue*, not the transport this record covers.
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file.
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
-Customer support owner: TO CONFIRM
-Emergency/operational contact (internal only): TO CONFIRM
+Operated by: DECIDED — fulfilmentModel=DIRECT (Sharm To Go operates the transport itself, per the owner's explicit instruction — no third-party Provider record needed)
+Customer support owner: DECIDED — Sharm To Go operations (no named individual/channel exists yet)
+Emergency/operational contact (internal only): TO CONFIRM — a real internal fact, not a business decision to delegate
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
 Arabic reviewer: TO CONFIRM
@@ -171,9 +196,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Exact boat, viewing-window quality, route, sailing time versus transfer time, capacity, boarding accessibility, child/infant rules, pickup zones, cancellation for poor visibility/sea conditions.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -222,9 +247,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Exact permitted stops, park ticket/fee, vehicle and guide, pickup, shore access, swimming rules, equipment, changing facilities, environmental protections, weather policy. Never present the Magic Lake name as a health claim.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -273,9 +298,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Named venue, ticket validity, opening/maintenance days, slide height/age rules, lifeguard and supervision policy, locker/towel costs, food/drink scope, swimwear rules, accessibility, pickup, cancellation.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -324,9 +349,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Named boat and marina, licensed capacity, passenger manifest, park permit/fee, guide and life-jacket provision, swimming ability, exact island-access wording, meal/allergies, pickup, weather cancellation. Do not attach any dive add-on — route diving through Sharm Divers Club.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -375,9 +400,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Do not promise landing on Tiran Island. Confirm permitted sailing/snorkeling area, boat, capacity, equipment, guide, pickup, lunch, child/swimmer rules, marine fee, weather alternative.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -426,9 +451,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Minimum age and weight, maximum combined weight, flight duration, tandem/solo rules, life jackets, equipment, insurance, transfer, activity list, medical exclusions, photo policy, weather refund/reschedule.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -477,9 +502,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Whether one operator owns the complete service, transfer/handover between desert and marine teams, every age/weight rule, actual activity durations, meals, equipment, permits, insurance, weather-cancellation fallback for either half.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -528,9 +553,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Driver/passenger ages, helmet and goggle provision, vehicle maintenance, route permit, convoy ratio, camel welfare, named camp, menu/allergies, exact show content, tax/fees, pickup, safe return time.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -579,9 +604,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Price basis must reflect seats/vehicle honestly. Confirm licence, driver age, passenger limit, seat belts/helmets, maintenance, insurance, route, meal/camel elements, pickup, dust protection, damage liability.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -630,9 +655,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Stable/operator identity, route permission, animal welfare, rider age/weight/experience, helmets, guide ratio, insurance, beach access, heat limits, transfer, no-riding health restrictions.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -681,9 +706,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Camp identity, cultural accuracy, camel welfare, telescope/astronomer claim, menu/allergies, accessibility, toilets, temperature, performance content, transport, child rules, late return.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -732,9 +757,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Driver/passenger ages, sunrise pickup window, lighting/visibility, helmet/goggles, route and convoy supervision, insurance, heat/dust policy, fees.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -783,9 +808,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Add-ons (Farsha transfer, SOHO transfer, museum admission, meal) each need their own operator cost, opening-hours check, and EGP price.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -833,9 +858,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Museum ticket type, opening hours, guide licensing, whether drinks/table reservations at Farsha are excluded.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -883,9 +908,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Minimum age/weight, maximum combined weight, weather cancellation, insurance, equipment, whether photos/video cost extra.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -933,9 +958,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: ATV driver/passenger ages, helmet/goggle inclusion, route permit, meal venue, show details, return time.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -983,9 +1008,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Named restaurant, fixed menu, drinks, allergies, child meal, restaurant reservation, who pays any difference.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1033,9 +1058,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Source daytime start conflicts with the venues' usual evening operation. Confirm venue status, opening hours, entry tickets, waiting time, and pricing basis.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1049,6 +1074,10 @@ Approval date and expiry: TO CONFIRM
 - **Market reference (not a Sharm To Go price):** Reference only: source shows EUR 40 adult, EUR 20 child, minimum 2.
 ### STG-PT-007 — Private Car and Driver in Sharm
 
+**DECIDED 2026-09-05 at the owner's direction** (same delegation and
+reasoning as `STG-TRN-001`/`STG-TRN-002`: a car-and-driver service Sharm To
+Go can operate directly).
+
 ```text
 Internal service ID: STG-PT-007
 Publication status: DRAFT
@@ -1058,36 +1087,36 @@ English name: Private Car and Driver in Sharm
 Arabic name: سيارة خاصة بسائق داخل شرم
 English short description: Reserve a private vehicle and driver for up to three agreed stops inside Sharm, with the route confirmed before pickup.
 Arabic short description: احجز سيارة خاصة بسائق لزيارة ما يصل إلى ثلاث محطات متفق عليها داخل شرم الشيخ، مع تأكيد المسار قبل موعد الاستلام.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — Reserve a private vehicle and driver for up to three agreed stops inside Sharm El Sheikh, operated directly by Sharm To Go. The exact route and stops are confirmed with you before pickup — this is a private booking, not a shared guided tour.
+Arabic full description: DECIDED — احجز سيارة خاصة بسائق لزيارة ما يصل إلى ثلاث محطات متفق عليها داخل شرم الشيخ، يتم تشغيلها مباشرة بواسطة Sharm To Go. يتم تأكيد المسار والمحطات معك قبل موعد الاستلام — هذا حجز خاص وليس جولة جماعية بصحبة مرشد.
 
 Duration: 3 hours.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Confirmation: STAFF_REVIEW (kept as the safer default for the first real launch)
+Maximum people: DECIDED — 3 passengers per vehicle (standard private sedan)
+Available weekdays/dates: DECIDED — every day, no blackout dates
+Start times: DECIDED — matched to the guest's requested time, not a fixed schedule
 
 Price basis: PER_VEHICLE
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
-Infant rule: TO CONFIRM
-Add-ons and prices: TO CONFIRM
+Adult price: DECIDED — EGP 900.00 per vehicle for the 3-hour window (up to 3 stops) — an initial launch price set at the owner's direction, expected to change
+Child age range and price: DECIDED — no separate child price; PER_VEHICLE pricing covers the whole party up to the 3-passenger limit
+Infant rule: DECIDED — infants in arms do not count toward the 3-passenger limit
+Add-ons and prices: DECIDED — extra hour beyond the 3-hour window: TO CONFIRM real overtime rate
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, this service is the pickup
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Sharm old town)
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — pickup time and the day's route (up to 3 stops) agreed in advance, confirmed with the guest before the booking is finalized
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
+Included: DECIDED — private vehicle, driver, and fuel for the agreed route within the 3-hour window
+Excluded: DECIDED — attraction tickets/admissions, a guide (this is transport only, not a guided tour), waiting time beyond any agreed stop allowance
 What to bring: TO CONFIRM
 Restrictions/accessibility: Vehicle class, licensed passenger capacity, kilometre/area limits, waiting/overtime fee, attraction tickets, child seats, driver language. Should not silently become a guided city tour.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file.
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
-Customer support owner: TO CONFIRM
-Emergency/operational contact (internal only): TO CONFIRM
+Operated by: DECIDED — fulfilmentModel=DIRECT (Sharm To Go operates this service itself, per the owner's explicit instruction — no third-party Provider record needed)
+Customer support owner: DECIDED — Sharm To Go operations (no named individual/channel exists yet)
+Emergency/operational contact (internal only): TO CONFIRM — a real internal fact, not a business decision to delegate
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
 Arabic reviewer: TO CONFIRM
@@ -1133,9 +1162,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Infants conflict in the source and must be prohibited unless the operator supplies a safe, documented rule. Confirm driver age, passenger age, helmets/goggles, insurance, distance, environmental fees.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1183,9 +1212,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Exact yacht identity, licensed capacity, marina, crew, route, snorkeling guide/equipment, national-park fees, menu, weather policy, passenger manifest, marine permits.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1233,9 +1262,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Tiran access, boat/captain licence, capacity, life jackets, equipment condition, guide, hotel transfer, exact reef promise, weather cancellation.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1283,9 +1312,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: The child price is an outlier and must not be reused without written confirmation. Confirm every desert and marine safety rule, transfer between operators, admissions, permits, weather fallback.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1333,9 +1362,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Actual canyon and Blue Hole/Abu Galum access and fees, snorkeling equipment, meal, camel/ATV safety, road permits, guide role.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1383,9 +1412,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Exact museum (Cairo museum routing has changed over time), road/flight mode, permits, entry requirements, visa applicability, Egyptologist licence, meal, return time.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1434,9 +1463,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Flight inventory and baggage, exact road timings, every admission, visa applicability, Egyptologist licence, meal, feasibility of the full route without rushed or misleading promises.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1485,9 +1514,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Exact canyon and route, Blue Hole/Abu Galum permits and fees, snorkeling safety, camel welfare, lunch, road permits, vehicle, guide, accessibility, pickup, realistic return time.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1536,9 +1565,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Licensed mountain guide, physical difficulty and medical warnings, route and emergency plan, cold-weather preparation, lighting, toilets, camel segment boundaries, monastery schedule/dress code, passport requirements, food, transport, cancellation for unsafe conditions.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1587,9 +1616,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Monastery opening days/hours, exact accessible areas, museum ticket, dress code, licensed guide, vehicle/road permit, meal, Dahab stop, accessibility, pickup, return time.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1638,9 +1667,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Exact museum/date, coach licence/capacity, two-driver and rest plan, road/security permissions, guide licence, every admission, meal, pickup, visa applicability, optional sales stops, accessibility, return time, delay/cancellation handling.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1689,9 +1718,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Real-time flight inventory and fare validity, names and ID/passport data, baggage, change/refund rules, airport transfers, missed connection, exact museum and tickets, licensed guide, meal, visa applicability, accessibility, return disruption support.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1740,9 +1769,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Flight inventory and fare expiry, baggage, airport transfers, named east/west-bank sites, tickets/tombs, guide licence, heat and mobility limits, meal, Nile-boat safety, child/infant treatment, disrupted-flight support.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1791,9 +1820,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Nationality-specific passport/visa/entry rules, border fees, ferry ticket and weather cancellation, coach and guide licences in each jurisdiction, Petra admission, meal, walking difficulty, horse/buggy boundary, schedule feasibility, emergency support, refund ownership across suppliers.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1842,9 +1871,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Live flights, hotel identity/classification, room basis and occupancy, child bed, meals, check-in, single supplement, full itinerary, admissions, guide, transfers, baggage, cancellation split across flight/hotel, overnight customer support. Do not publish a named hotel until a live contract and room inventory exist.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1893,9 +1922,9 @@ Included: TO CONFIRM
 Excluded: TO CONFIRM
 What to bring: TO CONFIRM
 Restrictions/accessibility: Camp identity/licence, room or tent type, bedding, sanitation, electricity, security, gender/family arrangements, meals/water, exact canyon and coastal sites, permits, guide, snorkeling/camel/ATV safety, luggage, accessibility, weather, overnight emergency support.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
+Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
 Customer support owner: TO CONFIRM
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1908,6 +1937,37 @@ Approval date and expiry: TO CONFIRM
 
 - **Market reference (not a Sharm To Go price):** Reference only: source shows EUR 220 adult, EUR 180 child; snorkeling equipment a separate EUR 10 add-on.
 - **Rollout note:** Later overnight.
+
+## Platform-wide cancellation policy (DECIDED 2026-09-05 at the owner's direction)
+
+Every concept in this file references this section instead of repeating the
+wording 37 times. Two tiers, chosen by how far in advance real cost exposure
+(a chartered boat, a flight seat, a permit) actually locks in — not
+invented per concept, decided once and applied consistently:
+
+- **Standard tier** (transfers, city/desert/sea day activities, anything
+  same-day or next-day bookable): free cancellation up to 24 hours before
+  the confirmed pickup/start time; cancelling within 24 hours, or a
+  no-show, is charged in full.
+  - English: "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full."
+  - Arabic: "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+- **Extended tier** (flight-inclusive, cross-border, or overnight concepts —
+  `STG-DAY-002`, `STG-DAY-003`, `STG-DAY-004`, `STG-MUL-001`, `STG-MUL-002` —
+  where a real operator's own airline/ferry/hotel cancellation terms are
+  realistically stricter than 24 hours): free cancellation up to 72 hours
+  before departure; cancelling within 72 hours, or a no-show, is charged in
+  full, **subject to being tightened further once the real operator's own
+  airline/ferry/hotel terms are known** — this is a safe platform-level
+  floor, not a claim that no real supplier term will ever be stricter.
+  - English: "Free cancellation up to 72 hours before departure. Cancelling within 72 hours, or a no-show, is charged in full. Some suppliers (flights, ferries, hotels) may apply stricter terms — the applicable policy is confirmed at booking."
+  - Arabic: "إلغاء مجاني حتى 72 ساعة قبل موعد المغادرة. الإلغاء خلال أقل من 72 ساعة، أو عدم الحضور، يُحتسب كاملاً. بعض الموردين (طيران، عبّارات، فنادق) قد يطبقون شروطًا أكثر صرامة — يتم تأكيد السياسة المطبقة عند الحجز."
+
+This is a platform-level floor Sharm To Go can commit to as the marketplace
+coordinator, standing in for the specific real operator's own terms until
+one is signed — not a claim that any specific real operator has agreed to
+it. A signed operator's own stricter terms (e.g., a non-refundable flight
+fare) still apply and must be disclosed before publish, per this file's own
+mandatory completion checklist.
 
 ## Recommended order (unchanged from the coverage audit)
 
