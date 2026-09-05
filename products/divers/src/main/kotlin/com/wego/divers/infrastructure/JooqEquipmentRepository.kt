@@ -76,6 +76,10 @@ class JooqEquipmentRepository(
             .map(::toDomain)
     }
 
+    @Transactional(readOnly = true)
+    override fun countByStatus(status: EquipmentStatus): Int =
+        dsl.fetchCount(dsl.selectFrom(DIVERS_EQUIPMENT).where(DIVERS_EQUIPMENT.STATUS.eq(status.name)))
+
     @Transactional
     override fun save(equipment: Equipment) {
         dsl

@@ -4,6 +4,7 @@ import com.wego.divers.domain.Offering
 import com.wego.divers.domain.OfferingId
 import com.wego.divers.domain.OfferingStatus
 import com.wego.divers.domain.OfferingType
+import java.time.LocalDate
 
 interface OfferingRepository {
     fun findById(id: OfferingId): Offering?
@@ -23,6 +24,13 @@ interface OfferingRepository {
         status: OfferingStatus?,
         limit: Int,
         offset: Int,
+    ): List<Offering>
+
+    /** `ACTIVE` offerings starting within `[from, to]`, ordered by `startsOn` — the dashboard's "coming up" widget. */
+    fun findUpcoming(
+        from: LocalDate,
+        to: LocalDate,
+        limit: Int,
     ): List<Offering>
 
     fun save(offering: Offering)

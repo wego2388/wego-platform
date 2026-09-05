@@ -1,7 +1,7 @@
 package com.wego.divers.application
-
 import com.wego.divers.domain.Diver
 import com.wego.divers.domain.DiverId
+import com.wego.transaction.TransactionRunner
 import java.time.Clock
 import java.time.Instant
 import java.util.UUID

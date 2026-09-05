@@ -21,5 +21,8 @@ interface EquipmentRepository {
         offset: Int,
     ): List<Equipment>
 
+    /** A real `COUNT(*)` — not `findAll(...).size` against a paginated scan — for dashboard-shaped tallies. */
+    fun countByStatus(status: EquipmentStatus): Int
+
     fun save(equipment: Equipment)
 }

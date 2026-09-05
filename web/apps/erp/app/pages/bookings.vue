@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { WegoAlert, WegoButton, WegoInput } from "@wego/ui";
+import { WegoAlert, WegoButton, WegoInput, WegoPageHeader, WegoPagination, WegoPanel, WegoSelect } from "@wego/ui";
 import { type AuthSession, clearAuthSession, hasPermission, readAuthSession } from "../composables/useAuthSession";
 import {
   type Booking,
@@ -15,6 +15,8 @@ import {
   PAGE_SIZE,
   refundBooking,
 } from "../composables/useDiversApi";
+
+definePageMeta({ layout: "app-shell" });
 
 useHead({ title: "Bookings · Wego Platform" });
 
@@ -255,152 +257,132 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-wego-canvas px-6 py-12 text-wego-ink sm:px-10 lg:px-16">
-    <div class="mx-auto max-w-4xl">
-      <p class="text-sm font-semibold tracking-[0.18em] text-wego-accent uppercase">Wego Platform</p>
-      <h1 class="mt-4 text-3xl font-semibold tracking-tight">Bookings</h1>
+  <WegoPageHeader title="Bookings" description="Reservations against the live diving offerings catalog." />
 
-      <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-        <p>You need to sign in to view bookings.</p>
-        <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
-      </div>
+  <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
+    <p>You need to sign in to view bookings.</p>
+    <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
+  </div>
 
-      <template v-else>
-        <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+  <template v-else>
+    <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
 
-        <section
-          v-if="canCreate"
-          class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6"
+    <WegoPanel v-if="canCreate" title="New booking" class="mt-8">
+      <WegoAlert v-if="!canViewOfferings" variant="warning" class="mb-4">
+        Your account can create bookings but not list offerings, so no offering can be selected below. Ask an
+        administrator to also grant offering:view.
+      </WegoAlert>
+      <form class="space-y-5" @submit.prevent="submitCreate">
+        <WegoSelect id="offeringId" v-model="form.offeringId" label="Offering" required>
+          <option value="" disabled>Select an active offering</option>
+          <option v-for="offering in activeOfferings" :key="offering.id" :value="offering.id">
+            {{ offering.title }} — {{ offering.startsOn }} ({{ offering.unitPrice.amount }}
+            {{ offering.unitPrice.currencyCode }})
+          </option>
+        </WegoSelect>
+        <WegoInput id="partySize" v-model="form.partySize" label="Party size" type="number" required />
+        <WegoInput id="customerName" v-model="form.customerName" label="Customer name" required />
+        <div class="grid gap-5 sm:grid-cols-2">
+          <WegoInput id="customerEmail" v-model="form.customerEmail" label="Customer email (or phone)" type="email" />
+          <WegoInput id="customerPhone" v-model="form.customerPhone" label="Customer phone (or email)" />
+        </div>
+
+        <WegoAlert v-if="createState === 'error'" variant="danger">{{ createError }}</WegoAlert>
+
+        <WegoButton
+          type="submit"
+          :disabled="createState === 'submitting' || !form.offeringId"
+          :loading="createState === 'submitting'"
         >
-          <h2 class="text-xl font-semibold">New booking</h2>
-          <WegoAlert v-if="!canViewOfferings" variant="warning" class="mt-4">
-            Your account can create bookings but not list offerings, so no offering can be selected below. Ask an
-            administrator to also grant offering:view.
+          {{ createState === "submitting" ? "Creating…" : "Create booking" }}
+        </WegoButton>
+      </form>
+    </WegoPanel>
+
+    <WegoPanel title="Bookings" class="mt-8">
+      <p v-if="!canViewBookings" class="text-sm text-wego-muted">
+        Your account doesn't have permission to list bookings (booking:view).
+      </p>
+      <p v-else-if="listState === 'loading'" class="text-sm text-wego-muted">Loading…</p>
+      <p v-else-if="listState === 'loaded' && bookings.length === 0 && page === 0" class="text-sm text-wego-muted">
+        No bookings yet.
+      </p>
+      <!-- Row stays a plain <li>, and the status/payment line below stays
+           exact literal text ("payment PAID", "CANCELLED (reason)") on
+           purpose — the real E2E suite locates each row with
+           locator("li", { hasText: CUSTOMER_NAME }) and asserts these
+           exact substrings; restructuring either would silently break a
+           passing test, not just a visual detail. -->
+      <ul v-else-if="bookings.length > 0" class="space-y-3">
+        <li v-for="booking in bookings" :key="booking.id" class="rounded-wego-control border border-wego-border p-4">
+          <p class="font-semibold">{{ booking.customerName }} · {{ booking.partySize }} pax</p>
+          <p class="mt-1 text-sm text-wego-muted">{{ offeringLabel(booking.offeringId) }}</p>
+          <p class="mt-1 text-sm text-wego-muted">
+            <span v-if="booking.customerEmail">{{ booking.customerEmail }}</span>
+            <span v-if="booking.customerEmail && booking.customerPhone"> · </span>
+            <span v-if="booking.customerPhone">{{ booking.customerPhone }}</span>
+          </p>
+          <p class="mt-1 text-sm text-wego-muted">
+            {{ booking.status }}<span v-if="booking.cancellationReason"> ({{ booking.cancellationReason }})</span>
+            · payment {{ booking.paymentStatus }} · unit {{ booking.unitPrice.amount }}
+            {{ booking.unitPrice.currencyCode }} × {{ booking.billableQuantity }} = total
+            {{ booking.totalPrice.amount }} {{ booking.totalPrice.currencyCode }}
+          </p>
+
+          <WegoAlert v-if="actionState[booking.id] === 'error'" variant="danger" class="mt-2">
+            {{ actionError[booking.id] }}
           </WegoAlert>
-          <form class="mt-6 space-y-5" @submit.prevent="submitCreate">
-            <div>
-              <label for="offeringId" class="block text-sm font-medium text-wego-muted">Offering</label>
-              <select
-                id="offeringId"
-                v-model="form.offeringId"
-                required
-                class="mt-2 w-full rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-              >
-                <option value="" disabled>Select an active offering</option>
-                <option v-for="offering in activeOfferings" :key="offering.id" :value="offering.id">
-                  {{ offering.title }} — {{ offering.startsOn }} ({{ offering.unitPrice.amount }}
-                  {{ offering.unitPrice.currencyCode }})
-                </option>
-              </select>
-            </div>
-            <WegoInput id="partySize" v-model="form.partySize" label="Party size" type="number" required />
-            <WegoInput id="customerName" v-model="form.customerName" label="Customer name" required />
-            <div class="grid gap-5 sm:grid-cols-2">
-              <WegoInput id="customerEmail" v-model="form.customerEmail" label="Customer email (or phone)" type="email" />
-              <WegoInput id="customerPhone" v-model="form.customerPhone" label="Customer phone (or email)" />
-            </div>
 
-            <WegoAlert v-if="createState === 'error'" variant="danger">{{ createError }}</WegoAlert>
-
+          <div v-if="canCancel && booking.status === 'CONFIRMED'" class="mt-3 flex flex-wrap items-end gap-2">
+            <WegoInput
+              :id="`cancel-reason-${booking.id}`"
+              :model-value="cancelReason[booking.id] ?? ''"
+              label="Cancellation reason"
+              class="min-w-0 flex-1"
+              @update:model-value="(value) => (cancelReason[booking.id] = value)"
+            />
             <WegoButton
-              type="submit"
-              :disabled="createState === 'submitting' || !form.offeringId"
-              :loading="createState === 'submitting'"
+              type="button"
+              variant="secondary"
+              :disabled="actionState[booking.id] === 'submitting'"
+              @click="submitCancel(booking)"
             >
-              {{ createState === "submitting" ? "Creating…" : "Create booking" }}
+              Cancel
             </WegoButton>
-          </form>
-        </section>
-
-        <section class="mt-10">
-          <h2 class="text-xl font-semibold">Bookings</h2>
-          <p v-if="!canViewBookings" class="mt-3 text-sm text-wego-muted">
-            Your account doesn't have permission to list bookings (booking:view).
-          </p>
-          <p v-else-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
-          <p v-else-if="listState === 'loaded' && bookings.length === 0 && page === 0" class="mt-3 text-sm text-wego-muted">
-            No bookings yet.
-          </p>
-          <ul v-else-if="bookings.length > 0" class="mt-4 space-y-3">
-            <li
-              v-for="booking in bookings"
-              :key="booking.id"
-              class="rounded-wego-card border border-wego-border bg-wego-surface p-4"
-            >
-              <p class="font-semibold">{{ booking.customerName }} · {{ booking.partySize }} pax</p>
-              <p class="mt-1 text-sm text-wego-muted">{{ offeringLabel(booking.offeringId) }}</p>
-              <p class="mt-1 text-sm text-wego-muted">
-                <span v-if="booking.customerEmail">{{ booking.customerEmail }}</span>
-                <span v-if="booking.customerEmail && booking.customerPhone"> · </span>
-                <span v-if="booking.customerPhone">{{ booking.customerPhone }}</span>
-              </p>
-              <p class="mt-1 text-sm text-wego-muted">
-                {{ booking.status }}<span v-if="booking.cancellationReason"> ({{ booking.cancellationReason }})</span>
-                · payment {{ booking.paymentStatus }} · unit {{ booking.unitPrice.amount }}
-                {{ booking.unitPrice.currencyCode }} × {{ booking.billableQuantity }} = total
-                {{ booking.totalPrice.amount }} {{ booking.totalPrice.currencyCode }}
-              </p>
-
-              <WegoAlert v-if="actionState[booking.id] === 'error'" variant="danger" class="mt-2">
-                {{ actionError[booking.id] }}
-              </WegoAlert>
-
-              <div v-if="canCancel && booking.status === 'CONFIRMED'" class="mt-3 flex flex-wrap items-end gap-2">
-                <WegoInput
-                  :id="`cancel-reason-${booking.id}`"
-                  :model-value="cancelReason[booking.id] ?? ''"
-                  label="Cancellation reason"
-                  class="min-w-0 flex-1"
-                  @update:model-value="(value) => (cancelReason[booking.id] = value)"
-                />
-                <WegoButton
-                  type="button"
-                  variant="secondary"
-                  :disabled="actionState[booking.id] === 'submitting'"
-                  @click="submitCancel(booking)"
-                >
-                  Cancel
-                </WegoButton>
-              </div>
-
-              <div v-if="canMarkPaid && booking.paymentStatus === 'UNPAID' && booking.status !== 'CANCELLED'" class="mt-3">
-                <WegoButton
-                  type="button"
-                  variant="secondary"
-                  :disabled="actionState[booking.id] === 'submitting'"
-                  @click="submitMarkPaid(booking)"
-                >
-                  Mark paid
-                </WegoButton>
-              </div>
-
-              <div v-if="canRefund && booking.paymentStatus === 'PAID'" class="mt-3 flex flex-wrap items-end gap-2">
-                <WegoInput
-                  :id="`refund-reason-${booking.id}`"
-                  :model-value="refundReason[booking.id] ?? ''"
-                  label="Refund reason"
-                  class="min-w-0 flex-1"
-                  @update:model-value="(value) => (refundReason[booking.id] = value)"
-                />
-                <WegoButton
-                  type="button"
-                  variant="secondary"
-                  :disabled="actionState[booking.id] === 'submitting'"
-                  @click="submitRefund(booking)"
-                >
-                  Refund
-                </WegoButton>
-              </div>
-            </li>
-          </ul>
-
-          <div v-if="listState === 'loaded'" class="mt-4 flex items-center gap-3">
-            <WegoButton type="button" variant="secondary" :disabled="page === 0" @click="previousPage">Previous</WegoButton>
-            <span class="text-sm text-wego-muted">Page {{ page + 1 }}</span>
-            <WegoButton type="button" variant="secondary" :disabled="!hasNextPage" @click="nextPage">Next</WegoButton>
           </div>
-        </section>
-      </template>
-    </div>
-  </main>
+
+          <div v-if="canMarkPaid && booking.paymentStatus === 'UNPAID' && booking.status !== 'CANCELLED'" class="mt-3">
+            <WegoButton
+              type="button"
+              variant="secondary"
+              :disabled="actionState[booking.id] === 'submitting'"
+              @click="submitMarkPaid(booking)"
+            >
+              Mark paid
+            </WegoButton>
+          </div>
+
+          <div v-if="canRefund && booking.paymentStatus === 'PAID'" class="mt-3 flex flex-wrap items-end gap-2">
+            <WegoInput
+              :id="`refund-reason-${booking.id}`"
+              :model-value="refundReason[booking.id] ?? ''"
+              label="Refund reason"
+              class="min-w-0 flex-1"
+              @update:model-value="(value) => (refundReason[booking.id] = value)"
+            />
+            <WegoButton
+              type="button"
+              variant="secondary"
+              :disabled="actionState[booking.id] === 'submitting'"
+              @click="submitRefund(booking)"
+            >
+              Refund
+            </WegoButton>
+          </div>
+        </li>
+      </ul>
+
+      <WegoPagination v-if="listState === 'loaded'" class="mt-4" :page="page" :has-next-page="hasNextPage" @previous="previousPage" @next="nextPage" />
+    </WegoPanel>
+  </template>
 </template>

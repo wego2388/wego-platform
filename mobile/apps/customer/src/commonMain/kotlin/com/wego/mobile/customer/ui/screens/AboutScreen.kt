@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import com.wego.mobile.customer.content.SiteCopy
 import com.wego.mobile.customer.design.SdcCard
 import com.wego.mobile.customer.design.SdcSpace
+import com.wego.mobile.customer.theme.SdcExtendedColors
 import com.wego.mobile.shared.locale.AppLocale
 
 /** Mirrors `about.vue` — every fact here is `status: approved` in approved-facts.json. */
@@ -39,7 +40,7 @@ fun AboutScreen(locale: AppLocale) {
                         Text(
                             label.of(locale),
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = SdcExtendedColors.accentText,
                         )
                         Text(value.of(locale), style = MaterialTheme.typography.bodyMedium)
                     }

@@ -12,10 +12,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.wego.mobile.customer.content.SiteCopy
 import com.wego.mobile.customer.design.SdcCard
 import com.wego.mobile.customer.design.SdcSpace
+import com.wego.mobile.customer.theme.SdcExtendedColors
 import com.wego.mobile.shared.catalog.DiveSite
 import com.wego.mobile.shared.catalog.DiveSites
 import com.wego.mobile.shared.catalog.offerings
@@ -35,14 +35,17 @@ fun DiveSitesScreen(
     onSiteClick: (DiveSite) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(
+            modifier = Modifier.padding(horizontal = SdcSpace.xxl, vertical = SdcSpace.lg),
+            verticalArrangement = Arrangement.spacedBy(SdcSpace.xs),
+        ) {
             Text(SiteCopy.DiveSites.heading.of(locale), style = MaterialTheme.typography.titleLarge)
             Text(SiteCopy.DiveSites.body.of(locale), style = MaterialTheme.typography.bodyMedium)
         }
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(24.dp),
+            contentPadding = PaddingValues(SdcSpace.xxl),
             verticalArrangement = Arrangement.spacedBy(SdcSpace.md),
         ) {
             items(DiveSites.all, key = { it.slug }) { site ->
@@ -57,7 +60,7 @@ fun DiveSitesScreen(
                         Text(
                             "${site.offerings().size} · ${SiteCopy.DiveSites.offeringsHeading.of(locale)}",
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = SdcExtendedColors.accentText,
                         )
                     }
                 }

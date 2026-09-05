@@ -26,6 +26,7 @@ import com.wego.mobile.customer.design.SdcCard
 import com.wego.mobile.customer.design.SdcCategoryIcon
 import com.wego.mobile.customer.design.SdcMockPhoto
 import com.wego.mobile.customer.design.SdcSpace
+import com.wego.mobile.customer.theme.SdcExtendedColors
 import com.wego.mobile.shared.catalog.Categories
 import com.wego.mobile.shared.catalog.CategoryId
 import com.wego.mobile.shared.catalog.DiveCatalog
@@ -52,14 +53,17 @@ fun DiscoverScreen(
         }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(
+            modifier = Modifier.padding(horizontal = SdcSpace.xxl, vertical = SdcSpace.lg),
+            verticalArrangement = Arrangement.spacedBy(SdcSpace.xs),
+        ) {
             Text(SiteCopy.Discover.heading.of(locale), style = MaterialTheme.typography.titleLarge)
             Text(SiteCopy.Discover.body.of(locale), style = MaterialTheme.typography.bodyMedium)
         }
 
         LazyRow(
-            contentPadding = PaddingValues(horizontal = 24.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = SdcSpace.xxl),
+            horizontalArrangement = Arrangement.spacedBy(SdcSpace.sm),
         ) {
             item {
                 FilterChip(
@@ -80,8 +84,8 @@ fun DiscoverScreen(
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(24.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(SdcSpace.xxl),
+            verticalArrangement = Arrangement.spacedBy(SdcSpace.md),
         ) {
             items(offerings, key = { it.code }) { offering ->
                 OfferingRow(offering = offering, locale = locale, onClick = { onOfferingClick(offering) })
@@ -90,7 +94,7 @@ fun DiscoverScreen(
                 Text(
                     SiteCopy.Discover.pricingNotice.of(locale),
                     style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 16.dp),
+                    modifier = Modifier.padding(top = SdcSpace.xs, bottom = SdcSpace.lg),
                 )
             }
         }
@@ -123,13 +127,13 @@ fun OfferingRow(
                         diveCountLabel(locale, offering.diveCount),
                     ).joinToString(" · ")
                 if (meta.isNotEmpty()) {
-                    Text(meta, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                    Text(meta, style = MaterialTheme.typography.labelSmall, color = SdcExtendedColors.accentText)
                 }
             }
             Text(
                 formatEur(offering.priceEur),
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
+                color = SdcExtendedColors.accentText,
             )
         }
     }

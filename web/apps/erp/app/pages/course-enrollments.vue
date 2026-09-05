@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { WegoAlert, WegoButton, WegoInput } from "@wego/ui";
+import { WegoAlert, WegoBadge, WegoButton, WegoCheckbox, WegoInput, WegoPageHeader, WegoPanel, WegoSelect } from "@wego/ui";
 import { type AuthSession, clearAuthSession, hasPermission, readAuthSession } from "../composables/useAuthSession";
 import {
   advanceCourseEnrollment,
@@ -19,6 +19,8 @@ import {
   type SkillEvaluation,
   withdrawCourseEnrollment,
 } from "../composables/useDiversApi";
+
+definePageMeta({ layout: "app-shell" });
 
 useHead({ title: "Course Enrollments · Wego Platform" });
 
@@ -41,6 +43,12 @@ function diverName(diverId: string): string {
 
 function offeringTitle(offeringId: string): string {
   return courseOfferings.value.find((offering) => offering.id === offeringId)?.title ?? offeringId;
+}
+
+function stageTone(stage: EnrollmentStage): "success" | "accent" | "neutral" {
+  if (stage === "CERTIFIED") return "success";
+  if (stage === "WITHDRAWN") return "neutral";
+  return "accent";
 }
 
 function handleApiError(error: unknown) {
@@ -219,173 +227,145 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-wego-canvas px-6 py-12 text-wego-ink sm:px-10 lg:px-16">
-    <div class="mx-auto max-w-4xl">
-      <p class="text-sm font-semibold tracking-[0.18em] text-wego-accent uppercase">Wego Platform</p>
-      <h1 class="mt-4 text-3xl font-semibold tracking-tight">Course Enrollments</h1>
-      <p class="mt-2 text-sm text-wego-muted">Lead → Theory → Pool → Open Water → Certified. Real progress for a real diver in a real course.</p>
+  <WegoPageHeader
+    title="Course Enrollments"
+    description="Lead → Theory → Pool → Open Water → Certified. Real progress for a real diver in a real course."
+  />
 
-      <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-        <p>You need to sign in to view course enrollments.</p>
-        <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
-      </div>
+  <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
+    <p>You need to sign in to view course enrollments.</p>
+    <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
+  </div>
 
+  <template v-else>
+    <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+
+    <WegoPanel title="Enrollments" class="mt-8">
+      <p v-if="!canView()" class="text-sm text-wego-muted">
+        Your account doesn't have permission to view course enrollments (course:view).
+      </p>
       <template v-else>
-        <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+        <div class="flex flex-wrap items-end gap-3">
+          <WegoSelect id="stageFilter" v-model="stageFilter" label="Stage" @change="runFilter">
+            <option value="">All</option>
+            <option value="LEAD">Lead</option>
+            <option value="THEORY">Theory</option>
+            <option value="POOL">Pool</option>
+            <option value="OPEN_WATER">Open Water</option>
+            <option value="CERTIFIED">Certified</option>
+            <option value="WITHDRAWN">Withdrawn</option>
+          </WegoSelect>
+          <WegoButton type="button" variant="secondary" @click="runFilter">Filter</WegoButton>
+        </div>
 
-        <section class="mt-8">
-          <h2 class="text-xl font-semibold">Enrollments</h2>
-          <p v-if="!canView()" class="mt-3 text-sm text-wego-muted">
-            Your account doesn't have permission to view course enrollments (course:view).
-          </p>
-          <template v-else>
-            <div class="mt-4 flex flex-wrap items-end gap-3">
+        <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
+        <p v-else-if="listState === 'loaded' && enrollments.length === 0" class="mt-3 text-sm text-wego-muted">No enrollments yet.</p>
+        <ul v-else class="mt-4 space-y-3">
+          <li v-for="enrollment in enrollments" :key="enrollment.id" class="rounded-wego-control border border-wego-border p-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <label for="stageFilter" class="block text-sm font-medium text-wego-muted">Stage</label>
-                <select
-                  id="stageFilter"
-                  v-model="stageFilter"
-                  class="mt-2 rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-                  @change="runFilter"
-                >
-                  <option value="">All</option>
-                  <option value="LEAD">Lead</option>
-                  <option value="THEORY">Theory</option>
-                  <option value="POOL">Pool</option>
-                  <option value="OPEN_WATER">Open Water</option>
-                  <option value="CERTIFIED">Certified</option>
-                  <option value="WITHDRAWN">Withdrawn</option>
-                </select>
+                <div class="flex items-center gap-2">
+                  <p class="font-semibold">{{ diverName(enrollment.diverId) }}</p>
+                  <WegoBadge :tone="stageTone(enrollment.stage)">{{ enrollment.stage }}</WegoBadge>
+                </div>
+                <p class="mt-1 text-sm text-wego-muted">
+                  {{ offeringTitle(enrollment.offeringId) }}<span v-if="enrollment.instructorUserId"> · instructor assigned</span>
+                </p>
               </div>
-              <WegoButton type="button" variant="secondary" @click="runFilter">Filter</WegoButton>
+              <div v-if="canManage()" class="flex shrink-0 flex-wrap gap-2">
+                <WegoButton type="button" variant="secondary" @click="toggleDetails(enrollment)">
+                  {{ expandedEnrollmentId === enrollment.id ? "Hide details" : "Details" }}
+                </WegoButton>
+                <WegoButton
+                  v-if="!['CERTIFIED', 'WITHDRAWN'].includes(enrollment.stage)"
+                  type="button"
+                  variant="secondary"
+                  :disabled="actionState[enrollment.id] === 'submitting'"
+                  @click="submitAdvance(enrollment)"
+                >
+                  Advance
+                </WegoButton>
+                <WegoButton
+                  v-if="!['CERTIFIED', 'WITHDRAWN'].includes(enrollment.stage)"
+                  type="button"
+                  variant="secondary"
+                  :disabled="actionState[enrollment.id] === 'submitting'"
+                  @click="submitWithdraw(enrollment)"
+                >
+                  Withdraw
+                </WegoButton>
+              </div>
             </div>
 
-            <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
-            <p v-else-if="listState === 'loaded' && enrollments.length === 0" class="mt-3 text-sm text-wego-muted">No enrollments yet.</p>
-            <ul v-else class="mt-4 space-y-3">
-              <li v-for="enrollment in enrollments" :key="enrollment.id" class="rounded-wego-card border border-wego-border bg-wego-surface p-4">
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p class="font-semibold">{{ diverName(enrollment.diverId) }}</p>
-                    <p class="mt-1 text-sm text-wego-muted">
-                      {{ offeringTitle(enrollment.offeringId) }} · stage {{ enrollment.stage
-                      }}<span v-if="enrollment.instructorUserId"> · instructor assigned</span>
-                    </p>
-                  </div>
-                  <div v-if="canManage()" class="flex shrink-0 flex-wrap gap-2">
-                    <WegoButton type="button" variant="secondary" @click="toggleDetails(enrollment)">
-                      {{ expandedEnrollmentId === enrollment.id ? "Hide details" : "Details" }}
-                    </WegoButton>
-                    <WegoButton
-                      v-if="!['CERTIFIED', 'WITHDRAWN'].includes(enrollment.stage)"
-                      type="button"
-                      variant="secondary"
-                      :disabled="actionState[enrollment.id] === 'submitting'"
-                      @click="submitAdvance(enrollment)"
-                    >
-                      Advance
-                    </WegoButton>
-                    <WegoButton
-                      v-if="!['CERTIFIED', 'WITHDRAWN'].includes(enrollment.stage)"
-                      type="button"
-                      variant="secondary"
-                      :disabled="actionState[enrollment.id] === 'submitting'"
-                      @click="submitWithdraw(enrollment)"
-                    >
-                      Withdraw
-                    </WegoButton>
-                  </div>
+            <WegoAlert v-if="actionState[enrollment.id] === 'error'" variant="danger" class="mt-2">
+              {{ actionError[enrollment.id] }}
+            </WegoAlert>
+
+            <div v-if="expandedEnrollmentId === enrollment.id" class="mt-4 grid gap-4 border-t border-wego-border pt-4 sm:grid-cols-2">
+              <div v-if="canManage() && !['CERTIFIED', 'WITHDRAWN'].includes(enrollment.stage)">
+                <h3 class="text-sm font-semibold">Instructor</h3>
+                <div class="mt-2 flex flex-wrap items-end gap-2">
+                  <WegoInput
+                    :id="`instructor-${enrollment.id}`"
+                    :model-value="instructorInput[enrollment.id] ?? ''"
+                    label="Instructor user id"
+                    class="min-w-0 flex-1"
+                    @update:model-value="(value) => (instructorInput[enrollment.id] = value)"
+                  />
+                  <WegoButton
+                    type="button"
+                    variant="secondary"
+                    :disabled="actionState[enrollment.id] === 'submitting'"
+                    @click="submitAssignInstructor(enrollment)"
+                  >
+                    Assign
+                  </WegoButton>
                 </div>
+              </div>
 
-                <WegoAlert v-if="actionState[enrollment.id] === 'error'" variant="danger" class="mt-2">
-                  {{ actionError[enrollment.id] }}
-                </WegoAlert>
-
-                <div v-if="expandedEnrollmentId === enrollment.id" class="mt-4 grid gap-4 border-t border-wego-border pt-4 sm:grid-cols-2">
-                  <div v-if="canManage() && !['CERTIFIED', 'WITHDRAWN'].includes(enrollment.stage)">
-                    <h3 class="text-sm font-semibold">Instructor</h3>
-                    <div class="mt-2 flex flex-wrap items-end gap-2">
-                      <WegoInput
-                        :id="`instructor-${enrollment.id}`"
-                        :model-value="instructorInput[enrollment.id] ?? ''"
-                        label="Instructor user id"
-                        class="min-w-0 flex-1"
-                        @update:model-value="(value) => (instructorInput[enrollment.id] = value)"
-                      />
-                      <WegoButton
-                        type="button"
-                        variant="secondary"
-                        :disabled="actionState[enrollment.id] === 'submitting'"
-                        @click="submitAssignInstructor(enrollment)"
-                      >
-                        Assign
-                      </WegoButton>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 class="text-sm font-semibold">Skill evaluations</h3>
-                    <p v-if="detailState[enrollment.id] === 'loading'" class="mt-2 text-xs text-wego-muted">Loading…</p>
-                    <ul class="mt-2 space-y-2">
-                      <li v-for="evaluation in skillEvaluations[enrollment.id] ?? []" :key="evaluation.id" class="text-xs text-wego-muted">
-                        {{ evaluation.evaluatedOn }} — {{ evaluation.skillName }} ({{ evaluation.passed ? "passed" : "not yet" }})
-                      </li>
-                      <li v-if="detailState[enrollment.id] === 'idle' && (skillEvaluations[enrollment.id] ?? []).length === 0" class="text-xs text-wego-muted">
-                        No evaluations logged yet.
-                      </li>
-                    </ul>
-                    <form v-if="canManage()" class="mt-3 space-y-2" @submit.prevent="submitSkillEvaluation(enrollment)">
-                      <WegoInput :id="`skill-name-${enrollment.id}`" v-model="newSkill.skillName" label="Skill" required />
-                      <WegoInput :id="`skill-date-${enrollment.id}`" v-model="newSkill.evaluatedOn" label="Evaluated on" type="date" required />
-                      <label class="flex items-center gap-2 text-sm">
-                        <input :id="`skill-passed-${enrollment.id}`" v-model="newSkill.passed" type="checkbox">
-                        Passed
-                      </label>
-                      <WegoButton type="submit" variant="secondary" :disabled="actionState[enrollment.id] === 'submitting'">
-                        Log evaluation
-                      </WegoButton>
-                    </form>
-                  </div>
-                </div>
-              </li>
-            </ul>
-          </template>
-        </section>
-
-        <section v-if="canManage()" class="mt-10 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-          <h2 class="text-xl font-semibold">Enroll a diver</h2>
-          <form class="mt-6 space-y-5" @submit.prevent="submitEnroll">
-            <div>
-              <label for="enrollDiver" class="block text-sm font-medium text-wego-muted">Diver</label>
-              <select
-                id="enrollDiver"
-                v-model="enrollForm.diverId"
-                class="mt-2 w-full rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-              >
-                <option value="" disabled>Select a diver…</option>
-                <option v-for="diver in divers" :key="diver.id" :value="diver.id">{{ diver.fullName }}</option>
-              </select>
+              <div>
+                <h3 class="text-sm font-semibold">Skill evaluations</h3>
+                <p v-if="detailState[enrollment.id] === 'loading'" class="mt-2 text-xs text-wego-muted">Loading…</p>
+                <ul class="mt-2 space-y-2">
+                  <li v-for="evaluation in skillEvaluations[enrollment.id] ?? []" :key="evaluation.id" class="text-xs text-wego-muted">
+                    {{ evaluation.evaluatedOn }} — {{ evaluation.skillName }} ({{ evaluation.passed ? "passed" : "not yet" }})
+                  </li>
+                  <li v-if="detailState[enrollment.id] === 'idle' && (skillEvaluations[enrollment.id] ?? []).length === 0" class="text-xs text-wego-muted">
+                    No evaluations logged yet.
+                  </li>
+                </ul>
+                <form v-if="canManage()" class="mt-3 space-y-2" @submit.prevent="submitSkillEvaluation(enrollment)">
+                  <WegoInput :id="`skill-name-${enrollment.id}`" v-model="newSkill.skillName" label="Skill" required />
+                  <WegoInput :id="`skill-date-${enrollment.id}`" v-model="newSkill.evaluatedOn" label="Evaluated on" type="date" required />
+                  <WegoCheckbox :id="`skill-passed-${enrollment.id}`" v-model="newSkill.passed">Passed</WegoCheckbox>
+                  <WegoButton type="submit" variant="secondary" :disabled="actionState[enrollment.id] === 'submitting'">
+                    Log evaluation
+                  </WegoButton>
+                </form>
+              </div>
             </div>
-            <div>
-              <label for="enrollOffering" class="block text-sm font-medium text-wego-muted">Course</label>
-              <select
-                id="enrollOffering"
-                v-model="enrollForm.offeringId"
-                class="mt-2 w-full rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-              >
-                <option value="" disabled>Select a course…</option>
-                <option v-for="offering in courseOfferings" :key="offering.id" :value="offering.id">{{ offering.title }}</option>
-              </select>
-            </div>
-
-            <WegoAlert v-if="enrollState === 'error'" variant="danger">{{ enrollError }}</WegoAlert>
-
-            <WegoButton type="submit" :disabled="enrollState === 'submitting'" :loading="enrollState === 'submitting'">
-              Enroll
-            </WegoButton>
-          </form>
-        </section>
+          </li>
+        </ul>
       </template>
-    </div>
-  </main>
+    </WegoPanel>
+
+    <WegoPanel v-if="canManage()" title="Enroll a diver" class="mt-8">
+      <form class="space-y-5" @submit.prevent="submitEnroll">
+        <WegoSelect id="enrollDiver" v-model="enrollForm.diverId" label="Diver">
+          <option value="" disabled>Select a diver…</option>
+          <option v-for="diver in divers" :key="diver.id" :value="diver.id">{{ diver.fullName }}</option>
+        </WegoSelect>
+        <WegoSelect id="enrollOffering" v-model="enrollForm.offeringId" label="Course">
+          <option value="" disabled>Select a course…</option>
+          <option v-for="offering in courseOfferings" :key="offering.id" :value="offering.id">{{ offering.title }}</option>
+        </WegoSelect>
+
+        <WegoAlert v-if="enrollState === 'error'" variant="danger">{{ enrollError }}</WegoAlert>
+
+        <WegoButton type="submit" :disabled="enrollState === 'submitting'" :loading="enrollState === 'submitting'">
+          Enroll
+        </WegoButton>
+      </form>
+    </WegoPanel>
+  </template>
 </template>

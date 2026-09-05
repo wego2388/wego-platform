@@ -42,6 +42,40 @@ tags:
       Theory -> Pool -> Open Water -> Certified, forward-only, or
       Withdrawn from any non-finished stage. Instructor assignment and a
       real append-only skill-evaluation log.
+  - name: Dashboard
+    description: >-
+      Real business KPIs for a super-admin/operations dashboard. One
+      endpoint per existing module's own view permission — a caller only
+      ever sees the sections their real role already grants them,
+      enforced server-side.
+  - name: HumanResources
+    description: >-
+      Real employee records — position, department, hire date, contact
+      details, base salary, and an optional link to a staff login account.
+      Termination is a terminal, staff-managed status change; a rehire
+      gets a brand-new record. Also covers day-by-day attendance (an
+      upsert per employee per date) and a real leave-request approval
+      workflow (PENDING -> APPROVED/REJECTED or PENDING -> CANCELLED),
+      both staff-recorded on an employee's behalf, not self-service.
+  - name: Accounting
+    description: >-
+      A real double-entry accounting system: a staff-managed chart of
+      accounts (deactivated, never deleted, once referenced) and permanent
+      journal entries. Every entry must balance (debits == credits, one
+      shared currency) and, once posted, is never edited or deleted — a
+      mistake is corrected with a real reversing entry, standard
+      accounting practice.
+  - name: Payroll
+    description: >-
+      A real payroll run: a DRAFT preview (one line per active,
+      salaried employee, a snapshot of their base salary — never a live
+      reference) that has no ledger consequence until explicitly posted.
+      Posting creates one real, balanced journal entry against the real
+      Salaries Expense / Wages Payable accounts and is permanent — the
+      run itself is never edited afterward. A DRAFT can be freely
+      discarded; a cash-disbursement entry, once wages are actually
+      transferred, is posted separately through Accounting's own journal
+      endpoint.
 paths:
   /actuator/health:
     get:
@@ -156,6 +190,355 @@ paths:
                 $ref: "#/components/schemas/IdentityProfile"
         "401":
           $ref: "#/components/responses/UnauthenticatedResponse"
+  /api/v1/identity/users:
+    get:
+      operationId: listStaffUsers
+      summary: List staff accounts
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: All staff accounts.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StaffUser"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    post:
+      operationId: createStaffUser
+      summary: Create a staff account
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStaffUserRequest"
+      responses:
+        "201":
+          description: Account created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffUser"
+        "400":
+          description: An unknown role code was requested.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityAdminError"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "409":
+          description: The email is already in use.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityAdminError"
+  /api/v1/identity/users/{id}/disable:
+    post:
+      operationId: disableStaffUser
+      summary: Disable a staff account
+      description: An account cannot disable itself — see `cannot_disable_self`.
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Account disabled.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffUser"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No account with that id.
+        "409":
+          description: Already disabled, or the caller tried to disable their own account.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityAdminError"
+  /api/v1/identity/users/{id}/enable:
+    post:
+      operationId: enableStaffUser
+      summary: Re-enable a disabled staff account
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Account re-enabled.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffUser"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No account with that id.
+        "409":
+          description: Already active.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityAdminError"
+  /api/v1/identity/users/{id}/reset-password:
+    post:
+      operationId: resetStaffUserPassword
+      summary: Admin-set a staff account's password
+      description: >-
+        Sets the password directly — no email/token flow. The admin tells the
+        new password to the employee outside the system.
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - newPassword
+              properties:
+                newPassword:
+                  type: string
+      responses:
+        "200":
+          description: Password reset.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffUser"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No account with that id.
+  /api/v1/identity/users/{id}/roles:
+    put:
+      operationId: assignStaffUserRoles
+      summary: Replace a staff account's roles
+      description: An account cannot change its own roles — see `cannot_change_own_roles`.
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - roleCodes
+              properties:
+                roleCodes:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: Roles replaced.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffUser"
+        "400":
+          description: An unknown role code was requested.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityAdminError"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No account with that id.
+        "409":
+          description: The caller tried to change their own roles.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityAdminError"
+  /api/v1/identity/roles:
+    get:
+      operationId: listRoles
+      summary: List roles and their permissions
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: All roles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StaffRole"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    post:
+      operationId: createRole
+      summary: Create a role
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRoleRequest"
+      responses:
+        "201":
+          description: Role created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffRole"
+        "400":
+          description: An unknown permission code was requested.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityAdminError"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "409":
+          description: A role with that code already exists.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityAdminError"
+  /api/v1/identity/permissions:
+    get:
+      operationId: listPermissions
+      summary: List the full permission catalog
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Every permission code the platform enforces.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PermissionCatalogEntry"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/identity/roles/{code}/permissions:
+    put:
+      operationId: updateRolePermissions
+      summary: Replace a role's permission set
+      tags:
+        - Identity Administration
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - permissionCodes
+              properties:
+                permissionCodes:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: Permissions replaced.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffRole"
+        "400":
+          description: An unknown permission code was requested.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentityAdminError"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No role with that code.
   /api/v1/divers/offerings:
     post:
       operationId: createOffering
@@ -2057,6 +2440,1482 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BookingError"
+  /api/v1/divers/dashboard/bookings:
+    get:
+      operationId: getBookingsDashboard
+      summary: Booking KPIs for the dashboard
+      description: >-
+        Requires `booking:view`. `paidRevenueThisMonth` is grouped by
+        currency and approximates "this month" using booking `createdAt`,
+        not a true payment date (none exists yet).
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Booking KPIs.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookingsDashboardResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/divers/dashboard/offerings:
+    get:
+      operationId: getOfferingsDashboard
+      summary: Upcoming-offerings KPI for the dashboard
+      description: Requires `offering:view`.
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Upcoming offerings.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OfferingsDashboardResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/divers/dashboard/divers:
+    get:
+      operationId: getDiversDashboard
+      summary: Active-divers KPI for the dashboard
+      description: Requires `diver:view`.
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Active-diver count.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiversDashboardResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/divers/dashboard/equipment:
+    get:
+      operationId: getEquipmentDashboard
+      summary: Equipment status-breakdown KPI for the dashboard
+      description: Requires `equipment:view`.
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Equipment counts by status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EquipmentDashboardResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/hr/employees:
+    post:
+      operationId: createEmployee
+      summary: Create an employee record
+      description: >-
+        Requires `hr:employee-manage`. `linkedUserId`, if present, must be
+        an active staff user (see `linked_user_not_active_staff`).
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertEmployeeRequest"
+      responses:
+        "201":
+          description: Employee record created.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeResponse"
+        "400":
+          description: >-
+            The request failed field validation, or `linkedUserId` was not
+            an active staff user.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+                  - $ref: "#/components/schemas/EmployeeErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    get:
+      operationId: listEmployees
+      summary: List employee records
+      description: >-
+        Requires `hr:employee-view`. Paginated with `page`/`size`; `search`
+        matches against the employee's full name. Returns a roster
+        projection — salary, email and phone are deliberately omitted;
+        fetch a single employee by id for the full record.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/EmployeeStatus"
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Matching employee records, one page.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EmployeeSummaryResponse"
+        "400":
+          description: An invalid `page`/`size`/`status` query parameter.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/hr/employees/{id}:
+    get:
+      operationId: getEmployee
+      summary: Read a single employee record
+      description: Requires `hr:employee-view`.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The employee record.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No employee record with this id.
+    put:
+      operationId: updateEmployee
+      summary: Replace an employee record's editable fields
+      description: >-
+        Requires `hr:employee-manage`. A full replace of every editable
+        field — this is not a partial patch. Status and termination
+        timestamp are not editable here; see the terminate action.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertEmployeeRequest"
+      responses:
+        "200":
+          description: Employee record updated.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeResponse"
+        "400":
+          description: >-
+            The request failed field validation, or `linkedUserId` was not
+            an active staff user.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+                  - $ref: "#/components/schemas/EmployeeErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No employee record with this id.
+  /api/v1/hr/employees/{id}/terminate:
+    post:
+      operationId: terminateEmployee
+      summary: Terminate an employee
+      description: >-
+        Requires `hr:employee-manage`. Terminal — there is no reinstate
+        action; a rehire gets a brand-new employee record. Salary and
+        contact fields are deliberately not redacted on termination (an
+        ongoing accounting/audit need), unlike `Diver.archive()`.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TerminateEmployeeRequest"
+      responses:
+        "200":
+          description: Employee terminated.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeResponse"
+        "400":
+          description: An oversized `reason`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No employee record with this id.
+        "409":
+          description: The employee is already terminated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeErrorResponse"
+  /api/v1/hr/attendance:
+    post:
+      operationId: recordAttendance
+      summary: Record (or correct) one employee's attendance for one day
+      description: >-
+        Requires `hr:attendance-manage`. Recording again for the same
+        employee and date corrects that day's record rather than adding a
+        second one — an upsert, so this always returns 200, never 201.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecordAttendanceRequest"
+      responses:
+        "200":
+          description: Attendance recorded or corrected.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceRecordResponse"
+        "400":
+          description: >-
+            The request failed field validation, the employee does not
+            exist, the employee is terminated, or the date is in the
+            future.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+                  - $ref: "#/components/schemas/AttendanceErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    get:
+      operationId: listAttendance
+      summary: List attendance records
+      description: Requires `hr:attendance-view`. Paginated with `page`/`size`; filterable by `employeeId` and a `from`/`to` date range.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: employeeId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Matching attendance records, one page.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AttendanceRecordResponse"
+        "400":
+          description: An invalid `page`/`size`/`employeeId` query parameter.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/hr/leave-requests:
+    post:
+      operationId: submitLeaveRequest
+      summary: Submit a leave request on an employee's behalf
+      description: Requires `hr:leave-manage`. Staff-recorded, not employee self-service — see the HumanResources tag description.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitLeaveRequestRequest"
+      responses:
+        "201":
+          description: Leave request submitted, status PENDING.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequestResponse"
+        "400":
+          description: The request failed field validation, the employee does not exist, or the employee is terminated.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+                  - $ref: "#/components/schemas/LeaveRequestErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    get:
+      operationId: listLeaveRequests
+      summary: List leave requests
+      description: Requires `hr:leave-view`. Paginated with `page`/`size`; filterable by `employeeId` and `status`.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: employeeId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/LeaveRequestStatus"
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Matching leave requests, one page.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeaveRequestResponse"
+        "400":
+          description: An invalid `page`/`size`/`employeeId`/`status` query parameter.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/hr/leave-requests/{id}:
+    get:
+      operationId: getLeaveRequest
+      summary: Read a single leave request
+      description: Requires `hr:leave-view`.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The leave request.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequestResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No leave request with this id.
+  /api/v1/hr/leave-requests/{id}/approve:
+    post:
+      operationId: approveLeaveRequest
+      summary: Approve a pending leave request
+      description: >-
+        Requires `hr:leave-manage`. Rejected with a clean 409 if this
+        employee already has another APPROVED leave overlapping this date
+        range — see `overlaps_approved_leave`.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeaveDecisionRequest"
+      responses:
+        "200":
+          description: Leave request approved.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequestResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No leave request with this id.
+        "409":
+          description: The request is no longer pending, or it overlaps another already-approved leave for the same employee.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequestErrorResponse"
+  /api/v1/hr/leave-requests/{id}/reject:
+    post:
+      operationId: rejectLeaveRequest
+      summary: Reject a pending leave request
+      description: Requires `hr:leave-manage`.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeaveDecisionRequest"
+      responses:
+        "200":
+          description: Leave request rejected.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequestResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No leave request with this id.
+        "409":
+          description: The request is no longer pending.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequestErrorResponse"
+  /api/v1/hr/leave-requests/{id}/cancel:
+    post:
+      operationId: cancelLeaveRequest
+      summary: Cancel a pending leave request
+      description: Requires `hr:leave-manage`. A withdrawal, not a decision — see the LeaveRequest schema's own note.
+      tags:
+        - HumanResources
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Leave request cancelled.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequestResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No leave request with this id.
+        "409":
+          description: The request is no longer pending.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequestErrorResponse"
+  /api/v1/accounting/accounts:
+    post:
+      operationId: createAccount
+      summary: Create an account in the chart of accounts
+      description: Requires `accounting:coa-manage`. `code` and `accountType` are permanent — see the update endpoint for what stays editable.
+      tags:
+        - Accounting
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAccountRequest"
+      responses:
+        "201":
+          description: Account created.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountResponse"
+        "400":
+          description: The request failed field validation, or the given `parentAccountId` does not exist.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+                  - $ref: "#/components/schemas/AccountErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "409":
+          description: The account code is already in use.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountErrorResponse"
+    get:
+      operationId: listAccounts
+      summary: List the chart of accounts
+      description: Requires `accounting:coa-view`. Paginated with `page`/`size`; `activeOnly` defaults to `true`.
+      tags:
+        - Accounting
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: accountType
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/AccountType"
+        - name: activeOnly
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Matching accounts, one page.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AccountResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/accounting/accounts/{id}:
+    get:
+      operationId: getAccount
+      summary: Read a single account
+      description: Requires `accounting:coa-view`.
+      tags:
+        - Accounting
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The account.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No account with this id.
+    put:
+      operationId: updateAccount
+      summary: Update an account's name and description
+      description: Requires `accounting:coa-manage`. Code and account type are not editable here — see the CreateAccountRequest schema's own note.
+      tags:
+        - Accounting
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAccountRequest"
+      responses:
+        "200":
+          description: Account updated.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountResponse"
+        "400":
+          description: The request failed field validation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No account with this id.
+  /api/v1/accounting/accounts/{id}/deactivate:
+    post:
+      operationId: deactivateAccount
+      summary: Deactivate an account
+      description: >-
+        Requires `accounting:coa-manage`. A soft state change — the
+        account is never deleted, since journal history may reference it.
+      tags:
+        - Accounting
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Account deactivated.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No account with this id.
+        "409":
+          description: The account is already inactive.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountErrorResponse"
+  /api/v1/accounting/accounts/{id}/reactivate:
+    post:
+      operationId: reactivateAccount
+      summary: Reactivate an account
+      description: Requires `accounting:coa-manage`.
+      tags:
+        - Accounting
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Account reactivated.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No account with this id.
+        "409":
+          description: The account is already active.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountErrorResponse"
+  /api/v1/accounting/journal-entries:
+    post:
+      operationId: postJournalEntry
+      summary: Post a double-entry journal entry
+      description: >-
+        Requires `accounting:journal-manage`. At least 2 lines, at least
+        one DEBIT and one CREDIT, and debits must equal credits in one
+        shared currency. Permanent once posted — see the reverse endpoint
+        for how a mistake is corrected.
+      tags:
+        - Accounting
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostJournalEntryRequest"
+      responses:
+        "201":
+          description: Journal entry posted.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JournalEntryResponse"
+        "400":
+          description: >-
+            The request failed field validation, fewer than 2 lines, no
+            debit or no credit line, the entry doesn't balance, or a
+            referenced account does not exist or is inactive.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+                  - $ref: "#/components/schemas/JournalEntryErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    get:
+      operationId: listJournalEntries
+      summary: List journal entries
+      description: Requires `accounting:journal-view`. Paginated with `page`/`size`; filterable by a date range, `accountId`, and `reference`.
+      tags:
+        - Accounting
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: accountId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: reference
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Matching journal entries, one page.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JournalEntryResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/accounting/journal-entries/{id}:
+    get:
+      operationId: getJournalEntry
+      summary: Read a single journal entry
+      description: Requires `accounting:journal-view`.
+      tags:
+        - Accounting
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The journal entry.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JournalEntryResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No journal entry with this id.
+  /api/v1/accounting/journal-entries/{id}/reverse:
+    post:
+      operationId: reverseJournalEntry
+      summary: Reverse a posted journal entry
+      description: >-
+        Requires `accounting:journal-manage`. Posts a new entry with every
+        line's direction flipped, linked back to the original — the
+        standard accounting correction. An entry can be reversed at most
+        once.
+      tags:
+        - Accounting
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReverseJournalEntryRequest"
+      responses:
+        "201":
+          description: Reversal entry posted.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JournalEntryResponse"
+        "400":
+          description: The request failed field validation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No journal entry with this id.
+        "409":
+          description: This entry has already been reversed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JournalEntryErrorResponse"
+  /api/v1/payroll/runs:
+    post:
+      operationId: createPayrollRun
+      summary: Create a draft payroll run
+      description: >-
+        Requires `payroll:manage`. Includes one line per currently active
+        employee with a base salary set — a snapshot at creation time, not
+        a live reference. Nothing is posted to the ledger yet.
+      tags:
+        - Payroll
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePayrollRunRequest"
+      responses:
+        "201":
+          description: Draft payroll run created.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayrollRunResponse"
+        "400":
+          description: >-
+            The request failed field validation, no active employee has a
+            base salary set, or eligible employees span more than one
+            currency.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+                  - $ref: "#/components/schemas/PayrollErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "409":
+          description: This pay period overlaps an existing run.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayrollErrorResponse"
+    get:
+      operationId: listPayrollRuns
+      summary: List payroll runs
+      description: Requires `payroll:view`. Paginated with `page`/`size`; filterable by `status`.
+      tags:
+        - Payroll
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/PayrollRunStatus"
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Matching payroll runs, one page.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PayrollRunResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/payroll/runs/{id}:
+    get:
+      operationId: getPayrollRun
+      summary: Read a single payroll run
+      description: Requires `payroll:view`.
+      tags:
+        - Payroll
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The payroll run.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayrollRunResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No payroll run with this id.
+  /api/v1/payroll/runs/{id}/post:
+    post:
+      operationId: postPayrollRun
+      summary: Post a draft payroll run
+      description: >-
+        Requires `payroll:manage`. Creates one real, balanced journal
+        entry (DEBIT Salaries Expense, CREDIT Wages Payable, both for the
+        run's total) against the real accounts seeded by V12. Permanent —
+        the run is never editable again afterward.
+      tags:
+        - Payroll
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Payroll run posted.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayrollRunResponse"
+        "400":
+          description: The required Salaries Expense or Wages Payable account is missing or inactive.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayrollErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No payroll run with this id.
+        "409":
+          description: This run is no longer a draft.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayrollErrorResponse"
+  /api/v1/payroll/runs/{id}/discard:
+    post:
+      operationId: discardPayrollRun
+      summary: Discard a draft payroll run
+      description: Requires `payroll:manage`. Only a DRAFT run can be discarded — a POSTED run is permanent.
+      tags:
+        - Payroll
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Payroll run discarded.
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No payroll run with this id.
+        "409":
+          description: This run is no longer a draft.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayrollErrorResponse"
+  /api/v1/accounting/reports/trial-balance:
+    get:
+      operationId: getTrialBalance
+      summary: The trial balance as of a date
+      description: >-
+        Requires `accounting:journal-view` (a read over the same ledger
+        every other Accounting read is already gated by, not a new
+        permission). Each account nets to whichever column it really sits
+        on; `totalDebits` must equal `totalCredits` — the real, mechanical
+        proof every posted entry actually balanced.
+      tags:
+        - Accounting
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: asOfDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: The trial balance.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrialBalanceResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/accounting/reports/income-statement:
+    get:
+      operationId: getIncomeStatement
+      summary: The income statement (profit and loss) for a period
+      description: Requires `accounting:journal-view`. Revenue minus expenses within `from`..`to`, inclusive.
+      tags:
+        - Accounting
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: The income statement.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IncomeStatementResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/accounting/reports/balance-sheet:
+    get:
+      operationId: getBalanceSheet
+      summary: The balance sheet as of a date
+      description: >-
+        Requires `accounting:journal-view`. `totalAssets` must equal
+        `totalLiabilities + totalEquity` — `equityLines` includes a real,
+        synthesized "Retained Earnings (accumulated)" line (`accountId`
+        null on that one line only) computed on the fly, since this
+        system has no formal period-closing step to zero Revenue/Expense
+        into Equity — see `BalanceSheetResponse`'s own note.
+      tags:
+        - Accounting
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationIdHeader"
+        - name: asOfDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: The balance sheet.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationIdResponseHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BalanceSheetResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
 components:
   securitySchemes:
     bearerAuth:
@@ -2184,6 +4043,105 @@ components:
           type: array
           items:
             type: string
+    StaffUser:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - email
+        - status
+        - roles
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - DISABLED
+        roles:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+    CreateStaffUserRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - email
+        - password
+        - roleCodes
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        roleCodes:
+          type: array
+          items:
+            type: string
+    StaffRole:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - description
+        - permissions
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+    CreateRoleRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - description
+        - permissionCodes
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        permissionCodes:
+          type: array
+          items:
+            type: string
+    PermissionCatalogEntry:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - description
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    IdentityAdminError:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: >-
+            One of: email_already_in_use, unknown_role:<code>,
+            cannot_disable_self, already_disabled, already_active,
+            cannot_change_own_roles, role_already_exists,
+            unknown_permission:<code>.
     OfferingType:
       type: string
       enum:
@@ -3143,3 +5101,870 @@ components:
             - DOWN
             - OUT_OF_SERVICE
             - UNKNOWN
+    UpcomingOfferingResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - offeringType
+        - title
+        - startsOn
+      properties:
+        id:
+          type: string
+          format: uuid
+        offeringType:
+          $ref: "#/components/schemas/OfferingType"
+        title:
+          type: string
+        startsOn:
+          type: string
+          format: date
+    BookingsDashboardResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - bookingsToday
+        - paidRevenueThisMonth
+      properties:
+        bookingsToday:
+          type: integer
+        paidRevenueThisMonth:
+          type: array
+          items:
+            $ref: "#/components/schemas/Money"
+    OfferingsDashboardResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - upcomingTrips
+      properties:
+        upcomingTrips:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpcomingOfferingResponse"
+    DiversDashboardResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - activeDivers
+      properties:
+        activeDivers:
+          type: integer
+    EquipmentDashboardResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - active
+        - inMaintenance
+        - retired
+      properties:
+        active:
+          type: integer
+        inMaintenance:
+          type: integer
+        retired:
+          type: integer
+    EmployeeStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - TERMINATED
+    UpsertEmployeeRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - fullName
+        - position
+        - hireDate
+      properties:
+        fullName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        position:
+          type: string
+          minLength: 1
+          maxLength: 200
+        department:
+          type: string
+          maxLength: 200
+        hireDate:
+          type: string
+          format: date
+        email:
+          type: string
+          format: email
+          maxLength: 320
+        phone:
+          type: string
+          maxLength: 32
+        baseSalary:
+          $ref: "#/components/schemas/Money"
+        linkedUserId:
+          type: string
+          format: uuid
+    TerminateEmployeeRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        reason:
+          type: string
+          maxLength: 1000
+    EmployeeResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - fullName
+        - position
+        - hireDate
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        position:
+          type: string
+        department:
+          type: string
+        hireDate:
+          type: string
+          format: date
+        email:
+          type: string
+        phone:
+          type: string
+        baseSalary:
+          $ref: "#/components/schemas/Money"
+        linkedUserId:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/EmployeeStatus"
+        createdAt:
+          type: string
+          format: date-time
+        terminatedAt:
+          type: string
+          format: date-time
+    EmployeeSummaryResponse:
+      type: object
+      additionalProperties: false
+      description: >-
+        The roster/list projection — deliberately omits salary, email and
+        phone (the same PII-minimization discipline `DiverSummaryResponse`
+        already established). Fetch a single employee by id for the full
+        EmployeeResponse.
+      required:
+        - id
+        - fullName
+        - position
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        position:
+          type: string
+        department:
+          type: string
+        status:
+          $ref: "#/components/schemas/EmployeeStatus"
+    EmployeeErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - linked_user_not_active_staff
+            - already_terminated
+    AttendanceStatus:
+      type: string
+      enum:
+        - PRESENT
+        - ABSENT
+        - LATE
+        - HALF_DAY
+    RecordAttendanceRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - employeeId
+        - attendanceDate
+        - status
+      properties:
+        employeeId:
+          type: string
+          format: uuid
+        attendanceDate:
+          type: string
+          format: date
+        status:
+          $ref: "#/components/schemas/AttendanceStatus"
+        clockIn:
+          type: string
+          format: date-time
+        clockOut:
+          type: string
+          format: date-time
+        notes:
+          type: string
+          maxLength: 1000
+    AttendanceRecordResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - employeeId
+        - attendanceDate
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        employeeId:
+          type: string
+          format: uuid
+        attendanceDate:
+          type: string
+          format: date
+        status:
+          $ref: "#/components/schemas/AttendanceStatus"
+        clockIn:
+          type: string
+          format: date-time
+        clockOut:
+          type: string
+          format: date-time
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    AttendanceErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - employee_not_found
+            - employee_not_active
+            - attendance_date_in_future
+    LeaveType:
+      type: string
+      enum:
+        - ANNUAL
+        - SICK
+        - UNPAID
+        - OTHER
+    LeaveRequestStatus:
+      type: string
+      enum:
+        - PENDING
+        - APPROVED
+        - REJECTED
+        - CANCELLED
+    SubmitLeaveRequestRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - employeeId
+        - leaveType
+        - startDate
+        - endDate
+      properties:
+        employeeId:
+          type: string
+          format: uuid
+        leaveType:
+          $ref: "#/components/schemas/LeaveType"
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        reason:
+          type: string
+          maxLength: 1000
+    LeaveDecisionRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        notes:
+          type: string
+          maxLength: 1000
+    LeaveRequestResponse:
+      type: object
+      additionalProperties: false
+      description: >-
+        A real approval workflow: PENDING moves to either APPROVED/REJECTED
+        (a decision — decidedByUserId/decidedAt) or CANCELLED (a withdrawal
+        — cancelledAt), never both.
+      required:
+        - id
+        - employeeId
+        - leaveType
+        - startDate
+        - endDate
+        - status
+        - requestedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        employeeId:
+          type: string
+          format: uuid
+        leaveType:
+          $ref: "#/components/schemas/LeaveType"
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        reason:
+          type: string
+        status:
+          $ref: "#/components/schemas/LeaveRequestStatus"
+        requestedByUserId:
+          type: string
+          format: uuid
+        requestedAt:
+          type: string
+          format: date-time
+        decidedByUserId:
+          type: string
+          format: uuid
+        decidedAt:
+          type: string
+          format: date-time
+        decisionNotes:
+          type: string
+        cancelledAt:
+          type: string
+          format: date-time
+    LeaveRequestErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - employee_not_found
+            - employee_not_active
+            - not_pending
+            - overlaps_approved_leave
+    AccountType:
+      type: string
+      enum:
+        - ASSET
+        - LIABILITY
+        - EQUITY
+        - REVENUE
+        - EXPENSE
+    JournalLineDirection:
+      type: string
+      enum:
+        - DEBIT
+        - CREDIT
+    CreateAccountRequest:
+      type: object
+      additionalProperties: false
+      description: >-
+        `code` and `accountType` are permanent once created — changing
+        either is a real structural/reporting decision, not a plain detail
+        correction; see UpdateAccountRequest for what stays editable.
+      required:
+        - code
+        - name
+        - accountType
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 20
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        accountType:
+          $ref: "#/components/schemas/AccountType"
+        parentAccountId:
+          type: string
+          format: uuid
+        description:
+          type: string
+          maxLength: 2000
+    UpdateAccountRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+    AccountResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - code
+        - name
+        - accountType
+        - normalBalance
+        - active
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        accountType:
+          $ref: "#/components/schemas/AccountType"
+        normalBalance:
+          $ref: "#/components/schemas/JournalLineDirection"
+        parentAccountId:
+          type: string
+          format: uuid
+        description:
+          type: string
+        active:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    AccountErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - code_already_in_use
+            - parent_account_not_found
+            - already_inactive
+            - already_active
+    JournalLineInput:
+      type: object
+      additionalProperties: false
+      required:
+        - accountId
+        - direction
+        - amount
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        direction:
+          $ref: "#/components/schemas/JournalLineDirection"
+        amount:
+          type: string
+          pattern: "^\\d{1,10}\\.\\d{2}$"
+          description: Decimal string with exactly 2 places, e.g. "250.00" — never a raw JSON number, same reasoning as Money.
+    PostJournalEntryRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - entryDate
+        - description
+        - currencyCode
+        - lines
+      properties:
+        entryDate:
+          type: string
+          format: date
+        description:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        reference:
+          type: string
+          maxLength: 200
+        currencyCode:
+          type: string
+          pattern: "^[A-Z]{3}$"
+        lines:
+          type: array
+          minItems: 2
+          items:
+            $ref: "#/components/schemas/JournalLineInput"
+    ReverseJournalEntryRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - reason
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+    JournalLineResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - accountId
+        - direction
+        - amount
+      properties:
+        id:
+          type: string
+          format: uuid
+        accountId:
+          type: string
+          format: uuid
+        direction:
+          $ref: "#/components/schemas/JournalLineDirection"
+        amount:
+          type: string
+    JournalEntryResponse:
+      type: object
+      additionalProperties: false
+      description: >-
+        Permanent once posted — there is deliberately no edit or delete
+        endpoint. `reversalOfEntryId` is set only on a reversal entry,
+        pointing at the entry it corrects.
+      required:
+        - id
+        - entryDate
+        - description
+        - currencyCode
+        - lines
+        - debitTotal
+        - creditTotal
+        - postedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        entryDate:
+          type: string
+          format: date
+        description:
+          type: string
+        reference:
+          type: string
+        currencyCode:
+          type: string
+        lines:
+          type: array
+          items:
+            $ref: "#/components/schemas/JournalLineResponse"
+        debitTotal:
+          type: string
+        creditTotal:
+          type: string
+        reversalOfEntryId:
+          type: string
+          format: uuid
+        postedByUserId:
+          type: string
+          format: uuid
+        postedAt:
+          type: string
+          format: date-time
+    JournalEntryErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - too_few_lines
+            - missing_debit_or_credit
+            - unbalanced
+            - account_not_found
+            - account_inactive
+            - already_reversed
+    PayrollRunStatus:
+      type: string
+      enum:
+        - DRAFT
+        - POSTED
+    CreatePayrollRunRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - payPeriodStart
+        - payPeriodEnd
+      properties:
+        payPeriodStart:
+          type: string
+          format: date
+        payPeriodEnd:
+          type: string
+          format: date
+    PayrollLineResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - employeeId
+        - amount
+      properties:
+        employeeId:
+          type: string
+          format: uuid
+        amount:
+          type: string
+    PayrollRunResponse:
+      type: object
+      additionalProperties: false
+      description: >-
+        A DRAFT run has no ledger consequence — it can be discarded
+        freely. Posting is permanent: journalEntryId is set only once, and
+        the run is never editable again afterward.
+      required:
+        - id
+        - payPeriodStart
+        - payPeriodEnd
+        - currencyCode
+        - totalAmount
+        - status
+        - lines
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        payPeriodStart:
+          type: string
+          format: date
+        payPeriodEnd:
+          type: string
+          format: date
+        currencyCode:
+          type: string
+        totalAmount:
+          type: string
+        status:
+          $ref: "#/components/schemas/PayrollRunStatus"
+        lines:
+          type: array
+          items:
+            $ref: "#/components/schemas/PayrollLineResponse"
+        createdByUserId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        postedByUserId:
+          type: string
+          format: uuid
+        postedAt:
+          type: string
+          format: date-time
+        journalEntryId:
+          type: string
+          format: uuid
+    PayrollErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - no_eligible_employees
+            - mixed_currencies
+            - overlaps_existing_run
+            - not_draft
+            - salaries_expense_account_not_found
+            - salaries_expense_account_inactive
+            - wages_payable_account_not_found
+            - wages_payable_account_inactive
+    TrialBalanceLineResponse:
+      type: object
+      additionalProperties: false
+      description: >-
+        `debitBalance`/`creditBalance` are mutually exclusive — an
+        account's real net balance shows in exactly one column,
+        whichever side it actually sits on, not necessarily its normal
+        side.
+      required:
+        - accountId
+        - code
+        - name
+        - accountType
+        - debitBalance
+        - creditBalance
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        accountType:
+          $ref: "#/components/schemas/AccountType"
+        debitBalance:
+          type: string
+        creditBalance:
+          type: string
+    TrialBalanceResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - asOfDate
+        - lines
+        - totalDebits
+        - totalCredits
+      properties:
+        asOfDate:
+          type: string
+          format: date
+        lines:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrialBalanceLineResponse"
+        totalDebits:
+          type: string
+        totalCredits:
+          type: string
+    IncomeStatementLineResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - accountId
+        - code
+        - name
+        - amount
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        amount:
+          type: string
+    IncomeStatementResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - from
+        - to
+        - revenueLines
+        - expenseLines
+        - totalRevenue
+        - totalExpenses
+        - netIncome
+      properties:
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        revenueLines:
+          type: array
+          items:
+            $ref: "#/components/schemas/IncomeStatementLineResponse"
+        expenseLines:
+          type: array
+          items:
+            $ref: "#/components/schemas/IncomeStatementLineResponse"
+        totalRevenue:
+          type: string
+        totalExpenses:
+          type: string
+        netIncome:
+          type: string
+    BalanceSheetLineResponse:
+      type: object
+      additionalProperties: false
+      description: >-
+        `accountId`/`code` are absent on exactly one line — the
+        synthesized "Retained Earnings (accumulated)" figure, which has
+        no backing account row.
+      required:
+        - name
+        - amount
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        amount:
+          type: string
+    BalanceSheetResponse:
+      type: object
+      additionalProperties: false
+      description: >-
+        `totalAssets` must equal `totalLiabilities + totalEquity` —
+        `equityLines` mixes real equity accounts with one computed
+        Retained Earnings line so the equation holds even though this
+        system never formally closes Revenue/Expense into Equity.
+      required:
+        - asOfDate
+        - assetLines
+        - liabilityLines
+        - equityLines
+        - totalAssets
+        - totalLiabilities
+        - totalEquity
+      properties:
+        asOfDate:
+          type: string
+          format: date
+        assetLines:
+          type: array
+          items:
+            $ref: "#/components/schemas/BalanceSheetLineResponse"
+        liabilityLines:
+          type: array
+          items:
+            $ref: "#/components/schemas/BalanceSheetLineResponse"
+        equityLines:
+          type: array
+          items:
+            $ref: "#/components/schemas/BalanceSheetLineResponse"
+        totalAssets:
+          type: string
+        totalLiabilities:
+          type: string
+        totalEquity:
+          type: string

@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import com.wego.mobile.customer.content.SiteCopy
 import com.wego.mobile.customer.design.SdcCard
 import com.wego.mobile.customer.design.SdcSpace
+import com.wego.mobile.customer.theme.SdcExtendedColors
 import com.wego.mobile.shared.locale.AppLocale
 
 /** Mirrors `contact.vue` — every channel here is `status: approved` in approved-facts.json. */
@@ -35,7 +36,11 @@ fun ContactScreen(
                 Text(
                     SiteCopy.Contact.whatsappLabel.of(locale),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.tertiary,
+                    // onPrimary, not tertiary: tertiary-on-primary is a cross-role
+                    // pairing no test verified — measures ~2.2:1 in both schemes,
+                    // far under 4.5:1. onPrimary matches the two texts below it
+                    // in the same card, already contrast-safe (see SdcThemeContrastTest).
+                    color = MaterialTheme.colorScheme.onPrimary,
                 )
                 Text(
                     SiteCopy.PHONE_DISPLAY,
@@ -65,7 +70,7 @@ private fun ContactFact(
 ) {
     SdcCard(modifier = Modifier.fillMaxWidth(), containerColor = MaterialTheme.colorScheme.surfaceVariant) {
         Column(modifier = Modifier.padding(SdcSpace.md + SdcSpace.xs)) {
-            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+            Text(label, style = MaterialTheme.typography.labelSmall, color = SdcExtendedColors.accentText)
             Text(value, style = MaterialTheme.typography.bodyMedium)
         }
     }

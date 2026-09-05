@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { WegoAlert, WegoButton, WegoInput } from "@wego/ui";
+import { WegoAlert, WegoBadge, WegoButton, WegoInput, WegoPageHeader, WegoPanel, WegoSelect } from "@wego/ui";
 import { type AuthSession, clearAuthSession, hasPermission, readAuthSession } from "../composables/useAuthSession";
 import {
   addServiceRecord,
@@ -21,6 +21,8 @@ import {
   startEquipmentMaintenance,
   updateEquipment,
 } from "../composables/useDiversApi";
+
+definePageMeta({ layout: "app-shell" });
 
 useHead({ title: "Equipment · Wego Platform" });
 
@@ -280,6 +282,12 @@ function openRentalFor(id: string): RentalRecord | undefined {
   return (rentals.value[id] ?? []).find((rental) => !rental.returnedOn);
 }
 
+function statusTone(status: EquipmentStatus): "success" | "warning" | "neutral" {
+  if (status === "ACTIVE") return "success";
+  if (status === "IN_MAINTENANCE") return "warning";
+  return "neutral";
+}
+
 onMounted(() => {
   session.value = readAuthSession();
   if (session.value) loadEquipment();
@@ -287,79 +295,61 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-wego-canvas px-6 py-12 text-wego-ink sm:px-10 lg:px-16">
-    <div class="mx-auto max-w-4xl">
-      <p class="text-sm font-semibold tracking-[0.18em] text-wego-accent uppercase">Wego Platform</p>
-      <h1 class="mt-4 text-3xl font-semibold tracking-tight">Equipment &amp; Tanks</h1>
+  <WegoPageHeader title="Equipment & Tanks" description="QR-tracked BCDs, regulators, tanks, and the rest of the shared inventory." />
 
-      <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-        <p>You need to sign in to view equipment.</p>
-        <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
-      </div>
+  <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
+    <p>You need to sign in to view equipment.</p>
+    <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
+  </div>
 
+  <template v-else>
+    <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+
+    <WegoPanel title="Inventory" class="mt-8">
+      <p v-if="!canView()" class="text-sm text-wego-muted">
+        Your account doesn't have permission to view equipment (equipment:view).
+      </p>
       <template v-else>
-        <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+        <div class="rounded-wego-control border border-wego-border p-4">
+          <p class="text-sm font-semibold text-wego-muted">Scan or type a QR code</p>
+          <div class="mt-2 flex flex-wrap items-end gap-3">
+            <WegoInput id="qrLookup" v-model="qrLookup" label="QR code" class="min-w-0 flex-1" @keyup.enter="runQrLookup" />
+            <WegoButton type="button" @click="runQrLookup">Look up</WegoButton>
+          </div>
+        </div>
 
-        <section class="mt-8">
-          <h2 class="text-xl font-semibold">Inventory</h2>
-          <p v-if="!canView()" class="mt-3 text-sm text-wego-muted">
-            Your account doesn't have permission to view equipment (equipment:view).
-          </p>
-          <template v-else>
-            <div class="mt-4 rounded-wego-card border border-wego-border bg-wego-surface p-4">
-              <p class="text-sm font-semibold text-wego-muted">Scan or type a QR code</p>
-              <div class="mt-2 flex flex-wrap items-end gap-3">
-                <WegoInput id="qrLookup" v-model="qrLookup" label="QR code" class="min-w-0 flex-1" @keyup.enter="runQrLookup" />
-                <WegoButton type="button" @click="runQrLookup">Look up</WegoButton>
-              </div>
-            </div>
+        <div class="mt-4 flex flex-wrap items-end gap-3">
+          <WegoInput id="search" v-model="search" label="Search label, QR, or serial" class="min-w-0 flex-1" @keyup.enter="runSearch" />
+          <WegoSelect id="typeFilter" v-model="typeFilter" label="Type" @change="runSearch">
+            <option value="">All</option>
+            <option v-for="type in equipmentTypes" :key="type" :value="type">{{ type }}</option>
+          </WegoSelect>
+          <WegoSelect id="statusFilter" v-model="statusFilter" label="Status" @change="runSearch">
+            <option value="ACTIVE">Active</option>
+            <option value="IN_MAINTENANCE">In maintenance</option>
+            <option value="RETIRED">Retired</option>
+            <option value="">All</option>
+          </WegoSelect>
+          <WegoButton type="button" variant="secondary" @click="runSearch">Search</WegoButton>
+        </div>
 
-            <div class="mt-4 flex flex-wrap items-end gap-3">
-              <WegoInput id="search" v-model="search" label="Search label, QR, or serial" class="min-w-0 flex-1" @keyup.enter="runSearch" />
+        <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
+        <p v-else-if="listState === 'loaded' && equipment.length === 0" class="mt-3 text-sm text-wego-muted">No equipment found.</p>
+        <ul v-else class="mt-4 space-y-3">
+          <li v-for="item in equipment" :key="item.id" class="rounded-wego-control border border-wego-border p-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <label for="typeFilter" class="block text-sm font-medium text-wego-muted">Type</label>
-                <select
-                  id="typeFilter"
-                  v-model="typeFilter"
-                  class="mt-2 rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-                  @change="runSearch"
-                >
-                  <option value="">All</option>
-                  <option v-for="type in equipmentTypes" :key="type" :value="type">{{ type }}</option>
-                </select>
+                <div class="flex items-center gap-2">
+                  <p class="font-semibold">{{ item.label }}</p>
+                  <WegoBadge :tone="statusTone(item.status)">{{ item.status }}</WegoBadge>
+                </div>
+                <p class="mt-1 text-sm text-wego-muted">
+                  {{ item.equipmentType }} · <span class="font-mono">{{ item.qrCode }}</span>
+                  <span v-if="item.itemSize"> · size {{ item.itemSize }}</span>
+                  <span v-if="item.serialNumber"> · S/N {{ item.serialNumber }}</span>
+                </p>
               </div>
-              <div>
-                <label for="statusFilter" class="block text-sm font-medium text-wego-muted">Status</label>
-                <select
-                  id="statusFilter"
-                  v-model="statusFilter"
-                  class="mt-2 rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-                  @change="runSearch"
-                >
-                  <option value="ACTIVE">Active</option>
-                  <option value="IN_MAINTENANCE">In maintenance</option>
-                  <option value="RETIRED">Retired</option>
-                  <option value="">All</option>
-                </select>
-              </div>
-              <WegoButton type="button" variant="secondary" @click="runSearch">Search</WegoButton>
-            </div>
-
-            <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
-            <p v-else-if="listState === 'loaded' && equipment.length === 0" class="mt-3 text-sm text-wego-muted">No equipment found.</p>
-            <ul v-else class="mt-4 space-y-3">
-              <li v-for="item in equipment" :key="item.id" class="rounded-wego-card border border-wego-border bg-wego-surface p-4">
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p class="font-semibold">{{ item.label }}</p>
-                    <p class="mt-1 text-sm text-wego-muted">
-                      {{ item.equipmentType }} · <span class="font-mono">{{ item.qrCode }}</span>
-                      <span v-if="item.itemSize"> · size {{ item.itemSize }}</span>
-                      <span v-if="item.serialNumber"> · S/N {{ item.serialNumber }}</span>
-                      · {{ item.status }}
-                    </p>
-                  </div>
-                  <div v-if="canManage()" class="flex shrink-0 flex-wrap gap-2">
+              <div v-if="canManage()" class="flex shrink-0 flex-wrap gap-2">
                     <WegoButton type="button" variant="secondary" @click="startEdit(item)">Edit</WegoButton>
                     <WegoButton type="button" variant="secondary" @click="toggleDetails(item)">
                       {{ expandedId === item.id ? "Hide details" : "Details" }}
@@ -446,40 +436,29 @@ onMounted(() => {
               </li>
             </ul>
           </template>
-        </section>
+        </WegoPanel>
 
-        <section v-if="canManage()" class="mt-10 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-          <h2 class="text-xl font-semibold">{{ editingEquipmentId ? "Edit equipment" : "New equipment" }}</h2>
-          <form class="mt-6 space-y-5" @submit.prevent="submitForm">
-            <div>
-              <label for="equipmentType" class="block text-sm font-medium text-wego-muted">Type</label>
-              <select
-                id="equipmentType"
-                v-model="form.equipmentType"
-                :disabled="editingEquipmentId !== null"
-                class="mt-2 w-full rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-              >
-                <option v-for="type in equipmentTypes" :key="type" :value="type">{{ type }}</option>
-              </select>
-            </div>
-            <WegoInput id="label" v-model="form.label" label="Label" required />
-            <WegoInput id="qrCode" v-model="form.qrCode" label="QR code" required :disabled="editingEquipmentId !== null" />
-            <div class="grid gap-5 sm:grid-cols-2">
-              <WegoInput id="itemSize" v-model="form.itemSize" label="Size (optional)" />
-              <WegoInput id="serialNumber" v-model="form.serialNumber" label="Serial number (optional)" />
-            </div>
+    <WegoPanel v-if="canManage()" :title="editingEquipmentId ? 'Edit equipment' : 'New equipment'" class="mt-8">
+      <form class="space-y-5" @submit.prevent="submitForm">
+        <WegoSelect id="equipmentType" v-model="form.equipmentType" label="Type" :disabled="editingEquipmentId !== null">
+          <option v-for="type in equipmentTypes" :key="type" :value="type">{{ type }}</option>
+        </WegoSelect>
+        <WegoInput id="label" v-model="form.label" label="Label" required />
+        <WegoInput id="qrCode" v-model="form.qrCode" label="QR code" required :disabled="editingEquipmentId !== null" />
+        <div class="grid gap-5 sm:grid-cols-2">
+          <WegoInput id="itemSize" v-model="form.itemSize" label="Size (optional)" />
+          <WegoInput id="serialNumber" v-model="form.serialNumber" label="Serial number (optional)" />
+        </div>
 
-            <WegoAlert v-if="formState === 'error'" variant="danger">{{ formError }}</WegoAlert>
+        <WegoAlert v-if="formState === 'error'" variant="danger">{{ formError }}</WegoAlert>
 
-            <div class="flex gap-3">
-              <WegoButton type="submit" :disabled="formState === 'submitting'" :loading="formState === 'submitting'">
-                {{ editingEquipmentId ? "Save changes" : "Register equipment" }}
-              </WegoButton>
-              <WegoButton v-if="editingEquipmentId" type="button" variant="secondary" @click="cancelEdit">Cancel</WegoButton>
-            </div>
-          </form>
-        </section>
-      </template>
-    </div>
-  </main>
+        <div class="flex gap-3">
+          <WegoButton type="submit" :disabled="formState === 'submitting'" :loading="formState === 'submitting'">
+            {{ editingEquipmentId ? "Save changes" : "Register equipment" }}
+          </WegoButton>
+          <WegoButton v-if="editingEquipmentId" type="button" variant="secondary" @click="cancelEdit">Cancel</WegoButton>
+        </div>
+      </form>
+    </WegoPanel>
+  </template>
 </template>

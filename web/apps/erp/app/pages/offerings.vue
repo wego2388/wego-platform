@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { WegoAlert, WegoButton, WegoInput } from "@wego/ui";
+import { WegoAlert, WegoBadge, WegoButton, WegoInput, WegoPageHeader, WegoPagination, WegoPanel, WegoSelect } from "@wego/ui";
 import { type AuthSession, clearAuthSession, hasPermission, readAuthSession } from "../composables/useAuthSession";
 import {
   type BoatCharter,
@@ -18,6 +18,8 @@ import {
   type PricingBasis,
   unlinkOfferingBoatCharter,
 } from "../composables/useDiversApi";
+
+definePageMeta({ layout: "app-shell" });
 
 useHead({ title: "Offerings · Wego Platform" });
 
@@ -94,6 +96,16 @@ function errorText(error: unknown): string {
   return "Could not reach the server. Check your connection and try again.";
 }
 
+// Guards against a real race: a page-load fetch and a create/close can
+// resolve out of order. Without this, a slow initial GET (e.g. 50 seeded
+// offerings under CI load) that started before a fast create's response
+// can arrive *after* it and silently overwrite the optimistically-updated
+// list with the pre-create snapshot, making the just-created offering
+// disappear. Every write to `offerings.value` bumps this counter; a load
+// result is only applied if the counter hasn't moved since that load
+// started.
+let requestGeneration = 0;
+
 async function loadOfferings() {
   if (!session.value) return;
   // The create permission is intentionally distinct from the read
@@ -106,17 +118,26 @@ async function loadOfferings() {
     listState.value = "loaded";
     return;
   }
+  const generation = ++requestGeneration;
   listState.value = "loading";
   listError.value = "";
   try {
     const result = await listOfferings(session.value.token, { page: page.value });
-    offerings.value = result;
-    hasNextPage.value = result.length === PAGE_SIZE;
+    // A stale response (a create/close/newer load happened while this was
+    // in flight) must not overwrite newer data — but it must still clear
+    // "loading", or the page gets stuck showing "Loading…" forever even
+    // though offerings.value already has the right content.
+    if (generation === requestGeneration) {
+      offerings.value = result;
+      hasNextPage.value = result.length === PAGE_SIZE;
+    }
     listState.value = "loaded";
   } catch (error) {
-    handleApiError(error);
+    if (generation === requestGeneration) {
+      handleApiError(error);
+      listError.value = errorText(error);
+    }
     listState.value = "error";
-    listError.value = errorText(error);
   }
 }
 
@@ -146,6 +167,7 @@ async function submitCreate() {
       pricingBasis: form.value.pricingBasis,
       unitPrice: { amount: form.value.amount, currencyCode: form.value.currencyCode },
     });
+    requestGeneration++;
     offerings.value = [created, ...offerings.value];
     form.value = {
       offeringType: "DIVE_TRIP",
@@ -177,6 +199,7 @@ async function submitClose(offering: Offering) {
   closeError.value[offering.id] = "";
   try {
     const updated = await closeOffering(session.value.token, offering.id, reason);
+    requestGeneration++;
     offerings.value = offerings.value.map((existing) => (existing.id === updated.id ? updated : existing));
     closeState.value[offering.id] = "idle";
   } catch (error) {
@@ -252,178 +275,152 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-wego-canvas px-6 py-12 text-wego-ink sm:px-10 lg:px-16">
-    <div class="mx-auto max-w-4xl">
-      <p class="text-sm font-semibold tracking-[0.18em] text-wego-accent uppercase">Wego Platform</p>
-      <h1 class="mt-4 text-3xl font-semibold tracking-tight">Offerings</h1>
+  <WegoPageHeader title="Offerings" description="Dive trips, courses, rentals, and packages available to book." />
 
-      <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-        <p>You need to sign in to view offerings.</p>
-        <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
-      </div>
+  <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
+    <p>You need to sign in to view offerings.</p>
+    <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
+  </div>
 
-      <template v-else>
-        <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+  <template v-else>
+    <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
 
-        <section class="mt-8">
-          <h2 class="text-xl font-semibold">Offerings</h2>
-          <p v-if="!canView()" class="mt-3 text-sm text-wego-muted">
-            Your account doesn't have permission to list offerings (offering:view).
+    <WegoPanel title="Offerings" class="mt-8">
+      <p v-if="!canView()" class="text-sm text-wego-muted">
+        Your account doesn't have permission to list offerings (offering:view).
+      </p>
+      <p v-else-if="listState === 'loading'" class="text-sm text-wego-muted">Loading…</p>
+      <p v-else-if="listState === 'loaded' && offerings.length === 0 && page === 0" class="text-sm text-wego-muted">
+        No offerings yet.
+      </p>
+      <ul v-else-if="offerings.length > 0" class="space-y-3">
+        <li v-for="offering in offerings" :key="offering.id" class="rounded-wego-control border border-wego-border p-4">
+          <div class="flex items-start justify-between gap-3">
+            <p class="font-semibold">{{ offering.title }}</p>
+            <WegoBadge :tone="offering.status === 'ACTIVE' ? 'success' : 'neutral'">{{ offering.status }}</WegoBadge>
+          </div>
+          <p class="mt-1 text-sm text-wego-muted">
+            {{ offering.offeringType }} · {{ offering.startsOn }}<span v-if="offering.endsOn"> – {{ offering.endsOn }}</span>
+            · {{ offering.unitPrice.amount }} {{ offering.unitPrice.currencyCode }}
+            {{ offering.pricingBasis === "PER_PARTICIPANT" ? "per participant" : "flat" }} · capacity
+            {{ offering.capacity ?? "unlimited" }}
           </p>
-          <p v-else-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
-          <p v-else-if="listState === 'loaded' && offerings.length === 0 && page === 0" class="mt-3 text-sm text-wego-muted">
-            No offerings yet.
-          </p>
-          <ul v-else-if="offerings.length > 0" class="mt-4 space-y-3">
-            <li
-              v-for="offering in offerings"
-              :key="offering.id"
-              class="rounded-wego-card border border-wego-border bg-wego-surface p-4"
+
+          <WegoAlert v-if="closeState[offering.id] === 'error'" variant="danger" class="mt-2">
+            {{ closeError[offering.id] }}
+          </WegoAlert>
+
+          <div v-if="canManage() && offering.status === 'ACTIVE'" class="mt-3 flex flex-wrap items-end gap-2">
+            <WegoInput
+              :id="`close-reason-${offering.id}`"
+              :model-value="closeReason[offering.id] ?? ''"
+              label="Close reason (optional)"
+              class="min-w-0 flex-1"
+              @update:model-value="(value) => (closeReason[offering.id] = value)"
+            />
+            <WegoButton
+              type="button"
+              variant="secondary"
+              :disabled="closeState[offering.id] === 'submitting'"
+              @click="submitClose(offering)"
             >
-              <p class="font-semibold">{{ offering.title }}</p>
-              <p class="mt-1 text-sm text-wego-muted">
-                {{ offering.offeringType }} · {{ offering.startsOn }}<span v-if="offering.endsOn">
-                  – {{ offering.endsOn }}</span
-                >
-                · {{ offering.unitPrice.amount }} {{ offering.unitPrice.currencyCode }}
-                {{ offering.pricingBasis === "PER_PARTICIPANT" ? "per participant" : "flat" }} · capacity
-                {{ offering.capacity ?? "unlimited" }} · {{ offering.status }}
-              </p>
+              Close offering
+            </WegoButton>
+          </div>
 
-              <WegoAlert v-if="closeState[offering.id] === 'error'" variant="danger" class="mt-2">
-                {{ closeError[offering.id] }}
-              </WegoAlert>
+          <div v-if="canViewCharter() && offering.capacity" class="mt-3">
+            <WegoButton type="button" variant="ghost" @click="toggleCharterPanel(offering)">
+              {{ expandedCharterOfferingId === offering.id ? "Hide boat charter" : "Boat charter" }}
+            </WegoButton>
 
-              <div v-if="canManage() && offering.status === 'ACTIVE'" class="mt-3 flex flex-wrap items-end gap-2">
-                <WegoInput
-                  :id="`close-reason-${offering.id}`"
-                  :model-value="closeReason[offering.id] ?? ''"
-                  label="Close reason (optional)"
-                  class="min-w-0 flex-1"
-                  @update:model-value="(value) => (closeReason[offering.id] = value)"
-                />
-                <WegoButton
-                  type="button"
-                  variant="secondary"
-                  :disabled="closeState[offering.id] === 'submitting'"
-                  @click="submitClose(offering)"
-                >
-                  Close offering
-                </WegoButton>
-              </div>
+            <div v-if="expandedCharterOfferingId === offering.id" class="mt-3 rounded-wego-control border border-wego-border p-3">
+              <p v-if="charterState[offering.id] === 'loading'" class="text-sm text-wego-muted">Loading…</p>
+              <template v-else>
+                <p v-if="charterLinks[offering.id]" class="text-sm">
+                  Linked to <strong>{{ charterNameFor(charterLinks[offering.id]!.boatCharterId) }}</strong>
+                </p>
+                <p v-else class="text-sm text-wego-muted">Not linked to a boat charter.</p>
 
-              <div v-if="canViewCharter() && offering.capacity" class="mt-3">
-                <WegoButton type="button" variant="secondary" @click="toggleCharterPanel(offering)">
-                  {{ expandedCharterOfferingId === offering.id ? "Hide boat charter" : "Boat charter" }}
-                </WegoButton>
+                <WegoAlert v-if="charterState[offering.id] === 'error'" variant="danger" class="mt-2">
+                  {{ charterError[offering.id] }}
+                </WegoAlert>
 
-                <div v-if="expandedCharterOfferingId === offering.id" class="mt-3 rounded-wego-control border border-wego-border p-3">
-                  <p v-if="charterState[offering.id] === 'loading'" class="text-sm text-wego-muted">Loading…</p>
+                <div v-if="canManageCharter()" class="mt-3 flex flex-wrap items-end gap-2">
+                  <WegoButton
+                    v-if="charterLinks[offering.id]"
+                    type="button"
+                    variant="secondary"
+                    :disabled="charterState[offering.id] === 'submitting'"
+                    @click="submitUnlinkCharter(offering)"
+                  >
+                    Unlink
+                  </WegoButton>
                   <template v-else>
-                    <p v-if="charterLinks[offering.id]" class="text-sm">
-                      Linked to <strong>{{ charterNameFor(charterLinks[offering.id]!.boatCharterId) }}</strong>
-                    </p>
-                    <p v-else class="text-sm text-wego-muted">Not linked to a boat charter.</p>
-
-                    <WegoAlert v-if="charterState[offering.id] === 'error'" variant="danger" class="mt-2">
-                      {{ charterError[offering.id] }}
-                    </WegoAlert>
-
-                    <div v-if="canManageCharter()" class="mt-3 flex flex-wrap items-end gap-2">
-                      <WegoButton
-                        v-if="charterLinks[offering.id]"
-                        type="button"
-                        variant="secondary"
-                        :disabled="charterState[offering.id] === 'submitting'"
-                        @click="submitUnlinkCharter(offering)"
-                      >
-                        Unlink
-                      </WegoButton>
-                      <template v-else>
-                        <div>
-                          <label :for="`charter-select-${offering.id}`" class="block text-sm font-medium text-wego-muted">Link to</label>
-                          <select
-                            :id="`charter-select-${offering.id}`"
-                            v-model="selectedCharterId[offering.id]"
-                            class="mt-2 rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-                          >
-                            <option value="" disabled>Select a charter…</option>
-                            <option v-for="charter in activeCharters" :key="charter.id" :value="charter.id">
-                              {{ charter.boatName }} (licensed {{ charter.licensedCapacity }})
-                            </option>
-                          </select>
-                        </div>
-                        <WegoButton
-                          type="button"
-                          variant="secondary"
-                          :disabled="charterState[offering.id] === 'submitting' || !selectedCharterId[offering.id]"
-                          @click="submitLinkCharter(offering)"
-                        >
-                          Link
-                        </WegoButton>
-                      </template>
-                    </div>
+                    <WegoSelect
+                      :id="`charter-select-${offering.id}`"
+                      :model-value="selectedCharterId[offering.id] ?? ''"
+                      label="Link to"
+                      @update:model-value="(value) => (selectedCharterId[offering.id] = value)"
+                    >
+                      <option value="" disabled>Select a charter…</option>
+                      <option v-for="charter in activeCharters" :key="charter.id" :value="charter.id">
+                        {{ charter.boatName }} (licensed {{ charter.licensedCapacity }})
+                      </option>
+                    </WegoSelect>
+                    <WegoButton
+                      type="button"
+                      variant="secondary"
+                      :disabled="charterState[offering.id] === 'submitting' || !selectedCharterId[offering.id]"
+                      @click="submitLinkCharter(offering)"
+                    >
+                      Link
+                    </WegoButton>
                   </template>
                 </div>
-              </div>
-            </li>
-          </ul>
-
-          <div v-if="canView() && listState === 'loaded'" class="mt-4 flex items-center gap-3">
-            <WegoButton type="button" variant="secondary" :disabled="page === 0" @click="previousPage">Previous</WegoButton>
-            <span class="text-sm text-wego-muted">Page {{ page + 1 }}</span>
-            <WegoButton type="button" variant="secondary" :disabled="!hasNextPage" @click="nextPage">Next</WegoButton>
+              </template>
+            </div>
           </div>
-        </section>
+        </li>
+      </ul>
 
-        <section
-          v-if="canManage()"
-          class="mt-10 rounded-wego-card border border-wego-border bg-wego-surface p-6"
-        >
-          <h2 class="text-xl font-semibold">New offering</h2>
-          <form class="mt-6 space-y-5" @submit.prevent="submitCreate">
-            <div>
-              <label for="offeringType" class="block text-sm font-medium text-wego-muted">Type</label>
-              <select
-                id="offeringType"
-                v-model="form.offeringType"
-                class="mt-2 w-full rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-              >
-                <option v-for="type in offeringTypes" :key="type" :value="type">{{ type }}</option>
-              </select>
-            </div>
-            <WegoInput id="title" v-model="form.title" label="Title" required />
-            <WegoInput id="description" v-model="form.description" label="Description (optional)" />
-            <div class="grid gap-5 sm:grid-cols-2">
-              <WegoInput id="startsOn" v-model="form.startsOn" label="Starts on" type="date" required />
-              <WegoInput id="endsOn" v-model="form.endsOn" label="Ends on (optional)" type="date" />
-            </div>
-            <div>
-              <label for="pricingBasis" class="block text-sm font-medium text-wego-muted">Pricing basis</label>
-              <select
-                id="pricingBasis"
-                v-model="form.pricingBasis"
-                class="mt-2 w-full rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-              >
-                <option v-for="basis in pricingBases" :key="basis" :value="basis">
-                  {{ basis === "PER_PARTICIPANT" ? "Per participant" : "Flat (whole booking)" }}
-                </option>
-              </select>
-            </div>
-            <div class="grid gap-5 sm:grid-cols-3">
-              <WegoInput id="capacity" v-model="form.capacity" label="Capacity (optional)" type="number" />
-              <WegoInput id="amount" v-model="form.amount" label="Price amount" required />
-              <WegoInput id="currencyCode" v-model="form.currencyCode" label="Currency" required />
-            </div>
+      <WegoPagination
+        v-if="canView() && listState === 'loaded'"
+        class="mt-4"
+        :page="page"
+        :has-next-page="hasNextPage"
+        @previous="previousPage"
+        @next="nextPage"
+      />
+    </WegoPanel>
 
-            <WegoAlert v-if="createState === 'error'" variant="danger">{{ createError }}</WegoAlert>
+    <WegoPanel v-if="canManage()" title="New offering" class="mt-8">
+      <form class="space-y-5" @submit.prevent="submitCreate">
+        <WegoSelect id="offeringType" v-model="form.offeringType" label="Type">
+          <option v-for="type in offeringTypes" :key="type" :value="type">{{ type }}</option>
+        </WegoSelect>
+        <WegoInput id="title" v-model="form.title" label="Title" required />
+        <WegoInput id="description" v-model="form.description" label="Description (optional)" />
+        <div class="grid gap-5 sm:grid-cols-2">
+          <WegoInput id="startsOn" v-model="form.startsOn" label="Starts on" type="date" required />
+          <WegoInput id="endsOn" v-model="form.endsOn" label="Ends on (optional)" type="date" />
+        </div>
+        <WegoSelect id="pricingBasis" v-model="form.pricingBasis" label="Pricing basis">
+          <option v-for="basis in pricingBases" :key="basis" :value="basis">
+            {{ basis === "PER_PARTICIPANT" ? "Per participant" : "Flat (whole booking)" }}
+          </option>
+        </WegoSelect>
+        <div class="grid gap-5 sm:grid-cols-3">
+          <WegoInput id="capacity" v-model="form.capacity" label="Capacity (optional)" type="number" />
+          <WegoInput id="amount" v-model="form.amount" label="Price amount" required />
+          <WegoInput id="currencyCode" v-model="form.currencyCode" label="Currency" required />
+        </div>
 
-            <WegoButton type="submit" :disabled="createState === 'submitting'" :loading="createState === 'submitting'">
-              {{ createState === "submitting" ? "Creating…" : "Create offering" }}
-            </WegoButton>
-          </form>
-        </section>
-      </template>
-    </div>
-  </main>
+        <WegoAlert v-if="createState === 'error'" variant="danger">{{ createError }}</WegoAlert>
+
+        <WegoButton type="submit" :disabled="createState === 'submitting'" :loading="createState === 'submitting'">
+          {{ createState === "submitting" ? "Creating…" : "Create offering" }}
+        </WegoButton>
+      </form>
+    </WegoPanel>
+  </template>
 </template>

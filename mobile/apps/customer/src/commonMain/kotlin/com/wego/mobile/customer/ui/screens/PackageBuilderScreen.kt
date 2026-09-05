@@ -21,11 +21,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.wego.mobile.customer.content.SiteCopy
 import com.wego.mobile.customer.content.packageInquiryUrl
 import com.wego.mobile.customer.design.SdcCard
 import com.wego.mobile.customer.design.SdcSpace
+import com.wego.mobile.customer.theme.SdcExtendedColors
 import com.wego.mobile.shared.catalog.DiveCatalog
 import com.wego.mobile.shared.catalog.formatEur
 import com.wego.mobile.shared.locale.AppLocale
@@ -47,18 +47,21 @@ fun PackageBuilderScreen(
     val total = selectedOfferings.sumOf { it.priceEur }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(
+            modifier = Modifier.padding(horizontal = SdcSpace.xxl, vertical = SdcSpace.lg),
+            verticalArrangement = Arrangement.spacedBy(SdcSpace.xs),
+        ) {
             Text(SiteCopy.PackageBuilder.heading.of(locale), style = MaterialTheme.typography.titleLarge)
             Text(SiteCopy.PackageBuilder.body.of(locale), style = MaterialTheme.typography.bodyMedium)
         }
 
         if (selectedOfferings.isNotEmpty()) {
             Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 12.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = SdcSpace.xxl, vertical = SdcSpace.md),
                 verticalArrangement = Arrangement.spacedBy(SdcSpace.xs),
             ) {
                 Text(SiteCopy.PackageBuilder.totalLabel.of(locale), style = MaterialTheme.typography.labelMedium)
-                Text(formatEur(total), style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
+                Text(formatEur(total), style = MaterialTheme.typography.headlineSmall, color = SdcExtendedColors.accentText)
                 Button(
                     onClick = { onOpenUrl(packageInquiryUrl(selectedOfferings, total, locale)) },
                     modifier = Modifier.fillMaxWidth(),
@@ -72,13 +75,13 @@ fun PackageBuilderScreen(
                 SiteCopy.PackageBuilder.emptyLabel.of(locale),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
+                modifier = Modifier.padding(horizontal = SdcSpace.xxl, vertical = SdcSpace.md),
             )
         }
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(24.dp),
+            contentPadding = PaddingValues(SdcSpace.xxl),
             verticalArrangement = Arrangement.spacedBy(SdcSpace.sm),
         ) {
             items(DiveCatalog.offerings, key = { it.code }) { offering ->
@@ -93,7 +96,7 @@ fun PackageBuilderScreen(
                             Text(
                                 formatEur(offering.priceEur),
                                 style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = SdcExtendedColors.accentText,
                             )
                         }
                         val toggle = {

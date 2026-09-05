@@ -1,4 +1,12 @@
-export { default as WegoFoundationCard } from "./WegoFoundationCard.vue";
 export { default as WegoButton } from "./WegoButton.vue";
 export { default as WegoInput } from "./WegoInput.vue";
+export { default as WegoSelect } from "./WegoSelect.vue";
+export { default as WegoTextarea } from "./WegoTextarea.vue";
+export { default as WegoCheckbox } from "./WegoCheckbox.vue";
 export { default as WegoAlert } from "./WegoAlert.vue";
+export { default as WegoBadge } from "./WegoBadge.vue";
+export { default as WegoPanel } from "./WegoPanel.vue";
+export { default as WegoPageHeader } from "./WegoPageHeader.vue";
+export { default as WegoDialog } from "./WegoDialog.vue";
+export { default as WegoEmptyState } from "./WegoEmptyState.vue";
+export { default as WegoPagination } from "./WegoPagination.vue";

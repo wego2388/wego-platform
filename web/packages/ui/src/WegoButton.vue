@@ -1,7 +1,7 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    variant?: "primary" | "secondary";
+    variant?: "primary" | "secondary" | "destructive" | "ghost";
     loading?: boolean;
     disabled?: boolean;
     type?: "button" | "submit" | "reset";
@@ -13,18 +13,22 @@ withDefaults(
     type: "button",
   },
 );
+
+const variantClass: Record<string, string> = {
+  primary: "bg-wego-accent text-white",
+  secondary: "border border-wego-border bg-wego-surface text-wego-ink",
+  destructive: "bg-wego-danger text-white",
+  ghost: "text-wego-ink hover:bg-wego-surface-hover",
+};
 </script>
 
 <template>
   <button
     :type="type"
     :disabled="disabled || loading"
+    :aria-busy="loading ? 'true' : undefined"
     class="inline-flex items-center justify-center gap-2 rounded-wego-control px-4 py-2.5 font-semibold transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:opacity-60"
-    :class="
-      variant === 'primary'
-        ? 'bg-wego-accent text-white'
-        : 'border border-wego-border bg-wego-surface text-wego-ink'
-    "
+    :class="variantClass[variant]"
   >
     <svg
       v-if="loading"

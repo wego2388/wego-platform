@@ -26,6 +26,14 @@
       "capabilities": ["platform.identity-authentication"]
     },
     {
+      "id": "platform.transaction",
+      "kind": "PLATFORM_KERNEL",
+      "owner": "platform",
+      "path": "platform/kernel/transaction",
+      "version": "0.1.0-SNAPSHOT",
+      "capabilities": ["platform.transaction-boundary"]
+    },
+    {
       "id": "product.divers",
       "kind": "PRODUCT_MARKER",
       "owner": "wego-divers",
@@ -40,6 +48,30 @@
       "path": "products/travel-marketplace",
       "version": "0.1.0-SNAPSHOT",
       "capabilities": ["travel-marketplace.product-boundary"]
+    },
+    {
+      "id": "product.hr",
+      "kind": "PRODUCT_MARKER",
+      "owner": "wego-hr",
+      "path": "products/hr",
+      "version": "0.1.0-SNAPSHOT",
+      "capabilities": ["hr.product-boundary"]
+    },
+    {
+      "id": "product.accounting",
+      "kind": "PRODUCT_MARKER",
+      "owner": "wego-accounting",
+      "path": "products/accounting",
+      "version": "0.1.0-SNAPSHOT",
+      "capabilities": ["accounting.product-boundary"]
+    },
+    {
+      "id": "product.payroll",
+      "kind": "PRODUCT_MARKER",
+      "owner": "wego-payroll",
+      "path": "products/payroll",
+      "version": "0.1.0-SNAPSHOT",
+      "capabilities": ["payroll.product-boundary"]
     }
   ]
 }

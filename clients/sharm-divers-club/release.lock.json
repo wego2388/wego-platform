@@ -23,13 +23,17 @@
       "version": "0.1.0-SNAPSHOT"
     },
     {
+      "id": "platform.transaction",
+      "version": "0.1.0-SNAPSHOT"
+    },
+    {
       "id": "product.divers",
       "version": "0.1.0-SNAPSHOT"
     }
   ],
   "manifestDigests": {
     "client": "61d6a8d5b22ad52636e85a15c97afc131637207bcb06358bb9edd52065719914",
-    "product": "6ed9ffdb9f360d5919ecaa1d3b6998621da1a17bc7f42d416865052297ec469d",
-    "moduleCatalog": "ffac9c68f25417ec2395daec7c552780df0136af788be9d22a33585d8d400d2d"
+    "product": "2d740ac268e4c9d57a5e08412ea60bc9b206bff551a0e2615bb4e539941c5165",
+    "moduleCatalog": "6dc6c81905dee1538c91bc7a2dedd987af5928920293647c0ec64827a14e32db"
   }
 }

@@ -4,17 +4,21 @@ import com.wego.divers.application.BookingAuditRecorder
 import com.wego.divers.application.BookingRepository
 import com.wego.divers.application.OfferingAuditRecorder
 import com.wego.divers.application.OfferingRepository
-import com.wego.divers.application.TransactionRunner
 import com.wego.divers.domain.Booking
 import com.wego.divers.domain.BookingId
 import com.wego.divers.domain.BookingStatus
+import com.wego.divers.domain.Money
 import com.wego.divers.domain.Offering
 import com.wego.divers.domain.OfferingId
 import com.wego.divers.domain.OfferingStatus
 import com.wego.divers.domain.OfferingType
+import com.wego.divers.domain.PaymentStatus
 import com.wego.events.IntegrationEventEnvelope
 import com.wego.events.OutboxWriter
+import com.wego.transaction.TransactionRunner
+import java.math.RoundingMode
 import java.time.Instant
+import java.time.LocalDate
 import java.util.UUID
 
 internal class NoOpTransactionRunner : TransactionRunner {
@@ -42,6 +46,16 @@ internal class InMemoryOfferingRepository : OfferingRepository {
                 (offeringType == null || it.offeringType == offeringType) &&
                     (status == null || it.status == status)
             }.drop(offset)
+            .take(limit)
+
+    override fun findUpcoming(
+        from: LocalDate,
+        to: LocalDate,
+        limit: Int,
+    ): List<Offering> =
+        byId.values
+            .filter { it.status == OfferingStatus.ACTIVE && it.startsOn >= from && it.startsOn <= to }
+            .sortedBy { it.startsOn }
             .take(limit)
 
     override fun save(offering: Offering) {
@@ -86,6 +100,29 @@ internal class InMemoryBookingRepository : BookingRepository {
                     (status == null || it.status == status)
             }.drop(offset)
             .take(limit)
+
+    override fun countCreatedBetween(
+        from: Instant,
+        to: Instant,
+    ): Int = byId.values.count { it.createdAt >= from && it.createdAt < to }
+
+    override fun sumPaidTotalsCreatedBetween(
+        from: Instant,
+        to: Instant,
+    ): List<Money> =
+        byId.values
+            .filter {
+                it.status == BookingStatus.CONFIRMED &&
+                    it.paymentStatus == PaymentStatus.PAID &&
+                    it.createdAt >= from &&
+                    it.createdAt < to
+            }.groupBy { it.pricing.totalPrice.currencyCode }
+            .map { (currencyCode, bookings) ->
+                Money(
+                    bookings.sumOf { it.pricing.totalPrice.amount }.setScale(Money.REQUIRED_SCALE, RoundingMode.HALF_UP),
+                    currencyCode,
+                )
+            }
 
     override fun save(booking: Booking) {
         byId[booking.id] = booking

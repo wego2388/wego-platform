@@ -25,6 +25,7 @@ import com.wego.mobile.customer.design.SdcBadge
 import com.wego.mobile.customer.design.SdcCard
 import com.wego.mobile.customer.design.SdcCategoryIcon
 import com.wego.mobile.customer.design.SdcSpace
+import com.wego.mobile.customer.theme.SdcExtendedColors
 import com.wego.mobile.shared.catalog.Categories
 import com.wego.mobile.shared.catalog.CategoryId
 import com.wego.mobile.shared.locale.AppLocale
@@ -50,7 +51,7 @@ fun HomeScreen(
                 Text(
                     SiteCopy.Hero.eyebrow.of(locale),
                     style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = SdcExtendedColors.accentText,
                 )
                 Text(SiteCopy.Hero.title.of(locale), style = MaterialTheme.typography.headlineMedium)
                 Text(SiteCopy.Hero.body.of(locale), style = MaterialTheme.typography.bodyLarge)
@@ -113,7 +114,7 @@ fun HomeScreen(
                         Text(
                             category.eyebrow.of(locale),
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = SdcExtendedColors.accentText,
                         )
                         Text(category.title.of(locale), style = MaterialTheme.typography.titleMedium)
                         Text(
@@ -145,7 +146,7 @@ fun HomeScreen(
         items(SiteCopy.How.steps) { (title, body) ->
             SdcCard(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(SdcSpace.lg), verticalArrangement = Arrangement.spacedBy(SdcSpace.xs)) {
-                    Text(title.of(locale), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                    Text(title.of(locale), style = MaterialTheme.typography.titleMedium, color = SdcExtendedColors.accentText)
                     Text(body.of(locale), style = MaterialTheme.typography.bodyMedium)
                 }
             }
@@ -177,7 +178,7 @@ fun HomeScreen(
         items(SiteCopy.Why.items) { (title, body) ->
             SdcCard(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(SdcSpace.lg), verticalArrangement = Arrangement.spacedBy(SdcSpace.xs)) {
-                    Text(title.of(locale), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                    Text(title.of(locale), style = MaterialTheme.typography.titleMedium, color = SdcExtendedColors.accentText)
                     Text(body.of(locale), style = MaterialTheme.typography.bodyMedium)
                 }
             }
@@ -201,7 +202,7 @@ private fun StatBlock(
     label: String,
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
+        Text(value, style = MaterialTheme.typography.headlineSmall, color = SdcExtendedColors.accentText)
         Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

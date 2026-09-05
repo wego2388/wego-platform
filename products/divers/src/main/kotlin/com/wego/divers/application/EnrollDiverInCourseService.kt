@@ -1,11 +1,11 @@
 package com.wego.divers.application
-
 import com.wego.divers.domain.CourseEnrollment
 import com.wego.divers.domain.CourseEnrollmentId
 import com.wego.divers.domain.DiverId
 import com.wego.divers.domain.OfferingId
 import com.wego.divers.domain.OfferingStatus
 import com.wego.divers.domain.OfferingType
+import com.wego.transaction.TransactionRunner
 import java.time.Clock
 import java.time.Instant
 import java.util.UUID

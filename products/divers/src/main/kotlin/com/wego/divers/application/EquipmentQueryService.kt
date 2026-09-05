@@ -52,4 +52,6 @@ class EquipmentQueryService(
             limit = Pagination.boundedSize(size),
             offset = Pagination.offsetFor(page, size),
         )
+
+    fun statusBreakdown(): Map<EquipmentStatus, Int> = EquipmentStatus.entries.associateWith { equipmentRepository.countByStatus(it) }
 }

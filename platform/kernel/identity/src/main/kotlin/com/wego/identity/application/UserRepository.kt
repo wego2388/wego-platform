@@ -18,6 +18,11 @@ interface UserRepository {
 
     fun findById(id: UserId): User?
 
+    /** Row-locked read for a read-modify-write cycle — disable/enable/password-reset/role-assign all need this to avoid losing a concurrent change. */
+    fun findByIdForUpdate(id: UserId): User?
+
+    fun findAll(): List<User>
+
     fun existsAny(): Boolean
 
     /**

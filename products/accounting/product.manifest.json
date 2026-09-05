@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "productId": "wego-accounting",
+  "displayName": "Wego Accounting",
+  "version": "0.1.0",
+  "platformVersion": "0.1.0-SNAPSHOT",
+  "requiredModules": [
+    "platform.events",
+    "platform.security",
+    "platform.identity",
+    "platform.transaction",
+    "product.accounting"
+  ],
+  "requiredCapabilities": [
+    "accounting.product-boundary",
+    "platform.authorization",
+    "platform.identity-authentication",
+    "platform.integration-events",
+    "platform.transaction-boundary"
+  ]
+}

@@ -17,13 +17,15 @@ import org.testcontainers.postgresql.PostgreSQLContainer
  * application's Flyway location (`src/main/resources/db/migration`)
  * physically contains V1 (platform foundation), V2 (identity foundation,
  * both copied by hand from `:platform:application` rather than shared — an
- * accepted duplication risk recorded on the WEGO-010-A board entry), and
- * this module's own V3 (Packet 1A travel marketplace catalog) — the Divers
- * product's V3-V8 files (a disjoint numbering sequence in a different
- * application) do not exist under this module at all. This test proves the
- * *database* consequence of that: a real, freshly migrated Sharm To Go
- * database contains the travel marketplace catalog tables and zero Divers
- * tables.
+ * accepted duplication risk recorded on the WEGO-010-A board entry), this
+ * module's own V3 (Packet 1A travel marketplace catalog), and V4 (identity
+ * administration, ported — not shared — from origin/main's WEGO-012 with
+ * this app's own real permission set, not Divers' ones) — the Divers
+ * product's own migration files (a disjoint numbering sequence in a
+ * different application) do not exist under this module at all. This test
+ * proves the *database* consequence of that: a real, freshly migrated Sharm
+ * To Go database contains the travel marketplace catalog tables and zero
+ * Divers tables.
  */
 @Testcontainers(disabledWithoutDocker = true)
 @SpringBootTest
@@ -32,7 +34,7 @@ class ProductIsolationIntegrationTest(
 ) {
     @Test
     fun `boots and migrates only the shared platform, identity, and travel marketplace catalog foundation, never any Divers table`() {
-        assertThat(flyway.info().applied().map { it.version.toString() }).containsExactly("1", "2", "3")
+        assertThat(flyway.info().applied().map { it.version.toString() }).containsExactly("1", "2", "3", "4")
 
         postgres.createConnection("").use { connection ->
             val tableNames =

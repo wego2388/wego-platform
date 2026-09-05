@@ -41,6 +41,7 @@ kotlin {
             "../../kernel/security/src/main/kotlin",
             "../../kernel/events/src/main/kotlin",
             "../../kernel/identity/src/main/kotlin",
+            "../../kernel/transaction/src/main/kotlin",
             "../../../products/travel-marketplace/src/main/kotlin",
         )
     }

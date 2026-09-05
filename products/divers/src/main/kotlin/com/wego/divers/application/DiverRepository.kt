@@ -17,6 +17,9 @@ interface DiverRepository {
         offset: Int,
     ): List<Diver>
 
+    /** A real `COUNT(*)` — not `findAll(...).size` against a paginated scan — for dashboard-shaped tallies. */
+    fun countByStatus(status: DiverStatus): Int
+
     /** Also replaces the diver's full certification set — a diver profile has no other concurrent writer to race against. */
     fun save(diver: Diver)
 }

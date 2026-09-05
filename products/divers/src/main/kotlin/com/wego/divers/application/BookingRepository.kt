@@ -3,7 +3,9 @@ package com.wego.divers.application
 import com.wego.divers.domain.Booking
 import com.wego.divers.domain.BookingId
 import com.wego.divers.domain.BookingStatus
+import com.wego.divers.domain.Money
 import com.wego.divers.domain.OfferingId
+import java.time.Instant
 import java.util.UUID
 
 interface BookingRepository {
@@ -60,6 +62,24 @@ interface BookingRepository {
         limit: Int,
         offset: Int,
     ): List<Booking>
+
+    /** A real `COUNT(*)` over `[from, to)` — the dashboard's "bookings today" tally. */
+    fun countCreatedBetween(
+        from: Instant,
+        to: Instant,
+    ): Int
+
+    /**
+     * Sum of `total_price` for every `CONFIRMED` + `PAID` booking created in
+     * `[from, to)`, grouped by currency — a client could in principle price
+     * offerings in more than one currency, so this never assumes a single
+     * one. An approximation of "revenue" by `created_at` (there is no
+     * separate payment-date column yet), not a real recognized-revenue date.
+     */
+    fun sumPaidTotalsCreatedBetween(
+        from: Instant,
+        to: Instant,
+    ): List<Money>
 
     fun save(booking: Booking)
 }

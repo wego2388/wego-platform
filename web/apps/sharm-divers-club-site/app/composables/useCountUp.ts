@@ -7,10 +7,6 @@ export function useCountUp(target: number, durationMs = 900) {
   let frame: number | undefined;
 
   function animate() {
-    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      value.value = target;
-      return;
-    }
     const start = performance.now();
     const step = (now: number) => {
       const progress = Math.min(1, (now - start) / durationMs);
@@ -22,7 +18,18 @@ export function useCountUp(target: number, durationMs = 900) {
   }
 
   onMounted(() => {
-    if (typeof window === "undefined" || !("IntersectionObserver" in window)) {
+    // Checked before setting up the observer, not just inside animate() —
+    // otherwise a reduced-motion visitor whose viewport never crosses the
+    // 40% intersection threshold (this happened on mobile, where the hero
+    // reflows taller and the stat card sits closer to the fold) sees a
+    // permanent "0" instead of the real number, exactly the credibility
+    // problem this counter exists to avoid. Mirrors useScrollReveal's own
+    // SSR/reduced-motion-safe pattern.
+    if (
+      typeof window === "undefined" ||
+      !("IntersectionObserver" in window) ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
       value.value = target;
       return;
     }

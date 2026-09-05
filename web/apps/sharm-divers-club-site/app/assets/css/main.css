@@ -39,6 +39,7 @@
   --sdc-color-text-primary: #0b2027;
   --sdc-color-text-secondary: #3c555c;
   --sdc-color-border-default: #dde4e1;
+  --sdc-color-border-focus: #c9975a;
   --sdc-color-status-info: #155e75;
   --sdc-color-status-info-soft: #cffafe;
   --sdc-color-status-success: #0f7a3d;
@@ -102,7 +103,7 @@ html[dir="rtl"] {
 }
 
 :focus-visible {
-  outline: 3px solid #c9975a;
+  outline: 3px solid var(--sdc-color-border-focus);
   outline-offset: 3px;
 }
 
@@ -209,15 +210,15 @@ html[dir="rtl"] {
 
 @keyframes sdc-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgb(31 169 184 / 55%);
+    box-shadow: 0 0 0 0 rgb(10 58 74 / 55%);
   }
 
   70% {
-    box-shadow: 0 0 0 14px rgb(31 169 184 / 0%);
+    box-shadow: 0 0 0 14px rgb(10 58 74 / 0%);
   }
 
   100% {
-    box-shadow: 0 0 0 0 rgb(31 169 184 / 0%);
+    box-shadow: 0 0 0 0 rgb(10 58 74 / 0%);
   }
 }
 

@@ -98,6 +98,57 @@ class LoginAtomicityIntegrationTest {
                     occurredAt: Instant,
                     correlationId: UUID?,
                 ) = Unit
+
+                override fun recordUserCreated(
+                    actorUserId: UserId,
+                    targetUserId: UserId,
+                    occurredAt: Instant,
+                    correlationId: UUID?,
+                ) = Unit
+
+                override fun recordUserDisabled(
+                    actorUserId: UserId,
+                    targetUserId: UserId,
+                    occurredAt: Instant,
+                    correlationId: UUID?,
+                ) = Unit
+
+                override fun recordUserEnabled(
+                    actorUserId: UserId,
+                    targetUserId: UserId,
+                    occurredAt: Instant,
+                    correlationId: UUID?,
+                ) = Unit
+
+                override fun recordUserPasswordReset(
+                    actorUserId: UserId,
+                    targetUserId: UserId,
+                    occurredAt: Instant,
+                    correlationId: UUID?,
+                ) = Unit
+
+                override fun recordUserRolesChanged(
+                    actorUserId: UserId,
+                    targetUserId: UserId,
+                    newRoles: Set<String>,
+                    occurredAt: Instant,
+                    correlationId: UUID?,
+                ) = Unit
+
+                override fun recordRoleCreated(
+                    actorUserId: UserId,
+                    roleCode: String,
+                    occurredAt: Instant,
+                    correlationId: UUID?,
+                ) = Unit
+
+                override fun recordRolePermissionsChanged(
+                    actorUserId: UserId,
+                    roleCode: String,
+                    newPermissions: Set<String>,
+                    occurredAt: Instant,
+                    correlationId: UUID?,
+                ) = Unit
             }
     }
 

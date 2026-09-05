@@ -1,17 +1,27 @@
 package com.wego.identity.infrastructure
 
 import com.wego.identity.application.AdminBootstrapService
+import com.wego.identity.application.AssignUserRolesService
+import com.wego.identity.application.CreateRoleService
+import com.wego.identity.application.CreateUserService
+import com.wego.identity.application.DisableUserService
+import com.wego.identity.application.EnableUserService
+import com.wego.identity.application.IdentityAdminQueryService
 import com.wego.identity.application.IdentityAuditRecorder
 import com.wego.identity.application.LoginAttemptThrottle
 import com.wego.identity.application.LoginService
 import com.wego.identity.application.LogoutService
 import com.wego.identity.application.PasswordHasher
+import com.wego.identity.application.PermissionCatalogRepository
 import com.wego.identity.application.PermissionResolver
+import com.wego.identity.application.ResetUserPasswordService
+import com.wego.identity.application.RoleRepository
 import com.wego.identity.application.SessionAuthenticationService
 import com.wego.identity.application.SessionRepository
 import com.wego.identity.application.SessionTokenGenerator
-import com.wego.identity.application.TransactionRunner
+import com.wego.identity.application.UpdateRolePermissionsService
 import com.wego.identity.application.UserRepository
+import com.wego.transaction.TransactionRunner
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -86,4 +96,74 @@ class IdentityBeanConfiguration {
         transactionRunner: TransactionRunner,
         clock: Clock,
     ): AdminBootstrapService = AdminBootstrapService(userRepository, passwordHasher, transactionRunner, clock)
+
+    @Bean
+    fun identityAdminQueryService(
+        userRepository: UserRepository,
+        roleRepository: RoleRepository,
+        permissionCatalogRepository: PermissionCatalogRepository,
+    ): IdentityAdminQueryService = IdentityAdminQueryService(userRepository, roleRepository, permissionCatalogRepository)
+
+    @Bean
+    fun createUserService(
+        userRepository: UserRepository,
+        roleRepository: RoleRepository,
+        passwordHasher: PasswordHasher,
+        auditRecorder: IdentityAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): CreateUserService = CreateUserService(userRepository, roleRepository, passwordHasher, auditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun disableUserService(
+        userRepository: UserRepository,
+        auditRecorder: IdentityAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): DisableUserService = DisableUserService(userRepository, auditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun enableUserService(
+        userRepository: UserRepository,
+        auditRecorder: IdentityAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): EnableUserService = EnableUserService(userRepository, auditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun resetUserPasswordService(
+        userRepository: UserRepository,
+        passwordHasher: PasswordHasher,
+        auditRecorder: IdentityAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): ResetUserPasswordService = ResetUserPasswordService(userRepository, passwordHasher, auditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun assignUserRolesService(
+        userRepository: UserRepository,
+        roleRepository: RoleRepository,
+        auditRecorder: IdentityAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): AssignUserRolesService = AssignUserRolesService(userRepository, roleRepository, auditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun createRoleService(
+        roleRepository: RoleRepository,
+        permissionCatalogRepository: PermissionCatalogRepository,
+        auditRecorder: IdentityAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): CreateRoleService = CreateRoleService(roleRepository, permissionCatalogRepository, auditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun updateRolePermissionsService(
+        roleRepository: RoleRepository,
+        permissionCatalogRepository: PermissionCatalogRepository,
+        auditRecorder: IdentityAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): UpdateRolePermissionsService =
+        UpdateRolePermissionsService(roleRepository, permissionCatalogRepository, auditRecorder, transactionRunner, clock)
 }

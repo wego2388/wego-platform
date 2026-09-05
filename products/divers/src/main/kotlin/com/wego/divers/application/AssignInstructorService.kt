@@ -1,7 +1,7 @@
 package com.wego.divers.application
-
 import com.wego.divers.domain.CourseEnrollment
 import com.wego.divers.domain.CourseEnrollmentId
+import com.wego.transaction.TransactionRunner
 import java.util.UUID
 
 sealed interface AssignInstructorResult {

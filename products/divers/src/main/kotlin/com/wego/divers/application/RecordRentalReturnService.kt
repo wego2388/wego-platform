@@ -1,7 +1,7 @@
 package com.wego.divers.application
-
 import com.wego.divers.domain.EquipmentId
 import com.wego.divers.domain.EquipmentRentalRecord
+import com.wego.transaction.TransactionRunner
 import java.time.LocalDate
 
 sealed interface RecordRentalReturnResult {
