@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/noto-sans-arabic";
+@import "@fontsource-variable/fredoka";
 
 @theme {
   --color-sharm-ink: var(--stg-color-text-primary);
@@ -10,6 +11,8 @@
   --color-sharm-lagoon: var(--stg-color-brand-lagoon);
   --color-sharm-sand: var(--stg-color-brand-sand);
   --color-sharm-sun: var(--stg-color-brand-sun);
+  --color-sharm-sky: var(--stg-color-brand-sky);
+  --color-sharm-terracotta: var(--stg-color-brand-terracotta);
   --color-sharm-canvas: var(--stg-color-surface-canvas);
   --color-sharm-surface: var(--stg-color-surface-default);
   --color-sharm-border: var(--stg-color-border-default);
@@ -22,6 +25,7 @@
   --color-sharm-danger: var(--stg-color-status-danger);
   --color-sharm-danger-soft: var(--stg-color-status-danger-soft);
   --font-sans: var(--wego-font-sans);
+  --font-display: var(--wego-font-display);
 }
 
 :root {
@@ -30,6 +34,8 @@
   --stg-color-brand-lagoon: #d8f1ef;
   --stg-color-brand-sand: #f4dec0;
   --stg-color-brand-sun: #f2a93b;
+  --stg-color-brand-sky: #2f7fa3;
+  --stg-color-brand-terracotta: #c8593a;
   --stg-color-surface-canvas: #f7fbfa;
   --stg-color-surface-default: #ffffff;
   --stg-color-text-primary: #102f35;
@@ -45,6 +51,10 @@
   --stg-color-status-danger-soft: #fbdcd9;
   --wego-color-accent: #075f67;
   --wego-color-accent-soft: #d8f1ef;
+  --wego-font-display: "Fredoka Variable", "Inter Variable", sans-serif;
+  --stg-motion-fast: 120ms;
+  --stg-motion-standard: 200ms;
+  --stg-motion-slow: 320ms;
 }
 
 html {
@@ -59,6 +69,10 @@ body {
 
 html[dir="rtl"] {
   --wego-font-sans: "Noto Sans Arabic Variable", "Noto Sans Arabic", Tahoma,
+    Arial, sans-serif;
+  /* Arabic script has no playful variable display face on Fontsource yet —
+     headings fall back to the bold Arabic body font rather than tofu. */
+  --wego-font-display: "Noto Sans Arabic Variable", "Noto Sans Arabic", Tahoma,
     Arial, sans-serif;
 }
 
@@ -76,9 +90,55 @@ html[dir="rtl"] {
 
 .sharm-hero {
   background:
-    radial-gradient(circle at 18% 20%, rgb(244 222 192 / 75%), transparent 31%),
-    radial-gradient(circle at 85% 0%, rgb(216 241 239 / 90%), transparent 34%),
-    linear-gradient(135deg, #f7fbfa 0%, #edf8f6 58%, #fff8ee 100%);
+    radial-gradient(circle at 12% 18%, rgb(242 169 59 / 22%), transparent 32%),
+    radial-gradient(circle at 88% -4%, rgb(216 241 239 / 95%), transparent 36%),
+    radial-gradient(circle at 60% 90%, rgb(11 134 145 / 12%), transparent 40%),
+    linear-gradient(135deg, #f7fbfa 0%, #edf8f6 55%, #fff6e8 100%);
+}
+
+.sharm-hero-orb {
+  animation: sharm-drift 9s ease-in-out infinite;
+}
+
+.sharm-hero-orb-delay {
+  animation: sharm-drift 11s ease-in-out infinite;
+  animation-delay: -4s;
+}
+
+@keyframes sharm-drift {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-14px) scale(1.04);
+  }
+}
+
+.sharm-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity var(--stg-motion-slow) ease-out,
+    transform var(--stg-motion-slow) ease-out;
+}
+
+.sharm-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.sharm-card-lift {
+  transition:
+    transform var(--stg-motion-standard) ease-out,
+    box-shadow var(--stg-motion-standard) ease-out,
+    border-color var(--stg-motion-standard) ease-out;
+}
+
+.sharm-card-lift:hover,
+.sharm-card-lift:focus-within {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 45px rgb(16 47 53 / 0.14);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -87,5 +147,12 @@ html[dir="rtl"] {
   *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .sharm-reveal {
+    opacity: 1;
+    transform: none;
   }
 }
