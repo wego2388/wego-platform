@@ -27,7 +27,13 @@
 
 ### STG-TRN-001 — Sharm Airport Private Transfer
 
-**Owner-requested first launch target.**
+**Owner-requested first launch target. DECIDED 2026-09-05 at the owner's
+explicit direction** ("المشغل شرم تو جو، السعر بالجنيه، السعة والسياسة اعملها
+انت وفكر، ولو في أي تعديل أو استبدال هعمله لاحقًا") **— an initial launch
+decision, not researched market fact, and explicitly subject to the owner's
+own later change.** Everything below marked `DECIDED` replaces the earlier
+`TO CONFIRM` placeholder for this one concept only; the other 36 concepts in
+this file are unchanged.
 
 ```text
 Internal service ID: STG-TRN-001
@@ -38,38 +44,38 @@ English name: Sharm Airport Private Transfer
 Arabic name: انتقال خاص من وإلى مطار شرم
 English short description: Pre-arrange a private one-way transfer between Sharm El Sheikh Airport and a confirmed hotel or local zone, matched to the party and luggage size.
 Arabic short description: احجز مسبقًا انتقالًا خاصًا في اتجاه واحد بين مطار شرم الشيخ وفندق أو منطقة محلية يتم تأكيدها، بسيارة تناسب عدد الركاب والأمتعة.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — A private, pre-booked one-way transfer between Sharm El Sheikh International Airport and your confirmed hotel or local zone. Operated directly by Sharm To Go with a private sedan matched to your party size and luggage, with the driver tracking your flight and holding a name board on arrival.
+Arabic full description: DECIDED — انتقال خاص محجوز مسبقًا في اتجاه واحد بين مطار شرم الشيخ الدولي وفندقك أو منطقتك المؤكدة. يتم تشغيله مباشرة بواسطة Sharm To Go بسيارة خاصة تناسب عدد أفراد المجموعة والأمتعة، مع متابعة السائق لموعد رحلتك ووقوفه حاملاً لوحة باسمك عند الوصول.
 
 Duration: About 1 hour, depending on zone and traffic.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Confirmation: STAFF_REVIEW (kept as the safer default for the first real launch — every request is confirmed by staff before final confirmation)
+Maximum people: DECIDED — 3 passengers per vehicle (standard private sedan)
+Available weekdays/dates: DECIDED — every day, no blackout dates
+Start times: DECIDED — matched to the guest's actual flight time (arrival) or requested pickup time (departure), not a fixed schedule
 
 Price basis: PER_VEHICLE
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
-Infant rule: TO CONFIRM
-Add-ons and prices: Airport arrival; airport departure; vehicle classes based on licensed passenger and luggage capacity.
+Adult price: DECIDED — EGP 700.00 per vehicle (one-way, standard sedan, up to 3 passengers) — an initial launch price set at the owner's direction, not a researched market rate; expected to change
+Child age range and price: DECIDED — no separate child price; PER_VEHICLE pricing covers the whole party up to the 3-passenger limit
+Infant rule: DECIDED — infants in arms do not count toward the 3-passenger limit; a car seat is not provided unless requested in advance
+Add-ons and prices: Airport arrival; airport departure. Larger vehicle classes for bigger groups are a later option, not part of this initial launch record.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, this service is the pickup
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Sharm old town); a zone outside this range needs its own confirmed supplement before being offered
+Meeting point: DECIDED — airport arrivals hall, driver holding a name board (arrival); hotel lobby at the confirmed time (departure)
+Pickup timing wording: DECIDED — driver tracks the actual flight for arrivals; a fixed pickup time is agreed in advance for departures, with a recommended lead time of 3 hours before an international flight
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
+Included: DECIDED — private vehicle, driver, fuel, and standard luggage handling for the agreed route
+Excluded: DECIDED — waiting time beyond 60 minutes from actual flight landing, tolls or fees for stops outside the agreed route
+What to bring: DECIDED — flight number and booking reference for arrival pickups
 Restrictions/accessibility: Operator licence, exact zones/supplements, vehicle class, passenger/luggage capacity, terminal meeting point, name board, flight tracking, delay waiting window, departure lead time, child seats, accessibility, contact channel, no-show policy, round-trip treatment.
-Cancellation/refund wording: TO CONFIRM
+Cancellation/refund wording: DECIDED — English: "Free cancellation up to 24 hours before the confirmed pickup time. Cancelling within 24 hours, or a no-show, is charged in full." Arabic: "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
 
-Operated by: TO CONFIRM (fulfilmentModel=PARTNER expected until Sharm To Go operates it directly)
-Customer support owner: TO CONFIRM
-Emergency/operational contact (internal only): TO CONFIRM
+Operated by: DECIDED — fulfilmentModel=DIRECT (Sharm To Go operates this service itself, per the owner's explicit instruction — no third-party Provider record needed or created)
+Customer support owner: DECIDED — Sharm To Go operations (no named individual/channel exists yet — this is not the same as a real, publishable customer contact number, which still does not exist)
+Emergency/operational contact (internal only): TO CONFIRM — this is a real internal operational fact (an actual phone line staff can be reached on), not a business decision to delegate; still needed from the owner
 
-Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
+Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists. This is the one field that cannot be decided by anyone other than by actually having a real photo with real rights.
 Arabic reviewer: TO CONFIRM
 English reviewer: TO CONFIRM
 Commercial approver: TO CONFIRM
