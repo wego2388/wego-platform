@@ -11,12 +11,18 @@ import com.wego.mobile.customer.design.SdcColor
 import com.wego.mobile.shared.locale.AppLocale
 import com.wego.mobile.shared.locale.isRtl
 
-private val SdcLightColors =
+// internal, not private: WEGO-015's SdcThemeContrastTest verifies every
+// text-bearing role pairing in both schemes against the real objects,
+// not a reimplemented copy that could silently drift from them.
+internal val SdcLightColors =
     lightColorScheme(
         primary = SdcColor.deepBright,
         onPrimary = SdcColor.surface,
         secondary = SdcColor.turquoise,
-        onSecondary = SdcColor.deep,
+        // textPrimary, not deep: deep-on-turquoise measures 4.32:1, just
+        // under the 4.5:1 WCAG AA text floor. textPrimary is the same ink
+        // family, slightly darker, and clears it at 5.94:1.
+        onSecondary = SdcColor.textPrimary,
         tertiary = SdcColor.sand,
         onTertiary = SdcColor.deep,
         background = SdcColor.canvas,
@@ -35,10 +41,12 @@ private val SdcLightColors =
         onTertiaryContainer = SdcColor.deep,
     )
 
-private val SdcDarkColors =
+internal val SdcDarkColors =
     darkColorScheme(
         primary = SdcColor.turquoise,
-        onPrimary = SdcColor.deep,
+        // Same fix as light's onSecondary above — turquoise/deep is the
+        // identical 4.32:1 pairing, reused here under a different M3 role.
+        onPrimary = SdcColor.textPrimary,
         secondary = SdcColor.sand,
         onSecondary = SdcColor.deep,
         tertiary = SdcColor.sandSoft,
@@ -56,7 +64,10 @@ private val SdcDarkColors =
         errorContainer = SdcColor.statusDanger,
         onErrorContainer = SdcColor.statusDangerSoft,
         tertiaryContainer = SdcColor.deepBright,
-        onTertiaryContainer = SdcColor.sandSoft,
+        // canvas, not sandSoft: sandSoft-on-deepBright measures 4.47:1,
+        // just under the 4.5:1 floor. canvas is the same light-cream
+        // family, slightly lighter, and clears it at 5.34:1.
+        onTertiaryContainer = SdcColor.canvas,
     )
 
 /**
