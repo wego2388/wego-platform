@@ -17,6 +17,7 @@ import com.wego.hr.application.StaffUserLookup
 import com.wego.hr.application.SubmitLeaveRequestService
 import com.wego.hr.application.TerminateEmployeeService
 import com.wego.hr.application.UpdateEmployeeService
+import com.wego.identity.AuthenticatedApiPrefix
 import com.wego.transaction.TransactionRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -24,6 +25,14 @@ import java.time.Clock
 
 @Configuration(proxyBeanMethods = false)
 class HrBeanConfiguration {
+    // Declares this product's own API surface to kernel security — see
+    // AuthenticatedApiPrefix's doc comment and DiversBeanConfiguration's
+    // identical pattern. This bean contribution replaces the hardcoded
+    // "/api/v1/hr/**" rule SecurityConfiguration carried before the
+    // generalized-prefix mechanism existed.
+    @Bean
+    fun hrAuthenticatedApiPrefix(): AuthenticatedApiPrefix = AuthenticatedApiPrefix("/api/v1/hr/**")
+
     @Bean
     fun createEmployeeService(
         employeeRepository: EmployeeRepository,

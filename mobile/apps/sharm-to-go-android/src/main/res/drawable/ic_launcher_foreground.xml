@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Hand-ported from web/apps/sharm-to-go-site/public/favicon.svg — the
+  already-approved brand mark (wave + sun on deep teal), not a new/invented
+  asset. Same 64x64 content, centered in the 108x108 adaptive-icon canvas.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group android:translateX="22" android:translateY="22">
+        <path
+            android:pathData="M10,37c8,-8 16,-8 24,0s16,8 20,1"
+            android:strokeColor="#D8F1EF"
+            android:strokeWidth="5"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000" />
+        <path
+            android:pathData="M44,20m-7,0a7,7 0,1 1,14,0a7,7 0,1 1,-14,0"
+            android:fillColor="#F2A93B" />
+    </group>
+</vector>

@@ -20,6 +20,31 @@ interface SiteCopy {
   marketplaceNotice: string;
   footer: string;
   catalog: { heading: string; body: string; back: string; previewBooking: string; viewSystem: string };
+  browse: {
+    allCategories: string;
+    loading: string;
+    loadError: string;
+    empty: { heading: string; body: string };
+    fromPrice: string;
+    perPerson: string;
+    perGroup: string;
+    perVehicle: string;
+    viewDetails: string;
+    operatedBy: string;
+    photoCount: (count: number) => string;
+  };
+  detail: {
+    back: string;
+    notFoundHeading: string;
+    notFoundBody: string;
+    optionsHeading: string;
+    cancellationHeading: string;
+    pickupHeading: string;
+    inclusionsHeading: string;
+    exclusionsHeading: string;
+    contactHeading: string;
+    contactBody: string;
+  };
 }
 
 export const siteCopy: Record<SharmLocale, SiteCopy> = {
@@ -72,6 +97,34 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       previewBooking: "Try the booking design prototype",
       viewSystem: "View the living design system",
     },
+    browse: {
+      allCategories: "All categories",
+      loading: "Loading live experiences…",
+      loadError: "We could not reach the live catalog just now. Please try again shortly.",
+      empty: {
+        heading: "No live experiences yet",
+        body: "Nothing has been published to this catalog yet — services appear here only after an owner approves them in the dashboard.",
+      },
+      fromPrice: "From",
+      perPerson: "per person",
+      perGroup: "per group",
+      perVehicle: "per vehicle",
+      viewDetails: "View details",
+      operatedBy: "Operated by",
+      photoCount: (count: number) => (count === 1 ? "1 photo" : `${count} photos`),
+    },
+    detail: {
+      back: "Back to experiences",
+      notFoundHeading: "This experience isn't available",
+      notFoundBody: "It may have been unpublished, or the link may be incorrect. Browse the current live experiences instead.",
+      optionsHeading: "Options & pricing",
+      cancellationHeading: "Cancellation policy",
+      pickupHeading: "Pickup",
+      inclusionsHeading: "Included",
+      exclusionsHeading: "Not included",
+      contactHeading: "Interested?",
+      contactBody: "Online booking for this experience isn't live yet. A direct contact channel will appear here once it is.",
+    },
   },
   ar: {
     languageName: "English",
@@ -121,6 +174,34 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       back: "العودة للنظرة العامة",
       previewBooking: "جرّب نموذج تصميم الحجز",
       viewSystem: "شاهد نظام التصميم الحي",
+    },
+    browse: {
+      allCategories: "كل الفئات",
+      loading: "جاري تحميل التجارب المتاحة…",
+      loadError: "تعذّر الوصول للكتالوج الفعلي الآن. برجاء المحاولة بعد قليل.",
+      empty: {
+        heading: "لا توجد تجارب منشورة بعد",
+        body: "لم يتم نشر أي خدمة في هذا الكتالوج حتى الآن — تظهر الخدمات هنا فقط بعد اعتمادها من الداش بورد.",
+      },
+      fromPrice: "يبدأ من",
+      perPerson: "للفرد",
+      perGroup: "للمجموعة",
+      perVehicle: "للسيارة",
+      viewDetails: "عرض التفاصيل",
+      operatedBy: "مقدَّمة من",
+      photoCount: (count: number) => (count === 1 ? "صورة واحدة" : `${count} صور`),
+    },
+    detail: {
+      back: "العودة للتجارب",
+      notFoundHeading: "هذه التجربة غير متاحة",
+      notFoundBody: "ربما تم إلغاء نشرها أو أن الرابط غير صحيح. تصفح التجارب المتاحة حاليًا بدلاً من ذلك.",
+      optionsHeading: "الخيارات والأسعار",
+      cancellationHeading: "سياسة الإلغاء",
+      pickupHeading: "الانتقال",
+      inclusionsHeading: "يشمل",
+      exclusionsHeading: "لا يشمل",
+      contactHeading: "مهتم؟",
+      contactBody: "الحجز الإلكتروني لهذه التجربة غير متاح بعد. سيظهر هنا وسيلة تواصل مباشرة بمجرد توفرها.",
     },
   },
 };
