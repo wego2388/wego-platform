@@ -22,6 +22,7 @@ import com.wego.mobile.customer.content.offeringInquiryUrl
 import com.wego.mobile.customer.design.SdcCard
 import com.wego.mobile.customer.design.SdcMockPhoto
 import com.wego.mobile.customer.design.SdcSpace
+import com.wego.mobile.customer.theme.SdcExtendedColors
 import com.wego.mobile.shared.catalog.Categories
 import com.wego.mobile.shared.catalog.DiveCatalog
 import com.wego.mobile.shared.catalog.Offering
@@ -64,7 +65,7 @@ fun OfferingDetailScreen(
             Text(
                 category.title.of(locale),
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
+                color = SdcExtendedColors.accentText,
             )
             Text(offering.name.of(locale), style = MaterialTheme.typography.headlineSmall)
             Text(
@@ -83,7 +84,7 @@ fun OfferingDetailScreen(
             Text(
                 meta,
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary,
+                color = SdcExtendedColors.accentText,
                 modifier = Modifier.padding(top = SdcSpace.md),
             )
         }
@@ -94,7 +95,7 @@ fun OfferingDetailScreen(
         Text(
             SiteCopy.Discover.pricingNotice.of(locale),
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary,
+            color = SdcExtendedColors.accentText,
         )
 
         Button(
@@ -125,7 +126,7 @@ fun OfferingDetailScreen(
                             Text(
                                 formatEur(item.priceEur),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = SdcExtendedColors.accentText,
                             )
                         }
                     }

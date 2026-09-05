@@ -5,6 +5,8 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import com.wego.mobile.customer.design.SdcColor
@@ -70,6 +72,23 @@ internal val SdcDarkColors =
         onTertiaryContainer = SdcColor.canvas,
     )
 
+// Screens use this for "eyebrow"/accent text (category labels, prices,
+// stat values) directly on `background`/`surface`/`surfaceVariant` — none
+// of which is a role M3's own ColorScheme has a guaranteed-safe text color
+// for, since `primary` is designed to pair with `onPrimary` on its own
+// fill, not to be sprinkled as text onto other surfaces. Verified real bug:
+// every one of those ~16 call sites measured under 4.5:1 in dark mode (as
+// low as 2.03:1) despite passing fine in light mode with `primary` itself
+// — `deepBright` (light) and `turquoiseSoft` (dark) are the two values
+// SdcThemeAccentTextContrastTest confirms clear 4.5:1 against `background`,
+// `surface`, and `surfaceVariant` in both themes.
+private val LocalSdcAccentText = staticCompositionLocalOf { SdcColor.deepBright }
+
+object SdcExtendedColors {
+    val accentText: Color
+        @Composable get() = LocalSdcAccentText.current
+}
+
 /**
  * Wraps Material3's theme with the Sharm Divers Club token palette (see
  * `SdcTokens.kt` — ported from `clients/sharm-divers-club/design/tokens.json`)
@@ -84,7 +103,11 @@ fun SdcTheme(
     content: @Composable () -> Unit,
 ) {
     val direction = if (locale.isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr
-    CompositionLocalProvider(LocalLayoutDirection provides direction) {
+    val accentText = if (useDarkColors) SdcColor.turquoiseSoft else SdcColor.deepBright
+    CompositionLocalProvider(
+        LocalLayoutDirection provides direction,
+        LocalSdcAccentText provides accentText,
+    ) {
         MaterialTheme(
             colorScheme = if (useDarkColors) SdcDarkColors else SdcLightColors,
             content = content,
