@@ -210,15 +210,15 @@ html[dir="rtl"] {
 
 @keyframes sdc-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgb(31 169 184 / 55%);
+    box-shadow: 0 0 0 0 rgb(10 58 74 / 55%);
   }
 
   70% {
-    box-shadow: 0 0 0 14px rgb(31 169 184 / 0%);
+    box-shadow: 0 0 0 14px rgb(10 58 74 / 0%);
   }
 
   100% {
-    box-shadow: 0 0 0 0 rgb(31 169 184 / 0%);
+    box-shadow: 0 0 0 0 rgb(10 58 74 / 0%);
   }
 }
 

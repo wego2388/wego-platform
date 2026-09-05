@@ -12,7 +12,7 @@ const label = computed(() => siteCopy[locale.value].whatsappFab);
     :href="whatsappUrl"
     target="_blank"
     rel="noopener"
-    class="wa-fab fixed bottom-5 end-5 z-50 flex items-center gap-2 rounded-full bg-sdc-turquoise px-5 py-3 font-semibold text-white shadow-xl transition-transform hover:-translate-y-1"
+    class="wa-fab fixed bottom-5 end-5 z-50 flex items-center gap-2 rounded-full bg-sdc-deep px-5 py-3 font-semibold text-white shadow-xl transition-transform hover:-translate-y-1"
     :aria-label="label"
   >
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">

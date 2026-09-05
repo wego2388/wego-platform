@@ -192,7 +192,7 @@ const howReveal = useScrollReveal();
             class="hover-lift rounded-[1.75rem] border border-white/15 bg-white/8 p-6"
             :style="{ transitionDelay: personasReveal.visible.value ? `${index * 70}ms` : '0ms' }"
           >
-            <h3 class="text-xl font-semibold text-sdc-sand">{{ persona.name }}</h3>
+            <h3 class="text-xl font-semibold text-sdc-sand-soft">{{ persona.name }}</h3>
             <p class="mt-3 leading-7 text-white/80">{{ persona.body }}</p>
           </article>
         </div>

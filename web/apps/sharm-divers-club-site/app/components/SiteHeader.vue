@@ -37,7 +37,7 @@ function closeMenu() {
   >
     <header class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-10">
       <NuxtLink to="/" class="flex items-center gap-3 font-semibold" :class="props.variant !== 'hero' && 'text-sdc-ink'" :aria-label="homeLabel" @click="closeMenu">
-        <span class="grid size-10 place-items-center rounded-2xl bg-sdc-sand font-display text-base font-black text-sdc-ink">SDC</span>
+        <span class="grid size-10 place-items-center rounded-2xl bg-sdc-sand font-display text-base font-black text-sdc-deep">SDC</span>
         <span class="hidden sm:inline">Sharm Divers Club</span>
       </NuxtLink>
       <nav class="hidden items-center gap-6 text-sm font-semibold md:flex" :class="props.variant !== 'hero' && 'text-sdc-ink'" aria-label="Primary navigation">
@@ -51,7 +51,7 @@ function closeMenu() {
           :href="whatsappUrl"
           target="_blank"
           rel="noopener"
-          class="hidden rounded-full bg-sdc-turquoise px-4 py-2 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 sm:inline-flex"
+          class="hidden rounded-full bg-sdc-sand px-4 py-2 text-sm font-semibold text-sdc-deep transition-transform hover:-translate-y-0.5 sm:inline-flex"
         >
           {{ whatsappLabel }}
         </a>
@@ -94,7 +94,7 @@ function closeMenu() {
         <NuxtLink to="/contact" class="rounded-xl px-3 py-3 transition-colors hover:bg-white/10" @click="closeMenu">{{ contactLabel }}</NuxtLink>
       </div>
       <div class="mt-4 flex gap-2">
-        <a :href="whatsappUrl" target="_blank" rel="noopener" class="flex-1 rounded-full bg-sdc-turquoise px-4 py-3 text-center text-sm font-semibold text-white">
+        <a :href="whatsappUrl" target="_blank" rel="noopener" class="flex-1 rounded-full bg-sdc-sand px-4 py-3 text-center text-sm font-semibold text-sdc-deep">
           {{ whatsappLabel }}
         </a>
         <button

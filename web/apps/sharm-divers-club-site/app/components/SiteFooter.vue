@@ -10,7 +10,7 @@ defineProps<{ locale: SdcLocale; copy: (typeof siteCopy)["en"]["footer"] }>();
     <div class="mx-auto grid max-w-7xl gap-10 sm:grid-cols-2 lg:grid-cols-4">
       <div>
         <div class="flex items-center gap-3 font-semibold text-sdc-ink">
-          <span class="grid size-9 place-items-center rounded-xl bg-sdc-sand font-display text-sm font-black text-sdc-ink">SDC</span>
+          <span class="grid size-9 place-items-center rounded-xl bg-sdc-sand font-display text-sm font-black text-sdc-deep">SDC</span>
           <span>Sharm Divers Club</span>
         </div>
         <p class="mt-4 max-w-xs text-sm leading-6 text-sdc-muted">{{ copy.tagline }}</p>
