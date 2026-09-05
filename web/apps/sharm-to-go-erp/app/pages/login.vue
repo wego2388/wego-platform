@@ -178,6 +178,7 @@ function errorText(reason: string): string {
         <p class="mt-1 text-sm text-wego-muted">Permissions: {{ permissions.length ? permissions.join(", ") : "none" }}</p>
         <div class="mt-4 flex flex-wrap items-center gap-4">
           <WegoButton type="button" variant="secondary" @click="logout">Sign out</WegoButton>
+          <NuxtLink to="/" class="text-sm font-semibold text-wego-accent underline">Dashboard</NuxtLink>
           <NuxtLink to="/providers" class="text-sm font-semibold text-wego-accent underline">Providers</NuxtLink>
           <NuxtLink to="/categories" class="text-sm font-semibold text-wego-accent underline">Categories</NuxtLink>
           <NuxtLink to="/services" class="text-sm font-semibold text-wego-accent underline">Services</NuxtLink>

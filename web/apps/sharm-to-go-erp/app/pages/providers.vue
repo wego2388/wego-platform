@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { WegoAlert, WegoButton, WegoInput } from "@wego/ui";
+import { WegoAlert, WegoBadge, WegoButton, WegoInput, WegoPageHeader, WegoPagination, WegoPanel } from "@wego/ui";
 import { type AuthSession, clearAuthSession, hasPermission, readAuthSession } from "../composables/useAuthSession";
 import {
   archiveProvider,
@@ -13,6 +13,8 @@ import {
   updateProvider,
   type UpsertProviderBody,
 } from "../composables/useTravelMarketplaceApi";
+
+definePageMeta({ layout: "app-shell" });
 
 useHead({ title: "Providers · Sharm To Go" });
 
@@ -172,109 +174,100 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-wego-canvas px-6 py-12 text-wego-ink sm:px-10 lg:px-16">
-    <div class="mx-auto max-w-4xl">
-      <p class="text-sm font-semibold tracking-[0.18em] text-wego-accent uppercase">Sharm To Go</p>
-      <h1 class="mt-4 text-3xl font-semibold tracking-tight">Providers</h1>
-      <p class="mt-2 text-sm text-wego-muted">
-        The organizations operationally/legally delivering a service when it isn't Sharm To Go itself.
+  <WegoPageHeader
+    eyebrow="Sharm To Go"
+    title="Providers"
+    description="The organizations operationally/legally delivering a service when it isn't Sharm To Go itself."
+  />
+
+  <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
+    <p>You need to sign in to view providers.</p>
+    <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
+  </div>
+
+  <template v-else>
+    <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+
+    <WegoPanel class="mt-8">
+      <p v-if="!canView()" class="text-sm text-wego-muted">
+        Your account doesn't have permission to list providers (provider:view).
       </p>
-
-      <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-        <p>You need to sign in to view providers.</p>
-        <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
-      </div>
-
       <template v-else>
-        <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+        <div class="flex flex-wrap items-end gap-3">
+          <WegoInput id="search" v-model="search" label="Search by name" class="min-w-0 flex-1" @keyup.enter="runSearch" />
+          <div>
+            <label for="statusFilter" class="block text-sm font-medium text-wego-muted">Status</label>
+            <select
+              id="statusFilter"
+              v-model="statusFilter"
+              class="mt-2 rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
+              @change="runSearch"
+            >
+              <option value="ACTIVE">Active</option>
+              <option value="ARCHIVED">Archived</option>
+              <option value="">All</option>
+            </select>
+          </div>
+          <WegoButton type="button" variant="secondary" @click="runSearch">Search</WegoButton>
+        </div>
 
-        <section class="mt-8">
-          <p v-if="!canView()" class="mt-3 text-sm text-wego-muted">
-            Your account doesn't have permission to list providers (provider:view).
-          </p>
-          <template v-else>
-            <div class="mt-4 flex flex-wrap items-end gap-3">
-              <WegoInput id="search" v-model="search" label="Search by name" class="min-w-0 flex-1" @keyup.enter="runSearch" />
+        <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
+        <p v-else-if="listState === 'loaded' && providers.length === 0 && page === 0" class="mt-3 text-sm text-wego-muted">
+          No providers yet.
+        </p>
+        <ul v-else-if="providers.length > 0" class="mt-4 space-y-3">
+          <li v-for="provider in providers" :key="provider.id" class="rounded-wego-control border border-wego-border p-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <label for="statusFilter" class="block text-sm font-medium text-wego-muted">Status</label>
-                <select
-                  id="statusFilter"
-                  v-model="statusFilter"
-                  class="mt-2 rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-                  @change="runSearch"
-                >
-                  <option value="ACTIVE">Active</option>
-                  <option value="ARCHIVED">Archived</option>
-                  <option value="">All</option>
-                </select>
+                <p class="font-semibold">{{ provider.name }}</p>
+                <p class="mt-1 text-sm text-wego-muted">
+                  <span v-if="provider.contactEmail">{{ provider.contactEmail }}</span>
+                  <span v-if="provider.contactEmail && provider.contactPhone"> · </span>
+                  <span v-if="provider.contactPhone">{{ provider.contactPhone }}</span>
+                </p>
+                <WegoBadge :tone="provider.status === 'ACTIVE' ? 'success' : 'neutral'" class="mt-2">{{ provider.status }}</WegoBadge>
               </div>
-              <WegoButton type="button" variant="secondary" @click="runSearch">Search</WegoButton>
+              <div v-if="canManage()" class="flex shrink-0 gap-2">
+                <WegoButton type="button" variant="secondary" @click="startEdit(provider)">Edit</WegoButton>
+                <WegoButton
+                  v-if="provider.status === 'ACTIVE'"
+                  type="button"
+                  variant="secondary"
+                  :disabled="archiveState[provider.id] === 'submitting'"
+                  @click="submitArchive(provider)"
+                >
+                  Archive
+                </WegoButton>
+              </div>
             </div>
+            <WegoAlert v-if="archiveState[provider.id] === 'error'" variant="danger" class="mt-2">
+              {{ archiveError[provider.id] }}
+            </WegoAlert>
+          </li>
+        </ul>
 
-            <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
-            <p v-else-if="listState === 'loaded' && providers.length === 0 && page === 0" class="mt-3 text-sm text-wego-muted">
-              No providers yet.
-            </p>
-            <ul v-else-if="providers.length > 0" class="mt-4 space-y-3">
-              <li v-for="provider in providers" :key="provider.id" class="rounded-wego-card border border-wego-border bg-wego-surface p-4">
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p class="font-semibold">{{ provider.name }}</p>
-                    <p class="mt-1 text-sm text-wego-muted">
-                      <span v-if="provider.contactEmail">{{ provider.contactEmail }}</span>
-                      <span v-if="provider.contactEmail && provider.contactPhone"> · </span>
-                      <span v-if="provider.contactPhone">{{ provider.contactPhone }}</span>
-                      · {{ provider.status }}
-                    </p>
-                  </div>
-                  <div v-if="canManage()" class="flex shrink-0 gap-2">
-                    <WegoButton type="button" variant="secondary" @click="startEdit(provider)">Edit</WegoButton>
-                    <WegoButton
-                      v-if="provider.status === 'ACTIVE'"
-                      type="button"
-                      variant="secondary"
-                      :disabled="archiveState[provider.id] === 'submitting'"
-                      @click="submitArchive(provider)"
-                    >
-                      Archive
-                    </WegoButton>
-                  </div>
-                </div>
-                <WegoAlert v-if="archiveState[provider.id] === 'error'" variant="danger" class="mt-2">
-                  {{ archiveError[provider.id] }}
-                </WegoAlert>
-              </li>
-            </ul>
-
-            <div class="mt-4 flex items-center gap-3">
-              <WegoButton type="button" variant="secondary" :disabled="page === 0" @click="previousPage">Previous</WegoButton>
-              <span class="text-sm text-wego-muted">Page {{ page + 1 }}</span>
-              <WegoButton type="button" variant="secondary" :disabled="!hasNextPage" @click="nextPage">Next</WegoButton>
-            </div>
-          </template>
-        </section>
-
-        <section v-if="canManage()" class="mt-10 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-          <h2 class="text-xl font-semibold">{{ editingProviderId ? "Edit provider" : "New provider" }}</h2>
-          <form class="mt-6 space-y-5" @submit.prevent="submitForm">
-            <WegoInput id="name" v-model="form.name" label="Name" required />
-            <div class="grid gap-5 sm:grid-cols-2">
-              <WegoInput id="contactEmail" v-model="form.contactEmail" label="Contact email" type="email" />
-              <WegoInput id="contactPhone" v-model="form.contactPhone" label="Contact phone" />
-            </div>
-            <p class="text-xs text-wego-muted">An email or a phone number is required.</p>
-
-            <WegoAlert v-if="formState === 'error'" variant="danger">{{ formError }}</WegoAlert>
-
-            <div class="flex gap-3">
-              <WegoButton type="submit" :disabled="formState === 'submitting'" :loading="formState === 'submitting'">
-                {{ editingProviderId ? "Save changes" : "Create provider" }}
-              </WegoButton>
-              <WegoButton v-if="editingProviderId" type="button" variant="secondary" @click="cancelEdit">Cancel</WegoButton>
-            </div>
-          </form>
-        </section>
+        <WegoPagination class="mt-4" :page="page" :has-next-page="hasNextPage" @previous="previousPage" @next="nextPage" />
       </template>
-    </div>
-  </main>
+    </WegoPanel>
+
+    <WegoPanel v-if="canManage()" class="mt-10" :title="editingProviderId ? 'Edit provider' : 'New provider'">
+      <form class="space-y-5" @submit.prevent="submitForm">
+        <WegoInput id="name" v-model="form.name" label="Name" required />
+        <div class="grid gap-5 sm:grid-cols-2">
+          <WegoInput id="contactEmail" v-model="form.contactEmail" label="Contact email" type="email" />
+          <WegoInput id="contactPhone" v-model="form.contactPhone" label="Contact phone" />
+        </div>
+        <p class="text-xs text-wego-muted">An email or a phone number is required.</p>
+
+        <WegoAlert v-if="formState === 'error'" variant="danger">{{ formError }}</WegoAlert>
+
+        <div class="flex gap-3">
+          <WegoButton type="submit" :disabled="formState === 'submitting'" :loading="formState === 'submitting'">
+            {{ editingProviderId ? "Save changes" : "Create provider" }}
+          </WegoButton>
+          <WegoButton v-if="editingProviderId" type="button" variant="secondary" @click="cancelEdit">Cancel</WegoButton>
+        </div>
+      </form>
+    </WegoPanel>
+  </template>
 </template>

@@ -6,5 +6,11 @@ import { beforeEach, vi } from "vitest";
 // session there.
 beforeEach(() => {
   vi.stubGlobal("useHead", () => {});
+  // definePageMeta (the new layout: "app-shell" declarations) is also a
+  // Nuxt build-time macro, unavailable here — same reasoning as useHead
+  // above. Tests mount pages directly, not through Nuxt's own
+  // layout-selection mechanism; that's covered by mounting app-shell.vue
+  // itself and by a real production build/serve check.
+  vi.stubGlobal("definePageMeta", () => {});
   sessionStorage.clear();
 });

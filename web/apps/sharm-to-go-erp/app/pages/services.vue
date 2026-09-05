@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { WegoAlert, WegoButton, WegoInput } from "@wego/ui";
+import { WegoAlert, WegoBadge, WegoButton, WegoInput, WegoPageHeader, WegoPagination, WegoPanel } from "@wego/ui";
 import { type AuthSession, clearAuthSession, hasPermission, readAuthSession } from "../composables/useAuthSession";
 import {
   approveService,
@@ -26,7 +26,17 @@ import {
   type UpsertServiceBody,
 } from "../composables/useTravelMarketplaceApi";
 
+definePageMeta({ layout: "app-shell" });
+
 useHead({ title: "Services · Sharm To Go" });
+
+function statusTone(status: ServiceStatus): "neutral" | "accent" | "success" | "warning" | "danger" {
+  if (status === "PUBLISHED") return "success";
+  if (status === "APPROVED") return "accent";
+  if (status === "REVIEW") return "warning";
+  if (status === "SUSPENDED") return "danger";
+  return "neutral";
+}
 
 const session = ref<AuthSession | null>(null);
 const services = ref<Service[]>([]);
@@ -308,91 +318,87 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-wego-canvas px-6 py-12 text-wego-ink sm:px-10 lg:px-16">
-    <div class="mx-auto max-w-5xl">
-      <p class="text-sm font-semibold tracking-[0.18em] text-wego-accent uppercase">Sharm To Go</p>
-      <h1 class="mt-4 text-3xl font-semibold tracking-tight">Services</h1>
-      <p class="mt-2 text-sm text-wego-muted">Draft → Review → Approved → Published, with suspend/republish/archive.</p>
+  <WegoPageHeader
+    eyebrow="Sharm To Go"
+    title="Services"
+    description="Draft → Review → Approved → Published, with suspend/republish/archive."
+  />
 
-      <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-        <p>You need to sign in to view services.</p>
-        <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
-      </div>
+  <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
+    <p>You need to sign in to view services.</p>
+    <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
+  </div>
 
+  <template v-else>
+    <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+
+    <WegoPanel class="mt-8">
+      <p v-if="!canView()" class="text-sm text-wego-muted">
+        Your account doesn't have permission to list services (service:view).
+      </p>
       <template v-else>
-        <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+        <div class="flex flex-wrap items-end gap-3">
+          <div>
+            <label for="statusFilter" class="block text-sm font-medium text-wego-muted">Status</label>
+            <select
+              id="statusFilter"
+              v-model="statusFilter"
+              class="mt-2 rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
+              @change="runFilter"
+            >
+              <option value="">All</option>
+              <option value="DRAFT">Draft</option>
+              <option value="REVIEW">Review</option>
+              <option value="APPROVED">Approved</option>
+              <option value="PUBLISHED">Published</option>
+              <option value="SUSPENDED">Suspended</option>
+              <option value="ARCHIVED">Archived</option>
+            </select>
+          </div>
+        </div>
 
-        <section class="mt-8">
-          <p v-if="!canView()" class="mt-3 text-sm text-wego-muted">
-            Your account doesn't have permission to list services (service:view).
-          </p>
-          <template v-else>
-            <div class="flex flex-wrap items-end gap-3">
+        <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
+        <p v-else-if="listState === 'loaded' && services.length === 0 && page === 0" class="mt-3 text-sm text-wego-muted">
+          No services yet.
+        </p>
+        <ul v-else-if="services.length > 0" class="mt-4 space-y-3">
+          <li v-for="service in services" :key="service.id" class="rounded-wego-control border border-wego-border p-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <label for="statusFilter" class="block text-sm font-medium text-wego-muted">Status</label>
-                <select
-                  id="statusFilter"
-                  v-model="statusFilter"
-                  class="mt-2 rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-                  @change="runFilter"
+                <p class="font-semibold">{{ service.name.en }} <span dir="rtl" class="text-wego-muted">· {{ service.name.ar }}</span></p>
+                <p class="mt-1 text-sm text-wego-muted">
+                  {{ categoryName(service.categoryId) }} · {{ service.fulfilmentModel }}
+                  <span v-if="service.fulfilmentModel === 'PARTNER'"> ({{ providerName(service.providerId) }})</span>
+                  · {{ service.options.length }} option(s) · {{ service.media.length }} photo(s)
+                </p>
+                <WegoBadge :tone="statusTone(service.status)" class="mt-2">{{ service.status }}</WegoBadge>
+              </div>
+              <div v-if="canManage()" class="flex shrink-0 flex-wrap gap-2">
+                <WegoButton type="button" variant="secondary" @click="startEdit(service)">Edit</WegoButton>
+                <WegoButton
+                  v-for="transition in availableTransitions(service.status)"
+                  :key="transition"
+                  type="button"
+                  variant="secondary"
+                  :disabled="actionState[service.id] === 'submitting'"
+                  @click="runTransition(service, transition)"
                 >
-                  <option value="">All</option>
-                  <option value="DRAFT">Draft</option>
-                  <option value="REVIEW">Review</option>
-                  <option value="APPROVED">Approved</option>
-                  <option value="PUBLISHED">Published</option>
-                  <option value="SUSPENDED">Suspended</option>
-                  <option value="ARCHIVED">Archived</option>
-                </select>
+                  {{ transition === "submit-for-review" ? "Submit for review" : transition }}
+                </WegoButton>
               </div>
             </div>
+            <WegoAlert v-if="actionState[service.id] === 'error'" variant="danger" class="mt-2">
+              {{ actionError[service.id] }}
+            </WegoAlert>
+          </li>
+        </ul>
 
-            <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
-            <p v-else-if="listState === 'loaded' && services.length === 0 && page === 0" class="mt-3 text-sm text-wego-muted">
-              No services yet.
-            </p>
-            <ul v-else-if="services.length > 0" class="mt-4 space-y-3">
-              <li v-for="service in services" :key="service.id" class="rounded-wego-card border border-wego-border bg-wego-surface p-4">
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p class="font-semibold">{{ service.name.en }} <span dir="rtl" class="text-wego-muted">· {{ service.name.ar }}</span></p>
-                    <p class="mt-1 text-sm text-wego-muted">
-                      {{ categoryName(service.categoryId) }} · {{ service.fulfilmentModel }}
-                      <span v-if="service.fulfilmentModel === 'PARTNER'"> ({{ providerName(service.providerId) }})</span>
-                      · {{ service.options.length }} option(s) · {{ service.media.length }} photo(s) · {{ service.status }}
-                    </p>
-                  </div>
-                  <div v-if="canManage()" class="flex shrink-0 flex-wrap gap-2">
-                    <WegoButton type="button" variant="secondary" @click="startEdit(service)">Edit</WegoButton>
-                    <WegoButton
-                      v-for="transition in availableTransitions(service.status)"
-                      :key="transition"
-                      type="button"
-                      variant="secondary"
-                      :disabled="actionState[service.id] === 'submitting'"
-                      @click="runTransition(service, transition)"
-                    >
-                      {{ transition === "submit-for-review" ? "Submit for review" : transition }}
-                    </WegoButton>
-                  </div>
-                </div>
-                <WegoAlert v-if="actionState[service.id] === 'error'" variant="danger" class="mt-2">
-                  {{ actionError[service.id] }}
-                </WegoAlert>
-              </li>
-            </ul>
+        <WegoPagination class="mt-4" :page="page" :has-next-page="hasNextPage" @previous="previousPage" @next="nextPage" />
+      </template>
+    </WegoPanel>
 
-            <div class="mt-4 flex items-center gap-3">
-              <WegoButton type="button" variant="secondary" :disabled="page === 0" @click="previousPage">Previous</WegoButton>
-              <span class="text-sm text-wego-muted">Page {{ page + 1 }}</span>
-              <WegoButton type="button" variant="secondary" :disabled="!hasNextPage" @click="nextPage">Next</WegoButton>
-            </div>
-          </template>
-        </section>
-
-        <section v-if="canManage()" class="mt-10 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-          <h2 class="text-xl font-semibold">{{ editingServiceId ? "Edit service" : "New service" }}</h2>
-          <form class="mt-6 space-y-5" @submit.prevent="submitForm">
+    <WegoPanel v-if="canManage()" class="mt-10" :title="editingServiceId ? 'Edit service' : 'New service'">
+      <form class="space-y-5" @submit.prevent="submitForm">
             <div>
               <label for="categoryId" class="block text-sm font-medium text-wego-muted">Category</label>
               <select
@@ -527,8 +533,6 @@ onMounted(() => {
               <WegoButton v-if="editingServiceId" type="button" variant="secondary" @click="cancelEdit">Cancel</WegoButton>
             </div>
           </form>
-        </section>
+        </WegoPanel>
       </template>
-    </div>
-  </main>
 </template>

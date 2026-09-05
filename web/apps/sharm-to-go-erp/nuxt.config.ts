@@ -7,8 +7,29 @@ export default defineNuxtConfig({
   modules: ["@nuxt/eslint"],
   app: {
     head: {
+      htmlAttrs: { lang: "en" },
       meta: [{ name: "theme-color", content: "#102f35" }],
       link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
+      script: [
+        {
+          // Runs before Vue mounts so the first paint already has the
+          // right theme — ported from web/apps/erp's own identical
+          // script (WEGO-014 Phase 4), only the storage key changes to
+          // match this app's own useTheme.ts.
+          innerHTML: `(function () {
+            try {
+              var stored = window.localStorage.getItem("wego-stg-erp-theme");
+              var preference = stored === "light" || stored === "dark" ? stored : "system";
+              var dark = preference === "dark" || (preference === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+              if (dark) {
+                document.documentElement.setAttribute("data-theme", "dark");
+                var meta = document.querySelector('meta[name="theme-color"]');
+                if (meta) meta.setAttribute("content", "#0b8691");
+              }
+            } catch (e) {}
+          })();`,
+        },
+      ],
     },
   },
   typescript: { strict: true, typeCheck: true },

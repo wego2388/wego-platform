@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { WegoAlert, WegoButton, WegoInput } from "@wego/ui";
+import { WegoAlert, WegoBadge, WegoButton, WegoInput, WegoPageHeader, WegoPanel } from "@wego/ui";
 import { type AuthSession, clearAuthSession, hasPermission, readAuthSession } from "../composables/useAuthSession";
 import {
   archiveCategory,
@@ -12,6 +12,8 @@ import {
   updateCategory,
   type UpsertCategoryBody,
 } from "../composables/useTravelMarketplaceApi";
+
+definePageMeta({ layout: "app-shell" });
 
 useHead({ title: "Categories · Sharm To Go" });
 
@@ -161,107 +163,105 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-wego-canvas px-6 py-12 text-wego-ink sm:px-10 lg:px-16">
-    <div class="mx-auto max-w-4xl">
-      <p class="text-sm font-semibold tracking-[0.18em] text-wego-accent uppercase">Sharm To Go</p>
-      <h1 class="mt-4 text-3xl font-semibold tracking-tight">Categories</h1>
-      <p class="mt-2 text-sm text-wego-muted">Staff-defined navigation groupings for services. None are pre-seeded.</p>
+  <WegoPageHeader
+    eyebrow="Sharm To Go"
+    title="Categories"
+    description="Staff-defined navigation groupings for services. None are pre-seeded."
+  />
 
-      <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-        <p>You need to sign in to view categories.</p>
-        <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
-      </div>
+  <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
+    <p>You need to sign in to view categories.</p>
+    <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
+  </div>
 
+  <template v-else>
+    <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+
+    <WegoPanel class="mt-8">
+      <p v-if="!canView()" class="text-sm text-wego-muted">
+        Your account doesn't have permission to list categories (service:view).
+      </p>
       <template v-else>
-        <WegoAlert v-if="listState === 'error'" variant="danger" class="mt-6">{{ listError }}</WegoAlert>
+        <div class="flex flex-wrap items-end gap-3">
+          <div>
+            <label for="statusFilter" class="block text-sm font-medium text-wego-muted">Status</label>
+            <select
+              id="statusFilter"
+              v-model="statusFilter"
+              class="mt-2 rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
+              @change="runFilter"
+            >
+              <option value="ACTIVE">Active</option>
+              <option value="ARCHIVED">Archived</option>
+              <option value="">All</option>
+            </select>
+          </div>
+        </div>
 
-        <section class="mt-8">
-          <p v-if="!canView()" class="mt-3 text-sm text-wego-muted">
-            Your account doesn't have permission to list categories (service:view).
-          </p>
-          <template v-else>
-            <div class="flex flex-wrap items-end gap-3">
+        <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
+        <p v-else-if="listState === 'loaded' && categories.length === 0" class="mt-3 text-sm text-wego-muted">
+          No categories yet.
+        </p>
+        <ul v-else-if="categories.length > 0" class="mt-4 space-y-3">
+          <li v-for="category in categories" :key="category.id" class="rounded-wego-control border border-wego-border p-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <label for="statusFilter" class="block text-sm font-medium text-wego-muted">Status</label>
-                <select
-                  id="statusFilter"
-                  v-model="statusFilter"
-                  class="mt-2 rounded-wego-control border border-wego-border bg-wego-surface px-4 py-2.5 text-wego-ink"
-                  @change="runFilter"
+                <p class="font-semibold">{{ category.name.en }} <span dir="rtl" class="text-wego-muted">· {{ category.name.ar }}</span></p>
+                <p class="mt-1 text-sm text-wego-muted">
+                  <code>{{ category.code }}</code> · order {{ category.displayOrder }}
+                </p>
+                <WegoBadge :tone="category.status === 'ACTIVE' ? 'success' : 'neutral'" class="mt-2">{{ category.status }}</WegoBadge>
+              </div>
+              <div v-if="canManage()" class="flex shrink-0 gap-2">
+                <WegoButton type="button" variant="secondary" @click="startEdit(category)">Edit</WegoButton>
+                <WegoButton
+                  v-if="category.status === 'ACTIVE'"
+                  type="button"
+                  variant="secondary"
+                  :disabled="archiveState[category.id] === 'submitting'"
+                  @click="submitArchive(category)"
                 >
-                  <option value="ACTIVE">Active</option>
-                  <option value="ARCHIVED">Archived</option>
-                  <option value="">All</option>
-                </select>
+                  Archive
+                </WegoButton>
               </div>
             </div>
-
-            <p v-if="listState === 'loading'" class="mt-3 text-sm text-wego-muted">Loading…</p>
-            <p v-else-if="listState === 'loaded' && categories.length === 0" class="mt-3 text-sm text-wego-muted">
-              No categories yet.
-            </p>
-            <ul v-else-if="categories.length > 0" class="mt-4 space-y-3">
-              <li v-for="category in categories" :key="category.id" class="rounded-wego-card border border-wego-border bg-wego-surface p-4">
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p class="font-semibold">{{ category.name.en }} <span dir="rtl" class="text-wego-muted">· {{ category.name.ar }}</span></p>
-                    <p class="mt-1 text-sm text-wego-muted">
-                      <code>{{ category.code }}</code> · order {{ category.displayOrder }} · {{ category.status }}
-                    </p>
-                  </div>
-                  <div v-if="canManage()" class="flex shrink-0 gap-2">
-                    <WegoButton type="button" variant="secondary" @click="startEdit(category)">Edit</WegoButton>
-                    <WegoButton
-                      v-if="category.status === 'ACTIVE'"
-                      type="button"
-                      variant="secondary"
-                      :disabled="archiveState[category.id] === 'submitting'"
-                      @click="submitArchive(category)"
-                    >
-                      Archive
-                    </WegoButton>
-                  </div>
-                </div>
-                <WegoAlert v-if="archiveState[category.id] === 'error'" variant="danger" class="mt-2">
-                  {{ archiveError[category.id] }}
-                </WegoAlert>
-              </li>
-            </ul>
-          </template>
-        </section>
-
-        <section v-if="canManage()" class="mt-10 rounded-wego-card border border-wego-border bg-wego-surface p-6">
-          <h2 class="text-xl font-semibold">{{ editingCategoryId ? "Edit category" : "New category" }}</h2>
-          <form class="mt-6 space-y-5" @submit.prevent="submitForm">
-            <WegoInput
-              id="code"
-              v-model="form.code"
-              label="Code (lowercase-kebab-case)"
-              required
-              :disabled="editingCategoryId !== null"
-            />
-            <p v-if="editingCategoryId" class="text-xs text-wego-muted">The code is immutable after creation.</p>
-            <div class="grid gap-5 sm:grid-cols-2">
-              <WegoInput id="nameEn" v-model="form.nameEn" label="Name (English)" required />
-              <WegoInput id="nameAr" v-model="form.nameAr" label="Name (Arabic)" required dir="rtl" />
-            </div>
-            <div class="grid gap-5 sm:grid-cols-2">
-              <WegoInput id="descriptionEn" v-model="form.descriptionEn" label="Description (English, optional)" />
-              <WegoInput id="descriptionAr" v-model="form.descriptionAr" label="Description (Arabic, optional)" dir="rtl" />
-            </div>
-            <WegoInput id="displayOrder" v-model="form.displayOrder" label="Display order" type="number" />
-
-            <WegoAlert v-if="formState === 'error'" variant="danger">{{ formError }}</WegoAlert>
-
-            <div class="flex gap-3">
-              <WegoButton type="submit" :disabled="formState === 'submitting'" :loading="formState === 'submitting'">
-                {{ editingCategoryId ? "Save changes" : "Create category" }}
-              </WegoButton>
-              <WegoButton v-if="editingCategoryId" type="button" variant="secondary" @click="cancelEdit">Cancel</WegoButton>
-            </div>
-          </form>
-        </section>
+            <WegoAlert v-if="archiveState[category.id] === 'error'" variant="danger" class="mt-2">
+              {{ archiveError[category.id] }}
+            </WegoAlert>
+          </li>
+        </ul>
       </template>
-    </div>
-  </main>
+    </WegoPanel>
+
+    <WegoPanel v-if="canManage()" class="mt-10" :title="editingCategoryId ? 'Edit category' : 'New category'">
+      <form class="space-y-5" @submit.prevent="submitForm">
+        <WegoInput
+          id="code"
+          v-model="form.code"
+          label="Code (lowercase-kebab-case)"
+          required
+          :disabled="editingCategoryId !== null"
+        />
+        <p v-if="editingCategoryId" class="text-xs text-wego-muted">The code is immutable after creation.</p>
+        <div class="grid gap-5 sm:grid-cols-2">
+          <WegoInput id="nameEn" v-model="form.nameEn" label="Name (English)" required />
+          <WegoInput id="nameAr" v-model="form.nameAr" label="Name (Arabic)" required dir="rtl" />
+        </div>
+        <div class="grid gap-5 sm:grid-cols-2">
+          <WegoInput id="descriptionEn" v-model="form.descriptionEn" label="Description (English, optional)" />
+          <WegoInput id="descriptionAr" v-model="form.descriptionAr" label="Description (Arabic, optional)" dir="rtl" />
+        </div>
+        <WegoInput id="displayOrder" v-model="form.displayOrder" label="Display order" type="number" />
+
+        <WegoAlert v-if="formState === 'error'" variant="danger">{{ formError }}</WegoAlert>
+
+        <div class="flex gap-3">
+          <WegoButton type="submit" :disabled="formState === 'submitting'" :loading="formState === 'submitting'">
+            {{ editingCategoryId ? "Save changes" : "Create category" }}
+          </WegoButton>
+          <WegoButton v-if="editingCategoryId" type="button" variant="secondary" @click="cancelEdit">Cancel</WegoButton>
+        </div>
+      </form>
+    </WegoPanel>
+  </template>
 </template>
