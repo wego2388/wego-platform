@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { accentForIndex } from "../content/categoryAccents";
 import { directionFor, type SharmLocale, siteCopy } from "../content/locales";
+import { vReveal } from "../composables/useScrollReveal";
 
 const locale = ref<SharmLocale>("en");
 const copy = computed(() => siteCopy[locale.value]);
@@ -18,44 +20,7 @@ function toggleLocale() {
   locale.value = locale.value === "en" ? "ar" : "en";
 }
 
-// One accent + icon per discovery category, in the same order as
-// content/locales.ts's `categories` array (Sea, Desert, Transfers, City) —
-// see clients/sharm-to-go/design/tokens.json's `categoryAccent` map, the
-// canonical source this mirrors.
-const categoryStyles = [
-  { text: "text-sharm-sea-bright", bg: "bg-sharm-lagoon", ring: "border-sharm-sea-bright/25" },
-  { text: "text-sharm-sun", bg: "bg-sharm-sand", ring: "border-sharm-sun/30" },
-  { text: "text-sharm-sky", bg: "bg-sharm-sky/12", ring: "border-sharm-sky/25" },
-  { text: "text-sharm-terracotta", bg: "bg-sharm-terracotta/12", ring: "border-sharm-terracotta/25" },
-];
-
 const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "bg-sharm-sun text-sharm-ink"];
-
-// Local directive: reveals an element with a rise+fade the first time it
-// scrolls into view, then stops observing — a real intersection check, not
-// a fixed-delay CSS animation, so content already in view on load (no JS,
-// slow connections) never gets stuck invisible. Reduced-motion users skip
-// straight to visible via the CSS `prefers-reduced-motion` override.
-const vReveal = {
-  mounted(el: HTMLElement) {
-    if (typeof IntersectionObserver === "undefined") {
-      el.classList.add("is-visible");
-      return;
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            el.classList.add("is-visible");
-            observer.unobserve(el);
-          }
-        }
-      },
-      { threshold: 0.15 },
-    );
-    observer.observe(el);
-  },
-};
 </script>
 
 <template>
@@ -156,13 +121,13 @@ const vReveal = {
           :key="category.title"
           v-reveal
           class="sharm-reveal sharm-card-lift rounded-[1.75rem] border bg-white p-6 shadow-sm"
-          :class="categoryStyles[index]?.ring"
+          :class="accentForIndex(index).ring"
           :style="{ transitionDelay: `${index * 70}ms` }"
         >
-          <div class="grid size-12 place-items-center rounded-2xl text-sm font-black" :class="[categoryStyles[index]?.bg, categoryStyles[index]?.text]">
+          <div class="grid size-12 place-items-center rounded-2xl text-sm font-black" :class="[accentForIndex(index).bg, accentForIndex(index).text]">
             {{ String(index + 1).padStart(2, "0") }}
           </div>
-          <p class="mt-6 text-xs font-bold tracking-[0.15em] uppercase" :class="categoryStyles[index]?.text">{{ category.eyebrow }}</p>
+          <p class="mt-6 text-xs font-bold tracking-[0.15em] uppercase" :class="accentForIndex(index).text">{{ category.eyebrow }}</p>
           <h3 class="mt-2 text-xl font-semibold">{{ category.title }}</h3>
           <p class="mt-3 text-sm leading-6 text-sharm-muted">{{ category.description }}</p>
         </article>

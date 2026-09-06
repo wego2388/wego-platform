@@ -2,6 +2,7 @@
 import { computed, nextTick, ref } from "vue";
 import GuestStepper from "../components/GuestStepper.vue";
 import PreviewDatePicker from "../components/PreviewDatePicker.vue";
+import SiteSubHeader from "../components/SiteSubHeader.vue";
 import {
   bookingPreviewCopy,
   formatPreviewMoney,
@@ -90,15 +91,10 @@ function restart() {
 
 <template>
   <main :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas text-sharm-ink">
-    <div class="border-b border-sharm-border bg-white">
-      <header class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-5 lg:px-10">
-        <NuxtLink to="/experiences" class="flex items-center gap-3 font-semibold text-sharm-sea">
-          <span aria-hidden="true">{{ direction === "rtl" ? "→" : "←" }}</span> {{ copy.back }}
-        </NuxtLink>
-        <button type="button" class="min-h-11 rounded-full border border-sharm-border px-4 text-sm font-semibold" @click="toggleLocale">
-          {{ copy.switchLanguage }}
-        </button>
-      </header>
+    <div class="border-b border-sharm-border bg-white px-5 py-5 lg:px-10">
+      <div class="mx-auto max-w-7xl">
+        <SiteSubHeader :back-label="copy.back" back-to="/experiences" :direction="direction" :locale-label="copy.switchLanguage" @toggle-locale="toggleLocale" />
+      </div>
     </div>
 
     <div class="border-b border-amber-200 bg-sharm-warning-soft px-5 py-3 text-center text-sm font-semibold text-sharm-warning" role="status">
@@ -109,7 +105,7 @@ function restart() {
       <div class="mx-auto grid max-w-7xl gap-8 px-5 py-10 lg:grid-cols-[1fr_22rem] lg:px-10 lg:py-14">
         <div>
           <span class="inline-flex rounded-full bg-white px-4 py-2 text-xs font-bold tracking-[0.1em] text-sharm-sea uppercase">{{ copy.prototype }}</span>
-          <h1 class="mt-5 max-w-3xl text-3xl font-semibold tracking-tight sm:text-5xl">{{ copy.title }}</h1>
+          <h1 class="font-display mt-5 max-w-3xl text-3xl font-semibold tracking-tight sm:text-5xl">{{ copy.title }}</h1>
           <p class="mt-4 max-w-2xl leading-7 text-sharm-muted">{{ copy.subtitle }}</p>
         </div>
         <div class="rounded-[1.75rem] border border-white/80 bg-white/85 p-5 shadow-xl shadow-sharm-sea/10">
@@ -134,7 +130,7 @@ function restart() {
     <div v-if="currentStep !== 'complete'" class="mx-auto grid max-w-7xl gap-7 px-5 py-8 pb-32 lg:grid-cols-[minmax(0,1fr)_23rem] lg:px-10 lg:pb-16">
       <section class="min-w-0 rounded-[1.75rem] border border-sharm-border bg-white p-5 shadow-sm sm:p-7">
         <div v-if="currentStep === 'options'">
-          <h2 ref="stepHeading" tabindex="-1" class="text-2xl font-semibold">{{ copy.dateHeading }}</h2>
+          <h2 ref="stepHeading" tabindex="-1" class="font-display text-2xl font-semibold">{{ copy.dateHeading }}</h2>
           <p class="mt-2 text-sm text-sharm-muted">{{ copy.month }}</p>
           <div class="mt-6">
             <PreviewDatePicker
@@ -209,7 +205,7 @@ function restart() {
         </div>
 
         <div v-else-if="currentStep === 'details'">
-          <h2 ref="stepHeading" tabindex="-1" class="text-2xl font-semibold">{{ copy.customerHeading }}</h2>
+          <h2 ref="stepHeading" tabindex="-1" class="font-display text-2xl font-semibold">{{ copy.customerHeading }}</h2>
           <p class="mt-2 text-sharm-muted">{{ copy.customerBody }}</p>
           <div v-if="validationError" class="mt-5 rounded-2xl bg-sharm-danger-soft p-4 text-sm font-semibold text-sharm-danger" role="alert">
             {{ copy.requiredError }}
@@ -235,7 +231,7 @@ function restart() {
         </div>
 
         <div v-else-if="currentStep === 'payment'">
-          <h2 ref="stepHeading" tabindex="-1" class="text-2xl font-semibold">{{ copy.paymentHeading }}</h2>
+          <h2 ref="stepHeading" tabindex="-1" class="font-display text-2xl font-semibold">{{ copy.paymentHeading }}</h2>
           <p class="mt-2 max-w-2xl text-sharm-muted">{{ copy.paymentBody }}</p>
           <fieldset class="mt-7 grid gap-3">
             <legend class="sr-only">{{ copy.paymentHeading }}</legend>
@@ -319,7 +315,7 @@ function restart() {
     <section v-else class="mx-auto max-w-3xl px-5 py-16 text-center lg:px-10">
       <div class="rounded-[2rem] border border-sharm-border bg-white p-8 shadow-sm sm:p-12">
         <div class="mx-auto grid size-16 place-items-center rounded-full bg-sharm-success-soft text-3xl text-sharm-success" aria-hidden="true">✓</div>
-        <h2 ref="stepHeading" tabindex="-1" class="mt-6 text-3xl font-semibold">{{ copy.completeHeading }}</h2>
+        <h2 ref="stepHeading" tabindex="-1" class="font-display mt-6 text-3xl font-semibold">{{ copy.completeHeading }}</h2>
         <p class="mx-auto mt-4 max-w-xl leading-7 text-sharm-muted">{{ copy.completeBody }}</p>
         <button type="button" class="mt-8 min-h-12 rounded-full bg-sharm-sea px-6 font-semibold text-white" @click="restart">{{ copy.restart }}</button>
       </div>

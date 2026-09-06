@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+import SiteSubHeader from "../../components/SiteSubHeader.vue";
 import { directionFor, type SharmLocale, siteCopy } from "../../content/locales";
 import { getPublicService, type PublicService } from "../../composables/usePublicCatalog";
 
@@ -53,12 +54,9 @@ onMounted(async () => {
 
 <template>
   <main :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas px-6 py-8 text-sharm-ink lg:px-10">
-    <header class="mx-auto flex max-w-4xl items-center justify-between">
-      <NuxtLink to="/" class="font-semibold text-sharm-sea">← Sharm To Go</NuxtLink>
-      <button type="button" class="rounded-full border border-sharm-sea/20 bg-white px-4 py-2 text-sm font-semibold" @click="toggleLocale">
-        {{ copy.languageName }}
-      </button>
-    </header>
+    <div class="mx-auto max-w-4xl">
+      <SiteSubHeader back-label="Sharm To Go" back-to="/" :direction="direction" :locale-label="copy.languageName" @toggle-locale="toggleLocale" />
+    </div>
 
     <section class="mx-auto mt-10 max-w-4xl">
       <p v-if="state === 'loading'" class="text-sharm-muted">{{ copy.browse.loading }}</p>
@@ -76,7 +74,7 @@ onMounted(async () => {
       </div>
 
       <article v-else-if="service" class="rounded-[2rem] border border-black/5 bg-white p-8 shadow-sm sm:p-12">
-        <h1 class="text-3xl font-semibold tracking-tight">{{ service.name[locale] }}</h1>
+        <h1 class="font-display text-3xl font-semibold tracking-tight">{{ service.name[locale] }}</h1>
         <p v-if="service.operatedBy" class="mt-2 text-sm text-sharm-muted">{{ copy.browse.operatedBy }}: {{ service.operatedBy }}</p>
         <p class="mt-5 leading-8 text-sharm-muted">{{ service.description[locale] }}</p>
 

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+import SiteSubHeader from "../../components/SiteSubHeader.vue";
+import { accentForIndex } from "../../content/categoryAccents";
 import { directionFor, type SharmLocale, siteCopy } from "../../content/locales";
+import { vReveal } from "../../composables/useScrollReveal";
 import {
   listPublicCategories,
   listPublicServices,
@@ -36,6 +39,10 @@ function categoryName(categoryId: string): string {
   return category.name[locale.value];
 }
 
+function categoryIndex(categoryId: string): number {
+  return categories.value.findIndex((item) => item.id === categoryId);
+}
+
 async function loadServices() {
   try {
     services.value = await listPublicServices(selectedCategoryId.value || undefined);
@@ -68,55 +75,61 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas px-6 py-8 text-sharm-ink lg:px-10">
-    <header class="mx-auto flex max-w-6xl items-center justify-between">
-      <NuxtLink to="/" class="font-semibold text-sharm-sea">← Sharm To Go</NuxtLink>
-      <button type="button" class="rounded-full border border-sharm-sea/20 bg-white px-4 py-2 text-sm font-semibold" @click="toggleLocale">
-        {{ copy.languageName }}
-      </button>
-    </header>
-
-    <section class="mx-auto mt-10 max-w-6xl">
-      <span class="inline-flex rounded-full bg-sharm-lagoon px-4 py-2 text-xs font-bold tracking-[0.13em] text-sharm-sea uppercase">
-        {{ copy.preview }}
-      </span>
-      <h1 class="mt-6 text-3xl font-semibold tracking-tight sm:text-5xl">{{ copy.catalog.heading }}</h1>
-
-      <div class="mt-8 flex flex-wrap gap-2" role="tablist" :aria-label="copy.browse.allCategories">
-        <button
-          type="button"
-          class="rounded-full border px-4 py-2 text-sm font-semibold"
-          :class="selectedCategoryId === '' ? 'border-sharm-sea bg-sharm-sea text-white' : 'border-sharm-border bg-white text-sharm-sea'"
-          @click="selectCategory('')"
-        >
-          {{ copy.browse.allCategories }}
-        </button>
-        <button
-          v-for="category in categories"
-          :key="category.id"
-          type="button"
-          class="rounded-full border px-4 py-2 text-sm font-semibold"
-          :class="selectedCategoryId === category.id ? 'border-sharm-sea bg-sharm-sea text-white' : 'border-sharm-border bg-white text-sharm-sea'"
-          @click="selectCategory(category.id)"
-        >
-          {{ category.name[locale] }}
-        </button>
+  <main :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas text-sharm-ink">
+    <div class="sharm-hero border-b border-black/5 px-6 py-8 lg:px-10">
+      <div class="mx-auto max-w-6xl">
+        <SiteSubHeader back-label="Sharm To Go" back-to="/" :direction="direction" :locale-label="copy.languageName" @toggle-locale="toggleLocale" />
       </div>
 
-      <p v-if="state === 'loading'" class="mt-10 text-sharm-muted">{{ copy.browse.loading }}</p>
+      <section class="mx-auto mt-10 max-w-6xl">
+        <span class="inline-flex rounded-full bg-white/80 px-4 py-2 text-xs font-bold tracking-[0.13em] text-sharm-sea uppercase shadow-sm">
+          {{ copy.preview }}
+        </span>
+        <h1 class="font-display mt-6 text-3xl font-semibold tracking-tight sm:text-5xl">{{ copy.catalog.heading }}</h1>
 
-      <div v-else-if="state === 'error'" role="alert" class="mt-10 rounded-2xl border border-red-200 bg-red-50 p-6 text-red-700">
+        <div class="mt-8 flex flex-wrap gap-2" role="tablist" :aria-label="copy.browse.allCategories">
+          <button
+            type="button"
+            class="rounded-full border px-4 py-2 text-sm font-semibold transition-transform hover:-translate-y-0.5"
+            :class="selectedCategoryId === '' ? 'border-sharm-sea bg-sharm-sea text-white' : 'border-sharm-border bg-white text-sharm-sea'"
+            @click="selectCategory('')"
+          >
+            {{ copy.browse.allCategories }}
+          </button>
+          <button
+            v-for="(category, index) in categories"
+            :key="category.id"
+            type="button"
+            class="rounded-full border px-4 py-2 text-sm font-semibold transition-transform hover:-translate-y-0.5"
+            :class="selectedCategoryId === category.id ? `${accentForIndex(index).solid} border-transparent text-white` : `${accentForIndex(index).ring} bg-white ${accentForIndex(index).text}`"
+            @click="selectCategory(category.id)"
+          >
+            {{ category.name[locale] }}
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <section class="mx-auto max-w-6xl px-6 py-10 lg:px-10">
+      <p v-if="state === 'loading'" class="text-sharm-muted">{{ copy.browse.loading }}</p>
+
+      <div v-else-if="state === 'error'" role="alert" class="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-700">
         {{ copy.browse.loadError }}
       </div>
 
-      <div v-else-if="services.length === 0" class="mt-10 rounded-[2rem] border border-black/5 bg-white p-8 text-center shadow-sm sm:p-12">
+      <div v-else-if="services.length === 0" class="rounded-[2rem] border border-black/5 bg-white p-8 text-center shadow-sm sm:p-12">
         <h2 class="text-xl font-semibold">{{ copy.browse.empty.heading }}</h2>
         <p class="mx-auto mt-3 max-w-xl leading-7 text-sharm-muted">{{ copy.browse.empty.body }}</p>
       </div>
 
-      <div v-else class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <article v-for="service in services" :key="service.id" class="flex flex-col rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
-          <p v-if="categoryName(service.categoryId)" class="text-xs font-bold tracking-[0.1em] text-sharm-sea uppercase">
+      <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <article
+          v-for="service in services"
+          :key="service.id"
+          v-reveal
+          class="sharm-reveal sharm-card-lift flex flex-col rounded-2xl border border-black/5 bg-white p-6 shadow-sm"
+        >
+          <p v-if="categoryName(service.categoryId)" class="text-xs font-bold tracking-[0.1em] uppercase" :class="accentForIndex(categoryIndex(service.categoryId)).text">
             {{ categoryName(service.categoryId) }}
           </p>
           <h3 class="mt-2 text-lg font-semibold">{{ service.name[locale] }}</h3>

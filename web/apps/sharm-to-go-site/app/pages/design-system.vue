@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import SiteSubHeader from "../components/SiteSubHeader.vue";
 import { directionFor, type SharmLocale } from "../content/locales";
 
 const locale = ref<SharmLocale>("en");
@@ -8,7 +9,7 @@ const direction = computed(() => directionFor(locale.value));
 const copy = computed(() => locale.value === "en" ? {
   switchLanguage: "العربية",
   back: "Back to experiences",
-  eyebrow: "Living design system · 0.1.0",
+  eyebrow: "Living design system · 0.2.0",
   title: "The visual contract behind Sharm To Go",
   body: "This route proves the semantic tokens and reusable states used by the booking foundation. It contains no live business data.",
   colors: "Semantic color",
@@ -24,7 +25,7 @@ const copy = computed(() => locale.value === "en" ? {
 } : {
   switchLanguage: "English",
   back: "العودة للتجارب",
-  eyebrow: "نظام التصميم الحي · 0.1.0",
+  eyebrow: "نظام التصميم الحي · 0.2.0",
   title: "العقد البصري وراء Sharm To Go",
   body: "الصفحة تثبت الـTokens والحالات القابلة لإعادة الاستخدام في أساس الحجز، ولا تحتوي على بيانات أعمال فعلية.",
   colors: "الألوان الوظيفية",
@@ -44,6 +45,8 @@ const swatches = [
   { name: "Lagoon / selected", className: "bg-sharm-lagoon text-sharm-ink", value: "#d8f1ef" },
   { name: "Sand / warmth", className: "bg-sharm-sand text-sharm-ink", value: "#f4dec0" },
   { name: "Sun / focus", className: "bg-sharm-sun text-sharm-ink", value: "#f2a93b" },
+  { name: "Sky / transfers", className: "bg-sharm-sky text-white", value: "#2f7fa3" },
+  { name: "Terracotta / city", className: "bg-sharm-terracotta text-white", value: "#c8593a" },
   { name: "Canvas", className: "bg-sharm-canvas text-sharm-ink", value: "#f7fbfa" },
   { name: "Ink", className: "bg-sharm-ink text-white", value: "#102f35" },
 ];
@@ -57,16 +60,13 @@ useHead(() => ({
 
 <template>
   <main :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas px-5 py-6 text-sharm-ink lg:px-10">
-    <header class="mx-auto flex max-w-7xl items-center justify-between gap-4">
-      <NuxtLink to="/experiences" class="font-semibold text-sharm-sea">{{ direction === "rtl" ? "→" : "←" }} {{ copy.back }}</NuxtLink>
-      <button type="button" class="min-h-11 rounded-full border border-sharm-border bg-white px-4 text-sm font-semibold" @click="locale = locale === 'en' ? 'ar' : 'en'">
-        {{ copy.switchLanguage }}
-      </button>
-    </header>
+    <div class="mx-auto max-w-7xl">
+      <SiteSubHeader :back-label="copy.back" back-to="/experiences" :direction="direction" :locale-label="copy.switchLanguage" @toggle-locale="locale = locale === 'en' ? 'ar' : 'en'" />
+    </div>
 
     <section class="mx-auto max-w-7xl py-14">
       <span class="text-xs font-bold tracking-[0.12em] text-sharm-sea uppercase">{{ copy.eyebrow }}</span>
-      <h1 class="mt-4 max-w-4xl text-4xl font-semibold tracking-tight sm:text-6xl">{{ copy.title }}</h1>
+      <h1 class="font-display mt-4 max-w-4xl text-4xl font-semibold tracking-tight sm:text-6xl">{{ copy.title }}</h1>
       <p class="mt-5 max-w-3xl text-lg leading-8 text-sharm-muted">{{ copy.body }}</p>
     </section>
 
@@ -83,7 +83,7 @@ useHead(() => ({
 
       <section class="rounded-[1.75rem] border border-sharm-border bg-white p-6">
         <h2 class="text-xl font-semibold">{{ copy.type }}</h2>
-        <p class="mt-7 text-4xl leading-tight font-semibold">{{ copy.display }}</p>
+        <p class="font-display mt-7 text-4xl leading-tight font-semibold">{{ copy.display }}</p>
         <p class="mt-5 max-w-xl leading-7 text-sharm-muted">{{ copy.paragraph }}</p>
         <p class="reference mt-8 text-sm text-sharm-muted">Booking STG-2026-0001 · EGP 1,450</p>
       </section>
