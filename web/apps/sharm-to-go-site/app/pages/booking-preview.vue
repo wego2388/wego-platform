@@ -91,7 +91,7 @@ function restart() {
 
 <template>
   <main :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas text-sharm-ink">
-    <div class="border-b border-sharm-border bg-white px-5 py-5 lg:px-10">
+    <div class="border-b border-sharm-border bg-sharm-surface px-5 py-5 lg:px-10">
       <div class="mx-auto max-w-7xl">
         <SiteSubHeader :back-label="copy.back" back-to="/experiences" :direction="direction" :locale-label="copy.switchLanguage" @toggle-locale="toggleLocale" />
       </div>
@@ -104,11 +104,11 @@ function restart() {
     <section class="sharm-hero border-b border-sharm-border">
       <div class="mx-auto grid max-w-7xl gap-8 px-5 py-10 lg:grid-cols-[1fr_22rem] lg:px-10 lg:py-14">
         <div>
-          <span class="inline-flex rounded-full bg-white px-4 py-2 text-xs font-bold tracking-[0.1em] text-sharm-sea uppercase">{{ copy.prototype }}</span>
+          <span class="inline-flex rounded-full bg-sharm-surface px-4 py-2 text-xs font-bold tracking-[0.1em] text-sharm-sea uppercase">{{ copy.prototype }}</span>
           <h1 class="font-display mt-5 max-w-3xl text-3xl font-semibold tracking-tight sm:text-5xl">{{ copy.title }}</h1>
           <p class="mt-4 max-w-2xl leading-7 text-sharm-muted">{{ copy.subtitle }}</p>
         </div>
-        <div class="rounded-[1.75rem] border border-white/80 bg-white/85 p-5 shadow-xl shadow-sharm-sea/10">
+        <div class="rounded-[1.75rem] border border-sharm-surface/80 bg-sharm-surface/85 p-5 shadow-xl shadow-sharm-sea/10">
           <div class="h-28 rounded-2xl bg-[radial-gradient(circle_at_75%_25%,#f2a93b_0_8%,transparent_9%),linear-gradient(145deg,#075f67,#0b8691_58%,#d8f1ef)]" role="img" :aria-label="copy.exampleService" />
           <p class="mt-4 font-semibold">{{ copy.exampleService }}</p>
           <p class="money mt-2 text-sm font-semibold text-sharm-sea">{{ copy.from }} {{ formatPreviewMoney(locale, previewPricing.adult) }}</p>
@@ -128,7 +128,7 @@ function restart() {
     </nav>
 
     <div v-if="currentStep !== 'complete'" class="mx-auto grid max-w-7xl gap-7 px-5 py-8 pb-32 lg:grid-cols-[minmax(0,1fr)_23rem] lg:px-10 lg:pb-16">
-      <section class="min-w-0 rounded-[1.75rem] border border-sharm-border bg-white p-5 shadow-sm sm:p-7">
+      <section class="min-w-0 rounded-[1.75rem] border border-sharm-border bg-sharm-surface p-5 shadow-sm sm:p-7">
         <div v-if="currentStep === 'options'">
           <h2 ref="stepHeading" tabindex="-1" class="font-display text-2xl font-semibold">{{ copy.dateHeading }}</h2>
           <p class="mt-2 text-sm text-sharm-muted">{{ copy.month }}</p>
@@ -151,7 +151,7 @@ function restart() {
                 :key="language.id"
                 type="button"
                 class="min-h-11 rounded-full border px-5 text-sm font-semibold"
-                :class="selectedLanguageId === language.id ? 'border-sharm-sea bg-sharm-sea text-white' : 'border-sharm-border bg-white'"
+                :class="selectedLanguageId === language.id ? 'border-sharm-sea bg-sharm-sea text-white' : 'border-sharm-border bg-sharm-surface'"
                 :aria-pressed="selectedLanguageId === language.id"
                 @click="selectedLanguageId = language.id"
               >
@@ -197,7 +197,7 @@ function restart() {
             </label>
           </div>
           <div class="mt-6">
-            <button type="button" class="min-h-11 rounded-full border border-sharm-border bg-white px-5 font-semibold text-sharm-sea" @click="cartMessage = true">
+            <button type="button" class="min-h-11 rounded-full border border-sharm-border bg-sharm-surface px-5 font-semibold text-sharm-sea" @click="cartMessage = true">
               {{ copy.addToCart }}
             </button>
             <p v-if="cartMessage" class="mt-3 rounded-xl bg-sharm-info-soft p-3 text-sm text-sharm-info" role="status">{{ copy.cartNotice }}</p>
@@ -263,7 +263,7 @@ function restart() {
         </div>
       </section>
 
-      <aside class="hidden self-start rounded-[1.75rem] border border-sharm-border bg-white p-6 shadow-xl shadow-sharm-sea/8 lg:sticky lg:top-6 lg:block" aria-live="polite">
+      <aside class="hidden self-start rounded-[1.75rem] border border-sharm-border bg-sharm-surface p-6 shadow-xl shadow-sharm-sea/8 lg:sticky lg:top-6 lg:block" aria-live="polite">
         <h2 class="text-xl font-semibold">{{ copy.summaryHeading }}</h2>
         <dl class="mt-6 grid gap-4 text-sm">
           <div class="flex justify-between gap-5"><dt class="text-sharm-muted">{{ copy.selectedDate }}</dt><dd class="reference font-semibold">{{ selectedDate.id }}</dd></div>
@@ -293,7 +293,7 @@ function restart() {
         </div>
       </aside>
 
-      <div class="fixed inset-x-0 bottom-0 z-20 border-t border-sharm-border bg-white/95 p-4 shadow-[0_-12px_36px_rgb(16_47_53_/_0.12)] backdrop-blur lg:hidden" aria-live="polite">
+      <div class="fixed inset-x-0 bottom-0 z-20 border-t border-sharm-border bg-sharm-surface/95 p-4 shadow-[0_-12px_36px_rgb(16_47_53_/_0.12)] backdrop-blur lg:hidden" aria-live="polite">
         <div class="mx-auto flex max-w-xl items-center justify-between gap-4">
           <div>
             <p class="text-xs text-sharm-muted">{{ copy.total }}</p>
@@ -313,7 +313,7 @@ function restart() {
     </div>
 
     <section v-else class="mx-auto max-w-3xl px-5 py-16 text-center lg:px-10">
-      <div class="rounded-[2rem] border border-sharm-border bg-white p-8 shadow-sm sm:p-12">
+      <div class="rounded-[2rem] border border-sharm-border bg-sharm-surface p-8 shadow-sm sm:p-12">
         <div class="mx-auto grid size-16 place-items-center rounded-full bg-sharm-success-soft text-3xl text-sharm-success" aria-hidden="true">✓</div>
         <h2 ref="stepHeading" tabindex="-1" class="font-display mt-6 text-3xl font-semibold">{{ copy.completeHeading }}</h2>
         <p class="mx-auto mt-4 max-w-xl leading-7 text-sharm-muted">{{ copy.completeBody }}</p>

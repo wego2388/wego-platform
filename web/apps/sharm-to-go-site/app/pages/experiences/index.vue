@@ -82,7 +82,7 @@ onMounted(async () => {
       </div>
 
       <section class="mx-auto mt-10 max-w-6xl">
-        <span class="inline-flex rounded-full bg-white/80 px-4 py-2 text-xs font-bold tracking-[0.13em] text-sharm-sea uppercase shadow-sm">
+        <span class="inline-flex rounded-full bg-sharm-surface/80 px-4 py-2 text-xs font-bold tracking-[0.13em] text-sharm-sea uppercase shadow-sm">
           {{ copy.preview }}
         </span>
         <h1 class="font-display mt-6 text-3xl font-semibold tracking-tight sm:text-5xl">{{ copy.catalog.heading }}</h1>
@@ -91,7 +91,7 @@ onMounted(async () => {
           <button
             type="button"
             class="rounded-full border px-4 py-2 text-sm font-semibold transition-transform hover:-translate-y-0.5"
-            :class="selectedCategoryId === '' ? 'border-sharm-sea bg-sharm-sea text-white' : 'border-sharm-border bg-white text-sharm-sea'"
+            :class="selectedCategoryId === '' ? 'border-sharm-sea bg-sharm-sea text-white' : 'border-sharm-border bg-sharm-surface text-sharm-sea'"
             @click="selectCategory('')"
           >
             {{ copy.browse.allCategories }}
@@ -101,7 +101,7 @@ onMounted(async () => {
             :key="category.id"
             type="button"
             class="rounded-full border px-4 py-2 text-sm font-semibold transition-transform hover:-translate-y-0.5"
-            :class="selectedCategoryId === category.id ? `${accentForIndex(index).solid} border-transparent text-white` : `${accentForIndex(index).ring} bg-white ${accentForIndex(index).text}`"
+            :class="selectedCategoryId === category.id ? `${accentForIndex(index).solid} border-transparent text-white` : `${accentForIndex(index).ring} bg-sharm-surface ${accentForIndex(index).text}`"
             @click="selectCategory(category.id)"
           >
             {{ category.name[locale] }}
@@ -113,11 +113,11 @@ onMounted(async () => {
     <section class="mx-auto max-w-6xl px-6 py-10 lg:px-10">
       <p v-if="state === 'loading'" class="text-sharm-muted">{{ copy.browse.loading }}</p>
 
-      <div v-else-if="state === 'error'" role="alert" class="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-700">
+      <div v-else-if="state === 'error'" role="alert" class="rounded-2xl border border-sharm-danger/30 bg-sharm-danger-soft p-6 text-sharm-danger">
         {{ copy.browse.loadError }}
       </div>
 
-      <div v-else-if="services.length === 0" class="rounded-[2rem] border border-black/5 bg-white p-8 text-center shadow-sm sm:p-12">
+      <div v-else-if="services.length === 0" class="rounded-[2rem] border border-black/5 bg-sharm-surface p-8 text-center shadow-sm sm:p-12">
         <h2 class="text-xl font-semibold">{{ copy.browse.empty.heading }}</h2>
         <p class="mx-auto mt-3 max-w-xl leading-7 text-sharm-muted">{{ copy.browse.empty.body }}</p>
       </div>
@@ -127,7 +127,7 @@ onMounted(async () => {
           v-for="service in services"
           :key="service.id"
           v-reveal
-          class="sharm-reveal sharm-card-lift flex flex-col rounded-2xl border border-black/5 bg-white p-6 shadow-sm"
+          class="sharm-reveal sharm-card-lift flex flex-col rounded-2xl border border-black/5 bg-sharm-surface p-6 shadow-sm"
         >
           <p v-if="categoryName(service.categoryId)" class="text-xs font-bold tracking-[0.1em] uppercase" :class="accentForIndex(categoryIndex(service.categoryId)).text">
             {{ categoryName(service.categoryId) }}
@@ -142,7 +142,7 @@ onMounted(async () => {
           </p>
           <NuxtLink
             :to="`/experiences/${service.id}`"
-            class="mt-4 inline-flex justify-center rounded-full border border-sharm-sea bg-white px-5 py-2.5 text-sm font-semibold text-sharm-sea"
+            class="mt-4 inline-flex justify-center rounded-full border border-sharm-sea bg-sharm-surface px-5 py-2.5 text-sm font-semibold text-sharm-sea"
           >
             {{ copy.browse.viewDetails }}
           </NuxtLink>
@@ -153,10 +153,10 @@ onMounted(async () => {
         <NuxtLink to="/booking-preview" class="inline-flex rounded-full bg-sharm-sea px-6 py-3 font-semibold text-white">
           {{ copy.catalog.previewBooking }}
         </NuxtLink>
-        <NuxtLink to="/design-system" class="inline-flex rounded-full border border-sharm-border bg-white px-6 py-3 font-semibold text-sharm-sea">
+        <NuxtLink to="/design-system" class="inline-flex rounded-full border border-sharm-border bg-sharm-surface px-6 py-3 font-semibold text-sharm-sea">
           {{ copy.catalog.viewSystem }}
         </NuxtLink>
-        <NuxtLink to="/" class="inline-flex rounded-full border border-sharm-border bg-white px-6 py-3 font-semibold text-sharm-sea">
+        <NuxtLink to="/" class="inline-flex rounded-full border border-sharm-border bg-sharm-surface px-6 py-3 font-semibold text-sharm-sea">
           {{ copy.catalog.back }}
         </NuxtLink>
       </div>

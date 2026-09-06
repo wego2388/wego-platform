@@ -58,9 +58,38 @@
 }
 
 html {
-  background: #f7fbfa;
-  color: #102f35;
+  background: var(--stg-color-surface-canvas);
+  color: var(--stg-color-text-primary);
   font-family: var(--wego-font-sans);
+}
+
+/*
+ * Dark palette derived from the same brand tokens above, mirroring the
+ * exact mapping already proven on sharm-divers-club-site's own dark mode:
+ * canvas/surface/text/border invert for real page/card contrast; brand-sea
+ * brightens since it's used as *text* everywhere (nav links, prices,
+ * eyebrow labels) and the original near-black teal would fail contrast on
+ * a dark canvas. sun/sky/terracotta are deliberately left unchanged — all
+ * three are mid-to-bright hues already legible on a dark surface, unlike
+ * sea. lagoon/sand are also left unchanged on purpose: both are only ever
+ * used as *light* icon-badge fills paired with dark text on top (category
+ * cards), not as a role-based surface — flipping them dark would break
+ * that specific pairing's contrast, the same trap sharm-divers-club-site's
+ * own dark-mode entry documented for its equivalent tokens.
+ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --stg-color-surface-canvas: #0a2124;
+    --stg-color-surface-default: #123338;
+    --stg-color-text-primary: #f7fbfa;
+    --stg-color-text-secondary: #a9cbc9;
+    --stg-color-border-default: #234b50;
+    --stg-color-brand-sea: #2bc4d1;
+    --stg-color-status-info-soft: #0d3742;
+    --stg-color-status-success-soft: #0f3a24;
+    --stg-color-status-warning-soft: #3a2a0a;
+    --stg-color-status-danger-soft: #3a1210;
+  }
 }
 
 body {
@@ -94,6 +123,25 @@ html[dir="rtl"] {
     radial-gradient(circle at 88% -4%, rgb(216 241 239 / 95%), transparent 36%),
     radial-gradient(circle at 60% 90%, rgb(11 134 145 / 12%), transparent 40%),
     linear-gradient(135deg, #f7fbfa 0%, #edf8f6 55%, #fff6e8 100%);
+}
+
+/*
+ * Placed after the light .sharm-hero rule on purpose — CSS resolves equal-
+ * specificity rules by source order, so a dark override placed *before*
+ * the base rule loses even when its media condition is true. Caught live:
+ * an earlier version of this file had this block up near :root, and every
+ * hero band on the actual dark-mode-rendered page kept its light pastel
+ * gradient underneath now-light (correctly flipped) text — text.primary
+ * had inverted but this rule's background hadn't, from the same file.
+ */
+@media (prefers-color-scheme: dark) {
+  .sharm-hero {
+    background:
+      radial-gradient(circle at 12% 18%, rgb(242 169 59 / 14%), transparent 32%),
+      radial-gradient(circle at 88% -4%, rgb(43 196 209 / 16%), transparent 36%),
+      radial-gradient(circle at 60% 90%, rgb(11 134 145 / 18%), transparent 40%),
+      linear-gradient(135deg, #0a2124 0%, #0d2b30 55%, #17272a 100%);
+  }
 }
 
 .sharm-hero-orb {

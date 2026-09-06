@@ -50,7 +50,7 @@ const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "
         </nav>
         <button
           type="button"
-          class="rounded-full border border-sharm-sea/20 bg-white/80 px-4 py-2 text-sm font-semibold text-sharm-sea transition-transform hover:scale-105"
+          class="rounded-full border border-sharm-sea/20 bg-sharm-surface/80 px-4 py-2 text-sm font-semibold text-sharm-sea transition-transform hover:scale-105"
           @click="toggleLocale"
         >
           {{ copy.languageName }}
@@ -60,7 +60,7 @@ const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "
       <section class="relative mx-auto grid max-w-7xl gap-12 px-6 pt-16 pb-20 lg:grid-cols-[1.15fr_0.85fr] lg:px-10 lg:pt-24">
         <div>
           <span
-            class="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-xs font-bold tracking-[0.13em] text-sharm-sea uppercase shadow-sm"
+            class="inline-flex items-center gap-2 rounded-full bg-sharm-surface/80 px-4 py-2 text-xs font-bold tracking-[0.13em] text-sharm-sea uppercase shadow-sm"
           >
             <span class="size-1.5 rounded-full bg-sharm-sun" aria-hidden="true" />
             {{ copy.preview }}
@@ -79,14 +79,14 @@ const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "
             </NuxtLink>
             <a
               href="#how"
-              class="rounded-full border border-sharm-sea/20 bg-white px-6 py-3 font-semibold text-sharm-sea transition-transform hover:-translate-y-0.5"
+              class="rounded-full border border-sharm-sea/20 bg-sharm-surface px-6 py-3 font-semibold text-sharm-sea transition-transform hover:-translate-y-0.5"
             >
               {{ copy.hero.plan }}
             </a>
           </div>
         </div>
 
-        <div class="self-end rounded-[2rem] border border-white/80 bg-white/90 p-5 shadow-2xl shadow-sharm-sea/10 backdrop-blur">
+        <div class="self-end rounded-[2rem] border border-sharm-surface/80 bg-sharm-surface/90 p-5 shadow-2xl shadow-sharm-sea/10 backdrop-blur">
           <div class="grid gap-3">
             <div class="rounded-2xl border border-black/5 p-4">
               <p class="text-xs font-bold tracking-[0.12em] text-sharm-muted uppercase">{{ copy.search.category }}</p>
@@ -120,7 +120,7 @@ const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "
           v-for="(category, index) in copy.categories"
           :key="category.title"
           v-reveal
-          class="sharm-reveal sharm-card-lift rounded-[1.75rem] border bg-white p-6 shadow-sm"
+          class="sharm-reveal sharm-card-lift rounded-[1.75rem] border bg-sharm-surface p-6 shadow-sm"
           :class="accentForIndex(index).ring"
           :style="{ transitionDelay: `${index * 70}ms` }"
         >
@@ -164,7 +164,7 @@ const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "
           v-for="(point, index) in copy.trust.points"
           :key="point"
           v-reveal
-          class="sharm-reveal sharm-card-lift flex items-start gap-3 rounded-2xl border border-black/5 bg-white p-5 font-semibold"
+          class="sharm-reveal sharm-card-lift flex items-start gap-3 rounded-2xl border border-black/5 bg-sharm-surface p-5 font-semibold"
           :style="{ transitionDelay: `${index * 60}ms` }"
         >
           <span class="grid size-6 shrink-0 place-items-center rounded-full bg-sharm-lagoon text-sharm-sea-bright">✓</span>

@@ -23,7 +23,7 @@ defineEmits<{ toggleLocale: [] }>();
     </NuxtLink>
     <button
       type="button"
-      class="min-h-11 rounded-full border border-sharm-sea/20 bg-white px-4 text-sm font-semibold text-sharm-sea transition-transform hover:scale-105"
+      class="min-h-11 rounded-full border border-sharm-sea/20 bg-sharm-surface px-4 text-sm font-semibold text-sharm-sea transition-transform hover:scale-105"
       @click="$emit('toggleLocale')"
     >
       {{ localeLabel }}

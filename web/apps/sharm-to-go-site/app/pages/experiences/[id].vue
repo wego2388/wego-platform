@@ -61,11 +61,11 @@ onMounted(async () => {
     <section class="mx-auto mt-10 max-w-4xl">
       <p v-if="state === 'loading'" class="text-sharm-muted">{{ copy.browse.loading }}</p>
 
-      <div v-else-if="state === 'error'" role="alert" class="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-700">
+      <div v-else-if="state === 'error'" role="alert" class="rounded-2xl border border-sharm-danger/30 bg-sharm-danger-soft p-6 text-sharm-danger">
         {{ copy.browse.loadError }}
       </div>
 
-      <div v-else-if="state === 'not-found'" class="rounded-[2rem] border border-black/5 bg-white p-8 text-center shadow-sm sm:p-12">
+      <div v-else-if="state === 'not-found'" class="rounded-[2rem] border border-black/5 bg-sharm-surface p-8 text-center shadow-sm sm:p-12">
         <h1 class="text-2xl font-semibold">{{ copy.detail.notFoundHeading }}</h1>
         <p class="mx-auto mt-3 max-w-xl leading-7 text-sharm-muted">{{ copy.detail.notFoundBody }}</p>
         <NuxtLink to="/experiences" class="mt-6 inline-flex rounded-full bg-sharm-sea px-6 py-3 font-semibold text-white">
@@ -73,7 +73,7 @@ onMounted(async () => {
         </NuxtLink>
       </div>
 
-      <article v-else-if="service" class="rounded-[2rem] border border-black/5 bg-white p-8 shadow-sm sm:p-12">
+      <article v-else-if="service" class="rounded-[2rem] border border-black/5 bg-sharm-surface p-8 shadow-sm sm:p-12">
         <h1 class="font-display text-3xl font-semibold tracking-tight">{{ service.name[locale] }}</h1>
         <p v-if="service.operatedBy" class="mt-2 text-sm text-sharm-muted">{{ copy.browse.operatedBy }}: {{ service.operatedBy }}</p>
         <p class="mt-5 leading-8 text-sharm-muted">{{ service.description[locale] }}</p>
@@ -118,7 +118,7 @@ onMounted(async () => {
           <p class="mt-2 leading-7 text-sharm-muted">{{ copy.detail.contactBody }}</p>
         </section>
 
-        <NuxtLink to="/experiences" class="mt-8 inline-flex rounded-full border border-sharm-border bg-white px-6 py-3 font-semibold text-sharm-sea">
+        <NuxtLink to="/experiences" class="mt-8 inline-flex rounded-full border border-sharm-border bg-sharm-surface px-6 py-3 font-semibold text-sharm-sea">
           {{ copy.detail.back }}
         </NuxtLink>
       </article>

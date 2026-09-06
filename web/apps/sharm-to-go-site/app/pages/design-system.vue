@@ -71,24 +71,24 @@ useHead(() => ({
     </section>
 
     <div class="mx-auto grid max-w-7xl gap-6 pb-16 lg:grid-cols-2">
-      <section class="rounded-[1.75rem] border border-sharm-border bg-white p-6">
+      <section class="rounded-[1.75rem] border border-sharm-border bg-sharm-surface p-6">
         <h2 class="text-xl font-semibold">{{ copy.colors }}</h2>
         <div class="mt-5 grid gap-3 sm:grid-cols-2">
           <div v-for="swatch in swatches" :key="swatch.name" class="overflow-hidden rounded-2xl border border-sharm-border">
             <div class="h-20 p-4 font-semibold" :class="swatch.className">{{ swatch.name }}</div>
-            <code class="reference block bg-white p-3 text-sm">{{ swatch.value }}</code>
+            <code class="reference block bg-sharm-surface p-3 text-sm">{{ swatch.value }}</code>
           </div>
         </div>
       </section>
 
-      <section class="rounded-[1.75rem] border border-sharm-border bg-white p-6">
+      <section class="rounded-[1.75rem] border border-sharm-border bg-sharm-surface p-6">
         <h2 class="text-xl font-semibold">{{ copy.type }}</h2>
         <p class="font-display mt-7 text-4xl leading-tight font-semibold">{{ copy.display }}</p>
         <p class="mt-5 max-w-xl leading-7 text-sharm-muted">{{ copy.paragraph }}</p>
         <p class="reference mt-8 text-sm text-sharm-muted">Booking STG-2026-0001 · EGP 1,450</p>
       </section>
 
-      <section class="rounded-[1.75rem] border border-sharm-border bg-white p-6">
+      <section class="rounded-[1.75rem] border border-sharm-border bg-sharm-surface p-6">
         <h2 class="text-xl font-semibold">{{ copy.controls }}</h2>
         <div class="mt-6 flex flex-wrap gap-3">
           <button type="button" class="min-h-11 rounded-full bg-sharm-sea px-5 font-semibold text-white">{{ copy.primary }}</button>
@@ -100,7 +100,7 @@ useHead(() => ({
         </label>
       </section>
 
-      <section class="rounded-[1.75rem] border border-sharm-border bg-white p-6">
+      <section class="rounded-[1.75rem] border border-sharm-border bg-sharm-surface p-6">
         <h2 class="text-xl font-semibold">{{ copy.states }}</h2>
         <div class="mt-6 grid gap-3 sm:grid-cols-2">
           <span class="rounded-full bg-sharm-warning-soft px-4 py-3 text-sm font-semibold text-sharm-warning">○ {{ copy.statuses[0] }}</span>
