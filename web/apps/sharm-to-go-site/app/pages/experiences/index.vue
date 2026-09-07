@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+import MockPhoto from "../../components/MockPhoto.vue";
 import SiteSubHeader from "../../components/SiteSubHeader.vue";
-import { accentForIndex } from "../../content/categoryAccents";
+import { accentForIndex, toneForIndex } from "../../content/categoryAccents";
 import { directionFor, type SharmLocale, siteCopy } from "../../content/locales";
 import { vReveal } from "../../composables/useScrollReveal";
 import {
@@ -127,25 +128,28 @@ onMounted(async () => {
           v-for="service in services"
           :key="service.id"
           v-reveal
-          class="sharm-reveal sharm-card-lift flex flex-col rounded-2xl border border-black/5 bg-sharm-surface p-6 shadow-sm"
+          class="sharm-reveal sharm-card-lift flex flex-col overflow-hidden rounded-2xl border border-black/5 bg-sharm-surface shadow-sm"
         >
-          <p v-if="categoryName(service.categoryId)" class="text-xs font-bold tracking-[0.1em] uppercase" :class="accentForIndex(categoryIndex(service.categoryId)).text">
-            {{ categoryName(service.categoryId) }}
-          </p>
-          <h3 class="mt-2 text-lg font-semibold">{{ service.name[locale] }}</h3>
-          <p class="mt-2 line-clamp-3 flex-1 text-sm leading-6 text-sharm-muted">{{ service.description[locale] }}</p>
-          <p v-if="service.operatedBy" class="mt-3 text-xs text-sharm-muted">{{ copy.browse.operatedBy }}: {{ service.operatedBy }}</p>
-          <p v-if="service.media.length > 0" class="mt-1 text-xs text-sharm-muted">{{ copy.browse.photoCount(service.media.length) }}</p>
-          <p v-if="startingPrice(service)" class="mt-4 text-base font-semibold text-sharm-sea">
-            {{ copy.browse.fromPrice }} {{ startingPrice(service)?.priceCurrency }} {{ startingPrice(service)?.priceAmount }}
-            <span class="text-xs font-normal text-sharm-muted">{{ priceBasisLabel(startingPrice(service)?.priceBasis ?? "PER_PERSON") }}</span>
-          </p>
-          <NuxtLink
-            :to="`/experiences/${service.id}`"
-            class="mt-4 inline-flex justify-center rounded-full border border-sharm-sea bg-sharm-surface px-5 py-2.5 text-sm font-semibold text-sharm-sea"
-          >
-            {{ copy.browse.viewDetails }}
-          </NuxtLink>
+          <MockPhoto :tone="toneForIndex(categoryIndex(service.categoryId))" :label="service.name[locale]" class="aspect-video w-full" />
+          <div class="flex flex-1 flex-col p-6">
+            <p v-if="categoryName(service.categoryId)" class="text-xs font-bold tracking-[0.1em] uppercase" :class="accentForIndex(categoryIndex(service.categoryId)).text">
+              {{ categoryName(service.categoryId) }}
+            </p>
+            <h3 class="mt-2 text-lg font-semibold">{{ service.name[locale] }}</h3>
+            <p class="mt-2 line-clamp-3 flex-1 text-sm leading-6 text-sharm-muted">{{ service.description[locale] }}</p>
+            <p v-if="service.operatedBy" class="mt-3 text-xs text-sharm-muted">{{ copy.browse.operatedBy }}: {{ service.operatedBy }}</p>
+            <p v-if="service.media.length > 0" class="mt-1 text-xs text-sharm-muted">{{ copy.browse.photoCount(service.media.length) }}</p>
+            <p v-if="startingPrice(service)" class="mt-4 text-base font-semibold text-sharm-sea">
+              {{ copy.browse.fromPrice }} {{ startingPrice(service)?.priceCurrency }} {{ startingPrice(service)?.priceAmount }}
+              <span class="text-xs font-normal text-sharm-muted">{{ priceBasisLabel(startingPrice(service)?.priceBasis ?? "PER_PERSON") }}</span>
+            </p>
+            <NuxtLink
+              :to="`/experiences/${service.id}`"
+              class="mt-4 inline-flex justify-center rounded-full border border-sharm-sea bg-sharm-surface px-5 py-2.5 text-sm font-semibold text-sharm-sea"
+            >
+              {{ copy.browse.viewDetails }}
+            </NuxtLink>
+          </div>
         </article>
       </div>
 

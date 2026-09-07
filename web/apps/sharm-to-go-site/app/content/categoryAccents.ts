@@ -22,3 +22,16 @@ export function accentForIndex(index: number): CategoryAccent {
   const safeIndex = ((index % length) + length) % length;
   return categoryAccents[safeIndex]!;
 }
+
+// Same position-cycling as accentForIndex, for MockPhoto's gradient tone —
+// kept as a parallel array (not folded into CategoryAccent) since a tone
+// is a MockPhoto-specific concept, not a generic accent property every
+// consumer of categoryAccents needs.
+const categoryTones = ["sea", "desert", "transfers", "city"] as const;
+export type CategoryTone = (typeof categoryTones)[number];
+
+export function toneForIndex(index: number): CategoryTone {
+  const length = categoryTones.length;
+  const safeIndex = ((index % length) + length) % length;
+  return categoryTones[safeIndex]!;
+}

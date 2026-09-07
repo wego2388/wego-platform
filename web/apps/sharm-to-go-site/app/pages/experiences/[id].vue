@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+import MockPhoto from "../../components/MockPhoto.vue";
 import SiteSubHeader from "../../components/SiteSubHeader.vue";
+import { toneForIndex } from "../../content/categoryAccents";
 import { directionFor, type SharmLocale, siteCopy } from "../../content/locales";
-import { getPublicService, type PublicService } from "../../composables/usePublicCatalog";
+import { getPublicService, listPublicCategories, type PublicCategory, type PublicService } from "../../composables/usePublicCatalog";
 
 const route = useRoute();
 const serviceId = String(route.params.id);
@@ -12,7 +14,16 @@ const copy = computed(() => siteCopy[locale.value]);
 const direction = computed(() => directionFor(locale.value));
 
 const service = ref<PublicService | null>(null);
+const categories = ref<PublicCategory[]>([]);
 const state = ref<"loading" | "loaded" | "not-found" | "error">("loading");
+
+// Same accentForIndex/toneForIndex position-cycling as experiences/index.vue,
+// so the same category shows the same MockPhoto tone on both the list and
+// this detail page — fetched here too (not derived from just the id) after
+// an earlier version's id-hash approach visibly disagreed with the list
+// page's own index-based tone for the same category, caught by comparing
+// real screenshots of both pages side by side.
+const categoryIndex = computed(() => categories.value.findIndex((item) => item.id === service.value?.categoryId));
 
 useHead(() => ({
   title:
@@ -38,6 +49,11 @@ function priceBasisLabel(basis: string): string {
 }
 
 onMounted(async () => {
+  try {
+    categories.value = await listPublicCategories();
+  } catch {
+    categories.value = [];
+  }
   try {
     const result = await getPublicService(serviceId);
     if (result === null) {
@@ -73,7 +89,12 @@ onMounted(async () => {
         </NuxtLink>
       </div>
 
-      <article v-else-if="service" class="rounded-[2rem] border border-black/5 bg-sharm-surface p-8 shadow-sm sm:p-12">
+      <article v-else-if="service" class="overflow-hidden rounded-[2rem] border border-black/5 bg-sharm-surface p-8 shadow-sm sm:p-12">
+        <MockPhoto
+          :tone="toneForIndex(categoryIndex)"
+          :label="service.name[locale]"
+          class="-mx-8 -mt-8 mb-8 aspect-[21/9] w-[calc(100%+4rem)] sm:-mx-12 sm:-mt-12 sm:mb-10 sm:w-[calc(100%+6rem)]"
+        />
         <h1 class="font-display text-3xl font-semibold tracking-tight">{{ service.name[locale] }}</h1>
         <p v-if="service.operatedBy" class="mt-2 text-sm text-sharm-muted">{{ copy.browse.operatedBy }}: {{ service.operatedBy }}</p>
         <p class="mt-5 leading-8 text-sharm-muted">{{ service.description[locale] }}</p>

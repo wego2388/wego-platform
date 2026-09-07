@@ -26,8 +26,28 @@ const sampleService = {
   media: [{ assetReference: "asset-1", locale: "en" }],
 };
 
+const sampleCategory = {
+  id: sampleService.categoryId,
+  code: "desert-adventures",
+  name: { en: "Desert & stargazing", ar: "الصحراء والنجوم" },
+  description: null,
+};
+
 function withRoute(id: string) {
   vi.stubGlobal("useRoute", () => ({ params: { id } }));
+}
+
+function stubFetch(serviceResponse: () => Response) {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL) => {
+      const url = new URL(String(input), "http://localhost");
+      if (url.pathname === "/api/catalog/categories") {
+        return new Response(JSON.stringify([sampleCategory]), { status: 200 });
+      }
+      return serviceResponse();
+    }),
+  );
 }
 
 function mountPage() {
@@ -39,7 +59,7 @@ function mountPage() {
 describe("experience detail page", () => {
   it("renders the full real detail for a published service", async () => {
     withRoute(serviceId);
-    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(sampleService), { status: 200 })));
+    stubFetch(() => new Response(JSON.stringify(sampleService), { status: 200 }));
 
     const wrapper = mountPage();
     await flushPromises();
@@ -57,7 +77,7 @@ describe("experience detail page", () => {
 
   it("never shows a fake booking action, only an honest contact placeholder", async () => {
     withRoute(serviceId);
-    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(sampleService), { status: 200 })));
+    stubFetch(() => new Response(JSON.stringify(sampleService), { status: 200 }));
 
     const wrapper = mountPage();
     await flushPromises();
@@ -68,7 +88,7 @@ describe("experience detail page", () => {
 
   it("shows an honest not-found state for an unknown or unpublished id, not a crash", async () => {
     withRoute("00000000-0000-0000-0000-000000000000");
-    vi.stubGlobal("fetch", vi.fn(async () => new Response("not found", { status: 404 })));
+    stubFetch(() => new Response("not found", { status: 404 }));
 
     const wrapper = mountPage();
     await flushPromises();
@@ -79,7 +99,7 @@ describe("experience detail page", () => {
 
   it("shows a real error, not a raw crash, when the catalog cannot be reached", async () => {
     withRoute(serviceId);
-    vi.stubGlobal("fetch", vi.fn(async () => new Response("boom", { status: 500 })));
+    stubFetch(() => new Response("boom", { status: 500 }));
 
     const wrapper = mountPage();
     await flushPromises();

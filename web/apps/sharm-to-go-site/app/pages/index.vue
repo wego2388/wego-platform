@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { accentForIndex } from "../content/categoryAccents";
+import MockPhoto from "../components/MockPhoto.vue";
+import { accentForIndex, toneForIndex } from "../content/categoryAccents";
 import { directionFor, type SharmLocale, siteCopy } from "../content/locales";
 import { vReveal } from "../composables/useScrollReveal";
 
@@ -120,16 +121,16 @@ const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "
           v-for="(category, index) in copy.categories"
           :key="category.title"
           v-reveal
-          class="sharm-reveal sharm-card-lift rounded-[1.75rem] border bg-sharm-surface p-6 shadow-sm"
+          class="sharm-reveal sharm-card-lift overflow-hidden rounded-[1.75rem] border bg-sharm-surface shadow-sm"
           :class="accentForIndex(index).ring"
           :style="{ transitionDelay: `${index * 70}ms` }"
         >
-          <div class="grid size-12 place-items-center rounded-2xl text-sm font-black" :class="[accentForIndex(index).bg, accentForIndex(index).text]">
-            {{ String(index + 1).padStart(2, "0") }}
+          <MockPhoto :tone="toneForIndex(index)" :label="category.title" class="aspect-[4/3] w-full" />
+          <div class="p-6">
+            <p class="text-xs font-bold tracking-[0.15em] uppercase" :class="accentForIndex(index).text">{{ category.eyebrow }}</p>
+            <h3 class="mt-2 text-xl font-semibold">{{ category.title }}</h3>
+            <p class="mt-3 text-sm leading-6 text-sharm-muted">{{ category.description }}</p>
           </div>
-          <p class="mt-6 text-xs font-bold tracking-[0.15em] uppercase" :class="accentForIndex(index).text">{{ category.eyebrow }}</p>
-          <h3 class="mt-2 text-xl font-semibold">{{ category.title }}</h3>
-          <p class="mt-3 text-sm leading-6 text-sharm-muted">{{ category.description }}</p>
         </article>
       </div>
     </section>
