@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,7 +26,15 @@ import com.wego.mobile.shared.catalog.TravelService
 import com.wego.mobile.shared.locale.AppLocale
 import com.wego.mobile.sharmtogo.content.SiteCopy
 import com.wego.mobile.sharmtogo.design.StgCard
+import com.wego.mobile.sharmtogo.design.StgCategoryTone
+import com.wego.mobile.sharmtogo.design.StgMockPhoto
 import com.wego.mobile.sharmtogo.design.StgSpace
+
+/** Same position-based tone assignment as the website's `categoryIndex`/`accentForIndex` pair. */
+private fun toneForCategory(categoryId: String?): StgCategoryTone {
+    val index = TravelCatalogSnapshot.categories.indexOfFirst { it.id == categoryId }
+    return StgCategoryTone.forIndex(index)
+}
 
 private fun priceBasisLabel(
     basis: TravelPriceBasis,
@@ -91,44 +100,48 @@ fun ExperiencesScreen(
             ) {
                 items(services) { service ->
                     val category = TravelCatalogSnapshot.categoryById(service.categoryId)
+                    val tone = toneForCategory(service.categoryId)
                     val price = startingPrice(service)
                     StgCard(modifier = Modifier.fillMaxWidth(), onClick = { onServiceClick(service) }) {
-                        Column(modifier = Modifier.padding(StgSpace.lg), verticalArrangement = Arrangement.spacedBy(StgSpace.xs)) {
-                            if (category != null) {
-                                Text(
-                                    category.name.of(locale),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.primary,
-                                )
-                            }
-                            Text(service.name.of(locale), style = MaterialTheme.typography.titleMedium)
-                            Text(service.description.of(locale), style = MaterialTheme.typography.bodyMedium, maxLines = 3)
-                            service.operatedBy?.let {
-                                Text(
-                                    "${SiteCopy.Browse.operatedBy.of(locale)}: $it",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                            if (service.media.isNotEmpty()) {
-                                Text(
-                                    SiteCopy.Browse.photoCount(service.media.size).of(locale),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                            if (price != null) {
-                                Row {
+                        Column {
+                            StgMockPhoto(tone = tone, modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f))
+                            Column(modifier = Modifier.padding(StgSpace.lg), verticalArrangement = Arrangement.spacedBy(StgSpace.xs)) {
+                                if (category != null) {
                                     Text(
-                                        "${SiteCopy.Browse.fromPrice.of(locale)} ${price.priceCurrency} ${price.priceAmount}",
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = MaterialTheme.colorScheme.primary,
+                                        category.name.of(locale),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = tone.accent,
                                     )
+                                }
+                                Text(service.name.of(locale), style = MaterialTheme.typography.titleMedium)
+                                Text(service.description.of(locale), style = MaterialTheme.typography.bodyMedium, maxLines = 3)
+                                service.operatedBy?.let {
                                     Text(
-                                        " ${priceBasisLabel(price.priceBasis, locale)}",
+                                        "${SiteCopy.Browse.operatedBy.of(locale)}: $it",
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
+                                }
+                                if (service.media.isNotEmpty()) {
+                                    Text(
+                                        SiteCopy.Browse.photoCount(service.media.size).of(locale),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                                if (price != null) {
+                                    Row {
+                                        Text(
+                                            "${SiteCopy.Browse.fromPrice.of(locale)} ${price.priceCurrency} ${price.priceAmount}",
+                                            style = MaterialTheme.typography.titleSmall,
+                                            color = MaterialTheme.colorScheme.primary,
+                                        )
+                                        Text(
+                                            " ${priceBasisLabel(price.priceBasis, locale)}",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
                                 }
                             }
                         }

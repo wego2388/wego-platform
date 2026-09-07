@@ -4,11 +4,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,6 +20,8 @@ import com.wego.mobile.shared.locale.AppLocale
 import com.wego.mobile.sharmtogo.content.SiteCopy
 import com.wego.mobile.sharmtogo.design.StgBadge
 import com.wego.mobile.sharmtogo.design.StgCard
+import com.wego.mobile.sharmtogo.design.StgCategoryTone
+import com.wego.mobile.sharmtogo.design.StgMockPhoto
 import com.wego.mobile.sharmtogo.design.StgSpace
 
 @Composable
@@ -54,6 +58,27 @@ fun HomeScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(StgSpace.lg),
                 )
+            }
+        }
+
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(StgSpace.sm)) {
+                Text(SiteCopy.Categories.heading.of(locale), style = MaterialTheme.typography.titleLarge)
+                Text(SiteCopy.Categories.body.of(locale), style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+
+        itemsIndexed(SiteCopy.Categories.items) { index, (eyebrow, title, description) ->
+            val tone = StgCategoryTone.forIndex(index)
+            StgCard(modifier = Modifier.fillMaxWidth()) {
+                Column {
+                    StgMockPhoto(tone = tone, modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f))
+                    Column(modifier = Modifier.padding(StgSpace.lg), verticalArrangement = Arrangement.spacedBy(StgSpace.xs)) {
+                        Text(eyebrow.of(locale), style = MaterialTheme.typography.labelMedium, color = tone.accent)
+                        Text(title.of(locale), style = MaterialTheme.typography.titleMedium)
+                        Text(description.of(locale), style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
             }
         }
 

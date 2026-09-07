@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,8 @@ import com.wego.mobile.shared.catalog.TravelService
 import com.wego.mobile.shared.locale.AppLocale
 import com.wego.mobile.sharmtogo.content.SiteCopy
 import com.wego.mobile.sharmtogo.design.StgCard
+import com.wego.mobile.sharmtogo.design.StgCategoryTone
+import com.wego.mobile.sharmtogo.design.StgMockPhoto
 import com.wego.mobile.sharmtogo.design.StgSpace
 
 private fun priceBasisLabel(
@@ -72,11 +75,17 @@ private fun ExperienceDetailContent(
     locale: AppLocale,
     onBack: () -> Unit,
 ) {
+    val tone = StgCategoryTone.forIndex(TravelCatalogSnapshot.categories.indexOfFirst { it.id == service.categoryId })
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(StgSpace.xxl),
         verticalArrangement = Arrangement.spacedBy(StgSpace.lg),
     ) {
+        item {
+            StgMockPhoto(tone = tone, modifier = Modifier.fillMaxWidth().aspectRatio(21f / 9f))
+        }
+
         item {
             Column(verticalArrangement = Arrangement.spacedBy(StgSpace.xs)) {
                 Text(service.name.of(locale), style = MaterialTheme.typography.headlineSmall)

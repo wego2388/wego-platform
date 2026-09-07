@@ -18,6 +18,8 @@ object StgColor {
     val lagoon = Color(0xFFD8F1EF)
     val sand = Color(0xFFF4DEC0)
     val sun = Color(0xFFF2A93B)
+    val sky = Color(0xFF2F7FA3)
+    val terracotta = Color(0xFFC8593A)
 
     val canvas = Color(0xFFF7FBFA)
     val surface = Color(0xFFFFFFFF)

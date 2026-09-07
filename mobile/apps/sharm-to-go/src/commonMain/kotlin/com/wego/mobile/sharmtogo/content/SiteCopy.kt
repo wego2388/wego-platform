@@ -30,6 +30,51 @@ object SiteCopy {
         val browseCta = LocalizedText("Explore categories", "استكشف الفئات")
     }
 
+    /** Ported verbatim from `locales.ts`'s `categories` array — same order as `design.StgCategoryTone`'s entries, so `StgCategoryTone.forIndex(index)` lines up with this list's position exactly. */
+    object Categories {
+        val heading = LocalizedText("Start with the kind of day you want", "ابدأ بشكل اليوم اللي يناسبك")
+        val body =
+            LocalizedText(
+                "These are discovery categories, not a claim that every service is already live or operated by Sharm To Go.",
+                "دي فئات مقترحة للاستكشاف، وليست ادعاءً بأن كل الخدمات متاحة الآن أو تابعة مباشرةً لـSharm To Go.",
+            )
+        val items: List<Triple<LocalizedText, LocalizedText, LocalizedText>> =
+            listOf(
+                Triple(
+                    LocalizedText("Red Sea", "البحر الأحمر"),
+                    LocalizedText("Sea adventures", "مغامرات البحر"),
+                    LocalizedText(
+                        "Boat days, snorkelling and water experiences from approved operators.",
+                        "رحلات بحرية وسنوركل وتجارب مائية من مشغلين معتمدين.",
+                    ),
+                ),
+                Triple(
+                    LocalizedText("Sinai", "سيناء"),
+                    LocalizedText("Desert & stargazing", "الصحراء والنجوم"),
+                    LocalizedText(
+                        "Canyon, safari and evening experiences with clear pickup details.",
+                        "كانـيون وسفاري وسهرات مع تفاصيل انتقال واضحة.",
+                    ),
+                ),
+                Triple(
+                    LocalizedText("Arrival", "الوصول"),
+                    LocalizedText("Transfers", "الانتقالات"),
+                    LocalizedText(
+                        "Airport and local movement requests with vehicle and confirmation details.",
+                        "طلبات مطار وتنقلات محلية مع تفاصيل السيارة والتأكيد.",
+                    ),
+                ),
+                Triple(
+                    LocalizedText("Local", "محلي"),
+                    LocalizedText("City & culture", "المدينة والثقافة"),
+                    LocalizedText(
+                        "Sharm highlights, food and nearby discoveries curated for your time.",
+                        "أهم أماكن شرم والطعام واكتشافات قريبة مناسبة لوقتك.",
+                    ),
+                ),
+            )
+    }
+
     object How {
         val heading = LocalizedText("A request first, a confirmation second", "الأول طلب، وبعد المراجعة تأكيد")
         val steps: List<Pair<LocalizedText, LocalizedText>> =
