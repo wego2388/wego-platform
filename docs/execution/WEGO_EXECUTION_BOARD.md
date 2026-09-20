@@ -484,6 +484,13 @@ provider constraints are revalidated against the implemented repository.
 - **Rollback considerations:** copy and documentation only; no backend, schema or shared-module change.
 - **Next:** the owner supplies the operational facts above; then services can enter the DRAFT → REVIEW → APPROVED → PUBLISHED workflow. Booking/payment still waits on the payment-provider details.
 
+### 2026-09-21 — Prices settled for all 34 services (self-verified, Tier 2)
+
+- **Status:** `ACTIVE` (unchanged). PR #28 and PR #37 are both merged to `main` (`84dfa5e`, `bf77d8f`). The owner asked for the prices to be settled by this session, to be adjusted by him later — a direct delegation of his own pricing decision, the same footing as the three `DIRECT` transfer prices decided earlier.
+- **What was done:** every `PROPOSED` price on the 34 intake sheets is now `DECIDED` as an initial launch price (competitor benchmark in EUR × 59.80, the 2026-09-20 rate, rounded to EGP 50, no margin), and the concepts that had no usable benchmark were decided with explicit, visible rules: per-vehicle pricing for the buggy concept (seats × per-seat benchmark), a per-group yacht price with the source's contradictory capacity resolved at 10 guests, one price step per package for the two range-only concepts, child at 60% of adult where the source's child figure was a documented outlier, and the benchmark's base rate for the Mount Sinai private option. Two figures have no benchmark at all and are flagged as pure decisions on their sheets (`STG-PT-008` private-transfer upgrade, `STG-DSR-001` private trip).
+- **Not done, on purpose:** nothing was entered into any real database or published — a service still needs the owner's operational facts (capacity, schedule, safety limits, inclusions) and a real photo before it can move through the publication workflow, and the sheets say so. No code changed.
+- **Verified:** documentation-only; `scripts/repository-check.sh` clean.
+
 ## WEGO-003 — Reliable integration delivery and replay
 
 - **Status:** NOT AUTHORIZED — roadmap only; WEGO-002 must close first and owner activation is still required.
