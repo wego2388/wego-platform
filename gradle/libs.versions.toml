@@ -2,7 +2,7 @@
 kotlin = "2.4.10"
 spring-boot = "4.1.0"
 spring-modulith = "2.1.0"
-jooq = "3.21.5"
+jooq = "3.21.7"
 ktlint-plugin = "14.2.0"
 archunit = "1.4.1"
 compose-multiplatform = "1.11.1"
