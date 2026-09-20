@@ -35,6 +35,11 @@
   confirmation-mode and support-contact decisions plus `PROPOSED` EGP prices —
   see the last section of this file for exactly what was decided and what only
   a real operator can supply.
+- **Superseded 2026-09-20 (later the same day):** the owner decided that **Sharm To Go is the
+  operator of every service** (`fulfilmentModel=DIRECT` for all 37) and that he will handle the
+  operations himself. Wherever this file still says `PARTNER` above, read `DIRECT`; the
+  "real operator/partner" `TO CONFIRM` items are now the owner's own operational facts (see the
+  final section) rather than a third party's identity.
 - **How to use this:** the three `DIRECT` transfer concepts are ready to
   enter the real workflow as soon as one real photo with rights evidence
   exists (proven live for `STG-TRN-001` already — see the WEGO-010-A board
@@ -202,7 +207,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Exact boat, viewing-window quality, route, sailing time versus transfer time, capacity, boarding accessibility, child/infant rules, pickup zones, cancellation for poor visibility/sea conditions.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -253,7 +258,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Exact permitted stops, park ticket/fee, vehicle and guide, pickup, shore access, swimming rules, equipment, changing facilities, environmental protections, weather policy. Never present the Magic Lake name as a health claim.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -304,7 +309,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Named venue, ticket validity, opening/maintenance days, slide height/age rules, lifeguard and supervision policy, locker/towel costs, food/drink scope, swimwear rules, accessibility, pickup, cancellation.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -355,7 +360,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Named boat and marina, licensed capacity, passenger manifest, park permit/fee, guide and life-jacket provision, swimming ability, exact island-access wording, meal/allergies, pickup, weather cancellation. Do not attach any dive add-on — route diving through Sharm Divers Club.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -406,7 +411,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Do not promise landing on Tiran Island. Confirm permitted sailing/snorkeling area, boat, capacity, equipment, guide, pickup, lunch, child/swimmer rules, marine fee, weather alternative.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -457,7 +462,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Minimum age and weight, maximum combined weight, flight duration, tandem/solo rules, life jackets, equipment, insurance, transfer, activity list, medical exclusions, photo policy, weather refund/reschedule.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -508,7 +513,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Whether one operator owns the complete service, transfer/handover between desert and marine teams, every age/weight rule, actual activity durations, meals, equipment, permits, insurance, weather-cancellation fallback for either half.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -559,7 +564,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Driver/passenger ages, helmet and goggle provision, vehicle maintenance, route permit, convoy ratio, camel welfare, named camp, menu/allergies, exact show content, tax/fees, pickup, safe return time.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -610,7 +615,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Price basis must reflect seats/vehicle honestly. Confirm licence, driver age, passenger limit, seat belts/helmets, maintenance, insurance, route, meal/camel elements, pickup, dust protection, damage liability.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -661,7 +666,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Stable/operator identity, route permission, animal welfare, rider age/weight/experience, helmets, guide ratio, insurance, beach access, heat limits, transfer, no-riding health restrictions.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -712,7 +717,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Camp identity, cultural accuracy, camel welfare, telescope/astronomer claim, menu/allergies, accessibility, toilets, temperature, performance content, transport, child rules, late return.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -763,7 +768,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Driver/passenger ages, sunrise pickup window, lighting/visibility, helmet/goggles, route and convoy supervision, insurance, heat/dust policy, fees.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -814,7 +819,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Add-ons (Farsha transfer, SOHO transfer, museum admission, meal) each need their own operator cost, opening-hours check, and EGP price.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -864,7 +869,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Museum ticket type, opening hours, guide licensing, whether drinks/table reservations at Farsha are excluded.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -914,7 +919,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Minimum age/weight, maximum combined weight, weather cancellation, insurance, equipment, whether photos/video cost extra.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -964,7 +969,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: ATV driver/passenger ages, helmet/goggle inclusion, route permit, meal venue, show details, return time.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1014,7 +1019,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Named restaurant, fixed menu, drinks, allergies, child meal, restaurant reservation, who pays any difference.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1064,7 +1069,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Source daytime start conflicts with the venues' usual evening operation. Confirm venue status, opening hours, entry tickets, waiting time, and pricing basis.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1168,7 +1173,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Infants conflict in the source and must be prohibited unless the operator supplies a safe, documented rule. Confirm driver age, passenger age, helmets/goggles, insurance, distance, environmental fees.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1218,7 +1223,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Exact yacht identity, licensed capacity, marina, crew, route, snorkeling guide/equipment, national-park fees, menu, weather policy, passenger manifest, marine permits.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1268,7 +1273,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Tiran access, boat/captain licence, capacity, life jackets, equipment condition, guide, hotel transfer, exact reef promise, weather cancellation.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1318,7 +1323,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: The child price is an outlier and must not be reused without written confirmation. Confirm every desert and marine safety rule, transfer between operators, admissions, permits, weather fallback.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1368,7 +1373,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Actual canyon and Blue Hole/Abu Galum access and fees, snorkeling equipment, meal, camel/ATV safety, road permits, guide role.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1418,7 +1423,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Exact museum (Cairo museum routing has changed over time), road/flight mode, permits, entry requirements, visa applicability, Egyptologist licence, meal, return time.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1469,7 +1474,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Flight inventory and baggage, exact road timings, every admission, visa applicability, Egyptologist licence, meal, feasibility of the full route without rushed or misleading promises.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1520,7 +1525,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Exact canyon and route, Blue Hole/Abu Galum permits and fees, snorkeling safety, camel welfare, lunch, road permits, vehicle, guide, accessibility, pickup, realistic return time.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1571,7 +1576,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Licensed mountain guide, physical difficulty and medical warnings, route and emergency plan, cold-weather preparation, lighting, toilets, camel segment boundaries, monastery schedule/dress code, passport requirements, food, transport, cancellation for unsafe conditions.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1622,7 +1627,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Monastery opening days/hours, exact accessible areas, museum ticket, dress code, licensed guide, vehicle/road permit, meal, Dahab stop, accessibility, pickup, return time.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1673,7 +1678,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Exact museum/date, coach licence/capacity, two-driver and rest plan, road/security permissions, guide licence, every admission, meal, pickup, visa applicability, optional sales stops, accessibility, return time, delay/cancellation handling.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1724,7 +1729,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Real-time flight inventory and fare validity, names and ID/passport data, baggage, change/refund rules, airport transfers, missed connection, exact museum and tickets, licensed guide, meal, visa applicability, accessibility, return disruption support.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1775,7 +1780,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Flight inventory and fare expiry, baggage, airport transfers, named east/west-bank sites, tickets/tombs, guide licence, heat and mobility limits, meal, Nile-boat safety, child/infant treatment, disrupted-flight support.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1826,7 +1831,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Nationality-specific passport/visa/entry rules, border fees, ferry ticket and weather cancellation, coach and guide licences in each jurisdiction, Petra admission, meal, walking difficulty, horse/buggy boundary, schedule feasibility, emergency support, refund ownership across suppliers.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1877,7 +1882,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Live flights, hotel identity/classification, room basis and occupancy, child bed, meals, check-in, single supplement, full itinerary, admissions, guide, transfers, baggage, cancellation split across flight/hotel, overnight customer support. Do not publish a named hotel until a live contract and room inventory exist.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -1928,7 +1933,7 @@ What to bring: TO CONFIRM
 Restrictions/accessibility: Camp identity/licence, room or tent type, bedding, sanitation, electricity, security, gender/family arrangements, meals/water, exact canyon and coastal sites, permits, guide, snorkeling/camel/ATV safety, luggage, accessibility, weather, overnight emergency support.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
-Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
+Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
 Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
@@ -2042,3 +2047,40 @@ safety-critical, so they are asked of the operator rather than invented:
 
 A concept moves to the real publication workflow (DRAFT → REVIEW → APPROVED →
 PUBLISHED) only when items 1–4 and 6 exist for it.
+
+
+## Later on 2026-09-20 — Sharm To Go operates every service (`DIRECT`)
+
+The owner's decision: **"Sharm To Go هو المشغّل"** for the whole catalogue, and he
+will handle the operations and the arrangements behind each service himself.
+
+What this changes:
+
+- All 37 concepts are `fulfilmentModel=DIRECT`. No `Provider` record and no
+  `provider_id` are needed (the backend rule "PARTNER requires a provider" no
+  longer applies), and no third-party name has to be shown or invented.
+- The website and the app now say Sharm To Go operates and confirms every
+  experience (homepage copy, trust points, the notice under the hero, and an
+  "Operated by: Sharm To Go" line on every service).
+- The customer is dealing with one accountable business, so the safety-critical
+  facts below stop being "an operator's problem" and become the owner's own
+  responsibility as the operator of record.
+
+What is still needed before a concept can be published, now **from the owner**
+(the sheets above keep these as `TO CONFIRM`):
+
+1. **Capacity and schedule:** maximum guests per departure, operating days,
+   start times, pickup zones, meeting point.
+2. **Safety and eligibility:** minimum age/weight, maximum weight, medical
+   exclusions, equipment provided, insurance, weather cancellation.
+3. **Inclusions:** meals, drinks, equipment, park/marine/museum fees, what to bring.
+4. **Long-distance/flight/ferry/overnight concepts** (`STG-DAY-*`, `STG-MUL-*`,
+   `STG-PT-013/014`): visa/entry rules by nationality, and how the flight, ferry or
+   hotel seats are actually secured (this is why those five stay at `STAFF_REVIEW`
+   for now — instant confirmation is safe only when the owner can guarantee the
+   seat).
+5. **Media:** one real, rights-cleared photo per service.
+6. An internal operations contact per service (stays internal, never shown).
+
+Prices remain the `PROPOSED` figures recorded on each sheet, for the owner to
+adjust.

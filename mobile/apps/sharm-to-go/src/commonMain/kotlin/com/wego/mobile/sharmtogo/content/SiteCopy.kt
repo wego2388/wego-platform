@@ -23,9 +23,9 @@ object SiteCopy {
             )
         val body =
             LocalizedText(
-                "Explore the sea, desert, transfers and local highlights. Availability and provider " +
-                    "responsibility will always be shown before a request is confirmed.",
-                "اكتشف البحر والصحراء والانتقالات وأهم الأماكن. سنوضح التوفر والجهة المسؤولة عن الخدمة قبل تأكيد أي طلب.",
+                "Explore the sea, desert, transfers and local highlights. Sharm To Go operates and confirms " +
+                    "every experience — one team to contact from request to return.",
+                "اكتشف البحر والصحراء والانتقالات وأهم الأماكن. Sharm To Go هي المشغّل والمسؤول عن كل تجربة — فريق واحد تتواصل معاه من الطلب لحد الرجوع.",
             )
         val browseCta = LocalizedText("Explore categories", "استكشف الفئات")
     }
@@ -35,8 +35,8 @@ object SiteCopy {
         val heading = LocalizedText("Start with the kind of day you want", "ابدأ بشكل اليوم اللي يناسبك")
         val body =
             LocalizedText(
-                "These are discovery categories, not a claim that every service is already live or operated by Sharm To Go.",
-                "دي فئات مقترحة للاستكشاف، وليست ادعاءً بأن كل الخدمات متاحة الآن أو تابعة مباشرةً لـSharm To Go.",
+                "These are discovery categories, not a claim that every service is already live.",
+                "دي فئات مقترحة للاستكشاف، وليست ادعاءً بأن كل الخدمات متاحة الآن.",
             )
         val items: List<Triple<LocalizedText, LocalizedText, LocalizedText>> =
             listOf(
@@ -44,8 +44,8 @@ object SiteCopy {
                     LocalizedText("Red Sea", "البحر الأحمر"),
                     LocalizedText("Sea adventures", "مغامرات البحر"),
                     LocalizedText(
-                        "Boat days, snorkelling and water experiences from approved operators.",
-                        "رحلات بحرية وسنوركل وتجارب مائية من مشغلين معتمدين.",
+                        "Boat days, snorkelling and water experiences run by Sharm To Go.",
+                        "رحلات بحرية وسنوركل وتجارب مائية تُشغّلها Sharm To Go.",
                     ),
                 ),
                 Triple(
@@ -86,8 +86,8 @@ object SiteCopy {
                     ),
                 LocalizedText("2. We verify", "٢. نراجع") to
                     LocalizedText(
-                        "Sharm To Go or the responsible approved provider checks capacity, pickup and price.",
-                        "Sharm To Go أو مقدم الخدمة المعتمد يراجع السعة والانتقال والسعر.",
+                        "Sharm To Go checks capacity, pickup and price.",
+                        "Sharm To Go تراجع السعة والانتقال والسعر.",
                     ),
                 LocalizedText("3. You confirm", "٣. أكّد") to
                     LocalizedText(
@@ -101,12 +101,12 @@ object SiteCopy {
         val heading = LocalizedText("Built around clarity, not a wall of offers", "وضوح أكتر بدل زحمة عروض")
         val body =
             LocalizedText(
-                "The marketplace foundation separates who provides the service, who coordinates the request and what is actually confirmed.",
-                "أساس السوق بيفصل بين مقدم الخدمة ومنسق الطلب وما تم تأكيده فعليًا.",
+                "One accountable operator for every request, and a clear line between what is confirmed and what is not.",
+                "مشغّل واحد مسؤول عن كل طلب، وفصل واضح بين ما تم تأكيده وما لم يتم.",
             )
         val points: List<LocalizedText> =
             listOf(
-                LocalizedText("Provider shown before confirmation", "توضيح مقدم الخدمة قبل التأكيد"),
+                LocalizedText("One operator: Sharm To Go", "مشغّل واحد: Sharm To Go"),
                 LocalizedText("Arabic and English operations", "تشغيل عربي وإنجليزي"),
                 LocalizedText("No invented availability or ratings", "بدون توفر أو تقييمات وهمية"),
                 LocalizedText("One support trail for every request", "مسار دعم واحد لكل طلب"),
@@ -115,9 +115,9 @@ object SiteCopy {
 
     val marketplaceNotice =
         LocalizedText(
-            "Important: some experiences will be provided by approved local partners, not directly by Sharm To Go. " +
-                "The responsible provider will be identified before confirmation.",
-            "مهم: بعض التجارب سيقدمها شركاء محليون معتمدون وليست خدمات تابعة مباشرةً لـSharm To Go. سنوضح مقدم الخدمة المسؤول قبل التأكيد.",
+            "Sharm To Go operates and coordinates every experience directly — one point of contact, " +
+                "from your request to your return.",
+            "Sharm To Go تشغّل وتنسّق كل تجربة مباشرةً — نقطة تواصل واحدة من الطلب لحد الرجوع.",
         )
 
     object Browse {

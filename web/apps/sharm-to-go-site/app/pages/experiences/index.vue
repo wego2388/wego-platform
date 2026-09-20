@@ -137,7 +137,7 @@ onMounted(async () => {
             </p>
             <h3 class="mt-2 text-lg font-semibold">{{ service.name[locale] }}</h3>
             <p class="mt-2 line-clamp-3 flex-1 text-sm leading-6 text-sharm-muted">{{ service.description[locale] }}</p>
-            <p v-if="service.operatedBy" class="mt-3 text-xs text-sharm-muted">{{ copy.browse.operatedBy }}: {{ service.operatedBy }}</p>
+            <p class="mt-3 text-xs text-sharm-muted">{{ copy.browse.operatedBy }}: {{ service.operatedBy ?? "Sharm To Go" }}</p>
             <p v-if="service.media.length > 0" class="mt-1 text-xs text-sharm-muted">{{ copy.browse.photoCount(service.media.length) }}</p>
             <p v-if="startingPrice(service)" class="mt-4 text-base font-semibold text-sharm-sea">
               {{ copy.browse.fromPrice }} {{ startingPrice(service)?.priceCurrency }} {{ startingPrice(service)?.priceAmount }}

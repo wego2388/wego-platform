@@ -8,7 +8,7 @@ describe("Sharm To Go public foundation", () => {
     const wrapper = mount(HomePage);
 
     expect(wrapper.text()).toContain("Sharm To Go");
-    expect(wrapper.text()).toContain("approved local partners");
+    expect(wrapper.text()).toContain("operates and coordinates every experience directly");
     expect(wrapper.text()).toContain("not a claim that every service is already live");
     expect(wrapper.text()).not.toMatch(/\b[0-9]+ reviews?\b/i);
   });
@@ -28,6 +28,6 @@ describe("Sharm To Go public foundation", () => {
 
     expect(wrapper.get("main").attributes("dir")).toBe("rtl");
     expect(headFactory!().htmlAttrs).toEqual({ dir: "rtl", lang: "ar" });
-    expect(wrapper.text()).toContain("بعض التجارب سيقدمها شركاء محليون معتمدون");
+    expect(wrapper.text()).toContain("تشغّل وتنسّق كل تجربة مباشرةً");
   });
 });

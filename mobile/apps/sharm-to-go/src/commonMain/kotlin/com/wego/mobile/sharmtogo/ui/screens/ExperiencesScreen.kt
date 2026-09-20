@@ -115,13 +115,11 @@ fun ExperiencesScreen(
                                 }
                                 Text(service.name.of(locale), style = MaterialTheme.typography.titleMedium)
                                 Text(service.description.of(locale), style = MaterialTheme.typography.bodyMedium, maxLines = 3)
-                                service.operatedBy?.let {
-                                    Text(
-                                        "${SiteCopy.Browse.operatedBy.of(locale)}: $it",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                }
+                                Text(
+                                    "${SiteCopy.Browse.operatedBy.of(locale)}: ${service.operatedBy ?: "Sharm To Go"}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
                                 if (service.media.isNotEmpty()) {
                                     Text(
                                         SiteCopy.Browse.photoCount(service.media.size).of(locale),

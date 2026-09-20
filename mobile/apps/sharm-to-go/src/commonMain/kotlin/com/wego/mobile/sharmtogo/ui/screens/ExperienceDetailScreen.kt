@@ -40,12 +40,10 @@ private fun priceBasisLabel(
 
 /**
  * Real service detail — bilingual name/description, real options/pricing,
- * cancellation policy, pickup/inclusions/exclusions when present, the
- * provider's name for a PARTNER service, and an honest, clearly
- * non-functional contact placeholder. Never a "Book now" action: no real
- * Sharm To Go contact channel exists yet (confirmed against this client's own
- * markdown docs and `client.manifest.json` — see the website's own Packet 1C
- * entry on the execution board for the same finding).
+ * cancellation policy, pickup/inclusions/exclusions when present, and who
+ * operates it (a PARTNER service's provider, otherwise Sharm To Go itself).
+ * Contact is real (WhatsApp/email from [SiteCopy.Contact]); never a "Book
+ * now" action — online booking is a later packet.
  */
 @Composable
 @Suppress("FunctionName")
@@ -92,13 +90,11 @@ private fun ExperienceDetailContent(
         item {
             Column(verticalArrangement = Arrangement.spacedBy(StgSpace.xs)) {
                 Text(service.name.of(locale), style = MaterialTheme.typography.headlineSmall)
-                service.operatedBy?.let {
-                    Text(
-                        "${SiteCopy.Browse.operatedBy.of(locale)}: $it",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                Text(
+                    "${SiteCopy.Browse.operatedBy.of(locale)}: ${service.operatedBy ?: "Sharm To Go"}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 Text(service.description.of(locale), style = MaterialTheme.typography.bodyLarge)
             }
         }
