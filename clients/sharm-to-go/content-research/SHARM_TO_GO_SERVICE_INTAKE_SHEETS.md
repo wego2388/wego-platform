@@ -32,7 +32,7 @@
   A market-reference line is kept under each concept only as a competitor
   benchmark, never as a proposed Sharm To Go price.
 - **Updated 2026-09-20:** all 34 `PARTNER` sheets now carry the owner's
-  confirmation-mode and support-contact decisions plus `PROPOSED` EGP prices —
+  confirmation-mode and support-contact decisions plus `DECIDED` initial EGP prices —
   see the last section of this file for exactly what was decided and what only
   a real operator can supply.
 - **Superseded 2026-09-20 (later the same day):** the owner decided that **Sharm To Go is the
@@ -191,8 +191,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: EGP 1,650 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: EGP 950 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: EGP 1,650 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: EGP 950 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: TO CONFIRM
 
@@ -242,8 +242,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: group: EGP 750 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: group: EGP 550 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: group: EGP 750 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: group: EGP 550 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Small group; private vehicle.
 
@@ -293,8 +293,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: entry + transfer: EGP 3,300; entry + transfer + buffet lunch + soft drinks: EGP 3,950 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: entry + transfer: EGP 2,200; entry + transfer + buffet lunch + soft drinks: EGP 2,750 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: entry + transfer: EGP 3,300; entry + transfer + buffet lunch + soft drinks: EGP 3,950 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: entry + transfer: EGP 2,200; entry + transfer + buffet lunch + soft drinks: EGP 2,750 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Entry and transfer; entry, transfer, buffet lunch, and soft drinks.
 
@@ -344,8 +344,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: without equipment: EGP 1,650; with equipment: EGP 1,800 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: without equipment: EGP 1,000; with equipment: EGP 1,100 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: without equipment: EGP 1,650; with equipment: EGP 1,800 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: without equipment: EGP 1,000; with equipment: EGP 1,100 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Equipment excluded; equipment included.
 
@@ -395,8 +395,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: without equipment: EGP 1,500; with equipment: EGP 1,750 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: without equipment: EGP 1,000; with equipment: EGP 1,200 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: without equipment: EGP 1,500; with equipment: EGP 1,750 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: without equipment: EGP 1,000; with equipment: EGP 1,200 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Equipment excluded; equipment included.
 
@@ -446,8 +446,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: parasailing: EGP 1,600; parasailing + banana boat: EGP 2,250; broader water-sports package: EGP 2,050 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: parasailing: EGP 900; parasailing + banana boat: EGP 1,300; broader water-sports package: EGP 1,800 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: parasailing: EGP 1,600; parasailing + banana boat: EGP 2,250; broader water-sports package: EGP 2,050 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: parasailing: EGP 900; parasailing + banana boat: EGP 1,300; broader water-sports package: EGP 1,800 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Tandem parasailing; parasailing plus banana boat; broader glass-boat/water-sports package.
 
@@ -497,8 +497,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: quad package: EGP 2,500; buggy package: EGP 2,950 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: quad package: EGP 2,450; buggy package: EGP 2,800 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: quad package: EGP 2,500; buggy package: EGP 2,950 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: quad package: EGP 2,450; buggy package: EGP 2,800 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Quad package; buggy package.
 
@@ -548,10 +548,10 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: shared double quad: EGP 1,100; single quad: EGP 1,950 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: shared double quad: EGP 900; single quad: EGP 1,800 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: shared double quad: EGP 1,100; single quad: EGP 1,950 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: shared double quad: EGP 900; single quad: EGP 1,800 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
-Add-ons and prices: Shared double quad; single quad; private trip.
+Add-ons and prices: shared double quad; single quad; private trip — private trip DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): EGP 2,450 per person (the single-quad price plus a EGP 500 private supplement; no benchmark exists for it)
 
 Pickup included: TO CONFIRM
 Pickup areas/hotels: TO CONFIRM
@@ -599,7 +599,7 @@ Start times: TO CONFIRM
 
 Price basis: PER_VEHICLE (seats/vehicle, not per rider) — confirm with operator before publishing.
 Currency: EGP
-Adult price: TO CONFIRM — the benchmark mixes per-seat and per-vehicle prices; the basis must be fixed with the real operator before any price is proposed.
+Adult price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): priced per vehicle (seats x the per-seat benchmark of EUR 17-27 x 59.80, rounded to EGP 50) — two-seat buggy EGP 3,250; shared family buggy (4 seats) EGP 4,050; private buggy (4 seats, exclusive) EGP 6,450
 Child age range and price: TO CONFIRM
 Infant rule: TO CONFIRM
 Add-ons and prices: Shared family buggy; two-seat buggy; private buggy.
@@ -650,8 +650,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: 1-hour desert ride: EGP 900; 2-hour desert ride: EGP 1,600; coastal ride: EGP 1,500 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: 1-hour desert ride: EGP 800; 2-hour desert ride: EGP 1,450; coastal ride: EGP 1,300 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: 1-hour desert ride: EGP 900; 2-hour desert ride: EGP 1,600; coastal ride: EGP 1,500 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: 1-hour desert ride: EGP 800; 2-hour desert ride: EGP 1,450; coastal ride: EGP 1,300 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: One-hour desert ride; two-hour desert ride; coastal ride where legal access is confirmed.
 
@@ -701,8 +701,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: shared evening: EGP 1,500; upgraded table: EGP 1,750; private evening: EGP 2,350 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: shared evening: EGP 1,400; upgraded table: EGP 1,600; private evening: EGP 1,650 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: shared evening: EGP 1,500; upgraded table: EGP 1,750; private evening: EGP 2,350 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: shared evening: EGP 1,400; upgraded table: EGP 1,600; private evening: EGP 1,650 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Shared evening; upgraded table; private evening.
 
@@ -752,8 +752,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: group: EGP 850 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: group: EGP 850 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: group: EGP 850 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: group: EGP 850 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Sunrise group; morning group. (The private version is the separate STG-PT-008 concept.)
 
@@ -803,8 +803,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: standard: EGP 750; female-guide request: EGP 900 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: standard: EGP 500; female-guide request: EGP 700 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: standard: EGP 750; female-guide request: EGP 900 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: standard: EGP 500; female-guide request: EGP 700 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Standard private tour; female-guide request.
 
@@ -853,8 +853,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: PROPOSED range EGP 1,100 – 1,500 (benchmark EUR 18–25, depends on the package chosen) — owner-changeable; the exact price per package is TO CONFIRM
-Child age range and price: PROPOSED range EGP 500 – 900 (benchmark EUR 8–15) — age range TO CONFIRM
+Adult price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): museum + Old Market EGP 1,100; museum + Farsha EGP 1,200; museum + SOHO EGP 1,300; museum + full city highlights EGP 1,500 (benchmark EUR 18-25 x 59.80, one step per package)
+Child age range and price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): EGP 500 / 600 / 700 / 900 for the same four packages (benchmark EUR 8-15); the child age range is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Museum and Old Market; museum and Farsha; museum and SOHO; museum with full city highlights.
 
@@ -903,8 +903,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: tandem parasailing: EGP 2,350 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: tandem parasailing: EGP 2,050 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: tandem parasailing: EGP 2,350 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: tandem parasailing: EGP 2,050 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Tandem parasailing; solo flight as an approved upgrade.
 
@@ -953,8 +953,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: city + ATV: EGP 1,400; with dinner and camel: EGP 2,150 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: city + ATV: EGP 900; with dinner and camel: EGP 1,400 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: city + ATV: EGP 1,400; with dinner and camel: EGP 2,150 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: city + ATV: EGP 900; with dinner and camel: EGP 1,400 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: TO CONFIRM
 
@@ -1003,8 +1003,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: EGP 1,600 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: EGP 1,250 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: EGP 1,600 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: EGP 1,250 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: TO CONFIRM
 
@@ -1053,8 +1053,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON (source model) — confirm whether PER_VEHICLE fits better.
 Currency: EGP
-Adult price: minimum 2 guests: EGP 2,400 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: minimum 2 guests: EGP 1,200 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: minimum 2 guests: EGP 2,400 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: minimum 2 guests: EGP 1,200 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: TO CONFIRM
 
@@ -1157,8 +1157,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: PROPOSED range EGP 1,800 – 2,400 (benchmark EUR 29.90–40, depends on the time window) — owner-changeable; the exact price per package is TO CONFIRM
-Child age range and price: PROPOSED range EGP 1,100 – 1,450 (benchmark EUR 18–24) — age range TO CONFIRM
+Adult price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): morning EGP 1,800; sunrise EGP 2,050; sunset EGP 2,400 (benchmark EUR 29.90-40 x 59.80); private-transfer upgrade +EGP 600 per person (no benchmark exists — a decision, adjust freely)
+Child age range and price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): morning EGP 1,100; sunrise EGP 1,250; sunset EGP 1,450 (benchmark EUR 18-24); the child age range is the owner's to set — the source's conflicting infant rule stays: no infants unless a documented safe rule exists
 Infant rule: TO CONFIRM
 Add-ons and prices: Sunrise; morning; sunset; private-transfer upgrade.
 
@@ -1207,7 +1207,7 @@ Start times: TO CONFIRM
 
 Price basis: PER_GROUP
 Currency: EGP
-Adult price: TO CONFIRM — the benchmark is internally contradictory (the same EUR 870 covers 10 people on one source page and 20 on two others); no price is proposed until a real operator quotes.
+Adult price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): private yacht charter, price per group — EGP 52,000 for up to 10 guests (benchmark EUR 870 x 59.80; the source's 10-vs-20-guest contradiction is resolved conservatively at 10) plus EGP 1,500 per extra guest (benchmark EUR 25) up to the yacht's licensed capacity
 Child age range and price: TO CONFIRM
 Infant rule: TO CONFIRM
 Add-ons and prices: Standard lunch; seafood lunch.
@@ -1257,7 +1257,7 @@ Start times: TO CONFIRM
 
 Price basis: PER_GROUP
 Currency: EGP
-Adult price: PROPOSED — EGP 8,650 for a group of up to 5; EGP 10,150 for up to 11 (benchmark EUR 145 / EUR 170 × 59.80, rounded to EGP 50)
+Adult price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): EGP 8,650 for a group of up to 5; EGP 10,150 for up to 11 (benchmark EUR 145 / EUR 170 × 59.80, rounded to EGP 50)
 Child age range and price: TO CONFIRM
 Infant rule: TO CONFIRM
 Add-ons and prices: Two local reef stops; Tiran route for up to 5; larger Tiran boat for up to 11.
@@ -1307,8 +1307,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: minimum 3 guests: EGP 7,200 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: TO CONFIRM
+Adult price: minimum 3 guests: EGP 7,200 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): EGP 4,300 (60% of the adult price — the source's EUR 10 child figure is a documented outlier and is deliberately not used); the child age range is the owner's to set
 Infant rule: TO CONFIRM
 Add-ons and prices: TO CONFIRM
 
@@ -1357,8 +1357,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: without rides, minimum 2: EGP 5,700; full program, minimum 2: EGP 6,600 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: without rides, minimum 2: EGP 4,450; full program, minimum 2: EGP 5,000 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: without rides, minimum 2: EGP 5,700; full program, minimum 2: EGP 6,600 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: without rides, minimum 2: EGP 4,450; full program, minimum 2: EGP 5,000 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: TO CONFIRM
 
@@ -1407,8 +1407,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: minimum 2: EGP 11,350 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: minimum 2: EGP 10,750 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: minimum 2: EGP 11,350 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: minimum 2: EGP 10,750 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: TO CONFIRM
 
@@ -1458,8 +1458,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: road: EGP 14,350; road + extras: EGP 16,700; plane: EGP 20,250 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: road: EGP 10,750; road + extras: EGP 12,550; plane: EGP 16,100 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: road: EGP 14,350; road + extras: EGP 16,700; plane: EGP 20,250 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: road: EGP 10,750; road + extras: EGP 12,550; plane: EGP 16,100 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Road; road with pyramid interior and camel; plane.
 
@@ -1509,8 +1509,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: group without admissions: EGP 900; group with Blue Hole admission: EGP 2,050 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: group without admissions: EGP 650; group with Blue Hole admission: EGP 1,150 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: group without admissions: EGP 900; group with Blue Hole admission: EGP 2,050 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: group without admissions: EGP 650; group with Blue Hole admission: EGP 1,150 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Group without admissions; group with confirmed Blue Hole admission. (The private route is the separate STG-PT-012 concept.)
 
@@ -1560,10 +1560,10 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: shared group: EGP 1,450 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: shared group: EGP 850 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: shared group: EGP 1,450 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: shared group: EGP 850 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
-Add-ons and prices: Shared group; private vehicle/guide.
+Add-ons and prices: shared group; private vehicle/guide — private DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): EGP 6,600 adult / EGP 4,200 child per person at the base rate (benchmark EUR 110 / EUR 70 x 59.80; volume tiers from two guests are the owner's to add)
 
 Pickup included: TO CONFIRM
 Pickup areas/hotels: TO CONFIRM
@@ -1611,8 +1611,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: shared coach: EGP 1,600; private, minimum 2: EGP 7,700 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: shared coach: EGP 950; private, minimum 2: EGP 5,300 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: shared coach: EGP 1,600; private, minimum 2: EGP 7,700 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: shared coach: EGP 950; private, minimum 2: EGP 5,300 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Shared coach; private vehicle and guide.
 
@@ -1662,8 +1662,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: Egyptian Museum route: EGP 3,150; Grand Egyptian Museum route: EGP 4,900 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: Egyptian Museum route: EGP 2,400; Grand Egyptian Museum route: EGP 3,900 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: Egyptian Museum route: EGP 3,150; Grand Egyptian Museum route: EGP 4,900 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: Egyptian Museum route: EGP 2,400; Grand Egyptian Museum route: EGP 3,900 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Egyptian Museum route; Grand Egyptian Museum route.
 
@@ -1713,8 +1713,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: shared group (adult or child): EGP 16,700; private, minimum 2: EGP 19,650 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: shared group (adult or child): EGP 16,700; private, minimum 2: EGP 19,650 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: shared group (adult or child): EGP 16,700; private, minimum 2: EGP 19,650 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: shared group (adult or child): EGP 16,700; private, minimum 2: EGP 19,650 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Shared group; private guide/vehicle in Cairo.
 
@@ -1764,8 +1764,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: shared: EGP 14,650; private: EGP 19,750 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: shared: EGP 14,350; private: EGP 19,450 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: shared: EGP 14,650; private: EGP 19,750 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: shared: EGP 14,350; private: EGP 19,450 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Shared guided day; private ground tour.
 
@@ -1815,8 +1815,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: EGP 13,150 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: EGP 11,650 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: EGP 13,150 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: EGP 11,650 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: One tightly defined ferry/coach itinerary only — no instant-confirmation variant.
 
@@ -1866,8 +1866,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: shared 4-star: EGP 16,700; private 4-star: EGP 20,850 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: shared 4-star: EGP 12,500; private 4-star: EGP 16,100 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: shared 4-star: EGP 16,700; private 4-star: EGP 20,850 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: shared 4-star: EGP 12,500; private 4-star: EGP 16,100 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Shared 4-star package; private 4-star package.
 
@@ -1917,8 +1917,8 @@ Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: shared group: EGP 13,150 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
-Child age range and price: shared group: EGP 10,750 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
+Adult price: shared group: EGP 13,150 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
+Child age range and price: shared group: EGP 10,750 — DECIDED, same basis; the child age range itself is the owner's to set as operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Shared group only until a private overnight operation is independently proven.
 
@@ -2011,7 +2011,7 @@ the 34 sheets above:
   owner).
 - **Full descriptions:** the short description is the launch description; it
   is only expanded with operator-confirmed detail.
-- **Prices — `PROPOSED`, not final.** Where a competitor benchmark is
+- **Prices — now `DECIDED` (initial launch prices).** Where a competitor benchmark is
   unambiguous, the proposal is that benchmark in EUR × **59.80 EGP/EUR** (the
   live rate on 2026-09-20), rounded to EGP 50, with no margin added. This is a
   starting point for the owner to change, in the same spirit as the three
@@ -2082,5 +2082,29 @@ What is still needed before a concept can be published, now **from the owner**
 5. **Media:** one real, rights-cleared photo per service.
 6. An internal operations contact per service (stays internal, never shown).
 
-Prices remain the `PROPOSED` figures recorded on each sheet, for the owner to
-adjust.
+Prices are the initial figures recorded on each sheet (finalised in the last
+section), for the owner to adjust.
+
+
+## Prices finalised — 2026-09-20 (later)
+
+The owner asked for the prices to be settled without waiting: every `PROPOSED`
+price above is now `DECIDED` as an **initial launch price at the owner's
+direction, owner-changeable at any time**. The formula stays visible on each
+sheet (competitor benchmark in EUR × 59.80 EGP/EUR, rounded to EGP 50, no
+margin). Concepts that previously had no usable price were decided with the
+rules below — none of these has a market benchmark behind it, so they are
+decisions rather than research and are the first to revisit:
+
+- `STG-DSR-002` (buggy): per **vehicle** = seats × per-seat benchmark.
+- `STG-PT-009` (private yacht): EGP 52,000 for up to 10 guests + EGP 1,500 per
+  extra guest; the source's contradictory 10-vs-20 capacity is resolved at 10.
+- `STG-PT-002`, `STG-PT-008`: one price step per package/time window inside the
+  benchmark range; the `STG-PT-008` private-transfer upgrade (+EGP 600) and the
+  `STG-DSR-001` private trip (EGP 2,450) have no benchmark.
+- `STG-PT-011` child price: 60% of adult (the source's EUR 10 is an outlier).
+- `STG-CUL-001` private rate: the benchmark's base rate per person.
+
+Prices are what customers will see once a service is published, so they should
+be reviewed by the owner before that step — publication still needs the
+operational facts and media listed in the previous section.
