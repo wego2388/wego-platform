@@ -1,94 +1,115 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { dashboardCopy, dashboardDirection, type DashboardLocale } from "../content/dashboard";
+import { computed, onMounted, ref } from "vue";
+import { WegoAlert, WegoBadge, WegoPageHeader, WegoPanel } from "@wego/ui";
+import { type AuthSession, hasPermission, readAuthSession } from "../composables/useAuthSession";
+import {
+  type Category,
+  listCategories,
+  listProviders,
+  listServices,
+  type Provider,
+  type Service,
+  type ServiceStatus,
+} from "../composables/useTravelMarketplaceApi";
 
-const locale = ref<DashboardLocale>("en");
-const copy = computed(() => dashboardCopy[locale.value]);
-const direction = computed(() => dashboardDirection(locale.value));
+definePageMeta({ layout: "app-shell" });
 
-useHead(() => ({
-  title: locale.value === "ar" ? "أساس العمليات · Sharm To Go" : "Operations foundation · Sharm To Go",
-  htmlAttrs: {
-    dir: direction.value,
-    lang: locale.value,
-  },
-}));
+useHead({
+  title: "Dashboard · Sharm To Go",
+  meta: [{ name: "description", content: "Sharm To Go staff operations dashboard." }],
+});
 
-function toggleLocale() {
-  locale.value = locale.value === "en" ? "ar" : "en";
+const session = ref<AuthSession | null>(null);
+const services = ref<Service[] | null>(null);
+const categories = ref<Category[] | null>(null);
+const providers = ref<Provider[] | null>(null);
+const dashboardError = ref("");
+
+const statusCounts = computed(() => {
+  const counts: Record<ServiceStatus, number> = { DRAFT: 0, REVIEW: 0, APPROVED: 0, PUBLISHED: 0, SUSPENDED: 0, ARCHIVED: 0 };
+  for (const service of services.value ?? []) counts[service.status] += 1;
+  return counts;
+});
+
+async function loadDashboard() {
+  if (!session.value) return;
+  const token = session.value.token;
+  dashboardError.value = "";
+  try {
+    const tasks: Promise<void>[] = [];
+    if (hasPermission(session.value, "service:view")) {
+      tasks.push(listServices(token, { size: 50 }).then((data) => void (services.value = data)));
+    }
+    if (hasPermission(session.value, "provider:view")) {
+      tasks.push(listProviders(token, { status: "ACTIVE", size: 50 }).then((data) => void (providers.value = data)));
+    }
+    // Categories have no dedicated permission — service:view/manage
+    // already gates the whole catalog surface, matching
+    // ServiceQueryService's own real authorization.
+    if (hasPermission(session.value, "service:view")) {
+      tasks.push(listCategories(token, { status: "ACTIVE" }).then((data) => void (categories.value = data)));
+    }
+    await Promise.all(tasks);
+  } catch {
+    dashboardError.value = "Could not load the live catalog summary. Check your connection and try again.";
+  }
 }
+
+onMounted(() => {
+  session.value = readAuthSession();
+  loadDashboard();
+});
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas text-sharm-ink lg:grid lg:grid-cols-[17rem_1fr]">
-    <aside class="border-b border-sharm-border bg-sharm-ink px-6 py-6 text-white lg:min-h-screen lg:border-e lg:border-b-0">
-      <div class="flex items-center gap-3">
-        <span class="grid size-11 place-items-center rounded-2xl bg-sharm-lagoon font-black text-sharm-sea">S</span>
-        <div>
-          <p class="font-semibold">Sharm To Go</p>
-          <p class="text-xs text-white/60">Wego Travel Marketplace</p>
+  <WegoPageHeader eyebrow="Sharm To Go" title="Dashboard" description="Today's real catalog state." />
+
+  <p v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6 text-wego-muted">
+    You need to sign in to view the dashboard.
+  </p>
+
+  <section v-else aria-labelledby="live-summary" class="mt-10">
+    <h2 id="live-summary" class="text-xl font-semibold">Live catalog summary</h2>
+    <WegoAlert v-if="dashboardError" variant="danger" class="mt-4">{{ dashboardError }}</WegoAlert>
+
+    <div class="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <WegoPanel v-if="services" title="Services by status">
+        <div class="flex flex-wrap gap-2">
+          <WegoBadge v-if="statusCounts.PUBLISHED > 0" tone="success">{{ statusCounts.PUBLISHED }} Published</WegoBadge>
+          <WegoBadge v-if="statusCounts.APPROVED > 0" tone="accent">{{ statusCounts.APPROVED }} Approved</WegoBadge>
+          <WegoBadge v-if="statusCounts.REVIEW > 0" tone="warning">{{ statusCounts.REVIEW }} In review</WegoBadge>
+          <WegoBadge v-if="statusCounts.DRAFT > 0" tone="neutral">{{ statusCounts.DRAFT }} Draft</WegoBadge>
+          <WegoBadge v-if="statusCounts.SUSPENDED > 0" tone="danger">{{ statusCounts.SUSPENDED }} Suspended</WegoBadge>
+          <WegoBadge v-if="statusCounts.ARCHIVED > 0" tone="neutral">{{ statusCounts.ARCHIVED }} Archived</WegoBadge>
         </div>
-      </div>
-      <nav class="mt-10 grid gap-2" aria-label="Dashboard navigation">
-        <span
-          v-for="(item, index) in copy.nav"
-          :key="item"
-          class="rounded-xl px-4 py-3 text-sm font-semibold"
-          :class="index === 0 ? 'bg-white/12 text-white' : 'text-white/55'"
-        >
-          {{ item }}
-        </span>
-      </nav>
-    </aside>
+        <p v-if="services.length === 0" class="mt-2 text-sm text-wego-muted">No services yet.</p>
+        <NuxtLink to="/services" class="mt-4 inline-block text-sm font-semibold text-wego-accent underline">Manage services</NuxtLink>
+      </WegoPanel>
 
-    <section class="px-6 py-8 sm:px-10 lg:px-12 lg:py-10">
-      <header class="flex flex-wrap items-start justify-between gap-5">
-        <div>
-          <span class="inline-flex rounded-full bg-sharm-warning-soft px-4 py-2 text-xs font-bold tracking-[0.1em] text-sharm-warning uppercase">
-            {{ copy.foundationMode }}
-          </span>
-          <h1 class="mt-5 text-3xl font-semibold tracking-tight sm:text-4xl">{{ copy.title }}</h1>
-          <p class="mt-3 max-w-3xl leading-7 text-sharm-muted">{{ copy.subtitle }}</p>
-        </div>
-        <button type="button" class="rounded-full border border-sharm-border bg-white px-4 py-2 text-sm font-semibold text-sharm-sea" @click="toggleLocale">
-          {{ copy.languageName }}
-        </button>
-      </header>
+      <WegoPanel v-if="categories" title="Categories">
+        <p class="text-3xl font-semibold">{{ categories.length }}</p>
+        <p class="mt-1 text-sm text-wego-muted">active</p>
+        <NuxtLink to="/categories" class="mt-4 inline-block text-sm font-semibold text-wego-accent underline">Manage categories</NuxtLink>
+      </WegoPanel>
 
-      <div class="mt-8 rounded-2xl border border-amber-200 bg-sharm-warning-soft p-5 text-sharm-warning" role="status">
-        <p class="font-semibold">{{ copy.noticeTitle }}</p>
-        <p class="mt-2 text-sm leading-6">{{ copy.noticeBody }}</p>
-      </div>
+      <WegoPanel v-if="providers" title="Providers">
+        <p class="text-3xl font-semibold">{{ providers.length }}</p>
+        <p class="mt-1 text-sm text-wego-muted">active</p>
+        <NuxtLink to="/providers" class="mt-4 inline-block text-sm font-semibold text-wego-accent underline">Manage providers</NuxtLink>
+      </WegoPanel>
+    </div>
 
-      <section class="mt-10">
-        <h2 class="text-xl font-semibold">{{ copy.readiness }}</h2>
-        <div class="mt-5 grid gap-4 xl:grid-cols-2">
-          <article v-for="(module, index) in copy.modules" :key="module.name" class="rounded-2xl border border-sharm-border bg-white p-5 shadow-sm" :class="index === 0 ? 'xl:col-span-2' : ''">
-            <div class="flex items-start justify-between gap-4">
-              <h3 class="font-semibold">{{ module.name }}</h3>
-              <span class="shrink-0 rounded-full px-3 py-1 text-xs font-bold" :class="index === 0 ? 'bg-sharm-lagoon text-sharm-sea' : 'bg-sharm-canvas text-sharm-muted'">
-                {{ module.status }}
-              </span>
-            </div>
-            <p class="mt-3 text-sm leading-6 text-sharm-muted">{{ module.detail }}</p>
-          </article>
-        </div>
-      </section>
+    <p v-if="!services && !categories && !providers && !dashboardError" class="mt-4 text-sm text-wego-muted">
+      Your account doesn't hold permission to view any catalog summary widget yet.
+    </p>
 
-      <div class="mt-10 grid gap-5 xl:grid-cols-2">
-        <section class="rounded-2xl border border-sharm-border bg-white p-6">
-          <h2 class="text-xl font-semibold">{{ copy.decisions }}</h2>
-          <ul class="mt-5 grid gap-3 text-sm text-sharm-muted">
-            <li v-for="item in copy.decisionItems" :key="item" class="flex gap-3">
-              <span class="text-sharm-sea">○</span><span>{{ item }}</span>
-            </li>
-          </ul>
-        </section>
-        <section class="rounded-2xl bg-sharm-sea p-6 text-white">
-          <h2 class="text-xl font-semibold">{{ copy.nextGate }}</h2>
-          <p class="mt-4 leading-7 text-white/75">{{ copy.nextGateBody }}</p>
-        </section>
-      </div>
-    </section>
-  </main>
+    <WegoPanel v-if="services && statusCounts.PUBLISHED === 0" class="mt-6" title="No real service is live yet">
+      <p class="text-sm text-wego-muted">
+        The public website and mobile app both correctly show an honest empty state until a real, owner-approved service is
+        published — this is the real current truth, not a defect. See
+        <span class="font-mono">clients/sharm-to-go/content-research/SHARM_TO_GO_SERVICE_INTAKE_SHEETS.md</span> for the
+        launch-ready draft catalog.
+      </p>
+    </WegoPanel>
+  </section>
 </template>

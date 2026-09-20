@@ -12,7 +12,7 @@ proven app architecture, not its content. Added 2026-08-30 at the owner's
 request; this file stays the short overview, that file is where a session
 picking up a phase should actually start reading.
 
-## Phase 0 — composition and honest UI foundation (current)
+## Phase 0 — composition and honest UI foundation
 
 - Multi-product/client Foundry discovery and deterministic locks.
 - Travel Marketplace product boundary and isolated Sharm To Go profile.
@@ -25,6 +25,13 @@ picking up a phase should actually start reading.
 
 Exit: both current clients compose independently; all builds/tests pass; no
 surface claims live inventory or deployment.
+
+**Packet 0R (2026-09-02, self-verified, independent Tier 1 review
+outstanding):** the two clients now compose independently as real, separate,
+running backends (`platform/apps/sharm-to-go`, its own migrations, its own
+permission catalog), not only as Foundry manifests — see
+`TECHNICAL_EXECUTION_PLAN.md`'s own Packet 0R section and the WEGO-010-A
+execution-board entry for the full evidence.
 
 ## Phase 1 — service catalog
 
@@ -42,6 +49,16 @@ surface claims live inventory or deployment.
 Exit: one real approved service can be published and suspended with audit,
 without yet accepting a booking; the mobile app's catalog screens render the
 same real published services the website and dashboard show.
+
+**Packet 1A (2026-09-02, self-verified; owner accepted that evidence):** the
+backend half of this phase is done — catalog/provider
+domain, schema, permissions, full staff CRUD + publish workflow, and the
+public projection, all proven live against a real database. Packet 1B's real
+staff dashboard, Packet 1C's public catalog list/detail, and Packet 1D's
+mobile catalog app are also implemented and self-verified. No real service
+has passed the publication rehearsal (1E) yet — see
+`TECHNICAL_EXECUTION_PLAN.md`'s Packet 1A section and the WEGO-010-A board
+entry for the full evidence.
 
 ## Phase 2 — normal booking flow
 
@@ -99,8 +116,12 @@ eight simple fields in `SERVICE_OWNERSHIP.md` (template in
 `design/SERVICE_CONTENT_TEMPLATE.md`). Merchant sandbox credentials are
 needed only when Phase 3 starts and must never be committed to this repository.
 
-Also needed before Phase 1's mobile work starts (added 2026-08-30): the real
-customer-facing app name/icon for the new dedicated mobile app, and a decision
-on whether Sharm To Go's first dashboard staff accounts should be a role
-scoped separately from `platform-admin` — see `TECHNICAL_EXECUTION_PLAN.md`'s
-"What the owner supplies" section for the full list.
+Packet 1D's mobile app used the already-established real facts for its name
+and icon (`client.manifest.json`'s `displayName`, `web/apps/sharm-to-go-site/
+public/favicon.svg`) rather than inventing new ones or blocking engineering
+work — the owner still needs to separately confirm the release identity
+(store listing name, `applicationId`, icon) before any store submission, and
+a decision on whether Sharm To Go's first dashboard staff accounts should be
+a role scoped separately from `platform-admin` — see
+`TECHNICAL_EXECUTION_PLAN.md`'s "What the owner supplies" section for the
+full list.

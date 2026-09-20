@@ -1,33 +1,51 @@
 @import "tailwindcss";
 @import "@fontsource-variable/inter";
-@import "@fontsource-variable/noto-sans-arabic";
+@source "../../../../../packages/ui/src";
 
 @theme {
-  --color-sharm-ink: #102f35;
-  --color-sharm-muted: #64777b;
-  --color-sharm-sea: #075f67;
-  --color-sharm-lagoon: #d8f1ef;
-  --color-sharm-canvas: #f3f7f6;
-  --color-sharm-surface: #ffffff;
-  --color-sharm-border: #d5e1df;
-  --color-sharm-warning: #8a5809;
-  --color-sharm-warning-soft: #fff1d8;
+  --color-wego-canvas: var(--wego-color-canvas);
+  --color-wego-surface: var(--wego-color-surface);
+  --color-wego-surface-raised: var(--wego-color-surface-raised);
+  --color-wego-surface-sunken: var(--wego-color-surface-sunken);
+  --color-wego-surface-hover: var(--wego-color-surface-hover);
+  --color-wego-surface-pressed: var(--wego-color-surface-pressed);
+  --color-wego-surface-overlay: var(--wego-color-surface-overlay);
+  --color-wego-surface-inverse: var(--wego-color-surface-inverse);
+  --color-wego-ink: var(--wego-color-ink);
+  --color-wego-ink-inverse: var(--wego-color-ink-inverse);
+  --color-wego-muted: var(--wego-color-muted);
+  --color-wego-border: var(--wego-color-border);
+  --color-wego-border-strong: var(--wego-color-border-strong);
+  --color-wego-accent: var(--wego-color-accent);
+  --color-wego-accent-soft: var(--wego-color-accent-soft);
+  --color-wego-success: var(--wego-color-success);
+  --color-wego-success-soft: var(--wego-color-success-soft);
+  --color-wego-warning: var(--wego-color-warning);
+  --color-wego-warning-soft: var(--wego-color-warning-soft);
+  --color-wego-danger: var(--wego-color-danger);
+  --color-wego-danger-soft: var(--wego-color-danger-soft);
+  --color-wego-info: var(--wego-color-info);
+  --color-wego-info-soft: var(--wego-color-info-soft);
+  --color-wego-focus: var(--wego-color-focus);
+  --radius-wego-card: var(--wego-radius-card);
+  --radius-wego-control: var(--wego-radius-control);
+  --radius-wego-pill: var(--wego-radius-pill);
   --font-sans: var(--wego-font-sans);
+  --z-wego-dropdown: var(--wego-z-dropdown);
+  --z-wego-sticky: var(--wego-z-sticky);
+  --z-wego-overlay: var(--wego-z-overlay);
+  --z-wego-modal: var(--wego-z-modal);
+  --z-wego-toast: var(--wego-z-toast);
 }
 
 html {
-  background: #f3f7f6;
-  color: #102f35;
+  background: var(--wego-color-canvas);
+  color: var(--wego-color-ink);
   font-family: var(--wego-font-sans);
 }
 
 body {
   margin: 0;
-}
-
-html[dir="rtl"] {
-  --wego-font-sans: "Noto Sans Arabic Variable", "Noto Sans Arabic", Tahoma,
-    Arial, sans-serif;
 }
 
 .money,
@@ -38,6 +56,17 @@ html[dir="rtl"] {
 }
 
 :focus-visible {
-  outline: 3px solid #f2a93b;
+  outline: 3px solid var(--wego-color-focus);
   outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

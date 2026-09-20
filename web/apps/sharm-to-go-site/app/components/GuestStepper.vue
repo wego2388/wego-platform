@@ -21,7 +21,7 @@ function change(delta: number) {
 </script>
 
 <template>
-  <div class="flex min-h-16 items-center justify-between gap-4 rounded-2xl border border-sharm-border bg-white px-4 py-3">
+  <div class="flex min-h-16 items-center justify-between gap-4 rounded-2xl border border-sharm-border bg-sharm-surface px-4 py-3">
     <span class="font-medium">{{ label }}</span>
     <div class="flex items-center gap-3">
       <button

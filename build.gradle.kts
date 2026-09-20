@@ -14,6 +14,7 @@ version = "0.1.0-SNAPSHOT"
 
 tasks.named("check") {
     dependsOn(":platform:application:check")
+    dependsOn(":platform:apps:sharm-to-go:check")
     dependsOn(":mobile:shared:check")
     dependsOn(":mobile:apps:ops:check")
     dependsOn(":mobile:apps:customer:check")
@@ -22,4 +23,5 @@ tasks.named("check") {
 
 tasks.named("assemble") {
     dependsOn(":platform:application:assemble")
+    dependsOn(":platform:apps:sharm-to-go:assemble")
 }

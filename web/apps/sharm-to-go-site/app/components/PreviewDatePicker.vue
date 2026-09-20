@@ -21,7 +21,7 @@ const emit = defineEmits<{ select: [id: string] }>();
       type="button"
       class="min-h-28 rounded-2xl border p-3 text-start transition-colors disabled:cursor-not-allowed"
       :class="[
-        selectedId === date.id ? 'border-sharm-sea bg-sharm-lagoon shadow-sm' : 'border-sharm-border bg-white',
+        selectedId === date.id ? 'border-sharm-sea bg-sharm-lagoon shadow-sm' : 'border-sharm-border bg-sharm-surface',
         !date.available ? 'text-sharm-muted opacity-55' : 'hover:border-sharm-sea-bright',
       ]"
       :disabled="!date.available"

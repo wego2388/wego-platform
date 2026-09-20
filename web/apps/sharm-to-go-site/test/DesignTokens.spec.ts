@@ -10,6 +10,7 @@ interface TokenDocument {
     border: Record<string, string>;
     status: Record<string, string>;
   };
+  typography: { displayFamily: string };
   layout: { touchTargetMinPx: number };
   version: string;
 }
@@ -23,6 +24,8 @@ describe("Sharm To Go design-token contract", () => {
       ["brand-lagoon", tokens.color.brand.lagoon],
       ["brand-sand", tokens.color.brand.sand],
       ["brand-sun", tokens.color.brand.sun],
+      ["brand-sky", tokens.color.brand.sky],
+      ["brand-terracotta", tokens.color.brand.terracotta],
       ["surface-canvas", tokens.color.surface.canvas],
       ["text-primary", tokens.color.text.primary],
       ["text-secondary", tokens.color.text.secondary],
@@ -32,11 +35,15 @@ describe("Sharm To Go design-token contract", () => {
       ["status-danger", tokens.color.status.danger],
     ];
 
-    expect(tokens.version).toBe("0.1.0");
+    expect(tokens.version).toBe("0.2.0");
     expect(tokens.layout.touchTargetMinPx).toBeGreaterThanOrEqual(44);
     for (const [name, value] of criticalTokens) {
       expect(css).toContain(`--stg-color-${name}: ${value};`);
     }
+    // The playful display face is the Phase 1 redesign's one deliberate
+    // typographic break from web/apps/erp's shared Inter-only stack — keep
+    // the CSS honoring whatever the design source actually names.
+    expect(css).toContain(tokens.typography.displayFamily);
   });
 
   it("keeps the executable public mark aligned with the registered design asset", () => {

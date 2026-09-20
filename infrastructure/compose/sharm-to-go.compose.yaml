@@ -1,0 +1,167 @@
+name: ${COMPOSE_PROJECT_NAME:-sharm-to-go}
+
+# Sharm To Go single-VPS topology: PostgreSQL, the sharm-to-go backend, the
+# public customer site, the staff ERP, an Nginx edge (rate limiting, CSP,
+# hostname-split routing) and — under the `tls` profile — Caddy for automatic
+# HTTPS. Required secrets have no default on purpose: the stack refuses to
+# start without them rather than silently using a development password.
+
+services:
+  postgres:
+    image: public.ecr.aws/docker/library/postgres:18.4-alpine@sha256:9a8afca54e7861fd90fab5fdf4c42477a6b1cb7d293595148e674e0a3181de15
+    environment:
+      POSTGRES_DB: ${STG_POSTGRES_DB:-wego_sharm_to_go}
+      POSTGRES_USER: ${STG_POSTGRES_USER:-wego_app}
+      POSTGRES_PASSWORD: ${STG_POSTGRES_PASSWORD:?set STG_POSTGRES_PASSWORD in the env file}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - internal
+
+  backend:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/sharm-to-go-backend.Dockerfile
+    environment:
+      WEGO_DB_URL: jdbc:postgresql://postgres:5432/${STG_POSTGRES_DB:-wego_sharm_to_go}
+      WEGO_DB_USERNAME: ${STG_POSTGRES_USER:-wego_app}
+      WEGO_DB_PASSWORD: ${STG_POSTGRES_PASSWORD:?set STG_POSTGRES_PASSWORD in the env file}
+      WEGO_DB_POOL_SIZE: 10
+      WEGO_FLYWAY_ENABLED: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O - http://127.0.0.1:8080/actuator/health | grep -q '"status":"UP"'
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    restart: unless-stopped
+    networks:
+      - internal
+
+  site:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/sharm-to-go-web.Dockerfile
+      args:
+        WEB_APP: sharm-to-go-site
+    environment:
+      NUXT_PUBLIC_SITE_URL: https://${STG_SITE_DOMAIN:?set STG_SITE_DOMAIN in the env file}
+      NUXT_TRAVEL_MARKETPLACE_API_BASE: http://backend:8080
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O /dev/null http://127.0.0.1:3000/robots.txt
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 20s
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    restart: unless-stopped
+    networks:
+      - internal
+
+  erp:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/sharm-to-go-web.Dockerfile
+      args:
+        WEB_APP: sharm-to-go-erp
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O /dev/null http://127.0.0.1:3000/login
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 20s
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    restart: unless-stopped
+    networks:
+      - internal
+
+  edge:
+    image: public.ecr.aws/docker/library/nginx:1.30.4-alpine@sha256:97d490c12ba55b4946b01546d1c3ed324e8d41ab1c9fcb2a616aa470620e5b46
+    user: "101:101"
+    depends_on:
+      backend:
+        condition: service_healthy
+      site:
+        condition: service_healthy
+      erp:
+        condition: service_healthy
+    # Loopback only: lets you check each surface without TLS or DNS
+    # (`curl 127.0.0.1:58180/`, `curl 127.0.0.1:58181/login`). Public
+    # traffic reaches the edge through Caddy on the shared network.
+    ports:
+      - "127.0.0.1:${STG_EDGE_SITE_PORT:-58180}:8080"
+      - "127.0.0.1:${STG_EDGE_ADMIN_PORT:-58181}:8081"
+    volumes:
+      - ../nginx/sharm-to-go.nginx.conf:/etc/nginx/nginx.conf:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O - http://127.0.0.1:8080/healthz | grep -q '"status":"UP"'
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    restart: unless-stopped
+    networks:
+      - internal
+
+  caddy:
+    profiles: ["tls"]
+    image: public.ecr.aws/docker/library/caddy:2.10-alpine@sha256:4c6e91c6ed0e2fa03efd5b44747b625fec79bc9cd06ac5235a779726618e530d
+    environment:
+      STG_SITE_DOMAIN: ${STG_SITE_DOMAIN:?set STG_SITE_DOMAIN in the env file}
+      STG_ADMIN_DOMAIN: ${STG_ADMIN_DOMAIN:?set STG_ADMIN_DOMAIN in the env file}
+    depends_on:
+      edge:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    name: ${COMPOSE_PROJECT_NAME:-sharm-to-go}-postgres-data
+  caddy_data:
+  caddy_config:

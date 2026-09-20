@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!.env.sharm-to-go.example
 *.pem
 *.key
 *.p12
@@ -33,6 +34,9 @@ coverage/
 # Kotlin Multiplatform
 **/.kotlin/
 **/composeApp/build/
+
+# Android SDK path is machine-specific, never shared configuration
+local.properties
 
 # Generated jOOQ sources are build outputs
 platform/application/src/generated/
