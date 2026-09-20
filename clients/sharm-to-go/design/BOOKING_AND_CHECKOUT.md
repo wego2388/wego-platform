@@ -47,3 +47,26 @@ retention decision justifies it.
 prove calculations and responsive behavior, but it cannot call an API, create a
 booking, redirect to a gateway, promise availability or be linked as a live
 commercial offering.
+
+## Owner decisions (2026-09-20)
+
+Given directly by the owner; they replace the open questions above and steer
+the future booking/payment packet.
+
+- **Real customer channels:** WhatsApp / direct call `+20 10 0141 3469`
+  (`wa.me/201001413469`) and email `info@sharmtogo.com`. Already live on the
+  site (service detail, footer) and the mobile app's service detail.
+- **No customer accounts.** Booking is anonymous and as simple as possible:
+  name, one reachable contact, the selected option/date/party, policy
+  acceptance — nothing else. No sign-up, no login for customers.
+- **Instant confirmation** for every service, as long as it is available for
+  the customer's chosen date (server-side availability/capacity check decides).
+  The `Manual` and `On request` modes above are not launch targets. The
+  current homepage "A request first, a confirmation second" copy describes the
+  pre-booking era and must be rewritten when the booking packet ships.
+- **Email is the confirmation/notification channel** (sender
+  `info@sharmtogo.com`). WhatsApp templates are a later, separate decision.
+- **Payment provider details** (Paymob / FawryPay / CIB contracts and
+  credentials) are still pending from the owner — the booking packet cannot
+  go live before they exist, but its domain model, availability check and
+  email flow can be built and tested against a sandbox first.

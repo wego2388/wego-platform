@@ -31,6 +31,10 @@
   worse, misrepresent a real, uninvolved business as a Sharm To Go partner.
   A market-reference line is kept under each concept only as a competitor
   benchmark, never as a proposed Sharm To Go price.
+- **Updated 2026-09-20:** all 34 `PARTNER` sheets now carry the owner's
+  confirmation-mode and support-contact decisions plus `PROPOSED` EGP prices —
+  see the last section of this file for exactly what was decided and what only
+  a real operator can supply.
 - **How to use this:** the three `DIRECT` transfer concepts are ready to
   enter the real workflow as soon as one real photo with rights evidence
   exists (proven live for `STG-TRN-001` already — see the WEGO-010-A board
@@ -171,19 +175,19 @@ English name: Glass-Bottom Reef Boat
 Arabic name: قارب القاع الزجاجي لمشاهدة الشعاب
 English short description: View coastal reefs from a glass-bottom boat on a short outing designed for guests who prefer to stay dry while enjoying the Red Sea scenery.
 Arabic short description: شاهد الشعاب القريبة من الساحل عبر قاع زجاجي في جولة قصيرة تناسب من يفضلون الاستمتاع بمناظر البحر الأحمر من دون نزول الماء.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 2 hours.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: EGP 1,650 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: EGP 950 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: TO CONFIRM
 
@@ -199,7 +203,7 @@ Restrictions/accessibility: Exact boat, viewing-window quality, route, sailing t
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -222,19 +226,19 @@ English name: Ras Mohammed by Road
 Arabic name: رحلة برية إلى محمية رأس محمد
 English short description: Explore selected land stops inside Ras Mohammed National Park by road, with shore snorkeling offered only where access and sea conditions are suitable.
 Arabic short description: استكشف محطات برية مختارة داخل محمية رأس محمد بالسيارة، مع إتاحة السنوركلينج من الشاطئ فقط عندما تسمح نقاط الدخول وحالة البحر بذلك.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 5 hours.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: group: EGP 750 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: group: EGP 550 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Small group; private vehicle.
 
@@ -250,7 +254,7 @@ Restrictions/accessibility: Exact permitted stops, park ticket/fee, vehicle and 
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -273,19 +277,19 @@ English name: Aqua Park Day
 Arabic name: يوم في الأكوا بارك
 English short description: Arrange a full aqua-park day with return hotel transport and a clearly selected ticket or meal package.
 Arabic short description: استمتع بيوم كامل في الأكوا بارك مع انتقال من الفندق والعودة إليه، واختيار واضح بين تذكرة الدخول أو باقة تشمل الوجبة.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 7 hours.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: entry + transfer: EGP 3,300; entry + transfer + buffet lunch + soft drinks: EGP 3,950 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: entry + transfer: EGP 2,200; entry + transfer + buffet lunch + soft drinks: EGP 2,750 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Entry and transfer; entry, transfer, buffet lunch, and soft drinks.
 
@@ -301,7 +305,7 @@ Restrictions/accessibility: Named venue, ticket validity, opening/maintenance da
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -324,19 +328,19 @@ English name: Ras Mohammed & White Island Snorkeling Cruise
 Arabic name: رحلة سنوركلينج إلى رأس محمد والجزيرة البيضاء
 English short description: Spend a full day on the Red Sea with a shared boat, guided snorkeling stops, time near White Island, and an onboard meal, subject to park access and sea conditions.
 Arabic short description: اقضِ يومًا كاملًا في البحر الأحمر على متن قارب مشترك، مع محطات سنوركلينج بصحبة مرشد ووقت بالقرب من الجزيرة البيضاء ووجبة على القارب، وفق تصاريح المحمية وحالة البحر.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 7 hours.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: without equipment: EGP 1,650; with equipment: EGP 1,800 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: without equipment: EGP 1,000; with equipment: EGP 1,100 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Equipment excluded; equipment included.
 
@@ -352,7 +356,7 @@ Restrictions/accessibility: Named boat and marina, licensed capacity, passenger 
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -375,19 +379,19 @@ English name: Tiran Snorkeling Cruise
 Arabic name: رحلة سنوركلينج بحرية إلى تيران
 English short description: Sail on a shared full-day cruise toward the Tiran area for guided snorkeling stops, onboard refreshments, and time to relax between stops, with the route confirmed for the day's conditions.
 Arabic short description: انطلق في رحلة بحرية مشتركة ليوم كامل باتجاه منطقة تيران، مع محطات سنوركلينج بصحبة مرشد ومشروبات ووقت للاسترخاء، على أن يتم تأكيد المسار حسب ظروف اليوم.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 7 hours.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: without equipment: EGP 1,500; with equipment: EGP 1,750 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: without equipment: EGP 1,000; with equipment: EGP 1,200 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Equipment excluded; equipment included.
 
@@ -403,7 +407,7 @@ Restrictions/accessibility: Do not promise landing on Tiran Island. Confirm perm
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -426,19 +430,19 @@ English name: Parasailing & Water Sports
 Arabic name: باراسيلنج وألعاب مائية
 English short description: Choose a parasailing flight on its own or pair it with selected towable water activities and a short coastal boat program, subject to the marine operator's safety decision.
 Arabic short description: اختر تجربة باراسيلنج مستقلة أو اجمعها مع ألعاب مائية مختارة وبرنامج بحري قصير، وفق قرار مشغّل النشاط بخصوص السلامة.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 2 hours for parasailing alone; up to 4 hours for a broader water-sports package.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: parasailing: EGP 1,600; parasailing + banana boat: EGP 2,250; broader water-sports package: EGP 2,050 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: parasailing: EGP 900; parasailing + banana boat: EGP 1,300; broader water-sports package: EGP 1,800 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Tandem parasailing; parasailing plus banana boat; broader glass-boat/water-sports package.
 
@@ -454,7 +458,7 @@ Restrictions/accessibility: Minimum age and weight, maximum combined weight, fli
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -477,19 +481,19 @@ English name: Desert & Sea Adventure Combo
 Arabic name: مغامرة تجمع بين الصحراء والبحر
 English short description: Combine a guided quad or buggy session with a coordinated coastal program of parasailing, a glass-bottom boat, and selected water activities in one day.
 Arabic short description: اجمع في يوم واحد بين جولة بالدراجة الرباعية أو الباجي وبرنامج بحري منسق يشمل الباراسيلنج وقارب القاع الزجاجي وألعابًا مائية مختارة.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 5-6 hours.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: quad package: EGP 2,500; buggy package: EGP 2,950 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: quad package: EGP 2,450; buggy package: EGP 2,800 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Quad package; buggy package.
 
@@ -505,7 +509,7 @@ Restrictions/accessibility: Whether one operator owns the complete service, tran
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -528,19 +532,19 @@ English name: Desert Evening: Quad, Camel, Dinner & Show
 Arabic name: أمسية صحراء بالدراجة والجمل والعشاء والعرض
 English short description: Ride into the desert by quad, pause for a short camel experience, then finish at a Bedouin-style camp with dinner and an evening performance.
 Arabic short description: انطلق بالدراجة الرباعية في الصحراء، وتوقف لتجربة قصيرة لركوب الجمل، ثم اختتم الجولة في مخيم بطابع بدوي مع العشاء وعرض مسائي.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 5 hours.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: shared double quad: EGP 1,100; single quad: EGP 1,950 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: shared double quad: EGP 900; single quad: EGP 1,800 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Shared double quad; single quad; private trip.
 
@@ -556,7 +560,7 @@ Restrictions/accessibility: Driver/passenger ages, helmet and goggle provision, 
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -579,18 +583,18 @@ English name: Buggy Desert Experience
 Arabic name: مغامرة باجي في الصحراء
 English short description: Travel across a guided desert route in a two- or four-seat buggy, with sunset, camel, camp, or meal elements included only in the selected confirmed option.
 Arabic short description: استكشف مسارًا صحراويًا بصحبة قائد باستخدام باجي بمقعدين أو أربعة مقاعد، مع إضافة الغروب أو الجمل أو المخيم أو الوجبة فقط حسب الخيار المؤكد.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: Up to 5 hours for the sunset/dinner program.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_VEHICLE (seats/vehicle, not per rider) — confirm with operator before publishing.
 Currency: EGP
-Adult price: TO CONFIRM
+Adult price: TO CONFIRM — the benchmark mixes per-seat and per-vehicle prices; the basis must be fixed with the real operator before any price is proposed.
 Child age range and price: TO CONFIRM
 Infant rule: TO CONFIRM
 Add-ons and prices: Shared family buggy; two-seat buggy; private buggy.
@@ -607,7 +611,7 @@ Restrictions/accessibility: Price basis must reflect seats/vehicle honestly. Con
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -630,19 +634,19 @@ English name: Arabian Horse Riding
 Arabic name: تجربة ركوب الخيل العربي
 English short description: Take a guided horseback ride on an approved desert or coastal route, with the horse and pace matched to the rider's declared experience.
 Arabic short description: استمتع بجولة خيل بصحبة مرشد على مسار صحراوي أو ساحلي معتمد، مع اختيار الحصان وسرعة الجولة بما يناسب خبرة الراكب المعلنة.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 1 or 2 hours.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: 1-hour desert ride: EGP 900; 2-hour desert ride: EGP 1,600; coastal ride: EGP 1,500 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: 1-hour desert ride: EGP 800; 2-hour desert ride: EGP 1,450; coastal ride: EGP 1,300 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: One-hour desert ride; two-hour desert ride; coastal ride where legal access is confirmed.
 
@@ -658,7 +662,7 @@ Restrictions/accessibility: Stable/operator identity, route permission, animal w
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -681,19 +685,19 @@ English name: Bedouin Dinner & Stargazing
 Arabic name: عشاء بدوي ومشاهدة النجوم
 English short description: Spend an evening at a desert camp with a short camel experience, dinner, local-style entertainment, and guided stargazing, without requiring guests to drive a quad.
 Arabic short description: اقضِ أمسية في مخيم صحراوي تشمل تجربة قصيرة لركوب الجمل والعشاء وفقرات ترفيهية بطابع محلي ومشاهدة النجوم بصحبة مرشد، من دون اشتراط قيادة دراجة رباعية.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 5 hours.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: shared evening: EGP 1,500; upgraded table: EGP 1,750; private evening: EGP 2,350 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: shared evening: EGP 1,400; upgraded table: EGP 1,600; private evening: EGP 1,650 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Shared evening; upgraded table; private evening.
 
@@ -709,7 +713,7 @@ Restrictions/accessibility: Camp identity, cultural accuracy, camel welfare, tel
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -732,19 +736,19 @@ English name: Sunrise or Morning Quad Safari
 Arabic name: سفاري بالدراجة وقت الشروق أو الصباح
 English short description: Choose an early sunrise or morning quad route with a safety briefing and guided desert convoy, keeping optional camel and camp stops separate from the base ride.
 Arabic short description: اختر مسارًا بالدراجة الرباعية وقت الشروق أو الصباح، مع تعليمات سلامة وقافلة صحراوية بصحبة قائد، مع فصل الجمل وتوقفات المخيم الاختيارية عن الجولة الأساسية.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 3 hours.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: group: EGP 850 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: group: EGP 850 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Sunrise group; morning group. (The private version is the separate STG-PT-008 concept.)
 
@@ -760,7 +764,7 @@ Restrictions/accessibility: Driver/passenger ages, sunrise pickup window, lighti
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -783,19 +787,19 @@ English name: Private Sharm City Essentials
 Arabic name: جولة خاصة لأهم معالم شرم
 English short description: Discover Sharm's best-known city landmarks at a flexible pace, with private transport and time for the Old Market, places of worship, viewpoints, and an optional Naama Bay stop.
 Arabic short description: اكتشف أشهر معالم مدينة شرم الشيخ بإيقاع مرن، مع انتقال خاص ووقت لزيارة السوق القديم ودور العبادة ونقاط المشاهدة، مع إمكانية إضافة توقف في خليج نعمة.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 3 hours.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: standard: EGP 750; female-guide request: EGP 900 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: standard: EGP 500; female-guide request: EGP 700 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Standard private tour; female-guide request.
 
@@ -811,7 +815,7 @@ Restrictions/accessibility: Add-ons (Farsha transfer, SOHO transfer, museum admi
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -833,19 +837,19 @@ English name: Sharm Museum and City Choices
 Arabic name: متحف شرم وخيارات جولة المدينة
 English short description: Pair the Sharm El Sheikh Museum with a private city itinerary, choosing the Old Market, Farsha, SOHO Square, or a broader highlights route according to the selected package.
 Arabic short description: اجمع بين زيارة متحف شرم الشيخ وجولة خاصة داخل المدينة، مع اختيار السوق القديم أو فرشة أو سوهو سكوير أو مسار أشمل لأهم المعالم حسب الباقة.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 3-5 hours, depending on the route.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: PROPOSED range EGP 1,100 – 1,500 (benchmark EUR 18–25, depends on the package chosen) — owner-changeable; the exact price per package is TO CONFIRM
+Child age range and price: PROPOSED range EGP 500 – 900 (benchmark EUR 8–15) — age range TO CONFIRM
 Infant rule: TO CONFIRM
 Add-ons and prices: Museum and Old Market; museum and Farsha; museum and SOHO; museum with full city highlights.
 
@@ -861,7 +865,7 @@ Restrictions/accessibility: Museum ticket type, opening hours, guide licensing, 
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -883,19 +887,19 @@ English name: Sharm City and Parasailing
 Arabic name: جولة شرم وتجربة الباراسيلنج
 English short description: Combine a private introduction to Sharm with a short parasailing flight above the Red Sea, subject to weather and the marine operator's safety decision.
 Arabic short description: اجمع بين جولة خاصة للتعرف على شرم الشيخ وتجربة باراسيلنج قصيرة فوق البحر الأحمر، وفق حالة الطقس وقرار مشغّل النشاط البحري.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 4 hours.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: tandem parasailing: EGP 2,350 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: tandem parasailing: EGP 2,050 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Tandem parasailing; solo flight as an approved upgrade.
 
@@ -911,7 +915,7 @@ Restrictions/accessibility: Minimum age/weight, maximum combined weight, weather
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -933,19 +937,19 @@ English name: City Sights and Desert Adventure
 Arabic name: معالم المدينة ومغامرة الصحراء
 English short description: Split one private outing between Sharm's city highlights and an ATV ride into the nearby desert, with optional camel ride, dinner, and stargazing components.
 Arabic short description: اقضِ جولة خاصة تجمع بين معالم شرم الشيخ وقيادة الدراجة الرباعية في الصحراء القريبة، مع خيارات لركوب الجمل والعشاء ومشاهدة النجوم.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 5 hours before optional extensions.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: city + ATV: EGP 1,400; with dinner and camel: EGP 2,150 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: city + ATV: EGP 900; with dinner and camel: EGP 1,400 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: TO CONFIRM
 
@@ -961,7 +965,7 @@ Restrictions/accessibility: ATV driver/passenger ages, helmet/goggle inclusion, 
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -983,19 +987,19 @@ English name: Sharm Highlights and Seafood Meal
 Arabic name: معالم شرم ووجبة مأكولات بحرية
 English short description: Explore selected Sharm landmarks by private car, then sit down for a seafood lunch or dinner arranged as part of the itinerary.
 Arabic short description: استكشف مجموعة من معالم شرم الشيخ بسيارة خاصة، ثم استمتع بوجبة غداء أو عشاء من المأكولات البحرية ضمن برنامج الرحلة.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 4 hours.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: EGP 1,600 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: EGP 1,250 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: TO CONFIRM
 
@@ -1011,7 +1015,7 @@ Restrictions/accessibility: Named restaurant, fixed menu, drinks, allergies, chi
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -1033,19 +1037,19 @@ English name: SOHO Square and Hollywood Park Transfer
 Arabic name: انتقال خاص إلى سوهو سكوير وهوليوود بارك
 English short description: A private return transfer connecting two Sharm entertainment areas, with independent free time at each confirmed stop.
 Arabic short description: انتقال خاص ذهابًا وعودة بين منطقتين ترفيهيتين في شرم الشيخ، مع وقت حر مستقل في كل محطة يتم تأكيدها.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: Source states 2 hours — verify against venue evening hours before use.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON (source model) — confirm whether PER_VEHICLE fits better.
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: minimum 2 guests: EGP 2,400 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: minimum 2 guests: EGP 1,200 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: TO CONFIRM
 
@@ -1061,7 +1065,7 @@ Restrictions/accessibility: Source daytime start conflicts with the venues' usua
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -1137,19 +1141,19 @@ English name: Private ATV Desert Experience
 Arabic name: مغامرة سفاري خاصة بالدراجات الرباعية
 English short description: A private guided quad route through the Sharm desert with a safety briefing and a Bedouin stop, offered in morning, sunrise, or sunset windows when operationally available.
 Arabic short description: مسار سفاري خاص بالدراجات الرباعية في صحراء شرم مع شرح للسلامة وتوقف بدوي، ويُتاح صباحًا أو وقت الشروق أو الغروب حسب التشغيل.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 3 hours.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: PROPOSED range EGP 1,800 – 2,400 (benchmark EUR 29.90–40, depends on the time window) — owner-changeable; the exact price per package is TO CONFIRM
+Child age range and price: PROPOSED range EGP 1,100 – 1,450 (benchmark EUR 18–24) — age range TO CONFIRM
 Infant rule: TO CONFIRM
 Add-ons and prices: Sunrise; morning; sunset; private-transfer upgrade.
 
@@ -1165,7 +1169,7 @@ Restrictions/accessibility: Infants conflict in the source and must be prohibite
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -1187,18 +1191,18 @@ English name: Private Red Sea Yacht Day
 Arabic name: يوم خاص على يخت في البحر الأحمر
 English short description: Charter a private yacht for a full Red Sea day with snorkeling stops, onboard refreshments, and a meal selected with the operator.
 Arabic short description: استأجر يختًا خاصًا ليوم كامل في البحر الأحمر، مع محطات للسنوركلينج ومشروبات على متن اليخت ووجبة يتم تحديدها مع المشغّل.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 7 hours — do not use a shorter 'half day' label until an operator confirms it.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_GROUP
 Currency: EGP
-Adult price: TO CONFIRM
+Adult price: TO CONFIRM — the benchmark is internally contradictory (the same EUR 870 covers 10 people on one source page and 20 on two others); no price is proposed until a real operator quotes.
 Child age range and price: TO CONFIRM
 Infant rule: TO CONFIRM
 Add-ons and prices: Standard lunch; seafood lunch.
@@ -1215,7 +1219,7 @@ Restrictions/accessibility: Exact yacht identity, licensed capacity, marina, cre
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -1237,18 +1241,18 @@ English name: Private Speedboat Snorkeling
 Arabic name: سنوركلينج بقارب سريع خاص
 English short description: Take a private speedboat to selected snorkeling areas, with the exact reefs and route confirmed according to sea conditions and permit access.
 Arabic short description: انطلق بقارب سريع خاص إلى مناطق سنوركلينج يتم تحديدها حسب حالة البحر وتصاريح الوصول إلى مواقع الشعاب.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 2 hours.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_GROUP
 Currency: EGP
-Adult price: TO CONFIRM
+Adult price: PROPOSED — EGP 8,650 for a group of up to 5; EGP 10,150 for up to 11 (benchmark EUR 145 / EUR 170 × 59.80, rounded to EGP 50)
 Child age range and price: TO CONFIRM
 Infant rule: TO CONFIRM
 Add-ons and prices: Two local reef stops; Tiran route for up to 5; larger Tiran boat for up to 11.
@@ -1265,7 +1269,7 @@ Restrictions/accessibility: Tiran access, boat/captain licence, capacity, life j
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -1287,18 +1291,18 @@ English name: Desert ATV and Speedboat Combo
 Arabic name: مغامرة صحراء وقارب سريع
 English short description: Combine a guided ATV route with a private speedboat session and snorkeling stops in one coordinated itinerary.
 Arabic short description: اجمع بين مسار سفاري بالدراجة الرباعية وجولة بقارب سريع خاص ومحطات للسنوركلينج ضمن برنامج واحد منسق.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 5 hours.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
+Adult price: minimum 3 guests: EGP 7,200 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
 Child age range and price: TO CONFIRM
 Infant rule: TO CONFIRM
 Add-ons and prices: TO CONFIRM
@@ -1315,7 +1319,7 @@ Restrictions/accessibility: The child price is an outlier and must not be reused
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -1337,19 +1341,19 @@ English name: Private Dahab and Canyon Adventure
 Arabic name: رحلة خاصة إلى دهب والوديان
 English short description: Travel privately from Sharm toward Dahab for a canyon and coastal day, choosing either a sightseeing-focused route or a full program with ATV and camel components.
 Arabic short description: انطلق في رحلة خاصة من شرم الشيخ إلى دهب ليوم يجمع بين الوديان والساحل، مع اختيار برنامج مشاهدة أساسي أو برنامج كامل يشمل الدراجة الرباعية وركوب الجمل.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 8 hours.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: without rides, minimum 2: EGP 5,700; full program, minimum 2: EGP 6,600 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: without rides, minimum 2: EGP 4,450; full program, minimum 2: EGP 5,000 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: TO CONFIRM
 
@@ -1365,7 +1369,7 @@ Restrictions/accessibility: Actual canyon and Blue Hole/Abu Galum access and fee
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -1387,19 +1391,19 @@ English name: Private Cairo Pyramids and Museum Day
 Arabic name: يوم خاص إلى أهرامات القاهرة والمتحف
 English short description: A private long-distance day from Sharm to the Giza Plateau and a confirmed Cairo museum, with transport mode and admission plan agreed before booking.
 Arabic short description: يوم خاص طويل من شرم الشيخ إلى منطقة أهرامات الجيزة ومتحف يتم تأكيده في القاهرة، مع الاتفاق مسبقًا على وسيلة الانتقال وتذاكر الدخول.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: Full day; source road start 01:00.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: minimum 2: EGP 11,350 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: minimum 2: EGP 10,750 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: TO CONFIRM
 
@@ -1415,7 +1419,7 @@ Restrictions/accessibility: Exact museum (Cairo museum routing has changed over 
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -1438,19 +1442,19 @@ English name: Giza, Saqqara, Memphis and Khan El-Khalili
 Arabic name: الجيزة وسقارة وممفيس وخان الخليلي
 English short description: Cover several major Cairo heritage areas in a private day from Sharm, with road and flight versions treated as separate operational options.
 Arabic short description: زر مجموعة من أهم المناطق التاريخية في القاهرة خلال يوم خاص من شرم الشيخ، مع التعامل مع السفر برًا والطيران كخيارين تشغيليين منفصلين.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: Full day.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: road: EGP 14,350; road + extras: EGP 16,700; plane: EGP 20,250 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: road: EGP 10,750; road + extras: EGP 12,550; plane: EGP 16,100 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Road; road with pyramid interior and camel; plane.
 
@@ -1466,7 +1470,7 @@ Restrictions/accessibility: Flight inventory and baggage, exact road timings, ev
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -1489,19 +1493,19 @@ English name: Colored Canyon, Blue Hole & Dahab Day
 Arabic name: يوم إلى الوادي الملون والبلو هول ودهب
 English short description: Join a group day from Sharm toward Dahab for a confirmed canyon route, coastal time, and selected snorkeling or camel elements, with every admission stated before booking.
 Arabic short description: انضم إلى رحلة جماعية من شرم باتجاه دهب تشمل مسار وادٍ يتم تأكيده ووقتًا على الساحل وخيارات محددة للسنوركلينج أو ركوب الجمل، مع توضيح جميع رسوم الدخول قبل الحجز.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 8 hours; source start 08:30.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: group without admissions: EGP 900; group with Blue Hole admission: EGP 2,050 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: group without admissions: EGP 650; group with Blue Hole admission: EGP 1,150 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Group without admissions; group with confirmed Blue Hole admission. (The private route is the separate STG-PT-012 concept.)
 
@@ -1517,7 +1521,7 @@ Restrictions/accessibility: Exact canyon and route, Blue Hole/Abu Galum permits 
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -1540,19 +1544,19 @@ English name: Mount Sinai Sunrise & St Catherine
 Arabic name: شروق جبل موسى ودير سانت كاترين
 English short description: Depart Sharm at night for a guided Mount Sinai ascent before sunrise, followed by a monastery visit when opening conditions allow.
 Arabic short description: غادر شرم ليلًا لصعود جبل موسى بصحبة مرشد قبل الشروق، ثم زيارة الدير عندما تسمح مواعيد الفتح وظروف التشغيل.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: Overnight/full-day pattern; source departure 20:00.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: shared group: EGP 1,450 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: shared group: EGP 850 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Shared group; private vehicle/guide.
 
@@ -1568,7 +1572,7 @@ Restrictions/accessibility: Licensed mountain guide, physical difficulty and med
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -1591,19 +1595,19 @@ English name: St Catherine & Dahab Day
 Arabic name: يوم إلى سانت كاترين ودهب
 English short description: Visit St Catherine by road, then continue to a confirmed Dahab stop, with the monastery program and free-time arrangements stated before departure.
 Arabic short description: زر سانت كاترين برًا ثم واصل إلى محطة يتم تحديدها في دهب، مع توضيح برنامج الدير وترتيبات الوقت الحر قبل الانطلاق.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 9 hours; source departure 05:00.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: shared coach: EGP 1,600; private, minimum 2: EGP 7,700 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: shared coach: EGP 950; private, minimum 2: EGP 5,300 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Shared coach; private vehicle and guide.
 
@@ -1619,7 +1623,7 @@ Restrictions/accessibility: Monastery opening days/hours, exact accessible areas
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -1642,19 +1646,19 @@ English name: Cairo by Coach
 Arabic name: رحلة إلى القاهرة بالأتوبيس
 English short description: Travel overnight by coach from Sharm for a guided Cairo day covering the Giza Plateau and one specifically named museum, with admissions and optional stops stated in advance.
 Arabic short description: سافر ليلًا بالأتوبيس من شرم لقضاء يوم بصحبة مرشد في القاهرة يشمل منطقة أهرامات الجيزة ومتحفًا يتم تحديد اسمه، مع توضيح التذاكر والمحطات الاختيارية مسبقًا.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: Full day; source departure 01:00.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: Egyptian Museum route: EGP 3,150; Grand Egyptian Museum route: EGP 4,900 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: Egyptian Museum route: EGP 2,400; Grand Egyptian Museum route: EGP 3,900 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Egyptian Museum route; Grand Egyptian Museum route.
 
@@ -1670,7 +1674,7 @@ Restrictions/accessibility: Exact museum/date, coach licence/capacity, two-drive
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -1693,19 +1697,19 @@ English name: Cairo by Air
 Arabic name: رحلة إلى القاهرة بالطائرة
 English short description: Fly from Sharm for a guided Cairo day at the Giza Plateau and a confirmed museum, with flight details and all timed entries confirmed before the booking becomes final.
 Arabic short description: سافر بالطائرة من شرم لقضاء يوم بصحبة مرشد في القاهرة لزيارة أهرامات الجيزة ومتحف يتم تأكيده، مع تثبيت تفاصيل الرحلة الجوية ومواعيد الدخول قبل أن يصبح الحجز نهائيًا.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: Full day; source pickup/departure pattern starts 04:00.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: STAFF_REVIEW — DECIDED 2026-09-20. The owner chose instant confirmation, but this concept depends on third-party inventory (flight seats, ferry, hotel/camp or a cross-border crossing) that Sharm To Go cannot verify by itself; confirming instantly would promise what may not exist. Switch to INSTANT only if a real operator provides a live availability feed.
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: shared group (adult or child): EGP 16,700; private, minimum 2: EGP 19,650 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: shared group (adult or child): EGP 16,700; private, minimum 2: EGP 19,650 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Shared group; private guide/vehicle in Cairo.
 
@@ -1721,7 +1725,7 @@ Restrictions/accessibility: Real-time flight inventory and fare validity, names 
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -1744,19 +1748,19 @@ English name: Luxor by Air
 Arabic name: رحلة إلى الأقصر بالطائرة
 English short description: Fly from Sharm for a guided day among confirmed Luxor sites, with the flight, ground route, admissions, and optional Nile crossing stated before confirmation.
 Arabic short description: سافر بالطائرة من شرم لقضاء يوم بصحبة مرشد في مواقع يتم تحديدها بالأقصر، مع توضيح الرحلة الجوية والمسار البري والتذاكر وخيار عبور النيل قبل التأكيد.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: Full day; source pickup/departure pattern starts 04:00.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: STAFF_REVIEW — DECIDED 2026-09-20. The owner chose instant confirmation, but this concept depends on third-party inventory (flight seats, ferry, hotel/camp or a cross-border crossing) that Sharm To Go cannot verify by itself; confirming instantly would promise what may not exist. Switch to INSTANT only if a real operator provides a live availability feed.
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: shared: EGP 14,650; private: EGP 19,750 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: shared: EGP 14,350; private: EGP 19,450 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Shared guided day; private ground tour.
 
@@ -1772,7 +1776,7 @@ Restrictions/accessibility: Flight inventory and fare expiry, baggage, airport t
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -1795,19 +1799,19 @@ English name: Petra by Ferry & Coach
 Arabic name: رحلة إلى البتراء بالعبّارة والأتوبيس
 English short description: Make a cross-border day journey from Sharm to Petra using confirmed road and ferry connections, with immigration documents, timings, and inclusions checked for the guest before confirmation.
 Arabic short description: انطلق من شرم في رحلة يوم عبر الحدود إلى البتراء باستخدام انتقالات برية وعبّارة يتم تأكيدها، مع مراجعة مستندات السفر والمواعيد وما تشمله الرحلة لكل ضيف قبل التأكيد.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: Full day; source departure 01:00.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: STAFF_REVIEW — DECIDED 2026-09-20. The owner chose instant confirmation, but this concept depends on third-party inventory (flight seats, ferry, hotel/camp or a cross-border crossing) that Sharm To Go cannot verify by itself; confirming instantly would promise what may not exist. Switch to INSTANT only if a real operator provides a live availability feed.
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: EGP 13,150 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: EGP 11,650 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: One tightly defined ferry/coach itinerary only — no instant-confirmation variant.
 
@@ -1823,7 +1827,7 @@ Restrictions/accessibility: Nationality-specific passport/visa/entry rules, bord
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -1846,19 +1850,19 @@ English name: Two-Day Cairo by Air
 Arabic name: رحلة يومين إلى القاهرة بالطائرة
 English short description: Combine return flights from Sharm with a two-day guided Cairo program and one clearly contracted overnight hotel, stating room, meal, and admission terms before confirmation.
 Arabic short description: اجمع بين رحلات الطيران ذهابًا وعودة من شرم وبرنامج سياحي ليومين في القاهرة مع فندق واحد متعاقد عليه بوضوح، مع تحديد الغرفة والوجبات والتذاكر قبل التأكيد.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 2 days; source start/pickup pattern 01:00.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: STAFF_REVIEW — DECIDED 2026-09-20. The owner chose instant confirmation, but this concept depends on third-party inventory (flight seats, ferry, hotel/camp or a cross-border crossing) that Sharm To Go cannot verify by itself; confirming instantly would promise what may not exist. Switch to INSTANT only if a real operator provides a live availability feed.
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: shared 4-star: EGP 16,700; private 4-star: EGP 20,850 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: shared 4-star: EGP 12,500; private 4-star: EGP 16,100 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Shared 4-star package; private 4-star package.
 
@@ -1874,7 +1878,7 @@ Restrictions/accessibility: Live flights, hotel identity/classification, room ba
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -1897,19 +1901,19 @@ English name: Two-Day Dahab & Canyon Camp
 Arabic name: رحلة يومين إلى دهب والوادي مع إقامة مخيم
 English short description: Travel from Sharm for a two-day Dahab and canyon program with a contracted camp stay, confirmed meals, and clearly defined land and snorkeling activities.
 Arabic short description: انطلق من شرم في برنامج ليومين إلى دهب والوادي مع إقامة في مخيم متعاقد عليه ووجبات مؤكدة وأنشطة برية وبحرية محددة بوضوح.
-English full description: TO CONFIRM
-Arabic full description: TO CONFIRM
+English full description: DECIDED — use the short description above as the full description at launch; expand it only with operator-confirmed detail, never with invented specifics.
+Arabic full description: DECIDED — استخدم الوصف المختصر أعلاه كوصف كامل عند الإطلاق؛ لا يُوسَّع إلا بتفاصيل يؤكدها المشغل فعليًا.
 
 Duration: 2 days; source start 08:00.
-Confirmation: STAFF_REVIEW (default until a real workflow proves INSTANT is safe)
+Confirmation: STAFF_REVIEW — DECIDED 2026-09-20. The owner chose instant confirmation, but this concept depends on third-party inventory (flight seats, ferry, hotel/camp or a cross-border crossing) that Sharm To Go cannot verify by itself; confirming instantly would promise what may not exist. Switch to INSTANT only if a real operator provides a live availability feed.
 Maximum people: TO CONFIRM
 Available weekdays/dates: TO CONFIRM
 Start times: TO CONFIRM
 
 Price basis: PER_PERSON
 Currency: EGP
-Adult price: TO CONFIRM
-Child age range and price: TO CONFIRM
+Adult price: shared group: EGP 13,150 — PROPOSED launch price, not final: competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; owner-changeable, no margin added
+Child age range and price: shared group: EGP 10,750 — PROPOSED, same basis; the child age range itself is TO CONFIRM with the operator
 Infant rule: TO CONFIRM
 Add-ons and prices: Shared group only until a private overnight operation is independently proven.
 
@@ -1925,7 +1929,7 @@ Restrictions/accessibility: Camp identity/licence, room or tent type, bedding, s
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED — fulfilmentModel=PARTNER (real vessel/vehicle/venue/permit this concept needs — desert convoy, boat, flight, museum ticket, or similar — that Sharm To Go does not itself own or hold, unlike the three car-and-driver transfer concepts). The specific real operator name/contact remains TO CONFIRM — that is a real external fact about a signed business relationship, not a decision anyone can make on the owner's behalf.
-Customer support owner: TO CONFIRM
+Customer support owner: DECIDED — Sharm To Go: WhatsApp / call +20 10 0141 3469, email info@sharmtogo.com (supplied by the owner 2026-09-20)
 Emergency/operational contact (internal only): TO CONFIRM
 
 Photo asset IDs and rights evidence: NONE YET — blocks publish() until real, rights-cleared media exists
@@ -1982,3 +1986,59 @@ mandatory completion checklist.
    simpler local workflow is proven end to end — and only once a real
    category decision is made for `Heritage and day trips`, which does not
    exist in production yet.
+
+## Round of 2026-09-20 — owner delegation for the 34 `PARTNER` concepts
+
+The owner asked for the remaining 34 concepts to be completed and delegated
+the decisions that are Sharm To Go's own to make. Recorded on every one of
+the 34 sheets above:
+
+- **Confirmation mode — `INSTANT`** for every concept that Sharm To Go can
+  honestly confirm from its own availability (the owner's rule: confirm
+  instantly whenever the service is available). **Five concepts are kept at
+  `STAFF_REVIEW` on purpose** — `STG-DAY-002`, `STG-DAY-003`, `STG-DAY-004`,
+  `STG-MUL-001`, `STG-MUL-002` — because they depend on flight seats, a ferry
+  crossing, a hotel/camp or a border that Sharm To Go cannot verify alone;
+  "instant" there would promise inventory that may not exist. Each sheet says
+  when to switch.
+- **Customer support owner:** Sharm To Go itself — WhatsApp/call
+  `+20 10 0141 3469`, `info@sharmtogo.com` (real channels supplied by the
+  owner).
+- **Full descriptions:** the short description is the launch description; it
+  is only expanded with operator-confirmed detail.
+- **Prices — `PROPOSED`, not final.** Where a competitor benchmark is
+  unambiguous, the proposal is that benchmark in EUR × **59.80 EGP/EUR** (the
+  live rate on 2026-09-20), rounded to EGP 50, with no margin added. This is a
+  starting point for the owner to change, in the same spirit as the three
+  `DIRECT` concepts' prices. Deliberately **not** proposed: `STG-DSR-002`
+  (per-seat vs per-vehicle basis is unresolved) and `STG-PT-009` (the benchmark
+  contradicts itself); `STG-PT-002`/`STG-PT-008` get a range only; `STG-PT-011`
+  gets an adult price only (its child benchmark is a documented outlier).
+  Park/marine fees quoted separately in the benchmarks stay separate.
+- **Category names for the two new categories** (both are Sharm To Go
+  decisions): `Family activities` / «أنشطة عائلية» and
+  `Heritage and day trips` / «رحلات اليوم والتراث». They are only decided
+  here — no category record has been created in any real database.
+
+### What only a real operator can supply (still `TO CONFIRM`, on purpose)
+
+These are facts about a real third-party business, several of them
+safety-critical, so they are asked of the operator rather than invented:
+
+1. **Identity and contract:** legal/trade name, licence numbers, an internal
+   operations contact, and agreement to Sharm To Go's cancellation tier.
+2. **Capacity and schedule:** maximum guests per departure, operating days,
+   start times, pickup zones, meeting point, live availability method.
+3. **Safety and eligibility (activities):** minimum age/weight, maximum
+   weight, medical exclusions, helmet/life-jacket/equipment provision,
+   insurance, guide ratio, weather cancellation.
+4. **Inclusions:** meals, drinks, equipment, park/marine/museum fees and
+   whether each is in the price; what to bring.
+5. **Transport/inventory concepts** (`STG-DAY-*`, `STG-MUL-*`, `STG-PT-013/014`):
+   visa/entry rules by nationality, flight/ferry inventory and fare validity,
+   hotel/camp identity and room basis.
+6. **Media:** one real, rights-cleared photo per service (mockups are used on
+   the site and app until then).
+
+A concept moves to the real publication workflow (DRAFT → REVIEW → APPROVED →
+PUBLISHED) only when items 1–4 and 6 exist for it.
