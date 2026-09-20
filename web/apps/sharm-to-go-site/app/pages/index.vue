@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import MockPhoto from "../components/MockPhoto.vue";
 import { accentForIndex, toneForIndex } from "../content/categoryAccents";
 import { directionFor, type SharmLocale, siteCopy } from "../content/locales";
+import { contact, emailLink, whatsappLink } from "../content/contact";
 import { vReveal } from "../composables/useScrollReveal";
 
 const locale = ref<SharmLocale>("en");
@@ -175,7 +176,11 @@ const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "
     </section>
 
     <footer class="border-t border-black/5 px-6 py-8 text-center text-sm text-sharm-muted lg:px-10">
-      {{ copy.footer }}
+      <p>{{ copy.footer }}</p>
+      <p class="money mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+        <a :href="whatsappLink(locale === 'ar' ? 'مرحبًا Sharm To Go' : 'Hello Sharm To Go')" target="_blank" rel="noopener" class="font-semibold text-sharm-sea hover:underline">WhatsApp {{ contact.whatsappDisplay }}</a>
+        <a :href="emailLink('Sharm To Go')" class="font-semibold text-sharm-sea hover:underline">{{ contact.email }}</a>
+      </p>
     </footer>
   </main>
 </template>

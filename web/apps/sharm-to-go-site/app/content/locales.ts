@@ -44,6 +44,10 @@ interface SiteCopy {
     exclusionsHeading: string;
     contactHeading: string;
     contactBody: string;
+    whatsappCta: string;
+    emailCta: string;
+    whatsappMessage: (serviceName: string) => string;
+    emailSubject: (serviceName: string) => string;
   };
 }
 
@@ -123,7 +127,11 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       inclusionsHeading: "Included",
       exclusionsHeading: "Not included",
       contactHeading: "Interested?",
-      contactBody: "Online booking for this experience isn't live yet. A direct contact channel will appear here once it is.",
+      contactBody: "Online booking for this experience isn't live yet. Message us directly and we will confirm availability for your date.",
+      whatsappCta: "Message us on WhatsApp",
+      emailCta: "Email us",
+      whatsappMessage: (serviceName: string) => `Hello Sharm To Go, I'm interested in: ${serviceName}. Is it available on my dates?`,
+      emailSubject: (serviceName: string) => `Enquiry: ${serviceName}`,
     },
   },
   ar: {
@@ -201,7 +209,11 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       inclusionsHeading: "يشمل",
       exclusionsHeading: "لا يشمل",
       contactHeading: "مهتم؟",
-      contactBody: "الحجز الإلكتروني لهذه التجربة غير متاح بعد. سيظهر هنا وسيلة تواصل مباشرة بمجرد توفرها.",
+      contactBody: "الحجز الإلكتروني لهذه التجربة غير متاح بعد. راسلنا مباشرة وسنؤكد لك التوفر في موعدك.",
+      whatsappCta: "راسلنا على واتساب",
+      emailCta: "راسلنا بالإيميل",
+      whatsappMessage: (serviceName: string) => `مرحبًا Sharm To Go، مهتم بـ: ${serviceName}. هل متاحة في موعدي؟`,
+      emailSubject: (serviceName: string) => `استفسار: ${serviceName}`,
     },
   },
 };

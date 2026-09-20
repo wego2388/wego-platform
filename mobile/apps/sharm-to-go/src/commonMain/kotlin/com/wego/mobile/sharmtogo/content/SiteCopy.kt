@@ -143,6 +143,23 @@ object SiteCopy {
             }
     }
 
+    /** Real customer contact channels supplied by the owner (2026-09-20); same values as the website's `content/contact.ts`. */
+    object Contact {
+        const val WHATSAPP_DIGITS = "201001413469"
+        const val WHATSAPP_DISPLAY = "+20 10 0141 3469"
+        const val EMAIL = "info@sharmtogo.com"
+        val whatsappCta = LocalizedText("Message us on WhatsApp", "راسلنا على واتساب")
+        val emailCta = LocalizedText("Email us", "راسلنا بالإيميل")
+
+        fun whatsappMessage(serviceName: String): LocalizedText =
+            LocalizedText(
+                "Hello Sharm To Go, I'm interested in: $serviceName. Is it available on my dates?",
+                "مرحبًا Sharm To Go، مهتم بـ: $serviceName. هل متاحة في موعدي؟",
+            )
+
+        fun emailSubject(serviceName: String): LocalizedText = LocalizedText("Enquiry: $serviceName", "استفسار: $serviceName")
+    }
+
     object Detail {
         val back = LocalizedText("Back to experiences", "العودة للتجارب")
         val notFoundHeading = LocalizedText("This experience isn't available", "هذه التجربة غير متاحة")
@@ -159,8 +176,8 @@ object SiteCopy {
         val contactHeading = LocalizedText("Interested?", "مهتم؟")
         val contactBody =
             LocalizedText(
-                "Online booking for this experience isn't live yet. A direct contact channel will appear here once it is.",
-                "الحجز الإلكتروني لهذه التجربة غير متاح بعد. سيظهر هنا وسيلة تواصل مباشرة بمجرد توفرها.",
+                "Online booking for this experience isn't live yet. Message us directly and we will confirm availability for your date.",
+                "الحجز الإلكتروني لهذه التجربة غير متاح بعد. راسلنا مباشرة وسنؤكد لك التوفر في موعدك.",
             )
     }
 }

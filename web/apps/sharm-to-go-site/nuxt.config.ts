@@ -11,7 +11,11 @@ export default defineNuxtConfig({
         { name: "theme-color", content: "#075f67" },
         { name: "description", content: "Discover Sharm El Sheikh experiences with clear local coordination." },
       ],
-      link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
+      link: [
+        { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+        { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+        { rel: "manifest", href: "/manifest.webmanifest" },
+      ],
     },
   },
   typescript: { strict: true, typeCheck: true },
@@ -23,5 +27,11 @@ export default defineNuxtConfig({
     // app/port from every other client. Override with
     // NUXT_TRAVEL_MARKETPLACE_API_BASE in real deployments.
     travelMarketplaceApiBase: "http://localhost:8081",
+    public: {
+      // The deployed origin, used for absolute og:image/canonical/sitemap
+      // URLs (share-preview crawlers reject relative ones). Set
+      // NUXT_PUBLIC_SITE_URL to the real domain at deploy time.
+      siteUrl: "http://localhost:4001",
+    },
   },
 });

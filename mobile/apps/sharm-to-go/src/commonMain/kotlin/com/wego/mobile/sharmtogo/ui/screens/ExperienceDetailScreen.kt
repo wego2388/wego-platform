@@ -12,14 +12,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import com.wego.mobile.shared.catalog.TravelCatalogSnapshot
 import com.wego.mobile.shared.catalog.TravelPriceBasis
 import com.wego.mobile.shared.catalog.TravelService
 import com.wego.mobile.shared.locale.AppLocale
 import com.wego.mobile.sharmtogo.content.SiteCopy
+import com.wego.mobile.sharmtogo.content.percentEncode
 import com.wego.mobile.sharmtogo.design.StgCard
 import com.wego.mobile.sharmtogo.design.StgCategoryTone
 import com.wego.mobile.sharmtogo.design.StgMockPhoto
@@ -169,6 +172,18 @@ private fun ExperienceDetailContent(
                 Column(modifier = Modifier.padding(StgSpace.lg), verticalArrangement = Arrangement.spacedBy(StgSpace.xs)) {
                     Text(SiteCopy.Detail.contactHeading.of(locale), style = MaterialTheme.typography.titleMedium)
                     Text(SiteCopy.Detail.contactBody.of(locale), style = MaterialTheme.typography.bodyMedium)
+                    val uriHandler = LocalUriHandler.current
+                    val serviceName = service.name.of(locale)
+                    Row(horizontalArrangement = Arrangement.spacedBy(StgSpace.sm)) {
+                        Button(onClick = {
+                            val text = percentEncode(SiteCopy.Contact.whatsappMessage(serviceName).of(locale))
+                            uriHandler.openUri("https://wa.me/${SiteCopy.Contact.WHATSAPP_DIGITS}?text=$text")
+                        }) { Text(SiteCopy.Contact.whatsappCta.of(locale)) }
+                        OutlinedButton(onClick = {
+                            val subject = percentEncode(SiteCopy.Contact.emailSubject(serviceName).of(locale))
+                            uriHandler.openUri("mailto:${SiteCopy.Contact.EMAIL}?subject=$subject")
+                        }) { Text(SiteCopy.Contact.emailCta.of(locale)) }
+                    }
                 }
             }
         }

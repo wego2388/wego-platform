@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import MockPhoto from "../../components/MockPhoto.vue";
 import SiteSubHeader from "../../components/SiteSubHeader.vue";
+import { contact, emailLink, whatsappLink } from "../../content/contact";
 import { toneForIndex } from "../../content/categoryAccents";
 import { directionFor, type SharmLocale, siteCopy } from "../../content/locales";
 import { getPublicService, listPublicCategories, type PublicCategory, type PublicService } from "../../composables/usePublicCatalog";
@@ -134,9 +135,26 @@ onMounted(async () => {
 
         <p v-if="service.media.length > 0" class="mt-8 text-sm text-sharm-muted">{{ copy.browse.photoCount(service.media.length) }}</p>
 
-        <section class="mt-10 rounded-2xl bg-sharm-lagoon p-6">
+        <section class="mt-10 rounded-2xl border border-sharm-sea/25 bg-sharm-surface p-6">
           <h2 class="text-lg font-semibold">{{ copy.detail.contactHeading }}</h2>
           <p class="mt-2 leading-7 text-sharm-muted">{{ copy.detail.contactBody }}</p>
+          <div class="mt-4 flex flex-wrap gap-3">
+            <a
+              :href="whatsappLink(copy.detail.whatsappMessage(service.name[locale]))"
+              target="_blank"
+              rel="noopener"
+              class="inline-flex rounded-full bg-sharm-sea px-5 py-2.5 text-sm font-semibold text-white"
+            >
+              {{ copy.detail.whatsappCta }}
+            </a>
+            <a
+              :href="emailLink(copy.detail.emailSubject(service.name[locale]))"
+              class="inline-flex rounded-full border border-sharm-sea bg-sharm-surface px-5 py-2.5 text-sm font-semibold text-sharm-sea"
+            >
+              {{ copy.detail.emailCta }}
+            </a>
+          </div>
+          <p class="money mt-3 text-xs text-sharm-muted">{{ contact.whatsappDisplay }} · {{ contact.email }}</p>
         </section>
 
         <NuxtLink to="/experiences" class="mt-8 inline-flex rounded-full border border-sharm-border bg-sharm-surface px-6 py-3 font-semibold text-sharm-sea">
