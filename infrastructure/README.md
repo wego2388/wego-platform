@@ -32,3 +32,10 @@ secret set, restricted networking, TLS, backup policy, Redis security policy,
 resource limits, and an approved release procedure; this file is not a
 production deployment definition.
 
+
+## Sharm To Go (single-VPS deployment)
+
+Sharm To Go has its own backend, customer site and staff ERP, so it has its own
+stack: `compose/sharm-to-go.compose.yaml`, `nginx/sharm-to-go.nginx.conf`,
+`caddy/Caddyfile` and the `sharm-to-go-*.Dockerfile` files. See
+[`SHARM_TO_GO_VPS.md`](SHARM_TO_GO_VPS.md) for the runbook.

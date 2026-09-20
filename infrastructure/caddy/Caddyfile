@@ -1,0 +1,18 @@
+# Automatic HTTPS (Let's Encrypt) for the two public hostnames. Both DNS
+# records must already point at this VPS before the first start, or issuance
+# fails and Caddy retries with backoff. Each hostname maps to one internal
+# Nginx edge port (8080 = customer site, 8081 = staff admin).
+
+{$STG_SITE_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy edge:8080
+}
+
+www.{$STG_SITE_DOMAIN} {
+	redir https://{$STG_SITE_DOMAIN}{uri} permanent
+}
+
+{$STG_ADMIN_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy edge:8081
+}

@@ -84,6 +84,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Validate Compose model
         run: docker compose --env-file .env.example -f infrastructure/compose/compose.yaml config --quiet
+      - name: Validate Sharm To Go VPS Compose model
+        run: docker compose --env-file .env.sharm-to-go.example -f infrastructure/compose/sharm-to-go.compose.yaml --profile tls config --quiet
       - name: Build and start isolated foundation stack
         run: |
           # Anonymous pulls of the pinned public.ecr.aws/docker/library/{postgres,redis,nginx}
