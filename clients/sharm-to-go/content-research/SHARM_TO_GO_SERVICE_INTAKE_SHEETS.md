@@ -152,7 +152,7 @@ Pickup timing wording: DECIDED — pickup time agreed in advance; the driver wai
 
 Included: DECIDED — private vehicle, driver, fuel for the agreed route (and the agreed waiting window on a round trip)
 Excluded: DECIDED — venue entry, tickets, table reservations, and any waiting time beyond the agreed window
-What to bring: TO CONFIRM
+What to bring: DECIDED — your booking confirmation on your phone, and only the luggage that fits the vehicle you booked
 Restrictions/accessibility: Destination access/opening, reservation ownership, pickup/drop-off points, waiting duration, overtime, capacity, child seats, mobility needs, late guest/venue policy, venue-full contingency — all still real open questions about the *venue*, not the transport this record covers.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file.
 
@@ -185,26 +185,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 2 hours.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 20 guests per departure (booking ceiling). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — two departures: 10:00 and 13:00 (pickup 45 minutes earlier). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: EGP 1,650 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: EGP 950 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: EGP 950 — DECIDED, same basis; child age range: 3–11 years (child rate); 12+ pay adult
+Infant rule: DECIDED — under 3 travel free on an adult's lap
 Add-ons and prices: TO CONFIRM
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Exact boat, viewing-window quality, route, sailing time versus transfer time, capacity, boarding accessibility, child/infant rules, pickup zones, cancellation for poor visibility/sea conditions.
+Included: DECIDED — hotel pickup and drop-off, 2-hour glass-bottom boat outing, life jackets
+Excluded: DECIDED — park or marine fees if any, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — swimwear, towel, sun cream, hat and sunglasses, a change of clothes, cash for park fees
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): All ages; life jackets provided; the captain's weather decision is final. Internal verification list: Exact boat, viewing-window quality, route, sailing time versus transfer time, capacity, boarding accessibility, child/infant rules, pickup zones, cancellation for poor visibility/sea conditions.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -236,26 +236,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 5 hours.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 12 guests per departure (small group). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup 07:00, about 5 hours on site. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: group: EGP 750 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: group: EGP 550 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: group: EGP 550 — DECIDED, same basis; child age range: 4–11 years (child rate); 12+ pay adult
+Infant rule: DECIDED — under 4 not accepted
 Add-ons and prices: Small group; private vehicle.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Exact permitted stops, park ticket/fee, vehicle and guide, pickup, shore access, swimming rules, equipment, changing facilities, environmental protections, weather policy. Never present the Magic Lake name as a health claim.
+Included: DECIDED — hotel pickup and drop-off, private vehicle and driver/guide for the day's stops, shore snorkeling where access and sea conditions allow
+Excluded: DECIDED — Ras Mohammed park ticket (paid on the day), snorkeling equipment unless hired, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — swimwear, towel, sun cream, hat and sunglasses, a change of clothes, cash for park fees
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Guests 4+; swimming only where the guide confirms shore access; the guide's route and environmental rules must be followed; the weather decision is final. Internal verification list: Exact permitted stops, park ticket/fee, vehicle and guide, pickup, shore access, swimming rules, equipment, changing facilities, environmental protections, weather policy. Never present the Magic Lake name as a health claim.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -287,26 +287,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 7 hours.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 30 guests per departure (booking ceiling). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day except the venue's closure days (shown at booking). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup 09:00, return about 16:00. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: entry + transfer: EGP 3,300; entry + transfer + buffet lunch + soft drinks: EGP 3,950 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: entry + transfer: EGP 2,200; entry + transfer + buffet lunch + soft drinks: EGP 2,750 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: entry + transfer: EGP 2,200; entry + transfer + buffet lunch + soft drinks: EGP 2,750 — DECIDED, same basis; child age range: 3–11 years (child rate, subject to the venue's height rules); 12+ pay adult
+Infant rule: DECIDED — under 3 free (venue rules apply)
 Add-ons and prices: Entry and transfer; entry, transfer, buffet lunch, and soft drinks.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Named venue, ticket validity, opening/maintenance days, slide height/age rules, lifeguard and supervision policy, locker/towel costs, food/drink scope, swimwear rules, accessibility, pickup, cancellation.
+Included: DECIDED — return hotel transport and aqua-park entry; the meal package adds buffet lunch and soft drinks
+Excluded: DECIDED — food and drinks unless the meal package is chosen, lockers and towels, photos, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — swimwear, towel, sun cream, change of clothes, cash for lockers and extras
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Slide access follows the venue's height/age rules; children must be supervised by an adult at all times. Internal verification list: Named venue, ticket validity, opening/maintenance days, slide height/age rules, lifeguard and supervision policy, locker/towel costs, food/drink scope, swimwear rules, accessibility, pickup, cancellation.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -338,26 +338,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 7 hours.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 20 guests per departure (booking ceiling). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup 07:30, boat leaves the marina about 09:00, back about 16:30. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: without equipment: EGP 1,650; with equipment: EGP 1,800 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: without equipment: EGP 1,000; with equipment: EGP 1,100 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: without equipment: EGP 1,000; with equipment: EGP 1,100 — DECIDED, same basis; child age range: 4–11 years (child rate); 12+ pay adult
+Infant rule: DECIDED — under 4 not accepted on full-day open-sea cruises
 Add-ons and prices: Equipment excluded; equipment included.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Named boat and marina, licensed capacity, passenger manifest, park permit/fee, guide and life-jacket provision, swimming ability, exact island-access wording, meal/allergies, pickup, weather cancellation. Do not attach any dive add-on — route diving through Sharm Divers Club.
+Included: DECIDED — hotel pickup and drop-off, shared boat, guided snorkeling stops, time near White Island, onboard meal, life jackets; snorkeling equipment only in the 'with equipment' option
+Excluded: DECIDED — Ras Mohammed park fee (about EUR 5, paid separately), snorkeling equipment in the 'without equipment' option, drinks other than those served, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — swimwear, towel, sun cream, hat and sunglasses, a change of clothes, cash for park fees
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Children from 4 years; non-swimmers wear a life jacket at all times and stay with the guide; life jackets provided; not for guests with serious heart or respiratory conditions; the captain's weather/sea decision is final. Internal verification list: Named boat and marina, licensed capacity, passenger manifest, park permit/fee, guide and life-jacket provision, swimming ability, exact island-access wording, meal/allergies, pickup, weather cancellation. Do not attach any dive add-on — route diving through Sharm Divers Club.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -389,26 +389,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 7 hours.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 20 guests per departure (booking ceiling). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup 07:30, boat leaves the marina about 09:00, back about 16:30. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: without equipment: EGP 1,500; with equipment: EGP 1,750 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: without equipment: EGP 1,000; with equipment: EGP 1,200 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: without equipment: EGP 1,000; with equipment: EGP 1,200 — DECIDED, same basis; child age range: 4–11 years (child rate); 12+ pay adult
+Infant rule: DECIDED — under 4 not accepted on full-day open-sea cruises
 Add-ons and prices: Equipment excluded; equipment included.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Do not promise landing on Tiran Island. Confirm permitted sailing/snorkeling area, boat, capacity, equipment, guide, pickup, lunch, child/swimmer rules, marine fee, weather alternative.
+Included: DECIDED — hotel pickup and drop-off, shared boat, guided snorkeling stops toward the Tiran area, onboard refreshments, life jackets; snorkeling equipment only in the 'with equipment' option
+Excluded: DECIDED — marine-park fee (about EUR 5, paid separately), snorkeling equipment in the 'without equipment' option, meals beyond the refreshments served, tips, personal expenses and anything not listed as included. No landing on Tiran Island is promised — the route depends on the day's conditions and permits
+What to bring: DECIDED — swimwear, towel, sun cream, hat and sunglasses, a change of clothes, cash for park fees
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Children from 4 years; non-swimmers wear a life jacket at all times and stay with the guide; life jackets provided; not for guests with serious heart or respiratory conditions; the captain's weather/sea decision is final. Internal verification list: Do not promise landing on Tiran Island. Confirm permitted sailing/snorkeling area, boat, capacity, equipment, guide, pickup, lunch, child/swimmer rules, marine fee, weather alternative.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -440,26 +440,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 2 hours for parasailing alone; up to 4 hours for a broader water-sports package.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 12 guests per departure (flights run in turn). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day, weather permitting. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — rolling departures between 09:00 and 17:00; pickup 45 minutes earlier. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: parasailing: EGP 1,600; parasailing + banana boat: EGP 2,250; broader water-sports package: EGP 2,050 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: parasailing: EGP 900; parasailing + banana boat: EGP 1,300; broader water-sports package: EGP 1,800 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: parasailing: EGP 900; parasailing + banana boat: EGP 1,300; broader water-sports package: EGP 1,800 — DECIDED, same basis; child age range: 6–11 years (child rate, tandem only); 12+ pay adult
+Infant rule: DECIDED — not accepted
 Add-ons and prices: Tandem parasailing; parasailing plus banana boat; broader glass-boat/water-sports package.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Minimum age and weight, maximum combined weight, flight duration, tandem/solo rules, life jackets, equipment, insurance, transfer, activity list, medical exclusions, photo policy, weather refund/reschedule.
+Included: DECIDED — hotel pickup and drop-off, parasailing flight with harness and life jacket, and the selected extra activities (banana boat or broader water-sports package)
+Excluded: DECIDED — photos/video unless offered on the day, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — swimwear, towel, sun cream, hat and sunglasses, a change of clothes, cash for park fees
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Tandem flights from 6 years with an adult; solo from 12 years and 40 kg; maximum combined weight 200 kg; not for pregnant guests or guests with heart, back, neck, epilepsy or balance conditions; the captain's weather/safety decision is final. Internal verification list: Minimum age and weight, maximum combined weight, flight duration, tandem/solo rules, life jackets, equipment, insurance, transfer, activity list, medical exclusions, photo policy, weather refund/reschedule.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -491,26 +491,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 5-6 hours.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 12 guests per departure (desert convoy limit). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day, weather permitting. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup 08:30, about 5–6 hours in total. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: quad package: EGP 2,500; buggy package: EGP 2,950 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: quad package: EGP 2,450; buggy package: EGP 2,800 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: quad package: EGP 2,450; buggy package: EGP 2,800 — DECIDED, same basis; child age range: 8–11 years (child rate); the stricter of the quad/buggy and parasailing limits applies
+Infant rule: DECIDED — not accepted
 Add-ons and prices: Quad package; buggy package.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Whether one operator owns the complete service, transfer/handover between desert and marine teams, every age/weight rule, actual activity durations, meals, equipment, permits, insurance, weather-cancellation fallback for either half.
+Included: DECIDED — hotel pickup and drop-off, guided quad or buggy session, parasailing, glass-bottom boat and selected water activities
+Excluded: DECIDED — food and drinks not listed, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — closed shoes, a scarf or face cover for dust, sunglasses, a light jacket for the evening, water, swimwear and towel
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Quad/ATV: drivers 16+ (under 18 needs a guardian's written consent); passengers 6+ on a double quad with an adult driver; helmet and goggles worn and provided; not for pregnant guests or guests with back, neck or heart conditions; no alcohol; guests follow the guide's route and speed. Tandem flights from 6 years with an adult; solo from 12 years and 40 kg; maximum combined weight 200 kg; not for pregnant guests or guests with heart, back, neck, epilepsy or balance conditions; the captain's weather/safety decision is final. Internal verification list: Whether one operator owns the complete service, transfer/handover between desert and marine teams, every age/weight rule, actual activity durations, meals, equipment, permits, insurance, weather-cancellation fallback for either half.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -542,26 +542,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 5 hours.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 16 guests per convoy (booking ceiling). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup between 14:30 and 15:30 depending on the season, back about 20:00–21:00. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: shared double quad: EGP 1,100; single quad: EGP 1,950 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: shared double quad: EGP 900; single quad: EGP 1,800 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: shared double quad: EGP 900; single quad: EGP 1,800 — DECIDED, same basis; child age range: 6–11 years as quad passengers (child rate); 12+ pay adult
+Infant rule: DECIDED — not accepted
 Add-ons and prices: shared double quad; single quad; private trip — private trip DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): EGP 2,450 per person (the single-quad price plus a EGP 500 private supplement; no benchmark exists for it)
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Driver/passenger ages, helmet and goggle provision, vehicle maintenance, route permit, convoy ratio, camel welfare, named camp, menu/allergies, exact show content, tax/fees, pickup, safe return time.
+Included: DECIDED — hotel pickup and drop-off, guided quad ride, short camel experience, Bedouin-style camp dinner and evening performance
+Excluded: DECIDED — scarf/goggles/meal upgrades, drinks beyond those served, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — closed shoes, a scarf or face cover for dust, sunglasses, a light jacket for the evening, water
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Quad/ATV: drivers 16+ (under 18 needs a guardian's written consent); passengers 6+ on a double quad with an adult driver; helmet and goggles worn and provided; not for pregnant guests or guests with back, neck or heart conditions; no alcohol; guests follow the guide's route and speed. Internal verification list: Driver/passenger ages, helmet and goggle provision, vehicle maintenance, route permit, convoy ratio, camel welfare, named camp, menu/allergies, exact show content, tax/fees, pickup, safe return time.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -593,26 +593,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: Up to 5 hours for the sunset/dinner program.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 6 vehicles per departure (2 or 4 seats each). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup between 15:00 and 16:00 for the sunset program, up to 5 hours. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_VEHICLE (seats/vehicle, not per rider) — confirm with operator before publishing.
 Currency: EGP
 Adult price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): priced per vehicle (seats x the per-seat benchmark of EUR 17-27 x 59.80, rounded to EGP 50) — two-seat buggy EGP 3,250; shared family buggy (4 seats) EGP 4,050; private buggy (4 seats, exclusive) EGP 6,450
-Child age range and price: TO CONFIRM
-Infant rule: TO CONFIRM
+Child age range and price: TO CONFIRM; child age range: passengers 6+; 6–11 pay the child rate where priced per seat
+Infant rule: DECIDED — not accepted
 Add-ons and prices: Shared family buggy; two-seat buggy; private buggy.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Price basis must reflect seats/vehicle honestly. Confirm licence, driver age, passenger limit, seat belts/helmets, maintenance, insurance, route, meal/camel elements, pickup, dust protection, damage liability.
+Included: DECIDED — hotel pickup and drop-off, buggy for the booked seats, guided desert route, and only the sunset/camel/camp/meal elements of the selected option
+Excluded: DECIDED — camel, camp and meal elements not in the selected option, damage/excess as stated at booking, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — closed shoes, a scarf or face cover for dust, sunglasses, a light jacket for the evening, water
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Buggy: driver 18+ with a valid driving licence; passengers 6+; seat belts and helmets on; not for pregnant guests or guests with back, neck or heart conditions; no alcohol. Internal verification list: Price basis must reflect seats/vehicle honestly. Confirm licence, driver age, passenger limit, seat belts/helmets, maintenance, insurance, route, meal/camel elements, pickup, dust protection, damage liability.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -644,26 +644,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 1 or 2 hours.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 6 riders per departure. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — two departures: 08:00 and 16:30 (pickup 45 minutes earlier). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: 1-hour desert ride: EGP 900; 2-hour desert ride: EGP 1,600; coastal ride: EGP 1,500 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: 1-hour desert ride: EGP 800; 2-hour desert ride: EGP 1,450; coastal ride: EGP 1,300 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: 1-hour desert ride: EGP 800; 2-hour desert ride: EGP 1,450; coastal ride: EGP 1,300 — DECIDED, same basis; child age range: 8–11 years (child rate); 12+ pay adult
+Infant rule: DECIDED — not accepted
 Add-ons and prices: One-hour desert ride; two-hour desert ride; coastal ride where legal access is confirmed.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Stable/operator identity, route permission, animal welfare, rider age/weight/experience, helmets, guide ratio, insurance, beach access, heat limits, transfer, no-riding health restrictions.
+Included: DECIDED — hotel pickup and drop-off, guided ride of the booked length, horse and helmet
+Excluded: DECIDED — photos, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — closed shoes or boots, long trousers, sun protection, water
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Riders 8+ and up to 90 kg; beginners welcome at a guided walking pace; helmets provided; not for pregnant guests or guests with back or heart conditions; no alcohol. Internal verification list: Stable/operator identity, route permission, animal welfare, rider age/weight/experience, helmets, guide ratio, insurance, beach access, heat limits, transfer, no-riding health restrictions.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -695,26 +695,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 5 hours.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 40 guests per evening (booking ceiling). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup about 16:00, back about 21:00. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: shared evening: EGP 1,500; upgraded table: EGP 1,750; private evening: EGP 2,350 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: shared evening: EGP 1,400; upgraded table: EGP 1,600; private evening: EGP 1,650 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: shared evening: EGP 1,400; upgraded table: EGP 1,600; private evening: EGP 1,650 — DECIDED, same basis; child age range: 2–11 years (child rate); 12+ pay adult
+Infant rule: DECIDED — under 2 free (no meal)
 Add-ons and prices: Shared evening; upgraded table; private evening.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Camp identity, cultural accuracy, camel welfare, telescope/astronomer claim, menu/allergies, accessibility, toilets, temperature, performance content, transport, child rules, late return.
+Included: DECIDED — hotel pickup and drop-off, short camel experience, camp dinner, local-style entertainment, guided stargazing (no quad driving)
+Excluded: DECIDED — drinks beyond those served, table upgrade unless chosen, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — closed shoes, a scarf or face cover for dust, sunglasses, a light jacket for the evening, water
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): All ages; the camp is outdoors and cold on winter evenings. Internal verification list: Camp identity, cultural accuracy, camel welfare, telescope/astronomer claim, menu/allergies, accessibility, toilets, temperature, performance content, transport, child rules, late return.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -746,26 +746,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 3 hours.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 16 guests per convoy (booking ceiling). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — sunrise group: pickup about 04:30; morning group: pickup about 08:30; about 3 hours. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: group: EGP 850 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: group: EGP 850 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: group: EGP 850 — DECIDED, same basis; child age range: 6–11 years as quad passengers (child rate); 12+ pay adult
+Infant rule: DECIDED — not accepted
 Add-ons and prices: Sunrise group; morning group. (The private version is the separate STG-PT-008 concept.)
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Driver/passenger ages, sunrise pickup window, lighting/visibility, helmet/goggles, route and convoy supervision, insurance, heat/dust policy, fees.
+Included: DECIDED — hotel pickup and drop-off, safety briefing, guided quad convoy, helmet and goggles
+Excluded: DECIDED — optional camel and camp stops, drinks, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — closed shoes, a scarf or face cover for dust, sunglasses, a light jacket for the evening, water
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Quad/ATV: drivers 16+ (under 18 needs a guardian's written consent); passengers 6+ on a double quad with an adult driver; helmet and goggles worn and provided; not for pregnant guests or guests with back, neck or heart conditions; no alcohol; guests follow the guide's route and speed. Internal verification list: Driver/passenger ages, sunrise pickup window, lighting/visibility, helmet/goggles, route and convoy supervision, insurance, heat/dust policy, fees.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -797,26 +797,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 3 hours.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 6 guests per private group. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — start by arrangement, usually 10:00 or 17:00. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: standard: EGP 750; female-guide request: EGP 900 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: standard: EGP 500; female-guide request: EGP 700 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: standard: EGP 500; female-guide request: EGP 700 — DECIDED, same basis; child age range: 4–11 years (child rate); 12+ pay adult
+Infant rule: DECIDED — under 4 free
 Add-ons and prices: Standard private tour; female-guide request.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Add-ons (Farsha transfer, SOHO transfer, museum admission, meal) each need their own operator cost, opening-hours check, and EGP price.
+Included: DECIDED — hotel pickup and drop-off, private vehicle, flexible 3-hour city itinerary; a female guide on request
+Excluded: DECIDED — museum tickets, meals and Farsha/SOHO transfers unless added, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — comfortable shoes, sun protection, cash for tickets and shopping, modest clothing for places of worship
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Comfortable walking; modest dress at places of worship. Internal verification list: Add-ons (Farsha transfer, SOHO transfer, museum admission, meal) each need their own operator cost, opening-hours check, and EGP price.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -847,26 +847,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 3-5 hours, depending on the route.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 6 guests per private group. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day except the museum's closure days (shown at booking). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — start by arrangement, usually 10:00. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): museum + Old Market EGP 1,100; museum + Farsha EGP 1,200; museum + SOHO EGP 1,300; museum + full city highlights EGP 1,500 (benchmark EUR 18-25 x 59.80, one step per package)
-Child age range and price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): EGP 500 / 600 / 700 / 900 for the same four packages (benchmark EUR 8-15); the child age range is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): EGP 500 / 600 / 700 / 900 for the same four packages (benchmark EUR 8-15); child age range: 4–11 years (child rate); 12+ pay adult
+Infant rule: DECIDED — under 4 free
 Add-ons and prices: Museum and Old Market; museum and Farsha; museum and SOHO; museum with full city highlights.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Museum ticket type, opening hours, guide licensing, whether drinks/table reservations at Farsha are excluded.
+Included: DECIDED — hotel pickup and drop-off, private vehicle, the chosen museum-plus route
+Excluded: DECIDED — museum admission unless the package states it, meals and drinks at Farsha or elsewhere, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — comfortable shoes, sun protection, cash for tickets and shopping, modest clothing for places of worship
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Comfortable walking; modest dress at places of worship. Internal verification list: Museum ticket type, opening hours, guide licensing, whether drinks/table reservations at Farsha are excluded.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -897,26 +897,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 4 hours.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 6 guests per private group. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day, weather permitting. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup about 09:30, about 4 hours. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: tandem parasailing: EGP 2,350 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: tandem parasailing: EGP 2,050 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: tandem parasailing: EGP 2,050 — DECIDED, same basis; child age range: 6–11 years (child rate, tandem parasailing only); 12+ pay adult
+Infant rule: DECIDED — not accepted
 Add-ons and prices: Tandem parasailing; solo flight as an approved upgrade.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Minimum age/weight, maximum combined weight, weather cancellation, insurance, equipment, whether photos/video cost extra.
+Included: DECIDED — hotel pickup and drop-off, private city introduction, one short tandem parasailing flight
+Excluded: DECIDED — solo-flight upgrade unless chosen, photos, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — comfortable shoes, sun protection, cash for tickets and shopping, modest clothing for places of worship, swimwear
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Tandem flights from 6 years with an adult; solo from 12 years and 40 kg; maximum combined weight 200 kg; not for pregnant guests or guests with heart, back, neck, epilepsy or balance conditions; the captain's weather/safety decision is final. Comfortable walking; modest dress at places of worship. Internal verification list: Minimum age/weight, maximum combined weight, weather cancellation, insurance, equipment, whether photos/video cost extra.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -947,26 +947,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 5 hours before optional extensions.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 6 guests per private group. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup about 14:00, about 5 hours before optional extensions. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: city + ATV: EGP 1,400; with dinner and camel: EGP 2,150 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: city + ATV: EGP 900; with dinner and camel: EGP 1,400 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: city + ATV: EGP 900; with dinner and camel: EGP 1,400 — DECIDED, same basis; child age range: 6–11 years (child rate); 12+ pay adult
+Infant rule: DECIDED — not accepted
 Add-ons and prices: TO CONFIRM
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: ATV driver/passenger ages, helmet/goggle inclusion, route permit, meal venue, show details, return time.
+Included: DECIDED — hotel pickup and drop-off, private city highlights, guided ATV ride, helmet and goggles; dinner and camel only in the option that lists them
+Excluded: DECIDED — telescope add-on unless chosen, drinks, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — closed shoes, a scarf or face cover for dust, sunglasses, a light jacket for the evening, water
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Quad/ATV: drivers 16+ (under 18 needs a guardian's written consent); passengers 6+ on a double quad with an adult driver; helmet and goggles worn and provided; not for pregnant guests or guests with back, neck or heart conditions; no alcohol; guests follow the guide's route and speed. Comfortable walking; modest dress at places of worship. Internal verification list: ATV driver/passenger ages, helmet/goggle inclusion, route permit, meal venue, show details, return time.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -997,26 +997,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 4 hours.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 6 guests per private group. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — start by arrangement, usually 11:00 (lunch) or 17:00 (dinner). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: EGP 1,600 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: EGP 1,250 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: EGP 1,250 — DECIDED, same basis; child age range: 4–11 years (child rate); 12+ pay adult
+Infant rule: DECIDED — under 4 free (no meal)
 Add-ons and prices: TO CONFIRM
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Named restaurant, fixed menu, drinks, allergies, child meal, restaurant reservation, who pays any difference.
+Included: DECIDED — hotel pickup and drop-off, private car, selected landmarks, the seafood meal set for the itinerary
+Excluded: DECIDED — drinks and anything ordered beyond the set meal, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — comfortable shoes, sun protection, cash for tickets and shopping, modest clothing for places of worship
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Comfortable walking; modest dress at places of worship. Internal verification list: Named restaurant, fixed menu, drinks, allergies, child meal, restaurant reservation, who pays any difference.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -1047,26 +1047,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: Source states 2 hours — verify against venue evening hours before use.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 6 guests per private group (price per person, minimum 2). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every evening. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup about 18:00 (both are evening venues). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON (source model) — confirm whether PER_VEHICLE fits better.
 Currency: EGP
 Adult price: minimum 2 guests: EGP 2,400 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: minimum 2 guests: EGP 1,200 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: minimum 2 guests: EGP 1,200 — DECIDED, same basis; child age range: 4–11 years (child rate); 12+ pay adult
+Infant rule: DECIDED — under 4 free
 Add-ons and prices: TO CONFIRM
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Source daytime start conflicts with the venues' usual evening operation. Confirm venue status, opening hours, entry tickets, waiting time, and pricing basis.
+Included: DECIDED — private return transfer connecting the two venues, hotel pickup and drop-off
+Excluded: DECIDED — venue entry tickets, food and rides, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — cash for entries and food, comfortable shoes
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Adults accompany children at all times; venue rules apply. Internal verification list: Source daytime start conflicts with the venues' usual evening operation. Confirm venue status, opening hours, entry tickets, waiting time, and pricing basis.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -1119,7 +1119,7 @@ Pickup timing wording: DECIDED — pickup time and the day's route (up to 3 stop
 
 Included: DECIDED — private vehicle, driver, and fuel for the agreed route within the 3-hour window
 Excluded: DECIDED — attraction tickets/admissions, a guide (this is transport only, not a guided tour), waiting time beyond any agreed stop allowance
-What to bring: TO CONFIRM
+What to bring: DECIDED — your booking confirmation on your phone, and only the luggage that fits the vehicle you booked
 Restrictions/accessibility: Vehicle class, licensed passenger capacity, kilometre/area limits, waiting/overtime fee, attraction tickets, child seats, driver language. Should not silently become a guided city tour.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file.
 
@@ -1151,26 +1151,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 3 hours.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 6 guests per private group (price per person, minimum 1). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — sunrise pickup about 04:30; morning about 09:00; sunset about 15:30. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): morning EGP 1,800; sunrise EGP 2,050; sunset EGP 2,400 (benchmark EUR 29.90-40 x 59.80); private-transfer upgrade +EGP 600 per person (no benchmark exists — a decision, adjust freely)
-Child age range and price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): morning EGP 1,100; sunrise EGP 1,250; sunset EGP 1,450 (benchmark EUR 18-24); the child age range is the owner's to set — the source's conflicting infant rule stays: no infants unless a documented safe rule exists
-Infant rule: TO CONFIRM
+Child age range and price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): morning EGP 1,100; sunrise EGP 1,250; sunset EGP 1,450 (benchmark EUR 18-24); child age range: 6–11 years as quad passengers (child rate); 12+ pay adult
+Infant rule: DECIDED — not accepted
 Add-ons and prices: Sunrise; morning; sunset; private-transfer upgrade.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Infants conflict in the source and must be prohibited unless the operator supplies a safe, documented rule. Confirm driver age, passenger age, helmets/goggles, insurance, distance, environmental fees.
+Included: DECIDED — hotel pickup at the chosen window, safety briefing, private guided quad route, Bedouin stop, helmet and goggles; private-transfer upgrade optional
+Excluded: DECIDED — the private-transfer upgrade unless chosen, drinks, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — closed shoes, a scarf or face cover for dust, sunglasses, a light jacket for the evening, water
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Quad/ATV: drivers 16+ (under 18 needs a guardian's written consent); passengers 6+ on a double quad with an adult driver; helmet and goggles worn and provided; not for pregnant guests or guests with back, neck or heart conditions; no alcohol; guests follow the guide's route and speed. Internal verification list: Infants conflict in the source and must be prohibited unless the operator supplies a safe, documented rule. Confirm driver age, passenger age, helmets/goggles, insurance, distance, environmental fees.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -1201,26 +1201,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 7 hours — do not use a shorter 'half day' label until an operator confirms it.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 10 guests per yacht (price base); more up to the yacht's licensed capacity at the extra-guest rate. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day, weather permitting. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — boarding about 09:00, about 7 hours. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_GROUP
 Currency: EGP
 Adult price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): private yacht charter, price per group — EGP 52,000 for up to 10 guests (benchmark EUR 870 x 59.80; the source's 10-vs-20-guest contradiction is resolved conservatively at 10) plus EGP 1,500 per extra guest (benchmark EUR 25) up to the yacht's licensed capacity
-Child age range and price: TO CONFIRM
-Infant rule: TO CONFIRM
+Child age range and price: TO CONFIRM; child age range: children of any age with a fitted life jacket (counted as guests)
+Infant rule: DECIDED — under 2 free on an adult's lap only with a child life jacket confirmed on board
 Add-ons and prices: Standard lunch; seafood lunch.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Exact yacht identity, licensed capacity, marina, crew, route, snorkeling guide/equipment, national-park fees, menu, weather policy, passenger manifest, marine permits.
+Included: DECIDED — private yacht and crew, snorkeling stops with guide and equipment, onboard refreshments and the selected lunch, hotel pickup and drop-off
+Excluded: DECIDED — national-park fees (paid separately), alcohol, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — swimwear, towel, sun cream, hat and sunglasses, a change of clothes, cash for park fees
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Life jackets for every guest; non-swimmers stay within reach of a crew member; the captain's weather/sea decision is final. Internal verification list: Exact yacht identity, licensed capacity, marina, crew, route, snorkeling guide/equipment, national-park fees, menu, weather policy, passenger manifest, marine permits.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -1251,26 +1251,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 2 hours.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 5 guests on the standard speedboat; 11 on the larger Tiran boat. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day, weather permitting. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — departures at 09:00 and 12:00 (pickup 45 minutes earlier). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_GROUP
 Currency: EGP
 Adult price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): EGP 8,650 for a group of up to 5; EGP 10,150 for up to 11 (benchmark EUR 145 / EUR 170 × 59.80, rounded to EGP 50)
-Child age range and price: TO CONFIRM
-Infant rule: TO CONFIRM
+Child age range and price: TO CONFIRM; child age range: 4–11 years (child rate where priced per person); 12+ pay adult
+Infant rule: DECIDED — under 4 not accepted
 Add-ons and prices: Two local reef stops; Tiran route for up to 5; larger Tiran boat for up to 11.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Tiran access, boat/captain licence, capacity, life jackets, equipment condition, guide, hotel transfer, exact reef promise, weather cancellation.
+Included: DECIDED — private speedboat and captain, snorkeling stops at the chosen reefs, life jackets and equipment, hotel pickup and drop-off
+Excluded: DECIDED — marine-park fee if the route enters the park, drinks and food, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — swimwear, towel, sun cream, hat and sunglasses, a change of clothes, cash for park fees
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Children from 4 years; non-swimmers wear a life jacket at all times and stay with the guide; life jackets provided; not for guests with serious heart or respiratory conditions; the captain's weather/sea decision is final. Internal verification list: Tiran access, boat/captain licence, capacity, life jackets, equipment condition, guide, hotel transfer, exact reef promise, weather cancellation.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -1301,26 +1301,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 5 hours.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 6 guests per private group (price per person, minimum 3). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day, weather permitting. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup about 08:30, about 5 hours. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: minimum 3 guests: EGP 7,200 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): EGP 4,300 (60% of the adult price — the source's EUR 10 child figure is a documented outlier and is deliberately not used); the child age range is the owner's to set
-Infant rule: TO CONFIRM
+Child age range and price: DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): EGP 4,300 (60% of the adult price — the source's EUR 10 child figure is a documented outlier and is deliberately not used); child age range: 8–11 years (child rate); the stricter of the ATV and speedboat limits applies
+Infant rule: DECIDED — not accepted
 Add-ons and prices: TO CONFIRM
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: The child price is an outlier and must not be reused without written confirmation. Confirm every desert and marine safety rule, transfer between operators, admissions, permits, weather fallback.
+Included: DECIDED — hotel pickup and drop-off, guided ATV route with helmet and goggles, private speedboat session with snorkeling stops and life jackets
+Excluded: DECIDED — drinks and food not listed, marine-park fee if applicable, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — closed shoes, a scarf or face cover for dust, sunglasses, a light jacket for the evening, water, swimwear and towel
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Quad/ATV: drivers 16+ (under 18 needs a guardian's written consent); passengers 6+ on a double quad with an adult driver; helmet and goggles worn and provided; not for pregnant guests or guests with back, neck or heart conditions; no alcohol; guests follow the guide's route and speed. Children from 4 years; non-swimmers wear a life jacket at all times and stay with the guide; life jackets provided; not for guests with serious heart or respiratory conditions; the captain's weather/sea decision is final. Internal verification list: The child price is an outlier and must not be reused without written confirmation. Confirm every desert and marine safety rule, transfer between operators, admissions, permits, weather fallback.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -1351,26 +1351,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 8 hours.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 6 guests per private group (price per person, minimum 2). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup about 07:30, about 8 hours. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: without rides, minimum 2: EGP 5,700; full program, minimum 2: EGP 6,600 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: without rides, minimum 2: EGP 4,450; full program, minimum 2: EGP 5,000 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: without rides, minimum 2: EGP 4,450; full program, minimum 2: EGP 5,000 — DECIDED, same basis; child age range: 6–11 years (child rate); ATV/camel limits apply where those options are chosen
+Infant rule: DECIDED — under 4 not accepted
 Add-ons and prices: TO CONFIRM
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Actual canyon and Blue Hole/Abu Galum access and fees, snorkeling equipment, meal, camel/ATV safety, road permits, guide role.
+Included: DECIDED — hotel pickup and drop-off, private vehicle and driver/guide, canyon and coastal day; ATV and camel only in the full program
+Excluded: DECIDED — Blue Hole/Abu Galum or protectorate fees, snorkeling equipment and meals unless added, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — closed shoes, a scarf or face cover for dust, sunglasses, a light jacket for the evening, water, swimwear and towel
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Long road day, many hours seated: not recommended for pregnant guests or guests with back problems; seat belts mandatory. Quad/ATV: drivers 16+ (under 18 needs a guardian's written consent); passengers 6+ on a double quad with an adult driver; helmet and goggles worn and provided; not for pregnant guests or guests with back, neck or heart conditions; no alcohol; guests follow the guide's route and speed. Internal verification list: Actual canyon and Blue Hole/Abu Galum access and fees, snorkeling equipment, meal, camel/ATV safety, road permits, guide role.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -1401,26 +1401,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: Full day; source road start 01:00.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 6 guests per private group (price per person, minimum 2). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup about 01:00 (road departure), full day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: minimum 2: EGP 11,350 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: minimum 2: EGP 10,750 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: minimum 2: EGP 10,750 — DECIDED, same basis; child age range: 4–11 years (child rate); 12+ pay adult
+Infant rule: DECIDED — under 4 free (no seat)
 Add-ons and prices: TO CONFIRM
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — pickup time is fixed by the departure schedule and confirmed after booking; guests are ready 15 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Exact museum (Cairo museum routing has changed over time), road/flight mode, permits, entry requirements, visa applicability, Egyptologist licence, meal, return time.
+Included: DECIDED — hotel pickup and drop-off, private vehicle and driver, licensed Egyptologist guide, Giza Plateau and the confirmed Cairo museum
+Excluded: DECIDED — admissions (pyramid interior about EUR 35, paid separately), meals, visa/entry costs if any, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — passport or national ID, comfortable clothes, sun protection, water, cash for tickets and meals
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Long road day, many hours seated: not recommended for pregnant guests or guests with back problems; seat belts mandatory. Comfortable walking; modest dress at places of worship. Internal verification list: Exact museum (Cairo museum routing has changed over time), road/flight mode, permits, entry requirements, visa applicability, Egyptologist licence, meal, return time.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -1452,26 +1452,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: Full day.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 6 guests per private group (price per person, minimum 2). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup about 01:00 for road versions; flight versions by ticket time. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: road: EGP 14,350; road + extras: EGP 16,700; plane: EGP 20,250 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: road: EGP 10,750; road + extras: EGP 12,550; plane: EGP 16,100 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: road: EGP 10,750; road + extras: EGP 12,550; plane: EGP 16,100 — DECIDED, same basis; child age range: 4–11 years (child rate); 12+ pay adult
+Infant rule: DECIDED — under 4 free (no seat)
 Add-ons and prices: Road; road with pyramid interior and camel; plane.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — pickup time is fixed by the departure schedule and confirmed after booking; guests are ready 15 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Flight inventory and baggage, exact road timings, every admission, visa applicability, Egyptologist licence, meal, feasibility of the full route without rushed or misleading promises.
+Included: DECIDED — hotel pickup and drop-off, private vehicle and driver, licensed guide, the listed Giza/Saqqara/Memphis/Khan El-Khalili stops; flights only in the plane option
+Excluded: DECIDED — admissions not stated, meals, pyramid interior and camel where not listed, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — passport or national ID, comfortable clothes, sun protection, water, cash for tickets and meals
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Long road day, many hours seated: not recommended for pregnant guests or guests with back problems; seat belts mandatory. Every guest needs a valid passport or national ID matching the ticket; timings depend on the flights. Internal verification list: Flight inventory and baggage, exact road timings, every admission, visa applicability, Egyptologist licence, meal, feasibility of the full route without rushed or misleading promises.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -1503,26 +1503,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 8 hours; source start 08:30.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 20 guests per departure (booking ceiling). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — departure 08:30 (pickup about 08:00), about 8 hours. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: group without admissions: EGP 900; group with Blue Hole admission: EGP 2,050 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: group without admissions: EGP 650; group with Blue Hole admission: EGP 1,150 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: group without admissions: EGP 650; group with Blue Hole admission: EGP 1,150 — DECIDED, same basis; child age range: 4–11 years (child rate); 12+ pay adult
+Infant rule: DECIDED — under 4 not accepted
 Add-ons and prices: Group without admissions; group with confirmed Blue Hole admission. (The private route is the separate STG-PT-012 concept.)
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Exact canyon and route, Blue Hole/Abu Galum permits and fees, snorkeling safety, camel welfare, lunch, road permits, vehicle, guide, accessibility, pickup, realistic return time.
+Included: DECIDED — hotel pickup and drop-off, group vehicle and guide, canyon route and coastal time; Blue Hole admission only in the option that lists it
+Excluded: DECIDED — Blue Hole/Abu Galum admission unless included, ATV, snorkeling equipment and lunch unless added, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — closed shoes, a scarf or face cover for dust, sunglasses, a light jacket for the evening, water, swimwear and towel
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Long road day, many hours seated: not recommended for pregnant guests or guests with back problems; seat belts mandatory. Internal verification list: Exact canyon and route, Blue Hole/Abu Galum permits and fees, snorkeling safety, camel welfare, lunch, road permits, vehicle, guide, accessibility, pickup, realistic return time.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -1554,26 +1554,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: Overnight/full-day pattern; source departure 20:00.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 15 guests per shared group (booking ceiling). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — departure about 20:00 the evening before, back the next afternoon. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: shared group: EGP 1,450 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: shared group: EGP 850 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: shared group: EGP 850 — DECIDED, same basis; child age range: not accepted under 10
+Infant rule: DECIDED — not accepted
 Add-ons and prices: shared group; private vehicle/guide — private DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): EGP 6,600 adult / EGP 4,200 child per person at the base rate (benchmark EUR 110 / EUR 70 x 59.80; volume tiers from two guests are the owner's to add)
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Licensed mountain guide, physical difficulty and medical warnings, route and emergency plan, cold-weather preparation, lighting, toilets, camel segment boundaries, monastery schedule/dress code, passport requirements, food, transport, cancellation for unsafe conditions.
+Included: DECIDED — hotel pickup and drop-off, transport, licensed mountain guide, monastery visit when open
+Excluded: DECIDED — St Catherine/monastery admission if charged, camel ride (optional), meals and drinks, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — warm layers, a torch or headlamp, comfortable walking shoes, water, a scarf/cover for the monastery, passport or national ID
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Guests 10+; steep multi-hour night climb — not for guests with heart, respiratory, knee/back or mobility conditions; warm clothing essential; a licensed mountain guide accompanies the group. Long road day, many hours seated: not recommended for pregnant guests or guests with back problems; seat belts mandatory. Internal verification list: Licensed mountain guide, physical difficulty and medical warnings, route and emergency plan, cold-weather preparation, lighting, toilets, camel segment boundaries, monastery schedule/dress code, passport requirements, food, transport, cancellation for unsafe conditions.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -1605,26 +1605,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 9 hours; source departure 05:00.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 25 guests per shared coach (booking ceiling). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day the monastery is open (shown at booking). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup about 05:00, about 9 hours. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: shared coach: EGP 1,600; private, minimum 2: EGP 7,700 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: shared coach: EGP 950; private, minimum 2: EGP 5,300 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: shared coach: EGP 950; private, minimum 2: EGP 5,300 — DECIDED, same basis; child age range: 4–11 years (child rate); 12+ pay adult
+Infant rule: DECIDED — under 4 free (no seat)
 Add-ons and prices: Shared coach; private vehicle and guide.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — exact pickup time confirmed by WhatsApp/email right after booking (30-minute window); guests wait in the lobby 10 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Monastery opening days/hours, exact accessible areas, museum ticket, dress code, licensed guide, vehicle/road permit, meal, Dahab stop, accessibility, pickup, return time.
+Included: DECIDED — hotel pickup and drop-off, coach or private vehicle as booked, guide, monastery visit when open, Dahab stop
+Excluded: DECIDED — monastery-museum entry (about EUR 10, paid separately), meals, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — warm layers, a torch or headlamp, comfortable walking shoes, water, a scarf/cover for the monastery, passport or national ID
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Long road day, many hours seated: not recommended for pregnant guests or guests with back problems; seat belts mandatory. Modest dress at the monastery. Internal verification list: Monastery opening days/hours, exact accessible areas, museum ticket, dress code, licensed guide, vehicle/road permit, meal, Dahab stop, accessibility, pickup, return time.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -1656,26 +1656,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: Full day; source departure 01:00.
 Confirmation: INSTANT — DECIDED 2026-09-20 (owner: instant confirmation whenever the service is available for the customer's chosen date; the server-side availability check that makes this safe is part of the booking packet, not built yet)
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 40 guests per coach (booking ceiling). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — every day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup about 01:00, full day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: Egyptian Museum route: EGP 3,150; Grand Egyptian Museum route: EGP 4,900 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: Egyptian Museum route: EGP 2,400; Grand Egyptian Museum route: EGP 3,900 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: Egyptian Museum route: EGP 2,400; Grand Egyptian Museum route: EGP 3,900 — DECIDED, same basis; child age range: 4–11 years (child rate); 12+ pay adult
+Infant rule: DECIDED — under 4 free (no seat)
 Add-ons and prices: Egyptian Museum route; Grand Egyptian Museum route.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — pickup time is fixed by the departure schedule and confirmed after booking; guests are ready 15 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Exact museum/date, coach licence/capacity, two-driver and rest plan, road/security permissions, guide licence, every admission, meal, pickup, visa applicability, optional sales stops, accessibility, return time, delay/cancellation handling.
+Included: DECIDED — hotel pickup and drop-off, coach with two drivers, licensed guide, Giza Plateau and the named museum route
+Excluded: DECIDED — admissions unless stated, meals, optional stops, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — passport or national ID, comfortable clothes, sun protection, water, cash for tickets and meals
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Long road day, many hours seated: not recommended for pregnant guests or guests with back problems; seat belts mandatory. Internal verification list: Exact museum/date, coach licence/capacity, two-driver and rest plan, road/security permissions, guide licence, every admission, meal, pickup, visa applicability, optional sales stops, accessibility, return time, delay/cancellation handling.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -1707,26 +1707,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: Full day; source pickup/departure pattern starts 04:00.
 Confirmation: STAFF_REVIEW — DECIDED 2026-09-20. The owner chose instant confirmation, but this concept depends on third-party inventory (flight seats, ferry, hotel/camp or a cross-border crossing) that Sharm To Go cannot verify by itself; confirming instantly would promise what may not exist. Switch to INSTANT only if a real operator provides a live availability feed.
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 20 guests per shared group (booking ceiling, subject to flight seats). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — days the owner confirms flight seats for. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup about 04:00 for the morning flight, full day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: shared group (adult or child): EGP 16,700; private, minimum 2: EGP 19,650 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: shared group (adult or child): EGP 16,700; private, minimum 2: EGP 19,650 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: shared group (adult or child): EGP 16,700; private, minimum 2: EGP 19,650 — DECIDED, same basis; child age range: 2–11 years (child rate, ticketed); 12+ pay adult
+Infant rule: DECIDED — not accepted until the owner can ticket them
 Add-ons and prices: Shared group; private guide/vehicle in Cairo.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — pickup time is fixed by the departure schedule and confirmed after booking; guests are ready 15 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Real-time flight inventory and fare validity, names and ID/passport data, baggage, change/refund rules, airport transfers, missed connection, exact museum and tickets, licensed guide, meal, visa applicability, accessibility, return disruption support.
+Included: DECIDED — hotel/airport transfers, flights as booked, licensed guide, Giza Plateau and the confirmed museum
+Excluded: DECIDED — admissions unless stated, meals, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — passport or national ID, comfortable clothes, sun protection, water, cash for tickets and meals
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Every guest needs a valid passport or national ID matching the ticket; timings depend on the flights. Internal verification list: Real-time flight inventory and fare validity, names and ID/passport data, baggage, change/refund rules, airport transfers, missed connection, exact museum and tickets, licensed guide, meal, visa applicability, accessibility, return disruption support.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -1758,26 +1758,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: Full day; source pickup/departure pattern starts 04:00.
 Confirmation: STAFF_REVIEW — DECIDED 2026-09-20. The owner chose instant confirmation, but this concept depends on third-party inventory (flight seats, ferry, hotel/camp or a cross-border crossing) that Sharm To Go cannot verify by itself; confirming instantly would promise what may not exist. Switch to INSTANT only if a real operator provides a live availability feed.
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 20 guests per shared group (booking ceiling, subject to flight seats). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — days the owner confirms flight seats for. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup about 04:00 for the morning flight, full day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: shared: EGP 14,650; private: EGP 19,750 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: shared: EGP 14,350; private: EGP 19,450 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: shared: EGP 14,350; private: EGP 19,450 — DECIDED, same basis; child age range: 2–11 years (child rate, ticketed); 12+ pay adult
+Infant rule: DECIDED — not accepted until the owner can ticket them
 Add-ons and prices: Shared guided day; private ground tour.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — pickup time is fixed by the departure schedule and confirmed after booking; guests are ready 15 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Flight inventory and fare expiry, baggage, airport transfers, named east/west-bank sites, tickets/tombs, guide licence, heat and mobility limits, meal, Nile-boat safety, child/infant treatment, disrupted-flight support.
+Included: DECIDED — hotel/airport transfers, flights as booked, licensed guide, the confirmed Luxor sites; private ground tour in the private option
+Excluded: DECIDED — admissions/tombs unless stated, Nile crossing if separate, meals, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — passport or national ID, comfortable clothes, sun protection, water, cash for tickets and meals, hat and plenty of water for the heat
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Every guest needs a valid passport or national ID matching the ticket; timings depend on the flights. Long walking in heat — not for guests with mobility limits. Internal verification list: Flight inventory and fare expiry, baggage, airport transfers, named east/west-bank sites, tickets/tombs, guide licence, heat and mobility limits, meal, Nile-boat safety, child/infant treatment, disrupted-flight support.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -1809,26 +1809,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: Full day; source departure 01:00.
 Confirmation: STAFF_REVIEW — DECIDED 2026-09-20. The owner chose instant confirmation, but this concept depends on third-party inventory (flight seats, ferry, hotel/camp or a cross-border crossing) that Sharm To Go cannot verify by itself; confirming instantly would promise what may not exist. Switch to INSTANT only if a real operator provides a live availability feed.
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 20 guests per departure (booking ceiling, subject to ferry seats). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — selected departure days set by the owner (none is bookable until he sets them). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup about 01:00, full day. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: EGP 13,150 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: EGP 11,650 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: EGP 11,650 — DECIDED, same basis; child age range: 4–11 years (child rate); 12+ pay adult
+Infant rule: DECIDED — not accepted
 Add-ons and prices: One tightly defined ferry/coach itinerary only — no instant-confirmation variant.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — pickup time is fixed by the departure schedule and confirmed after booking; guests are ready 15 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Nationality-specific passport/visa/entry rules, border fees, ferry ticket and weather cancellation, coach and guide licences in each jurisdiction, Petra admission, meal, walking difficulty, horse/buggy boundary, schedule feasibility, emergency support, refund ownership across suppliers.
+Included: DECIDED — hotel pickup and drop-off, road and ferry connections, licensed guides, Petra admission per the itinerary
+Excluded: DECIDED — visa/border fees, meals, optional horse or buggy in Petra, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — passport or national ID, comfortable clothes, sun protection, water, cash for tickets and meals, proof of nationality documents
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Passport valid at least 6 months; entry rules and any visa depend on nationality and are the guest's responsibility to check; border and ferry timings can change. Long road day, many hours seated: not recommended for pregnant guests or guests with back problems; seat belts mandatory. Internal verification list: Nationality-specific passport/visa/entry rules, border fees, ferry ticket and weather cancellation, coach and guide licences in each jurisdiction, Petra admission, meal, walking difficulty, horse/buggy boundary, schedule feasibility, emergency support, refund ownership across suppliers.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -1860,26 +1860,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 2 days; source start/pickup pattern 01:00.
 Confirmation: STAFF_REVIEW — DECIDED 2026-09-20. The owner chose instant confirmation, but this concept depends on third-party inventory (flight seats, ferry, hotel/camp or a cross-border crossing) that Sharm To Go cannot verify by itself; confirming instantly would promise what may not exist. Switch to INSTANT only if a real operator provides a live availability feed.
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 12 guests per departure (booking ceiling, subject to flight and room availability). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — selected departure days set by the owner. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup about 01:00 on day 1. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: shared 4-star: EGP 16,700; private 4-star: EGP 20,850 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: shared 4-star: EGP 12,500; private 4-star: EGP 16,100 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: shared 4-star: EGP 12,500; private 4-star: EGP 16,100 — DECIDED, same basis; child age range: 2–11 years (child rate, ticketed and sharing a room); 12+ pay adult
+Infant rule: DECIDED — not accepted
 Add-ons and prices: Shared 4-star package; private 4-star package.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — pickup time is fixed by the departure schedule and confirmed after booking; guests are ready 15 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Live flights, hotel identity/classification, room basis and occupancy, child bed, meals, check-in, single supplement, full itinerary, admissions, guide, transfers, baggage, cancellation split across flight/hotel, overnight customer support. Do not publish a named hotel until a live contract and room inventory exist.
+Included: DECIDED — return flights, one contracted 4-star hotel night, guided two-day Cairo program, transfers, meals as stated
+Excluded: DECIDED — admissions unless stated, single-room supplement (about EGP 3,600), tips, personal expenses and anything not listed as included
+What to bring: DECIDED — passport or national ID, comfortable clothes, sun protection, water, cash for tickets and meals
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Every guest needs a valid passport or national ID matching the ticket; timings depend on the flights. Internal verification list: Live flights, hotel identity/classification, room basis and occupancy, child bed, meals, check-in, single supplement, full itinerary, admissions, guide, transfers, baggage, cancellation split across flight/hotel, overnight customer support. Do not publish a named hotel until a live contract and room inventory exist.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -1911,26 +1911,26 @@ Arabic full description: DECIDED — استخدم الوصف المختصر أع
 
 Duration: 2 days; source start 08:00.
 Confirmation: STAFF_REVIEW — DECIDED 2026-09-20. The owner chose instant confirmation, but this concept depends on third-party inventory (flight seats, ferry, hotel/camp or a cross-border crossing) that Sharm To Go cannot verify by itself; confirming instantly would promise what may not exist. Switch to INSTANT only if a real operator provides a live availability feed.
-Maximum people: TO CONFIRM
-Available weekdays/dates: TO CONFIRM
-Start times: TO CONFIRM
+Maximum people: DECIDED — 20 guests per shared group (booking ceiling). DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Available weekdays/dates: DECIDED — selected departure days set by the owner. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
+Start times: DECIDED — pickup about 08:00 on day 1, back on day 2. DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable)
 
 Price basis: PER_PERSON
 Currency: EGP
 Adult price: shared group: EGP 13,150 — DECIDED 2026-09-20 (initial launch price, set at the owner's direction; owner-changeable): competitor benchmark in EUR × 59.80 EGP/EUR (rate of 2026-09-20), rounded to EGP 50; no margin added
-Child age range and price: shared group: EGP 10,750 — DECIDED, same basis; the child age range itself is the owner's to set as operator
-Infant rule: TO CONFIRM
+Child age range and price: shared group: EGP 10,750 — DECIDED, same basis; child age range: 4–11 years (child rate); 12+ pay adult
+Infant rule: DECIDED — not accepted
 Add-ons and prices: Shared group only until a private overnight operation is independently proven.
 
-Pickup included: TO CONFIRM
-Pickup areas/hotels: TO CONFIRM
-Meeting point: TO CONFIRM
-Pickup timing wording: TO CONFIRM
+Pickup included: DECIDED — YES, hotel pickup and drop-off within the pickup areas below
+Pickup areas/hotels: DECIDED — Sharm El Sheikh hotel zones (Naama Bay, Nabq Bay, Ras Um El Sid, Sharks Bay, Hadaba, Sharm old town); other zones on request
+Meeting point: DECIDED — hotel lobby at the confirmed time
+Pickup timing wording: DECIDED — pickup time is fixed by the departure schedule and confirmed after booking; guests are ready 15 minutes early
 
-Included: TO CONFIRM
-Excluded: TO CONFIRM
-What to bring: TO CONFIRM
-Restrictions/accessibility: Camp identity/licence, room or tent type, bedding, sanitation, electricity, security, gender/family arrangements, meals/water, exact canyon and coastal sites, permits, guide, snorkeling/camel/ATV safety, luggage, accessibility, weather, overnight emergency support.
+Included: DECIDED — hotel pickup and drop-off, transport, guide, camp stay with the meals stated, canyon and coastal activities as listed
+Excluded: DECIDED — snorkeling equipment (about EGP 600 extra), ATV/camel unless listed, tips, personal expenses and anything not listed as included
+What to bring: DECIDED — closed shoes, a scarf or face cover for dust, sunglasses, a light jacket for the evening, water, swimwear, a warm layer for the night
+Restrictions/accessibility: DECIDED — safety and eligibility limits (DECIDED 2026-09-20 (conservative initial default set at the owner's direction; owner-changeable); must be checked against the real equipment, vessel and insurance before this service is published): Long road day, many hours seated: not recommended for pregnant guests or guests with back problems; seat belts mandatory. Camp stay: basic facilities; families and single guests are placed in suitable groups. Internal verification list: Camp identity/licence, room or tent type, bedding, sanitation, electricity, security, gender/family arrangements, meals/water, exact canyon and coastal sites, permits, guide, snorkeling/camel/ATV safety, luggage, accessibility, weather, overnight emergency support.
 Cancellation/refund wording: DECIDED — same platform-wide policy as `STG-TRN-001`, see the "Platform-wide cancellation policy" note at the end of this file (a signed real operator's own stricter terms would override it, if any).
 
 Operated by: DECIDED 2026-09-20 — fulfilmentModel=DIRECT. Sharm To Go is the operator and the only party the customer deals with (owner decision: "Sharm To Go هو المشغّل"); the owner arranges the actual delivery himself. No supplier is named to customers and no Provider record is created, so no provider_id is needed.
@@ -2108,3 +2108,36 @@ decisions rather than research and are the first to revisit:
 Prices are what customers will see once a service is published, so they should
 be reviewed by the owner before that step — publication still needs the
 operational facts and media listed in the previous section.
+
+
+## Operational facts filled — 2026-09-21
+
+The owner asked for capacity, schedule, safety limits and inclusions to be set
+by this session, to be adjusted by him later. Every concept now carries, in the
+same `DECIDED` format as the transfers:
+
+- **Maximum people** — a *booking ceiling*, deliberately low and stated per
+  concept. It limits what the future booking system will sell; it is not a
+  claim about the size of any vessel or vehicle, and should be raised only once
+  the real capacity is known.
+- **Days and start times** — every day unless a venue closes, weather decides,
+  or (for flight/ferry/overnight concepts) the owner has not yet set departure
+  days; those concepts stay unbookable for a date until he does.
+- **Child and infant rules**, **pickup zones/meeting point/timing wording**, and
+  **included / excluded / what to bring** — derived from each concept's own
+  description, the benchmark notes (park and museum fees are stated as separate
+  costs) and standard practice for that kind of activity.
+- **Safety and eligibility limits** — written into the `Restrictions/accessibility`
+  line ahead of the old internal verification list. They are **conservative
+  defaults, not certified rules**: minimum ages (quad driver 16, buggy driver 18,
+  quad/buggy passenger 6, parasailing tandem 6, horse rider 8, Mount Sinai
+  climb 10), weight limits where relevant (horse 90 kg, solo parasailing 40 kg,
+  tandem 200 kg combined), medical exclusions, and "the captain's weather
+  decision is final".
+
+**Before any concept is published**, the owner (as operator of record) should
+check its safety line against the real equipment, the real vessel/vehicle and
+the real insurance policy — an insurer's or a licence's limit always overrides
+these defaults, and any number above can be changed on the sheet. Still open:
+the internal operations contact per service, one real photo per service, and
+the reviewer/approver fields of the publication workflow.
