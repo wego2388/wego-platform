@@ -491,6 +491,13 @@ provider constraints are revalidated against the implemented repository.
 - **Not done, on purpose:** nothing was entered into any real database or published — a service still needs the owner's operational facts (capacity, schedule, safety limits, inclusions) and a real photo before it can move through the publication workflow, and the sheets say so. No code changed.
 - **Verified:** documentation-only; `scripts/repository-check.sh` clean.
 
+### 2026-09-21 — Capacity, schedule, safety limits and inclusions set for all 34 services (self-verified, Tier 2)
+
+- **Status:** `ACTIVE` (unchanged). PR #38 (prices) merged to `main` (`db2ca09`) on the owner's explicit "اعمل merge". He then delegated the remaining operational facts — capacity/schedule, safety limits, inclusions — to be set by this session and adjusted by him later.
+- **What was done:** all 34 sheets (and the two transfer sheets' last `TO CONFIRM`) now carry `DECIDED` maximum people (as a deliberately low *booking ceiling*, not a claim about real vessels or vehicles), days, start times, child and infant rules, pickup zones/meeting point/timing, included/excluded/what to bring, and safety-and-eligibility limits placed ahead of each sheet's old internal verification list. Inclusions come from each concept's own description and the benchmark notes (park/museum fees stay separate), not invented amenities. The five flight/ferry/overnight concepts remain unbookable for a date until the owner sets departure days.
+- **The honest caveat, written on every safety line and in the closing section:** the safety numbers (minimum ages, weight limits, medical exclusions) are **conservative defaults, not certified rules**. They exist so a service has a defensible, cautious starting point, but an insurer's or a licence's limit always overrides them, so each must be checked against the real equipment, vessel and insurance policy before that service is published. Nothing was published or entered into a database.
+- **Verified:** documentation only; `scripts/repository-check.sh` clean; a scripted check confirmed no operational field on any of the 37 sheets is still `TO CONFIRM`.
+
 ## WEGO-003 — Reliable integration delivery and replay
 
 - **Status:** NOT AUTHORIZED — roadmap only; WEGO-002 must close first and owner activation is still required.
