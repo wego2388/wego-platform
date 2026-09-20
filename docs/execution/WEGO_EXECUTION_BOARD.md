@@ -475,6 +475,15 @@ provider constraints are revalidated against the implemented repository.
 - **Rollback considerations:** additive — new files plus contact/copy edits confined to `sharm-to-go-site` and `mobile/apps/sharm-to-go`; no backend, migration or shared-package change; one additive CI step.
 - **Next:** merge PR #28; then Phase 2 items are the owner's (real operators, photos, payment accounts); Phase 3 (booking/payment) builds to the decisions above once sandbox credentials exist.
 
+### 2026-09-20 — Sharm To Go is the operator of every service (`DIRECT` for all 37) (self-verified, Tier 2)
+
+- **Status:** `ACTIVE` (unchanged). After the previous entry explained what naming "operators" involves, the owner decided: **"Sharm To Go هو المشغّل"** — the website and system present Sharm To Go as the operator of everything, and he will arrange and handle the operations himself. PR #28 had already been merged to `main` earlier the same day (merge commit `84dfa5e`); this is follow-up work on the same branch.
+- **What changed:** the 34 intake sheets that said `PARTNER` now say `DIRECT` (operator = Sharm To Go, no `Provider` record, no `provider_id`, no supplier name shown or invented); a superseding note sits at the top of the file and a closing section lists what the owner, now the operator of record, must still supply (capacity/schedule, safety/eligibility, inclusions/fees, seat guarantees for flight/ferry/overnight concepts, media, an internal ops contact). Website and app copy dropped every "approved local partners / responsible provider" claim — the hero body, the notice under the hero, the "how it works" verification step, the trust point and trust paragraph, the category blurbs and the "discovery categories" disclaimer — in English and Arabic, and every service now shows "Operated by: Sharm To Go" when no provider is attached (the backend still supports `PARTNER` for a future genuinely third-party service, which would show its provider instead).
+- **Kept deliberately:** the five flight/ferry/hotel/border concepts stay at `STAFF_REVIEW`. Making Sharm To Go the operator does not create seats on a plane or a ferry; instant confirmation is safe there only once the owner can guarantee the seat. The owner can flip them per service. Prices stay the `PROPOSED` figures from the previous entry.
+- **Verified:** site 24/24 (the two spec assertions that pinned the old partner wording were updated to the new sentence), typecheck, lint; mobile `sharm-to-go` check + Android `assembleDebug` green.
+- **Rollback considerations:** copy and documentation only; no backend, schema or shared-module change.
+- **Next:** the owner supplies the operational facts above; then services can enter the DRAFT → REVIEW → APPROVED → PUBLISHED workflow. Booking/payment still waits on the payment-provider details.
+
 ## WEGO-003 — Reliable integration delivery and replay
 
 - **Status:** NOT AUTHORIZED — roadmap only; WEGO-002 must close first and owner activation is still required.

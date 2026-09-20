@@ -59,7 +59,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
     hero: {
       eyebrow: "One clear starting point for Sharm El Sheikh",
       title: "Find the right Sharm experience, with local coordination you can understand.",
-      body: "Explore the sea, desert, transfers and local highlights. Availability and provider responsibility will always be shown before a request is confirmed.",
+      body: "Explore the sea, desert, transfers and local highlights. Sharm To Go operates and confirms every experience — one team to contact from request to return.",
       browse: "Explore categories",
       plan: "See how booking will work",
     },
@@ -72,9 +72,9 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       people: "Travellers",
     },
     categoriesHeading: "Start with the kind of day you want",
-    categoriesBody: "These are discovery categories, not a claim that every service is already live or operated by Sharm To Go.",
+    categoriesBody: "These are discovery categories, not a claim that every service is already live.",
     categories: [
-      { eyebrow: "Red Sea", title: "Sea adventures", description: "Boat days, snorkelling and water experiences from approved operators." },
+      { eyebrow: "Red Sea", title: "Sea adventures", description: "Boat days, snorkelling and water experiences run by Sharm To Go." },
       { eyebrow: "Sinai", title: "Desert & stargazing", description: "Canyon, safari and evening experiences with clear pickup details." },
       { eyebrow: "Arrival", title: "Transfers", description: "Airport and local movement requests with vehicle and confirmation details." },
       { eyebrow: "Local", title: "City & culture", description: "Sharm highlights, food and nearby discoveries curated for your time." },
@@ -83,16 +83,16 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       heading: "A request first, a confirmation second",
       steps: [
         { title: "1. Choose", body: "Select a category, date and group size without guessing the final availability." },
-        { title: "2. We verify", body: "Sharm To Go or the responsible approved provider checks capacity, pickup and price." },
+        { title: "2. We verify", body: "Sharm To Go checks capacity, pickup and price." },
         { title: "3. You confirm", body: "You receive one clear summary before payment or final confirmation." },
       ],
     },
     trust: {
       heading: "Built around clarity, not a wall of offers",
-      body: "The marketplace foundation separates who provides the service, who coordinates the request and what is actually confirmed.",
-      points: ["Provider shown before confirmation", "Arabic and English operations", "No invented availability or ratings", "One support trail for every request"],
+      body: "One accountable operator for every request, and a clear line between what is confirmed and what is not.",
+      points: ["One operator: Sharm To Go", "Arabic and English operations", "No invented availability or ratings", "One support trail for every request"],
     },
-    marketplaceNotice: "Important: some experiences will be provided by approved local partners, not directly by Sharm To Go. The responsible provider will be identified before confirmation.",
+    marketplaceNotice: "Sharm To Go operates and coordinates every experience directly — one point of contact, from your request to your return.",
     footer: "Sharm To Go · Wego Travel Marketplace foundation",
     catalog: {
       heading: "The live catalog is not published yet",
@@ -141,7 +141,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
     hero: {
       eyebrow: "نقطة بداية واحدة وواضحة لشرم الشيخ",
       title: "اختار تجربة شرم المناسبة مع تنسيق محلي مفهوم وواضح.",
-      body: "اكتشف البحر والصحراء والانتقالات وأهم الأماكن. سنوضح التوفر والجهة المسؤولة عن الخدمة قبل تأكيد أي طلب.",
+      body: "اكتشف البحر والصحراء والانتقالات وأهم الأماكن. Sharm To Go هي المشغّل والمسؤول عن كل تجربة — فريق واحد تتواصل معاه من الطلب لحد الرجوع.",
       browse: "استكشف الفئات",
       plan: "اعرف طريقة الحجز",
     },
@@ -154,9 +154,9 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       people: "عدد المسافرين",
     },
     categoriesHeading: "ابدأ بشكل اليوم اللي يناسبك",
-    categoriesBody: "دي فئات مقترحة للاستكشاف، وليست ادعاءً بأن كل الخدمات متاحة الآن أو تابعة مباشرةً لـSharm To Go.",
+    categoriesBody: "دي فئات مقترحة للاستكشاف، وليست ادعاءً بأن كل الخدمات متاحة الآن.",
     categories: [
-      { eyebrow: "البحر الأحمر", title: "مغامرات البحر", description: "رحلات بحرية وسنوركل وتجارب مائية من مشغلين معتمدين." },
+      { eyebrow: "البحر الأحمر", title: "مغامرات البحر", description: "رحلات بحرية وسنوركل وتجارب مائية تُشغّلها Sharm To Go." },
       { eyebrow: "سيناء", title: "الصحراء والنجوم", description: "كانـيون وسفاري وسهرات مع تفاصيل انتقال واضحة." },
       { eyebrow: "الوصول", title: "الانتقالات", description: "طلبات مطار وتنقلات محلية مع تفاصيل السيارة والتأكيد." },
       { eyebrow: "محلي", title: "المدينة والثقافة", description: "أهم أماكن شرم والطعام واكتشافات قريبة مناسبة لوقتك." },
@@ -165,16 +165,16 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       heading: "الأول طلب، وبعد المراجعة تأكيد",
       steps: [
         { title: "١. اختار", body: "حدد الفئة والموعد والعدد بدون افتراض إن التوفر نهائي." },
-        { title: "٢. نراجع", body: "Sharm To Go أو مقدم الخدمة المعتمد يراجع السعة والانتقال والسعر." },
+        { title: "٢. نراجع", body: "Sharm To Go تراجع السعة والانتقال والسعر." },
         { title: "٣. أكّد", body: "يوصلك ملخص واضح قبل الدفع أو التأكيد النهائي." },
       ],
     },
     trust: {
       heading: "وضوح أكتر بدل زحمة عروض",
-      body: "أساس السوق بيفصل بين مقدم الخدمة ومنسق الطلب وما تم تأكيده فعليًا.",
-      points: ["توضيح مقدم الخدمة قبل التأكيد", "تشغيل عربي وإنجليزي", "بدون توفر أو تقييمات وهمية", "مسار دعم واحد لكل طلب"],
+      body: "مشغّل واحد مسؤول عن كل طلب، وفصل واضح بين ما تم تأكيده وما لم يتم.",
+      points: ["مشغّل واحد: Sharm To Go", "تشغيل عربي وإنجليزي", "بدون توفر أو تقييمات وهمية", "مسار دعم واحد لكل طلب"],
     },
-    marketplaceNotice: "مهم: بعض التجارب سيقدمها شركاء محليون معتمدون وليست خدمات تابعة مباشرةً لـSharm To Go. سنوضح مقدم الخدمة المسؤول قبل التأكيد.",
+    marketplaceNotice: "Sharm To Go تشغّل وتنسّق كل تجربة مباشرةً — نقطة تواصل واحدة من الطلب لحد الرجوع.",
     footer: "Sharm To Go · أساس Wego Travel Marketplace",
     catalog: {
       heading: "الكتالوج الفعلي لم يُنشر بعد",

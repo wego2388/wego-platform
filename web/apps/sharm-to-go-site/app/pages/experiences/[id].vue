@@ -97,7 +97,7 @@ onMounted(async () => {
           class="-mx-8 -mt-8 mb-8 aspect-[21/9] w-[calc(100%+4rem)] sm:-mx-12 sm:-mt-12 sm:mb-10 sm:w-[calc(100%+6rem)]"
         />
         <h1 class="font-display text-3xl font-semibold tracking-tight">{{ service.name[locale] }}</h1>
-        <p v-if="service.operatedBy" class="mt-2 text-sm text-sharm-muted">{{ copy.browse.operatedBy }}: {{ service.operatedBy }}</p>
+        <p class="mt-2 text-sm text-sharm-muted">{{ copy.browse.operatedBy }}: {{ service.operatedBy ?? "Sharm To Go" }}</p>
         <p class="mt-5 leading-8 text-sharm-muted">{{ service.description[locale] }}</p>
 
         <section class="mt-8">
