@@ -91,7 +91,10 @@ onBeforeUnmount(() => window.removeEventListener("keydown", handleKeydown));
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
-      <p class="text-sm font-semibold tracking-[0.18em] text-wego-accent uppercase">Sharm To Go</p>
+      <p class="flex items-center gap-2 text-sm font-semibold tracking-[0.18em] text-wego-accent uppercase">
+        <img src="/favicon-32.png" alt="" width="20" height="20" aria-hidden="true">
+        Sharm To Go
+      </p>
       <div class="w-10" />
     </header>
 
@@ -103,7 +106,10 @@ onBeforeUnmount(() => window.removeEventListener("keydown", handleKeydown));
         class="fixed inset-y-0 left-0 z-wego-modal w-72 -translate-x-full overflow-y-auto border-r border-wego-border bg-wego-surface p-5 transition-transform duration-200 ease-[var(--wego-motion-easing-standard)] motion-reduce:transition-none lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:w-64 lg:translate-x-0"
         :class="drawerOpen && 'translate-x-0'"
       >
-        <p class="hidden text-sm font-semibold tracking-[0.18em] text-wego-accent uppercase lg:block">Sharm To Go</p>
+        <p class="hidden items-center gap-2 text-sm font-semibold tracking-[0.18em] text-wego-accent uppercase lg:flex">
+          <img src="/favicon-32.png" alt="" width="20" height="20" aria-hidden="true">
+          Sharm To Go
+        </p>
         <div class="mt-6 space-y-6">
           <div v-for="group in navGroups" :key="group.label">
             <p class="px-2 text-xs font-semibold tracking-wide text-wego-muted uppercase">{{ group.label }}</p>

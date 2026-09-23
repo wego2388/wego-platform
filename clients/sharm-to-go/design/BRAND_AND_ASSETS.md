@@ -1,17 +1,27 @@
 # Brand and asset register
 
-## Foundation mark
+## Logo
 
-`assets/sharm-to-go-mark.svg` is the original wave-and-sun foundation mark used
-by the current favicon and prototype. Its status is `FOUNDATION_PLACEHOLDER`:
-safe to use in local design evidence, not represented as a registered or final
-trademark.
+`assets/sharm-to-go-badge.png` (1024×1024, transparent outside the circular
+badge) is the owner-supplied logo, approved 2026-09-23 — status `APPROVED`,
+replacing the earlier `FOUNDATION_PLACEHOLDER` wave-and-sun mark. It is used
+byte-identical everywhere: the site and ERP favicons/app icons/manifest icons
+(derived raster sizes: 32, 180, 192, 512px), the site's header, the site's
+`og:image`, and the mobile app's launcher icon (all mipmap densities, plain
+raster — the badge is already circular with a transparent ground, so it needs
+no separate adaptive-icon foreground/background split).
 
-- Minimum digital size: 32×32px.
-- Clear space: at least one quarter of the mark width.
-- Do not stretch, recolor status meanings, add photo fills or place on a
-  low-contrast background.
-- The public wordmark remains the text `Sharm To Go` until final brand approval.
+- Source is a photographic/rendered medallion, not a vector mark — there is no
+  SVG source; regenerate derived sizes from the 1024px master if it ever
+  changes (Pillow, `LANCZOS` resampling, a soft circular alpha mask).
+- Minimum digital size: 32×32px (the ring text stops being legible below
+  roughly 64px, but the dolphin/badge silhouette stays recognizable).
+- Clear space: at least one quarter of the badge diameter.
+- Do not stretch, recolor, crop into a non-circular shape, or place on a
+  background so dark or busy the gold ring loses contrast.
+- The public wordmark remains the text `Sharm To Go` alongside the badge, not
+  a replacement for it — the badge's own ring text is too small to read at
+  most in-product sizes.
 
 ## Media register required for every service asset
 

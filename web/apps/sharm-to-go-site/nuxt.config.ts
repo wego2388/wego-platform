@@ -12,7 +12,12 @@ export default defineNuxtConfig({
         { name: "description", content: "Discover Sharm El Sheikh experiences with clear local coordination." },
       ],
       link: [
-        { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+        // Real logo (owner-supplied 2026-09-23, registered at
+        // clients/sharm-to-go/design/assets/sharm-to-go-badge.png) — a
+        // rendered medallion, not a vector mark, so favicons are raster
+        // PNGs rather than the site's earlier favicon.svg.
+        { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32.png" },
+        { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
         { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
         { rel: "manifest", href: "/manifest.webmanifest" },
       ],
