@@ -47,9 +47,13 @@ describe("Sharm To Go design-token contract", () => {
   });
 
   it("keeps the executable public mark aligned with the registered design asset", () => {
-    const registeredMark = readFileSync(resolve(process.cwd(), "../../../clients/sharm-to-go/design/assets/sharm-to-go-mark.svg"), "utf8");
-    const publicMark = readFileSync(resolve(process.cwd(), "public/favicon.svg"), "utf8");
+    // 2026-09-23: the owner supplied a real logo (a rendered medallion, not a
+    // vector mark), so the registered asset and the site's icons are now
+    // binary PNGs derived from one source — byte-compared the same way the
+    // earlier SVG mark was, not a looser check.
+    const registeredMark = readFileSync(resolve(process.cwd(), "../../../clients/sharm-to-go/design/assets/sharm-to-go-badge.png"));
+    const publicIcon = readFileSync(resolve(process.cwd(), "public/logo.png"));
 
-    expect(publicMark).toBe(registeredMark);
+    expect(publicIcon.equals(registeredMark)).toBe(true);
   });
 });

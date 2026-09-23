@@ -9,7 +9,15 @@ export default defineNuxtConfig({
     head: {
       htmlAttrs: { lang: "en" },
       meta: [{ name: "theme-color", content: "#102f35" }],
-      link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
+      link: [
+        // Real logo (owner-supplied 2026-09-23, registered at
+        // clients/sharm-to-go/design/assets/sharm-to-go-badge.png) — no
+        // public/favicon.svg ever existed here before this (a real,
+        // pre-existing broken link, fixed along with adding the icon).
+        { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32.png" },
+        { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
+        { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      ],
       script: [
         {
           // Runs before Vue mounts so the first paint already has the

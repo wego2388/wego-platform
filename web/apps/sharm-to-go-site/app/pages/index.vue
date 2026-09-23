@@ -39,10 +39,7 @@ const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "
 
       <header class="relative mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-6 lg:px-10">
         <NuxtLink to="/" class="flex items-center gap-3 font-semibold" aria-label="Sharm To Go home">
-          <span
-            class="grid size-11 place-items-center rounded-2xl bg-gradient-to-br from-sharm-sea-bright to-sharm-sea text-lg font-black text-white"
-            >S</span
-          >
+          <img src="/icon-192.png" alt="" width="44" height="44" class="size-11" aria-hidden="true">
           <span class="font-display text-lg">Sharm To Go</span>
         </NuxtLink>
         <nav class="hidden items-center gap-7 text-sm font-semibold md:flex" aria-label="Primary navigation">
