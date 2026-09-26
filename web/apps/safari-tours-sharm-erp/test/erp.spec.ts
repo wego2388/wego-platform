@@ -164,7 +164,93 @@ describe("Tour data shape", () => {
   });
 });
 
-// ── Booking reference format ────────────────────────────────────────────────
+// ── Finance helpers ────────────────────────────────────────────────────────
+
+describe("Finance revenue calculation", () => {
+  const makeBooking = (status: BookingStatus, totalEur: string): Partial<Booking> => ({
+    status, totalEur, adultsCount: 2, childrenCount: 1,
+  });
+
+  it("counts only CONFIRMED and COMPLETED bookings as revenue", () => {
+    const bookings = [
+      makeBooking("NEW", "50.00"),
+      makeBooking("CONFIRMED", "120.00"),
+      makeBooking("COMPLETED", "80.00"),
+      makeBooking("CANCELLED", "90.00"),
+      makeBooking("EXPIRED", "60.00"),
+    ];
+    const confirmed = bookings.filter(
+      (b) => b.status === "CONFIRMED" || b.status === "COMPLETED",
+    );
+    const total = confirmed.reduce((sum, b) => sum + parseFloat(b.totalEur!), 0);
+    expect(confirmed.length).toBe(2);
+    expect(total).toBeCloseTo(200.0);
+  });
+
+  it("calculates average per booking correctly", () => {
+    const confirmed = [
+      { totalEur: "120.00" },
+      { totalEur: "80.00" },
+    ];
+    const total = confirmed.reduce((sum, b) => sum + parseFloat(b.totalEur), 0);
+    const avg   = total / confirmed.length;
+    expect(avg).toBeCloseTo(100.0);
+  });
+});
+
+// ── Calendar week helpers ──────────────────────────────────────────────────
+
+describe("Week calendar helpers", () => {
+  function getMonday(d: Date): Date {
+    const day  = d.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    const m    = new Date(d);
+    m.setDate(d.getDate() + diff);
+    m.setHours(0, 0, 0, 0);
+    return m;
+  }
+
+  /** Build a Date at local midnight to avoid UTC-offset surprises */
+  function localDate(y: number, m: number, d: number): Date {
+    return new Date(y, m - 1, d, 12, 0, 0, 0); // noon — unambiguous day
+  }
+
+  function isoDate(d: Date): string {
+    const y  = d.getFullYear();
+    const mo = String(d.getMonth() + 1).padStart(2, "0");
+    const da = String(d.getDate()).padStart(2, "0");
+    return `${y}-${mo}-${da}`;
+  }
+
+  it("getMonday returns Monday for a Wednesday", () => {
+    const wed = localDate(2026, 9, 23); // Wednesday 2026-09-23
+    const mon = getMonday(wed);
+    expect(isoDate(mon)).toBe("2026-09-21");
+  });
+
+  it("getMonday returns Monday for a Sunday", () => {
+    const sun = localDate(2026, 9, 27); // Sunday 2026-09-27
+    const mon = getMonday(sun);
+    expect(isoDate(mon)).toBe("2026-09-21");
+  });
+
+  it("getMonday returns itself for a Monday", () => {
+    const mon = localDate(2026, 9, 21);
+    expect(isoDate(getMonday(mon))).toBe("2026-09-21");
+  });
+
+  it("generates 7 days from Monday to Sunday", () => {
+    const start = localDate(2026, 9, 21);
+    const days  = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      return isoDate(d);
+    });
+    expect(days.length).toBe(7);
+    expect(days[0]).toBe("2026-09-21");
+    expect(days[6]).toBe("2026-09-27");
+  });
+});
 
 describe("Booking reference format", () => {
   it("matches STR-YYYY-N pattern", () => {

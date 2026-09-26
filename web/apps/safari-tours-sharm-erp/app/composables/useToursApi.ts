@@ -124,6 +124,16 @@ export function listSlotsByDate(
   return request<TourSlot[]>(`/api/v1/tours-operator/tours/${tourId}/slots/by-date?${q}`, token);
 }
 
+export function listSlotsByRange(
+  token: string,
+  tourId: string,
+  from: string,
+  to: string,
+): Promise<TourSlot[]> {
+  const q = new URLSearchParams({ from, to });
+  return request<TourSlot[]>(`/api/v1/tours-operator/tours/${tourId}/slots?${q}`, token);
+}
+
 // ── Bookings ───────────────────────────────────────────────────────────────
 
 export function listBookings(
