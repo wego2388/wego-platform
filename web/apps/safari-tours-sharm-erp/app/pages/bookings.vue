@@ -13,6 +13,7 @@ import {
   completeBooking,
   listBookings,
   listTours,
+  formatMoney,
   ToursApiError,
   type Booking,
   type BookingStatus,
@@ -197,7 +198,7 @@ onMounted(async () => {
           type="date"
           class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2.5 text-sm focus:outline-sts-gold"
           @change="page = 0; load()"
-        />
+        >
 
         <button
           type="button"
@@ -248,11 +249,11 @@ onMounted(async () => {
                   </td>
                   <td class="px-4 py-3.5 text-sts-muted">{{ tourName(b.tourId) }}</td>
                   <td class="px-4 py-3.5 text-sts-muted">
-                    {{ b.tourDate }}<br/>
+                    {{ b.tourDate }}<br>
                     <span class="text-xs">{{ b.timeSlot }}</span>
                   </td>
                   <td class="px-4 py-3.5">{{ b.adultsCount + b.childrenCount }}</td>
-                  <td class="money px-4 py-3.5 text-end font-semibold">€{{ b.totalEur }}</td>
+                  <td class="money px-4 py-3.5 text-end font-semibold">{{ formatMoney(b.totalPrice) }}</td>
                   <td class="px-4 py-3.5">
                     <span :class="`badge badge-${b.status}`">{{ b.status }}</span>
                   </td>

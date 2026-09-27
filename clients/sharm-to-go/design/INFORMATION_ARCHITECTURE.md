@@ -27,11 +27,19 @@ there is no second booking implementation per category.
 /checkout/details
 /checkout/payment
 /checkout/result
-/booking/:publicReference
+/booking/manage
 ```
 
 The executable foundation uses `/booking-preview` only. Production routes above
 stay reserved until real catalog and booking contracts are implemented.
+
+`publicReference` is a display/search reference, not authorization. The manage
+route requires the high-entropy booking-management capability defined and
+threat-modelled in `../TECHNICAL_EXECUTION_PLAN.md` Packet 2A. For the web flow,
+the secret arrives in the URL fragment, is consumed into session state and
+removed from the visible URL immediately; it is never placed in a path or query
+string. Reference plus email/phone lookup remains out of scope until a verified,
+rate-limited recovery channel exists.
 
 ## Operations navigation
 

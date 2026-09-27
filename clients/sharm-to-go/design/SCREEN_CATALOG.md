@@ -3,6 +3,11 @@
 `P0` is required for the first controlled launch, `P1` follows real usage, and
 `P2` is roadmap. Every P0 screen needs desktop/mobile and ar/en states.
 
+Priority is not implementation order. Payment screens become executable only
+after at least one Phase 3 payment adapter is activated; before that, checkout
+must explicitly state that online payment is not collected. Manage-booking
+states are authorized by a capability, never by public reference alone.
+
 ## Public and customer
 
 | Priority | Screen | Required states |
@@ -12,9 +17,9 @@
 | P0 | Service detail | available, request-to-confirm, sold out, suspended |
 | P0 | Booking options | default, invalid, price update, slot unavailable |
 | P0 | Customer details | empty, validation, saved progress |
-| P0 | Payment | methods, processing, failed, expired |
+| P0 | Payment | not-enabled, methods, processing, failed, expired |
 | P0 | Result | confirmed, request received, payment failed |
-| P0 | Manage booking | found, not found, cancelled, refunded |
+| P0 | Manage booking | authorized, invalid/expired capability, cancelled, refunded |
 | P0 | Help and policies | default, locale fallback disclosed |
 | P1 | Cart | empty, populated, stale price/availability |
 | P1 | Customer account | guest upgrade, bookings, profile |
@@ -27,8 +32,8 @@
 | P0 | Overview | readiness, live totals only after APIs |
 | P0 | Service list/editor | draft, review, published, suspended, validation |
 | P0 | Calendar/pricing | day, range edit, conflict, capacity zero |
-| P0 | Booking list/detail | new, confirmed, paid, completed, cancelled |
-| P0 | Payment detail | pending, paid, failed, refund states, reconciliation issue |
+| P0 | Booking list/detail | new, confirmed, completed, cancelled, expired; payment state shown separately when enabled |
+| P0 | Payment detail | not-enabled, pending, paid, failed, refund states, reconciliation issue |
 | P0 | Content/locales | missing, draft, reviewed, stale, published |
 | P0 | Settings/policies | dirty, validation, saved, permission denied |
 | P1 | Customer list/detail | minimized data, restricted fields, retention action |

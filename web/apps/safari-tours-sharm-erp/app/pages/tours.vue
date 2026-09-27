@@ -9,6 +9,7 @@ import {
 } from "../composables/useAuthSession";
 import {
   listTours,
+  formatMoney,
   ToursApiError,
   type Tour,
   type TourCategory,
@@ -42,10 +43,6 @@ const CATEGORIES: { value: TourCategory | ""; label: string }[] = [
 
 function categoryLabel(cat: TourCategory): string {
   return CATEGORIES.find((c) => c.value === cat)?.label ?? cat;
-}
-
-function formatEur(cents: number): string {
-  return new Intl.NumberFormat("en-EU", { style: "currency", currency: "EUR" }).format(cents / 100);
 }
 
 function handleApiError(err: unknown) {
@@ -183,6 +180,7 @@ onMounted(() => {
                   <th scope="col" class="px-4 py-3 text-end   text-xs font-semibold text-sts-muted">Child price</th>
                   <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-sts-muted">Capacity</th>
                   <th scope="col" class="px-5 py-3 text-start text-xs font-semibold text-sts-muted">Status</th>
+                  <th scope="col" class="px-5 py-3 text-start text-xs font-semibold text-sts-muted">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -196,15 +194,23 @@ onMounted(() => {
                     <span class="badge badge-CONFIRMED">{{ categoryLabel(tour.category) }}</span>
                   </td>
                   <td class="px-4 py-3.5 text-sts-muted">{{ tour.durationText }}</td>
-                  <td class="money px-4 py-3.5 text-end font-semibold">{{ formatEur(tour.priceAdultCents) }}</td>
+                  <td class="money px-4 py-3.5 text-end font-semibold">{{ formatMoney(tour.priceAdult) }}</td>
                   <td class="money px-4 py-3.5 text-end text-sts-muted">
-                    {{ tour.priceChildCents != null ? formatEur(tour.priceChildCents) : '—' }}
+                    {{ tour.priceChild != null ? formatMoney(tour.priceChild) : '—' }}
                   </td>
                   <td class="px-4 py-3.5 text-center tabular-nums">{{ tour.capacity }}</td>
                   <td class="px-5 py-3.5">
                     <span :class="`badge ${tour.isActive ? 'badge-CONFIRMED' : 'badge-EXPIRED'}`">
                       {{ tour.isActive ? 'Active' : 'Inactive' }}
                     </span>
+                  </td>
+                  <td class="px-5 py-3.5">
+                    <NuxtLink
+                      :to="`/tours/${tour.id}/slots`"
+                      class="text-xs font-semibold text-sts-ocean hover:underline underline-offset-2"
+                    >
+                      View slots →
+                    </NuxtLink>
                   </td>
                 </tr>
               </tbody>

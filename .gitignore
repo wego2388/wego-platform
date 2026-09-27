@@ -11,6 +11,7 @@
 # Editors and operating systems
 .idea/
 .vscode/
+.claude/
 *.iml
 .DS_Store
 Thumbs.db

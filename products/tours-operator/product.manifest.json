@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "productId": "wego-tours-operator",
+  "displayName": "Wego Tours Operator",
+  "version": "0.1.0",
+  "platformVersion": "0.1.0-SNAPSHOT",
+  "requiredModules": [
+    "platform.events",
+    "platform.identity",
+    "platform.security",
+    "product.tours-operator"
+  ],
+  "requiredCapabilities": [
+    "platform.authorization",
+    "platform.identity-authentication",
+    "platform.integration-events",
+    "tours-operator.product-boundary"
+  ]
+}

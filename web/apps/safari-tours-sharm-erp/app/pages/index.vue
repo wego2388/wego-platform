@@ -10,6 +10,8 @@ import {
 import {
   listBookings,
   listTours,
+  addMoney,
+  formatMoney,
   type Booking,
   type Tour,
   ToursApiError,
@@ -34,10 +36,9 @@ const todayBookings = computed(() =>
   bookings.value.filter((b) => b.tourDate === todayIso && b.status !== "EXPIRED"),
 );
 const todayRevenue = computed(() =>
-  todayBookings.value
+  addMoney(todayBookings.value
     .filter((b) => b.status === "CONFIRMED" || b.status === "COMPLETED")
-    .reduce((sum, b) => sum + parseFloat(b.totalEur), 0)
-    .toFixed(2),
+    .map((b) => b.totalPrice)),
 );
 const pendingConfirm = computed(() =>
   bookings.value.filter((b) => b.status === "NEW").length,
@@ -145,6 +146,36 @@ onMounted(() => {
         >
           Tours
         </NuxtLink>
+        <NuxtLink
+          to="/finance"
+          class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
+        >
+          Finance
+        </NuxtLink>
+        <NuxtLink
+          to="/customers"
+          class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
+        >
+          Customers
+        </NuxtLink>
+        <NuxtLink
+          to="/reviews"
+          class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
+        >
+          Reviews
+        </NuxtLink>
+        <NuxtLink
+          to="/notifications"
+          class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
+        >
+          Notifications
+        </NuxtLink>
+        <NuxtLink
+          to="/settings"
+          class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
+        >
+          Settings
+        </NuxtLink>
       </nav>
 
       <WegoAlert v-if="state === 'error'" variant="danger" class="mt-6">{{ errorMsg }}</WegoAlert>
@@ -156,7 +187,7 @@ onMounted(() => {
           <article
             v-for="kpi in [
               { label: 'Today\'s Bookings', value: state === 'loaded' ? String(todayBookings.length) : '…', sub: 'tours today' },
-              { label: 'Today\'s Revenue',  value: state === 'loaded' ? `€${todayRevenue}` : '…',          sub: 'confirmed + completed' },
+              { label: 'Today\'s Revenue',  value: state === 'loaded' ? formatMoney(todayRevenue) : '…',   sub: 'confirmed + completed' },
               { label: 'Pending Confirm',   value: state === 'loaded' ? String(pendingConfirm) : '…',      sub: 'awaiting payment confirm' },
               { label: 'Upcoming',          value: state === 'loaded' ? String(upcomingCount) : '…',       sub: 'confirmed future bookings' },
             ]"
@@ -213,7 +244,7 @@ onMounted(() => {
                   <td class="px-4 py-3.5 text-sts-muted">{{ tourName(b.tourId) }}</td>
                   <td class="px-4 py-3.5 text-sts-muted">{{ b.tourDate }}</td>
                   <td class="px-4 py-3.5">{{ b.adultsCount + b.childrenCount }}</td>
-                  <td class="money px-4 py-3.5 text-end font-semibold">€{{ b.totalEur }}</td>
+                  <td class="money px-4 py-3.5 text-end font-semibold">{{ formatMoney(b.totalPrice) }}</td>
                   <td class="px-5 py-3.5">
                     <span :class="`badge badge-${b.status}`">{{ b.status }}</span>
                   </td>

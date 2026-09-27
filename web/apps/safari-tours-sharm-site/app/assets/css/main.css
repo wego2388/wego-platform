@@ -1,0 +1,183 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource/playfair-display/400.css";
+@import "@fontsource/playfair-display/600.css";
+@import "@fontsource/playfair-display/700.css";
+@import "@fontsource/cairo/400.css";
+@import "@fontsource/cairo/600.css";
+@import "@fontsource/cairo/700.css";
+
+/* ── Brand tokens ──────────────────────────────────────────────────── */
+:root {
+  --sts-color-ocean:          #0A2342;
+  --sts-color-ocean-bright:   #1B4F8A;
+  --sts-color-coral:          #FF6B6B;
+  --sts-color-sand:           #C8A97E;
+  --sts-color-sand-soft:      #F0E6D3;
+  --sts-color-sunset:         #FF8C42;
+  --sts-color-palm:           #2D6A4F;
+
+  --sts-color-canvas:         #F7F4F0;
+  --sts-color-surface:        #FFFFFF;
+  --sts-color-ink:            #1A1A2E;
+  --sts-color-muted:          #6B7280;
+  --sts-color-border:         #E8E4DF;
+
+  --sts-color-success:        #0f7a3d;
+  --sts-color-success-soft:   #dcf5e4;
+  --sts-color-warning:        #8a5809;
+  --sts-color-warning-soft:   #fff1d8;
+  --sts-color-danger:         #b3261e;
+  --sts-color-danger-soft:    #fbdcd9;
+
+  /* override wego platform accent with brand primary */
+  --wego-color-accent:        #0A2342;
+  --wego-color-accent-soft:   #F0E6D3;
+
+  --sts-font-display:  "Playfair Display", ui-serif, Georgia, serif;
+  --sts-font-sans:     "Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif;
+  --sts-font-arabic:   "Cairo", "Tajawal", ui-sans-serif, system-ui, sans-serif;
+
+  --sts-ease:          cubic-bezier(0.4, 0, 0.2, 1);
+  --sts-ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --sts-radius-card:   12px;
+  --sts-radius-btn:    8px;
+}
+
+/* ── Dark mode ─────────────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sts-color-canvas:         #0F172A;
+    --sts-color-surface:        #1E293B;
+    --sts-color-ink:            #F1F5F9;
+    --sts-color-muted:          #94A3B8;
+    --sts-color-border:         #334155;
+  }
+}
+
+/* ── Base ──────────────────────────────────────────────────────────── */
+html {
+  background: var(--sts-color-canvas);
+  color: var(--sts-color-ink);
+  font-family: var(--sts-font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+[lang="ar"], [dir="rtl"] {
+  font-family: var(--sts-font-arabic);
+  line-height: 1.8;
+}
+
+/* ── Tailwind theme bridge ─────────────────────────────────────────── */
+@theme {
+  --color-sts-ocean:        var(--sts-color-ocean);
+  --color-sts-ocean-bright: var(--sts-color-ocean-bright);
+  --color-sts-coral:        var(--sts-color-coral);
+  --color-sts-sand:         var(--sts-color-sand);
+  --color-sts-sand-soft:    var(--sts-color-sand-soft);
+  --color-sts-sunset:       var(--sts-color-sunset);
+  --color-sts-palm:         var(--sts-color-palm);
+  --color-sts-canvas:       var(--sts-color-canvas);
+  --color-sts-surface:      var(--sts-color-surface);
+  --color-sts-ink:          var(--sts-color-ink);
+  --color-sts-muted:        var(--sts-color-muted);
+  --color-sts-border:       var(--sts-color-border);
+  --color-sts-success:      var(--sts-color-success);
+  --color-sts-success-soft: var(--sts-color-success-soft);
+  --color-sts-warning:      var(--sts-color-warning);
+  --color-sts-warning-soft: var(--sts-color-warning-soft);
+  --color-sts-danger:       var(--sts-color-danger);
+  --color-sts-danger-soft:  var(--sts-color-danger-soft);
+  --font-display:           var(--sts-font-display);
+  --font-sans:              var(--sts-font-sans);
+  --font-arabic:            var(--sts-font-arabic);
+}
+
+/* ── Hero section ──────────────────────────────────────────────────── */
+.sts-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 15% 20%, rgb(255 107 107 / 0.18), transparent 38%),
+    radial-gradient(circle at 85% 5%,  rgb(200 169 126 / 0.20), transparent 36%),
+    linear-gradient(160deg, var(--sts-color-ocean) 0%, #0D2E52 60%, #0A2342 100%);
+  color: #ffffff;
+}
+
+/* subtle noise overlay */
+.sts-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0.4;
+}
+
+/* ── Scroll reveal ─────────────────────────────────────────────────── */
+.reveal-transition {
+  transition:
+    opacity  0.6s var(--sts-ease),
+    transform 0.6s var(--sts-ease);
+}
+.reveal-hidden {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* ── Card hover lift ───────────────────────────────────────────────── */
+.hover-lift {
+  transition:
+    transform   0.3s var(--sts-ease),
+    box-shadow  0.3s var(--sts-ease);
+}
+.hover-lift:hover,
+.hover-lift:focus-within {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgb(10 35 66 / 0.14);
+}
+
+/* ── Skip link ─────────────────────────────────────────────────────── */
+.sts-skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 1rem;
+  z-index: 100;
+  background: var(--sts-color-ocean);
+  color: #fff;
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--sts-radius-btn);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+.sts-skip-link:focus {
+  left: 1rem;
+}
+
+/* ── WhatsApp FAB ──────────────────────────────────────────────────── */
+.wa-fab {
+  transition: transform 0.25s var(--sts-ease-spring), box-shadow 0.25s var(--sts-ease);
+}
+.wa-fab:hover {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 12px 32px rgb(37 211 102 / 0.35);
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+  .reveal-hidden {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .hover-lift:hover,
+  .hover-lift:focus-within {
+    transform: none !important;
+  }
+  .sts-hero::after { display: none; }
+}

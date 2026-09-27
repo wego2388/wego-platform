@@ -10,8 +10,13 @@ import {
 import {
   listBookings,
   listTours,
+  addMoney,
+  divideMoney,
+  formatMoney,
+  moneyToMinorUnits,
   ToursApiError,
   type Booking,
+  type Money,
   type Tour,
   PAGE_SIZE,
 } from "../composables/useToursApi";
@@ -47,23 +52,27 @@ const confirmedBookings = computed(() =>
 );
 
 const totalRevenue = computed(() =>
-  confirmedBookings.value.reduce((sum, b) => sum + parseFloat(b.totalEur), 0),
+  addMoney(confirmedBookings.value.map((b) => b.totalPrice)),
 );
 
 const revenueByTour = computed(() => {
-  const map: Record<string, { tour: Tour | null; count: number; total: number }> = {};
+  const map: Record<string, { tour: Tour | null; count: number; total: Money }> = {};
   for (const b of confirmedBookings.value) {
     if (!map[b.tourId]) {
       map[b.tourId] = {
         tour: tours.value.find((t) => t.id === b.tourId) ?? null,
         count: 0,
-        total: 0,
+        total: { amount: "0.00", currencyCode: b.totalPrice.currencyCode },
       };
     }
     map[b.tourId]!.count++;
-    map[b.tourId]!.total += parseFloat(b.totalEur);
+    map[b.tourId]!.total = addMoney([map[b.tourId]!.total, b.totalPrice]);
   }
-  return Object.values(map).sort((a, b) => b.total - a.total);
+  return Object.values(map).sort((a, b) => {
+    const aUnits = moneyToMinorUnits(a.total);
+    const bUnits = moneyToMinorUnits(b.total);
+    return aUnits === bUnits ? 0 : aUnits > bUnits ? -1 : 1;
+  });
 });
 
 const statusSummary = computed(() => {
@@ -77,10 +86,6 @@ const statusSummary = computed(() => {
 const paxTotal = computed(() =>
   confirmedBookings.value.reduce((sum, b) => sum + b.adultsCount + b.childrenCount, 0),
 );
-
-function formatEur(amount: number): string {
-  return new Intl.NumberFormat("en-EU", { style: "currency", currency: "EUR" }).format(amount);
-}
 
 function handleApiError(err: unknown) {
   if (err instanceof ToursApiError && err.status === 401) {
@@ -176,7 +181,7 @@ onMounted(() => {
               v-model="filterFrom"
               type="date"
               class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2.5 text-sm focus:outline-sts-gold"
-            />
+            >
           </div>
           <div class="flex flex-col gap-1">
             <label class="text-xs font-semibold text-sts-muted" for="fin-to">To</label>
@@ -185,7 +190,7 @@ onMounted(() => {
               v-model="filterTo"
               type="date"
               class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2.5 text-sm focus:outline-sts-gold"
-            />
+            >
           </div>
           <WegoButton type="button" variant="primary" size="sm" @click="applyFilters">
             Apply
@@ -201,7 +206,7 @@ onMounted(() => {
           <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
               <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Revenue</p>
-              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ formatEur(totalRevenue) }}</p>
+              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ formatMoney(totalRevenue) }}</p>
               <p class="mt-0.5 text-xs text-sts-muted">confirmed + completed</p>
             </div>
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
@@ -217,7 +222,7 @@ onMounted(() => {
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
               <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Avg / booking</p>
               <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">
-                {{ confirmedBookings.length > 0 ? formatEur(totalRevenue / confirmedBookings.length) : '—' }}
+                {{ confirmedBookings.length > 0 ? formatMoney(divideMoney(totalRevenue, confirmedBookings.length)) : '—' }}
               </p>
               <p class="mt-0.5 text-xs text-sts-muted">confirmed + completed</p>
             </div>
@@ -257,7 +262,7 @@ onMounted(() => {
                   </dt>
                   <dd class="flex items-center gap-3 shrink-0">
                     <span class="text-xs text-sts-muted">{{ row.count }} bookings</span>
-                    <span class="money font-semibold">{{ formatEur(row.total) }}</span>
+                    <span class="money font-semibold">{{ formatMoney(row.total) }}</span>
                   </dd>
                 </div>
               </dl>

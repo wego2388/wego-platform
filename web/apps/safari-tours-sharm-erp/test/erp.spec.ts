@@ -1,5 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import {
+  addMoney,
+  divideMoney,
+  formatMoney,
+  moneyToMinorUnits,
   ToursApiError,
   type Booking,
   type Tour,
@@ -87,11 +91,11 @@ describe("ToursApiError", () => {
 // ── Booking status transitions (domain logic) ──────────────────────────────
 
 describe("Booking status logic", () => {
-  const NEW_BOOKING: Partial<Booking> = { status: "NEW" };
-  const CONFIRMED_BOOKING: Partial<Booking> = { status: "CONFIRMED" };
-  const COMPLETED_BOOKING: Partial<Booking> = { status: "COMPLETED" };
-  const CANCELLED_BOOKING: Partial<Booking> = { status: "CANCELLED" };
-  const EXPIRED_BOOKING: Partial<Booking> = { status: "EXPIRED" };
+  const _NEW_BOOKING: Partial<Booking> = { status: "NEW" };
+  const _CONFIRMED_BOOKING: Partial<Booking> = { status: "CONFIRMED" };
+  const _COMPLETED_BOOKING: Partial<Booking> = { status: "COMPLETED" };
+  const _CANCELLED_BOOKING: Partial<Booking> = { status: "CANCELLED" };
+  const _EXPIRED_BOOKING: Partial<Booking> = { status: "EXPIRED" };
 
   function canConfirm(status: BookingStatus): boolean {
     return status === "NEW";
@@ -134,41 +138,119 @@ describe("Tour data shape", () => {
     slug: "desert-quad-bike",
     category: "DESERT",
     durationText: "4 hours",
-    priceAdultCents: 3500,
-    priceChildCents: 1750,
+    priceAdult: { amount: "35.00", currencyCode: "EUR" },
+    priceChild: { amount: "17.50", currencyCode: "EUR" },
     capacity: 20,
     availableTimeSlots: ["MORNING", "SUNSET"],
     sortOrder: 1,
     isActive: true,
-    createdAt: "2026-01-01T00:00:00Z",
   };
 
   it("tour has required fields", () => {
     expect(TOUR.slug).toBeTruthy();
     expect(TOUR.category).toBe("DESERT");
-    expect(TOUR.priceAdultCents).toBeGreaterThan(0);
+    expect(moneyToMinorUnits(TOUR.priceAdult)).toBeGreaterThan(0n);
     expect(TOUR.capacity).toBeGreaterThan(0);
   });
 
   it("price formatting: 3500 cents = 35.00 EUR", () => {
-    const formatted = new Intl.NumberFormat("en-EU", {
-      style: "currency",
-      currency: "EUR",
-    }).format(TOUR.priceAdultCents / 100);
-    expect(formatted).toContain("35");
+    expect(formatMoney(TOUR.priceAdult)).toBe("€35");
   });
 
   it("child price can be null for adult-only tours", () => {
-    const adultOnly: Tour = { ...TOUR, priceChildCents: null };
-    expect(adultOnly.priceChildCents).toBeNull();
+    const adultOnly: Tour = { ...TOUR, priceChild: null };
+    expect(adultOnly.priceChild).toBeNull();
+  });
+});
+
+// ── Customer derivation ────────────────────────────────────────────────────
+
+describe("Customer derivation from bookings", () => {
+  function buildCustomers(bookings: Array<{
+    customer: { fullName: string; phone: string; nationality: string; email: string | null };
+    tourDate: string;
+    totalPrice: { amount: string; currencyCode: string };
+  }>) {
+    const map = new Map<string, {
+      fullName: string; phone: string; nationality: string;
+      bookingCount: number; lastBooking: string;
+      totalSpent: { amount: string; currencyCode: string };
+    }>();
+    for (const b of bookings) {
+      const key = b.customer.phone;
+      const existing = map.get(key);
+      if (existing) {
+        existing.bookingCount++;
+        existing.totalSpent = addMoney([existing.totalSpent, b.totalPrice]);
+        if (b.tourDate > existing.lastBooking) existing.lastBooking = b.tourDate;
+      } else {
+        map.set(key, {
+          fullName: b.customer.fullName,
+          phone: b.customer.phone,
+          nationality: b.customer.nationality,
+          bookingCount: 1,
+          lastBooking: b.tourDate,
+          totalSpent: b.totalPrice,
+        });
+      }
+    }
+    return [...map.values()];
+  }
+
+  it("merges multiple bookings for the same phone number", () => {
+    const bookings = [
+      { customer: { fullName: "Anna S.", phone: "+7900111", nationality: "RU", email: null }, tourDate: "2026-10-01", totalPrice: { amount: "70.00", currencyCode: "EUR" } },
+      { customer: { fullName: "Anna S.", phone: "+7900111", nationality: "RU", email: null }, tourDate: "2026-10-05", totalPrice: { amount: "50.00", currencyCode: "EUR" } },
+    ];
+    const customers = buildCustomers(bookings);
+    expect(customers.length).toBe(1);
+    expect(customers[0]!.bookingCount).toBe(2);
+    expect(customers[0]!.totalSpent).toEqual({ amount: "120.00", currencyCode: "EUR" });
+    expect(customers[0]!.lastBooking).toBe("2026-10-05");
+  });
+
+  it("creates separate entries for different phone numbers", () => {
+    const bookings = [
+      { customer: { fullName: "Ali M.", phone: "+201001", nationality: "EG", email: null }, tourDate: "2026-10-01", totalPrice: { amount: "35.00", currencyCode: "EUR" } },
+      { customer: { fullName: "Bob K.", phone: "+441234", nationality: "GB", email: null }, tourDate: "2026-10-02", totalPrice: { amount: "70.00", currencyCode: "EUR" } },
+    ];
+    const customers = buildCustomers(bookings);
+    expect(customers.length).toBe(2);
+  });
+});
+
+// ── Notification helpers ────────────────────────────────────────────────────
+
+describe("Notification time ago", () => {
+  function timeAgo(iso: string, nowMs: number): string {
+    const diff = Math.floor((nowMs - new Date(iso).getTime()) / 1000);
+    if (diff < 60)    return `${diff}s ago`;
+    if (diff < 3600)  return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return new Date(iso).toLocaleDateString();
+  }
+
+  it("shows seconds for < 1 minute", () => {
+    const now = Date.now();
+    expect(timeAgo(new Date(now - 30000).toISOString(), now)).toBe("30s ago");
+  });
+
+  it("shows minutes for < 1 hour", () => {
+    const now = Date.now();
+    expect(timeAgo(new Date(now - 5 * 60 * 1000).toISOString(), now)).toBe("5m ago");
+  });
+
+  it("shows hours for < 1 day", () => {
+    const now = Date.now();
+    expect(timeAgo(new Date(now - 2 * 3600 * 1000).toISOString(), now)).toBe("2h ago");
   });
 });
 
 // ── Finance helpers ────────────────────────────────────────────────────────
 
 describe("Finance revenue calculation", () => {
-  const makeBooking = (status: BookingStatus, totalEur: string): Partial<Booking> => ({
-    status, totalEur, adultsCount: 2, childrenCount: 1,
+  const makeBooking = (status: BookingStatus, amount: string): Partial<Booking> => ({
+    status, totalPrice: { amount, currencyCode: "EUR" }, adultsCount: 2, childrenCount: 1,
   });
 
   it("counts only CONFIRMED and COMPLETED bookings as revenue", () => {
@@ -182,19 +264,19 @@ describe("Finance revenue calculation", () => {
     const confirmed = bookings.filter(
       (b) => b.status === "CONFIRMED" || b.status === "COMPLETED",
     );
-    const total = confirmed.reduce((sum, b) => sum + parseFloat(b.totalEur!), 0);
+    const total = addMoney(confirmed.map((b) => b.totalPrice!));
     expect(confirmed.length).toBe(2);
-    expect(total).toBeCloseTo(200.0);
+    expect(total).toEqual({ amount: "200.00", currencyCode: "EUR" });
   });
 
   it("calculates average per booking correctly", () => {
     const confirmed = [
-      { totalEur: "120.00" },
-      { totalEur: "80.00" },
+      { totalPrice: { amount: "120.00", currencyCode: "EUR" } },
+      { totalPrice: { amount: "80.00", currencyCode: "EUR" } },
     ];
-    const total = confirmed.reduce((sum, b) => sum + parseFloat(b.totalEur), 0);
-    const avg   = total / confirmed.length;
-    expect(avg).toBeCloseTo(100.0);
+    const total = addMoney(confirmed.map((b) => b.totalPrice));
+    const avg = divideMoney(total, confirmed.length);
+    expect(avg).toEqual({ amount: "100.00", currencyCode: "EUR" });
   });
 });
 

@@ -31,8 +31,8 @@ const loadError = ref("");
 const today      = new Date();
 const weekStart  = ref(getMonday(today));
 
-const canManage = computed(() => hasPermission(session.value, "tours-operator.slot:manage"));
-const canView   = computed(() => hasPermission(session.value, "tours-operator.tour:view"));
+const _canManage = computed(() => hasPermission(session.value, "tours-operator.slot:manage"));
+const _canView   = computed(() => hasPermission(session.value, "tours-operator.tour:view"));
 
 const tourId = computed(() => String(route.params.id));
 
@@ -180,11 +180,11 @@ onMounted(() => {
 
       <!-- Legend -->
       <div class="mt-3 flex flex-wrap gap-3 text-xs">
-        <span class="flex items-center gap-1.5"><span class="inline-block h-3 w-3 rounded bg-sts-success-soft"></span>Available</span>
-        <span class="flex items-center gap-1.5"><span class="inline-block h-3 w-3 rounded bg-yellow-50 border border-yellow-200"></span>≤3 seats</span>
-        <span class="flex items-center gap-1.5"><span class="inline-block h-3 w-3 rounded bg-sts-warning-soft"></span>Full</span>
-        <span class="flex items-center gap-1.5"><span class="inline-block h-3 w-3 rounded bg-sts-danger-soft"></span>Blocked</span>
-        <span class="flex items-center gap-1.5"><span class="inline-block h-3 w-3 rounded bg-sts-canvas border border-sts-border"></span>No slot</span>
+        <span class="flex items-center gap-1.5"><span class="inline-block h-3 w-3 rounded bg-sts-success-soft"/>Available</span>
+        <span class="flex items-center gap-1.5"><span class="inline-block h-3 w-3 rounded bg-yellow-50 border border-yellow-200"/>≤3 seats</span>
+        <span class="flex items-center gap-1.5"><span class="inline-block h-3 w-3 rounded bg-sts-warning-soft"/>Full</span>
+        <span class="flex items-center gap-1.5"><span class="inline-block h-3 w-3 rounded bg-sts-danger-soft"/>Blocked</span>
+        <span class="flex items-center gap-1.5"><span class="inline-block h-3 w-3 rounded bg-sts-canvas border border-sts-border"/>No slot</span>
       </div>
 
       <!-- Loading -->

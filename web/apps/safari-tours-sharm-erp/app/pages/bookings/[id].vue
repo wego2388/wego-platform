@@ -12,6 +12,7 @@ import {
   confirmBooking,
   completeBooking,
   getBooking,
+  formatMoney,
   ToursApiError,
   type Booking,
 } from "../../composables/useToursApi";
@@ -246,7 +247,7 @@ onMounted(() => {
               </div>
               <div class="flex justify-between gap-4 border-t border-sts-border pt-2">
                 <dt class="text-sts-muted shrink-0">Total</dt>
-                <dd class="money font-bold text-base">€{{ booking.totalEur }}</dd>
+                <dd class="money font-bold text-base">{{ formatMoney(booking.totalPrice) }}</dd>
               </div>
               <div class="flex justify-between gap-4 border-t border-sts-border pt-2">
                 <dt class="text-sts-muted shrink-0">Created</dt>
@@ -282,7 +283,8 @@ onMounted(() => {
               <div class="flex justify-between gap-4">
                 <dt class="text-sts-muted shrink-0">Phone</dt>
                 <dd>
-                  <a :href="`tel:${booking.customer.phone}`"
+                  <a
+:href="`tel:${booking.customer.phone}`"
                     class="phone text-sts-ocean underline underline-offset-2">
                     {{ booking.customer.phone }}
                   </a>

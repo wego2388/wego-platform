@@ -1,9 +1,9 @@
 # Sharm To Go design source
 
-This directory is the repository-owned design handoff for the public site and
-operations dashboard. A Figma file may mirror it, but it cannot silently become
-the only source of product states, accessibility rules, content meaning or
-payment behavior.
+This directory is the repository-owned design handoff for the public site,
+operations dashboard and dedicated customer mobile app. A Figma file may mirror
+it, but it cannot silently become the only source of product states,
+accessibility rules, content meaning or payment behavior.
 
 ## Read in this order
 

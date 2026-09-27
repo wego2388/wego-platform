@@ -76,6 +76,11 @@ tags:
       discarded; a cash-disbursement entry, once wages are actually
       transferred, is posted separately through Accounting's own journal
       endpoint.
+  - name: ToursOperator
+    description: >-
+      Safari Tours Sharm public catalog and booking lifecycle. Public reads
+      and booking intake are explicitly unauthenticated; staff lifecycle and
+      customer-list operations require namespaced tours-operator permissions.
 paths:
   /actuator/health:
     get:
@@ -3916,6 +3921,423 @@ paths:
           $ref: "#/components/responses/UnauthenticatedResponse"
         "403":
           $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/tours-operator/tours:
+    get:
+      operationId: listToursOperatorTours
+      summary: List tours
+      tags:
+        - ToursOperator
+      security: []
+      parameters:
+        - name: category
+          in: query
+          schema:
+            $ref: "#/components/schemas/ToursOperatorCategory"
+        - name: activeOnly
+          in: query
+          schema:
+            type: boolean
+            default: true
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+      responses:
+        "200":
+          description: Tours visible under the requested filters.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ToursOperatorTourResponse"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+  /api/v1/tours-operator/tours/{id}:
+    get:
+      operationId: getToursOperatorTour
+      summary: Get a tour by id
+      tags:
+        - ToursOperator
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Tour details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorTourResponse"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "404":
+          description: Tour not found.
+  /api/v1/tours-operator/tours/by-slug:
+    get:
+      operationId: getToursOperatorTourBySlug
+      summary: Get a tour by public slug
+      tags:
+        - ToursOperator
+      security: []
+      parameters:
+        - name: slug
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-z0-9][a-z0-9-]{1,78}[a-z0-9]$"
+      responses:
+        "200":
+          description: Tour details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorTourResponse"
+        "404":
+          description: Tour not found.
+  /api/v1/tours-operator/tours/{tourId}/slots:
+    get:
+      operationId: listToursOperatorAvailableSlots
+      summary: List available slots in a date range
+      tags:
+        - ToursOperator
+      security: []
+      parameters:
+        - name: tourId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Available slots in the inclusive range.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ToursOperatorSlotResponse"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+  /api/v1/tours-operator/tours/{tourId}/slots/by-date:
+    get:
+      operationId: listToursOperatorSlotsByDate
+      summary: List a tour's slots for one date
+      tags:
+        - ToursOperator
+      security: []
+      parameters:
+        - name: tourId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Slots on the requested date.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ToursOperatorSlotResponse"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+  /api/v1/tours-operator/bookings:
+    post:
+      operationId: createToursOperatorBooking
+      summary: Create a temporary public booking
+      description: >-
+        Creates a NEW booking and reserves capacity. It is not payment
+        confirmation and must never be presented as CONFIRMED.
+      tags:
+        - ToursOperator
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateToursOperatorBookingRequest"
+      responses:
+        "201":
+          description: NEW booking created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorBookingResponse"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "404":
+          description: Slot not found.
+        "409":
+          description: Slot blocked/full or tour inactive.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorErrorResponse"
+    get:
+      operationId: listToursOperatorBookings
+      summary: List bookings for staff
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tourId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/ToursOperatorBookingStatus"
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Staff-visible bookings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ToursOperatorBookingResponse"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/tours-operator/bookings/lookup:
+    get:
+      operationId: lookupToursOperatorBooking
+      summary: Recover a booking by reference and phone
+      description: >-
+        Public recovery endpoint. The phone is a knowledge factor, not a
+        staff identity; rate limiting and enumeration protection are required
+        before production launch.
+      tags:
+        - ToursOperator
+      security: []
+      parameters:
+        - name: reference
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: "^STR-[0-9]{4}-[0-9]+$"
+        - name: phone
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 32
+      responses:
+        "200":
+          description: Matching booking.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorBookingResponse"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "404":
+          description: No matching booking.
+  /api/v1/tours-operator/bookings/{id}:
+    get:
+      operationId: getToursOperatorBooking
+      summary: Get a booking for staff
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Booking details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorBookingResponse"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Booking not found.
+  /api/v1/tours-operator/bookings/{id}/confirm:
+    post:
+      operationId: confirmToursOperatorBooking
+      summary: Confirm a paid booking
+      description: Internal/staff operation until Paymob webhook handling owns it.
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Confirmed booking; replaying an already-confirmed transition is safe.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorBookingResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Booking not found.
+        "409":
+          description: Booking cannot be confirmed from its current state.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorErrorResponse"
+  /api/v1/tours-operator/bookings/{id}/cancel:
+    post:
+      operationId: cancelToursOperatorBooking
+      summary: Cancel a booking
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelToursOperatorBookingRequest"
+      responses:
+        "200":
+          description: Cancelled booking.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorBookingResponse"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Booking not found.
+        "409":
+          description: Booking is already cancelled or cannot be cancelled.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorErrorResponse"
+  /api/v1/tours-operator/bookings/{id}/complete:
+    post:
+      operationId: completeToursOperatorBooking
+      summary: Mark a confirmed booking completed
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Completed booking.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorBookingResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Booking not found.
+        "409":
+          description: Booking cannot be completed from its current state.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorErrorResponse"
 components:
   securitySchemes:
     bearerAuth:
@@ -3958,6 +4380,12 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/LoginError"
+    ToursOperatorValidationResponse:
+      description: Malformed or domain-invalid tours-operator request.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ValidationErrorResponse"
   parameters:
     CorrelationIdHeader:
       name: X-Correlation-Id
@@ -4185,13 +4613,317 @@ components:
       properties:
         amount:
           type: string
-          pattern: "^\\d{1,8}\\.\\d{2}$"
+          pattern: "^\\d{1,17}\\.\\d{2}$"
           description: >-
             Decimal string with exactly 2 places, e.g. "45.00" — never a
             binary float, never a different scale.
         currencyCode:
           type: string
           pattern: "^[A-Z]{3}$"
+    ToursOperatorCategory:
+      type: string
+      enum:
+        - DESERT
+        - SEA
+        - CULTURAL
+        - SHOWS
+        - TRANSFERS
+    ToursOperatorTimeSlot:
+      type: string
+      enum:
+        - SUNRISE
+        - MORNING
+        - AFTERNOON
+        - SUNSET
+    ToursOperatorBookingStatus:
+      type: string
+      enum:
+        - NEW
+        - CONFIRMED
+        - COMPLETED
+        - CANCELLED
+        - EXPIRED
+    ToursOperatorTourResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - slug
+        - category
+        - durationText
+        - priceAdult
+        - priceChild
+        - capacity
+        - availableTimeSlots
+        - sortOrder
+        - isActive
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        category:
+          $ref: "#/components/schemas/ToursOperatorCategory"
+        durationText:
+          type: string
+        priceAdult:
+          $ref: "#/components/schemas/Money"
+        priceChild:
+          anyOf:
+            - $ref: "#/components/schemas/Money"
+            - type: "null"
+        capacity:
+          type: integer
+          minimum: 1
+        availableTimeSlots:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/ToursOperatorTimeSlot"
+        sortOrder:
+          type: integer
+          minimum: 0
+        isActive:
+          type: boolean
+    ToursOperatorSlotResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - tourId
+        - date
+        - timeSlot
+        - capacity
+        - bookedCount
+        - available
+        - isBlocked
+      properties:
+        id:
+          type: string
+          format: uuid
+        tourId:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        timeSlot:
+          $ref: "#/components/schemas/ToursOperatorTimeSlot"
+        capacity:
+          type: integer
+          minimum: 1
+        bookedCount:
+          type: integer
+          minimum: 0
+        available:
+          type: integer
+          minimum: 0
+        isBlocked:
+          type: boolean
+    ToursOperatorCustomerRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - fullName
+        - phone
+        - nationality
+      properties:
+        fullName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 32
+        nationality:
+          type: string
+          pattern: "^[A-Z]{2}$"
+        email:
+          type: string
+          format: email
+          maxLength: 320
+    ToursOperatorCustomerResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - fullName
+        - phone
+        - nationality
+        - email
+      properties:
+        fullName:
+          type: string
+        phone:
+          type: string
+        nationality:
+          type: string
+          pattern: "^[A-Z]{2}$"
+        email:
+          anyOf:
+            - type: string
+              format: email
+            - type: "null"
+    CreateToursOperatorBookingRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - slotId
+        - adultsCount
+        - childrenCount
+        - customer
+        - hotelName
+        - locale
+      properties:
+        slotId:
+          type: string
+          format: uuid
+        adultsCount:
+          type: integer
+          minimum: 1
+        childrenCount:
+          type: integer
+          minimum: 0
+        customer:
+          $ref: "#/components/schemas/ToursOperatorCustomerRequest"
+        hotelName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        hotelRoom:
+          type: string
+          maxLength: 32
+        specialRequests:
+          type: string
+          maxLength: 4000
+        locale:
+          type: string
+          enum:
+            - en
+            - ar
+            - ru
+            - it
+    ToursOperatorBookingResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - reference
+        - tourId
+        - slotId
+        - tourDate
+        - timeSlot
+        - adultsCount
+        - childrenCount
+        - priceAdult
+        - priceChild
+        - totalPrice
+        - customer
+        - hotelName
+        - hotelRoom
+        - specialRequests
+        - locale
+        - status
+        - createdAt
+        - confirmedAt
+        - cancelledAt
+        - cancellationReason
+        - completedAt
+        - expiredAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        reference:
+          type: string
+          pattern: "^STR-[0-9]{4}-[0-9]+$"
+        tourId:
+          type: string
+          format: uuid
+        slotId:
+          type: string
+          format: uuid
+        tourDate:
+          type: string
+          format: date
+        timeSlot:
+          $ref: "#/components/schemas/ToursOperatorTimeSlot"
+        adultsCount:
+          type: integer
+          minimum: 1
+        childrenCount:
+          type: integer
+          minimum: 0
+        priceAdult:
+          $ref: "#/components/schemas/Money"
+        priceChild:
+          anyOf:
+            - $ref: "#/components/schemas/Money"
+            - type: "null"
+        totalPrice:
+          $ref: "#/components/schemas/Money"
+        customer:
+          $ref: "#/components/schemas/ToursOperatorCustomerResponse"
+        hotelName:
+          type: string
+        hotelRoom:
+          type:
+            - string
+            - "null"
+        specialRequests:
+          type:
+            - string
+            - "null"
+        locale:
+          type: string
+        status:
+          $ref: "#/components/schemas/ToursOperatorBookingStatus"
+        createdAt:
+          type: string
+          format: date-time
+        confirmedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        cancelledAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        cancellationReason:
+          type:
+            - string
+            - "null"
+        completedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        expiredAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+    CancelToursOperatorBookingRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - reason
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+    ToursOperatorErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
     CreateOfferingRequest:
       type: object
       additionalProperties: false

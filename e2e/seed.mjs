@@ -92,6 +92,48 @@ async function main() {
     } else {
       console.log("Padding offerings already present; skipped.");
     }
+
+    // ── tours-operator seed ───────────────────────────────────────────────────
+    // Seeds one active tour + one morning slot for Safari Tours Sharm E2E.
+    // The ERP frontend uses these for the tours/slots pages smoke test.
+    // Idempotent: ON CONFLICT DO NOTHING on both inserts.
+
+    const tourId = randomUUID();
+    const slotId = randomUUID();
+
+    // Compute next Monday (or today if Monday) as the slot date so the
+    // slot is always in the future during a test run.
+    const today = new Date();
+    const daysUntilMonday = (1 - today.getUTCDay() + 7) % 7 || 7;
+    const nextMonday = new Date(today);
+    nextMonday.setUTCDate(today.getUTCDate() + daysUntilMonday);
+    const slotDate = nextMonday.toISOString().slice(0, 10);
+
+    await client.query(
+      `INSERT INTO wego.tours_operator_tour
+         (id, slug, category, duration_text, price_adult_cents, price_child_cents,
+          capacity, available_time_slots, sort_order, is_active, created_by_user_id, created_at)
+       VALUES ($1, 'e2e-desert-quad-safari', 'DESERT', '4 hours', 3500, 1750,
+               10, 'MORNING', 1, true, $2, now())
+       ON CONFLICT (slug) DO NOTHING`,
+      [tourId, resolvedUserId],
+    );
+
+    // Resolve the actual tour id (may already exist from a previous seed run).
+    const { rows: tourRows } = await client.query(
+      `SELECT id FROM wego.tours_operator_tour WHERE slug = 'e2e-desert-quad-safari'`,
+    );
+    const resolvedTourId = tourRows[0].id;
+
+    await client.query(
+      `INSERT INTO wego.tours_operator_tour_slot
+         (id, tour_id, date, time_slot, capacity, booked_count, is_blocked, created_at)
+       VALUES ($1, $2, $3, 'MORNING', 10, 0, false, now())
+       ON CONFLICT (tour_id, date, time_slot) DO NOTHING`,
+      [slotId, resolvedTourId, slotDate],
+    );
+
+    console.log(`Seeded tours-operator tour (slug=e2e-desert-quad-safari, slot=${slotDate} MORNING).`);
   } finally {
     await client.end();
   }

@@ -13,7 +13,13 @@
 ## Engineering ready
 
 - [ ] API/state contract is versioned and authorization is named.
+- [ ] The selected client artifact contains only release-lock product code,
+      routes, permissions and migrations; its embedded lock digest is verified.
 - [ ] Server—not the browser—owns price, capacity and payment truth.
+- [ ] Public booking references grant no access; guest management and recovery
+      use the reviewed capability/verification contract.
+- [ ] PII minimization, access, retention and anonymization are approved before
+      the first schema that stores customer data.
 - [ ] Analytics contains no unnecessary contact or payment data.
 - [ ] Locale fallback and stale-translation behavior are defined.
 - [ ] Error messages have a safe customer action and an operator correlation path.
@@ -23,10 +29,13 @@
 
 - [ ] All automated gates and real-browser flows pass.
 - [ ] Content, service ownership, media rights, price and policy are approved.
-- [ ] Payment method is live-approved and verified with provider test cases.
-- [ ] Refund, reconciliation, callback failure and provider outage are rehearsed.
+- [ ] Every enabled online payment method is live-approved and verified with
+      provider test cases; a no-online-payment launch says so explicitly.
+- [ ] Refund, reconciliation, callback failure and provider outage are rehearsed
+      for every enabled payment method.
 - [ ] Retention, support access, backup/restore and incident paths are active.
-- [ ] The exact deployed client lock matches the reviewed lock.
+- [ ] The exact deployed artifact, embedded lock/digest and reviewed client lock
+      match, and cross-product route/table/permission absence is proven.
 
 ## Decision log template
 

@@ -2,7 +2,6 @@
 import { onMounted, ref } from "vue";
 import { WegoAlert, WegoButton, WegoInput } from "@wego/ui";
 import {
-  clearAuthSession,
   type AuthSession,
   writeAuthSession,
 } from "../composables/useAuthSession";

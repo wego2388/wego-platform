@@ -72,6 +72,14 @@
       "path": "products/payroll",
       "version": "0.1.0-SNAPSHOT",
       "capabilities": ["payroll.product-boundary"]
+    },
+    {
+      "id": "product.tours-operator",
+      "kind": "PRODUCT_MARKER",
+      "owner": "wego-tours-operator",
+      "path": "products/tours-operator",
+      "version": "0.1.0-SNAPSHOT",
+      "capabilities": ["tours-operator.product-boundary"]
     }
   ]
 }

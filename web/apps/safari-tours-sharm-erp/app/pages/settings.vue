@@ -3,7 +3,6 @@ import { onMounted, ref } from "vue";
 import { WegoAlert, WegoButton } from "@wego/ui";
 import {
   clearAuthSession,
-  hasPermission,
   readAuthSession,
   type AuthSession,
 } from "../composables/useAuthSession";
@@ -30,7 +29,7 @@ interface SettingsData {
 const settings = ref<SettingsData | null>(null);
 
 // Read-only for now (per Phase 4 spec)
-const canManage = ref(false); // future: hasPermission(session.value, "tours-operator.settings:manage")
+const _canManage = ref(false); // future: hasPermission(session.value, "tours-operator.settings:manage")
 
 function handleApiError(err: unknown) {
   if (err instanceof ToursApiError && err.status === 401) {

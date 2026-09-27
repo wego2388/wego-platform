@@ -8,8 +8,8 @@ Service detail
   → language, guests and add-ons
   → pickup and customer contact
   → price/policy review
-  → payment method
-  → provider-hosted payment where applicable
+  → payment method (only after its Phase 3 adapter is activated)
+  → provider-hosted payment where applicable; never an owned card form
   → verified result
 ```
 
@@ -28,11 +28,15 @@ always includes the amount or clearly says that payment follows confirmation.
 
 ## Confirmation modes
 
-| Mode | Customer wording | Payment timing |
-|---|---|---|
-| Instant | `Instant confirmation` | Full payment or approved deposit at checkout |
-| Manual | `Confirmation usually within …` | Payment link after confirmation by default |
-| On request | `We will contact you with availability` | No charge until an offer is accepted |
+| Mode | Launch status | Customer wording | Payment timing |
+|---|---|---|---|
+| `INSTANT` | Supported after Phase 2 | `Instant confirmation` | No online collection before Phase 3; then full payment or approved deposit at checkout |
+| `STAFF_REVIEW` | Supported after Phase 2 | `Confirmation usually within …` | No online collection before Phase 3; payment link after confirmation by default |
+| `ON_REQUEST` | Deferred | `We will contact you with availability` | Requires a separate quote/acceptance state model before implementation |
+
+`ON_REQUEST` must not be represented as an informal use of `NEW`. It becomes a
+separate packet only when quote versioning, expiry, acceptance, price changes
+and capacity policy are designed.
 
 ## Minimum customer fields
 
@@ -40,6 +44,18 @@ Name, one reachable contact, locale, party, selected option/date/time, pickup
 information required by that service, and explicit policy acceptance. Passport,
 date of birth or health data is absent unless a later service-specific legal and
 retention decision justifies it.
+
+## Manage-booking authorization
+
+The public booking reference is safe to display but grants no access. Guest
+management uses a high-entropy capability delivered once and stored only as a
+hash by the backend. It must not appear in logs, analytics, referrers, a URL path
+or a query string. The web client consumes it from a URL fragment and removes it
+from the visible URL immediately; native clients use platform secure storage.
+
+There is no reference-plus-contact lookup in the launch contract. Recovery
+requires a separately designed, generic-response, rate-limited OTP or equivalent
+verified channel.
 
 ## Prototype contract
 

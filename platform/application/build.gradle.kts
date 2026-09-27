@@ -46,6 +46,8 @@ kotlin {
             "../../products/hr/src/main/kotlin",
             "../../products/accounting/src/main/kotlin",
             "../../products/payroll/src/main/kotlin",
+            "../../products/travel-marketplace/src/main/kotlin",
+            "../../products/tours-operator/src/main/kotlin",
         )
     }
 }
@@ -178,6 +180,10 @@ tasks.withType<Test>().configureEach {
     // after the job regardless, so it has nothing to do there, and locally a
     // developer can `docker compose down`/`docker system prune` by hand.
     environment("TESTCONTAINERS_RYUK_DISABLED", "true")
+    // The suite now covers more products (travel-marketplace, tours-operator,
+    // hr, accounting, payroll) each spinning their own Testcontainers
+    // PostgreSQL instance — raise the heap from the default 512 m.
+    jvmArgs("-Xmx1536m")
 }
 
 tasks.named("check") {

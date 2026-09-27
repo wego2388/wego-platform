@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "clientId": "safari-tours-sharm",
+  "platformVersion": "0.1.0-SNAPSHOT",
+  "product": {
+    "id": "wego-tours-operator",
+    "version": "0.1.0"
+  },
+  "contractVersions": {
+    "httpApi": "v1"
+  },
+  "modules": [
+    {
+      "id": "platform.events",
+      "version": "0.1.0-SNAPSHOT"
+    },
+    {
+      "id": "platform.identity",
+      "version": "0.1.0-SNAPSHOT"
+    },
+    {
+      "id": "platform.security",
+      "version": "0.1.0-SNAPSHOT"
+    },
+    {
+      "id": "product.tours-operator",
+      "version": "0.1.0-SNAPSHOT"
+    }
+  ],
+  "manifestDigests": {
+    "client": "aa26b7427e9427977e221ec97f910498c02d75068dae674a3a1bc757d40bcaf0",
+    "product": "883ec2689e954245fd4f714427bf083c8f5ef5f74acc3561a005126ccde0c37f",
+    "moduleCatalog": "1d0e74b9935008d13a179cce88dcaf094e2a1a514f90e1c40a12314956d1b3cb"
+  }
+}

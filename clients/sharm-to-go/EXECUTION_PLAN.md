@@ -1,127 +1,134 @@
 # Sharm To Go execution plan
 
-Exactly one packet is active at a time. Each phase below becomes an authorized
-packet only after the prior phase has executable evidence and the owner approves
-the business decisions it needs.
+Exactly one authorized packet is active at a time. Each phase below is split
+into smaller packets in `TECHNICAL_EXECUTION_PLAN.md`; Claude must start there
+for scope, acceptance tests, owner gates, and handoff requirements.
 
-**See `TECHNICAL_EXECUTION_PLAN.md`** for the full engineering-detail version
-of every phase below — real schema, real endpoints, real screens across
-website/dashboard/mobile app, and the architecture decision to build a new
-dedicated mobile app (`mobile/apps/sharm-to-go`) reusing Sharm Divers Club's
-proven app architecture, not its content. Added 2026-08-30 at the owner's
-request; this file stays the short overview, that file is where a session
-picking up a phase should actually start reading.
+**Planning status, reviewed 2026-08-30:** WEGO-010-A remains `PAUSED` while
+WEGO-011 is the sole `ACTIVE` packet. This file does not authorize a board
+change, implementation, commit, push, deployment, or production access.
 
 ## Phase 0 — composition and honest UI foundation
 
-- Multi-product/client Foundry discovery and deterministic locks.
-- Travel Marketplace product boundary and isolated Sharm To Go profile.
-- Original ar/en public foundation and ar/en operations-readiness dashboard.
-- Marketplace responsibility, locale and content governance documentation.
-- Repo-owned design system, screen inventory and interactive booking/payment
-  prototype with no business or gateway connection.
-- Mobile app not started in Phase 0 (added to this plan 2026-08-30) — Phase 1
-  is where it begins, as a new dedicated module, not a later add-on.
+Already built as planning/foundation output:
 
-Exit: both current clients compose independently; all builds/tests pass; no
-surface claims live inventory or deployment.
+- Foundry discovery, client/product manifests, and deterministic release locks;
+- the Travel Marketplace product boundary and isolated Sharm To Go profile;
+- original Arabic/English public and operations-readiness foundations;
+- product, responsibility, locale, content, design, booking, and payment docs;
+- repo-owned design tokens, screen inventory, and a non-transactional booking
+  prototype with no invented inventory or gateway connection.
 
-**Packet 0R (2026-09-02, self-verified, independent Tier 1 review
-outstanding):** the two clients now compose independently as real, separate,
-running backends (`platform/apps/sharm-to-go`, its own migrations, its own
-permission catalog), not only as Foundry manifests — see
-`TECHNICAL_EXECUTION_PLAN.md`'s own Packet 0R section and the WEGO-010-A
-execution-board entry for the full evidence.
+The mobile app was intentionally not started.
+
+### Packet 0R — required before Phase 1
+
+Repository review found that both product source trees are still compiled into
+one backend and all Flyway migrations still use one global location. Release
+locks currently prove metadata composition, not executable runtime isolation.
+
+0R must complete the outstanding Phase 0 Tier 1 review and make each client
+lock select exactly its product code, routes, permissions, and migrations. A
+fresh Sharm To Go deployment must contain no Divers table, permission, route,
+or bean, and the inverse must also be proven. Wrong or stale artifact/lock
+combinations must fail closed.
+
+Exit: both client artifacts build reproducibly from their checked-in locks,
+boot against real throwaway PostgreSQL, migrate only their selected product,
+and pass Foundry/repository checks plus independent Tier 1 review.
 
 ## Phase 1 — service catalog
 
-- Enter the first real categories and services through one reusable model.
-- Catalog/content/provider aggregates, Flyway schema and scoped permissions.
-- Draft/review/publish workflow with source/media rights and locale status.
-- Dashboard screens backed by real APIs; public list/detail backed only by
-  published facts.
-- New dedicated mobile app module (`mobile/apps/sharm-to-go`, real KMP
-  jvm/android/iOS targets, own real design tokens): Home + Experiences list +
-  Service Detail, published catalog shipped as bundled app data (no live
-  network call needed yet — see `TECHNICAL_EXECUTION_PLAN.md` for why that's
-  the right Phase 1 scope, not a shortcut).
+Phase 1 is not one large packet:
 
-Exit: one real approved service can be published and suspended with audit,
-without yet accepting a booking; the mobile app's catalog screens render the
-same real published services the website and dashboard show.
+1. **1A catalog backend:** OpenAPI, catalog/content/provider domain, product
+   migrations, least-privilege permissions, operations API, public projection,
+   publication readiness, audit, and deterministic public export.
+2. **1B operations dashboard:** documented secure browser session, login/route
+   guards, catalog editors, locale/media/provider workflows, and authorization.
+3. **1C public website:** SSR Arabic/English category and service list/detail
+   using published facts only. Catalog prices are labelled "from" and never
+   imply dated availability.
+4. **1D dedicated mobile catalog:** new KMP/Android app and a versioned,
+   generated public-catalog JSON snapshot. Published services are never copied
+   manually into Kotlin source.
+5. **1E publication rehearsal:** at least one real, owner-approved service moves
+   through publish and suspension across dashboard, website, API, and regenerated
+   mobile snapshot. Engineering uses synthetic fixtures until this packet.
 
-**Packet 1A (2026-09-02, self-verified; owner accepted that evidence):** the
-backend half of this phase is done — catalog/provider
-domain, schema, permissions, full staff CRUD + publish workflow, and the
-public projection, all proven live against a real database. Packet 1B's real
-staff dashboard, Packet 1C's public catalog list/detail, and Packet 1D's
-mobile catalog app are also implemented and self-verified. No real service
-has passed the publication rehearsal (1E) yet — see
-`TECHNICAL_EXECUTION_PLAN.md`'s Packet 1A section and the WEGO-010-A board
-entry for the full evidence.
+Exit: a complete real service can be published and suspended with source,
+translation, policy, provider, price, media-rights, audit, and cross-surface
+evidence, without accepting a booking.
 
-## Phase 2 — normal booking flow
+1E blocks real publication and an external pilot. If launch content is not ready,
+the owner may still authorize booking engineering with synthetic fixtures after
+1A–1D; no synthetic record may cross into a real environment.
 
-- Calendar/slots, capacity, price snapshot, customer details, idempotency and
-  simple `NEW → CONFIRMED → COMPLETED` lifecycle plus cancellation.
-- Instant confirmation for controlled availability; staff confirmation for
-  services that need a check. Provider workflow remains internal.
-- Customer checkout/manage pages and staff booking screens.
-- Mobile app's first real network integration: real checkout screens mirroring
-  the website's step order, guest checkout only (no account system yet).
-- Concurrency tests against real PostgreSQL and notification tasks without
-  making an external channel the workflow authority.
+## Phase 2 — availability and booking
 
-Exit: a booking cannot become `CONFIRMED` without current capacity and an
-immutable customer-visible price; no cross-client reads are possible; the
-mobile app can complete the same real booking the website can.
+Before any PII migration, Packet 2A fixes the privacy/retention policy, exact
+confirmation modes, capacity holds/expiry, timezone, guest management
+capability, and KMP networking/secure-storage design. Public booking reference
+alone is never authorization, and guest checkout does not imply an account.
 
-## Phase 3 — payment, refund and settlement
+Then separate packets deliver:
 
-- Paymob hosted checkout for enabled cards/wallets, Fawry reference-code option,
-  CIB settlement-account reconciliation, and service-level cash-on-arrival.
-- Money snapshots, provider callbacks, separate sensitive permissions, reasons,
-  reconciliation and refunds. Provider statements follow only when needed.
-- Mobile app gets the same hosted-checkout flow (provider-hosted payment page
-  in an in-app browser tab, never a card form built in-app — see
-  `PAYMENT_FOUNDATION.md`'s security boundary).
+- a capacity ledger/reservation model, immutable customer-visible snapshots,
+  idempotent guest create, `NEW → CONFIRMED → COMPLETED` plus cancellation and
+  expiry, and real PostgreSQL concurrency proof;
+- least-privilege staff booking queue, calendar, detail, and lifecycle actions;
+- equivalent website/mobile checkout and manage flows using a high-entropy,
+  hashed management capability and the same API contract.
 
-Exit: every money transition is idempotent, authorized, audited and reconciled;
-no payout is inferred from public price.
+Exit: a booking cannot reserve or confirm more than current capacity, cannot
+change its customer-visible snapshot, and cannot be read or changed using only
+a guessable public reference. PII is minimized, access-controlled, retained by
+an approved policy, and absent from logs/list projections.
 
-## Phase 4 — planner, saved/compare, reviews and locale expansion
+## Phase 3 — payment, refund, and reconciliation
 
-- Planner uses published catalog facts only.
-- Saved/compare and booking-eligible verified reviews.
-- Add public locales one at a time after parity and human approval.
-- Currency display only after rate-source/rounding/expiry policy.
-- Same features reach the mobile app once proven on web/dashboard first —
-  never launched mobile-first, so lessons from the web version's real usage
-  inform the mobile design instead of guessing twice.
+Payment is split into Tier 1 packets:
 
-## Phase 5 — operations and controlled launch
+1. provider-neutral payment intent/attempt/refund and hosted-redirect contracts;
+2. Paymob sandbox adapter;
+3. optional Fawry reference-code adapter when commercial inputs are ready;
+4. refund, service-level cash-on-arrival, and CIB settlement reconciliation.
 
-- Retention/consent, backups/restore, observability, support access, incident and
-  provider outage runbooks.
-- Accessibility, performance, SEO/schema metadata, content QA and launch smoke.
-- Isolated Sharm To Go deployment; no change to Sharm Divers deployment.
-- Real app-store listing (Google Play at minimum; App Store needs a Mac/CI
-  path this repository's current dev box doesn't have — same real constraint
-  already documented for the Sharm Divers Club mobile app).
+The browser/provider return is never payment truth. Webhooks verify raw
+signatures and amount/currency/merchant/order, deduplicate events, tolerate
+replay/out-of-order delivery, query provider state, redact payloads, and commit
+state plus outbox atomically. No card form is built in website or mobile.
+
+Exit: each activated money transition is idempotent, authorized, audited,
+reconciled, independently reviewed, and proven in sandbox. No payout or
+commission is inferred from public price.
+
+## Phase 4 — post-launch product increments
+
+Planner, saved/compare, reviews, and every locale/currency expansion are
+separate packets. The planner uses published facts and real availability only.
+Reviews require an eligible completed booking. Locale expansion follows measured
+Arabic/English parity and human approval; currency display requires a source,
+rounding, refresh, and expiry policy.
+
+## Phase 5 — isolated deployment and controlled launch
+
+Separate packets cover isolated infrastructure, artifact/lock provenance,
+backup/restore and migration recovery, observability/SLOs/alerts, support and
+incident runbooks, privacy/retention enforcement, content/accessibility/SEO/
+performance/security gates, and signed store builds. Sharm To Go never shares
+the Sharm Divers deployment boundary by assumption.
+
+A deployment, store submission, or launch needs explicit owner authorization
+separate from implementation completion.
 
 ## Immediate owner inputs
 
-The next business packet needs one or more real service data sets using the
-eight simple fields in `SERVICE_OWNERSHIP.md` (template in
-`design/SERVICE_CONTENT_TEMPLATE.md`). Merchant sandbox credentials are
-needed only when Phase 3 starts and must never be committed to this repository.
-
-Packet 1D's mobile app used the already-established real facts for its name
-and icon (`client.manifest.json`'s `displayName`, `web/apps/sharm-to-go-site/
-public/favicon.svg`) rather than inventing new ones or blocking engineering
-work — the owner still needs to separately confirm the release identity
-(store listing name, `applicationId`, icon) before any store submission, and
-a decision on whether Sharm To Go's first dashboard staff accounts should be
-a role scoped separately from `platform-admin` — see
-`TECHNICAL_EXECUTION_PLAN.md`'s "What the owner supplies" section for the
-full list.
+- authorize resuming WEGO-010-A only after the current active packet closes;
+- provide approved real service templates and rights-cleared assets for 1E;
+- approve first staff users and least-privilege role matrix before 1B activation;
+- approve stable application id and public app name before 1D;
+- approve guest fields, consent, retention, booking confirmation/hold/cancel
+  policy, timezone, pickup, and recovery channel before Phase 2 persistence;
+- provide signed merchant terms and sandbox credentials only for each payment
+  adapter being activated. Credentials never enter this repository.

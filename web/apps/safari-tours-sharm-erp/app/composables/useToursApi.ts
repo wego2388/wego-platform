@@ -1,70 +1,26 @@
 // API client for the tours-operator product endpoints.
-// All paths are relative (/api/...) — Vite proxy in dev, Nginx in production.
-// Follows the same pattern as erp/app/composables/useDiversApi.ts.
+// API shapes are generated from the platform OpenAPI contract and shared with the public site.
+import type {
+  Booking,
+  BookingStatus,
+  Tour,
+  TourCategory,
+  TourSlot,
+} from "@wego/api-contract";
 
-export type TourCategory = "DESERT" | "SEA" | "CULTURAL" | "SHOWS" | "TRANSFERS";
-export type TimeSlot = "SUNRISE" | "MORNING" | "AFTERNOON" | "SUNSET";
-export type BookingStatus = "NEW" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "EXPIRED";
+export type {
+  Booking,
+  BookingCustomer,
+  BookingStatus,
+  Money,
+  TimeSlot,
+  Tour,
+  TourCategory,
+  TourSlot,
+} from "@wego/api-contract";
+export { addMoney, divideMoney, formatMoney, minorUnitsToMoney, moneyToMinorUnits } from "@wego/api-contract";
 
 export const PAGE_SIZE = 50;
-
-export interface Tour {
-  id: string;
-  slug: string;
-  category: TourCategory;
-  durationText: string;
-  priceAdultCents: number;
-  priceChildCents: number | null;
-  capacity: number;
-  availableTimeSlots: TimeSlot[];
-  sortOrder: number;
-  isActive: boolean;
-  createdAt: string;
-}
-
-export interface TourSlot {
-  id: string;
-  tourId: string;
-  date: string;       // ISO date — "2026-10-03"
-  timeSlot: TimeSlot;
-  capacity: number;
-  bookedCount: number;
-  available: number;  // computed: capacity - bookedCount
-  isBlocked: boolean;
-}
-
-export interface BookingCustomer {
-  fullName: string;
-  phone: string;
-  nationality: string; // ISO-2, e.g. "EG"
-  email: string | null;
-}
-
-export interface Booking {
-  id: string;
-  reference: string;   // STR-YYYY-NNNN  — public identifier
-  tourId: string;
-  slotId: string;
-  tourDate: string;
-  timeSlot: TimeSlot;
-  adultsCount: number;
-  childrenCount: number;
-  priceAdultEur: string;    // numeric string: "35.00"
-  priceChildEur: string | null;
-  totalEur: string;         // numeric string: "90.00"
-  customer: BookingCustomer;
-  hotelName: string;
-  hotelRoom: string | null;
-  specialRequests: string | null;
-  locale: string;
-  status: BookingStatus;
-  createdAt: string;
-  confirmedAt: string | null;
-  cancelledAt: string | null;
-  cancellationReason: string | null;
-  completedAt: string | null;
-  expiredAt: string | null;
-}
 
 /** Carries the API's own error code so callers can render a specific message. */
 export class ToursApiError extends Error {

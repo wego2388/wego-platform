@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "clientId": "safari-tours-sharm",
+  "displayName": "Safari Tours Sharm",
+  "product": {
+    "id": "wego-tours-operator",
+    "version": "0.1.0"
+  },
+  "organization": {
+    "timezone": "Africa/Cairo",
+    "defaultLocale": "en",
+    "supportedLocales": ["en", "ru", "ar", "it"],
+    "currency": "EUR"
+  },
+  "experienceProfiles": ["STANDARD"],
+  "deploymentIsolation": "ISOLATED_INSTANCE"
+}
