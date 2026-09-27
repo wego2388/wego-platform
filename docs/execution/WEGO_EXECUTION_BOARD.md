@@ -2464,7 +2464,7 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
   - [x] Add and run `scripts/safari-tours-sharm-check.sh`; its first run found
     the stale release lock, which was regenerated and revalidated.
   - [x] Record independent risk-based review evidence and close A locally.
-  - [!] Commit and push `wego-016-safari-tours-baseline` for review only after explicit owner authorization.
+  - [x] Commit and push `wego-016-safari-tours-baseline` — done (2026-09-27, commit ae09026, owner authorized).
 - **NEXT SUB-PACKET:** WEGO-016-B — active below.
 
 ### 2026-09-27 — WEGO-016-B: OpenAPI contract + contract consumers
@@ -2531,11 +2531,9 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
   - [x] Real backend HTTP and frontend consumer tests added.
   - [x] Unified quality gate green with exact evidence above.
   - [x] Independent Tier 1 review from fresh context — zero blocking findings (2026-09-27, see review record below).
-  - [!] Commit/push only after explicit owner authorization.
-- **Status:** COMPLETE LOCALLY — awaiting owner authorization for commit/push.
-- **NEXT SUB-PACKET:** WEGO-016-C — `NOT STARTED`; activate only after commit/push authorization from owner.
-
-### 2026-09-27 — WEGO-016-B: Independent Tier 1 Review Record
+  - [x] Commit/push done — commit ae09026, branch `wego-016-safari-tours-baseline`, owner authorized (2026-09-27).
+- **Status:** COMPLETE
+- **NEXT SUB-PACKET:** WEGO-016-C — `NOT STARTED`; ready to activate on owner instruction.
 
 - **Reviewer:** Kiro (fresh context — did not implement this packet)
 - **Review date:** 2026-09-27 (Africa/Cairo)

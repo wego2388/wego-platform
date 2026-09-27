@@ -521,7 +521,7 @@ criteria وأدلة، ولا يبدأ packet تالٍ قبل إغلاق السا
 | الترتيب | Packet | الحالة | النطاق | Review |
 |---:|---|---|---|---|
 | 1 | WEGO-016-A | `COMPLETE LOCALLY` | Baseline rescue + Board + quality evidence | Tier 2 |
-| 2 | WEGO-016-B | `COMPLETE LOCALLY` | OpenAPI + generated/contract types + contract tests | Tier 1 — مكتمل بدون blocking findings (2026-09-27) |
+| 2 | WEGO-016-B | `COMPLETE` | OpenAPI + generated/contract types + contract tests | Tier 1 — مكتمل بدون blocking findings، commit ae09026 (2026-09-27) |
 | 3 | WEGO-016-C | `NOT STARTED` | Catalog: content model + Tour CRUD + slots + approved import | Tier 1 بسبب migration/permissions |
 | 4 | WEGO-016-D | `NOT STARTED` | Payment aggregate + Paymob + expiry + reconciliation | Tier 1 |
 | 5 | WEGO-016-E | `NOT STARTED` | Public checkout + Playwright E2E | Tier 1 بسبب payment/PII |
