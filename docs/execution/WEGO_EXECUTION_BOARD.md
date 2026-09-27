@@ -2399,3 +2399,23 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
   production build clean; repository invariants and `git diff --check` clean.
   No backend booking mutation, payment, production deployment or change to
   Sharm Divers Club was made in this preparation round.
+
+### 2026-09-27 — Complete agent delivery workbook added
+
+- Added `clients/sharm-to-go/delivery/` as the operational handoff authority:
+  current-state baseline, request/booking, ERP, marketing website, mobile,
+  vertical expansion, launch/operations and append-only acceptance/evidence
+  checklists.
+- Checkboxes have explicit semantics: `[x]` requires implementation, automated
+  verification and recorded evidence; created code or an untested expectation
+  stays `[ ]`. Every phase has dependency and exit gates so a future agent cannot
+  mark a surface complete while its backend/system-of-record dependency is not.
+- Corrected the stale 2026-09-03 `CLAUDE_HANDOFF.md`: Packet 1E/content decisions
+  and subsequent pricing/operating work are acknowledged, the old “1E is next”
+  claim is removed, and the next implementation points to the request/booking
+  checklist shared by website, ERP and mobile.
+- Verification: all nine workbook files exist; checklist inventory reports 37
+  already-proven permanent items and 207 open items/gates (session-safety boxes
+  intentionally reset for every agent); repository invariants and whitespace
+  checks pass. Documentation only — no runtime behavior or client isolation was
+  changed by this handoff packet.

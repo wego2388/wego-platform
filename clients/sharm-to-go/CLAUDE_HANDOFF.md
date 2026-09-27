@@ -1,10 +1,12 @@
 # Sharm To Go — continuation handoff
 
-Status refreshed: 2026-09-03 (Packet 1D and full Sharm service-gap research added).
+Status refreshed: 2026-09-27 (brand/conversion direction and delivery workbook).
 
 ## Start here
 
-1. Read `AGENTS.md`, `docs/ENGINEERING_CONSTITUTION.md`, and the WEGO-010-A
+1. Read [`delivery/README.md`](delivery/README.md) and
+   [`delivery/00_CURRENT_STATE.md`](delivery/00_CURRENT_STATE.md), then read
+   `AGENTS.md`, `docs/ENGINEERING_CONSTITUTION.md`, and the WEGO-010-A
    section of `docs/execution/WEGO_EXECUTION_BOARD.md`.
 2. Run `git status --short --branch` and `git worktree list`. Do not assume the
    checkout at `/home/wego/wego-platform` contains the latest Sharm To Go code.
@@ -36,19 +38,28 @@ Status refreshed: 2026-09-03 (Packet 1D and full Sharm service-gap research adde
   backend's current state. A real debug APK builds; class-string inspection of
   its dex files confirms zero Divers/customer classes.
 
-No production deployment, production data, external publication, live payment,
-or real service seeding has occurred.
+- Packet 1E/research follow-through: the 37 service concepts now carry
+  owner-directed Sharm To Go operation, EGP pricing, capacity, schedule, safety,
+  inclusions and cancellation decisions in the intake material. This is a
+  content/operations baseline, not proof of live availability or photo rights.
+- Marketing repositioning: `BRAND_AND_GROWTH_STRATEGY.md` and
+  `CONVERSION_DELIVERY_PLAN.md` supersede the old customer-facing
+  multi-provider-marketplace message. The website now has the approved story,
+  About/FAQ/Contact/Privacy/Terms routes and a real WhatsApp contact path.
+
+No production deployment, production customer data, live payment or external
+publication has occurred. Rights-cleared real photography and production
+availability remain launch gates.
 
 ## Next scope
 
-The next planned implementation packet is 1E: a real, owner-approved launch
-service published through the real workflow (Provider -> Category -> Service
--> options/media -> submit-for-review -> approve -> publish), proving every
-surface (backend, ERP, website, mobile) renders one real record identically.
-That needs at least one real service record with approved Arabic/English
-copy, price/policy/provider facts, and rights-cleared media. Synthetic
-fixtures may be used in engineering tests but must never be presented as real
-inventory.
+The next planned implementation packet is the request/booking foundation in
+[`delivery/01_REQUEST_AND_BOOKING.md`](delivery/01_REQUEST_AND_BOOKING.md): one
+durable public request/reference, safe lifecycle and immutable service/price
+snapshot, followed by the ERP queue, website conversion flow and mobile
+integration in checklist order. It must be implemented once in the backend and
+consumed by all three surfaces; WhatsApp stays a contextual human channel and
+never becomes the confirmation authority.
 
 The owner subsequently requested text-only research from Egyptra's Sharm
 listings. Start at `clients/sharm-to-go/content-research/README.md`. The earlier
@@ -56,30 +67,27 @@ listings. Start at `clients/sharm-to-go/content-research/README.md`. The earlier
 checked five result pages (123 returned cards, 122 unique source slugs), mapped
 the repeated listings into 23 additional concepts, and documented deliberate
 holds for dolphin experiences and for diving that belongs in the Sharm Divers
-Club ownership path. The resulting 37-concept research catalog is explicitly
-`RESEARCH_ONLY`: no source image, review, rating, or long marketing description
-was copied, EUR values are competitor snapshots rather than Sharm To Go prices,
-and operational conflicts are documented. Do not seed or publish these drafts.
-They help the owner interview real operators and complete the service intake
-template; they do not satisfy Packet 1E's approval gate.
+Club ownership path. The 37 concepts began as `RESEARCH_ONLY`; subsequent owner
+decisions supplied Sharm To Go EGP prices and operating parameters in the
+intake sheets. Competitor EUR snapshots, source images, reviews and copied long
+descriptions remain non-publishable references. A completed intake row still
+does not prove live date availability or image rights.
 
 Before any store release of the mobile app, the owner must separately confirm
 the release identity is final (Play Store listing name, `applicationId`
 `com.wego.mobile.sharmtogo`, and the launcher icon) — engineering work does
 not block on this, but a store submission does.
 
-Do not start booking/availability, payment, Dining, Accommodation, Car Rental,
-or WhatsApp automation inside Packet 1E. Those are separate later packets.
+Do not bundle payment, Dining, Accommodation, Car Rental or social automation
+into the request foundation. Their separate gates are in `delivery/`.
 
 ## Repository integration warning
 
-At this handoff the isolated branch has seven Sharm To Go commits based on
-main commit `4dbcb38`. The remote main line also contains later WEGO-012/013 work,
-and the primary worktree may contain local planning edits. Inspect both sides
-and preserve every unrelated change before any merge, rebase, or cherry-pick.
-Do not delete the isolated worktree or branch before its commits are integrated
-and verified. Commit, merge, push, and deployment still require explicit owner
-authorization.
+The earlier Sharm To Go packets have been integrated through multiple reviewed
+pull requests, but this worktree remains the continuation checkout and can move
+ahead of its remote branch. Always inspect `git status`, `git branch -vv` and
+`origin/main...HEAD`; preserve unrelated work and never assume a merge/push or
+deployment is authorized by a documentation update.
 
 ## Required toolchains
 

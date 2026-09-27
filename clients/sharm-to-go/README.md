@@ -50,6 +50,9 @@ nested inside or coupled to the other.
 
 ## Decision documents
 
+- [Complete delivery workbook](delivery/README.md) — ordered phase checklists,
+  cross-surface gates, owner inputs and the evidence ledger every continuing
+  agent must update as work is completed.
 - [Brand, marketing and conversion strategy](BRAND_AND_GROWTH_STRATEGY.md) —
   current owner-approved positioning, claims, conversion path and delivery
   order; this supersedes older public-facing "multi-provider marketplace"
