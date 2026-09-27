@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/gradle:9.5.0-jdk25@sha256:03305b464e024b29cfaad1c4a41fed61d06d15453176d2180f65bd4358b789a6 AS build
+FROM public.ecr.aws/docker/library/gradle:9.8.0-jdk25@sha256:30f0c2e94f2b91cffaa192cebc86f1ba8efc574b9a8e93b33164e5f2ed839c08 AS build
 
 WORKDIR /workspace
 RUN chown gradle:gradle /workspace
