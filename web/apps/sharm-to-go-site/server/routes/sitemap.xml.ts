@@ -4,7 +4,7 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const siteUrl = String(config.public.siteUrl).replace(/\/$/, "");
-  const paths = ["/", "/experiences"];
+  const paths = ["/", "/experiences", "/about", "/faq", "/contact", "/privacy", "/terms"];
 
   try {
     const response = await fetch(`${config.travelMarketplaceApiBase}/api/v1/travel-marketplace/public/services`);

@@ -2369,3 +2369,33 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
 - **Current phase:** none — packet complete.
 - **NEXT PACKET:** none queued; `mobile/apps/ops` (the unbranded staff app) and any further design-system unification across Wego Platform products remain real future work, not yet authorized as their own packet.
 - **NEXT PACKET:** none beyond this one.
+
+### 2026-09-27 — Sharm To Go repositioned as a marketing-and-booking travel companion
+
+- **Owner direction:** the seven supplied mockups communicate product breadth
+  and flow only; none is a production asset. The approved product combines
+  marketing, services, booking/request and professional WhatsApp enquiry across
+  website, mobile and ERP. Owner-approved brand facts: 25+ years' accumulated
+  tourism experience, 3M+ customers, participation in organising 5M+ successful
+  trips and continuous support.
+- **Decision correction:** customer-facing “multi-provider marketplace” wording
+  was superseded by one accountable Sharm To Go relationship. Provider and
+  fulfilment records stay as internal operational truth and a future disclosure
+  mechanism when legally significant; they are no longer the brand proposition.
+  Canonical name remains `Sharm To Go`; canonical line is “Sharm To Go. Where
+  you must go.” `Charm To Go` is campaign wordplay only, not a second identity.
+- **Durable strategy:** added `BRAND_AND_GROWTH_STRATEGY.md` and
+  `CONVERSION_DELIVERY_PLAN.md`; aligned the product blueprint, ownership model,
+  execution/expansion plans and information architecture. The next real packet
+  is one shared request contract: web acquires/converts, mobile consumes the
+  same catalog/request/status, ERP receives and operates the same reference.
+- **Public-site preparation:** replaced foundation copy with the approved
+  customer promise and carefully worded historical proof; added About, FAQ,
+  Contact, Privacy and Terms routes, fuller navigation/footer, a global
+  contextual WhatsApp action, sitemap coverage and explicit request-is-not-
+  confirmation language. The source mockups' sample prices, ratings, hotels and
+  contacts were not copied.
+- **Evidence:** Sharm To Go site Vitest 27/27; Nuxt typecheck and ESLint clean;
+  production build clean; repository invariants and `git diff --check` clean.
+  No backend booking mutation, payment, production deployment or change to
+  Sharm Divers Club was made in this preparation round.

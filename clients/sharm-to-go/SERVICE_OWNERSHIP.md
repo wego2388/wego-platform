@@ -1,7 +1,14 @@
 # Service ownership and provider model
 
-The owner stated that not every service belongs to Sharm To Go. That is a core
-domain rule, not a footer disclaimer.
+The owner's current decision is that Sharm To Go is the accountable public
+operator and coordinator for the launch catalog. The customer sees one Sharm
+To Go relationship from request through support. Older wording that positioned
+the site publicly as a collection of unrelated providers is superseded.
+
+The internal provider/fulfilment model remains useful as operational truth if
+Sharm To Go subcontracts any component. It must not expose private commission
+or contact data, and it must never weaken Sharm To Go's customer-support
+responsibility.
 
 ## Simple public model
 
@@ -25,9 +32,9 @@ operator is not Sharm To Go.
 | Media/content rights | Source, allowed usage and expiry |
 | Publication status | Draft, review, approved, suspended or archived |
 
-The public page must show “operated by” or an equivalent clear label before
-confirmation. “Sharm To Go coordinates this request” must not be confused with
-“Sharm To Go operates this service.”
+The public page defaults to Sharm To Go as the accountable brand. A separate
+“operated by” label is shown only when a legally significant third-party
+operator identity must be disclosed; it is not the primary marketing message.
 
 ## Proposed launch categories — not yet approved inventory
 

@@ -8,16 +8,21 @@ Home
 │   ├── Category
 │   ├── Search and filters
 │   └── Service detail
+├── About Sharm To Go
 ├── Plan your trip (later)
 ├── Saved (later)
 ├── Manage booking
 ├── Help / FAQ
-├── Cart
+├── Contact / WhatsApp enquiry
+├── Privacy and terms
+├── Request summary (after real request intake exists)
 └── Locale and currency display
 ```
 
-Search, category and service-detail pages lead to the same booking component;
-there is no second booking implementation per category.
+Search, campaigns, category and service-detail pages lead to the same request
+component; there is no second booking implementation per category. WhatsApp is
+a parallel human enquiry path with service/date/party context, not a fake
+checkout and not the system of record.
 
 ## Checkout route family
 

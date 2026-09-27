@@ -21,8 +21,8 @@ classification, and (where Tier 1) independent review before commit, per
 
 ## The real product shape, stated once
 
-Sharm To Go is **one discovery-and-inquiry marketplace for everything a
-visitor does in Sharm El Sheikh** — activities, dining, stays, transport —
+Sharm To Go is **one marketing, discovery and booking companion for everything
+a visitor needs in Sharm El Sheikh** — activities, dining, stays, transport —
 in Arabic/English (more locales later), with **human-confirmed booking via
 WhatsApp**, not a live payment checkout, until a real payment gateway is
 separately authorized (`TECHNICAL_EXECUTION_PLAN.md`'s own Phase 3 already
@@ -32,6 +32,12 @@ This is not a new architectural direction — it is the same discipline
 already proven for Activities (Packet 1A): a staff-managed catalog behind a
 publication workflow, a narrow public projection, and (for the parts not yet
 built) a website/dashboard/mobile surface reusing the same patterns.
+
+**Positioning update (2026-09-27):** provider and fulfilment records remain
+internal operational truth, but “multi-provider marketplace” is no longer the
+customer-facing proposition. The approved brand story and conversion model are
+authoritative in `BRAND_AND_GROWTH_STRATEGY.md`, with the shared web/mobile/ERP
+delivery contract in `CONVERSION_DELIVERY_PLAN.md`.
 
 **Correction after design consultation (2026-09-02):** the first draft of
 this plan said every vertical "reuses `Category` as-is." That is not safe

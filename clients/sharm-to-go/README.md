@@ -1,5 +1,13 @@
 # Sharm To Go
 
+> **Sharm To Go. Where you must go.**
+
+The current product direction is a marketing-and-booking travel companion for
+Sharm El Sheikh: inspire the visitor, help them choose for their budget, then
+turn that interest into either a structured request or a contextual WhatsApp
+enquiry. Start with [the brand and conversion strategy](BRAND_AND_GROWTH_STRATEGY.md)
+before treating older "marketplace" wording as customer-facing positioning.
+
 Sharm To Go now exists in the correct place: this is the isolated client profile
 for `wego-travel-marketplace` inside the shared `/home/wego/wego-platform`
 repository. It sits alongside `clients/sharm-divers-club`; neither client is
@@ -42,6 +50,12 @@ nested inside or coupled to the other.
 
 ## Decision documents
 
+- [Brand, marketing and conversion strategy](BRAND_AND_GROWTH_STRATEGY.md) —
+  current owner-approved positioning, claims, conversion path and delivery
+  order; this supersedes older public-facing "multi-provider marketplace"
+  language while preserving internal operational facts.
+- [Website, mobile and ERP conversion delivery plan](CONVERSION_DELIVERY_PLAN.md)
+  — the next shared booking/request contract and each surface's role.
 - [Service content research](content-research/README.md) — text-only source
   inventories and 37 original Sharm To Go draft concepts spanning the earlier
   private-tour subset and the broader Sharm gap audit; research only, never

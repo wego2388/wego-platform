@@ -62,11 +62,16 @@ entry for the full evidence.
 
 ## Phase 2 — normal booking flow
 
-- Calendar/slots, capacity, price snapshot, customer details, idempotency and
+- Marketing/service pages feed one shared request component on web and mobile;
+  contextual WhatsApp enquiry remains a parallel human path, never a fake
+  confirmation.
+- Calendar/slots, capacity, price snapshot, customer details, hotel/pickup,
+  public reference, source channel, idempotency and
   simple `NEW → CONFIRMED → COMPLETED` lifecycle plus cancellation.
 - Instant confirmation for controlled availability; staff confirmation for
   services that need a check. Provider workflow remains internal.
-- Customer checkout/manage pages and staff booking screens.
+- Customer request/result/manage pages, a shareable summary, and a real ERP
+  request queue with review/confirm/cancel/complete actions.
 - Mobile app's first real network integration: real checkout screens mirroring
   the website's step order, guest checkout only (no account system yet).
 - Concurrency tests against real PostgreSQL and notification tasks without

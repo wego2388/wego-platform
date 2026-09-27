@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import WhatsAppFab from "./components/WhatsAppFab.vue";
+
 const siteUrl = String(useRuntimeConfig().public.siteUrl).replace(/\/$/, "");
 const route = useRoute();
 
@@ -21,4 +23,5 @@ useHead({
 
 <template>
   <NuxtPage />
+  <WhatsAppFab />
 </template>

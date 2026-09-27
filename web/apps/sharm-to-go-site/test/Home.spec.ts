@@ -4,12 +4,14 @@ import { describe, expect, it, vi } from "vitest";
 import HomePage from "../app/pages/index.vue";
 
 describe("Sharm To Go public foundation", () => {
-  it("states the marketplace responsibility boundary and never presents live inventory", () => {
-    const wrapper = mount(HomePage);
+  it("presents the approved marketing promise without inventing ratings or availability", () => {
+    const wrapper = mount(HomePage, { global: { stubs: { NuxtLink: { template: "<a><slot /></a>" } } } });
 
     expect(wrapper.text()).toContain("Sharm To Go");
     expect(wrapper.text()).toContain("operates and coordinates every experience directly");
-    expect(wrapper.text()).toContain("not a claim that every service is already live");
+    expect(wrapper.text()).toContain("25+ years of local tourism experience");
+    expect(wrapper.text()).toContain("3M+");
+    expect(wrapper.text()).toContain("5M+");
     expect(wrapper.text()).not.toMatch(/\b[0-9]+ reviews?\b/i);
   });
 
@@ -18,7 +20,7 @@ describe("Sharm To Go public foundation", () => {
     vi.stubGlobal("useHead", (input: typeof headFactory) => {
       headFactory = input;
     });
-    const wrapper = mount(HomePage);
+    const wrapper = mount(HomePage, { global: { stubs: { NuxtLink: { template: "<a><slot /></a>" } } } });
     expect(wrapper.get("main").attributes("dir")).toBe("ltr");
     expect(headFactory).toBeDefined();
     expect(headFactory!().htmlAttrs).toEqual({ dir: "ltr", lang: "en" });

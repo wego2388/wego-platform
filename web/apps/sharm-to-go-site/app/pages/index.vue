@@ -45,7 +45,9 @@ const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "
         <nav class="hidden items-center gap-7 text-sm font-semibold md:flex" aria-label="Primary navigation">
           <NuxtLink to="/experiences" class="transition-colors hover:text-sharm-sea-bright">{{ copy.nav.experiences }}</NuxtLink>
           <a href="#how" class="transition-colors hover:text-sharm-sea-bright">{{ copy.nav.howItWorks }}</a>
-          <a href="#trust" class="transition-colors hover:text-sharm-sea-bright">{{ copy.nav.trust }}</a>
+          <NuxtLink to="/about" class="transition-colors hover:text-sharm-sea-bright">{{ copy.nav.about }}</NuxtLink>
+          <NuxtLink to="/faq" class="transition-colors hover:text-sharm-sea-bright">{{ copy.nav.faq }}</NuxtLink>
+          <NuxtLink to="/contact" class="transition-colors hover:text-sharm-sea-bright">{{ copy.nav.contact }}</NuxtLink>
         </nav>
         <button
           type="button"
@@ -108,6 +110,24 @@ const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "
         </div>
       </section>
     </div>
+
+    <section class="border-b border-black/5 bg-sharm-surface px-6 py-14 lg:px-10">
+      <div class="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+        <div v-reveal class="sharm-reveal">
+          <h2 class="font-display text-3xl font-semibold tracking-tight">{{ copy.proof.heading }}</h2>
+          <p class="mt-4 leading-7 text-sharm-muted">{{ copy.proof.body }}</p>
+          <NuxtLink to="/about" class="mt-6 inline-flex font-bold text-sharm-sea underline decoration-sharm-sun decoration-2 underline-offset-4">
+            {{ copy.nav.about }}
+          </NuxtLink>
+        </div>
+        <dl class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div v-for="fact in copy.proof.facts" :key="fact.value" class="rounded-2xl bg-sharm-lagoon p-5 text-center text-sharm-sea">
+            <dt class="font-display text-2xl font-bold sm:text-3xl">{{ fact.value }}</dt>
+            <dd class="mt-2 text-xs font-semibold leading-5">{{ fact.label }}</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
 
     <section class="mx-auto max-w-7xl px-6 py-20 lg:px-10">
       <div v-reveal class="sharm-reveal max-w-2xl">
@@ -172,12 +192,43 @@ const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "
       </ul>
     </section>
 
-    <footer class="border-t border-black/5 px-6 py-8 text-center text-sm text-sharm-muted lg:px-10">
-      <p>{{ copy.footer }}</p>
-      <p class="money mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
-        <a :href="whatsappLink(locale === 'ar' ? 'مرحبًا Sharm To Go' : 'Hello Sharm To Go')" target="_blank" rel="noopener" class="font-semibold text-sharm-sea hover:underline">WhatsApp {{ contact.whatsappDisplay }}</a>
-        <a :href="emailLink('Sharm To Go')" class="font-semibold text-sharm-sea hover:underline">{{ contact.email }}</a>
-      </p>
+    <footer class="border-t border-black/5 bg-sharm-surface px-6 py-12 text-sm text-sharm-muted lg:px-10">
+      <div class="mx-auto grid max-w-7xl gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <NuxtLink to="/" class="flex items-center gap-3 text-sharm-ink">
+            <img src="/icon-192.png" alt="" width="44" height="44" class="size-11" aria-hidden="true">
+            <span class="font-display text-lg font-semibold">Sharm To Go</span>
+          </NuxtLink>
+          <p class="mt-4 max-w-sm leading-6">{{ copy.footerFull.tagline }}</p>
+        </div>
+        <div>
+          <h2 class="font-bold text-sharm-ink">{{ copy.footerFull.exploreHeading }}</h2>
+          <ul class="mt-4 space-y-3">
+            <li><NuxtLink to="/experiences" class="hover:text-sharm-sea">{{ copy.footerFull.exploreLinks.experiences }}</NuxtLink></li>
+            <li><NuxtLink to="/booking-preview" class="hover:text-sharm-sea">{{ copy.footerFull.exploreLinks.bookingPreview }}</NuxtLink></li>
+          </ul>
+        </div>
+        <div>
+          <h2 class="font-bold text-sharm-ink">{{ copy.footerFull.companyHeading }}</h2>
+          <ul class="mt-4 space-y-3">
+            <li><NuxtLink to="/about" class="hover:text-sharm-sea">{{ copy.nav.about }}</NuxtLink></li>
+            <li><NuxtLink to="/faq" class="hover:text-sharm-sea">{{ copy.footerFull.companyLinks.faq }}</NuxtLink></li>
+            <li><NuxtLink to="/contact" class="hover:text-sharm-sea">{{ copy.footerFull.companyLinks.contact }}</NuxtLink></li>
+            <li><NuxtLink to="/privacy" class="hover:text-sharm-sea">{{ copy.footerFull.legal.privacy }}</NuxtLink></li>
+            <li><NuxtLink to="/terms" class="hover:text-sharm-sea">{{ copy.footerFull.legal.terms }}</NuxtLink></li>
+          </ul>
+        </div>
+        <div>
+          <h2 class="font-bold text-sharm-ink">{{ copy.footerFull.contactHeading }}</h2>
+          <p class="money mt-4 space-y-3">
+            <a :href="whatsappLink(locale === 'ar' ? 'مرحبًا Sharm To Go' : 'Hello Sharm To Go')" target="_blank" rel="noopener" class="block font-semibold text-sharm-sea hover:underline">WhatsApp {{ contact.whatsappDisplay }}</a>
+            <a :href="emailLink('Sharm To Go')" class="block font-semibold text-sharm-sea hover:underline">{{ contact.email }}</a>
+          </p>
+        </div>
+      </div>
+      <div class="mx-auto mt-10 flex max-w-7xl flex-wrap justify-between gap-3 border-t border-sharm-border pt-6">
+        <p>{{ copy.footerFull.rights }}</p><p class="font-semibold text-sharm-sea">{{ copy.footer }}</p>
+      </div>
     </footer>
   </main>
 </template>
