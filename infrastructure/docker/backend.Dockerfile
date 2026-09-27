@@ -7,7 +7,7 @@ USER gradle
 RUN --mount=type=cache,target=/home/gradle/.gradle,uid=1000,gid=1000 \
     ./gradlew --no-daemon :platform:application:bootJar
 
-FROM public.ecr.aws/docker/library/eclipse-temurin:25-jre-alpine@sha256:28db6fdf60e38945e43d840c0333aeaec66c15943070104f7586fd3c9d1665b0 AS runtime
+FROM public.ecr.aws/docker/library/eclipse-temurin:25-jre-alpine@sha256:3c0a9084927a221ccd1d007fcaf614465672c0af37aaa834c5184483afe56d61 AS runtime
 
 RUN addgroup -S -g 10001 wego \
     && adduser -S -D -H -u 10001 -G wego wego
