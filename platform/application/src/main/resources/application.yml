@@ -37,3 +37,11 @@ management:
   health:
     defaults:
       enabled: true
+
+# ── Tours Operator ────────────────────────────────────────────────────────────
+tours-operator:
+  paymob:
+    # Set to true in E2E / local dev when real Paymob credentials are not available.
+    # Activates MockPaymobClient which accepts "valid-hmac" for E2E tests.
+    # Override via env var TOURS_OPERATOR_PAYMOB_MOCK_ENABLED=true
+    mock-enabled: ${TOURS_OPERATOR_PAYMOB_MOCK_ENABLED:false}

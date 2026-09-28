@@ -60,6 +60,9 @@ services:
       WEGO_DB_PASSWORD: ${WEGO_POSTGRES_PASSWORD:-wego-local-postgres-only}
       WEGO_DB_POOL_SIZE: 5
       WEGO_FLYWAY_ENABLED: "true"
+      # Enable mock Paymob client for E2E/local dev — no real credentials needed.
+      # Set to false (or unset) when real Paymob sandbox credentials are available.
+      TOURS_OPERATOR_PAYMOB_MOCK_ENABLED: "true"
     depends_on:
       postgres:
         condition: service_healthy
@@ -99,6 +102,28 @@ services:
     networks:
       - internal
 
+  safari-site:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/safari-site.Dockerfile
+    environment:
+      # Proxy /api calls to the backend (Nuxt server-side fetch uses this)
+      NUXT_PUBLIC_API_BASE: ""
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O /dev/null http://127.0.0.1:3001/tours
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 20s
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    restart: unless-stopped
+    networks:
+      - internal
+
   edge:
     image: public.ecr.aws/docker/library/nginx:1.30.4-alpine@sha256:97d490c12ba55b4946b01546d1c3ed324e8d41ab1c9fcb2a616aa470620e5b46
     user: "101:101"
@@ -106,6 +131,8 @@ services:
       backend:
         condition: service_healthy
       web:
+        condition: service_healthy
+      safari-site:
         condition: service_healthy
     ports:
       - "127.0.0.1:${WEGO_EDGE_PORT:-58080}:8080"

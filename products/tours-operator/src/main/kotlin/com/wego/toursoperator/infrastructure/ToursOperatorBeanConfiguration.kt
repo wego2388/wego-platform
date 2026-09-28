@@ -29,6 +29,7 @@ import com.wego.toursoperator.application.TransactionRunner
 import com.wego.toursoperator.application.UpdateTourService
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
@@ -279,10 +280,22 @@ class ToursOperatorBeanConfiguration {
         )
 
     @Bean("stoPaymobClient")
+    @ConditionalOnProperty(
+        name = ["tours-operator.paymob.mock-enabled"],
+        havingValue = "false",
+        matchIfMissing = true,
+    )
     fun paymobClient(
         @Qualifier("stoPaymobConfig") config: PaymobConfig,
         @Qualifier("stoObjectMapper") objectMapper: ObjectMapper,
     ): PaymobClient = PaymobHttpClient(config, objectMapper)
+
+    @Bean("stoPaymobClient")
+    @ConditionalOnProperty(
+        name = ["tours-operator.paymob.mock-enabled"],
+        havingValue = "true",
+    )
+    fun mockPaymobClient(): PaymobClient = MockPaymobClient()
 
     @Bean("stoPaymentQueryService")
     fun paymentQueryService(
