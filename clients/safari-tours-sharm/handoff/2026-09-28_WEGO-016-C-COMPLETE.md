@@ -136,7 +136,33 @@ clients/safari-tours-sharm/handoff/
 
 ---
 
-## Remaining before C closes
+## ملحوظة للـAgent القادم — Paymob credentials
+
+**السياق:** المالك ينتظر رد من شركة Paymob مصر لاستلام credentials الـsandbox.
+حتى وصولها، الـpayment flow مكتمل كوداً (D) لكن يحتاج:
+
+1. `PaymobConfig` values حقيقية في `.env`:
+   - `PAYMOB_API_KEY`
+   - `PAYMOB_INTEGRATION_ID`
+   - `PAYMOB_HMAC_SECRET`
+   - `PAYMOB_IFRAME_ID`
+   - `PAYMOB_BASE_URL` (default: `https://accept.paymob.com/api`)
+   - `PAYMOB_IFRAME_BASE_URL`
+
+2. `buildCheckoutUrl` في `PaymobHttpClient` يحتاج payment-key API call حقيقية
+   (حالياً stub). لما تيجي credentials، أضف الـAPI call دي.
+
+3. HMAC fields `created_at` و`integration_id` في `buildSignatureFields`
+   حالياً empty strings — لازم تتملى من الـwebhook payload الحقيقي.
+
+**الخطوة المتفق عليها:**
+- اكمل WEGO-016-E بـmock Paymob (Playwright E2E بدون credentials)
+- بعدين WEGO-016-F (ERP finance + staff management)
+- لما تيجي credentials: أضف config values فقط، مفيش كود جديد
+
+**لا تبدأ Paymob sandbox integration قبل ما المالك يأكد وصول credentials.**
+
+
 
 1. Independent fresh-context Tier 1 review covering:
    - Migrations (V16 DDL, V17 seed correctness vs `approved-catalog.json`)

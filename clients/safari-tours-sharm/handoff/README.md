@@ -27,12 +27,28 @@
 - `[x]` `WEGO-016-A`: مكتمل محليًا مع أدلة الجودة.
 - `[x]` `WEGO-016-B`: مكتمل، Tier 1 review بلا blocking findings، ومرفوع في
   commit `ae09026` بتفويض المالك.
-- `[x]` `WEGO-016-C` implementation: مكتمل بالكامل — C1 حتى C5 منفذة ومثبتة.
+- `[x]` `WEGO-016-C` + `WEGO-016-D`: مكتملان، committed `0029492`، pushed إلى
+  `origin/wego-016-safari-tours-baseline` بتفويض المالك.
   - Backend: 380 tests، 0 failures/errors/skips على PostgreSQL حقيقي.
   - Full web `pnpm run check`: lint + typecheck + 290 tests + 6 builds ✅.
   - `bash scripts/safari-tours-sharm-check.sh` ✅.
-- `[!]` تغييرات C الحالية: لا commit/push/deploy قبل Tier 1 review وتفويض المالك.
-- `[~]` `WEGO-016-C` closure: ينتظر independent Tier 1 review مستقل.
+- `[!]` **Paymob credentials:** المالك ينتظر رد من Paymob مصر. الكود جاهز،
+  فقط يحتاج config values. لا تعدّل `PaymobHttpClient` قبل وصول credentials.
+  راجع ملف `2026-09-28_WEGO-016-C-COMPLETE.md` قسم "ملحوظة للـAgent القادم".
+- `[~]` `WEGO-016-E`: الـpacket التالي — Playwright E2E بـmock Paymob (بدون
+  credentials حقيقية). ابدأ من هنا.
+- `[ ]` `WEGO-016-F`: ERP finance screens + staff booking management — بعد E.
+
+## ترتيب الأولويات للـAgent القادم
+
+1. اقرأ `AGENTS.md` و`docs/ENGINEERING_CONSTITUTION.md`.
+2. اقرأ `docs/execution/WEGO_EXECUTION_BOARD.md` — الـpacket الوحيد المصرح به.
+3. اقرأ هذا الملف و`SAFARI_TOURS_PRODUCTION_MATURITY_HANDOFF.md`.
+4. ابدأ `WEGO-016-E`: Playwright E2E بـmock Paymob — booking → pay → webhook
+   → confirm — بدون Paymob credentials حقيقية.
+5. بعد E: `WEGO-016-F` — ERP finance + staff management.
+6. لما تيجي credentials من المالك: أضف config values فقط في `.env`،
+   لا تعيد كتابة `PaymobHttpClient`.
 
 ## محتوى الموقع القديم
 
