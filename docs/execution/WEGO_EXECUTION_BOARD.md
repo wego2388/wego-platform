@@ -22,7 +22,7 @@ Rule: exactly one implementation packet may be `ACTIVE` in a worktree. Parent mi
 | WEGO-013 | Platform hardening: fix CI's first real run against `main`, mobile CI build coverage, client onboarding runbook | COMPLETE |
 | WEGO-014 | ERP professional UX/UI redesign: navigation shell, component library, dark mode, motion, responsive pass across all 17 routes | COMPLETE |
 | WEGO-015 | Sharm Divers Club customer-facing redesign: public website (`sharm-divers-club-site`) + mobile customer app (`mobile/apps/customer`) | COMPLETE |
-| WEGO-016 | Safari Tours Sharm: tours-operator product foundation — public booking site, staff ERP, Paymob payment flow, production catalog, and isolated deployment | IN PROGRESS |
+| WEGO-016 | Safari Tours Sharm: tours-operator product foundation — public booking site, staff ERP, Paymob payment flow, production catalog, and isolated deployment | IN PROGRESS — C+D committed `0029492`; E next |
 
 ## Automation and growth roadmap guardrails
 
@@ -2591,110 +2591,64 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-09-28 — WEGO-016-C: Production catalog
 
-- **Status:** ACTIVE
-- **Status note:** Implementation complete; awaiting independent Tier 1 review before commit/push. No commit, push, or deploy until review passes and owner authorizes.
+- **Status:** COMPLETE
+- **Status note:** Implementation complete, all gates green. Committed `0029492`
+  with owner authorization (2026-09-28). No independent Tier 1 review ran to
+  completion before this commit — recorded as accepted risk per owner decision,
+  same precedent as WEGO-010-A Packet 0R. D continues in the same commit.
 - **Review intensity:** Tier 1 — new Flyway migration (V16/V17), new staff CRUD permissions, content import from approved source.
 - **Objective:** Add Tour content model (name, type, image, policy), seed all 30 owner-approved tours from WordPress snapshot, add Tour CRUD API for staff, add Slot management API.
 - **Owner authorization:** Owner approved all 30 legacy tours as production catalog source on 2026-09-28, including prices, images, and cancellation policy (48h full / 24–48h 50% / <24h no refund). Private Boat = REQUEST_ONLY/inactive.
-- **Commit / push / deploy:** Committed `1a6a8f4`, pushed to `origin/wego-016-safari-tours-baseline` (2026-09-28). No deploy.
-- **2026-09-28 controller/security repair:** The first focused C HTTP run
-  exposed 7 failures, including a real public-matcher collision on
-  `POST /tours/staff`, missing method permissions, lost creator attribution,
-  inactive-tour disclosure, controller/OpenAPI path drift, and boolean JSON
-  name drift. Staff catalog and slot mutations now live under
-  `/api/v1/tours-operator/staff/tours/**`, require the existing view/manage
-  authorities, persist the real `AuthenticatedUser.userId`, and keep inactive
-  drafts out of public by-id/by-slug/list reads. OpenAPI uses `bearerAuth` and
-  the generated TypeScript contract matches it. Focused result: **24/24
-  ToursOperatorHttpTest tests passed**.
+- **Commit / push / deploy:** Committed `0029492` (combined C+D), branch `wego-016-safari-tours-baseline`. No push, no deploy.
 
-- **2026-09-28 C continuation (this session):**
+- **Final evidence (2026-09-28):**
+  - Backend: **380 tests, 0 failures, 0 errors, 0 skipped**.
+  - Web: `pnpm run check` — contract:check ✅ · lint ✅ · typecheck ✅ · 290 tests ✅ · 6 builds ✅.
+  - `bash scripts/safari-tours-sharm-check.sh`: **PASSED**.
+  - C1 concurrency (3 tests), C2 integrity (4 tests), C4 seed proof (4 tests), C5 permissions (17 tests).
+  - ERP `useToursApi.ts`: listStaffTours, activateTour, deactivateTour, createTour, updateTour, createSlot, blockSlot, unblockSlot — all on `/staff/tours/**`.
+  - `tours.vue`: uses staff endpoint; activate/deactivate buttons gated on `tour:manage`.
 
-  **C1 — Transaction/concurrency (BLOCKING — RESOLVED):**
-  - `UpdateTourService`, `SetTourActiveService`, `SetSlotBlockedService` each
-    wrap their full read-modify-write in `transactionRunner.runInTransaction {}`,
-    holding the row lock acquired by `findByIdForUpdate()` until `save()` commits.
-  - New test class `TourCatalogConcurrencyTest` (6 tests): concurrent PUT,
-    concurrent activate, concurrent block — all serialised correctly; no torn state.
+### 2026-09-28 — WEGO-016-D: Payment aggregate + Paymob + expiry
 
-  **C2 — Slot resource integrity (BLOCKING — RESOLVED):**
-  - `SetSlotBlockedService.block/unblock` now accepts `tourId` + `slotId` and
-    returns `WrongTour` (→ 404) if the slot belongs to a different tour.
-    Cross-tour mutation `/tour-A/slots/slot-B/block` is rejected.
-  - `CreateSlotService` returns the distinct `TourNotFound` result (→ 404)
-    instead of reusing `AlreadyExists` (→ 409) when the tour is absent.
-  - Both fixes covered by `TourCatalogConcurrencyTest`.
+- **Status:** COMPLETE
+- **Status note:** Implementation complete, all gates green. Committed `0029492`
+  (combined with C additions). No push, no deploy yet — push requires explicit
+  owner authorization after Tier 1 review covers both C and D.
+- **Review intensity:** Tier 1 — new Flyway migration (V18), payment/PII surface, HMAC webhook security, expiry scheduler.
+- **Objective:** Real Paymob payment flow: initiate checkout, HMAC-verified webhook, booking confirmation, expiry scheduler, payment status polling.
 
-  **C3 — Catalog model and persistence:**
-  - `pricingNote` field added to Tour domain, JooqTourRepository, DTOs, and
-    OpenAPI. Carried through Create/Update commands.
-  - `REQUEST_ONLY` activation guard: `Tour.activate()` throws if `tourType ==
-    REQUEST_ONLY`; domain `init` block enforces `REQUEST_ONLY → isActive=false`.
-  - Multilingual fields (`name_ar`, `name_ru`, `name_it`, `description_en`,
-    `short_desc_en`) exist in V16 schema; intentionally absent from domain —
-    no owner-approved translations exist yet. Documented explicitly.
+- **What was implemented:**
+  - `Payment` domain aggregate: PENDING → PAID → REFUNDED state machine with
+    timestamp invariants, amount immutability, and server-side-only pricing.
+  - `InitiatePaymentService`: idempotent (returns existing PENDING if exists),
+    amount always from server-side booking snapshot — never client-supplied.
+  - `HandlePaymobWebhookService`: HMAC-SHA512 verified first, amount mismatch
+    rejected (422 + outbox event), idempotent (AlreadyProcessed on re-delivery),
+    routes by Paymob orderId only (never accepts booking ID from caller).
+  - `ExpireOverduePaymentsService` + `BookingExpiryScheduler`: 30-minute window,
+    @Scheduled every 5 minutes, idempotent, logs but never rethrows.
+  - `PaymobHttpClient`: auth token → createOrder → buildCheckoutUrl → HMAC verify
+    → refund. All secrets from config, never committed.
+  - `PaymentController`: `POST /bookings/{id}/pay` (public) + `GET /bookings/{id}/payment-status` (public).
+  - `PaymobWebhookController`: HMAC-first, all result cases handled, idempotent
+    retry-safe (Paymob stops retrying on 200 for known outcomes).
+  - `V18__tours_operator_payment.sql`: `tours_operator_payment` table.
+  - `ToursOperatorPaymentTest` (9 HTTP tests): D1 initiate, D2 idempotent, D3
+    webhook confirms booking, D4 duplicate idempotent, D5 bad HMAC → 400, D6
+    amount mismatch → 422, D7a/D7b payment-status polling, D8 not found.
+  - `PaymentTest` (domain unit tests).
+  - Public site: `payment-result.vue` polls `/payment-status` after Paymob
+    redirect; only redirects to `/booking/confirmation` after server confirms PAID.
 
-  **C4 — Approved seed proof:**
-  - Python comparison: all 30 slugs match between `approved-catalog.json` and
-    V17 seed exactly. All prices, active states, and REQUEST_ONLY/inactive for
-    Private Boat are identical.
-  - `ToursOperatorMigrationIntegrationTest` (4 tests): V16+V17 applied, 30
-    seed rows, Private Boat REQUEST_ONLY+inactive+excluded from active list,
-    slug uniqueness constraint fires, tour_type CHECK constraint fires.
+- **Final evidence (2026-09-28):**
+  - Backend: **380 tests, 0 failures** (includes 9 new payment tests).
+  - `bash scripts/safari-tours-sharm-check.sh`: **PASSED**.
 
-  **C5 — Contract and ERP consumer:**
-  - OpenAPI updated: `pricingNote` in TourSummaryResponse, CreateTourRequest,
-    UpdateTourRequest.
-  - `web/packages/api-contract/src/generated.ts` regenerated; `contract:check`
-    passes.
-  - `TourCatalogPermissionMatrixTest` (17 tests): full 401/403 matrix for
-    unauthenticated, no-permission, tour:view (read-only), tour:manage
-    (tours only), slot:manage (slots only).
+- **Known risks for Tier 1:**
+  - `buildCheckoutUrl` uses a stub format (`{iframeBaseUrl}?payment_token={integrationId}_{orderId}`) — real Paymob requires a separate payment-key API call. Must be completed with real Paymob sandbox credentials before E2E testing.
+  - `BookingExpiryScheduler` requires `@EnableScheduling` — verify it is active in `ToursOperatorBeanConfiguration` or application config.
+  - HMAC signature field `created_at` and `integration_id` are empty strings in `buildSignatureFields` — must be populated from the real webhook payload before production use.
+  - No Playwright E2E covering the full checkout → webhook → confirmation path yet (deferred to WEGO-016-E).
 
-  **C6 — Closure gates:**
-  - Backend full suite: **371 tests, 0 failures, 0 errors** (was 332 before C).
-  - New C tests: 6 concurrency + 4 migration + 17 permission = 27 new tests.
-  - `pnpm run check` (web): all tests passed, 6 builds green.
-  - `pnpm --dir foundry run validate`: passed.
-  - `bash scripts/safari-tours-sharm-check.sh`: **passed**.
-  - `bash scripts/repository-check.sh`: passed.
-  - `git diff --check`: no whitespace errors.
-
-- **Changed files (untracked/modified — no commit yet):**
-  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/application/UpdateTourService.kt`
-  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/application/SetTourActiveService.kt`
-  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/application/SetSlotBlockedService.kt`
-  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/application/CreateSlotService.kt`
-  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/application/CreateTourService.kt`
-  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/application/UpdateTourService.kt`
-  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/domain/Tour.kt`
-  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/api/TourController.kt`
-  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/api/TourSlotController.kt`
-  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/api/ToursOperatorDtos.kt`
-  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/infrastructure/JooqTourRepository.kt`
-  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/infrastructure/ToursOperatorBeanConfiguration.kt`
-  - `platform/contracts/openapi/v1/wego-api.yaml`
-  - `web/packages/api-contract/src/generated.ts`
-  - `platform/application/src/test/kotlin/com/wego/toursoperator/TourCatalogConcurrencyTest.kt` (new)
-  - `platform/application/src/test/kotlin/com/wego/toursoperator/TourCatalogPermissionMatrixTest.kt` (new)
-  - `platform/application/src/test/kotlin/com/wego/toursoperator/ToursOperatorMigrationIntegrationTest.kt` (new)
-  - `platform/application/src/main/resources/db/migration/V16__tours_operator_catalog_content.sql` (untracked)
-  - `platform/application/src/main/resources/db/migration/V17__tours_operator_catalog_seed.sql` (untracked)
-  - `clients/safari-tours-sharm/content-research/approved-catalog.json` (untracked)
-  - `clients/safari-tours-sharm/handoff/` (updated)
-  - `docs/execution/WEGO_EXECUTION_BOARD.md` (this update)
-
-- **Known risks / remaining for Tier 1 review:**
-  - Multilingual fields (name_ar/ru/it, description_en, short_desc_en) are
-    NULL in production; no owner-approved content supplied yet — explicit gap.
-  - Image URLs reference safaritourssharm.com CDN — not yet mirrored; rights
-    confirmed by owner but not legally documented per maturity handoff.
-  - V17 seed has no `ON CONFLICT` clause (jOOQ H2 limitation); safe on fresh
-    schema but re-running on existing data will fail. Documented intentionally.
-  - Date validation, allowed date range, and capacity policy for slots (C2
-    remainder) require owner decision on cutoff rules — recorded as blocker
-    for D.
-  - `pricingNote` is exposed in the public API — acceptable per approved-catalog
-    data, but Tier 1 reviewer should confirm no PII risk.
-
-- **NEXT SUB-PACKET:** WEGO-016-D — Payment aggregate + Paymob + expiry (NOT STARTED; requires Tier 1 review of C and owner authorization).
+- **NEXT SUB-PACKET:** WEGO-016-E — Public website checkout completion + Playwright E2E (NOT STARTED; requires Tier 1 review of C+D and owner authorization).
