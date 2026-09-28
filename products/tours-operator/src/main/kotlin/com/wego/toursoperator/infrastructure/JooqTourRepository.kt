@@ -3,10 +3,12 @@ package com.wego.toursoperator.infrastructure
 import com.wego.generated.jooq.tables.ToursOperatorTour.TOURS_OPERATOR_TOUR
 import com.wego.generated.jooq.tables.records.ToursOperatorTourRecord
 import com.wego.toursoperator.application.TourRepository
+import com.wego.toursoperator.domain.CancellationPolicy
 import com.wego.toursoperator.domain.TimeSlot
 import com.wego.toursoperator.domain.Tour
 import com.wego.toursoperator.domain.TourCategory
 import com.wego.toursoperator.domain.TourId
+import com.wego.toursoperator.domain.TourType
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
@@ -99,6 +101,11 @@ class JooqTourRepository(
             .set(TOURS_OPERATOR_TOUR.IS_ACTIVE, tour.isActive)
             .set(TOURS_OPERATOR_TOUR.CREATED_BY_USER_ID, tour.createdByUserId)
             .set(TOURS_OPERATOR_TOUR.CREATED_AT, toOffset(tour.createdAt))
+            .set(TOURS_OPERATOR_TOUR.NAME_EN, tour.nameEn)
+            .set(TOURS_OPERATOR_TOUR.TOUR_TYPE, tour.tourType.name)
+            .set(TOURS_OPERATOR_TOUR.IMAGE_URL, tour.imageUrl)
+            .set(TOURS_OPERATOR_TOUR.CANCELLATION_POLICY, tour.cancellationPolicy.name)
+            .set(TOURS_OPERATOR_TOUR.PRICING_NOTE, tour.pricingNote)
             .onConflict(TOURS_OPERATOR_TOUR.ID)
             .doUpdate()
             .set(TOURS_OPERATOR_TOUR.DURATION_TEXT, tour.durationText)
@@ -108,6 +115,11 @@ class JooqTourRepository(
             .set(TOURS_OPERATOR_TOUR.AVAILABLE_TIME_SLOTS, toTimeSlotsString(tour.availableTimeSlots))
             .set(TOURS_OPERATOR_TOUR.SORT_ORDER, tour.sortOrder)
             .set(TOURS_OPERATOR_TOUR.IS_ACTIVE, tour.isActive)
+            .set(TOURS_OPERATOR_TOUR.NAME_EN, tour.nameEn)
+            .set(TOURS_OPERATOR_TOUR.TOUR_TYPE, tour.tourType.name)
+            .set(TOURS_OPERATOR_TOUR.IMAGE_URL, tour.imageUrl)
+            .set(TOURS_OPERATOR_TOUR.CANCELLATION_POLICY, tour.cancellationPolicy.name)
+            .set(TOURS_OPERATOR_TOUR.PRICING_NOTE, tour.pricingNote)
             .execute()
     }
 
@@ -125,6 +137,11 @@ class JooqTourRepository(
             isActive = record.isActive,
             createdAt = record.createdAt.toInstant(),
             createdByUserId = record.createdByUserId,
+            nameEn = record.nameEn,
+            tourType = record.tourType?.let { runCatching { TourType.valueOf(it) }.getOrDefault(TourType.TOUR) } ?: TourType.TOUR,
+            imageUrl = record.imageUrl,
+            cancellationPolicy = record.cancellationPolicy?.let { runCatching { CancellationPolicy.valueOf(it) }.getOrDefault(CancellationPolicy.STANDARD) } ?: CancellationPolicy.STANDARD,
+            pricingNote = record.pricingNote,
         )
 
     /**

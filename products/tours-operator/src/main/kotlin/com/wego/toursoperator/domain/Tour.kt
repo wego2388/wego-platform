@@ -11,13 +11,23 @@ import java.util.UUID
  * isActive controls public visibility. sortOrder controls display order within
  * a category. Neither field affects booking invariants — capacity and slot
  * availability do.
+ *
+ * tourType: TOUR = standard bookable; TRANSFER = point-to-point;
+ * REQUEST_ONLY = price on request, must stay inactive.
+ *
+ * Multilingual fields (nameAr, nameRu, nameIt, descriptionEn, shortDescEn)
+ * exist in the V16 schema but have no owner-approved content yet. They are
+ * intentionally absent from the domain until translations are supplied and
+ * reviewed; V16 columns are nullable and unused columns are left NULL.
+ * pricingNote is present in approved-catalog.json for a subset of tours and
+ * is therefore modelled here.
  */
 class Tour(
     val id: TourId,
     val slug: String,
     val category: TourCategory,
     val durationText: String,
-    /** Adult price in EUR cents — always required. */
+    /** Adult price in EUR cents — required for TOUR/TRANSFER; 0 for REQUEST_ONLY. */
     val priceAdultCents: Long,
     /** Child price in EUR cents — null when not applicable or same as adult. */
     val priceChildCents: Long?,
@@ -28,6 +38,16 @@ class Tour(
     val createdAt: Instant,
     /** Nullable: the creating user may be deleted (ON DELETE SET NULL in DB). */
     val createdByUserId: UUID?,
+    val nameEn: String? = null,
+    val tourType: TourType = TourType.TOUR,
+    val imageUrl: String? = null,
+    val cancellationPolicy: CancellationPolicy = CancellationPolicy.STANDARD,
+    /**
+     * Optional pricing clarification displayed alongside the price
+     * (e.g. "Price per buggy", "Price on request"). Present for a subset
+     * of tours in approved-catalog.json.
+     */
+    val pricingNote: String? = null,
 ) {
     var isActive: Boolean = isActive
         private set
@@ -42,9 +62,16 @@ class Tour(
         require(capacity >= 1) { "Capacity must be at least 1" }
         require(availableTimeSlots.isNotEmpty()) { "At least one time slot must be available" }
         require(sortOrder >= 0) { "Sort order must not be negative" }
+        // REQUEST_ONLY tours must stay inactive — they never enter the paid booking flow
+        require(tourType != TourType.REQUEST_ONLY || !isActive) {
+            "A REQUEST_ONLY tour must not be active"
+        }
     }
 
     fun activate() {
+        require(tourType != TourType.REQUEST_ONLY) {
+            "A REQUEST_ONLY tour cannot be activated — it must not enter the paid booking flow"
+        }
         isActive = true
     }
 
@@ -67,6 +94,11 @@ class Tour(
             sortOrder: Int,
             createdByUserId: UUID?,
             now: Instant,
+            nameEn: String? = null,
+            tourType: TourType = TourType.TOUR,
+            imageUrl: String? = null,
+            cancellationPolicy: CancellationPolicy = CancellationPolicy.STANDARD,
+            pricingNote: String? = null,
         ): Tour =
             Tour(
                 id = id,
@@ -81,6 +113,11 @@ class Tour(
                 isActive = false,
                 createdAt = now,
                 createdByUserId = createdByUserId,
+                nameEn = nameEn,
+                tourType = tourType,
+                imageUrl = imageUrl,
+                cancellationPolicy = cancellationPolicy,
+                pricingNote = pricingNote,
             )
     }
 }

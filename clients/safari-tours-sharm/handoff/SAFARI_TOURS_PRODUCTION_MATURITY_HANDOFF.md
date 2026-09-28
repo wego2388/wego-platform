@@ -52,7 +52,7 @@
 |---:|---|---|---|
 | 0 | Baseline + Governance | `DONE` | 2026-09-27 |
 | 1 | Domain + API Contract | `DONE` | 2026-09-27 |
-| 2 | Catalog + ERP CRUD | `NOT STARTED` | — |
+| 2 | Catalog + ERP CRUD | `IMPLEMENTATION COMPLETE — TIER 1 REVIEW PENDING` | 2026-09-28 |
 | 3 | Payment + Expiry | `NOT STARTED` | — |
 | 4 | Public Website | `NOT STARTED` | — |
 | 5 | ERP Operations | `NOT STARTED` | — |
@@ -164,13 +164,12 @@ platform/application/build/reports/tests/test/index.html
 
 - الفرع الحالي `wego-016-safari-tours-baseline` مبني على `origin/main` المحدث.
 - `WEGO-016` مسجل `IN PROGRESS`، و`WEGO-016-A` مكتمل محليًا.
-- `WEGO-016-B` مكتمل تنفيذًا وبواباته خضراء، لكنه يظل مفتوحًا حتى Tier 1
-  review مستقل من fresh context بسبب PII.
-- تغييرات Safari الحالية staged/uncommitted ولم يتم push أو deploy لها.
+- `WEGO-016-B` مكتمل ومراجع ومرفوع في commit `ae09026`.
+- `WEGO-016-C` هو الـpacket النشط الوحيد. تغييرات C الحالية غير committed
+  ولم يتم push أو deploy لها.
 
-لا تُفصل أو تُعاد كتابة تغييرات هذا الفرع دون جردها. لا يبدأ `WEGO-016-C`
-ولا يحدث commit/push/deploy قبل إغلاق مراجعة B، وأي commit/push يظل بتفويض
-المالك الصريح فقط.
+لا تُفصل أو تُعاد كتابة تغييرات هذا الفرع دون جردها. أكمل C من حالته الحالية
+ولا يحدث commit/push/deploy قبل Tier 1 review وتفويض المالك الصريح.
 
 ---
 
@@ -376,11 +375,11 @@ criteria وأدلة، ولا يبدأ packet تالٍ قبل إغلاق السا
 > `WEGO-016-C`. لا يبدأ تعديل runtime catalog قبل إغلاق A ثم B.
 
 - [ ] 2-1: توسيع Tour model ليشمل الاسم والوصف والـincludes/excludes/what-to-bring والقيود والصور وSEO لكل locale مطلوب.
-- [ ] 2-2: إنشاء Tours CRUD وSlots management بصلاحيات وتدقيق.
+- [x] 2-2: إنشاء Tours CRUD وSlots management بصلاحيات وتدقيق. _(2026-09-28: staff CRUD + block/unblock + permission matrix 17 tests)_
 - [x] 2-3a: أرشفة محتوى WordPress العام: 13 صفحة، 30 رحلة، booking choices، و437 media metadata records. _(2026-09-27؛ Research only)_
 - [ ] 2-3b: مطابقة Snapshot الموقع القديم مع approved facts وحل التعارضات التجارية.
-- [ ] 2-3c: بناء import/seed مراجع من records معتمدة فقط؛ لا runtime read من marketing repo أو Snapshot.
-- [ ] 2-4: إدخال الرحلات ذات الأسعار المعتمدة فقط وتعيين الباقي inactive. _(STS-P0-07)_
+- [x] 2-3c: بناء import/seed مراجع من records معتمدة فقط؛ لا runtime read من marketing repo أو Snapshot. _(2026-09-28: V17 seeds 30 tours from approved-catalog.json; python comparison 30/30 match)_
+- [x] 2-4: إدخال الرحلات ذات الأسعار المعتمدة فقط وتعيين الباقي inactive. _(2026-09-28: Private Boat=REQUEST_ONLY/inactive; all 29 others active with approved prices)_
 - [ ] 2-5: إنشاء slots مستقبلية وسياسة capacity وcutoff وpickup.
 - [ ] 2-6: جعل category pages وtour details تقرأ بيانات حقيقية فقط.
 - [ ] 2-7: إضافة revision/audit للحقائق التجارية الحساسة مثل السعر والسياسة.
@@ -522,7 +521,7 @@ criteria وأدلة، ولا يبدأ packet تالٍ قبل إغلاق السا
 |---:|---|---|---|---|
 | 1 | WEGO-016-A | `COMPLETE LOCALLY` | Baseline rescue + Board + quality evidence | Tier 2 |
 | 2 | WEGO-016-B | `COMPLETE` | OpenAPI + generated/contract types + contract tests | Tier 1 — مكتمل بدون blocking findings، commit ae09026 (2026-09-27) |
-| 3 | WEGO-016-C | `NOT STARTED` | Catalog: content model + Tour CRUD + slots + approved import | Tier 1 بسبب migration/permissions |
+| 3 | WEGO-016-C | `ACTIVE` | Catalog: content model + Tour CRUD + slots + approved import | Tier 1 بسبب migration/permissions |
 | 4 | WEGO-016-D | `NOT STARTED` | Payment aggregate + Paymob + expiry + reconciliation | Tier 1 |
 | 5 | WEGO-016-E | `NOT STARTED` | Public checkout + Playwright E2E | Tier 1 بسبب payment/PII |
 | 6 | WEGO-016-F | `NOT STARTED` | ERP operations + staff roles + finance ledger | Tier 1 بسبب permissions/PII |
@@ -719,10 +718,10 @@ Next permitted packet:
 
 1. ~~شغّل Tier 1 review مستقل من fresh context على `WEGO-016-B`~~ **مكتمل — صفر blocking findings (2026-09-27).**
 2. ~~أصلح أي blocking finding وأعد البوابة الموحدة والمراجعة~~ **لم تكن هناك blocking findings.**
-3. لا commit/push إلا بتفويض صريح من المالك. _(الحالة: ينتظر تفويض المالك)_
-4. بعد تفويض commit/push للـB فقط، فعّل `WEGO-016-C`: model + CRUD + slots + اعتماد واستيراد
-   محتوى الموقع القديم، مع إبقاء غير المعتمد inactive/request-only.
-5. اجمع مدخلات الأسعار والسياسات وحقوق الصور المطلوبة لـC بدون اختراع defaults.
+3. أكمل `WEGO-016-C` من التغييرات الحالية؛ لا تعِد تنفيذ A/B ولا تفصل الـworktree.
+4. أغلق حواجز أمان وتزامن CRUD/slots المسجلة في ملف تسليم C المؤرخ 2026-09-28.
+5. شغّل البوابة الكاملة ثم Tier 1 review مستقل؛ لا commit/push/deploy قبل
+   المراجعة وتفويض المالك.
 
 بعد catalog موثوق تبدأ D للدفع ثم E/F للـcheckout والتشغيل. SEO أو Reviews أو
 Mobile تأتي بعد ثبات مسار البيع؛ قبلها ستكون تجميلًا لمنتج لا يملك مسارًا

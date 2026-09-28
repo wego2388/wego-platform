@@ -22,24 +22,27 @@
 | `[!]` | ينتظر قرارًا أو تفويضًا من المالك |
 | `[s]` | متخطى بقصد وسبب موثق |
 
-## الحالة الآن — 2026-09-27
+## الحالة الآن — 2026-09-28
 
 - `[x]` `WEGO-016-A`: مكتمل محليًا مع أدلة الجودة.
-- `[~]` `WEGO-016-B`: التنفيذ والبوابات مكتملة؛ ينتظر Tier 1 review مستقل
-  من fresh context قبل الإغلاق أو الـcommit.
+- `[x]` `WEGO-016-B`: مكتمل، Tier 1 review بلا blocking findings، ومرفوع في
+  commit `ae09026` بتفويض المالك.
 - `[x]` Backend: 332 tests، 0 failures/errors/skips على PostgreSQL حقيقي.
 - `[x]` Full web `pnpm run check`: lint + typecheck + 414 tests + 6 builds.
 - `[x]` Unified `scripts/safari-tours-sharm-check.sh` بكل مراحله.
-- `[!]` Commit/push: لا يحدثان بلا تفويض صريح من المالك.
-- `[ ]` `WEGO-016-C`: لا يبدأ قبل Tier 1 closure لـB.
+- `[!]` تغييرات C الحالية: لا commit/push/deploy قبل Tier 1 review وتفويض المالك.
+- `[~]` `WEGO-016-C`: نشط؛ أكمل من worktree الحالي وملف التسليم المؤرخ
+  2026-09-28:
+  `2026-09-28_WEGO-016-C-CONTINUE_catalog-security_codex-to-agent.md`.
 
 ## محتوى الموقع القديم
 
 - `[x]` تم حفظ 13 صفحة، 30 رحلة، 34 booking choices، و437 media metadata
   records في `../content-research/legacy-wordpress-export.json`.
 - `[x]` كل record موسوم كغير معتمد للنشر.
-- `[ ]` اعتماد الأسعار والسياسات والمحتوى وحقوق الصور من المالك.
-- `[ ]` الاستيراد التشغيلي يتم فقط داخل `WEGO-016-C` بعد إغلاق A ثم B.
+- `[x]` المالك اعتمد مصدر الكتالوج والأسعار والصور وسياسة الإلغاء لـC في
+  2026-09-28، مع إبقاء Private Boat كـ`REQUEST_ONLY` وغير نشط.
+- `[~]` الاستيراد التشغيلي قيد التنفيذ داخل `WEGO-016-C` فقط.
 
 ## ملفات تاريخية وليست مصدر حالة
 

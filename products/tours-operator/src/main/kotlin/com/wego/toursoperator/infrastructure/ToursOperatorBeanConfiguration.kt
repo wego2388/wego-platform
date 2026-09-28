@@ -10,12 +10,17 @@ import com.wego.toursoperator.application.CancelBookingService
 import com.wego.toursoperator.application.CompleteBookingService
 import com.wego.toursoperator.application.ConfirmBookingService
 import com.wego.toursoperator.application.CreateBookingService
+import com.wego.toursoperator.application.CreateSlotService
+import com.wego.toursoperator.application.CreateTourService
 import com.wego.toursoperator.application.ExpireBookingService
+import com.wego.toursoperator.application.SetSlotBlockedService
+import com.wego.toursoperator.application.SetTourActiveService
 import com.wego.toursoperator.application.TourQueryService
 import com.wego.toursoperator.application.TourRepository
 import com.wego.toursoperator.application.TourSlotQueryService
 import com.wego.toursoperator.application.TourSlotRepository
 import com.wego.toursoperator.application.TransactionRunner
+import com.wego.toursoperator.application.UpdateTourService
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -43,13 +48,35 @@ class ToursOperatorBeanConfiguration {
     fun toursOperatorAuthenticatedApiPrefix(): AuthenticatedApiPrefix =
         AuthenticatedApiPrefix("/api/v1/tours-operator/**")
 
+    // Public reads use narrow patterns. Staff writes live under the separate
+    // /api/v1/tours-operator/staff/** tree and therefore cannot collide with
+    // a public tour-id wildcard.
+    // Spring Security evaluates matchers in registration order; public rules are
+    // registered before the authenticated rule above (see SecurityConfiguration).
+    // Pattern rules:
+    //   * (single *) matches one path segment — does NOT cross a slash.
+    //   ** matches zero or more segments.
+    // /tours/* therefore matches /tours/{uuid}; staff routes fall through to
+    // the authenticated product rule and then require method permissions.
     @Bean
     fun toursOperatorPublicToursListPrefix(): PublicApiPrefix =
         PublicApiPrefix("/api/v1/tours-operator/tours")
 
     @Bean
-    fun toursOperatorPublicTourReadPrefix(): PublicApiPrefix =
-        PublicApiPrefix("/api/v1/tours-operator/tours/**")
+    fun toursOperatorPublicTourByIdPrefix(): PublicApiPrefix =
+        PublicApiPrefix("/api/v1/tours-operator/tours/*")
+
+    @Bean
+    fun toursOperatorPublicTourBySlugPrefix(): PublicApiPrefix =
+        PublicApiPrefix("/api/v1/tours-operator/tours/by-slug")
+
+    @Bean
+    fun toursOperatorPublicTourSlotListPrefix(): PublicApiPrefix =
+        PublicApiPrefix("/api/v1/tours-operator/tours/*/slots")
+
+    @Bean
+    fun toursOperatorPublicTourSlotByDatePrefix(): PublicApiPrefix =
+        PublicApiPrefix("/api/v1/tours-operator/tours/*/slots/by-date")
 
     @Bean
     fun toursOperatorPublicBookingCreatePrefix(): PublicApiPrefix =
@@ -58,8 +85,6 @@ class ToursOperatorBeanConfiguration {
     @Bean
     fun toursOperatorPublicBookingLookupPrefix(): PublicApiPrefix =
         PublicApiPrefix("/api/v1/tours-operator/bookings/lookup")
-
-    // ── Object mapper ────────────────────────────────────────────────────────
 
     @Bean("stoObjectMapper")
     fun toursOperatorObjectMapper(): ObjectMapper = ObjectMapper()
@@ -71,10 +96,41 @@ class ToursOperatorBeanConfiguration {
         @Qualifier("stoTourRepositoryImpl") tourRepository: TourRepository,
     ): TourQueryService = TourQueryService(tourRepository)
 
+    @Bean("stoCreateTourService")
+    fun createTourService(
+        @Qualifier("stoTourRepositoryImpl") tourRepository: TourRepository,
+        clock: Clock,
+    ): CreateTourService = CreateTourService(tourRepository, clock)
+
+    @Bean("stoUpdateTourService")
+    fun updateTourService(
+        @Qualifier("stoTourRepositoryImpl") tourRepository: TourRepository,
+        transactionRunner: TransactionRunner,
+    ): UpdateTourService = UpdateTourService(tourRepository, transactionRunner)
+
+    @Bean("stoSetTourActiveService")
+    fun setTourActiveService(
+        @Qualifier("stoTourRepositoryImpl") tourRepository: TourRepository,
+        transactionRunner: TransactionRunner,
+    ): SetTourActiveService = SetTourActiveService(tourRepository, transactionRunner)
+
     @Bean("stoTourSlotQueryService")
     fun tourSlotQueryService(
         @Qualifier("stoTourSlotRepositoryImpl") slotRepository: TourSlotRepository,
     ): TourSlotQueryService = TourSlotQueryService(slotRepository)
+
+    @Bean("stoCreateSlotService")
+    fun createSlotService(
+        @Qualifier("stoTourSlotRepositoryImpl") slotRepository: TourSlotRepository,
+        @Qualifier("stoTourRepositoryImpl") tourRepository: TourRepository,
+        clock: Clock,
+    ): CreateSlotService = CreateSlotService(slotRepository, tourRepository, clock)
+
+    @Bean("stoSetSlotBlockedService")
+    fun setSlotBlockedService(
+        @Qualifier("stoTourSlotRepositoryImpl") slotRepository: TourSlotRepository,
+        transactionRunner: TransactionRunner,
+    ): SetSlotBlockedService = SetSlotBlockedService(slotRepository, transactionRunner)
 
     @Bean("stoBookingQueryService")
     fun bookingQueryService(

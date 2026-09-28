@@ -1452,6 +1452,76 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tours-operator/staff/tours": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List tours including inactive drafts (staff) */
+        get: operations["listToursOperatorToursForStaff"];
+        put?: never;
+        /** Create a new inactive tour draft (staff) */
+        post: operations["createToursOperatorTour"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/tours/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get an active or inactive tour by id (staff) */
+        get: operations["getToursOperatorTourForStaff"];
+        /** Update a tour (staff) */
+        put: operations["updateToursOperatorTour"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/tours/{id}/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Activate a tour (staff) */
+        patch: operations["activateToursOperatorTour"];
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/tours/{id}/deactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Deactivate a tour (staff) */
+        patch: operations["deactivateToursOperatorTour"];
+        trace?: never;
+    };
     "/api/v1/tours-operator/tours/by-slug": {
         parameters: {
             query?: never;
@@ -1501,6 +1571,57 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/tours/{tourId}/slots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create a slot for a tour (staff) */
+        post: operations["createToursOperatorSlot"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/tours/{tourId}/slots/{slotId}/block": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Block a slot (staff) */
+        patch: operations["blockToursOperatorSlot"];
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/tours/{tourId}/slots/{slotId}/unblock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Unblock a slot (staff) */
+        patch: operations["unblockToursOperatorSlot"];
         trace?: never;
     };
     "/api/v1/tours-operator/bookings": {
@@ -1692,6 +1813,10 @@ export interface components {
             currencyCode: string;
         };
         /** @enum {string} */
+        ToursOperatorTourType: "TOUR" | "TRANSFER" | "REQUEST_ONLY";
+        /** @enum {string} */
+        ToursOperatorCancellationPolicy: "STANDARD" | "FLEXIBLE" | "NON_REFUNDABLE";
+        /** @enum {string} */
         ToursOperatorCategory: "DESERT" | "SEA" | "CULTURAL" | "SHOWS" | "TRANSFERS";
         /** @enum {string} */
         ToursOperatorTimeSlot: "SUNRISE" | "MORNING" | "AFTERNOON" | "SUNSET";
@@ -1709,6 +1834,11 @@ export interface components {
             availableTimeSlots: components["schemas"]["ToursOperatorTimeSlot"][];
             sortOrder: number;
             isActive: boolean;
+            nameEn: string | null;
+            tourType: components["schemas"]["ToursOperatorTourType"];
+            imageUrl: string | null;
+            cancellationPolicy: components["schemas"]["ToursOperatorCancellationPolicy"];
+            pricingNote: string | null;
         };
         ToursOperatorSlotResponse: {
             /** Format: uuid */
@@ -1722,6 +1852,45 @@ export interface components {
             bookedCount: number;
             available: number;
             isBlocked: boolean;
+        };
+        ToursOperatorCreateTourRequest: {
+            slug: string;
+            category: components["schemas"]["ToursOperatorCategory"];
+            durationText: string;
+            /** Format: int64 */
+            priceAdultCents: number;
+            /** Format: int64 */
+            priceChildCents?: number | null;
+            capacity: number;
+            availableTimeSlots: components["schemas"]["ToursOperatorTimeSlot"][];
+            sortOrder: number;
+            nameEn?: string | null;
+            tourType?: components["schemas"]["ToursOperatorTourType"];
+            imageUrl?: string | null;
+            cancellationPolicy?: components["schemas"]["ToursOperatorCancellationPolicy"];
+            pricingNote?: string | null;
+        };
+        ToursOperatorUpdateTourRequest: {
+            category: components["schemas"]["ToursOperatorCategory"];
+            durationText: string;
+            /** Format: int64 */
+            priceAdultCents: number;
+            /** Format: int64 */
+            priceChildCents?: number | null;
+            capacity: number;
+            availableTimeSlots: components["schemas"]["ToursOperatorTimeSlot"][];
+            sortOrder: number;
+            nameEn?: string | null;
+            tourType?: components["schemas"]["ToursOperatorTourType"];
+            imageUrl?: string | null;
+            cancellationPolicy?: components["schemas"]["ToursOperatorCancellationPolicy"];
+            pricingNote?: string | null;
+        };
+        ToursOperatorCreateSlotRequest: {
+            /** Format: date */
+            date: string;
+            timeSlot: components["schemas"]["ToursOperatorTimeSlot"];
+            capacity: number;
         };
         ToursOperatorCustomerRequest: {
             fullName: string;
@@ -6212,7 +6381,6 @@ export interface operations {
         parameters: {
             query?: {
                 category?: components["schemas"]["ToursOperatorCategory"];
-                activeOnly?: boolean;
                 page?: number;
                 size?: number;
             };
@@ -6222,7 +6390,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Tours visible under the requested filters. */
+            /** @description Active tours visible under the requested filters. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -6255,6 +6423,193 @@ export interface operations {
                 };
             };
             400: components["responses"]["ToursOperatorValidationResponse"];
+            /** @description Tour not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listToursOperatorToursForStaff: {
+        parameters: {
+            query?: {
+                category?: components["schemas"]["ToursOperatorCategory"];
+                activeOnly?: boolean;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Tours visible to authorized staff. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorTourResponse"][];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    createToursOperatorTour: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorCreateTourRequest"];
+            };
+        };
+        responses: {
+            /** @description Tour draft created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorTourResponse"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Slug already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+        };
+    };
+    getToursOperatorTourForStaff: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Tour details. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorTourResponse"];
+                };
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Tour not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateToursOperatorTour: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorUpdateTourRequest"];
+            };
+        };
+        responses: {
+            /** @description Tour updated. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Tour not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    activateToursOperatorTour: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Tour activated. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Tour not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    deactivateToursOperatorTour: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Tour deactivated. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
             /** @description Tour not found. */
             404: {
                 headers: {
@@ -6342,6 +6697,104 @@ export interface operations {
                 };
             };
             400: components["responses"]["ToursOperatorValidationResponse"];
+        };
+    };
+    createToursOperatorSlot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tourId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorCreateSlotRequest"];
+            };
+        };
+        responses: {
+            /** @description Slot created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorSlotResponse"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Slot already exists for this tour/date/time. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+        };
+    };
+    blockToursOperatorSlot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tourId: string;
+                slotId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Slot blocked. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Slot not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    unblockToursOperatorSlot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tourId: string;
+                slotId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Slot unblocked. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Slot not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     listToursOperatorBookings: {

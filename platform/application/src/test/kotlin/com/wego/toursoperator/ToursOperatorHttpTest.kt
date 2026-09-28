@@ -11,6 +11,7 @@ import com.wego.identity.domain.RoleCode
 import com.wego.identity.domain.User
 import com.wego.identity.domain.UserId
 import com.wego.identity.domain.UserStatus
+import org.assertj.core.api.Assertions.assertThat
 import org.jooq.DSLContext
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -526,6 +527,381 @@ class ToursOperatorHttpTest {
                 jsonPath("$.reference") { value(reference) }
                 jsonPath("$.customer.phone") { value("+201234567890") }
             }
+    }
+
+    // ── test 11: staff POST /staff/tours creates a tour ──────────────────────
+
+    @Test
+    fun `staff POST tours staff creates a tour and returns 201 with Location`() {
+        val adminToken = login(adminEmail, adminPassword)
+
+        val body =
+            mockMvc
+                .post("/api/v1/tours-operator/staff/tours") {
+                    header("Authorization", "Bearer $adminToken")
+                    contentType = MediaType.APPLICATION_JSON
+                    content =
+                        """
+                        {
+                          "slug": "test-create-tour-11",
+                          "category": "DESERT",
+                          "durationText": "3–4 hours",
+                          "priceAdultCents": 4000,
+                          "priceChildCents": null,
+                          "capacity": 15,
+                          "availableTimeSlots": ["MORNING", "SUNSET"],
+                          "sortOrder": 99,
+                          "nameEn": "Test Create Tour 11",
+                          "tourType": "TOUR",
+                          "imageUrl": null,
+                          "cancellationPolicy": "STANDARD"
+                        }
+                        """.trimIndent()
+                }.andExpect {
+                    status { isCreated() }
+                    jsonPath("$.slug") { value("test-create-tour-11") }
+                    jsonPath("$.priceAdult.amount") { value("40.00") }
+                    jsonPath("$.priceAdult.currencyCode") { value("EUR") }
+                    jsonPath("$.isActive") { value(false) }
+                    jsonPath("$.tourType") { value("TOUR") }
+                    jsonPath("$.cancellationPolicy") { value("STANDARD") }
+                }.andReturn()
+                .response.contentAsString
+
+        val tourId = jsonField(body, "id")
+        val adminUserId = userRepository.findByEmail(EmailAddress.of(adminEmail))!!.id.value
+        val storedCreator =
+            dsl
+                .select(TOURS_OPERATOR_TOUR.CREATED_BY_USER_ID)
+                .from(TOURS_OPERATOR_TOUR)
+                .where(TOURS_OPERATOR_TOUR.ID.eq(UUID.fromString(tourId)))
+                .fetchOne(TOURS_OPERATOR_TOUR.CREATED_BY_USER_ID)
+        assertThat(storedCreator).isEqualTo(adminUserId)
+
+        // New tours start inactive and must not leak through the public API.
+        mockMvc
+            .get("/api/v1/tours-operator/tours/$tourId")
+            .andExpect { status { isNotFound() } }
+
+        // Staff with view permission can still retrieve the inactive draft.
+        mockMvc
+            .get("/api/v1/tours-operator/staff/tours/$tourId") {
+                header("Authorization", "Bearer $adminToken")
+            }
+            .andExpect {
+                status { isOk() }
+                jsonPath("$.id") { value(tourId) }
+            }
+    }
+
+    @Test
+    fun `staff POST tours staff returns 409 when slug already exists`() {
+        val adminToken = login(adminEmail, adminPassword)
+        val uniqueSuffix = System.currentTimeMillis()
+        val slug = "duplicate-slug-$uniqueSuffix"
+
+        val payload =
+            """
+            {
+              "slug": "$slug",
+              "category": "SEA",
+              "durationText": "2 hours",
+              "priceAdultCents": 2500,
+              "capacity": 10,
+              "availableTimeSlots": ["MORNING"],
+              "sortOrder": 50
+            }
+            """.trimIndent()
+
+        mockMvc
+            .post("/api/v1/tours-operator/staff/tours") {
+                header("Authorization", "Bearer $adminToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = payload
+            }.andExpect { status { isCreated() } }
+
+        mockMvc
+            .post("/api/v1/tours-operator/staff/tours") {
+                header("Authorization", "Bearer $adminToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = payload
+            }.andExpect {
+                status { isConflict() }
+                jsonPath("$.error") { value("slug_already_exists") }
+            }
+    }
+
+    @Test
+    fun `unauthenticated POST tours staff returns 401`() {
+        mockMvc
+            .post("/api/v1/tours-operator/staff/tours") {
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    """
+                    {
+                      "slug": "no-auth-tour",
+                      "category": "CULTURAL",
+                      "durationText": "1 hour",
+                      "priceAdultCents": 1000,
+                      "capacity": 5,
+                      "availableTimeSlots": ["MORNING"],
+                      "sortOrder": 1
+                    }
+                    """.trimIndent()
+            }.andExpect { status { isUnauthorized() } }
+    }
+
+    @Test
+    fun `authenticated user without tour manage permission cannot create a tour`() {
+        val plainToken = login(plainEmail, plainPassword)
+
+        mockMvc
+            .post("/api/v1/tours-operator/staff/tours") {
+                header("Authorization", "Bearer $plainToken")
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    """
+                    {
+                      "slug": "forbidden-tour-create",
+                      "category": "CULTURAL",
+                      "durationText": "1 hour",
+                      "priceAdultCents": 1000,
+                      "capacity": 5,
+                      "availableTimeSlots": ["MORNING"],
+                      "sortOrder": 1
+                    }
+                    """.trimIndent()
+            }.andExpect { status { isForbidden() } }
+    }
+
+    // ── test 12: staff PUT /staff/tours/{id} updates a tour ──────────────────
+
+    @Test
+    fun `staff PUT tours staff updates and returns 204`() {
+        val adminToken = login(adminEmail, adminPassword)
+        val (tourId, _) = seedTourAndSlot("update-tour-12", capacity = 10)
+
+        mockMvc
+            .perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                    .put("/api/v1/tours-operator/staff/tours/$tourId")
+                    .header("Authorization", "Bearer $adminToken")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                          "category": "SEA",
+                          "durationText": "8 hours",
+                          "priceAdultCents": 5000,
+                          "priceChildCents": 2500,
+                          "capacity": 20,
+                          "availableTimeSlots": ["MORNING"],
+                          "sortOrder": 10,
+                          "nameEn": "Updated Name",
+                          "tourType": "TOUR",
+                          "imageUrl": "https://example.com/img.jpg",
+                          "cancellationPolicy": "FLEXIBLE"
+                        }
+                        """.trimIndent(),
+                    ),
+            ).andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNoContent)
+
+        mockMvc
+            .get("/api/v1/tours-operator/tours/$tourId")
+            .andExpect {
+                status { isOk() }
+                jsonPath("$.priceAdult.amount") { value("50.00") }
+                jsonPath("$.cancellationPolicy") { value("FLEXIBLE") }
+                jsonPath("$.nameEn") { value("Updated Name") }
+            }
+    }
+
+    @Test
+    fun `staff PUT tours staff returns 404 for unknown id`() {
+        val adminToken = login(adminEmail, adminPassword)
+
+        mockMvc
+            .perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                    .put("/api/v1/tours-operator/staff/tours/${UUID.randomUUID()}")
+                    .header("Authorization", "Bearer $adminToken")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                          "category": "CULTURAL",
+                          "durationText": "5 hours",
+                          "priceAdultCents": 7000,
+                          "capacity": 10,
+                          "availableTimeSlots": ["MORNING"],
+                          "sortOrder": 1
+                        }
+                        """.trimIndent(),
+                    ),
+            ).andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNotFound)
+    }
+
+    // ── test 13: staff PATCH activate / deactivate ────────────────────────────
+
+    @Test
+    fun `staff PATCH activate and deactivate a tour`() {
+        val adminToken = login(adminEmail, adminPassword)
+        val (tourId, _) = seedTourAndSlot("activate-13", capacity = 5)
+
+        mockMvc
+            .perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                    .patch("/api/v1/tours-operator/staff/tours/$tourId/activate")
+                    .header("Authorization", "Bearer $adminToken"),
+            ).andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNoContent)
+
+        mockMvc
+            .get("/api/v1/tours-operator/tours/$tourId")
+            .andExpect { jsonPath("$.isActive") { value(true) } }
+
+        mockMvc
+            .perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                    .patch("/api/v1/tours-operator/staff/tours/$tourId/deactivate")
+                    .header("Authorization", "Bearer $adminToken"),
+            ).andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNoContent)
+
+        mockMvc
+            .get("/api/v1/tours-operator/tours/$tourId")
+            .andExpect { status { isNotFound() } }
+
+        mockMvc
+            .get("/api/v1/tours-operator/staff/tours/$tourId") {
+                header("Authorization", "Bearer $adminToken")
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.isActive") { value(false) }
+            }
+    }
+
+    @Test
+    fun `PATCH activate unknown tour returns 404`() {
+        val adminToken = login(adminEmail, adminPassword)
+
+        mockMvc
+            .perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                    .patch("/api/v1/tours-operator/staff/tours/${UUID.randomUUID()}/activate")
+                    .header("Authorization", "Bearer $adminToken"),
+            ).andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNotFound)
+    }
+
+    // ── test 14: staff POST /staff/tours/{id}/slots creates a slot ────────────
+
+    @Test
+    fun `staff POST slots staff creates a slot and returns 201`() {
+        val adminToken = login(adminEmail, adminPassword)
+        val (tourId, _) = seedTourAndSlot("create-slot-14", capacity = 10)
+        val tomorrow = java.time.LocalDate.now().plusDays(2).toString()
+
+        val body =
+            mockMvc
+                .post("/api/v1/tours-operator/staff/tours/$tourId/slots") {
+                    header("Authorization", "Bearer $adminToken")
+                    contentType = MediaType.APPLICATION_JSON
+                    content =
+                        """
+                        {
+                          "date": "$tomorrow",
+                          "timeSlot": "SUNSET",
+                          "capacity": 8
+                        }
+                        """.trimIndent()
+                }.andExpect {
+                    status { isCreated() }
+                    jsonPath("$.tourId") { value(tourId.toString()) }
+                    jsonPath("$.timeSlot") { value("SUNSET") }
+                    jsonPath("$.capacity") { value(8) }
+                    jsonPath("$.bookedCount") { value(0) }
+                    jsonPath("$.isBlocked") { value(false) }
+                }.andReturn()
+                .response.contentAsString
+
+        val slotId = jsonField(body, "id")
+        assert(slotId.isNotBlank())
+    }
+
+    @Test
+    fun `staff POST slots staff returns 409 when slot already exists`() {
+        val adminToken = login(adminEmail, adminPassword)
+        val (tourId, _) = seedTourAndSlot("slot-dup-14b", capacity = 10)
+        val date = java.time.LocalDate.now().plusDays(3).toString()
+
+        val payload = """{"date":"$date","timeSlot":"MORNING","capacity":5}"""
+
+        mockMvc
+            .post("/api/v1/tours-operator/staff/tours/$tourId/slots") {
+                header("Authorization", "Bearer $adminToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = payload
+            }.andExpect { status { isCreated() } }
+
+        mockMvc
+            .post("/api/v1/tours-operator/staff/tours/$tourId/slots") {
+                header("Authorization", "Bearer $adminToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = payload
+            }.andExpect {
+                status { isConflict() }
+                jsonPath("$.error") { value("slot_already_exists") }
+            }
+    }
+
+    // ── test 15: staff PATCH block / unblock a slot ───────────────────────────
+
+    @Test
+    fun `staff PATCH block and unblock a slot`() {
+        val adminToken = login(adminEmail, adminPassword)
+        val (tourId, slotId) = seedTourAndSlot("block-15", capacity = 10)
+
+        mockMvc
+            .perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                    .patch("/api/v1/tours-operator/staff/tours/$tourId/slots/$slotId/block")
+                    .header("Authorization", "Bearer $adminToken"),
+            ).andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNoContent)
+
+        val date = LocalDate.of(2027, 6, 15).toString()
+        mockMvc
+            .get("/api/v1/tours-operator/tours/$tourId/slots/by-date") {
+                param("date", date)
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$[0].isBlocked") { value(true) }
+            }
+
+        mockMvc
+            .perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                    .patch("/api/v1/tours-operator/staff/tours/$tourId/slots/$slotId/unblock")
+                    .header("Authorization", "Bearer $adminToken"),
+            ).andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNoContent)
+
+        mockMvc
+            .get("/api/v1/tours-operator/tours/$tourId/slots/by-date") {
+                param("date", date)
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$[0].isBlocked") { value(false) }
+            }
+    }
+
+    @Test
+    fun `PATCH block unknown slot returns 404`() {
+        val adminToken = login(adminEmail, adminPassword)
+        val (tourId, _) = seedTourAndSlot("block-404", capacity = 5)
+
+        mockMvc
+            .perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                    .patch("/api/v1/tours-operator/staff/tours/$tourId/slots/${UUID.randomUUID()}/block")
+                    .header("Authorization", "Bearer $adminToken"),
+            ).andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNotFound)
     }
 
     // ── Testcontainers setup ──────────────────────────────────────────────────

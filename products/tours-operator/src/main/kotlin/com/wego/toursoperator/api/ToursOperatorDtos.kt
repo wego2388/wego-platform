@@ -1,12 +1,18 @@
 package com.wego.toursoperator.api
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.wego.toursoperator.domain.BookingStatus
+import com.wego.toursoperator.domain.CancellationPolicy
 import com.wego.toursoperator.domain.TimeSlot
 import com.wego.toursoperator.domain.TourCategory
+import com.wego.toursoperator.domain.TourType
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 import java.time.Instant
@@ -36,7 +42,13 @@ data class TourSummaryResponse(
     val capacity: Int,
     val availableTimeSlots: List<TimeSlot>,
     val sortOrder: Int,
+    @get:JsonProperty("isActive")
     val isActive: Boolean,
+    val nameEn: String?,
+    val tourType: String,
+    val imageUrl: String?,
+    val cancellationPolicy: String,
+    val pricingNote: String? = null,
 )
 
 // ── Slot responses ────────────────────────────────────────────────────────────
@@ -49,7 +61,77 @@ data class TourSlotResponse(
     val capacity: Int,
     val bookedCount: Int,
     val available: Int,
+    @get:JsonProperty("isBlocked")
     val isBlocked: Boolean,
+)
+
+// ── Tour staff requests ───────────────────────────────────────────────────────
+
+data class CreateTourRequest(
+    @field:NotBlank
+    @field:Pattern(regexp = "^[a-z0-9][a-z0-9-]{1,78}[a-z0-9]$")
+    val slug: String,
+    @field:NotNull
+    val category: TourCategory,
+    @field:NotBlank
+    @field:Size(max = 80)
+    val durationText: String,
+    @field:Min(0)
+    val priceAdultCents: Long,
+    val priceChildCents: Long? = null,
+    @field:Min(1)
+    @field:Max(1000)
+    val capacity: Int,
+    @field:NotEmpty
+    val availableTimeSlots: Set<TimeSlot>,
+    @field:Min(0)
+    val sortOrder: Int,
+    @field:Size(max = 200)
+    val nameEn: String? = null,
+    val tourType: TourType? = null,
+    @field:Size(max = 2048)
+    val imageUrl: String? = null,
+    val cancellationPolicy: CancellationPolicy? = null,
+    @field:Size(max = 500)
+    val pricingNote: String? = null,
+)
+
+data class UpdateTourRequest(
+    @field:NotNull
+    val category: TourCategory,
+    @field:NotBlank
+    @field:Size(max = 80)
+    val durationText: String,
+    @field:Min(0)
+    val priceAdultCents: Long,
+    val priceChildCents: Long? = null,
+    @field:Min(1)
+    @field:Max(1000)
+    val capacity: Int,
+    @field:NotEmpty
+    val availableTimeSlots: Set<TimeSlot>,
+    @field:Min(0)
+    val sortOrder: Int,
+    @field:Size(max = 200)
+    val nameEn: String? = null,
+    val tourType: TourType? = null,
+    @field:Size(max = 2048)
+    val imageUrl: String? = null,
+    val cancellationPolicy: CancellationPolicy? = null,
+    @field:Size(max = 500)
+    val pricingNote: String? = null,
+)
+
+// ── Slot staff requests ───────────────────────────────────────────────────────
+
+data class CreateSlotRequest(
+    @field:NotNull
+    val date: LocalDate,
+    @field:NotNull
+    val timeSlot: TimeSlot,
+    @field:Min(1)
+    @field:Max(1000)
+    val capacity: Int,
 )
 
 // ── Booking requests ──────────────────────────────────────────────────────────

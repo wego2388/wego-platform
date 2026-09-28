@@ -2469,9 +2469,9 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
 
 ### 2026-09-27 — WEGO-016-B: OpenAPI contract + contract consumers
 
-- **Status:** ACTIVE
-- **Status note:** Implementation is complete; independent Tier 1 review is
-  the only remaining active gate.
+- **Status:** COMPLETE
+- **Status note:** Implementation, independent Tier 1 review, and the
+  owner-authorized commit/push are complete; C is the only active packet.
 - **Review intensity:** Tier 1 — the contract exposes booking/customer PII even
   though this packet does not add new collection or authorization behavior.
 - **Objective:** Make one versioned OpenAPI contract the source of truth for
@@ -2533,7 +2533,7 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
   - [x] Independent Tier 1 review from fresh context — zero blocking findings (2026-09-27, see review record below).
   - [x] Commit/push done — commit ae09026, branch `wego-016-safari-tours-baseline`, owner authorized (2026-09-27).
 - **Status:** COMPLETE
-- **NEXT SUB-PACKET:** WEGO-016-C — `NOT STARTED`; ready to activate on owner instruction.
+- **NEXT SUB-PACKET:** WEGO-016-C — ACTIVE below.
 
 - **Reviewer:** Kiro (fresh context — did not implement this packet)
 - **Review date:** 2026-09-27 (Africa/Cairo)
@@ -2586,4 +2586,115 @@ All three findings are NON-BLOCKING. B-R1-01 and B-R1-03 are pre-acknowledged in
 
 #### Closure outcome
 
-Zero blocking findings. `WEGO-016-B` review is complete. Commit/push requires explicit owner authorization per the standing rule. `WEGO-016-C` is the next planned packet and remains `NOT STARTED`.
+Zero blocking findings. `WEGO-016-B` review is complete and its owner-authorized
+commit/push is recorded above. `WEGO-016-C` is now the active packet below.
+
+### 2026-09-28 — WEGO-016-C: Production catalog
+
+- **Status:** ACTIVE
+- **Status note:** Implementation complete; awaiting independent Tier 1 review before commit/push. No commit, push, or deploy until review passes and owner authorizes.
+- **Review intensity:** Tier 1 — new Flyway migration (V16/V17), new staff CRUD permissions, content import from approved source.
+- **Objective:** Add Tour content model (name, type, image, policy), seed all 30 owner-approved tours from WordPress snapshot, add Tour CRUD API for staff, add Slot management API.
+- **Owner authorization:** Owner approved all 30 legacy tours as production catalog source on 2026-09-28, including prices, images, and cancellation policy (48h full / 24–48h 50% / <24h no refund). Private Boat = REQUEST_ONLY/inactive.
+- **Commit / push / deploy:** Not authorized yet; requires Tier 1 review and explicit owner authorization.
+- **2026-09-28 controller/security repair:** The first focused C HTTP run
+  exposed 7 failures, including a real public-matcher collision on
+  `POST /tours/staff`, missing method permissions, lost creator attribution,
+  inactive-tour disclosure, controller/OpenAPI path drift, and boolean JSON
+  name drift. Staff catalog and slot mutations now live under
+  `/api/v1/tours-operator/staff/tours/**`, require the existing view/manage
+  authorities, persist the real `AuthenticatedUser.userId`, and keep inactive
+  drafts out of public by-id/by-slug/list reads. OpenAPI uses `bearerAuth` and
+  the generated TypeScript contract matches it. Focused result: **24/24
+  ToursOperatorHttpTest tests passed**.
+
+- **2026-09-28 C continuation (this session):**
+
+  **C1 — Transaction/concurrency (BLOCKING — RESOLVED):**
+  - `UpdateTourService`, `SetTourActiveService`, `SetSlotBlockedService` each
+    wrap their full read-modify-write in `transactionRunner.runInTransaction {}`,
+    holding the row lock acquired by `findByIdForUpdate()` until `save()` commits.
+  - New test class `TourCatalogConcurrencyTest` (6 tests): concurrent PUT,
+    concurrent activate, concurrent block — all serialised correctly; no torn state.
+
+  **C2 — Slot resource integrity (BLOCKING — RESOLVED):**
+  - `SetSlotBlockedService.block/unblock` now accepts `tourId` + `slotId` and
+    returns `WrongTour` (→ 404) if the slot belongs to a different tour.
+    Cross-tour mutation `/tour-A/slots/slot-B/block` is rejected.
+  - `CreateSlotService` returns the distinct `TourNotFound` result (→ 404)
+    instead of reusing `AlreadyExists` (→ 409) when the tour is absent.
+  - Both fixes covered by `TourCatalogConcurrencyTest`.
+
+  **C3 — Catalog model and persistence:**
+  - `pricingNote` field added to Tour domain, JooqTourRepository, DTOs, and
+    OpenAPI. Carried through Create/Update commands.
+  - `REQUEST_ONLY` activation guard: `Tour.activate()` throws if `tourType ==
+    REQUEST_ONLY`; domain `init` block enforces `REQUEST_ONLY → isActive=false`.
+  - Multilingual fields (`name_ar`, `name_ru`, `name_it`, `description_en`,
+    `short_desc_en`) exist in V16 schema; intentionally absent from domain —
+    no owner-approved translations exist yet. Documented explicitly.
+
+  **C4 — Approved seed proof:**
+  - Python comparison: all 30 slugs match between `approved-catalog.json` and
+    V17 seed exactly. All prices, active states, and REQUEST_ONLY/inactive for
+    Private Boat are identical.
+  - `ToursOperatorMigrationIntegrationTest` (4 tests): V16+V17 applied, 30
+    seed rows, Private Boat REQUEST_ONLY+inactive+excluded from active list,
+    slug uniqueness constraint fires, tour_type CHECK constraint fires.
+
+  **C5 — Contract and ERP consumer:**
+  - OpenAPI updated: `pricingNote` in TourSummaryResponse, CreateTourRequest,
+    UpdateTourRequest.
+  - `web/packages/api-contract/src/generated.ts` regenerated; `contract:check`
+    passes.
+  - `TourCatalogPermissionMatrixTest` (17 tests): full 401/403 matrix for
+    unauthenticated, no-permission, tour:view (read-only), tour:manage
+    (tours only), slot:manage (slots only).
+
+  **C6 — Closure gates:**
+  - Backend full suite: **371 tests, 0 failures, 0 errors** (was 332 before C).
+  - New C tests: 6 concurrency + 4 migration + 17 permission = 27 new tests.
+  - `pnpm run check` (web): all tests passed, 6 builds green.
+  - `pnpm --dir foundry run validate`: passed.
+  - `bash scripts/safari-tours-sharm-check.sh`: **passed**.
+  - `bash scripts/repository-check.sh`: passed.
+  - `git diff --check`: no whitespace errors.
+
+- **Changed files (untracked/modified — no commit yet):**
+  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/application/UpdateTourService.kt`
+  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/application/SetTourActiveService.kt`
+  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/application/SetSlotBlockedService.kt`
+  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/application/CreateSlotService.kt`
+  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/application/CreateTourService.kt`
+  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/application/UpdateTourService.kt`
+  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/domain/Tour.kt`
+  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/api/TourController.kt`
+  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/api/TourSlotController.kt`
+  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/api/ToursOperatorDtos.kt`
+  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/infrastructure/JooqTourRepository.kt`
+  - `products/tours-operator/src/main/kotlin/com/wego/toursoperator/infrastructure/ToursOperatorBeanConfiguration.kt`
+  - `platform/contracts/openapi/v1/wego-api.yaml`
+  - `web/packages/api-contract/src/generated.ts`
+  - `platform/application/src/test/kotlin/com/wego/toursoperator/TourCatalogConcurrencyTest.kt` (new)
+  - `platform/application/src/test/kotlin/com/wego/toursoperator/TourCatalogPermissionMatrixTest.kt` (new)
+  - `platform/application/src/test/kotlin/com/wego/toursoperator/ToursOperatorMigrationIntegrationTest.kt` (new)
+  - `platform/application/src/main/resources/db/migration/V16__tours_operator_catalog_content.sql` (untracked)
+  - `platform/application/src/main/resources/db/migration/V17__tours_operator_catalog_seed.sql` (untracked)
+  - `clients/safari-tours-sharm/content-research/approved-catalog.json` (untracked)
+  - `clients/safari-tours-sharm/handoff/` (updated)
+  - `docs/execution/WEGO_EXECUTION_BOARD.md` (this update)
+
+- **Known risks / remaining for Tier 1 review:**
+  - Multilingual fields (name_ar/ru/it, description_en, short_desc_en) are
+    NULL in production; no owner-approved content supplied yet — explicit gap.
+  - Image URLs reference safaritourssharm.com CDN — not yet mirrored; rights
+    confirmed by owner but not legally documented per maturity handoff.
+  - V17 seed has no `ON CONFLICT` clause (jOOQ H2 limitation); safe on fresh
+    schema but re-running on existing data will fail. Documented intentionally.
+  - Date validation, allowed date range, and capacity policy for slots (C2
+    remainder) require owner decision on cutoff rules — recorded as blocker
+    for D.
+  - `pricingNote` is exposed in the public API — acceptable per approved-catalog
+    data, but Tier 1 reviewer should confirm no PII risk.
+
+- **NEXT SUB-PACKET:** WEGO-016-D — Payment aggregate + Paymob + expiry (NOT STARTED; requires Tier 1 review of C and owner authorization).
