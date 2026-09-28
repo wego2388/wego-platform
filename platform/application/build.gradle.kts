@@ -103,6 +103,8 @@ jooq {
                 properties {
                     property {
                         key = "scripts"
+                        // DML-only seed files live in db/migration/data/ and are intentionally
+                        // excluded from jOOQ codegen — H2/DDLDatabase cannot parse ON CONFLICT.
                         value = file("src/main/resources/db/migration/*.sql").absolutePath
                     }
                     property {

@@ -157,7 +157,10 @@ class ToursOperatorPaymentTest {
         isRefund: String, amountCents: Long,
     ) = """{"obj":{"id":"$transactionId","success":$success,"pending":$pending,
               "is_refunded":$isRefund,"amount_cents":$amountCents,"currency":"EUR",
-              "order":{"id":"$orderId"},"source_data":{},"data":{}}}"""
+              "created_at":"2026-09-28T10:00:00Z","integration_id":"100001",
+              "order":{"id":"$orderId"},
+              "source_data":{"pan":"1234","sub_type":"MasterCard","type":"card"},
+              "data":{}}}"""
 
     // ── D1: Initiate creates PENDING record ────────────────────────────────
 

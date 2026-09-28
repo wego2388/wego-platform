@@ -115,6 +115,11 @@ class PaymobWebhookController(
             providerResponseMessage = obj["data"]?.let {
                 (it as? Map<String, Any>)?.get("message")?.toString()
             },
+            createdAt       = obj["created_at"]?.toString() ?: "",
+            integrationId   = obj["integration_id"]?.toString() ?: "",
+            sourceDataPan       = sourceData["pan"]?.toString() ?: "",
+            sourceDataSubType   = sourceData["sub_type"]?.toString() ?: "",
+            sourceDataType      = sourceData["type"]?.toString() ?: "",
         )
     }
 

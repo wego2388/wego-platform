@@ -29,6 +29,12 @@ data class PaymobWebhookPayload(
     val hmac: String,
     val providerResponseCode: String?,
     val providerResponseMessage: String?,
+    /** Fields required for HMAC verification — extracted from the webhook body. */
+    val createdAt: String,
+    val integrationId: String,
+    val sourceDataPan: String,
+    val sourceDataSubType: String,
+    val sourceDataType: String,
 )
 
 sealed class HandlePaymobWebhookResult {
@@ -120,26 +126,26 @@ class HandlePaymobWebhookService(
      */
     private fun buildSignatureFields(p: PaymobWebhookPayload): Map<String, String> =
         mapOf(
-            "amount_cents" to p.amountCents.toString(),
-            "created_at" to "",          // Paymob includes created_at; value varies
-            "currency" to p.currencyCode,
-            "error_occured" to "false",
-            "has_parent_transaction" to "false",
-            "id" to p.transactionId,
-            "integration_id" to "",      // filled by real implementation from config
-            "is_3d_secure" to "false",
-            "is_auth" to "false",
-            "is_capture" to "false",
-            "is_refunded" to p.isRefund,
-            "is_standalone_payment" to "true",
-            "is_voided" to "false",
-            "order" to p.orderId,
-            "owner" to "",
-            "pending" to p.pending,
-            "source_data.pan" to "",
-            "source_data.sub_type" to "",
-            "source_data.type" to "",
-            "success" to p.success,
+            "amount_cents"             to p.amountCents.toString(),
+            "created_at"               to p.createdAt,
+            "currency"                 to p.currencyCode,
+            "error_occured"            to "false",
+            "has_parent_transaction"   to "false",
+            "id"                       to p.transactionId,
+            "integration_id"           to p.integrationId,
+            "is_3d_secure"             to "false",
+            "is_auth"                  to "false",
+            "is_capture"               to "false",
+            "is_refunded"              to p.isRefund,
+            "is_standalone_payment"    to "true",
+            "is_voided"                to "false",
+            "order"                    to p.orderId,
+            "owner"                    to "",
+            "pending"                  to p.pending,
+            "source_data.pan"          to p.sourceDataPan,
+            "source_data.sub_type"     to p.sourceDataSubType,
+            "source_data.type"         to p.sourceDataType,
+            "success"                  to p.success,
         )
 
     private fun amountMismatchEnvelope(

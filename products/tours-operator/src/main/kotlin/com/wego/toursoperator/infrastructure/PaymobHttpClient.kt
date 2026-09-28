@@ -85,10 +85,22 @@ class PaymobHttpClient(
 
     // ── Checkout URL ──────────────────────────────────────────────────────────
 
+    /**
+     * STUB — NOT PRODUCTION READY.
+     *
+     * Real Paymob checkout requires a separate payment-key API call:
+     *   POST /acceptance/payment_keys  { auth_token, amount_cents, currency,
+     *                                    order_id, billing_data, integration_id,
+     *                                    lock_order_when_paid }
+     * Returns a payment_token used as: https://accept.paymob.com/api/acceptance/iframes/{iframeId}?payment_token={token}
+     *
+     * Replace this stub with the real implementation when Paymob sandbox
+     * credentials are available. Do NOT deploy with this stub active.
+     *
+     * @see https://developers.paymob.com/egypt/accept/step-by-step-integration
+     */
+    @Suppress("FunctionOnlyReturningConstant")
     override fun buildCheckoutUrl(paymobOrderId: String): String {
-        // Obtain a payment key token for the hosted checkout iframe
-        // In real usage this requires another API call; here we delegate to
-        // the integration key configuration so it can be replaced without code changes.
         return "${config.iframeBaseUrl}?payment_token=${config.integrationId}_${paymobOrderId}"
     }
 
