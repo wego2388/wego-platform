@@ -2596,7 +2596,7 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 - **Review intensity:** Tier 1 — new Flyway migration (V16/V17), new staff CRUD permissions, content import from approved source.
 - **Objective:** Add Tour content model (name, type, image, policy), seed all 30 owner-approved tours from WordPress snapshot, add Tour CRUD API for staff, add Slot management API.
 - **Owner authorization:** Owner approved all 30 legacy tours as production catalog source on 2026-09-28, including prices, images, and cancellation policy (48h full / 24–48h 50% / <24h no refund). Private Boat = REQUEST_ONLY/inactive.
-- **Commit / push / deploy:** Not authorized yet; requires Tier 1 review and explicit owner authorization.
+- **Commit / push / deploy:** Committed `1a6a8f4`, pushed to `origin/wego-016-safari-tours-baseline` (2026-09-28). No deploy.
 - **2026-09-28 controller/security repair:** The first focused C HTTP run
   exposed 7 failures, including a real public-matcher collision on
   `POST /tours/staff`, missing method permissions, lost creator attribution,
