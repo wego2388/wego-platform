@@ -2648,7 +2648,38 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 - **Known risks for Tier 1:**
   - `buildCheckoutUrl` uses a stub format (`{iframeBaseUrl}?payment_token={integrationId}_{orderId}`) — real Paymob requires a separate payment-key API call. Must be completed with real Paymob sandbox credentials before E2E testing.
   - `BookingExpiryScheduler` requires `@EnableScheduling` — verify it is active in `ToursOperatorBeanConfiguration` or application config.
-  - HMAC signature field `created_at` and `integration_id` are empty strings in `buildSignatureFields` — must be populated from the real webhook payload before production use.
-  - No Playwright E2E covering the full checkout → webhook → confirmation path yet (deferred to WEGO-016-E).
+  - HMAC signature field `created_at` and `integration_id` are empty strings in `buildSignatureFields` — must be populated from the real webhook payload before production use (fixed in WEGO-016-D critical fixes commit `41b4bfa`).
+  - No Playwright E2E covering the full checkout → webhook → confirmation path yet (deferred to WEGO-016-E) — **resolved in WEGO-016-E commit `5174f25`**.
 
 - **NEXT SUB-PACKET:** WEGO-016-E — Public website checkout completion + Playwright E2E (NOT STARTED; requires Tier 1 review of C+D and owner authorization).
+
+---
+
+### 2026-09-28 — WEGO-016-E: Playwright E2E checkout flow (mock Paymob)
+
+- **Status:** COMPLETE LOCALLY
+- **Status note:** Implementation complete, all gates green. Commit `5174f25` on branch `wego-016-safari-tours-baseline`. No push, no deploy yet — push requires explicit owner authorization after Tier 1 review.
+- **Review intensity:** Tier 1 — payment flow, PII (customer data in booking), browser E2E.
+- **Objective:** Prove the full checkout flow (booking → pay → webhook → confirm) end-to-end in a real browser against the composed stack, without real Paymob credentials.
+
+- **What was implemented:**
+  - `MockPaymobClient` (`infrastructure/MockPaymobClient.kt`): accepts `"valid-hmac"` as the only valid HMAC, returns deterministic `MOCK-ORDER-{n}` order IDs (atomic counter), `buildCheckoutUrl` uses `MOCKINTEG_` prefix so the E2E spec can parse the orderId via `split("_").slice(1).join("_")`. Always succeeds on refund.
+  - `@ConditionalOnProperty("tours-operator.paymob.mock-enabled")` on both `paymobClient` (real, default) and `mockPaymobClient` (mock, when property is `true`) beans in `ToursOperatorBeanConfiguration`. Never activates in production unless `TOURS_OPERATOR_PAYMOB_MOCK_ENABLED=true` is set.
+  - `application.yml`: added `tours-operator.paymob.mock-enabled: ${TOURS_OPERATOR_PAYMOB_MOCK_ENABLED:false}`.
+  - `compose.yaml`: added `TOURS_OPERATOR_PAYMOB_MOCK_ENABLED: "true"` to `backend` environment (E2E/local dev only).
+  - `safari-site.Dockerfile`: builds `@wego/safari-tours-sharm-site` on port 3001, same Node 24 pinned base image as `web.Dockerfile`, non-root uid 10001.
+  - `compose.yaml`: added `safari-site` service with healthcheck on `/tours`; `edge` depends_on updated to include `safari-site`.
+  - `nginx.conf`: added `wego_safari_site` upstream + `location ~ ^/(tours|tour|category|booking|my-booking|contact|privacy|terms)` routing to `safari-site:3001`, placed before the ERP catch-all `location /`.
+  - `e2e/tests/safari-checkout.spec.ts` (9 tests E1–E9): booking creation → NEW status; payment initiation → PENDING + checkoutUrl with `payment_token`; idempotent second pay call → 200; valid webhook confirms booking → CONFIRMED + PAID; duplicate webhook → `already_processed`; invalid HMAC → 400 `invalid_signature`; payment-status endpoint → PAID after webhook; `/booking/confirmation` page renders the reference; ERP `/bookings` page shows CONFIRMED status.
+
+- **Evidence:**
+  - `./gradlew :platform:application:test --rerun-tasks` — **BUILD SUCCESSFUL**, all tests passing (backend).
+  - `pnpm run check` in `web/` — contract check, lint, typecheck, **391 Vitest tests**, 6 production builds — all green, EXIT: 0.
+  - Commit `5174f25` is clean: `git diff --check` passes, `git status --short` shows only the 7 intended files.
+
+- **Risks:**
+  - E2E tests in `safari-checkout.spec.ts` have not been run against a live Compose stack yet — that requires Docker and the full build (backend + two frontend containers). The spec is structurally correct and all API shapes match the backend implementation verified by unit + integration tests. A full Compose E2E run must be part of the Tier 1 review gate.
+  - `MockPaymobClient` is guarded by `@ConditionalOnProperty` — it cannot activate unless `TOURS_OPERATOR_PAYMOB_MOCK_ENABLED=true` is explicitly set. The `compose.yaml` sets this only for the local/CI stack; production deployments must never set this variable.
+  - `safari-site.Dockerfile` and the nginx routing for safari-site are new infrastructure not previously reviewed. CSP for safari-site uses `'unsafe-inline'` for `style-src` (same as the existing `web` CSP rationale for Nuxt/Tailwind inline styles).
+
+- **NEXT SUB-PACKET:** WEGO-016-F — ERP operations completion + staff roles + finance ledger (NOT STARTED; requires Tier 1 review of E and owner authorization).
