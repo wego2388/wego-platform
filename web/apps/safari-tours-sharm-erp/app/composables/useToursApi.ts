@@ -134,3 +134,97 @@ export function completeBooking(token: string, id: string): Promise<Booking> {
     method: "POST",
   });
 }
+
+// ── Staff tours ────────────────────────────────────────────────────────────
+
+export type CreateTourPayload = {
+  slug: string;
+  category: TourCategory;
+  durationText: string;
+  priceAdultCents: number;
+  priceChildCents?: number | null;
+  capacity: number;
+  availableTimeSlots: string[];
+  sortOrder: number;
+  nameEn?: string | null;
+  tourType?: string | null;
+  imageUrl?: string | null;
+  cancellationPolicy?: string | null;
+  pricingNote?: string | null;
+};
+
+export type UpdateTourPayload = Omit<CreateTourPayload, "slug">;
+
+export function listStaffTours(
+  token: string,
+  params: { activeOnly?: boolean; category?: TourCategory; page?: number; size?: number } = {},
+): Promise<Tour[]> {
+  const q = new URLSearchParams();
+  if (params.activeOnly !== undefined) q.set("activeOnly", String(params.activeOnly));
+  if (params.category) q.set("category", params.category);
+  q.set("page", String(params.page ?? 0));
+  q.set("size", String(params.size ?? PAGE_SIZE));
+  return request<Tour[]>(`/api/v1/tours-operator/staff/tours?${q}`, token);
+}
+
+export function getStaffTour(token: string, id: string): Promise<Tour> {
+  return request<Tour>(`/api/v1/tours-operator/staff/tours/${id}`, token);
+}
+
+export function createTour(token: string, payload: CreateTourPayload): Promise<Tour> {
+  return request<Tour>("/api/v1/tours-operator/staff/tours", token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateTour(token: string, id: string, payload: UpdateTourPayload) {
+  return request<undefined>(`/api/v1/tours-operator/staff/tours/${id}`, token, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function activateTour(token: string, id: string) {
+  return request<undefined>(`/api/v1/tours-operator/staff/tours/${id}/activate`, token, {
+    method: "PATCH",
+  });
+}
+
+export function deactivateTour(token: string, id: string) {
+  return request<undefined>(`/api/v1/tours-operator/staff/tours/${id}/deactivate`, token, {
+    method: "PATCH",
+  });
+}
+
+// ── Staff slots ────────────────────────────────────────────────────────────
+
+export function createSlot(
+  token: string,
+  tourId: string,
+  payload: { date: string; timeSlot: string; capacity: number },
+): Promise<TourSlot> {
+  return request<TourSlot>(`/api/v1/tours-operator/staff/tours/${tourId}/slots`, token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function blockSlot(token: string, tourId: string, slotId: string) {
+  return request<undefined>(
+    `/api/v1/tours-operator/staff/tours/${tourId}/slots/${slotId}/block`,
+    token,
+    { method: "PATCH" },
+  );
+}
+
+export function unblockSlot(token: string, tourId: string, slotId: string) {
+  return request<undefined>(
+    `/api/v1/tours-operator/staff/tours/${tourId}/slots/${slotId}/unblock`,
+    token,
+    { method: "PATCH" },
+  );
+}

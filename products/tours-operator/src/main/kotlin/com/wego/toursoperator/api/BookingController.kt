@@ -91,8 +91,9 @@ class BookingController(
     }
 
     /**
-     * Called by the Paymob webhook after successful payment.
-     * AlreadyConfirmed is treated as 200 — webhook retries are safe.
+     * Called by HandlePaymobWebhookService after HMAC-verified webhook confirms payment.
+     * AlreadyConfirmed is treated as 200 — webhook retries are safe (idempotent).
+     * This endpoint requires payment:update authority — it is NOT called by the browser.
      */
     @PostMapping("/{id}/confirm")
     @PreAuthorize("hasAuthority('tours-operator.booking:payment-update')")

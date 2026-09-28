@@ -26,7 +26,7 @@ sealed class ConfirmBookingResult {
 }
 
 /**
- * Called by the Paymob payment webhook on successful payment.
+ * Called by HandlePaymobWebhookService on successful HMAC-verified payment.
  * AlreadyConfirmed is a safe replay path — Paymob may deliver the
  * webhook more than once. The caller must treat it as success.
  */

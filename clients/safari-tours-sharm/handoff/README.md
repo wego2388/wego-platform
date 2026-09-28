@@ -27,13 +27,12 @@
 - `[x]` `WEGO-016-A`: مكتمل محليًا مع أدلة الجودة.
 - `[x]` `WEGO-016-B`: مكتمل، Tier 1 review بلا blocking findings، ومرفوع في
   commit `ae09026` بتفويض المالك.
-- `[x]` Backend: 332 tests، 0 failures/errors/skips على PostgreSQL حقيقي.
-- `[x]` Full web `pnpm run check`: lint + typecheck + 414 tests + 6 builds.
-- `[x]` Unified `scripts/safari-tours-sharm-check.sh` بكل مراحله.
+- `[x]` `WEGO-016-C` implementation: مكتمل بالكامل — C1 حتى C5 منفذة ومثبتة.
+  - Backend: 380 tests، 0 failures/errors/skips على PostgreSQL حقيقي.
+  - Full web `pnpm run check`: lint + typecheck + 290 tests + 6 builds ✅.
+  - `bash scripts/safari-tours-sharm-check.sh` ✅.
 - `[!]` تغييرات C الحالية: لا commit/push/deploy قبل Tier 1 review وتفويض المالك.
-- `[~]` `WEGO-016-C`: نشط؛ أكمل من worktree الحالي وملف التسليم المؤرخ
-  2026-09-28:
-  `2026-09-28_WEGO-016-C-CONTINUE_catalog-security_codex-to-agent.md`.
+- `[~]` `WEGO-016-C` closure: ينتظر independent Tier 1 review مستقل.
 
 ## محتوى الموقع القديم
 

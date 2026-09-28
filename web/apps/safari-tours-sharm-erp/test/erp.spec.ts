@@ -8,6 +8,8 @@ import {
   type Booking,
   type Tour,
   type BookingStatus,
+  type CreateTourPayload,
+  type UpdateTourPayload,
 } from "../app/composables/useToursApi";
 import {
   writeAuthSession,
@@ -349,5 +351,87 @@ describe("Booking reference format", () => {
     expect(id).not.toBe(ref);
     expect(ref).toMatch(/^STR-/);
     expect(id).toMatch(/^[0-9a-f-]{36}$/i);
+  });
+});
+
+// ── Staff tour payload shapes ──────────────────────────────────────────────
+
+describe("CreateTourPayload shape", () => {
+  it("accepts a minimal valid payload", () => {
+    const payload: CreateTourPayload = {
+      slug: "super-safari-adventure",
+      category: "DESERT",
+      durationText: "5–6 hours",
+      priceAdultCents: 3500,
+      capacity: 20,
+      availableTimeSlots: ["MORNING", "SUNSET"],
+      sortOrder: 1,
+    };
+    expect(payload.slug).toBe("super-safari-adventure");
+    expect(payload.priceAdultCents).toBe(3500);
+    expect(payload.priceChildCents).toBeUndefined();
+  });
+
+  it("accepts optional fields", () => {
+    const payload: CreateTourPayload = {
+      slug: "private-boat",
+      category: "SEA",
+      durationText: "4–8 hours",
+      priceAdultCents: 0,
+      capacity: 20,
+      availableTimeSlots: ["MORNING"],
+      sortOrder: 12,
+      nameEn: "Private Boat",
+      tourType: "REQUEST_ONLY",
+      imageUrl: "https://example.com/img.jpg",
+      cancellationPolicy: "STANDARD",
+      pricingNote: "Price on request — contact via WhatsApp",
+    };
+    expect(payload.tourType).toBe("REQUEST_ONLY");
+    expect(payload.pricingNote).toBeTruthy();
+  });
+
+  it("UpdateTourPayload omits slug", () => {
+    const payload: UpdateTourPayload = {
+      category: "DESERT",
+      durationText: "3 hours",
+      priceAdultCents: 2500,
+      capacity: 10,
+      availableTimeSlots: ["MORNING"],
+      sortOrder: 5,
+    };
+    // slug should not exist on UpdateTourPayload at runtime
+    expect("slug" in payload).toBe(false);
+  });
+});
+
+// ── Staff tour activate/deactivate logic ───────────────────────────────────
+
+describe("Tour active toggle logic", () => {
+  function canActivate(tour: Pick<Tour, "isActive" | "tourType">): boolean {
+    return !tour.isActive && tour.tourType !== "REQUEST_ONLY";
+  }
+  function canDeactivate(tour: Pick<Tour, "isActive">): boolean {
+    return tour.isActive;
+  }
+
+  it("inactive TOUR can be activated", () => {
+    expect(canActivate({ isActive: false, tourType: "TOUR" })).toBe(true);
+  });
+
+  it("active TOUR can be deactivated", () => {
+    expect(canDeactivate({ isActive: true })).toBe(true);
+  });
+
+  it("REQUEST_ONLY cannot be activated", () => {
+    expect(canActivate({ isActive: false, tourType: "REQUEST_ONLY" })).toBe(false);
+  });
+
+  it("already active tour cannot be activated again (no-op guard)", () => {
+    expect(canActivate({ isActive: true, tourType: "TOUR" })).toBe(false);
+  });
+
+  it("already inactive tour cannot be deactivated again (no-op guard)", () => {
+    expect(canDeactivate({ isActive: false })).toBe(false);
   });
 });

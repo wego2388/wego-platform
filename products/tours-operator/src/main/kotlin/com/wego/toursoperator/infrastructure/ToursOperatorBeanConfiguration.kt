@@ -13,6 +13,12 @@ import com.wego.toursoperator.application.CreateBookingService
 import com.wego.toursoperator.application.CreateSlotService
 import com.wego.toursoperator.application.CreateTourService
 import com.wego.toursoperator.application.ExpireBookingService
+import com.wego.toursoperator.application.ExpireOverduePaymentsService
+import com.wego.toursoperator.application.HandlePaymobWebhookService
+import com.wego.toursoperator.application.InitiatePaymentService
+import com.wego.toursoperator.application.PaymentQueryService
+import com.wego.toursoperator.application.PaymentRepository
+import com.wego.toursoperator.application.PaymobClient
 import com.wego.toursoperator.application.SetSlotBlockedService
 import com.wego.toursoperator.application.SetTourActiveService
 import com.wego.toursoperator.application.TourQueryService
@@ -22,8 +28,10 @@ import com.wego.toursoperator.application.TourSlotRepository
 import com.wego.toursoperator.application.TransactionRunner
 import com.wego.toursoperator.application.UpdateTourService
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.scheduling.annotation.EnableScheduling
 import tools.jackson.databind.ObjectMapper
 import java.time.Clock
 
@@ -36,6 +44,7 @@ import java.time.Clock
  * @Transactional proxy generation. Services are wired here via @Qualifier.
  */
 @Configuration(proxyBeanMethods = false)
+@EnableScheduling
 class ToursOperatorBeanConfiguration {
 
     // ── Security prefixes ────────────────────────────────────────────────────
@@ -82,9 +91,21 @@ class ToursOperatorBeanConfiguration {
     fun toursOperatorPublicBookingCreatePrefix(): PublicApiPrefix =
         PublicApiPrefix("/api/v1/tours-operator/bookings")
 
-    @Bean
+    @Bean("stoPublicBookingLookupPrefix")
     fun toursOperatorPublicBookingLookupPrefix(): PublicApiPrefix =
         PublicApiPrefix("/api/v1/tours-operator/bookings/lookup")
+
+    @Bean("stoPublicPaymentInitiatePrefix")
+    fun toursOperatorPublicPaymentInitiatePrefix(): PublicApiPrefix =
+        PublicApiPrefix("/api/v1/tours-operator/bookings/*/pay")
+
+    @Bean("stoPublicPaymentStatusPrefix")
+    fun toursOperatorPublicPaymentStatusPrefix(): PublicApiPrefix =
+        PublicApiPrefix("/api/v1/tours-operator/bookings/*/payment-status")
+
+    @Bean("stoPublicPaymobCallbackPrefix")
+    fun toursOperatorPublicPaymobCallbackPrefix(): PublicApiPrefix =
+        PublicApiPrefix("/api/v1/tours-operator/payments/paymob-callback")
 
     @Bean("stoObjectMapper")
     fun toursOperatorObjectMapper(): ObjectMapper = ObjectMapper()
@@ -234,6 +255,89 @@ class ToursOperatorBeanConfiguration {
             outboxWriter,
             transactionRunner,
             toursOperatorObjectMapper,
+            clock,
+        )
+
+    // ── Payment beans ────────────────────────────────────────────────────────
+
+    @Bean("stoPaymobConfig")
+    fun paymobConfig(
+        @Value("\${tours-operator.paymob.base-url:https://accept.paymob.com/api}") baseUrl: String,
+        @Value("\${tours-operator.paymob.api-key:PLACEHOLDER_PAYMOB_API_KEY}") apiKey: String,
+        @Value("\${tours-operator.paymob.integration-id:PLACEHOLDER_INTEGRATION_ID}") integrationId: String,
+        @Value("\${tours-operator.paymob.hmac-secret:PLACEHOLDER_HMAC_SECRET}") hmacSecret: String,
+        @Value("\${tours-operator.paymob.iframe-base-url:https://accept.paymob.com/api/acceptance/iframes}") iframeBaseUrl: String,
+        @Value("\${tours-operator.paymob.iframe-id:PLACEHOLDER_IFRAME_ID}") iframeId: String,
+    ): PaymobConfig =
+        PaymobConfig(
+            baseUrl = baseUrl,
+            apiKey = apiKey,
+            integrationId = integrationId,
+            hmacSecret = hmacSecret,
+            iframeBaseUrl = iframeBaseUrl,
+            iframeId = iframeId,
+        )
+
+    @Bean("stoPaymobClient")
+    fun paymobClient(
+        @Qualifier("stoPaymobConfig") config: PaymobConfig,
+        @Qualifier("stoObjectMapper") objectMapper: ObjectMapper,
+    ): PaymobClient = PaymobHttpClient(config, objectMapper)
+
+    @Bean("stoPaymentQueryService")
+    fun paymentQueryService(
+        @Qualifier("stoPaymentRepositoryImpl") paymentRepository: PaymentRepository,
+    ): PaymentQueryService = PaymentQueryService(paymentRepository)
+
+    @Bean("stoInitiatePaymentService")
+    fun initiatePaymentService(
+        @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
+        @Qualifier("stoPaymentRepositoryImpl") paymentRepository: PaymentRepository,
+        @Qualifier("stoPaymobClient") paymobClient: PaymobClient,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): InitiatePaymentService =
+        InitiatePaymentService(
+            bookingRepository,
+            paymentRepository,
+            paymobClient,
+            transactionRunner,
+            clock,
+        )
+
+    @Bean("stoHandlePaymobWebhookService")
+    fun handlePaymobWebhookService(
+        @Qualifier("stoPaymentRepositoryImpl") paymentRepository: PaymentRepository,
+        @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
+        @Qualifier("stoConfirmBookingService") confirmBookingService: ConfirmBookingService,
+        @Qualifier("stoPaymobClient") paymobClient: PaymobClient,
+        outboxWriter: OutboxWriter,
+        transactionRunner: TransactionRunner,
+        @Qualifier("stoObjectMapper") objectMapper: ObjectMapper,
+        clock: Clock,
+    ): HandlePaymobWebhookService =
+        HandlePaymobWebhookService(
+            paymentRepository,
+            bookingRepository,
+            confirmBookingService,
+            paymobClient,
+            outboxWriter,
+            transactionRunner,
+            objectMapper,
+            clock,
+        )
+
+    @Bean("stoExpireOverduePaymentsService")
+    fun expireOverduePaymentsService(
+        @Qualifier("stoPaymentRepositoryImpl") paymentRepository: PaymentRepository,
+        @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
+        @Qualifier("stoExpireBookingService") expireBookingService: ExpireBookingService,
+        clock: Clock,
+    ): ExpireOverduePaymentsService =
+        ExpireOverduePaymentsService(
+            paymentRepository,
+            bookingRepository,
+            expireBookingService,
             clock,
         )
 }

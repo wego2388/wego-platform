@@ -8,6 +8,7 @@ import type { StsLocale } from "../../content/locales";
 import {
   getTourPublic,
   createBooking,
+  initiatePayment,
   calculateBookingTotal,
   formatPrice,
   formatTimeSlot,
@@ -20,8 +21,7 @@ import {
 } from "../../composables/usePublicToursApi";
 
 const ALL_LOCALES: StsLocale[] = ["en", "ru", "ar", "it"];
-const route  = useRoute();
-const router = useRouter();
+const route   = useRoute();
 
 const locale    = useSiteLocale();
 const copy      = computed(() => siteCopy[locale.value]);
@@ -149,6 +149,7 @@ async function submitBooking() {
   submitError.value = "";
 
   try {
+    // Step 1: Create booking (status = NEW, slot reserved)
     const result = await createBooking({
       slotId:              slotId.value,
       adultsCount:         adultsCount.value,
@@ -164,11 +165,18 @@ async function submitBooking() {
       specialRequests:     form.value.specialRequests || undefined,
       locale:              locale.value,
     });
+
     confirmation.value = result;
     storeBookingConfirmation(result);
+
+    // Step 2: Initiate Paymob payment — get checkout URL from server
+    const paymentResult = await initiatePayment(result.id);
+
+    // Step 3: Redirect to Paymob hosted checkout
+    // The return URL (configured on Paymob dashboard) should point to
+    // /booking/payment-result?ref={reference}&bookingId={id}
     step.value = 4;
-    // Redirect to confirmation page
-    void router.replace(`/booking/confirmation?ref=${result.reference}`);
+    window.location.href = paymentResult.checkoutUrl;
   } catch (err) {
     step.value = 2;
     if (err instanceof PublicApiError) {
@@ -178,6 +186,8 @@ async function submitBooking() {
         submitError.value = "This slot is no longer available. Please choose another date.";
       } else if (err.errorCode === "tour_not_active") {
         submitError.value = "This tour is currently unavailable. Please contact us on WhatsApp.";
+      } else if (err.errorCode === "payment_provider_error") {
+        submitError.value = "Payment service is temporarily unavailable. Please try again or book via WhatsApp.";
       } else {
         submitError.value = "Something went wrong. Please try again or book via WhatsApp.";
       }
@@ -479,17 +489,17 @@ v-if="i < 2" class="mx-2 h-0.5 flex-1 rounded-full"
         class="flex min-h-[40vh] flex-col items-center justify-center gap-4 text-center"
       >
         <div class="size-12 animate-spin rounded-full border-4 border-sts-ocean border-t-transparent" aria-hidden="true" />
-        <p class="font-semibold text-sts-muted">Processing your booking…</p>
+        <p class="font-semibold text-sts-muted">Reserving your slot…</p>
       </section>
 
-      <!-- ── STEP 4 — Done (redirect in progress) ───────────────── -->
+      <!-- ── STEP 4 — Redirecting to Paymob ─────────────────────── -->
       <section
         v-else-if="step === 4"
         class="flex min-h-[40vh] flex-col items-center justify-center gap-4 text-center"
       >
-        <p class="text-5xl" aria-hidden="true">✅</p>
-        <p class="text-xl font-semibold text-green-700">Booking confirmed!</p>
-        <p class="text-sm text-sts-muted">Redirecting…</p>
+        <div class="size-12 animate-spin rounded-full border-4 border-sts-ocean border-t-transparent" aria-hidden="true" />
+        <p class="text-xl font-semibold text-sts-ink">Redirecting to payment…</p>
+        <p class="text-sm text-sts-muted">You will be redirected to our secure payment page.</p>
       </section>
 
       <!-- WhatsApp fallback always visible -->

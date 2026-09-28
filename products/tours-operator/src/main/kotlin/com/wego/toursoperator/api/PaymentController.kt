@@ -1,0 +1,123 @@
+package com.wego.toursoperator.api
+
+import com.wego.events.CorrelationContext
+import com.wego.toursoperator.application.InitiatePaymentResult
+import com.wego.toursoperator.application.InitiatePaymentService
+import com.wego.toursoperator.application.PaymentQueryService
+import com.wego.toursoperator.domain.BookingId
+import com.wego.toursoperator.domain.Payment
+import com.wego.toursoperator.domain.PaymentStatus
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+import java.time.Instant
+import java.util.UUID
+
+/**
+ * Payment endpoints for the public booking flow.
+ *
+ * POST /api/v1/tours-operator/bookings/{bookingId}/pay
+ *   — Initiate payment for a NEW booking. Returns a Paymob checkout URL.
+ *   — Public (no auth) — booking owner has the bookingId from creation.
+ *
+ * GET  /api/v1/tours-operator/bookings/{bookingId}/payment-status
+ *   — Returns the current payment status. Used by the return URL page
+ *     to poll after the customer returns from the Paymob iframe.
+ *   — Public (no auth).
+ */
+@RestController("toursOperatorPaymentController")
+@RequestMapping("/api/v1/tours-operator/bookings/{bookingId}")
+class PaymentController(
+    private val initiatePaymentService: InitiatePaymentService,
+    private val paymentQueryService: PaymentQueryService,
+) {
+    /** Initiate Paymob checkout for a NEW booking. */
+    @PostMapping("/pay")
+    fun initiatePayment(
+        @PathVariable bookingId: UUID,
+    ): ResponseEntity<Any> {
+        val result = initiatePaymentService.initiate(
+            com.wego.toursoperator.application.InitiatePaymentCommand(
+                bookingId = BookingId(bookingId),
+                correlationId = CorrelationContext.currentCorrelationId(),
+            ),
+        )
+        return when (result) {
+            is InitiatePaymentResult.Initiated ->
+                ResponseEntity.status(HttpStatus.CREATED).body(result.toResponse())
+
+            is InitiatePaymentResult.AlreadyInitiated ->
+                ResponseEntity.ok(result.toResponse())
+
+            InitiatePaymentResult.BookingNotFound ->
+                ResponseEntity.notFound().build()
+
+            is InitiatePaymentResult.BookingNotPayable ->
+                ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ErrorResponse("booking_not_payable_status_${result.bookingStatus.name.lowercase()}"))
+
+            is InitiatePaymentResult.ProviderError ->
+                ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                    .body(ErrorResponse("payment_provider_error"))
+        }
+    }
+
+    /** Poll payment status after returning from Paymob checkout. */
+    @GetMapping("/payment-status")
+    fun getPaymentStatus(
+        @PathVariable bookingId: UUID,
+    ): ResponseEntity<Any> {
+        val payment = paymentQueryService.findByBookingId(BookingId(bookingId))
+            ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(payment.toStatusResponse())
+    }
+}
+
+// ── Response DTOs ─────────────────────────────────────────────────────────────
+
+data class InitiatePaymentResponse(
+    val paymentId: UUID,
+    val bookingId: UUID,
+    val checkoutUrl: String,
+    val amountEur: String,
+    val currencyCode: String,
+    val status: PaymentStatus,
+)
+
+data class PaymentStatusResponse(
+    val paymentId: UUID,
+    val bookingId: UUID,
+    val status: PaymentStatus,
+    val paidAt: Instant?,
+    val failedAt: Instant?,
+)
+
+private fun InitiatePaymentResult.Initiated.toResponse() = InitiatePaymentResponse(
+    paymentId = payment.id.value,
+    bookingId = payment.bookingId.value,
+    checkoutUrl = checkoutUrl,
+    amountEur = payment.amountEur.toPlainString(),
+    currencyCode = payment.currencyCode,
+    status = payment.status,
+)
+
+private fun InitiatePaymentResult.AlreadyInitiated.toResponse() = InitiatePaymentResponse(
+    paymentId = payment.id.value,
+    bookingId = payment.bookingId.value,
+    checkoutUrl = checkoutUrl,
+    amountEur = payment.amountEur.toPlainString(),
+    currencyCode = payment.currencyCode,
+    status = payment.status,
+)
+
+private fun Payment.toStatusResponse() = PaymentStatusResponse(
+    paymentId = id.value,
+    bookingId = bookingId.value,
+    status = status,
+    paidAt = paidAt,
+    failedAt = failedAt,
+)

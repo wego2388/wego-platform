@@ -104,6 +104,14 @@ const whatsappConfirmUrl = computed(() => {
           <span class="font-mono font-bold text-sts-ink">{{ reference }}</span>
         </p>
 
+        <!-- Payment confirmed notice -->
+        <div
+          v-if="booking && booking.status === 'CONFIRMED'"
+          class="mt-4 inline-flex items-center gap-2 rounded-xl bg-green-50 border border-green-200 px-4 py-2 text-sm font-medium text-green-700"
+        >
+          ✅ Payment confirmed
+        </div>
+
         <!-- Full booking summary if available -->
         <dl v-if="booking" class="mt-6 divide-y divide-sts-border rounded-2xl border border-sts-border bg-sts-surface text-left text-sm">
           <div class="flex justify-between px-5 py-3">

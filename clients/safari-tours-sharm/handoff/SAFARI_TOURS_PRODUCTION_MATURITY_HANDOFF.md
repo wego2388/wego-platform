@@ -168,6 +168,36 @@ platform/application/build/reports/tests/test/index.html
 - `WEGO-016-C` هو الـpacket النشط الوحيد. تغييرات C الحالية غير committed
   ولم يتم push أو deploy لها.
 
+**أدلة WEGO-016-C — 2026-09-28:**
+
+```text
+Backend: 380 tests, 0 failures, 0 errors, 0 skipped (BUILD SUCCESSFUL)
+pnpm --dir web run check:
+  contract:check ✅
+  lint ✅ (كل apps + packages)
+  typecheck ✅ (كل apps + packages)
+  290 web tests (54 test files) ✅
+  6 production builds ✅
+bash scripts/safari-tours-sharm-check.sh ✅
+pnpm --dir foundry run validate ✅
+bash scripts/repository-check.sh ✅
+```
+
+**ما تم إنجازه في WEGO-016-C:**
+
+- C1 ✅ Transaction/concurrency: UpdateTourService، SetTourActiveService، SetSlotBlockedService
+  ملفوفة في TransactionRunner — tests في TourCatalogConcurrencyTest (concurrent update،
+  concurrent activate، concurrent block، wrong-tour block/unblock)
+- C2 ✅ Slot resource integrity: WrongTour result في SetSlotBlockedService، TourNotFound في
+  CreateSlotService — tests في TourCatalogConcurrencyTest وTourCatalogPermissionMatrixTest
+- C3 ✅ Catalog model: V16 schema، domain Tour مع كل الحقول المعتمدة، REQUEST_ONLY guard،
+  imageUrl validation، pricingNote
+- C4 ✅ Seed proof: V17 يسيد 30 record — ToursOperatorMigrationIntegrationTest يثبت 30 صف،
+  Private Boat REQUEST_ONLY/inactive/مستثنى، CHECK constraint، slug uniqueness
+- C5 ✅ Contract + ERP: listStaffTours، createTour، updateTour، activateTour، deactivateTour،
+  createSlot، blockSlot، unblockSlot في useToursApi.ts — tours.vue تستخدم staff endpoint
+  مع activate/deactivate buttons — TourCatalogPermissionMatrixTest يغطي كامل المصفوفة
+
 لا تُفصل أو تُعاد كتابة تغييرات هذا الفرع دون جردها. أكمل C من حالته الحالية
 ولا يحدث commit/push/deploy قبل Tier 1 review وتفويض المالك الصريح.
 

@@ -112,6 +112,47 @@ export function createBooking(payload: CreateBookingPayload): Promise<BookingCon
   return post<BookingConfirmation>("/api/v1/tours-operator/bookings", payload);
 }
 
+// ── Payment endpoints ──────────────────────────────────────────────────────
+
+export interface InitiatePaymentResponse {
+  paymentId: string;
+  bookingId: string;
+  checkoutUrl: string;
+  amountEur: string;
+  currencyCode: string;
+  status: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
+}
+
+export interface PaymentStatusResponse {
+  paymentId: string;
+  bookingId: string;
+  status: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
+  paidAt: string | null;
+  failedAt: string | null;
+}
+
+/**
+ * Initiate Paymob payment for a NEW booking.
+ * Returns a checkout URL to redirect the customer to.
+ * Idempotent — safe to call again if the customer refreshes.
+ */
+export function initiatePayment(bookingId: string): Promise<InitiatePaymentResponse> {
+  return post<InitiatePaymentResponse>(
+    `/api/v1/tours-operator/bookings/${bookingId}/pay`,
+    {},
+  );
+}
+
+/**
+ * Poll payment status after customer returns from Paymob checkout.
+ * The return URL page calls this to determine CONFIRMED vs FAILED.
+ */
+export function getPaymentStatus(bookingId: string): Promise<PaymentStatusResponse> {
+  return get<PaymentStatusResponse>(
+    `/api/v1/tours-operator/bookings/${bookingId}/payment-status`,
+  );
+}
+
 /** Customer self-lookup by reference + phone — no authentication. */
 export function lookupBooking(
   reference: string,

@@ -1736,6 +1736,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tours-operator/bookings/{id}/pay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Initiate Paymob payment for a NEW booking
+         * @description Creates a PENDING payment record and a Paymob order. Returns a checkout URL to redirect the customer to the Paymob hosted page. Amount is always taken from the server-side booking snapshot. Idempotent: if a PENDING payment already exists, returns the existing checkout URL.
+         */
+        post: operations["initiateToursOperatorPayment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/bookings/{id}/payment-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Poll payment status after returning from Paymob checkout */
+        get: operations["getToursOperatorPaymentStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/payments/paymob-callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Paymob transaction webhook (internal)
+         * @description HMAC-SHA512 verified Paymob callback. Returns 200 for all recognised outcomes (idempotent). Invalid signatures return 400.
+         */
+        post: operations["handleToursOperatorPaymobCallback"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1957,6 +2014,30 @@ export interface components {
         ToursOperatorErrorResponse: {
             error: string;
         };
+        ToursOperatorInitiatePaymentResponse: {
+            /** Format: uuid */
+            paymentId: string;
+            /** Format: uuid */
+            bookingId: string;
+            /** Format: uri */
+            checkoutUrl: string;
+            amountEur: string;
+            currencyCode: string;
+            status: components["schemas"]["ToursOperatorPaymentStatus"];
+        };
+        ToursOperatorPaymentStatusResponse: {
+            /** Format: uuid */
+            paymentId: string;
+            /** Format: uuid */
+            bookingId: string;
+            status: components["schemas"]["ToursOperatorPaymentStatus"];
+            /** Format: date-time */
+            paidAt?: string | null;
+            /** Format: date-time */
+            failedAt?: string | null;
+        };
+        /** @enum {string} */
+        ToursOperatorPaymentStatus: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
         CreateOfferingRequest: {
             offeringType: components["schemas"]["OfferingType"];
             title: string;
@@ -7052,6 +7133,131 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ToursOperatorErrorResponse"];
                 };
+            };
+        };
+    };
+    initiateToursOperatorPayment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Already initiated — existing checkout URL. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorInitiatePaymentResponse"];
+                };
+            };
+            /** @description Payment initiated — redirect to checkoutUrl. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorInitiatePaymentResponse"];
+                };
+            };
+            /** @description Booking not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Booking not in NEW state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+            /** @description Payment provider error. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+        };
+    };
+    getToursOperatorPaymentStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Payment status. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorPaymentStatusResponse"];
+                };
+            };
+            /** @description No payment record for this booking. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    handleToursOperatorPaymobCallback: {
+        parameters: {
+            query: {
+                hmac: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    [key: string]: unknown;
+                };
+            };
+        };
+        responses: {
+            /** @description Processed (or already processed). */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid signature or malformed payload. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Amount mismatch. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
