@@ -10,16 +10,21 @@ import {
 import {
   listBookings,
   listTours,
-  addMoney,
-  divideMoney,
   formatMoney,
-  moneyToMinorUnits,
   ToursApiError,
   type Booking,
-  type Money,
   type Tour,
   PAGE_SIZE,
 } from "../composables/useToursApi";
+import {
+  filterByDateRange,
+  computeRevenueSummary,
+  computeRevenueByTour,
+  computeStatusCounts,
+  type RevenueSummary,
+  type RevenueByTourRow,
+  type BookingStatusCount,
+} from "../composables/useFinanceAggregation";
 
 useHead({ title: "Finance · Safari Tours Sharm" });
 
@@ -45,46 +50,22 @@ const filterTo   = ref(defaultTo);
 
 const canView = computed(() => hasPermission(session.value, "tours-operator.booking:view"));
 
-// ── Computed revenue summary ──────────────────────────────────────────────
+// ── Computed finance aggregations (via pure composable) ───────────────────
 
-const confirmedBookings = computed(() =>
-  bookings.value.filter((b) => b.status === "CONFIRMED" || b.status === "COMPLETED"),
+const filteredBookings = computed(() =>
+  filterByDateRange(bookings.value, filterFrom.value, filterTo.value),
 );
 
-const totalRevenue = computed(() =>
-  addMoney(confirmedBookings.value.map((b) => b.totalPrice)),
+const summary = computed<RevenueSummary>(() =>
+  computeRevenueSummary(filteredBookings.value),
 );
 
-const revenueByTour = computed(() => {
-  const map: Record<string, { tour: Tour | null; count: number; total: Money }> = {};
-  for (const b of confirmedBookings.value) {
-    if (!map[b.tourId]) {
-      map[b.tourId] = {
-        tour: tours.value.find((t) => t.id === b.tourId) ?? null,
-        count: 0,
-        total: { amount: "0.00", currencyCode: b.totalPrice.currencyCode },
-      };
-    }
-    map[b.tourId]!.count++;
-    map[b.tourId]!.total = addMoney([map[b.tourId]!.total, b.totalPrice]);
-  }
-  return Object.values(map).sort((a, b) => {
-    const aUnits = moneyToMinorUnits(a.total);
-    const bUnits = moneyToMinorUnits(b.total);
-    return aUnits === bUnits ? 0 : aUnits > bUnits ? -1 : 1;
-  });
-});
+const revenueByTour = computed<RevenueByTourRow[]>(() =>
+  computeRevenueByTour(filteredBookings.value, tours.value),
+);
 
-const statusSummary = computed(() => {
-  const counts: Record<string, number> = {};
-  for (const b of bookings.value) {
-    counts[b.status] = (counts[b.status] ?? 0) + 1;
-  }
-  return counts;
-});
-
-const paxTotal = computed(() =>
-  confirmedBookings.value.reduce((sum, b) => sum + b.adultsCount + b.childrenCount, 0),
+const statusCounts = computed<BookingStatusCount[]>(() =>
+  computeStatusCounts(filteredBookings.value),
 );
 
 function handleApiError(err: unknown) {
@@ -99,13 +80,12 @@ async function load() {
   state.value = "loading";
   error.value = "";
   try {
-    // Fetch all bookings in date range (multiple pages if needed)
+    // Fetch all bookings for the selected month (paginate if needed)
     const allBookings: Booking[] = [];
     let page = 0;
     let hasMore = true;
     while (hasMore) {
       const batch = await listBookings(session.value.token, {
-        date: filterFrom.value, // API filters by tourDate >= date when only from given
         page,
         size: PAGE_SIZE,
       });
@@ -113,10 +93,7 @@ async function load() {
       hasMore = batch.length === PAGE_SIZE;
       page++;
     }
-    // Client-side filter by date range
-    bookings.value = allBookings.filter(
-      (b) => b.tourDate >= filterFrom.value && b.tourDate <= filterTo.value,
-    );
+    bookings.value = allBookings;
     tours.value = await listTours(session.value.token, { activeOnly: false });
     state.value = "loaded";
   } catch (err) {
@@ -127,7 +104,9 @@ async function load() {
 }
 
 function applyFilters() {
-  void load();
+  // Filtering is computed client-side from already-loaded data
+  // Re-fetch only if data not yet loaded
+  if (state.value !== "loaded") void load();
 }
 
 function logout() {
@@ -206,23 +185,23 @@ onMounted(() => {
           <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
               <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Revenue</p>
-              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ formatMoney(totalRevenue) }}</p>
+              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ formatMoney(summary.totalRevenue) }}</p>
               <p class="mt-0.5 text-xs text-sts-muted">confirmed + completed</p>
             </div>
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
               <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Bookings</p>
-              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ confirmedBookings.length }}</p>
-              <p class="mt-0.5 text-xs text-sts-muted">of {{ bookings.length }} total</p>
+              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ summary.confirmedCount }}</p>
+              <p class="mt-0.5 text-xs text-sts-muted">of {{ summary.totalCount }} total</p>
             </div>
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
               <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Pax</p>
-              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ paxTotal }}</p>
+              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ summary.paxTotal }}</p>
               <p class="mt-0.5 text-xs text-sts-muted">adults + children</p>
             </div>
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
               <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Avg / booking</p>
               <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">
-                {{ confirmedBookings.length > 0 ? formatMoney(divideMoney(totalRevenue, confirmedBookings.length)) : '—' }}
+                {{ summary.averagePerBooking ? formatMoney(summary.averagePerBooking) : '—' }}
               </p>
               <p class="mt-0.5 text-xs text-sts-muted">confirmed + completed</p>
             </div>
@@ -235,14 +214,14 @@ onMounted(() => {
               <h2 class="mb-3 text-sm font-semibold text-sts-muted uppercase tracking-wide">Bookings by status</h2>
               <dl class="space-y-2">
                 <div
-                  v-for="status in ['NEW', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'EXPIRED']"
-                  :key="status"
+                  v-for="row in statusCounts"
+                  :key="row.status"
                   class="flex items-center justify-between text-sm"
                 >
                   <dt>
-                    <span :class="`badge badge-${status}`">{{ status }}</span>
+                    <span :class="`badge badge-${row.status}`">{{ row.status }}</span>
                   </dt>
-                  <dd class="tabular-nums font-semibold">{{ statusSummary[status] ?? 0 }}</dd>
+                  <dd class="tabular-nums font-semibold">{{ row.count }}</dd>
                 </div>
               </dl>
             </div>
@@ -254,14 +233,15 @@ onMounted(() => {
               <dl v-else class="space-y-2">
                 <div
                   v-for="row in revenueByTour"
-                  :key="row.tour?.id ?? 'unknown'"
+                  :key="row.tourId"
                   class="flex items-center justify-between text-sm gap-4"
                 >
                   <dt class="font-mono text-xs text-sts-muted truncate">
-                    {{ row.tour?.slug ?? 'Unknown tour' }}
+                    {{ row.tourSlug ?? 'Unknown tour' }}
                   </dt>
                   <dd class="flex items-center gap-3 shrink-0">
-                    <span class="text-xs text-sts-muted">{{ row.count }} bookings</span>
+                    <span class="text-xs text-sts-muted">{{ row.bookingCount }} bookings</span>
+                    <span class="text-xs text-sts-muted">{{ row.sharePercent }}%</span>
                     <span class="money font-semibold">{{ formatMoney(row.total) }}</span>
                   </dd>
                 </div>
