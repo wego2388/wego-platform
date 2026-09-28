@@ -2683,3 +2683,29 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   - `safari-site.Dockerfile` and the nginx routing for safari-site are new infrastructure not previously reviewed. CSP for safari-site uses `'unsafe-inline'` for `style-src` (same as the existing `web` CSP rationale for Nuxt/Tailwind inline styles).
 
 - **NEXT SUB-PACKET:** WEGO-016-F — ERP operations completion + staff roles + finance ledger (NOT STARTED; requires Tier 1 review of E and owner authorization).
+
+---
+
+### 2026-09-28 — WEGO-016-F: ERP finance aggregation + complete booking management
+
+- **Status:** COMPLETE LOCALLY
+- **Status note:** Implementation complete, all gates green. Commit `12259a2` on branch `wego-016-safari-tours-baseline`. No push, no deploy yet.
+- **Review intensity:** Tier 1 — PII (booking customer data), permission gating on staff actions.
+- **Objective:** ERP operations — finance page uses real API with a testable composable, booking management pages are complete with correct permission gating.
+
+- **What was implemented:**
+  - `useFinanceAggregation.ts` — pure composable with 6 exported functions: `revenueBookings`, `filterByDateRange`, `computeRevenueSummary`, `computeRevenueByTour` (with `sharePercent`), `computeStatusCounts`, `computeDailyRevenue`. Zero side effects, zero network calls — fully unit-testable.
+  - `finance.vue` — refactored to use the new composable. Filtering is now computed client-side after a full data load; the Apply button no longer triggers a new API fetch on date change, only on initial load if data isn't yet loaded.
+  - `bookings.vue` — already complete with full `confirm`/`cancel`/`complete` permission gating (`tours-operator.booking:payment-update`, `tours-operator.booking:cancel`, `tours-operator.booking:complete`). Verified: no changes needed.
+  - `bookings/[id].vue` — already complete with full booking detail, cancel form with required reason, confirm/complete actions, and 401 redirect. Verified: no changes needed.
+  - `test/useFinanceAggregation.spec.ts` — 19 Vitest tests covering all 6 functions including edge cases: empty inputs, cancelled booking exclusion, correct sort order by revenue, sharePercent computation, daily grouping, boundary dates.
+
+- **Evidence:**
+  - `pnpm run check` in `web/` — lint, typecheck, **410 tests** (391 prior + 19 new), 6 production builds — all green, EXIT: 0.
+  - `git log --oneline` confirms commit `12259a2`, `git status --short` shows only the 3 intended files (D for V17 is pre-existing and correct — it lives in `data/`).
+
+- **Risks:**
+  - `finance.vue` fetches all bookings without date filtering at the API level (fetches all, filters client-side). This is correct for small-to-medium catalogs but could be slow for large booking histories. A server-side date-range filter on the list endpoint would be the follow-up optimization. Documented, not blocked.
+  - Staff roles management UI is out of scope for F per the brief (deferred to G).
+
+- **NEXT SUB-PACKET:** WEGO-016-G — Notifications + transactional outbox (NOT STARTED; requires Tier 1 review of F and owner authorization).
