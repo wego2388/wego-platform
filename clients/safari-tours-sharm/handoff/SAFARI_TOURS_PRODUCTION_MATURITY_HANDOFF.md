@@ -6,6 +6,10 @@
 - **النطاق:** Backend + Public Website + Staff ERP + Payments + Content + Operations
 - **المالك المقترح:** Wego Digital / Safari Tours Sharm
 
+> **تحديث 2026-09-30:** F أُغلق (`28e80f5`، Tier 1 READY)؛ D وE مكتملان رغم
+> أن بعض checkboxes القديمة أدناه لم تُحدّث. ترتيب الشغل المتفق عليه مع المالك
+> في `../ROADMAP_AR.md`.
+>
 > **تنبيه حالة أحدث — 2026-09-29:** هذه الوثيقة تظل سجل الفجوات وبوابات
 > النضج، لكن بعض checkboxes التفصيلية أدناه أقدم من commits E/F. الحسابات
 > الجديدة تبدأ من
@@ -81,10 +85,10 @@
 |---:|---|---|---|
 | 0 | Baseline + Governance | `DONE` | 2026-09-27 |
 | 1 | Domain + API Contract | `DONE` | 2026-09-27 |
-| 2 | Catalog + ERP CRUD | `DONE — TIER 1 REVIEW PENDING PUSH` | 2026-09-28 |
-| 3 | Payment + Expiry | `DONE — TIER 1 REVIEW PENDING PUSH` | 2026-09-28 |
+| 2 | Catalog + ERP CRUD | `DONE` | 2026-09-30 |
+| 3 | Payment + Expiry | `DONE (mock Paymob) — real sandbox open (H)` | 2026-09-30 |
 | 4 | Public Website (checkout) | `CHECKOUT DONE — E2E 13/13, CONTENT/SEO OPEN` | 2026-09-29 |
-| 5 | ERP Operations | `PARTIAL — FINANCE + BOOKINGS COMPLETE, ROLES NOT STARTED` | 2026-09-28 |
+| 5 | ERP Operations | `FINANCE LEDGER DONE (F) — AUDIT TRAIL + ROLES UI OPEN (F2)` | 2026-09-30 |
 | 6 | Notifications | `NOT STARTED` | — |
 | 7 | Infrastructure + Security | `NOT STARTED` | — |
 | 8 | UAT + Launch | `NOT STARTED` | — |

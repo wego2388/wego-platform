@@ -131,20 +131,22 @@ Board/handoff. لا يلزم deploy لإغلاق implementation، لكن لا de
 
 ### المرحلة F — ERP operations, roles and finance — P0
 
-الحالة: `[!] DEFERRED / NOT ACTIVE`؛ المالك اختار WEGO-017-A أولًا.
+الحالة: `[x] COMPLETE` — commit `28e80f5` (2026-09-30)، Tier 1 READY. البنود
+المفتوحة F-08 وإدارة الصلاحيات انتقلت للمرحلة 1 (F2) في `../ROADMAP_AR.md`.
 
-- [ ] F-01 تفعيل F رسميًا بعد إغلاق E.
-- [ ] F-02 جعل revenue مبنيًا على payment ledger: `PAID - REFUNDED`، لا على
+- [x] F-01 تفعيل F رسميًا بعد إغلاق E.
+- [x] F-02 جعل revenue مبنيًا على payment ledger: `PAID - REFUNDED`، لا على
       `CONFIRMED/COMPLETED booking status`.
-- [ ] F-03 فصل pending/failed/mismatch/reconciled عن الإيراد.
-- [ ] F-04 تحديد basis زمني واضح: `paidAt/refundedAt`.
-- [ ] F-05 قرار multi-currency أو منع الخلط صراحة.
-- [ ] F-06 صلاحية مالية مستقلة وأقل صلاحية ممكنة؛ لا تعتمد على booking:view.
-- [ ] F-07 server-side filters/pagination للتاريخ والحجم.
-- [ ] F-08 audit trail لأوامر confirm/cancel/complete/refund.
+- [x] F-03 فصل pending/failed/mismatch/reconciled عن الإيراد (V20
+      `revenue_recognised_at`: refund لـ review capture لا يصبح إيرادًا).
+- [x] F-04 basis زمني: `revenueRecognisedAt/refundedAt` بتوقيت القاهرة.
+- [x] F-05 منع الخلط بين العملات صراحة (خطأ تحميل ظاهر).
+- [x] F-06 صلاحية مالية مستقلة `tours-operator.payment:view`.
+- [x] F-07 server-side date range + keyset pagination بلا تكرار.
+- [ ] F-08 audit trail لأوامر confirm/cancel/complete/refund → المرحلة 1.
 - [x] F-09 إزالة تضارب Nuxt auto-import للأسماء `Money` و`formatMoney`.
-- [ ] F-10 اختبارات ledger/refund/date/permissions/large totals.
-- [ ] F-11 Tier 1 independent review.
+- [x] F-10 اختبارات ledger/refund/date/permissions/large totals (D9a–D9h + spec).
+- [x] F-11 Tier 1 independent review — round 2 READY.
 
 **Exit gate:** الأرقام قابلة للمصالحة مع payment records، صلاحيات مستقلة، لا
 PII زائد، full gate وTier 1 خضران.
