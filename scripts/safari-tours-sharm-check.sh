@@ -48,6 +48,23 @@ pnpm run validate
 
 cd "$repository_root"
 node --check scripts/export-safari-tours-legacy-content.mjs
+# The live Compose gate in CI proves actual log output. These source-level
+# guards stop the two known leak classes from being reintroduced in a local
+# change that has not reached that job yet. Inspect only active log_format
+# directives so explanatory comments cannot create false failures.
+nginx_log_formats="$(awk '
+  /^[[:space:]]*log_format[[:space:]]/ { capture = 1 }
+  capture { print }
+  capture && /;/ { capture = 0 }
+' infrastructure/nginx/nginx.conf)"
+if printf '%s\n' "$nginx_log_formats" | rg -q '\$http_referer|\$request\b|\$args\b'; then
+  echo "Safari edge access logs must not retain query strings or full Referer values." >&2
+  exit 1
+fi
+if rg -q 'rejected HMAC=|createOrder: ref=|refund: txn=' products/tours-operator/src/main/kotlin; then
+  echo "Payment or booking recovery identifiers must not be written to logs." >&2
+  exit 1
+fi
 node -e '
   const { readFileSync } = require("node:fs");
   const { createHash } = require("node:crypto");

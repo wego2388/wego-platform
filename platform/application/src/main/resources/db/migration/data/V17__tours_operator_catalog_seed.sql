@@ -260,4 +260,5 @@ INSERT INTO wego.tours_operator_tour (
      NULL,
      'STANDARD')
 
-ON CONFLICT (slug) DO NOTHING;
+-- No ON CONFLICT clause — this is a one-time seed on a fresh schema.
+-- jOOQ DDLDatabase (H2) cannot simulate ON CONFLICT syntax.

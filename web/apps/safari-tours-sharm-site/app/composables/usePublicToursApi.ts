@@ -22,6 +22,18 @@ export type {
 
 /** Compatibility name used by the public pages. */
 export type BookingConfirmation = Booking;
+export type PublicBookingLookup = Pick<
+  Booking,
+  | "reference"
+  | "tourDate"
+  | "timeSlot"
+  | "adultsCount"
+  | "childrenCount"
+  | "totalPrice"
+  | "hotelName"
+  | "status"
+  | "cancellationReason"
+>;
 export { calculateBookingTotal, formatMoney, moneyToMinorUnits, multiplyMoney } from "@wego/api-contract";
 
 export class PublicApiError extends Error {
@@ -120,13 +132,15 @@ export interface InitiatePaymentResponse {
   checkoutUrl: string;
   amountEur: string;
   currencyCode: string;
-  status: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
+  status: "PENDING" | "PAID" | "FAILED" | "REFUNDED" | "REVIEW_REQUIRED" | "RECONCILIATION_REQUIRED";
 }
 
 export interface PaymentStatusResponse {
   paymentId: string;
   bookingId: string;
-  status: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
+  amountEur: string;
+  currencyCode: string;
+  status: "PENDING" | "PAID" | "FAILED" | "REFUNDED" | "REVIEW_REQUIRED" | "RECONCILIATION_REQUIRED";
   paidAt: string | null;
   failedAt: string | null;
 }
@@ -157,17 +171,33 @@ export function getPaymentStatus(bookingId: string): Promise<PaymentStatusRespon
 export function lookupBooking(
   reference: string,
   phone: string,
-): Promise<BookingConfirmation> {
-  const q = new URLSearchParams({ reference, phone });
-  return get<BookingConfirmation>(`/api/v1/tours-operator/bookings/lookup?${q}`);
+): Promise<PublicBookingLookup> {
+  // Both values are knowledge factors/PII. Keep them in the POST body so they
+  // cannot leak through browser history, referrers, proxy URLs, or access logs.
+  return post<PublicBookingLookup>("/api/v1/tours-operator/bookings/lookup", {
+    reference,
+    phone,
+  });
 }
 
 const CONFIRMATION_STORAGE_PREFIX = "sts.booking-confirmation.";
+export const LATEST_CONFIRMATION_STORAGE_KEY = "sts.booking-confirmation.latest";
+
+function parseStoredBooking(raw: string | null): BookingConfirmation | null {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as BookingConfirmation;
+  } catch {
+    return null;
+  }
+}
 
 /** Keep a just-created booking across the redirect without putting customer PII in the URL. */
 export function storeBookingConfirmation(booking: BookingConfirmation): void {
   if (typeof sessionStorage === "undefined") return;
-  sessionStorage.setItem(`${CONFIRMATION_STORAGE_PREFIX}${booking.reference}`, JSON.stringify(booking));
+  const serialized = JSON.stringify(booking);
+  sessionStorage.setItem(`${CONFIRMATION_STORAGE_PREFIX}${booking.reference}`, serialized);
+  sessionStorage.setItem(LATEST_CONFIRMATION_STORAGE_KEY, serialized);
 }
 
 export function readStoredBookingConfirmation(reference: string): BookingConfirmation | null {
@@ -175,11 +205,24 @@ export function readStoredBookingConfirmation(reference: string): BookingConfirm
   const raw = sessionStorage.getItem(`${CONFIRMATION_STORAGE_PREFIX}${reference}`);
   if (!raw) return null;
   sessionStorage.removeItem(`${CONFIRMATION_STORAGE_PREFIX}${reference}`);
-  try {
-    return JSON.parse(raw) as BookingConfirmation;
-  } catch {
-    return null;
+  return parseStoredBooking(raw);
+}
+
+/** Read the return-flow booking without consuming it before confirmation. */
+export function peekLatestBookingConfirmation(): BookingConfirmation | null {
+  if (typeof sessionStorage === "undefined") return null;
+  return parseStoredBooking(sessionStorage.getItem(LATEST_CONFIRMATION_STORAGE_KEY));
+}
+
+/** Consume return-flow data once the confirmation page has rendered it. */
+export function takeLatestBookingConfirmation(): BookingConfirmation | null {
+  if (typeof sessionStorage === "undefined") return null;
+  const booking = parseStoredBooking(sessionStorage.getItem(LATEST_CONFIRMATION_STORAGE_KEY));
+  sessionStorage.removeItem(LATEST_CONFIRMATION_STORAGE_KEY);
+  if (booking) {
+    sessionStorage.removeItem(`${CONFIRMATION_STORAGE_PREFIX}${booking.reference}`);
   }
+  return booking;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -200,11 +243,4 @@ export function formatDate(iso: string, locale: string = "en"): string {
     month: "long",
     year: "numeric",
   });
-}
-
-/** Compute free-cancellation deadline text */
-export function cancellationDeadline(tourDateIso: string): string {
-  const d = new Date(tourDateIso);
-  d.setDate(d.getDate() - 1);
-  return d.toLocaleDateString("en", { day: "numeric", month: "short", year: "numeric" });
 }

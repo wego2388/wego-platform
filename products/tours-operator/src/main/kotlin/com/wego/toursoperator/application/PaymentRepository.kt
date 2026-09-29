@@ -24,10 +24,4 @@ interface PaymentRepository {
     fun findByPaymobOrderIdForUpdate(paymobOrderId: String): Payment?
 
     fun save(payment: Payment)
-
-    /**
-     * Returns PENDING payments created more than [minutes] minutes ago.
-     * Used by the expiry scheduler to find timed-out payment windows.
-     */
-    fun findPendingOlderThanMinutes(minutes: Long): List<Payment>
 }

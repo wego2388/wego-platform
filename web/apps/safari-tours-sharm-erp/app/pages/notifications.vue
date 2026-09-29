@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { WegoButton } from "@wego/ui";
 import {
-  clearAuthSession,
+  logoutAuthSession,
   readAuthSession,
   type AuthSession,
 } from "../composables/useAuthSession";
@@ -24,44 +24,9 @@ interface Notification {
   createdAt: string;
 }
 
-// Static placeholder notifications — real data from Phase 5 push/webhook system
-const notifications = ref<Notification[]>([
-  {
-    id: "1",
-    kind: "booking_new",
-    title: "New booking received",
-    body: "A new booking STR-2026-1 has been created and is awaiting payment confirmation.",
-    reference: "STR-2026-1",
-    isRead: false,
-    createdAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "2",
-    kind: "slot_low",
-    title: "Slot almost full",
-    body: "Desert Quad Bike — Morning slot on 2026-09-28 has only 2 seats remaining.",
-    isRead: false,
-    createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "3",
-    kind: "payment_confirmed",
-    title: "Payment confirmed",
-    body: "Booking STR-2026-1 payment has been confirmed via Paymob.",
-    reference: "STR-2026-1",
-    isRead: true,
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "4",
-    kind: "booking_expired",
-    title: "Booking expired",
-    body: "Booking STR-2026-2 expired after 30 minutes without payment. Seat released.",
-    reference: "STR-2026-2",
-    isRead: true,
-    createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-  },
-]);
+// The runtime stays empty until the real notifications API is available.
+// Never show synthetic operational activity in the staff dashboard.
+const notifications = ref<Notification[]>([]);
 
 const unreadCount = computed(() => notifications.value.filter((n) => !n.isRead).length);
 const filterUnread = ref(false);
@@ -110,8 +75,8 @@ function markRead(id: string) {
   if (n) n.isRead = true;
 }
 
-function logout() {
-  clearAuthSession();
+async function logout() {
+  await logoutAuthSession(session.value);
   void router.replace("/login");
 }
 
@@ -171,7 +136,7 @@ onMounted(() => {
       <!-- Coming-soon banner (real-time push planned in Phase 5) -->
       <div class="mt-4 rounded-2xl border border-sts-gold bg-sts-gold-soft px-5 py-3 text-sm">
         <span class="font-semibold text-sts-ocean">Phase 5 — </span>
-        <span class="text-sts-muted">Real-time push notifications via WhatsApp + in-app websocket will replace the sample data shown here.</span>
+        <span class="text-sts-muted">Real-time push notifications via WhatsApp + in-app websocket are not connected yet.</span>
       </div>
 
       <!-- Notification list -->
@@ -216,8 +181,8 @@ onMounted(() => {
 
         <li v-if="displayed.length === 0" class="rounded-2xl border border-sts-border bg-sts-surface px-6 py-10 text-center shadow-sm">
           <p class="text-2xl mb-2">🔕</p>
-          <p class="font-semibold text-sts-ink">All caught up</p>
-          <p class="mt-1 text-sm text-sts-muted">No unread notifications.</p>
+          <p class="font-semibold text-sts-ink">No verified notifications</p>
+          <p class="mt-1 text-sm text-sts-muted">This area will populate after the notifications API is connected.</p>
         </li>
       </ul>
 

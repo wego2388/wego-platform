@@ -35,6 +35,14 @@ sealed class InitiatePaymentResult {
         val bookingStatus: BookingStatus,
     ) : InitiatePaymentResult()
 
+    /** A prior payment reached a terminal state; its provider identity must never be overwritten. */
+    data class PaymentNotPayable(
+        val paymentStatus: PaymentStatus,
+    ) : InitiatePaymentResult()
+
+    /** Provider creation may have happened; a second automatic attempt could double-charge. */
+    data object ReconciliationRequired : InitiatePaymentResult()
+
     /** Payment already initiated — return the existing checkout URL for resume. */
     data class AlreadyInitiated(
         val payment: Payment,
@@ -53,8 +61,14 @@ sealed class InitiatePaymentResult {
  * Key invariants:
  * - The amount is always taken from the server-side booking snapshot —
  *   never from any client-supplied value.
- * - If a PENDING payment already exists for the booking, we reuse the
- *   existing Paymob order (idempotent resume).
+ * - A stable payment/provider reference is committed before the external call.
+ *   A crash or ambiguous timeout can therefore be reconciled without issuing
+ *   a second payable intention.
+ * - The booking row is locked before checking/creating its one payment.
+ * - If a PENDING payment already exists, its short-lived checkout token is
+ *   reused. PENDING-without-token, FAILED, and RECONCILIATION_REQUIRED are
+ *   never retried automatically because their original provider identity is
+ *   financial evidence.
  * - If the booking is not in NEW state, we refuse.
  */
 class InitiatePaymentService(
@@ -65,66 +79,160 @@ class InitiatePaymentService(
     private val clock: Clock,
 ) {
     fun initiate(command: InitiatePaymentCommand): InitiatePaymentResult {
-        // Step 1 — load booking (read-only, outside transaction)
-        val booking = bookingRepository.findById(command.bookingId)
-            ?: return InitiatePaymentResult.BookingNotFound
+        val preparation =
+            transactionRunner.runInTransaction {
+                val booking =
+                    bookingRepository.findByIdForUpdate(command.bookingId)
+                        ?: return@runInTransaction PaymentPreparation.Completed(InitiatePaymentResult.BookingNotFound)
 
-        if (booking.status != BookingStatus.NEW) {
-            return InitiatePaymentResult.BookingNotPayable(booking.status)
+                if (booking.status != BookingStatus.NEW) {
+                    return@runInTransaction PaymentPreparation.Completed(
+                        InitiatePaymentResult.BookingNotPayable(booking.status),
+                    )
+                }
+
+                val existing = paymentRepository.findByBookingIdForUpdate(command.bookingId)
+                if (existing?.status == PaymentStatus.PENDING && existing.providerCheckoutToken != null) {
+                    val resumeUrl = paymobClient.buildCheckoutUrl(existing.providerCheckoutToken!!)
+                    return@runInTransaction PaymentPreparation.Completed(
+                        InitiatePaymentResult.AlreadyInitiated(existing, resumeUrl),
+                    )
+                }
+                if (existing?.status in setOf(PaymentStatus.PENDING, PaymentStatus.RECONCILIATION_REQUIRED)) {
+                    return@runInTransaction PaymentPreparation.Completed(
+                        InitiatePaymentResult.ReconciliationRequired,
+                    )
+                }
+                if (existing != null) {
+                    return@runInTransaction PaymentPreparation.Completed(
+                        InitiatePaymentResult.PaymentNotPayable(existing.status),
+                    )
+                }
+
+                val amountEur = booking.pricing.totalEur.amount
+                val amountMinorUnits =
+                    amountEur
+                        .multiply(BigDecimal(100))
+                        .setScale(0, RoundingMode.HALF_UP)
+                        .toLongExact()
+
+                val payment =
+                    Payment.createPending(
+                        id = PaymentId.generate(),
+                        bookingId = command.bookingId,
+                        amountEur = amountEur,
+                        amountMinorUnits = amountMinorUnits,
+                        currencyCode = Money.CURRENCY_CODE,
+                        now = Instant.now(clock),
+                    )
+                paymentRepository.save(payment)
+
+                PaymentPreparation.CreateAtProvider(
+                    bookingId = booking.id,
+                    paymentId = payment.id,
+                    checkoutCommand =
+                        PaymobCheckoutCommand(
+                            merchantRefNumber = payment.providerReference,
+                            amountCents = amountMinorUnits,
+                            currencyCode = Money.CURRENCY_CODE,
+                            items =
+                                listOf(
+                                    PaymobOrderItem(
+                                        name = "Safari Tours Sharm booking",
+                                        amountCents = amountMinorUnits,
+                                        quantity = 1,
+                                    ),
+                                ),
+                            billing =
+                                PaymobBillingData(
+                                    fullName = booking.customer.fullName,
+                                    phone = booking.customer.phone,
+                                    email = booking.customer.email,
+                                ),
+                        ),
+                )
+            }
+
+        if (preparation is PaymentPreparation.Completed) return preparation.result
+        preparation as PaymentPreparation.CreateAtProvider
+
+        val checkoutResult =
+            try {
+                paymobClient.createCheckout(preparation.checkoutCommand)
+            } catch (_: RuntimeException) {
+                PaymobCheckoutResult.Failure("Provider checkout outcome is unknown")
+            }
+
+        return when (checkoutResult) {
+            is PaymobCheckoutResult.Success -> attachProviderCheckout(preparation, checkoutResult)
+            is PaymobCheckoutResult.Failure -> {
+                markReconciliationRequired(preparation, "CREATE_OUTCOME_UNKNOWN")
+                InitiatePaymentResult.ProviderError(checkoutResult.message)
+            }
         }
+    }
 
-        // Step 2 — check for existing PENDING payment (idempotent resume)
-        val existing = paymentRepository.findByBookingId(command.bookingId)
-        if (existing != null && existing.status == PaymentStatus.PENDING && existing.paymobOrderId != null) {
-            val resumeUrl = paymobClient.buildCheckoutUrl(existing.paymobOrderId!!)
-            return InitiatePaymentResult.AlreadyInitiated(existing, resumeUrl)
-        }
+    private fun attachProviderCheckout(
+        preparation: PaymentPreparation.CreateAtProvider,
+        checkout: PaymobCheckoutResult.Success,
+    ): InitiatePaymentResult =
+        transactionRunner.runInTransaction {
+            val booking =
+                bookingRepository.findByIdForUpdate(preparation.bookingId)
+                    ?: return@runInTransaction InitiatePaymentResult.BookingNotFound
+            val payment =
+                paymentRepository.findByIdForUpdate(preparation.paymentId)
+                    ?: return@runInTransaction InitiatePaymentResult.BookingNotFound
 
-        // Step 3 — compute minor units from booking total (EUR cents)
-        val amountEur = booking.pricing.totalEur.amount
-        val amountMinorUnits = amountEur
-            .multiply(BigDecimal(100))
-            .setScale(0, RoundingMode.HALF_UP)
-            .toLongExact()
+            if (payment.paymobOrderId != null && payment.providerCheckoutToken != null) {
+                return@runInTransaction InitiatePaymentResult.AlreadyInitiated(
+                    payment,
+                    paymobClient.buildCheckoutUrl(payment.providerCheckoutToken!!),
+                )
+            }
+            if (payment.status != PaymentStatus.PENDING || payment.paymobOrderId != null) {
+                return@runInTransaction InitiatePaymentResult.ReconciliationRequired
+            }
 
-        // Step 4 — call Paymob to create the order (outside DB transaction to avoid long lock)
-        val orderResult = paymobClient.createOrder(
-            merchantRefNumber = command.bookingId.value.toString(),
-            amountCents = amountMinorUnits,
-            currencyCode = Money.CURRENCY_CODE,
-            items = listOf(
-                PaymobOrderItem(
-                    name = "Tour Booking ${booking.reference}",
-                    amountCents = amountMinorUnits,
-                    quantity = 1,
-                ),
-            ),
-        )
+            payment.assignPaymobCheckout(checkout.orderId, checkout.checkoutToken)
+            if (booking.status != BookingStatus.NEW) {
+                payment.markReconciliationRequired("BOOKING_${booking.status.name}")
+                paymentRepository.save(payment)
+                return@runInTransaction InitiatePaymentResult.ReconciliationRequired
+            }
+            paymentRepository.save(payment)
 
-        val paymobOrderId = when (orderResult) {
-            is PaymobOrderResult.Success -> orderResult.orderId
-            is PaymobOrderResult.Failure -> return InitiatePaymentResult.ProviderError(orderResult.message)
-        }
-
-        // Step 5 — persist payment record + assign order ID in a transaction
-        val payment = transactionRunner.runInTransaction {
-            val now = Instant.now(clock)
-            val p = Payment.createPending(
-                id = PaymentId.generate(),
-                bookingId = command.bookingId,
-                amountEur = amountEur,
-                amountMinorUnits = amountMinorUnits,
-                currencyCode = Money.CURRENCY_CODE,
-                now = now,
+            InitiatePaymentResult.Initiated(
+                payment,
+                paymobClient.buildCheckoutUrl(checkout.checkoutToken),
             )
-            p.assignPaymobOrder(paymobOrderId)
-            paymentRepository.save(p)
-            p
         }
 
-        val checkoutUrl = paymobClient.buildCheckoutUrl(paymobOrderId)
-        return InitiatePaymentResult.Initiated(payment, checkoutUrl)
+    private fun markReconciliationRequired(
+        preparation: PaymentPreparation.CreateAtProvider,
+        providerStatus: String,
+    ) {
+        transactionRunner.runInTransaction {
+            bookingRepository.findByIdForUpdate(preparation.bookingId)
+            val payment = paymentRepository.findByIdForUpdate(preparation.paymentId)
+            if (payment?.status == PaymentStatus.PENDING && payment.paymobOrderId == null) {
+                payment.markReconciliationRequired(providerStatus)
+                paymentRepository.save(payment)
+            }
+        }
     }
 
     private fun BigDecimal.toLongExact(): Long = this.longValueExact()
+}
+
+private sealed interface PaymentPreparation {
+    data class Completed(
+        val result: InitiatePaymentResult,
+    ) : PaymentPreparation
+
+    data class CreateAtProvider(
+        val bookingId: BookingId,
+        val paymentId: PaymentId,
+        val checkoutCommand: PaymobCheckoutCommand,
+    ) : PaymentPreparation
 }

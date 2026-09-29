@@ -3,7 +3,6 @@ package com.wego.toursoperator.api
 import com.wego.toursoperator.application.HandlePaymobWebhookResult
 import com.wego.toursoperator.application.HandlePaymobWebhookService
 import com.wego.toursoperator.application.PaymobWebhookPayload
-import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -39,50 +38,65 @@ class PaymobWebhookController(
     fun handleCallback(
         @RequestParam hmac: String,
         @RequestBody body: Map<String, Any>,
-        request: HttpServletRequest,
     ): ResponseEntity<Any> {
-        val rawJson = extractRawJson(body)
-
-        val payload = try {
-            parsePayload(body, hmac, rawJson)
-        } catch (ex: Exception) {
-            log.warn("PaymobWebhookController: failed to parse payload: ${ex.message}")
-            return ResponseEntity.badRequest().body(mapOf("error" to "invalid_payload"))
-        }
+        val payload =
+            try {
+                parsePayload(body, hmac)
+            } catch (_: Exception) {
+                // Never copy attacker-controlled parse errors into production logs.
+                log.warn("PaymobWebhookController: rejected malformed payload")
+                return ResponseEntity.badRequest().body(mapOf("error" to "invalid_payload"))
+            }
 
         return when (val result = handlePaymobWebhookService.handle(payload)) {
             HandlePaymobWebhookResult.PaymentConfirmed -> {
-                log.info("PaymobWebhookController: payment confirmed for order ${payload.orderId}")
+                log.info("PaymobWebhookController: payment confirmed")
                 ResponseEntity.ok(mapOf("status" to "confirmed"))
             }
             HandlePaymobWebhookResult.PaymentFailed -> {
-                log.info("PaymobWebhookController: payment failed for order ${payload.orderId}")
+                log.info("PaymobWebhookController: payment failed")
                 ResponseEntity.ok(mapOf("status" to "failed"))
             }
+            HandlePaymobWebhookResult.PendingAcknowledged ->
+                ResponseEntity.ok(mapOf("status" to "pending"))
             HandlePaymobWebhookResult.RefundRecorded -> {
-                log.info("PaymobWebhookController: refund recorded for order ${payload.orderId}")
+                log.info("PaymobWebhookController: refund recorded")
                 ResponseEntity.ok(mapOf("status" to "refunded"))
+            }
+            HandlePaymobWebhookResult.ReviewRequired -> {
+                log.error("PaymobWebhookController: payment requires reconciliation")
+                ResponseEntity.ok(mapOf("status" to "review_required"))
             }
             HandlePaymobWebhookResult.AlreadyProcessed -> {
                 // Idempotent — return 200 so Paymob stops retrying.
                 ResponseEntity.ok(mapOf("status" to "already_processed"))
             }
             HandlePaymobWebhookResult.InvalidSignature -> {
-                log.warn("PaymobWebhookController: invalid HMAC signature for order ${payload.orderId}")
+                log.warn("PaymobWebhookController: invalid HMAC signature")
                 ResponseEntity.badRequest().body(mapOf("error" to "invalid_signature"))
             }
+            HandlePaymobWebhookResult.IntegrationMismatch -> {
+                log.warn("PaymobWebhookController: integration mismatch")
+                ResponseEntity.badRequest().body(mapOf("error" to "integration_mismatch"))
+            }
             HandlePaymobWebhookResult.OrderNotFound -> {
-                log.warn("PaymobWebhookController: order not found: ${payload.orderId}")
+                log.warn("PaymobWebhookController: provider order not found")
                 // Return 200 to prevent Paymob retries for unknown orders.
                 ResponseEntity.ok(mapOf("status" to "order_not_found"))
             }
             HandlePaymobWebhookResult.AmountMismatch -> {
                 log.error(
-                    "PaymobWebhookController: AMOUNT MISMATCH for order ${payload.orderId} " +
-                        "— received ${payload.amountCents} cents",
+                    "PaymobWebhookController: payment amount mismatch",
                 )
-                ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                ResponseEntity
+                    .status(HttpStatus.UNPROCESSABLE_CONTENT)
                     .body(mapOf("error" to "amount_mismatch"))
+            }
+            HandlePaymobWebhookResult.CurrencyMismatch -> {
+                log.error("PaymobWebhookController: payment currency mismatch")
+                ResponseEntity
+                    .status(HttpStatus.UNPROCESSABLE_CONTENT)
+                    .body(mapOf("error" to "currency_mismatch"))
             }
         }
     }
@@ -91,43 +105,43 @@ class PaymobWebhookController(
     private fun parsePayload(
         body: Map<String, Any>,
         hmac: String,
-        rawJson: String,
     ): PaymobWebhookPayload {
-        val obj = body["obj"] as? Map<String, Any>
-            ?: error("Missing 'obj' in webhook body")
-        val order = obj["order"] as? Map<String, Any>
-            ?: error("Missing 'order' in webhook obj")
+        val obj =
+            body["obj"] as? Map<String, Any>
+                ?: error("Missing 'obj' in webhook body")
+        val order =
+            obj["order"] as? Map<String, Any>
+                ?: error("Missing 'order' in webhook obj")
         val sourceData = obj["source_data"] as? Map<String, Any> ?: emptyMap()
 
         return PaymobWebhookPayload(
-            rawJson = rawJson,
             orderId = order["id"]?.toString() ?: error("Missing order.id"),
             transactionId = obj["id"]?.toString() ?: error("Missing transaction id"),
-            success = obj["success"]?.toString() ?: "false",
-            pending = obj["pending"]?.toString() ?: "false",
-            isRefund = obj["is_refunded"]?.toString() ?: "false",
-            amountCents = obj["amount_cents"]?.toString()?.toLong() ?: 0L,
-            currencyCode = obj["currency"]?.toString() ?: "EUR",
+            success = obj["success"].wireValue(),
+            pending = obj["pending"].wireValue(),
+            isRefund = obj["is_refunded"].wireValue(),
+            amountCents = obj["amount_cents"]?.toString()?.toLong() ?: error("Missing amount_cents"),
+            currencyCode = obj["currency"]?.toString() ?: error("Missing currency"),
             hmac = hmac,
-            providerResponseCode = obj["data"]?.let {
-                (it as? Map<String, Any>)?.get("gateway_integration_pk")?.toString()
-            },
-            providerResponseMessage = obj["data"]?.let {
-                (it as? Map<String, Any>)?.get("message")?.toString()
-            },
-            createdAt       = obj["created_at"]?.toString() ?: "",
-            integrationId   = obj["integration_id"]?.toString() ?: "",
-            sourceDataPan       = sourceData["pan"]?.toString() ?: "",
-            sourceDataSubType   = sourceData["sub_type"]?.toString() ?: "",
-            sourceDataType      = sourceData["type"]?.toString() ?: "",
+            providerResponseCode =
+                obj["data"]?.let {
+                    (it as? Map<String, Any>)?.get("txn_response_code")?.toString()
+                },
+            createdAt = obj["created_at"].wireValue(),
+            integrationId = obj["integration_id"]?.toString() ?: error("Missing integration_id"),
+            errorOccurred = obj["error_occured"].wireValue(),
+            hasParentTransaction = obj["has_parent_transaction"].wireValue(),
+            is3dSecure = obj["is_3d_secure"].wireValue(),
+            isAuth = obj["is_auth"].wireValue(),
+            isCapture = obj["is_capture"].wireValue(),
+            isStandalonePayment = obj["is_standalone_payment"].wireValue(),
+            isVoided = obj["is_voided"].wireValue(),
+            owner = obj["owner"].wireValue(),
+            sourceDataPan = sourceData["pan"].wireValue(),
+            sourceDataSubType = sourceData["sub_type"].wireValue(),
+            sourceDataType = sourceData["type"].wireValue(),
         )
     }
 
-    private fun extractRawJson(body: Map<String, Any>): String {
-        return try {
-            tools.jackson.databind.ObjectMapper().writeValueAsString(body)
-        } catch (ex: Exception) {
-            "{}"
-        }
-    }
+    private fun Any?.wireValue(): String = this?.toString() ?: ""
 }

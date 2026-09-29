@@ -28,7 +28,7 @@ function closeMenu() {
     :class="
       scrolled
         ? 'border-b border-sts-border bg-sts-surface/95 shadow-sm backdrop-blur'
-        : 'bg-transparent'
+        : 'bg-sts-ocean'
     "
   >
     <header

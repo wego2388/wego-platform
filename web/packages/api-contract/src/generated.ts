@@ -1652,13 +1652,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        get?: never;
+        put?: never;
         /**
          * Recover a booking by reference and phone
-         * @description Public recovery endpoint. The phone is a knowledge factor, not a staff identity; rate limiting and enumeration protection are required before production launch.
+         * @description Public recovery endpoint. The reference and phone are knowledge factors, not a staff identity. They are accepted only in the JSON body so PII is not placed in URLs; the edge applies a dedicated per-IP rate limit to reduce enumeration attempts.
          */
-        get: operations["lookupToursOperatorBooking"];
-        put?: never;
-        post?: never;
+        post: operations["lookupToursOperatorBooking"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1676,26 +1676,6 @@ export interface paths {
         get: operations["getToursOperatorBooking"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/tours-operator/bookings/{id}/confirm": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Confirm a paid booking
-         * @description Internal/staff operation until Paymob webhook handling owns it.
-         */
-        post: operations["confirmToursOperatorBooking"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1747,7 +1727,7 @@ export interface paths {
         put?: never;
         /**
          * Initiate Paymob payment for a NEW booking
-         * @description Creates a PENDING payment record and a Paymob order. Returns a checkout URL to redirect the customer to the Paymob hosted page. Amount is always taken from the server-side booking snapshot. Idempotent: if a PENDING payment already exists, returns the existing checkout URL.
+         * @description Creates a PENDING payment record and a Paymob Intention. Returns a Unified Checkout URL hosted by Paymob. Amount is always taken from the server-side booking snapshot. Idempotent: if a PENDING payment already exists, returns the existing checkout URL.
          */
         post: operations["initiateToursOperatorPayment"];
         delete?: never;
@@ -1974,6 +1954,10 @@ export interface components {
             /** @enum {string} */
             locale: "en" | "ar" | "ru" | "it";
         };
+        LookupToursOperatorBookingRequest: {
+            reference: string;
+            phone: string;
+        };
         ToursOperatorBookingResponse: {
             /** Format: uuid */
             id: string;
@@ -2008,6 +1992,18 @@ export interface components {
             /** Format: date-time */
             expiredAt: string | null;
         };
+        ToursOperatorPublicBookingLookupResponse: {
+            reference: string;
+            /** Format: date */
+            tourDate: string;
+            timeSlot: components["schemas"]["ToursOperatorTimeSlot"];
+            adultsCount: number;
+            childrenCount: number;
+            totalPrice: components["schemas"]["Money"];
+            hotelName: string;
+            status: components["schemas"]["ToursOperatorBookingStatus"];
+            cancellationReason: string | null;
+        };
         CancelToursOperatorBookingRequest: {
             reason: string;
         };
@@ -2030,6 +2026,8 @@ export interface components {
             paymentId: string;
             /** Format: uuid */
             bookingId: string;
+            amountEur: string;
+            currencyCode: string;
             status: components["schemas"]["ToursOperatorPaymentStatus"];
             /** Format: date-time */
             paidAt?: string | null;
@@ -2037,7 +2035,7 @@ export interface components {
             failedAt?: string | null;
         };
         /** @enum {string} */
-        ToursOperatorPaymentStatus: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
+        ToursOperatorPaymentStatus: "PENDING" | "PAID" | "FAILED" | "REFUNDED" | "REVIEW_REQUIRED" | "RECONCILIATION_REQUIRED";
         CreateOfferingRequest: {
             offeringType: components["schemas"]["OfferingType"];
             title: string;
@@ -6950,15 +6948,16 @@ export interface operations {
     };
     lookupToursOperatorBooking: {
         parameters: {
-            query: {
-                reference: string;
-                phone: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LookupToursOperatorBookingRequest"];
+            };
+        };
         responses: {
             /** @description Matching booking. */
             200: {
@@ -6966,7 +6965,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ToursOperatorBookingResponse"];
+                    "application/json": components["schemas"]["ToursOperatorPublicBookingLookupResponse"];
                 };
             };
             400: components["responses"]["ToursOperatorValidationResponse"];
@@ -6977,6 +6976,7 @@ export interface operations {
                 };
                 content?: never;
             };
+            429: components["responses"]["RateLimitedResponse"];
         };
     };
     getToursOperatorBooking: {
@@ -7008,46 +7008,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
-            };
-        };
-    };
-    confirmToursOperatorBooking: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Confirmed booking; replaying an already-confirmed transition is safe. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ToursOperatorBookingResponse"];
-                };
-            };
-            401: components["responses"]["UnauthenticatedResponse"];
-            403: components["responses"]["ForbiddenResponse"];
-            /** @description Booking not found. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Booking cannot be confirmed from its current state. */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
-                };
             };
         };
     };

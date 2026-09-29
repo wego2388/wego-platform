@@ -60,9 +60,6 @@ services:
       WEGO_DB_PASSWORD: ${WEGO_POSTGRES_PASSWORD:-wego-local-postgres-only}
       WEGO_DB_POOL_SIZE: 5
       WEGO_FLYWAY_ENABLED: "true"
-      # Enable mock Paymob client for E2E/local dev — no real credentials needed.
-      # Set to false (or unset) when real Paymob sandbox credentials are available.
-      TOURS_OPERATOR_PAYMOB_MOCK_ENABLED: "true"
     depends_on:
       postgres:
         condition: service_healthy

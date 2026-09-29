@@ -4442,41 +4442,36 @@ paths:
         "403":
           $ref: "#/components/responses/ForbiddenResponse"
   /api/v1/tours-operator/bookings/lookup:
-    get:
+    post:
       operationId: lookupToursOperatorBooking
       summary: Recover a booking by reference and phone
       description: >-
-        Public recovery endpoint. The phone is a knowledge factor, not a
-        staff identity; rate limiting and enumeration protection are required
-        before production launch.
+        Public recovery endpoint. The reference and phone are knowledge
+        factors, not a staff identity. They are accepted only in the JSON body
+        so PII is not placed in URLs; the edge applies a dedicated per-IP rate
+        limit to reduce enumeration attempts.
       tags:
         - ToursOperator
       security: []
-      parameters:
-        - name: reference
-          in: query
-          required: true
-          schema:
-            type: string
-            pattern: "^STR-[0-9]{4}-[0-9]+$"
-        - name: phone
-          in: query
-          required: true
-          schema:
-            type: string
-            minLength: 1
-            maxLength: 32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LookupToursOperatorBookingRequest"
       responses:
         "200":
           description: Matching booking.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ToursOperatorBookingResponse"
+                $ref: "#/components/schemas/ToursOperatorPublicBookingLookupResponse"
         "400":
           $ref: "#/components/responses/ToursOperatorValidationResponse"
         "404":
           description: No matching booking.
+        "429":
+          $ref: "#/components/responses/RateLimitedResponse"
   /api/v1/tours-operator/bookings/{id}:
     get:
       operationId: getToursOperatorBooking
@@ -4507,41 +4502,6 @@ paths:
           $ref: "#/components/responses/ForbiddenResponse"
         "404":
           description: Booking not found.
-  /api/v1/tours-operator/bookings/{id}/confirm:
-    post:
-      operationId: confirmToursOperatorBooking
-      summary: Confirm a paid booking
-      description: Internal/staff operation until Paymob webhook handling owns it.
-      tags:
-        - ToursOperator
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        "200":
-          description: Confirmed booking; replaying an already-confirmed transition is safe.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ToursOperatorBookingResponse"
-        "401":
-          $ref: "#/components/responses/UnauthenticatedResponse"
-        "403":
-          $ref: "#/components/responses/ForbiddenResponse"
-        "404":
-          description: Booking not found.
-        "409":
-          description: Booking cannot be confirmed from its current state.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ToursOperatorErrorResponse"
   /api/v1/tours-operator/bookings/{id}/cancel:
     post:
       operationId: cancelToursOperatorBooking
@@ -4623,8 +4583,8 @@ paths:
       operationId: initiateToursOperatorPayment
       summary: Initiate Paymob payment for a NEW booking
       description: >
-        Creates a PENDING payment record and a Paymob order. Returns a checkout
-        URL to redirect the customer to the Paymob hosted page. Amount is always
+        Creates a PENDING payment record and a Paymob Intention. Returns a
+        Unified Checkout URL hosted by Paymob. Amount is always
         taken from the server-side booking snapshot. Idempotent: if a PENDING
         payment already exists, returns the existing checkout URL.
       tags:
@@ -5355,6 +5315,22 @@ components:
             - ar
             - ru
             - it
+    LookupToursOperatorBookingRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - reference
+        - phone
+      properties:
+        reference:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: "^[Ss][Tt][Rr]-[0-9]{4}-[0-9]+$"
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 32
     ToursOperatorBookingResponse:
       type: object
       additionalProperties: false
@@ -5457,6 +5433,44 @@ components:
             - string
             - "null"
           format: date-time
+    ToursOperatorPublicBookingLookupResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - reference
+        - tourDate
+        - timeSlot
+        - adultsCount
+        - childrenCount
+        - totalPrice
+        - hotelName
+        - status
+        - cancellationReason
+      properties:
+        reference:
+          type: string
+          pattern: "^STR-[0-9]{4}-[0-9]+$"
+        tourDate:
+          type: string
+          format: date
+        timeSlot:
+          $ref: "#/components/schemas/ToursOperatorTimeSlot"
+        adultsCount:
+          type: integer
+          minimum: 1
+        childrenCount:
+          type: integer
+          minimum: 0
+        totalPrice:
+          $ref: "#/components/schemas/Money"
+        hotelName:
+          type: string
+        status:
+          $ref: "#/components/schemas/ToursOperatorBookingStatus"
+        cancellationReason:
+          type:
+            - string
+            - "null"
     CancelToursOperatorBookingRequest:
       type: object
       additionalProperties: false
@@ -5510,6 +5524,8 @@ components:
       required:
         - paymentId
         - bookingId
+        - amountEur
+        - currencyCode
         - status
       properties:
         paymentId:
@@ -5518,6 +5534,13 @@ components:
         bookingId:
           type: string
           format: uuid
+        amountEur:
+          type: string
+          pattern: '^[0-9]+\.[0-9]{2}$'
+        currencyCode:
+          type: string
+          minLength: 3
+          maxLength: 3
         status:
           $ref: "#/components/schemas/ToursOperatorPaymentStatus"
         paidAt:
@@ -5537,6 +5560,8 @@ components:
         - PAID
         - FAILED
         - REFUNDED
+        - REVIEW_REQUIRED
+        - RECONCILIATION_REQUIRED
     CreateOfferingRequest:
       type: object
       additionalProperties: false

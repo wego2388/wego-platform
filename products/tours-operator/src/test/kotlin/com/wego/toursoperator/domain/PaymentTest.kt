@@ -65,26 +65,27 @@ class PaymentTest {
         }
     }
 
-    // ── assignPaymobOrder ──────────────────────────────────────────────────
+    // ── assignPaymobCheckout ───────────────────────────────────────────────
 
     @Test
-    fun `assignPaymobOrder sets the order ID`() {
+    fun `assignPaymobCheckout sets the order ID and token`() {
         val p = pendingPayment()
-        p.assignPaymobOrder("ORDER-123")
+        p.assignPaymobCheckout("ORDER-123", "TOKEN-123")
         assertEquals("ORDER-123", p.paymobOrderId)
+        assertEquals("TOKEN-123", p.providerCheckoutToken)
     }
 
     @Test
-    fun `assignPaymobOrder rejects blank ID`() {
+    fun `assignPaymobCheckout rejects blank ID`() {
         val p = pendingPayment()
-        assertThrows<IllegalArgumentException> { p.assignPaymobOrder("") }
+        assertThrows<IllegalArgumentException> { p.assignPaymobCheckout("", "TOKEN") }
     }
 
     @Test
-    fun `assignPaymobOrder rejects double assignment`() {
+    fun `assignPaymobCheckout rejects double assignment`() {
         val p = pendingPayment()
-        p.assignPaymobOrder("ORDER-123")
-        assertThrows<IllegalArgumentException> { p.assignPaymobOrder("ORDER-456") }
+        p.assignPaymobCheckout("ORDER-123", "TOKEN-123")
+        assertThrows<IllegalArgumentException> { p.assignPaymobCheckout("ORDER-456", "TOKEN-456") }
     }
 
     // ── markPaid ───────────────────────────────────────────────────────────
@@ -127,6 +128,45 @@ class PaymentTest {
         assertNull(p.paymobTransactionId)
     }
 
+    @Test
+    fun `reconciliation preserves provider identity and blocks automatic retry`() {
+        val p = pendingPayment()
+        val stableReference = p.providerReference
+        p.assignPaymobCheckout("ORDER-1", "TOKEN-1")
+        p.markReconciliationRequired("CREATE_OUTCOME_UNKNOWN")
+
+        assertEquals(PaymentStatus.RECONCILIATION_REQUIRED, p.status)
+        assertNull(p.failedAt)
+        assertEquals("ORDER-1", p.paymobOrderId)
+        assertNull(p.paymobTransactionId)
+        assertNull(p.providerCheckoutToken)
+        assertEquals(stableReference, p.providerReference)
+    }
+
+    @Test
+    fun `reconciled payment can accept a late verified success`() {
+        val p = pendingPayment()
+        p.assignPaymobCheckout("ORDER-1", "TOKEN-1")
+        p.markReconciliationRequired("CREATE_OUTCOME_UNKNOWN")
+
+        p.markPaid("TXN-LATE", "APPROVED", "{}", now)
+
+        assertEquals(PaymentStatus.PAID, p.status)
+        assertEquals("ORDER-1", p.paymobOrderId)
+        assertEquals("TXN-LATE", p.paymobTransactionId)
+        assertNotNull(p.paidAt)
+    }
+
+    @Test
+    fun `late captured payment becomes REVIEW_REQUIRED`() {
+        val p = pendingPayment()
+        p.markReviewRequired("TXN-LATE", "SUCCESS", "{}", now)
+
+        assertEquals(PaymentStatus.REVIEW_REQUIRED, p.status)
+        assertNotNull(p.paidAt)
+        assertNull(p.failedAt)
+    }
+
     // ── markRefunded ───────────────────────────────────────────────────────
 
     @Test
@@ -136,6 +176,7 @@ class PaymentTest {
         p.markRefunded("{refund}", now.plusSeconds(60))
         assertEquals(PaymentStatus.REFUNDED, p.status)
         assertNotNull(p.refundedAt)
+        assertNotNull(p.paidAt)
     }
 
     @Test

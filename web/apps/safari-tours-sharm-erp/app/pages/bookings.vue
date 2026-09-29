@@ -9,7 +9,6 @@ import {
 } from "../composables/useAuthSession";
 import {
   cancelBooking,
-  confirmBooking,
   completeBooking,
   listBookings,
   listTours,
@@ -44,7 +43,6 @@ const actionError  = ref<Record<string, string>>({});
 const cancelReason = ref<Record<string, string>>({});
 
 const canView     = computed(() => hasPermission(session.value, "tours-operator.booking:view"));
-const canConfirm  = computed(() => hasPermission(session.value, "tours-operator.booking:payment-update"));
 const canCancel   = computed(() => hasPermission(session.value, "tours-operator.booking:cancel"));
 const canComplete = computed(() => hasPermission(session.value, "tours-operator.booking:complete"));
 
@@ -92,21 +90,6 @@ async function load() {
     handleApiError(err);
     listState.value = "error";
     listError.value = errorText(err);
-  }
-}
-
-async function submitConfirm(b: Booking) {
-  if (!session.value) return;
-  actionState.value[b.id] = "submitting";
-  actionError.value[b.id] = "";
-  try {
-    const updated = await confirmBooking(session.value.token, b.id);
-    bookings.value = bookings.value.map((x) => (x.id === updated.id ? updated : x));
-    actionState.value[b.id] = "idle";
-  } catch (err) {
-    handleApiError(err);
-    actionState.value[b.id] = "error";
-    actionError.value[b.id] = errorText(err);
   }
 }
 
@@ -259,15 +242,6 @@ onMounted(async () => {
                   </td>
                   <td class="px-5 py-3.5" @click.stop>
                     <div class="flex flex-wrap gap-2">
-                      <WegoButton
-                        v-if="canConfirm && b.status === 'NEW'"
-                        type="button"
-                        variant="secondary"
-                        :disabled="actionState[b.id] === 'submitting'"
-                        @click="submitConfirm(b)"
-                      >
-                        Confirm
-                      </WegoButton>
                       <WegoButton
                         v-if="canComplete && b.status === 'CONFIRMED'"
                         type="button"

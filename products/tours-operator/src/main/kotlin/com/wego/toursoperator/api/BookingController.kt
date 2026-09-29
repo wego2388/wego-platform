@@ -7,8 +7,6 @@ import com.wego.toursoperator.application.CancelBookingResult
 import com.wego.toursoperator.application.CancelBookingService
 import com.wego.toursoperator.application.CompleteBookingResult
 import com.wego.toursoperator.application.CompleteBookingService
-import com.wego.toursoperator.application.ConfirmBookingResult
-import com.wego.toursoperator.application.ConfirmBookingService
 import com.wego.toursoperator.application.CreateBookingCommand
 import com.wego.toursoperator.application.CreateBookingResult
 import com.wego.toursoperator.application.CreateBookingService
@@ -42,7 +40,6 @@ import java.util.UUID
 @RequestMapping("/api/v1/tours-operator/bookings")
 class BookingController(
     private val createBookingService: CreateBookingService,
-    private val confirmBookingService: ConfirmBookingService,
     private val cancelBookingService: CancelBookingService,
     private val completeBookingService: CompleteBookingService,
     private val bookingQueryService: BookingQueryService,
@@ -89,27 +86,6 @@ class BookingController(
                 ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorResponse("tour_not_active"))
         }
     }
-
-    /**
-     * Called by HandlePaymobWebhookService after HMAC-verified webhook confirms payment.
-     * AlreadyConfirmed is treated as 200 — webhook retries are safe (idempotent).
-     * This endpoint requires payment:update authority — it is NOT called by the browser.
-     */
-    @PostMapping("/{id}/confirm")
-    @PreAuthorize("hasAuthority('tours-operator.booking:payment-update')")
-    fun confirm(
-        @PathVariable id: UUID,
-    ): ResponseEntity<Any> =
-        when (val result = confirmBookingService.confirm(BookingId(id), CorrelationContext.currentCorrelationId())) {
-            is ConfirmBookingResult.Confirmed ->
-                ResponseEntity.ok(result.booking.toResponse())
-            is ConfirmBookingResult.AlreadyConfirmed ->
-                ResponseEntity.ok(result.booking.toResponse())
-            ConfirmBookingResult.NotFound ->
-                ResponseEntity.notFound().build()
-            ConfirmBookingResult.CannotConfirm ->
-                ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorResponse("cannot_confirm"))
-        }
 
     @PostMapping("/{id}/cancel")
     @PreAuthorize("hasAuthority('tours-operator.booking:cancel')")
@@ -190,15 +166,17 @@ class BookingController(
      * Public lookup — customer retrieves their booking by reference + phone.
      * No authentication required.
      */
-    @GetMapping("/lookup")
+    @PostMapping("/lookup")
     fun lookup(
-        @RequestParam reference: String,
-        @RequestParam phone: String,
-    ): ResponseEntity<BookingResponse> {
+        @Valid @RequestBody request: LookupBookingRequest,
+    ): ResponseEntity<PublicBookingLookupResponse> {
         val booking =
-            bookingQueryService.findByReferenceAndPhone(reference, phone)
+            bookingQueryService.findByReferenceAndPhone(
+                request.reference.trim().uppercase(),
+                request.phone.trim(),
+            )
                 ?: return ResponseEntity.notFound().build()
-        return ResponseEntity.ok(booking.toResponse())
+        return ResponseEntity.ok(booking.toPublicLookupResponse())
     }
 }
 
@@ -233,4 +211,17 @@ internal fun Booking.toResponse() =
         cancellationReason = cancellationReason,
         completedAt = completedAt,
         expiredAt = expiredAt,
+    )
+
+private fun Booking.toPublicLookupResponse() =
+    PublicBookingLookupResponse(
+        reference = reference,
+        tourDate = tourDate,
+        timeSlot = timeSlot,
+        adultsCount = pricing.adultsCount,
+        childrenCount = pricing.childrenCount,
+        totalPrice = MoneyResponse(pricing.totalEur.amount.toPlainString()),
+        hotelName = hotelName,
+        status = status,
+        cancellationReason = cancellationReason,
     )

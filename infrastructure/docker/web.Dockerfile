@@ -8,7 +8,14 @@ RUN corepack enable && corepack prepare pnpm@10.34.4 --activate
 COPY . .
 # --frozen-lockfile: a deterministic build fails loudly on a lockfile drift
 # instead of silently resolving different versions than local dev/CI used.
-RUN cd web && pnpm install --frozen-lockfile && pnpm --filter @wego/erp build
+# Keep the content-addressed pnpm store across BuildKit retries. node_modules
+# stays inside this build layer; the cache contains packages only and does not
+# weaken the frozen-lockfile guarantee.
+RUN --mount=type=cache,id=wego-pnpm-store,target=/pnpm/store \
+    cd web \
+    && pnpm config set store-dir /pnpm/store \
+    && pnpm install --frozen-lockfile \
+    && pnpm --filter @wego/erp build
 
 FROM public.ecr.aws/docker/library/node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43 AS runtime
 

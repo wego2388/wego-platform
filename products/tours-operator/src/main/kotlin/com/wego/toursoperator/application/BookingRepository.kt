@@ -4,6 +4,7 @@ import com.wego.toursoperator.domain.Booking
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.BookingStatus
 import com.wego.toursoperator.domain.TourId
+import java.time.Instant
 import java.time.LocalDate
 
 interface BookingRepository {
@@ -29,6 +30,9 @@ interface BookingRepository {
         limit: Int,
         offset: Int,
     ): List<Booking>
+
+    /** NEW bookings whose payment window has elapsed, using the caller's injected clock. */
+    fun findNewCreatedBefore(cutoff: Instant): List<Booking>
 
     /** Count bookings for a slot — used by the dashboard today-schedule view. */
     fun countBySlotId(slotId: com.wego.toursoperator.domain.TourSlotId): Int

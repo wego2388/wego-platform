@@ -102,6 +102,16 @@ class JooqBookingRepository(
     }
 
     @Transactional(readOnly = true)
+    override fun findNewCreatedBefore(cutoff: Instant): List<Booking> =
+        dsl
+            .selectFrom(TOURS_OPERATOR_BOOKING)
+            .where(TOURS_OPERATOR_BOOKING.STATUS.eq(BookingStatus.NEW.name))
+            .and(TOURS_OPERATOR_BOOKING.CREATED_AT.lt(toOffset(cutoff)))
+            .orderBy(TOURS_OPERATOR_BOOKING.CREATED_AT.asc(), TOURS_OPERATOR_BOOKING.ID.asc())
+            .fetch()
+            .map(::toDomain)
+
+    @Transactional(readOnly = true)
     override fun countBySlotId(slotId: TourSlotId): Int {
         val count =
             dsl

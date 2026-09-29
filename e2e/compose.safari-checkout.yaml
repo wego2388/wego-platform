@@ -1,0 +1,14 @@
+# Safari's isolated deployment uses its own staff ERP at the same internal
+# `web:3000` boundary as the foundation ERP. This override lets the checkout
+# gate exercise that real client application without changing or duplicating
+# the shared PostgreSQL/backend/site/edge topology.
+services:
+  backend:
+    environment:
+      # Isolated E2E only. Base/prod-like Compose always defaults to the real adapter.
+      TOURS_OPERATOR_PAYMOB_MOCK_ENABLED: "true"
+
+  web:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/safari-erp.Dockerfile

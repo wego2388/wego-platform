@@ -11,7 +11,6 @@ import {
   calculateBookingTotal,
   formatPrice,
   formatTimeSlot,
-  cancellationDeadline,
   moneyToMinorUnits,
   multiplyMoney,
   type Tour,
@@ -131,7 +130,7 @@ useHead(() => ({
     ? [
         {
           name: "description",
-          content: `Book ${tour.value.slug.replace(/-/g, " ")} in Sharm El Sheikh from ${formatPrice(tour.value.priceAdult)}/person. Hotel pickup included.`,
+          content: `Book ${tour.value.nameEn ?? tour.value.slug.replace(/-/g, " ")} in Sharm El Sheikh from ${formatPrice(tour.value.priceAdult)} per adult. Choose from current available dates.`,
         },
         { property: "og:title", content: tour.value.slug.replace(/-/g, " ") + " — Safari Tours Sharm" },
       ]
@@ -230,12 +229,21 @@ const whatsappBookUrl = computed(() => {
 
             <!-- ── LEFT — Content ──────────────────────────────────── -->
             <article>
-              <!-- Image placeholder / gallery -->
+              <!-- Owner-approved catalog image when available; honest fallback otherwise. -->
               <div
                 class="aspect-[16/9] w-full overflow-hidden rounded-2xl bg-sts-ocean/10 flex items-center justify-center"
                 aria-label="Tour image"
               >
-                <span class="text-6xl" aria-hidden="true">
+                <img
+                  v-if="tour.imageUrl"
+                  :src="tour.imageUrl"
+                  :alt="tour.nameEn ?? tour.slug.replace(/-/g, ' ')"
+                  width="1200"
+                  height="675"
+                  class="size-full object-cover"
+                  fetchpriority="high"
+                >
+                <span v-else class="text-6xl" aria-hidden="true">
                   {{ categoryMeta[tour.category].icon }}
                 </span>
               </div>
@@ -251,12 +259,12 @@ const whatsappBookUrl = computed(() => {
                     {{ copy.categories[tour.category].name }}
                   </span>
                   <h1 class="mt-3 font-display text-3xl font-semibold capitalize tracking-tight sm:text-4xl">
-                    {{ tour.slug.replace(/-/g, " ") }}
+                    {{ tour.nameEn ?? tour.slug.replace(/-/g, " ") }}
                   </h1>
                   <div class="mt-2 flex flex-wrap gap-4 text-sm text-sts-muted">
                     <span>⏱ {{ tour.durationText }}</span>
-                    <span>🏨 Hotel pickup included</span>
-                    <span>✅ Free cancellation</span>
+                    <span>🎟 {{ tour.tourType.replace(/_/g, " ").toLowerCase() }}</span>
+                    <span>✅ Published catalog price</span>
                   </div>
                 </div>
                 <div class="text-right">
@@ -279,23 +287,12 @@ const whatsappBookUrl = computed(() => {
                 </span>
               </div>
 
-              <!-- What's included -->
-              <section class="mt-8" aria-labelledby="includes-heading">
-                <h2 id="includes-heading" class="text-lg font-semibold">What's included</h2>
-                <ul class="mt-3 grid gap-2 sm:grid-cols-2">
-                  <li class="flex items-center gap-2 text-sm text-sts-ink">
-                    <span class="text-green-500" aria-hidden="true">✓</span> Hotel pickup & drop-off
-                  </li>
-                  <li class="flex items-center gap-2 text-sm text-sts-ink">
-                    <span class="text-green-500" aria-hidden="true">✓</span> Air-conditioned transport
-                  </li>
-                  <li class="flex items-center gap-2 text-sm text-sts-ink">
-                    <span class="text-green-500" aria-hidden="true">✓</span> Professional tour guide
-                  </li>
-                  <li class="flex items-center gap-2 text-sm text-sts-ink">
-                    <span class="text-green-500" aria-hidden="true">✓</span> Entrance fees
-                  </li>
-                </ul>
+              <!-- The catalog has no approved per-tour inclusions yet. -->
+              <section class="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5" aria-labelledby="details-heading">
+                <h2 id="details-heading" class="text-lg font-semibold text-amber-900">Before you book</h2>
+                <p class="mt-2 text-sm leading-6 text-amber-800">
+                  Detailed inclusions, pickup arrangements and participation notes are not yet published for this tour. Ask local support to confirm them before payment.
+                </p>
               </section>
 
               <!-- Pricing breakdown -->
@@ -314,13 +311,16 @@ const whatsappBookUrl = computed(() => {
                     <dt>Child</dt>
                     <dd>Contact us</dd>
                   </div>
+                  <div v-if="tour.pricingNote" class="border-t border-sts-border pt-2 text-sts-muted">
+                    {{ tour.pricingNote }}
+                  </div>
                 </dl>
               </section>
 
               <!-- Cancellation policy -->
               <section class="mt-6 rounded-2xl border border-green-200 bg-green-50 p-5">
                 <h2 class="flex items-center gap-2 font-semibold text-green-800">
-                  <span aria-hidden="true">✅</span> Free Cancellation
+                  <span aria-hidden="true">✅</span> {{ copy.cancellationHeading }}
                 </h2>
                 <p class="mt-2 text-sm text-green-700">
                   {{ copy.cancellationBody }}
@@ -444,7 +444,7 @@ const whatsappBookUrl = computed(() => {
                     <span v-else class="text-red-600">Child price unavailable</span>
                   </div>
                   <p class="mt-2 text-xs text-sts-muted">
-                    Free cancellation until {{ cancellationDeadline(selectedSlot.date) }}
+                    {{ copy.cancellationBody }}
                   </p>
                 </div>
 

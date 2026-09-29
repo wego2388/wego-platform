@@ -12,7 +12,6 @@ import {
   calculateBookingTotal,
   formatPrice,
   formatTimeSlot,
-  cancellationDeadline,
   moneyToMinorUnits,
   storeBookingConfirmation,
   PublicApiError,
@@ -173,8 +172,8 @@ async function submitBooking() {
     const paymentResult = await initiatePayment(result.id);
 
     // Step 3: Redirect to Paymob hosted checkout
-    // The return URL (configured on Paymob dashboard) should point to
-    // /booking/payment-result?ref={reference}&bookingId={id}
+    // The return URL (configured on Paymob) points to /booking/payment-result.
+    // Booking identifiers remain in tab-scoped sessionStorage, never its URL.
     step.value = 4;
     window.location.href = paymentResult.checkoutUrl;
   } catch (err) {
@@ -441,7 +440,7 @@ v-if="i < 2" class="mx-2 h-0.5 flex-1 rounded-full"
 
         <!-- Cancellation note -->
         <p v-if="slotDate" class="mt-3 text-xs text-sts-muted">
-          ✅ Free cancellation until {{ cancellationDeadline(slotDate) }}.
+          ✅ {{ copy.cancellationBody }}
         </p>
 
         <!-- Error -->
@@ -499,7 +498,7 @@ v-if="i < 2" class="mx-2 h-0.5 flex-1 rounded-full"
       >
         <div class="size-12 animate-spin rounded-full border-4 border-sts-ocean border-t-transparent" aria-hidden="true" />
         <p class="text-xl font-semibold text-sts-ink">Redirecting to payment…</p>
-        <p class="text-sm text-sts-muted">You will be redirected to our secure payment page.</p>
+        <p class="text-sm text-sts-muted">You will be redirected to the configured payment page.</p>
       </section>
 
       <!-- WhatsApp fallback always visible -->

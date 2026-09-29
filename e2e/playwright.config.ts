@@ -22,7 +22,16 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        // Some Linux libc/Node combinations do not synthesize the RFC-defined
+        // *.localhost loopback mapping. Chromium gets an explicit local rule
+        // so the staff virtual host remains deterministic without editing the
+        // machine's /etc/hosts or relying on external DNS.
+        launchOptions: {
+          args: ["--host-resolver-rules=MAP staff.localhost 127.0.0.1"],
+        },
+      },
     },
   ],
 });

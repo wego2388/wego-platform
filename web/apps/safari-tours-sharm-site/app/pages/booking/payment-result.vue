@@ -7,7 +7,7 @@ import { directionFor, siteCopy, whatsappUrl } from "../../content/locales";
 import type { StsLocale } from "../../content/locales";
 import {
   getPaymentStatus,
-  readStoredBookingConfirmation,
+  peekLatestBookingConfirmation,
   PublicApiError,
   type BookingConfirmation,
   type PaymentStatusResponse,
@@ -24,7 +24,6 @@ import {
  */
 
 const ALL_LOCALES: StsLocale[] = ["en", "ru", "ar", "it"];
-const route  = useRoute();
 const router = useRouter();
 
 const locale    = useSiteLocale();
@@ -36,32 +35,28 @@ useHead(() => ({
   htmlAttrs: { dir: direction.value, lang: locale.value },
 }));
 
-type PageState = "loading" | "confirmed" | "failed" | "pending" | "error";
+type PageState = "loading" | "confirmed" | "failed" | "pending" | "review" | "error";
 
 const state        = ref<PageState>("loading");
 const booking      = ref<BookingConfirmation | null>(null);
 const paymentState = ref<PaymentStatusResponse | null>(null);
 const errorMsg     = ref("");
 
-const bookingId  = computed(() => route.query.bookingId as string | undefined);
-const bookingRef = computed(() => route.query.ref as string | undefined);
+const bookingId  = computed(() => booking.value?.id);
+const bookingRef = computed(() => booking.value?.reference);
 
 // Maximum number of polls before giving up (5s × 12 = 60s total)
 const MAX_POLLS = 12;
 const POLL_INTERVAL_MS = 5000;
 
 onMounted(async () => {
+  // Paymob may append its own transaction fields to the return URL, but Wego's
+  // booking id/reference stay in this tab's session storage and never in it.
+  booking.value = peekLatestBookingConfirmation();
   if (!bookingId.value) {
     state.value = "error";
     errorMsg.value = "Missing booking information. Please check your booking via WhatsApp.";
     return;
-  }
-
-  // Restore booking details from session storage (set during booking creation)
-  const ref = bookingRef.value ?? "";
-  const stored = ref ? readStoredBookingConfirmation(ref) : null;
-  if (stored) {
-    booking.value = stored;
   }
 
   // Poll server for authoritative payment status
@@ -81,16 +76,9 @@ async function pollPaymentStatus(attempt = 0): Promise<void> {
 
     switch (status.status) {
       case "PAID":
-        // Also try to load full booking details if we don't have them yet
-        if (!booking.value && bookingRef.value) {
-          try {
-            // We need phone for lookup — use stored confirmation if available
-            // On this page we rely on sessionStorage; phone lookup only on /my-booking
-          } catch { /* non-fatal */ }
-        }
         state.value = "confirmed";
         // Redirect to the full confirmation page
-        void router.replace(`/booking/confirmation?ref=${bookingRef.value ?? ""}`);
+        void router.replace("/booking/confirmation");
         return;
 
       case "FAILED":
@@ -103,8 +91,10 @@ async function pollPaymentStatus(attempt = 0): Promise<void> {
         return pollPaymentStatus(attempt + 1);
 
       case "REFUNDED":
-        // Unusual on return URL — treat as failed for UX
-        state.value = "failed";
+      case "REVIEW_REQUIRED":
+      case "RECONCILIATION_REQUIRED":
+        // Never claim success/failure while the provider outcome is ambiguous.
+        state.value = "review";
         return;
     }
   } catch (err) {
@@ -203,6 +193,27 @@ const whatsappHelpUrl = computed(() => {
             💬 Book via WhatsApp
           </a>
         </div>
+      </template>
+
+      <!-- Provider outcome requires reconciliation ───────────── -->
+      <template v-else-if="state === 'review'">
+        <div class="inline-grid size-20 place-items-center rounded-3xl bg-amber-100 text-5xl shadow-sm" aria-hidden="true">
+          ⚠️
+        </div>
+        <h1 class="mt-6 font-display text-3xl font-semibold text-amber-800">
+          We’re checking your payment
+        </h1>
+        <p class="mt-3 text-sts-muted">
+          We cannot safely confirm the final payment result yet. Please do not pay again until local support checks it.
+        </p>
+        <a
+          :href="whatsappHelpUrl"
+          target="_blank"
+          rel="noopener"
+          class="mt-8 inline-flex items-center gap-2 rounded-2xl bg-green-500 px-7 py-3.5 font-semibold text-white shadow"
+        >
+          💬 Contact local support
+        </a>
       </template>
 
       <!-- Error ───────────────────────────────────────────────── -->

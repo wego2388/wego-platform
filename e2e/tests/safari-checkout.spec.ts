@@ -2,19 +2,23 @@
  * WEGO-016-E — Playwright E2E: Safari Tours checkout flow (mock Paymob)
  *
  * Coverage:
+ *   E0 — Public root/assets and staff virtual-host isolation.
  *   E1 — Create booking via public API → booking is NEW, slot reserved.
- *   E2 — Initiate payment → PENDING record created, checkout URL returned.
- *   E3 — POST mock webhook with valid HMAC → booking CONFIRMED, payment PAID.
- *   E4 — Duplicate webhook is idempotent (already_processed).
- *   E5 — Invalid HMAC webhook returns 400 and booking stays CONFIRMED.
- *   E6 — /booking/confirmation page renders the correct reference.
- *   E7 — /booking/payment-result polls and redirects to confirmation.
+ *   E2/E2b — Initiate payment → PENDING, then idempotently resume it.
+ *   E3/E4 — Valid webhook confirms once; a duplicate is idempotent.
+ *   E5 — Invalid HMAC returns 400 without changing paid truth.
+ *   E6/E7 — Payment status and staff booking reflect PAID/CONFIRMED truth.
+ *   E8/E8b — Confirmation requires backend PAID truth and rejects mutable browser state.
+ *   E9 — Staff ERP loads and backend logout revokes the session.
+ *   E10 — A guest completes the browser checkout without an account/login.
  *
  * Mock Paymob strategy:
- *   The PaymobHttpClient stub returns a fake checkout URL.
- *   We never load the Paymob iframe — instead we POST the webhook callback
- *   directly with a known HMAC value that matches the mock client's
- *   verifyWebhookSignature implementation (which accepts "valid-hmac").
+ *   The dedicated E2E override enables MockPaymobClient, which returns a
+ *   local mock-provider URL shaped like the Unified Checkout hand-off.
+ *   API-level scenarios POST callbacks with the known E2E HMAC; the guest
+ *   browser scenario visits that provider page and returns through the real
+ *   payment-result polling/confirmation flow. Base Compose never enables the
+ *   mock, and this suite does not claim proof against Paymob's sandbox.
  *
  * The test uses page.request (same Playwright context) for all API calls
  * so cookie/session state is shared if needed, and failures show in Playwright
@@ -41,6 +45,12 @@ const API_BASE = process.env.WEGO_E2E_BASE_URL ?? "http://127.0.0.1:58080";
  * In CI this should be set to the actual Nuxt site port.
  */
 const SITE_BASE = process.env.WEGO_STS_SITE_BASE_URL ?? API_BASE;
+const STAFF_BASE = process.env.WEGO_STS_STAFF_BASE_URL ?? (() => {
+  const url = new URL(API_BASE);
+  url.hostname = "staff.localhost";
+  return url.origin;
+})();
+const STAFF_HOST_HEADER = new URL(STAFF_BASE).host;
 
 /**
  * The HMAC value the mock PaymobClient accepts as valid.
@@ -69,6 +79,14 @@ function webhookBody(
       success,
       pending,
       is_refunded: isRefund,
+      error_occured: false,
+      has_parent_transaction: false,
+      is_3d_secure: true,
+      is_auth: false,
+      is_capture: false,
+      is_standalone_payment: true,
+      is_voided: false,
+      owner: "100001",
       amount_cents: amountCents,
       currency: "EUR",
       created_at: "2026-09-28T10:00:00Z",
@@ -83,11 +101,19 @@ function webhookBody(
 // ── Test suite ────────────────────────────────────────────────────────────────
 
 test.describe("Safari Tours checkout flow — mock Paymob", () => {
+  // The numbered cases are one lifecycle and intentionally share the booking
+  // created by E1. Explicit serial mode makes that contract visible to
+  // Playwright and prevents a future fullyParallel change from racing steps.
+  test.describe.configure({ mode: "serial" });
+
   // Shared state across steps within a single test
   let bookingId: string;
   let bookingReference: string;
+  let bookingConfirmation: Record<string, unknown>;
   let paymobOrderId: string;
   let slotId: string;
+  let tourId: string;
+  let slotDate: string;
 
   // ── Setup: resolve the seeded slot ID ─────────────────────────────────────
 
@@ -109,13 +135,14 @@ test.describe("Safari Tours checkout flow — mock Paymob", () => {
           `Seeded tour '${E2E_TOUR_SLUG}' not found — run 'pnpm run seed' first`,
         );
       }
+      tourId = tour.id;
 
       // Find the next-Monday slot seeded by seed.mjs
       const today = new Date();
       const daysUntilMonday = (1 - today.getUTCDay() + 7) % 7 || 7;
       const nextMonday = new Date(today);
       nextMonday.setUTCDate(today.getUTCDate() + daysUntilMonday);
-      const slotDate = nextMonday.toISOString().slice(0, 10);
+      slotDate = nextMonday.toISOString().slice(0, 10);
       const slotTo = new Date(nextMonday);
       slotTo.setUTCDate(slotTo.getUTCDate() + 1);
 
@@ -139,6 +166,25 @@ test.describe("Safari Tours checkout flow — mock Paymob", () => {
     } finally {
       await ctx.dispose();
     }
+  });
+
+  // ── E0: Public edge ownership ─────────────────────────────────────────────
+
+  test("E0 — bare domain root serves the public site and its isolated assets", async ({
+    page,
+    request,
+  }) => {
+    await page.goto(`${SITE_BASE}/`);
+    await expect(
+      page.getByRole("heading", {
+        level: 1,
+        name: "Sharm El Sheikh Tours & Excursions — Book Direct",
+      }),
+    ).toBeVisible();
+
+    const favicon = await request.get(`${SITE_BASE}/favicon.svg`);
+    expect(favicon.status()).toBe(200);
+    expect(favicon.headers()["content-type"]).toContain("image/svg+xml");
   });
 
   // ── E1: Create booking ─────────────────────────────────────────────────────
@@ -169,6 +215,7 @@ test.describe("Safari Tours checkout flow — mock Paymob", () => {
 
     bookingId = body.id;
     bookingReference = body.reference;
+    bookingConfirmation = body;
   });
 
   // ── E2: Initiate payment ───────────────────────────────────────────────────
@@ -185,13 +232,11 @@ test.describe("Safari Tours checkout flow — mock Paymob", () => {
     expect(body.checkoutUrl).toBeTruthy();
     // The mock stub always uses ORDER-TEST-123 in unit tests,
     // but in integration the mock bean returns a dynamic order ID.
-    expect(body.checkoutUrl).toContain("payment_token");
+    expect(body.checkoutUrl).toContain("clientSecret");
 
-    // Extract the Paymob order ID from the checkout URL query param
-    // URL shape: {iframeBaseUrl}?payment_token={integrationId}_{orderId}
+    // The E2E-only adapter encodes its order in its opaque mock client secret.
     const url = new URL(body.checkoutUrl);
-    const token = url.searchParams.get("payment_token") ?? "";
-    // token = "{integrationId}_{orderId}"
+    const token = url.searchParams.get("clientSecret") ?? "";
     paymobOrderId = token.split("_").slice(1).join("_") || token;
     expect(paymobOrderId).toBeTruthy();
   });
@@ -278,13 +323,18 @@ test.describe("Safari Tours checkout flow — mock Paymob", () => {
     // Use the staff session to look up the booking status via ERP API
     // First authenticate as staff
     const loginRes = await request.post(`${API_BASE}/api/v1/identity/login`, {
+      headers: { Host: STAFF_HOST_HEADER },
       data: { email: E2E_STAFF_EMAIL, password: E2E_STAFF_PASSWORD },
     });
     expect(loginRes.status()).toBe(200);
+    const { token } = (await loginRes.json()) as { token: string };
+    expect(token).toBeTruthy();
 
-    // Get booking detail — staff can read it; public lookup needs phone
+    // Identity uses an explicit bearer token rather than a cookie. Get the
+    // staff-only booking detail with the same contract the ERP uses.
     const bookingRes = await request.get(
       `${API_BASE}/api/v1/tours-operator/bookings/${bookingId}`,
+      { headers: { Authorization: `Bearer ${token}`, Host: STAFF_HOST_HEADER } },
     );
     expect(bookingRes.status()).toBe(200);
     const booking = await bookingRes.json();
@@ -295,15 +345,16 @@ test.describe("Safari Tours checkout flow — mock Paymob", () => {
   // ── E8: /booking/confirmation page shows the reference ────────────────────
 
   test("E8 — /booking/confirmation page renders the booking reference", async ({ page }) => {
-    // Navigate to the site's confirmation page with the booking reference.
-    // The page reads the reference from the ?ref= query param and from
-    // sessionStorage (set during booking creation in the browser flow).
-    // In E2E mode we inject sessionStorage so the page can find the booking.
-    const confirmationUrl = `${SITE_BASE}/booking/confirmation?ref=${bookingReference}`;
-    await page.goto(confirmationUrl, { waitUntil: "networkidle" });
+    // Reproduce the real post-checkout handoff: the booking stays in this
+    // tab's session storage, never in the URL/history/Referer.
+    await page.goto(`${SITE_BASE}/`, { waitUntil: "networkidle" });
+    await page.evaluate((booking) => {
+      sessionStorage.setItem("sts.booking-confirmation.latest", JSON.stringify(booking));
+    }, bookingConfirmation);
+    await page.goto(`${SITE_BASE}/booking/confirmation`, { waitUntil: "networkidle" });
+    expect(new URL(page.url()).search).toBe("");
 
-    // The page always shows the reference regardless of sessionStorage state
-    await expect(page.getByText(bookingReference)).toBeVisible();
+    await expect(page.getByText(bookingReference, { exact: true }).first()).toBeVisible();
 
     // The confirmation heading should be present
     await expect(
@@ -311,28 +362,123 @@ test.describe("Safari Tours checkout flow — mock Paymob", () => {
     ).toBeVisible();
   });
 
+  test("E8b — a NEW booking in mutable session storage cannot forge confirmation", async ({ page, request }) => {
+    const createResponse = await request.post(`${API_BASE}/api/v1/tours-operator/bookings`, {
+      data: {
+        slotId,
+        adultsCount: 1,
+        childrenCount: 0,
+        customer: {
+          fullName: "E2E Unpaid Customer",
+          phone: "+20100000198",
+          nationality: "EG",
+          email: null,
+        },
+        hotelName: "E2E Unpaid Hotel",
+        specialRequests: null,
+        locale: "en",
+      },
+    });
+    expect(createResponse.status()).toBe(201);
+    const unpaidBooking = await createResponse.json();
+    expect(unpaidBooking.status).toBe("NEW");
+
+    await page.goto(`${SITE_BASE}/`, { waitUntil: "networkidle" });
+    await page.evaluate((booking) => {
+      sessionStorage.setItem("sts.booking-confirmation.latest", JSON.stringify(booking));
+    }, unpaidBooking);
+    await page.goto(`${SITE_BASE}/booking/confirmation`, { waitUntil: "networkidle" });
+
+    await expect(page.getByRole("heading", { name: "Payment is not confirmed" })).toBeVisible();
+    await expect(page.getByText("Booking Confirmed", { exact: false })).toHaveCount(0);
+  });
+
   // ── E9: ERP bookings page shows the confirmed booking ─────────────────────
 
   test("E9 — ERP bookings page shows the confirmed booking with CONFIRMED status", async ({ page }) => {
     // Login to ERP
-    await page.goto(`${API_BASE}/login`, { waitUntil: "networkidle" });
+    await page.goto(`${STAFF_BASE}/login`, { waitUntil: "networkidle" });
     await page.locator("#email").fill(E2E_STAFF_EMAIL);
     await page.locator("#password").fill(E2E_STAFF_PASSWORD);
-    await page.getByRole("button", { name: "Sign in" }).click();
-    await expect(
-      page.getByText(`Signed in as ${E2E_STAFF_EMAIL}`),
-    ).toBeVisible();
+    const signInButton = page.getByRole("button", { name: "Sign in" });
+    await expect(signInButton).toBeVisible();
+    expect(
+      await signInButton.evaluate((button) => getComputedStyle(button).backgroundColor),
+    ).not.toBe("rgba(0, 0, 0, 0)");
+    await signInButton.click();
+    await expect(page).toHaveURL(`${STAFF_BASE}/`);
+    await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
+    await expect(page.getByText(E2E_STAFF_EMAIL)).toBeVisible();
 
     // Navigate to Safari Tours ERP bookings
     // The ERP is served on the same base URL in this config
-    await page.goto(`${API_BASE}/bookings`, { waitUntil: "networkidle" });
+    await page.goto(`${STAFF_BASE}/bookings`, { waitUntil: "networkidle" });
 
     // Verify the booking appears with CONFIRMED status
     // The booking row is identified by the reference
-    const bookingRow = page.locator("li, tr", {
+    const bookingRow = page.locator("tbody tr", {
       hasText: bookingReference,
-    });
+    }).first();
     await expect(bookingRow).toBeVisible();
     await expect(bookingRow.getByText(/CONFIRMED/i)).toBeVisible();
+
+    await page.goto(`${STAFF_BASE}/`, { waitUntil: "networkidle" });
+    const issuedToken = await page.evaluate(() => {
+      const raw = sessionStorage.getItem("wego_auth_session");
+      return raw ? String((JSON.parse(raw) as { token?: string }).token ?? "") : "";
+    });
+    expect(issuedToken).toBeTruthy();
+    await page.getByRole("button", { name: "Sign out" }).click();
+    await expect(page).toHaveURL(`${STAFF_BASE}/login`);
+    const revoked = await page.request.get(`${API_BASE}/api/v1/identity/me`, {
+      headers: { Authorization: `Bearer ${issuedToken}`, Host: STAFF_HOST_HEADER },
+    });
+    expect(revoked.status()).toBe(401);
+  });
+
+  test("E10 — browser checkout reaches backend-confirmed confirmation", async ({ page }) => {
+    let callbackFailure = "";
+    await page.route("https://mock.paymob.test/**", async (route) => {
+      const checkoutUrl = new URL(route.request().url());
+      const token = checkoutUrl.searchParams.get("clientSecret") ?? "";
+      const orderId = token.split("_").slice(1).join("_");
+      if (!orderId) {
+        callbackFailure = "Mock checkout did not contain an order id";
+      } else {
+        const callback = await page.request.post(
+          `${API_BASE}/api/v1/tours-operator/payments/paymob-callback?hmac=${VALID_MOCK_HMAC}`,
+          {
+            headers: { "Content-Type": "application/json" },
+            data: webhookBody(orderId, `E2E-UI-TXN-${Date.now()}`, 3500),
+          },
+        );
+        if (!callback.ok()) callbackFailure = `Webhook failed with ${callback.status()}`;
+      }
+      await route.fulfill({
+        status: 302,
+        headers: { Location: `${SITE_BASE}/booking/payment-result?provider=mock` },
+        body: "",
+      });
+    });
+
+    const bookingUrl = new URL(`${SITE_BASE}/booking/${slotId}`);
+    bookingUrl.searchParams.set("adults", "1");
+    bookingUrl.searchParams.set("children", "0");
+    bookingUrl.searchParams.set("tourId", tourId);
+    bookingUrl.searchParams.set("date", slotDate);
+    bookingUrl.searchParams.set("timeSlot", "MORNING");
+    await page.goto(bookingUrl.toString(), { waitUntil: "networkidle" });
+    await page.locator("#fullName").fill("E2E Browser Customer");
+    await page.locator("#phone").fill("+20100000123");
+    await page.locator("#email").fill("browser-checkout@example.com");
+    await page.locator("#hotelName").fill("E2E Browser Hotel");
+    await page.getByRole("button", { name: /Continue/ }).click();
+    await page.getByRole("checkbox").check();
+    await page.getByRole("button", { name: /Confirm & Pay/ }).click();
+
+    await expect(page).toHaveURL(`${SITE_BASE}/booking/confirmation`, { timeout: 20_000 });
+    expect(callbackFailure).toBe("");
+    await expect(page.getByText("Booking Confirmed", { exact: false })).toBeVisible();
+    expect(new URL(page.url()).search).toBe("");
   });
 });

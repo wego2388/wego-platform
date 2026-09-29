@@ -32,7 +32,7 @@ class PayrollMigrationIntegrationTest(
     fun `boot auto migrates the payroll schema and jooq types honor its constraints`() {
         assertThat(
             flyway.info().applied().map { it.version.toString() },
-        ).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18")
+        ).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19")
 
         postgres.createConnection("").use { connection ->
             val dsl = DSL.using(connection, SQLDialect.POSTGRES)

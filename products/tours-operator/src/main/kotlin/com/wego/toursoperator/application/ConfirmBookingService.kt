@@ -5,6 +5,7 @@ import com.wego.events.OutboxWriter
 import com.wego.toursoperator.domain.Booking
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.BookingStatus
+import com.wego.toursoperator.domain.PaymentStatus
 import tools.jackson.databind.ObjectMapper
 import java.time.Clock
 import java.time.Instant
@@ -23,6 +24,9 @@ sealed class ConfirmBookingResult {
     ) : ConfirmBookingResult()
 
     data object CannotConfirm : ConfirmBookingResult()
+
+    /** A booking can never be manually confirmed without captured provider truth. */
+    data object PaymentNotCaptured : ConfirmBookingResult()
 }
 
 /**
@@ -32,6 +36,7 @@ sealed class ConfirmBookingResult {
  */
 class ConfirmBookingService(
     private val bookingRepository: BookingRepository,
+    private val paymentRepository: PaymentRepository,
     private val bookingAuditRecorder: BookingAuditRecorder,
     private val outboxWriter: OutboxWriter,
     private val transactionRunner: TransactionRunner,
@@ -53,6 +58,13 @@ class ConfirmBookingService(
 
             if (booking.status != BookingStatus.NEW) {
                 return@runInTransaction ConfirmBookingResult.CannotConfirm
+            }
+
+            val payment =
+                paymentRepository.findByBookingIdForUpdate(bookingId)
+                    ?: return@runInTransaction ConfirmBookingResult.PaymentNotCaptured
+            if (payment.status != PaymentStatus.PAID) {
+                return@runInTransaction ConfirmBookingResult.PaymentNotCaptured
             }
 
             val now = Instant.now(clock)

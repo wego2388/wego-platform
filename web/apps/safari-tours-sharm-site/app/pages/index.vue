@@ -2,7 +2,6 @@
 import { computed } from "vue";
 import SiteHeader from "../components/SiteHeader.vue";
 import SiteFooter from "../components/SiteFooter.vue";
-import { useCountUp } from "../composables/useCountUp";
 import { useScrollReveal } from "../composables/useScrollReveal";
 import { useSiteLocale } from "../composables/useSiteLocale";
 import {
@@ -20,7 +19,7 @@ const copy = computed(() => siteCopy[locale.value]);
 const direction = computed(() => directionFor(locale.value));
 
 useHead(() => ({
-  title: "Safari Tours Sharm — Explore the Red Sea & Sinai Desert",
+  title: `${copy.value.hero.title} — Safari Tours Sharm`,
   htmlAttrs: { dir: direction.value, lang: locale.value },
   meta: [
     { name: "description", content: copy.value.hero.body },
@@ -32,24 +31,13 @@ useHead(() => ({
       type: "application/ld+json",
       innerHTML: JSON.stringify({
         "@context": "https://schema.org",
-        "@type": "TouristInformationCenter",
+        "@type": "Organization",
         name: "Safari Tours Sharm",
         url: "https://safaritourssharm.com",
-        telephone: "+201111292690",
-        email: "safaritourssharm@gmail.com",
-        address: {
-          "@type": "PostalAddress",
-          addressLocality: "Sharm El Sheikh",
-          addressCountry: "EG",
-        },
       }),
     },
   ],
 }));
-
-// count-up stats
-const travellersCount = useCountUp(500, 1200);
-const toursCount = useCountUp(30, 900);
 
 // scroll reveals
 const trustReveal = useScrollReveal();
@@ -110,37 +98,6 @@ const CATEGORIES: TourCategory[] = ["DESERT", "SEA", "CULTURAL", "SHOWS", "TRANS
           </div>
         </div>
 
-        <!-- Stats row -->
-        <div class="mt-14 flex flex-wrap gap-8">
-          <div
-            :ref="(n) => (travellersCount.el.value = n as HTMLElement | null)"
-            class="text-center"
-          >
-            <p class="font-display text-4xl font-semibold text-sts-sand">
-              {{ travellersCount.value.value }}+
-            </p>
-            <p class="mt-1 text-xs font-semibold uppercase tracking-wide text-white/60">
-              Happy Travelers
-            </p>
-          </div>
-          <div class="text-center">
-            <p class="font-display text-4xl font-semibold text-sts-sand">4.9★</p>
-            <p class="mt-1 text-xs font-semibold uppercase tracking-wide text-white/60">
-              Google Rating
-            </p>
-          </div>
-          <div
-            :ref="(n) => (toursCount.el.value = n as HTMLElement | null)"
-            class="text-center"
-          >
-            <p class="font-display text-4xl font-semibold text-sts-sand">
-              {{ toursCount.value.value }}+
-            </p>
-            <p class="mt-1 text-xs font-semibold uppercase tracking-wide text-white/60">
-              Tours Available
-            </p>
-          </div>
-        </div>
       </div>
     </section>
 

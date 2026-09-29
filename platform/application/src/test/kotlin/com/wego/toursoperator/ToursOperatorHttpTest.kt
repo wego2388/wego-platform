@@ -2,6 +2,7 @@ package com.wego.toursoperator
 
 import com.wego.generated.jooq.tables.IdentityRole.IDENTITY_ROLE
 import com.wego.generated.jooq.tables.IdentityRolePermission.IDENTITY_ROLE_PERMISSION
+import com.wego.generated.jooq.tables.ToursOperatorPayment.TOURS_OPERATOR_PAYMENT
 import com.wego.generated.jooq.tables.ToursOperatorTour.TOURS_OPERATOR_TOUR
 import com.wego.generated.jooq.tables.ToursOperatorTourSlot.TOURS_OPERATOR_TOUR_SLOT
 import com.wego.identity.application.PasswordHasher
@@ -203,6 +204,60 @@ class ToursOperatorHttpTest {
         }
         """.trimIndent()
 
+    private fun payAndConfirm(
+        bookingId: String,
+        amountCents: Long = 8750L,
+    ) {
+        mockMvc
+            .post("/api/v1/tours-operator/bookings/$bookingId/pay") {
+                contentType = MediaType.APPLICATION_JSON
+                content = "{}"
+            }.andExpect { status { isCreated() } }
+
+        val orderId =
+            dsl
+                .select(TOURS_OPERATOR_PAYMENT.PAYMOB_ORDER_ID)
+                .from(TOURS_OPERATOR_PAYMENT)
+                .where(TOURS_OPERATOR_PAYMENT.BOOKING_ID.eq(UUID.fromString(bookingId)))
+                .fetchOne(TOURS_OPERATOR_PAYMENT.PAYMOB_ORDER_ID)
+                ?: error("Payment order was not persisted")
+
+        mockMvc
+            .post("/api/v1/tours-operator/payments/paymob-callback") {
+                param("hmac", "valid-hmac")
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    """
+                    {
+                      "obj": {
+                        "id": "TXN-${UUID.randomUUID()}",
+                        "success": true,
+                        "pending": false,
+                        "is_refunded": false,
+                        "error_occured": false,
+                        "has_parent_transaction": false,
+                        "is_3d_secure": true,
+                        "is_auth": false,
+                        "is_capture": false,
+                        "is_standalone_payment": true,
+                        "is_voided": false,
+                        "owner": "100001",
+                        "amount_cents": $amountCents,
+                        "currency": "EUR",
+                        "created_at": "2026-09-29T00:00:00Z",
+                        "integration_id": "100001",
+                        "order": { "id": "$orderId" },
+                        "source_data": { "pan": "1234", "sub_type": "MasterCard", "type": "card" },
+                        "data": { "txn_response_code": "APPROVED" }
+                      }
+                    }
+                    """.trimIndent()
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.status") { value("confirmed") }
+            }
+    }
+
     // ── test 1: unauthenticated staff endpoints ───────────────────────────────
 
     @Test
@@ -282,10 +337,10 @@ class ToursOperatorHttpTest {
         }
     }
 
-    // ── test 3: confirm (payment-update permission) ───────────────────────────
+    // ── test 3: only a verified provider callback confirms ───────────────────
 
     @Test
-    fun `POST confirm transitions booking to CONFIRMED`() {
+    fun `manual confirm route is absent and provider callback confirms`() {
         val (_, slotId) = seedTourAndSlot("confirm-3", capacity = 10)
         val adminToken = login(adminEmail, adminPassword)
 
@@ -304,10 +359,14 @@ class ToursOperatorHttpTest {
         mockMvc
             .post("/api/v1/tours-operator/bookings/$bookingId/confirm") {
                 header("Authorization", "Bearer $adminToken")
-            }.andExpect {
-                status { isOk() }
-                jsonPath("$.status") { value("CONFIRMED") }
-            }
+            }.andExpect { status { isNotFound() } }
+
+        payAndConfirm(bookingId)
+
+        mockMvc
+            .get("/api/v1/tours-operator/bookings/$bookingId") {
+                header("Authorization", "Bearer $adminToken")
+            }.andExpect { jsonPath("$.status") { value("CONFIRMED") } }
     }
 
     // ── test 4: cancel (cancel permission) ───────────────────────────────────
@@ -360,10 +419,7 @@ class ToursOperatorHttpTest {
                 "id",
             )
 
-        mockMvc
-            .post("/api/v1/tours-operator/bookings/$bookingId/confirm") {
-                header("Authorization", "Bearer $adminToken")
-            }.andExpect { status { isOk() } }
+        payAndConfirm(bookingId)
 
         mockMvc
             .post("/api/v1/tours-operator/bookings/$bookingId/complete") {
@@ -409,10 +465,10 @@ class ToursOperatorHttpTest {
         }
     }
 
-    // ── test 7: confirm on CANCELLED → 409 ───────────────────────────────────
+    // ── test 7: manual confirmation remains unavailable ──────────────────────
 
     @Test
-    fun `confirm on CANCELLED booking returns 409 cannot confirm`() {
+    fun `manual confirm route stays absent for CANCELLED booking`() {
         val (_, slotId) = seedTourAndSlot("confirm-cancelled-7", capacity = 10)
         val adminToken = login(adminEmail, adminPassword)
 
@@ -438,10 +494,7 @@ class ToursOperatorHttpTest {
         mockMvc
             .post("/api/v1/tours-operator/bookings/$bookingId/confirm") {
                 header("Authorization", "Bearer $adminToken")
-            }.andExpect {
-                status { isConflict() }
-                jsonPath("$.error") { value("cannot_confirm") }
-            }
+            }.andExpect { status { isNotFound() } }
     }
 
     // ── test 8: cancel on COMPLETED → 409 ────────────────────────────────────
@@ -463,10 +516,7 @@ class ToursOperatorHttpTest {
                 "id",
             )
 
-        mockMvc
-            .post("/api/v1/tours-operator/bookings/$bookingId/confirm") {
-                header("Authorization", "Bearer $adminToken")
-            }.andExpect { status { isOk() } }
+        payAndConfirm(bookingId)
 
         mockMvc
             .post("/api/v1/tours-operator/bookings/$bookingId/complete") {
@@ -519,14 +569,29 @@ class ToursOperatorHttpTest {
         val reference = jsonField(body, "reference")
 
         mockMvc
-            .get("/api/v1/tours-operator/bookings/lookup") {
-                param("reference", reference)
-                param("phone", "+201234567890")
+            .post("/api/v1/tours-operator/bookings/lookup") {
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"reference":"${reference.lowercase()}","phone":"+201234567890"}"""
             }.andExpect {
                 status { isOk() }
                 jsonPath("$.reference") { value(reference) }
-                jsonPath("$.customer.phone") { value("+201234567890") }
+                jsonPath("$.customer") { doesNotExist() }
+                jsonPath("$.id") { doesNotExist() }
+                jsonPath("$.hotelRoom") { doesNotExist() }
+                jsonPath("$.specialRequests") { doesNotExist() }
             }
+    }
+
+    @Test
+    fun `public lookup rejects PII in a GET query string`() {
+        mockMvc
+            .get("/api/v1/tours-operator/bookings/lookup") {
+                param("reference", "STR-2026-1")
+                param("phone", "+201234567890")
+                // GET falls through to the staff `/{id}` route and `lookup` is
+                // rejected as a malformed UUID. The important boundary is that
+                // the former query-string recovery contract cannot return data.
+            }.andExpect { status { isBadRequest() } }
     }
 
     // ── test 11: staff POST /staff/tours creates a tour ──────────────────────
@@ -587,8 +652,7 @@ class ToursOperatorHttpTest {
         mockMvc
             .get("/api/v1/tours-operator/staff/tours/$tourId") {
                 header("Authorization", "Bearer $adminToken")
-            }
-            .andExpect {
+            }.andExpect {
                 status { isOk() }
                 jsonPath("$.id") { value(tourId) }
             }
@@ -704,7 +768,11 @@ class ToursOperatorHttpTest {
                         }
                         """.trimIndent(),
                     ),
-            ).andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNoContent)
+            ).andExpect(
+                org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                    .status()
+                    .isNoContent,
+            )
 
         mockMvc
             .get("/api/v1/tours-operator/tours/$tourId")
@@ -738,7 +806,11 @@ class ToursOperatorHttpTest {
                         }
                         """.trimIndent(),
                     ),
-            ).andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNotFound)
+            ).andExpect(
+                org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                    .status()
+                    .isNotFound,
+            )
     }
 
     // ── test 13: staff PATCH activate / deactivate ────────────────────────────
@@ -753,7 +825,11 @@ class ToursOperatorHttpTest {
                 org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                     .patch("/api/v1/tours-operator/staff/tours/$tourId/activate")
                     .header("Authorization", "Bearer $adminToken"),
-            ).andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNoContent)
+            ).andExpect(
+                org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                    .status()
+                    .isNoContent,
+            )
 
         mockMvc
             .get("/api/v1/tours-operator/tours/$tourId")
@@ -764,7 +840,11 @@ class ToursOperatorHttpTest {
                 org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                     .patch("/api/v1/tours-operator/staff/tours/$tourId/deactivate")
                     .header("Authorization", "Bearer $adminToken"),
-            ).andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNoContent)
+            ).andExpect(
+                org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                    .status()
+                    .isNoContent,
+            )
 
         mockMvc
             .get("/api/v1/tours-operator/tours/$tourId")
@@ -788,7 +868,11 @@ class ToursOperatorHttpTest {
                 org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                     .patch("/api/v1/tours-operator/staff/tours/${UUID.randomUUID()}/activate")
                     .header("Authorization", "Bearer $adminToken"),
-            ).andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNotFound)
+            ).andExpect(
+                org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                    .status()
+                    .isNotFound,
+            )
     }
 
     // ── test 14: staff POST /staff/tours/{id}/slots creates a slot ────────────
@@ -797,7 +881,11 @@ class ToursOperatorHttpTest {
     fun `staff POST slots staff creates a slot and returns 201`() {
         val adminToken = login(adminEmail, adminPassword)
         val (tourId, _) = seedTourAndSlot("create-slot-14", capacity = 10)
-        val tomorrow = java.time.LocalDate.now().plusDays(2).toString()
+        val tomorrow =
+            java.time.LocalDate
+                .now()
+                .plusDays(2)
+                .toString()
 
         val body =
             mockMvc
@@ -830,7 +918,11 @@ class ToursOperatorHttpTest {
     fun `staff POST slots staff returns 409 when slot already exists`() {
         val adminToken = login(adminEmail, adminPassword)
         val (tourId, _) = seedTourAndSlot("slot-dup-14b", capacity = 10)
-        val date = java.time.LocalDate.now().plusDays(3).toString()
+        val date =
+            java.time.LocalDate
+                .now()
+                .plusDays(3)
+                .toString()
 
         val payload = """{"date":"$date","timeSlot":"MORNING","capacity":5}"""
 
@@ -864,7 +956,11 @@ class ToursOperatorHttpTest {
                 org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                     .patch("/api/v1/tours-operator/staff/tours/$tourId/slots/$slotId/block")
                     .header("Authorization", "Bearer $adminToken"),
-            ).andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNoContent)
+            ).andExpect(
+                org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                    .status()
+                    .isNoContent,
+            )
 
         val date = LocalDate.of(2027, 6, 15).toString()
         mockMvc
@@ -880,7 +976,11 @@ class ToursOperatorHttpTest {
                 org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                     .patch("/api/v1/tours-operator/staff/tours/$tourId/slots/$slotId/unblock")
                     .header("Authorization", "Bearer $adminToken"),
-            ).andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNoContent)
+            ).andExpect(
+                org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                    .status()
+                    .isNoContent,
+            )
 
         mockMvc
             .get("/api/v1/tours-operator/tours/$tourId/slots/by-date") {
@@ -901,7 +1001,11 @@ class ToursOperatorHttpTest {
                 org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                     .patch("/api/v1/tours-operator/staff/tours/$tourId/slots/${UUID.randomUUID()}/block")
                     .header("Authorization", "Bearer $adminToken"),
-            ).andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNotFound)
+            ).andExpect(
+                org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                    .status()
+                    .isNotFound,
+            )
     }
 
     // ── Testcontainers setup ──────────────────────────────────────────────────
@@ -922,6 +1026,7 @@ class ToursOperatorHttpTest {
             registry.add("spring.datasource.username", postgres::getUsername)
             registry.add("spring.datasource.password", postgres::getPassword)
             registry.add("spring.flyway.enabled") { true }
+            registry.add("tours-operator.paymob.mock-enabled") { true }
         }
     }
 }

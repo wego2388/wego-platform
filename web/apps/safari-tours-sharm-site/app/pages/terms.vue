@@ -36,15 +36,15 @@ useHead(() => ({
           Prices are in EUR and are fixed at booking time.
         </p>
         <p class="mt-4">
-          <strong>Cancellation policy:</strong> Free cancellation up to 24 hours before your
-          tour start time. Cancellations within 24 hours may incur a small fee.
-          No-shows are non-refundable. Full refund for cancellations due to bad weather
-          or boat unavailability.
+          <strong>Cancellation policy:</strong> Cancellations made at least 48 hours before
+          departure receive a full refund. Cancellations made 24–48 hours before departure
+          receive a 50% refund. Cancellations made less than 24 hours before departure and
+          no-shows are non-refundable.
         </p>
         <p class="mt-4">
-          <strong>Hotel pickup:</strong> Included in the tour price. Please ensure your
-          hotel name and room number are correct at booking time. We will contact you
-          on WhatsApp to confirm the pickup time.
+          <strong>Pickup and meeting details:</strong> Providing hotel details helps local
+          support coordinate your booking. It does not by itself mean transport or hotel
+          pickup is included. Confirm the arrangements for your selected tour before payment.
         </p>
         <p class="mt-4">
           Safari Tours Sharm reserves the right to modify tour itineraries due to

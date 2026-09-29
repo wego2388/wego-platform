@@ -10,7 +10,7 @@ import {
   formatPrice,
   formatDate,
   formatTimeSlot,
-  type BookingConfirmation,
+  type PublicBookingLookup,
   PublicApiError,
 } from "../composables/usePublicToursApi";
 
@@ -27,7 +27,7 @@ useHead(() => ({
 
 const reference = ref("");
 const phone     = ref("");
-const booking   = ref<BookingConfirmation | null>(null);
+const booking   = ref<PublicBookingLookup | null>(null);
 const state     = ref<"idle" | "loading" | "loaded" | "not_found" | "error">("idle");
 const errorMsg  = ref("");
 

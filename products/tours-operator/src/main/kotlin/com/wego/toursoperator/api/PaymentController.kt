@@ -60,6 +60,14 @@ class PaymentController(
                 ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(ErrorResponse("booking_not_payable_status_${result.bookingStatus.name.lowercase()}"))
 
+            is InitiatePaymentResult.PaymentNotPayable ->
+                ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ErrorResponse("payment_not_payable_status_${result.paymentStatus.name.lowercase()}"))
+
+            InitiatePaymentResult.ReconciliationRequired ->
+                ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ErrorResponse("payment_reconciliation_required"))
+
             is InitiatePaymentResult.ProviderError ->
                 ResponseEntity.status(HttpStatus.BAD_GATEWAY)
                     .body(ErrorResponse("payment_provider_error"))
@@ -91,6 +99,8 @@ data class InitiatePaymentResponse(
 data class PaymentStatusResponse(
     val paymentId: UUID,
     val bookingId: UUID,
+    val amountEur: String,
+    val currencyCode: String,
     val status: PaymentStatus,
     val paidAt: Instant?,
     val failedAt: Instant?,
@@ -117,6 +127,8 @@ private fun InitiatePaymentResult.AlreadyInitiated.toResponse() = InitiatePaymen
 private fun Payment.toStatusResponse() = PaymentStatusResponse(
     paymentId = id.value,
     bookingId = bookingId.value,
+    amountEur = amountEur.toPlainString(),
+    currencyCode = currencyCode,
     status = status,
     paidAt = paidAt,
     failedAt = failedAt,

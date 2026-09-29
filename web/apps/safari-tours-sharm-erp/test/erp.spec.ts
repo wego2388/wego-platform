@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   addMoney,
   divideMoney,
@@ -16,6 +16,7 @@ import {
   readAuthSession,
   clearAuthSession,
   hasPermission,
+  logoutAuthSession,
   type AuthSession,
 } from "../app/composables/useAuthSession";
 
@@ -23,6 +24,7 @@ import {
 
 describe("useAuthSession", () => {
   beforeEach(() => {
+    vi.restoreAllMocks();
     clearAuthSession();
   });
 
@@ -45,6 +47,29 @@ describe("useAuthSession", () => {
     writeAuthSession({ token: "tok-clear", email: "a@b.com", roles: [], permissions: [] });
     clearAuthSession();
     expect(readAuthSession()).toBeNull();
+  });
+
+  it("logout clears the browser session only after backend revocation succeeds", async () => {
+    const session: AuthSession = { token: "tok-revoke", email: "a@b.com", roles: [], permissions: [] };
+    writeAuthSession(session);
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(null, { status: 204 }));
+
+    await logoutAuthSession(session);
+
+    expect(fetchMock).toHaveBeenCalledWith("/api/v1/identity/logout", {
+      method: "POST",
+      headers: { Authorization: "Bearer tok-revoke" },
+    });
+    expect(readAuthSession()).toBeNull();
+  });
+
+  it("logout keeps the browser session when backend revocation fails", async () => {
+    const session: AuthSession = { token: "tok-keep", email: "a@b.com", roles: [], permissions: [] };
+    writeAuthSession(session);
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(null, { status: 503 }));
+
+    await expect(logoutAuthSession(session)).rejects.toThrow("Unable to revoke the staff session");
+    expect(readAuthSession()).toEqual(session);
   });
 
   it("hasPermission returns false for null session", () => {

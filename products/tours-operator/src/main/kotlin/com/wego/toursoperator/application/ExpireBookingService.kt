@@ -5,6 +5,7 @@ import com.wego.events.OutboxWriter
 import com.wego.toursoperator.domain.Booking
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.BookingStatus
+import com.wego.toursoperator.domain.PaymentStatus
 import tools.jackson.databind.ObjectMapper
 import java.time.Clock
 import java.time.Instant
@@ -28,6 +29,7 @@ sealed class ExpireBookingResult {
  */
 class ExpireBookingService(
     private val bookingRepository: BookingRepository,
+    private val paymentRepository: PaymentRepository,
     private val slotRepository: TourSlotRepository,
     private val bookingAuditRecorder: BookingAuditRecorder,
     private val outboxWriter: OutboxWriter,
@@ -52,6 +54,19 @@ class ExpireBookingService(
             }
 
             val now = Instant.now(clock)
+            val payment = paymentRepository.findByBookingIdForUpdate(booking.id)
+            if (payment?.status in setOf(PaymentStatus.PAID, PaymentStatus.REVIEW_REQUIRED)) {
+                return@runInTransaction ExpireBookingResult.CannotExpire
+            }
+            if (payment?.status == PaymentStatus.PENDING) {
+                payment.markFailed(
+                    transactionId = null,
+                    providerStatus = "EXPIRED",
+                    callbackAudit = "{\"reason\":\"payment_window_expired\"}",
+                    now = now,
+                )
+                paymentRepository.save(payment)
+            }
             booking.expire(now)
 
             val slot = slotRepository.findByIdForUpdate(booking.slotId)

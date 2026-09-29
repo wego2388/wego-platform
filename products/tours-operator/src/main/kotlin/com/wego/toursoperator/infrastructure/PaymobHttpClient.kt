@@ -1,15 +1,17 @@
 package com.wego.toursoperator.infrastructure
 
+import com.wego.toursoperator.application.PaymobCheckoutCommand
+import com.wego.toursoperator.application.PaymobCheckoutResult
 import com.wego.toursoperator.application.PaymobClient
-import com.wego.toursoperator.application.PaymobOrderItem
-import com.wego.toursoperator.application.PaymobOrderResult
 import com.wego.toursoperator.application.PaymobRefundResult
 import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.RestClientException
 import tools.jackson.databind.ObjectMapper
+import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
@@ -28,80 +30,102 @@ class PaymobHttpClient(
     private val config: PaymobConfig,
     private val objectMapper: ObjectMapper,
 ) : PaymobClient {
-
     private val log = LoggerFactory.getLogger(PaymobHttpClient::class.java)
 
-    private val restClient: RestClient = RestClient.builder()
-        .baseUrl(config.baseUrl)
-        .build()
+    private val restClient: RestClient =
+        RestClient
+            .builder()
+            .baseUrl(config.baseUrl)
+            .build()
 
-    // ── Order creation ────────────────────────────────────────────────────────
+    // ── Intention / hosted checkout creation ─────────────────────────────────
 
-    override fun createOrder(
-        merchantRefNumber: String,
-        amountCents: Long,
-        currencyCode: String,
-        items: List<PaymobOrderItem>,
-    ): PaymobOrderResult {
+    override fun createCheckout(command: PaymobCheckoutCommand): PaymobCheckoutResult {
         return try {
-            // Step 1: Obtain authentication token
-            val authToken = authenticate() ?: return PaymobOrderResult.Failure("Authentication failed")
+            val names =
+                command.billing.fullName
+                    .trim()
+                    .split(Regex("\\s+"), limit = 2)
+            val billingData =
+                mutableMapOf<String, Any>(
+                    "first_name" to names.first(),
+                    "last_name" to names.getOrElse(1) { names.first() },
+                    "phone_number" to command.billing.phone,
+                    "city" to config.billingCity,
+                    "country" to config.billingCountryCode,
+                )
+            command.billing.email
+                ?.takeIf(String::isNotBlank)
+                ?.let { billingData["email"] = it }
 
-            // Step 2: Create the order
-            val orderRequest = mapOf(
-                "auth_token" to authToken,
-                "delivery_needed" to false,
-                "amount_cents" to amountCents,
-                "currency" to currencyCode,
-                "merchant_order_id" to merchantRefNumber,
-                "items" to items.map { item ->
-                    mapOf(
-                        "name" to item.name,
-                        "amount_cents" to item.amountCents,
-                        "description" to item.name,
-                        "quantity" to item.quantity,
-                    )
-                },
-            )
+            val integration: Any = config.integrationId.toLongOrNull() ?: config.integrationId
+            val intentionRequest =
+                mapOf(
+                    "amount" to command.amountCents,
+                    "currency" to command.currencyCode,
+                    "payment_methods" to listOf(integration),
+                    "items" to
+                        command.items.map { item ->
+                            mapOf(
+                                "name" to item.name,
+                                "amount" to item.amountCents,
+                                "description" to item.name,
+                                "quantity" to item.quantity,
+                            )
+                        },
+                    "billing_data" to billingData,
+                    "special_reference" to command.merchantRefNumber,
+                    "expiration" to config.checkoutExpirationSeconds,
+                    "notification_url" to config.notificationUrl,
+                    "redirection_url" to config.redirectionUrl,
+                )
 
-            val response = restClient.post()
-                .uri("/ecommerce/orders")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(objectMapper.writeValueAsString(orderRequest))
-                .retrieve()
-                .body(Map::class.java)
+            val response =
+                restClient
+                    .post()
+                    .uri("/v1/intention/")
+                    .header("Authorization", "Token ${config.secretKey}")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(objectMapper.writeValueAsString(intentionRequest))
+                    .retrieve()
+                    .body(Map::class.java)
 
             @Suppress("UNCHECKED_CAST")
             val body = response as? Map<String, Any>
-            val orderId = body?.get("id")?.toString()
-                ?: return PaymobOrderResult.Failure("Order response missing id")
+            val orderId =
+                body?.get("intention_order_id")?.toString()
+                    ?: return PaymobCheckoutResult.Failure("Intention response missing order id")
+            val checkoutToken =
+                body["client_secret"]?.toString()
+                    ?: return PaymobCheckoutResult.Failure("Intention response missing client secret")
 
-            PaymobOrderResult.Success(orderId)
+            PaymobCheckoutResult.Success(orderId, checkoutToken)
         } catch (ex: RestClientException) {
-            log.error("Paymob createOrder failed: ${ex.message}", ex)
-            PaymobOrderResult.Failure("Provider error: ${ex.message}")
+            log.error("Paymob intention creation failed", ex)
+            PaymobCheckoutResult.Failure("Provider checkout creation failed")
         }
     }
 
     // ── Checkout URL ──────────────────────────────────────────────────────────
 
-    /**
-     * STUB — NOT PRODUCTION READY.
-     *
-     * Real Paymob checkout requires a separate payment-key API call:
-     *   POST /acceptance/payment_keys  { auth_token, amount_cents, currency,
-     *                                    order_id, billing_data, integration_id,
-     *                                    lock_order_when_paid }
-     * Returns a payment_token used as: https://accept.paymob.com/api/acceptance/iframes/{iframeId}?payment_token={token}
-     *
-     * Replace this stub with the real implementation when Paymob sandbox
-     * credentials are available. Do NOT deploy with this stub active.
-     *
-     * @see https://developers.paymob.com/egypt/accept/step-by-step-integration
-     */
-    @Suppress("FunctionOnlyReturningConstant")
-    override fun buildCheckoutUrl(paymobOrderId: String): String {
-        return "${config.iframeBaseUrl}?payment_token=${config.integrationId}_${paymobOrderId}"
+    override fun buildCheckoutUrl(checkoutToken: String): String =
+        "${config.checkoutBaseUrl}?publicKey=${encode(config.publicKey)}&clientSecret=${encode(checkoutToken)}"
+
+    override fun acceptsWebhookIdentity(
+        integrationId: String,
+        ownerId: String,
+    ): Boolean {
+        val integrationMatches =
+            MessageDigest.isEqual(
+                config.integrationId.toByteArray(StandardCharsets.UTF_8),
+                integrationId.toByteArray(StandardCharsets.UTF_8),
+            )
+        val ownerMatches =
+            MessageDigest.isEqual(
+                config.ownerId.toByteArray(StandardCharsets.UTF_8),
+                ownerId.toByteArray(StandardCharsets.UTF_8),
+            )
+        return integrationMatches && ownerMatches
     }
 
     // ── Webhook HMAC verification ─────────────────────────────────────────────
@@ -111,16 +135,33 @@ class PaymobHttpClient(
         receivedHmac: String,
     ): Boolean {
         // Paymob HMAC-SHA512: concatenate specific field values in order, then SHA512 with the HMAC secret.
-        val hmacFields = listOf(
-            "amount_cents", "created_at", "currency", "error_occured",
-            "has_parent_transaction", "id", "integration_id", "is_3d_secure",
-            "is_auth", "is_capture", "is_refunded", "is_standalone_payment",
-            "is_voided", "order", "owner", "pending",
-            "source_data.pan", "source_data.sub_type", "source_data.type", "success",
-        )
+        val hmacFields =
+            listOf(
+                "amount_cents",
+                "created_at",
+                "currency",
+                "error_occured",
+                "has_parent_transaction",
+                "id",
+                "integration_id",
+                "is_3d_secure",
+                "is_auth",
+                "is_capture",
+                "is_refunded",
+                "is_standalone_payment",
+                "is_voided",
+                "order",
+                "owner",
+                "pending",
+                "source_data.pan",
+                "source_data.sub_type",
+                "source_data.type",
+                "success",
+            )
         val concatenated = hmacFields.joinToString("") { payload[it] ?: "" }
         val computed = hmacSha512(concatenated, config.hmacSecret)
-        return computed.equals(receivedHmac, ignoreCase = true)
+        val received = receivedHmac.hexToBytesOrNull() ?: return false
+        return MessageDigest.isEqual(computed, received)
     }
 
     // ── Refund ────────────────────────────────────────────────────────────────
@@ -132,74 +173,94 @@ class PaymobHttpClient(
         return try {
             val authToken = authenticate() ?: return PaymobRefundResult.Failure("Authentication failed")
 
-            val refundRequest = mapOf(
-                "auth_token" to authToken,
-                "transaction_id" to paymobTransactionId,
-                "amount_cents" to amountCents,
-            )
+            val refundRequest =
+                mapOf(
+                    "auth_token" to authToken,
+                    "transaction_id" to paymobTransactionId,
+                    "amount_cents" to amountCents,
+                )
 
-            val response = restClient.post()
-                .uri("/acceptance/void_refund/refund")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(objectMapper.writeValueAsString(refundRequest))
-                .retrieve()
-                .body(Map::class.java)
+            val response =
+                restClient
+                    .post()
+                    .uri("/api/acceptance/void_refund/refund")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(objectMapper.writeValueAsString(refundRequest))
+                    .retrieve()
+                    .body(Map::class.java)
 
             @Suppress("UNCHECKED_CAST")
             val body = response as? Map<String, Any>
             val success = body?.get("success")?.toString()?.toBoolean() ?: false
-            if (success) PaymobRefundResult.Success
-            else PaymobRefundResult.Failure("Refund declined by provider")
+            if (success) {
+                PaymobRefundResult.Success
+            } else {
+                PaymobRefundResult.Failure("Refund declined by provider")
+            }
         } catch (ex: RestClientException) {
-            log.error("Paymob refund failed: ${ex.message}", ex)
-            PaymobRefundResult.Failure("Provider error: ${ex.message}")
+            log.error("Paymob refund failed", ex)
+            PaymobRefundResult.Failure("Provider refund failed")
         }
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
 
-    private fun authenticate(): String? {
-        return try {
+    private fun authenticate(): String? =
+        try {
             val authRequest = mapOf("api_key" to config.apiKey)
-            val response = restClient.post()
-                .uri("/auth/tokens")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(objectMapper.writeValueAsString(authRequest))
-                .retrieve()
-                .body(Map::class.java)
+            val response =
+                restClient
+                    .post()
+                    .uri("/api/auth/tokens")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(objectMapper.writeValueAsString(authRequest))
+                    .retrieve()
+                    .body(Map::class.java)
 
             @Suppress("UNCHECKED_CAST")
             (response as? Map<String, Any>)?.get("token")?.toString()
         } catch (ex: RestClientException) {
-            log.error("Paymob authentication failed: ${ex.message}", ex)
+            log.error("Paymob authentication failed", ex)
             null
+        }
+
+    private fun hmacSha512(
+        data: String,
+        secret: String,
+    ): ByteArray {
+        val mac = Mac.getInstance("HmacSHA512")
+        mac.init(SecretKeySpec(secret.toByteArray(StandardCharsets.UTF_8), "HmacSHA512"))
+        return mac.doFinal(data.toByteArray(StandardCharsets.UTF_8))
+    }
+
+    private fun String.hexToBytesOrNull(): ByteArray? {
+        if (length % 2 != 0 || any { it.digitToIntOrNull(16) == null }) return null
+        return ByteArray(length / 2) { index ->
+            substring(index * 2, index * 2 + 2).toInt(16).toByte()
         }
     }
 
-    private fun hmacSha512(data: String, secret: String): String {
-        val mac = Mac.getInstance("HmacSHA512")
-        mac.init(SecretKeySpec(secret.toByteArray(StandardCharsets.UTF_8), "HmacSHA512"))
-        val bytes = mac.doFinal(data.toByteArray(StandardCharsets.UTF_8))
-        return bytes.joinToString("") { "%02x".format(it) }
-    }
+    private fun encode(value: String): String = URLEncoder.encode(value, StandardCharsets.UTF_8)
 }
 
 /**
  * Paymob configuration — all values must come from environment variables.
  * Never commit real credentials.
  *
- * @param baseUrl         Paymob API base URL (e.g. https://accept.paymob.com/api)
- * @param apiKey          Paymob API key (from Paymob dashboard)
- * @param integrationId   Paymob integration ID (the payment method integration)
- * @param hmacSecret      HMAC secret from Paymob dashboard (for webhook verification)
- * @param iframeBaseUrl   Base URL for the hosted iframe checkout
- * @param iframeId        Paymob iframe ID
+ * @param baseUrl Paymob regional origin (for Egypt: https://accept.paymob.com)
  */
 data class PaymobConfig(
     val baseUrl: String,
+    val secretKey: String,
+    val publicKey: String,
     val apiKey: String,
     val integrationId: String,
+    val ownerId: String,
     val hmacSecret: String,
-    val iframeBaseUrl: String,
-    val iframeId: String,
+    val checkoutBaseUrl: String,
+    val notificationUrl: String,
+    val redirectionUrl: String,
+    val billingCity: String,
+    val billingCountryCode: String,
+    val checkoutExpirationSeconds: Int,
 )

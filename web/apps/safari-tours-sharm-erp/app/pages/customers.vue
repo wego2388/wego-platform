@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from "vue";
 import { WegoAlert, WegoButton } from "@wego/ui";
 import {
   clearAuthSession,
+  logoutAuthSession,
   hasPermission,
   readAuthSession,
   type AuthSession,
@@ -108,8 +109,8 @@ async function load() {
   }
 }
 
-function logout() {
-  clearAuthSession();
+async function logout() {
+  await logoutAuthSession(session.value);
   void router.replace("/login");
 }
 

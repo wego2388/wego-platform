@@ -47,7 +47,6 @@ import java.time.Clock
 @Configuration(proxyBeanMethods = false)
 @EnableScheduling
 class ToursOperatorBeanConfiguration {
-
     // ── Security prefixes ────────────────────────────────────────────────────
     // Declares this product's API surface to kernel security — see
     // AuthenticatedApiPrefix/PublicApiPrefix doc comments.
@@ -55,8 +54,7 @@ class ToursOperatorBeanConfiguration {
     // Authenticated: everything else (ERP staff operations).
 
     @Bean
-    fun toursOperatorAuthenticatedApiPrefix(): AuthenticatedApiPrefix =
-        AuthenticatedApiPrefix("/api/v1/tours-operator/**")
+    fun toursOperatorAuthenticatedApiPrefix(): AuthenticatedApiPrefix = AuthenticatedApiPrefix("/api/v1/tours-operator/**")
 
     // Public reads use narrow patterns. Staff writes live under the separate
     // /api/v1/tours-operator/staff/** tree and therefore cannot collide with
@@ -69,44 +67,34 @@ class ToursOperatorBeanConfiguration {
     // /tours/* therefore matches /tours/{uuid}; staff routes fall through to
     // the authenticated product rule and then require method permissions.
     @Bean
-    fun toursOperatorPublicToursListPrefix(): PublicApiPrefix =
-        PublicApiPrefix("/api/v1/tours-operator/tours")
+    fun toursOperatorPublicToursListPrefix(): PublicApiPrefix = PublicApiPrefix("/api/v1/tours-operator/tours")
 
     @Bean
-    fun toursOperatorPublicTourByIdPrefix(): PublicApiPrefix =
-        PublicApiPrefix("/api/v1/tours-operator/tours/*")
+    fun toursOperatorPublicTourByIdPrefix(): PublicApiPrefix = PublicApiPrefix("/api/v1/tours-operator/tours/*")
 
     @Bean
-    fun toursOperatorPublicTourBySlugPrefix(): PublicApiPrefix =
-        PublicApiPrefix("/api/v1/tours-operator/tours/by-slug")
+    fun toursOperatorPublicTourBySlugPrefix(): PublicApiPrefix = PublicApiPrefix("/api/v1/tours-operator/tours/by-slug")
 
     @Bean
-    fun toursOperatorPublicTourSlotListPrefix(): PublicApiPrefix =
-        PublicApiPrefix("/api/v1/tours-operator/tours/*/slots")
+    fun toursOperatorPublicTourSlotListPrefix(): PublicApiPrefix = PublicApiPrefix("/api/v1/tours-operator/tours/*/slots")
 
     @Bean
-    fun toursOperatorPublicTourSlotByDatePrefix(): PublicApiPrefix =
-        PublicApiPrefix("/api/v1/tours-operator/tours/*/slots/by-date")
+    fun toursOperatorPublicTourSlotByDatePrefix(): PublicApiPrefix = PublicApiPrefix("/api/v1/tours-operator/tours/*/slots/by-date")
 
     @Bean
-    fun toursOperatorPublicBookingCreatePrefix(): PublicApiPrefix =
-        PublicApiPrefix("/api/v1/tours-operator/bookings")
+    fun toursOperatorPublicBookingCreatePrefix(): PublicApiPrefix = PublicApiPrefix("/api/v1/tours-operator/bookings")
 
     @Bean("stoPublicBookingLookupPrefix")
-    fun toursOperatorPublicBookingLookupPrefix(): PublicApiPrefix =
-        PublicApiPrefix("/api/v1/tours-operator/bookings/lookup")
+    fun toursOperatorPublicBookingLookupPrefix(): PublicApiPrefix = PublicApiPrefix("/api/v1/tours-operator/bookings/lookup")
 
     @Bean("stoPublicPaymentInitiatePrefix")
-    fun toursOperatorPublicPaymentInitiatePrefix(): PublicApiPrefix =
-        PublicApiPrefix("/api/v1/tours-operator/bookings/*/pay")
+    fun toursOperatorPublicPaymentInitiatePrefix(): PublicApiPrefix = PublicApiPrefix("/api/v1/tours-operator/bookings/*/pay")
 
     @Bean("stoPublicPaymentStatusPrefix")
-    fun toursOperatorPublicPaymentStatusPrefix(): PublicApiPrefix =
-        PublicApiPrefix("/api/v1/tours-operator/bookings/*/payment-status")
+    fun toursOperatorPublicPaymentStatusPrefix(): PublicApiPrefix = PublicApiPrefix("/api/v1/tours-operator/bookings/*/payment-status")
 
     @Bean("stoPublicPaymobCallbackPrefix")
-    fun toursOperatorPublicPaymobCallbackPrefix(): PublicApiPrefix =
-        PublicApiPrefix("/api/v1/tours-operator/payments/paymob-callback")
+    fun toursOperatorPublicPaymobCallbackPrefix(): PublicApiPrefix = PublicApiPrefix("/api/v1/tours-operator/payments/paymob-callback")
 
     @Bean("stoObjectMapper")
     fun toursOperatorObjectMapper(): ObjectMapper = ObjectMapper()
@@ -186,6 +174,7 @@ class ToursOperatorBeanConfiguration {
     @Bean("stoConfirmBookingService")
     fun confirmBookingService(
         @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
+        @Qualifier("stoPaymentRepositoryImpl") paymentRepository: PaymentRepository,
         bookingAuditRecorder: BookingAuditRecorder,
         outboxWriter: OutboxWriter,
         transactionRunner: TransactionRunner,
@@ -194,6 +183,7 @@ class ToursOperatorBeanConfiguration {
     ): ConfirmBookingService =
         ConfirmBookingService(
             bookingRepository,
+            paymentRepository,
             bookingAuditRecorder,
             outboxWriter,
             transactionRunner,
@@ -242,6 +232,7 @@ class ToursOperatorBeanConfiguration {
     @Bean("stoExpireBookingService")
     fun expireBookingService(
         @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
+        @Qualifier("stoPaymentRepositoryImpl") paymentRepository: PaymentRepository,
         @Qualifier("stoTourSlotRepositoryImpl") slotRepository: TourSlotRepository,
         bookingAuditRecorder: BookingAuditRecorder,
         outboxWriter: OutboxWriter,
@@ -251,6 +242,7 @@ class ToursOperatorBeanConfiguration {
     ): ExpireBookingService =
         ExpireBookingService(
             bookingRepository,
+            paymentRepository,
             slotRepository,
             bookingAuditRecorder,
             outboxWriter,
@@ -263,20 +255,36 @@ class ToursOperatorBeanConfiguration {
 
     @Bean("stoPaymobConfig")
     fun paymobConfig(
-        @Value("\${tours-operator.paymob.base-url:https://accept.paymob.com/api}") baseUrl: String,
+        @Value("\${tours-operator.paymob.base-url:https://accept.paymob.com}") baseUrl: String,
+        @Value("\${tours-operator.paymob.secret-key:PLACEHOLDER_PAYMOB_SECRET_KEY}") secretKey: String,
+        @Value("\${tours-operator.paymob.public-key:PLACEHOLDER_PAYMOB_PUBLIC_KEY}") publicKey: String,
         @Value("\${tours-operator.paymob.api-key:PLACEHOLDER_PAYMOB_API_KEY}") apiKey: String,
         @Value("\${tours-operator.paymob.integration-id:PLACEHOLDER_INTEGRATION_ID}") integrationId: String,
+        @Value("\${tours-operator.paymob.owner-id:PLACEHOLDER_OWNER_ID}") ownerId: String,
         @Value("\${tours-operator.paymob.hmac-secret:PLACEHOLDER_HMAC_SECRET}") hmacSecret: String,
-        @Value("\${tours-operator.paymob.iframe-base-url:https://accept.paymob.com/api/acceptance/iframes}") iframeBaseUrl: String,
-        @Value("\${tours-operator.paymob.iframe-id:PLACEHOLDER_IFRAME_ID}") iframeId: String,
+        @Value("\${tours-operator.paymob.checkout-base-url:https://accept.paymob.com/unifiedcheckout/}") checkoutBaseUrl: String,
+        @Value(
+            "\${tours-operator.paymob.notification-url:https://example.invalid/api/v1/tours-operator/payments/paymob-callback}",
+        ) notificationUrl: String,
+        @Value("\${tours-operator.paymob.redirection-url:https://example.invalid/booking/payment-result}") redirectionUrl: String,
+        @Value("\${tours-operator.paymob.billing-city:Sharm El Sheikh}") billingCity: String,
+        @Value("\${tours-operator.paymob.billing-country-code:EG}") billingCountryCode: String,
+        @Value("\${tours-operator.paymob.checkout-expiration-seconds:1800}") checkoutExpirationSeconds: Int,
     ): PaymobConfig =
         PaymobConfig(
             baseUrl = baseUrl,
+            secretKey = secretKey,
+            publicKey = publicKey,
             apiKey = apiKey,
             integrationId = integrationId,
+            ownerId = ownerId,
             hmacSecret = hmacSecret,
-            iframeBaseUrl = iframeBaseUrl,
-            iframeId = iframeId,
+            checkoutBaseUrl = checkoutBaseUrl,
+            notificationUrl = notificationUrl,
+            redirectionUrl = redirectionUrl,
+            billingCity = billingCity,
+            billingCountryCode = billingCountryCode,
+            checkoutExpirationSeconds = checkoutExpirationSeconds,
         )
 
     @Bean("stoPaymobClient")
@@ -342,13 +350,11 @@ class ToursOperatorBeanConfiguration {
 
     @Bean("stoExpireOverduePaymentsService")
     fun expireOverduePaymentsService(
-        @Qualifier("stoPaymentRepositoryImpl") paymentRepository: PaymentRepository,
         @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
         @Qualifier("stoExpireBookingService") expireBookingService: ExpireBookingService,
         clock: Clock,
     ): ExpireOverduePaymentsService =
         ExpireOverduePaymentsService(
-            paymentRepository,
             bookingRepository,
             expireBookingService,
             clock,

@@ -9,21 +9,19 @@ package com.wego.toursoperator.application
  */
 interface PaymobClient {
     /**
-     * Creates a Paymob order for the given booking.
-     * merchantRefNumber must be unique per booking (we use bookingId).
+     * Creates a Paymob Intention and returns an opaque client secret for the
+     * provider-hosted Unified Checkout.
      */
-    fun createOrder(
-        merchantRefNumber: String,
-        amountCents: Long,
-        currencyCode: String,
-        items: List<PaymobOrderItem>,
-    ): PaymobOrderResult
+    fun createCheckout(command: PaymobCheckoutCommand): PaymobCheckoutResult
 
-    /**
-     * Builds the hosted-checkout URL for an existing Paymob order.
-     * No network call — purely constructs the redirect URL.
-     */
-    fun buildCheckoutUrl(paymobOrderId: String): String
+    /** Builds a provider-hosted checkout URL from the opaque client secret. */
+    fun buildCheckoutUrl(checkoutToken: String): String
+
+    /** True only for the configured merchant account and integration. */
+    fun acceptsWebhookIdentity(
+        integrationId: String,
+        ownerId: String,
+    ): Boolean
 
     /**
      * Verifies the HMAC-SHA512 signature on an incoming webhook/callback.
@@ -43,18 +41,41 @@ interface PaymobClient {
     ): PaymobRefundResult
 }
 
+data class PaymobCheckoutCommand(
+    val merchantRefNumber: String,
+    val amountCents: Long,
+    val currencyCode: String,
+    val items: List<PaymobOrderItem>,
+    val billing: PaymobBillingData,
+)
+
+data class PaymobBillingData(
+    val fullName: String,
+    val phone: String,
+    val email: String?,
+)
+
 data class PaymobOrderItem(
     val name: String,
     val amountCents: Long,
     val quantity: Int,
 )
 
-sealed class PaymobOrderResult {
-    data class Success(val orderId: String) : PaymobOrderResult()
-    data class Failure(val message: String) : PaymobOrderResult()
+sealed class PaymobCheckoutResult {
+    data class Success(
+        val orderId: String,
+        val checkoutToken: String,
+    ) : PaymobCheckoutResult()
+
+    data class Failure(
+        val message: String,
+    ) : PaymobCheckoutResult()
 }
 
 sealed class PaymobRefundResult {
     data object Success : PaymobRefundResult()
-    data class Failure(val message: String) : PaymobRefundResult()
+
+    data class Failure(
+        val message: String,
+    ) : PaymobRefundResult()
 }

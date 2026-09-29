@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { WegoButton } from "@wego/ui";
 import {
-  clearAuthSession,
+  logoutAuthSession,
   hasPermission,
   readAuthSession,
   type AuthSession,
@@ -19,10 +19,8 @@ const _canView = computed(() => hasPermission(session.value, "tours-operator.tou
 const _filterSource = ref<"" | "TRIPADVISOR" | "GOOGLE" | "BOOKING" | "INTERNAL">("");
 const _filterRating = ref<"" | "5" | "4" | "3" | "2" | "1">("");
 
-// Static mock structure — real data will come from Phase 5 reviews API
+// Sources are labels only; no rating or volume is displayed without verified runtime data.
 const summary = {
-  overall: 4.8,
-  total: 0,
   breakdown: [
     { source: "TripAdvisor", count: 0, avg: 0 },
     { source: "Google",      count: 0, avg: 0 },
@@ -31,8 +29,8 @@ const summary = {
   ],
 };
 
-function logout() {
-  clearAuthSession();
+async function logout() {
+  await logoutAuthSession(session.value);
   void router.replace("/login");
 }
 

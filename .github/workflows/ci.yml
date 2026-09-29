@@ -84,6 +84,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Validate Compose model
         run: docker compose --env-file .env.example -f infrastructure/compose/compose.yaml config --quiet
+      - name: Validate Safari Tours isolated Compose override
+        run: >-
+          docker compose --env-file .env.example
+          -f infrastructure/compose/compose.yaml
+          -f e2e/compose.safari-checkout.yaml
+          config --quiet
       - name: Validate Sharm To Go VPS Compose model
         run: docker compose --env-file .env.sharm-to-go.example -f infrastructure/compose/sharm-to-go.compose.yaml --profile tls config --quiet
       - name: Build and start isolated foundation stack
@@ -107,17 +113,24 @@ jobs:
         run: |
           curl --fail --silent --show-error http://127.0.0.1:58080/healthz
 
-          # Everything not under /api/** or /healthz now routes to the web
-          # (Nuxt) service, not the backend — see infrastructure/nginx/nginx.conf's
-          # split. /login is a real ERP page and must render actual HTML,
-          # not the backend's JSON, and must carry the CSP/frame/nosniff
-          # headers nginx adds for that location.
-          erp_headers="$(curl --silent --dump-header - --output /tmp/erp-login.html http://127.0.0.1:58080/login)"
+          # The public and staff apps have deliberately separate origins.
+          # Public /login must not expose the ERP; staff /login must render it.
+          public_login_status="$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:58080/login)"
+          test "$public_login_status" = "404"
+          erp_headers="$(curl --silent --resolve staff.localhost:58080:127.0.0.1 --dump-header - --output /tmp/erp-login.html http://staff.localhost:58080/login)"
           echo "$erp_headers" | grep -q '^HTTP/[0-9.]* 200'
           echo "$erp_headers" | grep -qi '^Content-Type: *text/html'
           echo "$erp_headers" | grep -qi '^Content-Security-Policy:'
           echo "$erp_headers" | grep -qi '^X-Frame-Options: *DENY'
           grep -qi '<title' /tmp/erp-login.html
+
+          # The customer recovery endpoint is public-origin-only. The staff
+          # host must not create an unthrottled bypass around its edge limiter.
+          staff_lookup_status="$(curl --silent --resolve staff.localhost:58080:127.0.0.1 --output /dev/null --write-out '%{http_code}' \
+            -X POST -H 'Content-Type: application/json' \
+            --data '{"reference":"STR-2026-1","phone":"+201000000000"}' \
+            http://staff.localhost:58080/api/v1/tours-operator/bookings/lookup)"
+          test "$staff_lookup_status" = "404"
 
           # Deny-by-default for an unauthenticated caller against the API is
           # 401 (not authenticated) with a challenge header, not 403
@@ -147,10 +160,47 @@ jobs:
           WEGO_POSTGRES_DB: wego
           WEGO_E2E_SEED_CONFIRM: yes-this-is-a-disposable-e2e-database
         run: pnpm --dir e2e run seed
-      - name: Run the authenticated ERP browser lifecycle (Playwright)
+      - name: Run the authenticated foundation ERP browser lifecycle (Playwright)
+        env:
+          WEGO_E2E_BASE_URL: http://staff.localhost:58080
+        run: pnpm --dir e2e exec playwright test tests/erp-lifecycle.spec.ts
+      - name: Switch the isolated stack to the Safari Tours staff ERP
+        run: >-
+          docker compose --env-file .env.example
+          -f infrastructure/compose/compose.yaml
+          -f e2e/compose.safari-checkout.yaml
+          up --build --wait -d
+      - name: Run the Safari checkout and staff-visibility lifecycle (Playwright)
         env:
           WEGO_E2E_BASE_URL: http://127.0.0.1:58080
-        run: pnpm --dir e2e run test
+          WEGO_STS_SITE_BASE_URL: http://127.0.0.1:58080
+          WEGO_STS_STAFF_BASE_URL: http://staff.localhost:58080
+        run: pnpm --dir e2e exec playwright test tests/safari-checkout.spec.ts
+      - name: Verify public booking lookup rate limiting
+        run: |
+          lookup_rate_limited=0
+          for i in $(seq 1 20); do
+            response="$(curl --silent --dump-header /tmp/booking-lookup-rate-limit-headers.txt \
+              -X POST http://127.0.0.1:58080/api/v1/tours-operator/bookings/lookup \
+              -H 'Content-Type: application/json' \
+              -d "{\"reference\":\"STR-2026-$i\",\"phone\":\"+201099999999\"}")"
+            if grep -q '^HTTP/[0-9.]* 429' /tmp/booking-lookup-rate-limit-headers.txt; then
+              lookup_rate_limited=1
+              break
+            fi
+          done
+          test "$lookup_rate_limited" = "1"
+          echo "$response" | grep -q '"error":"rate_limited"'
+          grep -qi '^Content-Type: *application/json' /tmp/booking-lookup-rate-limit-headers.txt
+          grep -qi '^Retry-After: *[0-9]' /tmp/booking-lookup-rate-limit-headers.txt
+      - name: Verify Safari checkout logs do not retain query secrets or customer PII
+        run: |
+          compose_logs="$(docker compose --env-file .env.example -f infrastructure/compose/compose.yaml -f e2e/compose.safari-checkout.yaml logs --no-color)"
+          if rg -qi 'valid-hmac|hmac=wrong|rejected hmac=|STR-[0-9]{4}-[0-9]+|E2E Test Customer|\+20100000099|\+201099999999|e2e-safari@example\.com|"source_data"|"pan"[[:space:]]*:[[:space:]]*"1234"|payment_token=' <<< "$compose_logs"; then
+            echo "Checkout HMAC, customer PII, or raw webhook data was retained in Compose logs" >&2
+            exit 1
+          fi
+          rg -q '"POST /api/v1/tours-operator/payments/paymob-callback HTTP/[0-9.]+"' <<< "$compose_logs"
       - name: Verify login rate limiting
         # Deliberately last: this step exhausts nginx's edge-level login
         # limiter (login_rate: 5r/m, burst 3) on purpose. Running it before

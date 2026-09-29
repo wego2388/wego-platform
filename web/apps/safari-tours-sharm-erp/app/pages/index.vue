@@ -4,6 +4,7 @@ import { WegoAlert } from "@wego/ui";
 import {
   clearAuthSession,
   hasPermission,
+  logoutAuthSession,
   readAuthSession,
   type AuthSession,
 } from "../composables/useAuthSession";
@@ -73,6 +74,11 @@ function errorText(err: unknown): string {
   return "Could not reach the server.";
 }
 
+async function logout() {
+  await logoutAuthSession(session.value);
+  void router.replace("/login");
+}
+
 async function load() {
   if (!session.value) return;
   state.value = "loading";
@@ -119,7 +125,7 @@ onMounted(() => {
           <button
             type="button"
             class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
-            @click="clearAuthSession(); $router.replace('/login')"
+            @click="logout"
           >
             Sign out
           </button>

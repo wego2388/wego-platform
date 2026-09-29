@@ -3,8 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createBooking,
   getTourBySlug,
+  lookupBooking,
+  peekLatestBookingConfirmation,
   readStoredBookingConfirmation,
   storeBookingConfirmation,
+  takeLatestBookingConfirmation,
   type BookingConfirmation,
   type CreateBookingPayload,
   type Tour,
@@ -111,7 +114,28 @@ describe("public tours API contract", () => {
 
   it("keeps confirmation PII in session storage rather than requiring it in the URL", () => {
     storeBookingConfirmation(BOOKING);
+    expect(peekLatestBookingConfirmation()).toEqual(BOOKING);
     expect(readStoredBookingConfirmation(BOOKING.reference)).toEqual(BOOKING);
     expect(readStoredBookingConfirmation(BOOKING.reference)).toBeNull();
+    expect(takeLatestBookingConfirmation()).toEqual(BOOKING);
+    expect(peekLatestBookingConfirmation()).toBeNull();
+  });
+
+  it("sends booking lookup knowledge factors in a POST body, never the URL", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(okJson(BOOKING));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(lookupBooking(BOOKING.reference, BOOKING.customer.phone)).resolves.toEqual(BOOKING);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/v1/tours-operator/bookings/lookup",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          reference: BOOKING.reference,
+          phone: BOOKING.customer.phone,
+        }),
+      }),
+    );
+    expect(fetchMock.mock.calls[0]?.[0]).not.toContain(BOOKING.customer.phone);
   });
 });

@@ -4,8 +4,13 @@ WORKDIR /workspace
 RUN chown gradle:gradle /workspace
 COPY --chown=gradle:gradle . .
 USER gradle
+# The build image already pins Gradle 9.5.0. Calling the wrapper here downloads
+# the same distribution again (services.gradle.org redirects to GitHub), making
+# an otherwise reproducible image depend on a second external host at build
+# time. Use the pinned tool already present in the image; local/CI builds still
+# use ./gradlew as the repository source of truth.
 RUN --mount=type=cache,target=/home/gradle/.gradle,uid=1000,gid=1000 \
-    ./gradlew --no-daemon :platform:application:bootJar
+    gradle --no-daemon :platform:application:bootJar
 
 FROM public.ecr.aws/docker/library/eclipse-temurin:25-jre-alpine@sha256:28db6fdf60e38945e43d840c0333aeaec66c15943070104f7586fd3c9d1665b0 AS runtime
 

@@ -38,6 +38,26 @@ export function clearAuthSession(): void {
   sessionStorage.removeItem(STORAGE_KEY);
 }
 
+/** Revoke the opaque backend session before clearing this tab's bearer token. */
+export async function logoutAuthSession(session: AuthSession | null): Promise<void> {
+  if (!session?.token) {
+    clearAuthSession();
+    return;
+  }
+
+  const response = await fetch("/api/v1/identity/logout", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${session.token}` },
+  });
+  if (!response.ok && response.status !== 401) {
+    // Keep the local token when revocation could not be verified. Callers do
+    // not navigate because this rejection propagates, so the failure cannot
+    // be silently presented as a successful sign-out.
+    throw new Error("Unable to revoke the staff session");
+  }
+  clearAuthSession();
+}
+
 export function hasPermission(session: AuthSession | null, permission: string): boolean {
   return session !== null && session.permissions.includes(permission);
 }

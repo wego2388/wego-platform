@@ -169,6 +169,16 @@ data class CreateBookingRequest(
     val locale: String,
 )
 
+data class LookupBookingRequest(
+    @field:NotBlank
+    @field:Size(max = 64)
+    @field:Pattern(regexp = "^[Ss][Tt][Rr]-[0-9]{4}-[0-9]+$")
+    val reference: String,
+    @field:NotBlank
+    @field:Size(max = 32)
+    val phone: String,
+)
+
 data class CancelBookingRequest(
     @field:NotBlank
     @field:Size(max = 1000)
@@ -208,4 +218,17 @@ data class BookingResponse(
     val cancellationReason: String?,
     val completedAt: Instant?,
     val expiredAt: Instant?,
+)
+
+/** Minimized public projection returned only after reference + phone recovery. */
+data class PublicBookingLookupResponse(
+    val reference: String,
+    val tourDate: LocalDate,
+    val timeSlot: TimeSlot,
+    val adultsCount: Int,
+    val childrenCount: Int,
+    val totalPrice: MoneyResponse,
+    val hotelName: String,
+    val status: BookingStatus,
+    val cancellationReason: String?,
 )

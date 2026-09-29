@@ -8,7 +8,9 @@ import java.util.UUID
  * Value object wrapping a payment record identifier.
  */
 @JvmInline
-value class PaymentId(val value: UUID) {
+value class PaymentId(
+    val value: UUID,
+) {
     companion object {
         fun generate(): PaymentId = PaymentId(UUID.randomUUID())
     }
@@ -41,11 +43,13 @@ class Payment(
      */
     val amountMinorUnits: Long,
     val currencyCode: String,
+    val providerReference: String,
     paymobOrderId: String?,
     paymobTransactionId: String?,
+    providerCheckoutToken: String?,
     status: PaymentStatus,
     providerStatus: String?,
-    lastCallbackPayload: String?,
+    lastCallbackAudit: String?,
     val createdAt: Instant,
     paidAt: Instant?,
     failedAt: Instant?,
@@ -57,13 +61,16 @@ class Payment(
     var paymobTransactionId: String? = paymobTransactionId
         private set
 
+    var providerCheckoutToken: String? = providerCheckoutToken
+        private set
+
     var status: PaymentStatus = status
         private set
 
     var providerStatus: String? = providerStatus
         private set
 
-    var lastCallbackPayload: String? = lastCallbackPayload
+    var lastCallbackAudit: String? = lastCallbackAudit
         private set
 
     var paidAt: Instant? = paidAt
@@ -81,12 +88,16 @@ class Payment(
         require(currencyCode.matches(Regex("^[A-Z]{3}$"))) {
             "currencyCode must be a 3-letter ISO-4217 code"
         }
+        require(providerReference.matches(Regex("^[A-Za-z0-9-]{8,80}$"))) {
+            "providerReference must be a stable non-secret merchant reference"
+        }
         validateStatusConsistency()
     }
 
     private fun validateStatusConsistency() {
-        require((status == PaymentStatus.PAID) == (paidAt != null)) {
-            "paidAt must be set if and only if status is PAID (status: $status)"
+        val providerCaptured = status in setOf(PaymentStatus.PAID, PaymentStatus.REFUNDED, PaymentStatus.REVIEW_REQUIRED)
+        require(providerCaptured == (paidAt != null)) {
+            "paidAt must be set for provider-captured states only (status: $status)"
         }
         require((status == PaymentStatus.FAILED) == (failedAt != null)) {
             "failedAt must be set if and only if status is FAILED (status: $status)"
@@ -96,11 +107,31 @@ class Payment(
         }
     }
 
-    /** Paymob order created — record the external order ID. */
-    fun assignPaymobOrder(orderId: String) {
+    /** Paymob checkout created — record its external order and short-lived client secret. */
+    fun assignPaymobCheckout(
+        orderId: String,
+        checkoutToken: String,
+    ) {
         require(paymobOrderId == null) { "Paymob order already assigned: $paymobOrderId" }
         require(orderId.isNotBlank()) { "Paymob orderId must not be blank" }
+        require(checkoutToken.isNotBlank()) { "Paymob checkout token must not be blank" }
         paymobOrderId = orderId
+        providerCheckoutToken = checkoutToken
+    }
+
+    /**
+     * The provider may have accepted an intention even though Wego did not
+     * receive or persist the response. Keep every known identifier and block
+     * automatic retries until an operator/provider inquiry reconciles it.
+     */
+    fun markReconciliationRequired(providerStatus: String) {
+        require(status == PaymentStatus.PENDING) {
+            "Only an initiating PENDING payment can require reconciliation (current: $status)"
+        }
+        providerCheckoutToken = null
+        this.providerStatus = providerStatus.take(32)
+        status = PaymentStatus.RECONCILIATION_REQUIRED
+        failedAt = null
     }
 
     /**
@@ -110,45 +141,83 @@ class Payment(
     fun markPaid(
         transactionId: String,
         providerStatus: String,
-        callbackPayload: String,
+        callbackAudit: String,
         now: Instant,
     ) {
-        require(status == PaymentStatus.PENDING) {
-            "Only PENDING payments can be marked PAID (current: $status)"
+        require(status in setOf(PaymentStatus.PENDING, PaymentStatus.FAILED, PaymentStatus.RECONCILIATION_REQUIRED)) {
+            "Only uncaptured payments can be marked PAID (current: $status)"
         }
         this.paymobTransactionId = transactionId
         this.providerStatus = providerStatus
-        this.lastCallbackPayload = callbackPayload
+        this.lastCallbackAudit = callbackAudit
+        this.providerCheckoutToken = null
         this.status = PaymentStatus.PAID
         this.paidAt = now
+        this.failedAt = null
     }
 
     /** Webhook received — payment declined or timed out. */
     fun markFailed(
         transactionId: String?,
         providerStatus: String,
-        callbackPayload: String,
+        callbackAudit: String,
         now: Instant,
     ) {
-        require(status == PaymentStatus.PENDING) {
-            "Only PENDING payments can be marked FAILED (current: $status)"
+        require(status in setOf(PaymentStatus.PENDING, PaymentStatus.RECONCILIATION_REQUIRED)) {
+            "Only uncaptured payments can be marked FAILED (current: $status)"
         }
         this.paymobTransactionId = transactionId
         this.providerStatus = providerStatus
-        this.lastCallbackPayload = callbackPayload
+        this.lastCallbackAudit = callbackAudit
+        this.providerCheckoutToken = null
         this.status = PaymentStatus.FAILED
         this.failedAt = now
     }
 
-    /** Refund confirmed by Paymob. */
-    fun markRefunded(
-        callbackPayload: String,
+    /** Keeps a verified non-terminal callback for reconciliation without changing state. */
+    fun recordPendingCallback(
+        providerStatus: String,
+        callbackAudit: String,
+    ) {
+        require(status in setOf(PaymentStatus.PENDING, PaymentStatus.RECONCILIATION_REQUIRED)) {
+            "Only uncaptured payments accept pending callbacks"
+        }
+        this.providerStatus = providerStatus
+        this.lastCallbackAudit = callbackAudit
+    }
+
+    /**
+     * Provider captured money after the booking became terminal. Do not silently
+     * confirm or reclaim inventory: make the financial exception explicit.
+     */
+    fun markReviewRequired(
+        transactionId: String,
+        providerStatus: String,
+        callbackAudit: String,
         now: Instant,
     ) {
-        require(status == PaymentStatus.PAID) {
-            "Only PAID payments can be refunded (current: $status)"
+        require(status in setOf(PaymentStatus.PENDING, PaymentStatus.FAILED, PaymentStatus.RECONCILIATION_REQUIRED)) {
+            "Only previously uncaptured payments can require review (current: $status)"
         }
-        this.lastCallbackPayload = callbackPayload
+        this.paymobTransactionId = transactionId
+        this.providerStatus = providerStatus
+        this.lastCallbackAudit = callbackAudit
+        this.providerCheckoutToken = null
+        this.status = PaymentStatus.REVIEW_REQUIRED
+        this.paidAt = now
+        this.failedAt = null
+    }
+
+    /** Refund confirmed by Paymob. */
+    fun markRefunded(
+        callbackAudit: String,
+        now: Instant,
+    ) {
+        require(status == PaymentStatus.PAID || status == PaymentStatus.REVIEW_REQUIRED) {
+            "Only captured payments can be refunded (current: $status)"
+        }
+        this.lastCallbackAudit = callbackAudit
+        this.providerCheckoutToken = null
         this.status = PaymentStatus.REFUNDED
         this.refundedAt = now
     }
@@ -168,11 +237,13 @@ class Payment(
                 amountEur = amountEur,
                 amountMinorUnits = amountMinorUnits,
                 currencyCode = currencyCode,
+                providerReference = "sts-${id.value}",
                 paymobOrderId = null,
                 paymobTransactionId = null,
+                providerCheckoutToken = null,
                 status = PaymentStatus.PENDING,
                 providerStatus = null,
-                lastCallbackPayload = null,
+                lastCallbackAudit = null,
                 createdAt = now,
                 paidAt = null,
                 failedAt = null,

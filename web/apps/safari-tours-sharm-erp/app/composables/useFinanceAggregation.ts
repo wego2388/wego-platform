@@ -12,9 +12,6 @@ import {
 } from "@wego/api-contract";
 import type { Booking, Money, Tour } from "@wego/api-contract";
 
-export type { Money } from "@wego/api-contract";
-export { formatMoney } from "@wego/api-contract";
-
 // ── Types ──────────────────────────────────────────────────────────────────
 
 export interface RevenueSummary {

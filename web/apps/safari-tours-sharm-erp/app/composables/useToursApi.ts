@@ -115,12 +115,6 @@ export function getBooking(token: string, id: string): Promise<Booking> {
   return request<Booking>(`/api/v1/tours-operator/bookings/${id}`, token);
 }
 
-export function confirmBooking(token: string, id: string): Promise<Booking> {
-  return request<Booking>(`/api/v1/tours-operator/bookings/${id}/confirm`, token, {
-    method: "POST",
-  });
-}
-
 export function cancelBooking(token: string, id: string, reason: string): Promise<Booking> {
   return request<Booking>(`/api/v1/tours-operator/bookings/${id}/cancel`, token, {
     method: "POST",

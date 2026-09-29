@@ -3,13 +3,13 @@ import { computed, onMounted, ref } from "vue";
 import { WegoAlert, WegoButton } from "@wego/ui";
 import {
   clearAuthSession,
+  logoutAuthSession,
   hasPermission,
   readAuthSession,
   type AuthSession,
 } from "../../composables/useAuthSession";
 import {
   cancelBooking,
-  confirmBooking,
   completeBooking,
   getBooking,
   formatMoney,
@@ -31,7 +31,6 @@ const actionError    = ref("");
 const cancelReason   = ref("");
 const showCancelForm = ref(false);
 
-const canConfirm  = computed(() => hasPermission(session.value, "tours-operator.booking:payment-update"));
 const canCancel   = computed(() => hasPermission(session.value, "tours-operator.booking:cancel"));
 const canComplete = computed(() => hasPermission(session.value, "tours-operator.booking:complete"));
 
@@ -55,20 +54,6 @@ async function load() {
     handleApiError(err);
     loadError.value = err instanceof ToursApiError ? err.errorCode : "Failed to load booking.";
     loadState.value = "error";
-  }
-}
-
-async function doConfirm() {
-  if (!session.value || !booking.value) return;
-  actionState.value = "submitting";
-  actionError.value = "";
-  try {
-    booking.value     = await confirmBooking(session.value.token, booking.value.id);
-    actionState.value = "success";
-  } catch (err) {
-    handleApiError(err);
-    actionError.value = err instanceof ToursApiError ? err.errorCode : "Action failed.";
-    actionState.value = "error";
   }
 }
 
@@ -106,8 +91,8 @@ async function doComplete() {
   }
 }
 
-function logout() {
-  clearAuthSession();
+async function logout() {
+  await logoutAuthSession(session.value);
   void router.replace("/login");
 }
 
@@ -161,14 +146,6 @@ onMounted(() => {
             <span :class="`badge badge-${booking.status}`">{{ booking.status }}</span>
           </div>
           <div class="ms-auto flex flex-wrap gap-2">
-            <WegoButton
-              v-if="booking.status === 'NEW' && canConfirm"
-              type="button" variant="primary" size="sm"
-              :disabled="actionState === 'submitting'"
-              @click="doConfirm"
-            >
-              {{ actionState === 'submitting' ? 'Confirming…' : 'Confirm payment' }}
-            </WegoButton>
             <WegoButton
               v-if="booking.status === 'CONFIRMED' && canComplete"
               type="button" variant="primary" size="sm"

@@ -1,11 +1,11 @@
 package com.wego.toursoperator.infrastructure
 
+import com.wego.toursoperator.application.PaymobCheckoutCommand
+import com.wego.toursoperator.application.PaymobCheckoutResult
 import com.wego.toursoperator.application.PaymobClient
-import com.wego.toursoperator.application.PaymobOrderItem
-import com.wego.toursoperator.application.PaymobOrderResult
 import com.wego.toursoperator.application.PaymobRefundResult
 import org.slf4j.LoggerFactory
-import java.util.concurrent.atomic.AtomicLong
+import java.util.UUID
 
 /**
  * Mock PaymobClient for E2E and integration testing when real Paymob
@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicLong
  *   (or env var TOURS_OPERATOR_PAYMOB_MOCK_ENABLED=true)
  *
  * Behaviour:
- * - createOrder: returns a deterministic but unique orderId "MOCK-ORDER-{n}"
+ * - createCheckout: returns process/restart-safe unique identifiers.
  * - buildCheckoutUrl: returns a URL containing payment_token=MOCK_INTEG_{orderId}
  *   matching the shape the E2E test expects to parse.
  * - verifyWebhookSignature: accepts exactly "valid-hmac" (the E2E constant) and
@@ -29,28 +29,25 @@ import java.util.concurrent.atomic.AtomicLong
  * only registered when mock-enabled is false (the default).
  */
 class MockPaymobClient : PaymobClient {
-
     private val log = LoggerFactory.getLogger(MockPaymobClient::class.java)
-    private val orderCounter = AtomicLong(1)
 
-    override fun createOrder(
-        merchantRefNumber: String,
-        amountCents: Long,
-        currencyCode: String,
-        items: List<PaymobOrderItem>,
-    ): PaymobOrderResult {
-        val orderId = "MOCK-ORDER-${orderCounter.getAndIncrement()}"
-        log.info("MockPaymobClient.createOrder: ref={} → orderId={}", merchantRefNumber, orderId)
-        return PaymobOrderResult.Success(orderId)
+    override fun createCheckout(command: PaymobCheckoutCommand): PaymobCheckoutResult {
+        // A process-local counter restarts at 1 whenever Compose recreates the
+        // backend and can then collide with payment rows retained in Postgres.
+        val orderId = "MOCK-ORDER-${UUID.randomUUID()}"
+        // Booking references and provider order ids are recovery/payment
+        // identifiers. Correlation IDs already provide request traceability;
+        // never persist either identifier in application logs.
+        log.info("MockPaymobClient.createCheckout: mock checkout created")
+        return PaymobCheckoutResult.Success(orderId, "MOCKINTEG_$orderId")
     }
 
-    override fun buildCheckoutUrl(paymobOrderId: String): String {
-        // Shape matches the real stub: {iframeBaseUrl}?payment_token={integrationId}_{orderId}
-        // We use "MOCKINTEG" (no underscore) as the integration ID so the E2E spec can
-        // safely split on "_" and take slice(1).join("_") to recover the orderId,
-        // which itself uses "-" as separator (MOCK-ORDER-n).
-        return "https://mock.paymob.test/iframe?payment_token=MOCKINTEG_$paymobOrderId"
-    }
+    override fun buildCheckoutUrl(checkoutToken: String): String = "https://mock.paymob.test/unified-checkout?clientSecret=$checkoutToken"
+
+    override fun acceptsWebhookIdentity(
+        integrationId: String,
+        ownerId: String,
+    ): Boolean = integrationId == "100001" && ownerId == "100001"
 
     override fun verifyWebhookSignature(
         payload: Map<String, String>,
@@ -58,7 +55,7 @@ class MockPaymobClient : PaymobClient {
     ): Boolean {
         val valid = receivedHmac == "valid-hmac"
         if (!valid) {
-            log.warn("MockPaymobClient.verifyWebhookSignature: rejected HMAC={}", receivedHmac)
+            log.warn("MockPaymobClient.verifyWebhookSignature: rejected invalid signature")
         }
         return valid
     }
@@ -67,7 +64,7 @@ class MockPaymobClient : PaymobClient {
         paymobTransactionId: String,
         amountCents: Long,
     ): PaymobRefundResult {
-        log.info("MockPaymobClient.refund: txn={} amount={}", paymobTransactionId, amountCents)
+        log.info("MockPaymobClient.refund: mock refund accepted")
         return PaymobRefundResult.Success
     }
 }

@@ -6,6 +6,11 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   modules: ["@nuxt/eslint"],
   app: {
+    // The local/CI edge serves both the staff ERP and this public site. A
+    // client-specific asset prefix prevents both Nuxt apps competing for the
+    // default `/_nuxt/**` route and accidentally hydrating with the other's
+    // JavaScript bundle.
+    buildAssetsDir: "/_safari/",
     head: {
       meta: [
         { name: "theme-color", content: "#F7F4F0", media: "(prefers-color-scheme: light)" },
@@ -13,26 +18,19 @@ export default defineNuxtConfig({
         {
           name: "description",
           content:
-            "Safari Tours Sharm — Desert safaris, Red Sea boat trips, cultural tours & diving in Sharm El Sheikh. Hotel pickup included. Book online.",
+            "Browse desert safaris, Red Sea activities and day trips in Sharm El Sheikh. See catalog prices, choose available dates and book direct online.",
         },
         { property: "og:type", content: "website" },
         { property: "og:site_name", content: "Safari Tours Sharm" },
-        { property: "og:title", content: "Safari Tours Sharm — Explore the Red Sea & Sinai Desert" },
+        { property: "og:title", content: "Sharm El Sheikh Tours & Excursions — Book Direct" },
         {
           property: "og:description",
           content:
-            "30+ tours in Sharm El Sheikh — desert safari, boat trips, diving, Cairo excursions. Hotel pickup included. Free cancellation. Book securely online.",
+            "Desert safaris, Red Sea activities and day trips with catalog prices, live availability and local support in Sharm El Sheikh.",
         },
-        { property: "og:image", content: "https://safaritourssharm.com/og-image.jpg" },
-        { property: "og:image:width", content: "1200" },
-        { property: "og:image:height", content: "630" },
         { name: "twitter:card", content: "summary_large_image" },
       ],
-      link: [
-        { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
-        { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
-        { rel: "manifest", href: "/manifest.json" },
-      ],
+      link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
     },
   },
   typescript: { strict: true, typeCheck: true },

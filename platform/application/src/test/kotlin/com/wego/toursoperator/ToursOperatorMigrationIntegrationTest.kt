@@ -7,6 +7,7 @@ import org.flywaydb.core.Flyway
 import org.jooq.SQLDialect
 import org.jooq.exception.DataAccessException
 import org.jooq.impl.DSL
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -35,6 +36,17 @@ import java.util.UUID
 class ToursOperatorMigrationIntegrationTest(
     @Autowired private val flyway: Flyway,
 ) {
+    @BeforeEach
+    fun removeRowsCreatedByThisTestClass() {
+        postgres.createConnection("").use { connection ->
+            DSL
+                .using(connection, SQLDialect.POSTGRES)
+                .deleteFrom(TOURS_OPERATOR_TOUR)
+                .where(TOURS_OPERATOR_TOUR.SLUG.like("migration-test-%"))
+                .execute()
+        }
+    }
+
     @Test
     fun `migrations V16 and V17 are applied and seed exactly 30 catalog rows`() {
         val appliedVersions = flyway.info().applied().map { it.version.toString() }
@@ -48,7 +60,7 @@ class ToursOperatorMigrationIntegrationTest(
             val totalRows = dsl.fetchCount(TOURS_OPERATOR_TOUR)
             assertThat(totalRows)
                 .withFailMessage("Expected 30 seed rows from approved-catalog.json, found $totalRows")
-                .isGreaterThanOrEqualTo(30)
+                .isEqualTo(30)
         }
     }
 
@@ -57,11 +69,12 @@ class ToursOperatorMigrationIntegrationTest(
         postgres.createConnection("").use { connection ->
             val dsl = DSL.using(connection, SQLDialect.POSTGRES)
 
-            val privateBoat = dsl
-                .selectFrom(TOURS_OPERATOR_TOUR)
-                .where(TOURS_OPERATOR_TOUR.SLUG.eq("private-boat"))
-                .fetchOne()
-                ?: error("private-boat row not found — V17 seed may not have run")
+            val privateBoat =
+                dsl
+                    .selectFrom(TOURS_OPERATOR_TOUR)
+                    .where(TOURS_OPERATOR_TOUR.SLUG.eq("private-boat"))
+                    .fetchOne()
+                    ?: error("private-boat row not found — V17 seed may not have run")
 
             assertThat(privateBoat.tourType)
                 .withFailMessage("private-boat tour_type should be REQUEST_ONLY")
@@ -72,11 +85,12 @@ class ToursOperatorMigrationIntegrationTest(
                 .isFalse()
 
             // Must not appear in a public active-only list
-            val activeTours = dsl
-                .selectFrom(TOURS_OPERATOR_TOUR)
-                .where(TOURS_OPERATOR_TOUR.IS_ACTIVE.isTrue)
-                .fetch()
-                .map { it.slug }
+            val activeTours =
+                dsl
+                    .selectFrom(TOURS_OPERATOR_TOUR)
+                    .where(TOURS_OPERATOR_TOUR.IS_ACTIVE.isTrue)
+                    .fetch()
+                    .map { it.slug }
 
             assertThat(activeTours)
                 .withFailMessage("private-boat must not appear in the active-only list")
@@ -85,7 +99,7 @@ class ToursOperatorMigrationIntegrationTest(
             // Active list must have exactly 29 tours (30 - 1 REQUEST_ONLY)
             assertThat(activeTours.size)
                 .withFailMessage("Expected 29 active tours (30 total minus private-boat), got ${activeTours.size}")
-                .isGreaterThanOrEqualTo(29)
+                .isEqualTo(29)
         }
     }
 
@@ -96,7 +110,8 @@ class ToursOperatorMigrationIntegrationTest(
             val now = OffsetDateTime.of(2026, 9, 28, 0, 0, 0, 0, ZoneOffset.UTC)
 
             // Insert a tour with a unique test slug
-            dsl.insertInto(TOURS_OPERATOR_TOUR)
+            dsl
+                .insertInto(TOURS_OPERATOR_TOUR)
                 .set(TOURS_OPERATOR_TOUR.ID, UUID.randomUUID())
                 .set(TOURS_OPERATOR_TOUR.SLUG, "migration-test-unique-slug")
                 .set(TOURS_OPERATOR_TOUR.CATEGORY, "DESERT")
@@ -111,7 +126,8 @@ class ToursOperatorMigrationIntegrationTest(
 
             // Second insert with the same slug must violate the unique constraint
             assertThatThrownBy {
-                dsl.insertInto(TOURS_OPERATOR_TOUR)
+                dsl
+                    .insertInto(TOURS_OPERATOR_TOUR)
                     .set(TOURS_OPERATOR_TOUR.ID, UUID.randomUUID())
                     .set(TOURS_OPERATOR_TOUR.SLUG, "migration-test-unique-slug")
                     .set(TOURS_OPERATOR_TOUR.CATEGORY, "DESERT")
@@ -142,10 +158,129 @@ class ToursOperatorMigrationIntegrationTest(
                     VALUES
                       (gen_random_uuid(), 'bad-type-tour', 'DESERT', '1 hour', 1000, 5,
                        'MORNING', 99, false, now(), 'INVALID_TYPE')
-                    """.trimIndent()
+                    """.trimIndent(),
                 )
             }.isInstanceOf(DataAccessException::class.java)
                 .hasMessageContaining("tours_operator_tour_type_known")
+        }
+    }
+
+    @Test
+    fun `V19 upgrades V18 data with duplicate provider references without losing evidence`() {
+        val upgradePostgres =
+            PostgreSQLContainer("postgres:18.4-alpine")
+                .withDatabaseName("wego_v18_upgrade")
+                .withUsername("wego_upgrade")
+                .withPassword("wego_upgrade")
+        upgradePostgres.start()
+        try {
+            val migrationLocations = arrayOf("classpath:db/migration", "classpath:db/migration/data")
+            Flyway
+                .configure()
+                .dataSource(upgradePostgres.jdbcUrl, upgradePostgres.username, upgradePostgres.password)
+                .locations(*migrationLocations)
+                .target("18")
+                .load()
+                .migrate()
+
+            upgradePostgres.createConnection("").use { connection ->
+                val dsl = DSL.using(connection, SQLDialect.POSTGRES)
+                val tourId =
+                    dsl.fetchValue(
+                        "SELECT id FROM wego.tours_operator_tour ORDER BY sort_order LIMIT 1",
+                        UUID::class.java,
+                    ) ?: error("V17 seeded tour missing")
+                val slotIds = listOf(UUID.randomUUID(), UUID.randomUUID())
+                val bookingIds = listOf(UUID.randomUUID(), UUID.randomUUID())
+
+                slotIds.forEachIndexed { index, slotId ->
+                    dsl.execute(
+                        """
+                        INSERT INTO wego.tours_operator_tour_slot
+                          (id, tour_id, date, time_slot, capacity, booked_count, is_blocked, created_at)
+                        VALUES (?, ?, DATE '2027-01-10' + ?, 'MORNING', 10, 1, false, now())
+                        """.trimIndent(),
+                        slotId,
+                        tourId,
+                        index,
+                    )
+                    dsl.execute(
+                        """
+                        INSERT INTO wego.tours_operator_booking
+                          (id, reference, tour_id, slot_id, tour_date, time_slot,
+                           adults_count, children_count, price_adult_eur, price_child_eur, total_eur,
+                           customer_full_name, customer_phone, customer_nationality,
+                           hotel_name, locale, status, created_at)
+                        VALUES (?, ?, ?, ?, DATE '2027-01-10' + ?, 'MORNING',
+                                1, 0, 10.00, NULL, 10.00,
+                                'Migration Test', '+20100000000', 'EG',
+                                'Migration Hotel', 'en', 'NEW', now())
+                        """.trimIndent(),
+                        bookingIds[index],
+                        "STR-2027-${index + 1}",
+                        tourId,
+                        slotId,
+                        index,
+                    )
+                    dsl.execute(
+                        """
+                        INSERT INTO wego.tours_operator_payment
+                          (id, booking_id, amount_eur, amount_minor_units, currency_code,
+                           paymob_order_id, paymob_transaction_id, status, created_at)
+                        VALUES (?, ?, 10.00, 1000, 'EUR', 'DUPLICATE-ORDER', 'DUPLICATE-TXN', 'PENDING', now())
+                        """.trimIndent(),
+                        UUID.randomUUID(),
+                        bookingIds[index],
+                    )
+                }
+            }
+
+            val upgraded =
+                Flyway
+                    .configure()
+                    .dataSource(upgradePostgres.jdbcUrl, upgradePostgres.username, upgradePostgres.password)
+                    .locations(*migrationLocations)
+                    .load()
+            upgraded.migrate()
+            assertThat(upgraded.info().applied().map { it.version.toString() }).contains("19")
+
+            upgradePostgres.createConnection("").use { connection ->
+                val dsl = DSL.using(connection, SQLDialect.POSTGRES)
+                val summary =
+                    dsl.fetchOne(
+                        """
+                        SELECT count(*) AS total,
+                               count(DISTINCT provider_reference) AS unique_references,
+                               count(*) FILTER (WHERE paymob_order_id IS NULL) AS cleared_orders,
+                               count(*) FILTER (WHERE paymob_transaction_id IS NULL) AS cleared_transactions
+                        FROM wego.tours_operator_payment
+                        """.trimIndent(),
+                    ) ?: error("Payment migration summary missing")
+                assertThat(summary.get(0, Int::class.java)).isEqualTo(2)
+                assertThat(summary.get(1, Int::class.java)).isEqualTo(2)
+                assertThat(summary.get(2, Int::class.java)).isEqualTo(2)
+                assertThat(summary.get(3, Int::class.java)).isEqualTo(2)
+                assertThat(
+                    dsl
+                        .fetchOne("SELECT count(*) FROM wego.tours_operator_payment_reference_quarantine")
+                        ?.get(0, Int::class.java),
+                ).isEqualTo(4)
+                assertThat(
+                    dsl
+                        .fetchOne(
+                            """
+                            SELECT count(*) FROM pg_indexes
+                            WHERE schemaname = 'wego'
+                              AND indexname IN (
+                                'tours_operator_payment_paymob_order_unique',
+                                'tours_operator_payment_paymob_transaction_unique'
+                              )
+                            """.trimIndent(),
+                        )?.get(0, Int::class.java),
+                ).isEqualTo(2)
+            }
+        } finally {
+            upgradePostgres.stop()
         }
     }
 
