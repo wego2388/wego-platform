@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "clientId": "sharm-divers-club",
+  "product": {
+    "id": "wego-divers",
+    "version": "0.1.0"
+  },
+  "deploymentIsolation": "ISOLATED_INSTANCE",
+  "modules": [
+    "platform.events",
+    "platform.identity",
+    "platform.security",
+    "platform.transaction",
+    "product.accounting",
+    "product.divers",
+    "product.hr",
+    "product.payroll"
+  ],
+  "artifacts": {
+    "backend": {
+      "gradleProject": ":platform:application",
+      "projectPath": "platform/application",
+      "dockerfile": "infrastructure/docker/backend.Dockerfile",
+      "jar": "platform/application/build/libs/application-0.1.0-SNAPSHOT.jar",
+      "includedModules": [
+        "platform.events",
+        "platform.identity",
+        "platform.security",
+        "platform.transaction",
+        "product.accounting",
+        "product.divers",
+        "product.hr",
+        "product.payroll"
+      ],
+      "migrationVersions": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13"
+      ],
+      "migrationFiles": [
+        "platform/application/src/main/resources/db/migration/V1__platform_foundation.sql",
+        "platform/application/src/main/resources/db/migration/V2__identity_foundation.sql",
+        "platform/application/src/main/resources/db/migration/V3__divers_booking_foundation.sql",
+        "platform/application/src/main/resources/db/migration/V4__divers_diver_profiles.sql",
+        "platform/application/src/main/resources/db/migration/V5__divers_equipment_tracking.sql",
+        "platform/application/src/main/resources/db/migration/V6__divers_boat_charter.sql",
+        "platform/application/src/main/resources/db/migration/V7__divers_course_enrollment.sql",
+        "platform/application/src/main/resources/db/migration/V8__divers_course_enrollment_uniqueness.sql",
+        "platform/application/src/main/resources/db/migration/V9__identity_administration.sql",
+        "platform/application/src/main/resources/db/migration/V10__hr_foundation.sql",
+        "platform/application/src/main/resources/db/migration/V11__hr_attendance_leave.sql",
+        "platform/application/src/main/resources/db/migration/V12__accounting_foundation.sql",
+        "platform/application/src/main/resources/db/migration/V13__payroll_foundation.sql"
+      ]
+    },
+    "publicSite": {
+      "packageName": "@wego/sharm-divers-club-site",
+      "path": "web/apps/sharm-divers-club-site",
+      "dockerfile": "infrastructure/docker/sharm-divers-club-site.Dockerfile"
+    },
+    "staffApp": {
+      "packageName": "@wego/erp",
+      "path": "web/apps/erp",
+      "dockerfile": "infrastructure/docker/web.Dockerfile"
+    },
+    "apiContract": {
+      "path": "platform/contracts/openapi/v1/wego-api.yaml",
+      "ownedPathPrefixes": [
+        "/api/v1/identity/",
+        "/api/v1/divers/",
+        "/api/v1/hr/",
+        "/api/v1/accounting/",
+        "/api/v1/payroll/"
+      ]
+    },
+    "compose": {
+      "path": "infrastructure/compose/sharm-divers-club.compose.yaml",
+      "environmentExample": ".env.sharm-divers-club.example",
+      "services": [
+        "postgres",
+        "backend",
+        "site",
+        "web",
+        "edge"
+      ]
+    }
+  },
+  "dataIsolation": {
+    "schema": "wego",
+    "allowedTablePrefixes": [
+      "identity_",
+      "integration_",
+      "divers_",
+      "hr_",
+      "accounting_",
+      "payroll_"
+    ],
+    "allowedPermissionPrefixes": [
+      "identity:",
+      "offering:",
+      "booking:",
+      "diver:",
+      "equipment:",
+      "boat-charter:",
+      "course:",
+      "hr:",
+      "accounting:",
+      "payroll:"
+    ]
+  },
+  "digests": {
+    "releaseLock": "eaa87a32695be493d27ab90685e494015954233dd7fec7d8583be76c1e2d2730",
+    "releaseProfiles": "54168285a41b5eaf2a17ec19783fef4e959680bb4ca5cb8a70458049df18d0c5"
+  }
+}

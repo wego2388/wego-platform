@@ -40,12 +40,13 @@ class PaymentController(
     fun initiatePayment(
         @PathVariable bookingId: UUID,
     ): ResponseEntity<Any> {
-        val result = initiatePaymentService.initiate(
-            com.wego.toursoperator.application.InitiatePaymentCommand(
-                bookingId = BookingId(bookingId),
-                correlationId = CorrelationContext.currentCorrelationId(),
-            ),
-        )
+        val result =
+            initiatePaymentService.initiate(
+                com.wego.toursoperator.application.InitiatePaymentCommand(
+                    bookingId = BookingId(bookingId),
+                    correlationId = CorrelationContext.currentCorrelationId(),
+                ),
+            )
         return when (result) {
             is InitiatePaymentResult.Initiated ->
                 ResponseEntity.status(HttpStatus.CREATED).body(result.toResponse())
@@ -57,19 +58,23 @@ class PaymentController(
                 ResponseEntity.notFound().build()
 
             is InitiatePaymentResult.BookingNotPayable ->
-                ResponseEntity.status(HttpStatus.CONFLICT)
+                ResponseEntity
+                    .status(HttpStatus.CONFLICT)
                     .body(ErrorResponse("booking_not_payable_status_${result.bookingStatus.name.lowercase()}"))
 
             is InitiatePaymentResult.PaymentNotPayable ->
-                ResponseEntity.status(HttpStatus.CONFLICT)
+                ResponseEntity
+                    .status(HttpStatus.CONFLICT)
                     .body(ErrorResponse("payment_not_payable_status_${result.paymentStatus.name.lowercase()}"))
 
             InitiatePaymentResult.ReconciliationRequired ->
-                ResponseEntity.status(HttpStatus.CONFLICT)
+                ResponseEntity
+                    .status(HttpStatus.CONFLICT)
                     .body(ErrorResponse("payment_reconciliation_required"))
 
             is InitiatePaymentResult.ProviderError ->
-                ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                ResponseEntity
+                    .status(HttpStatus.BAD_GATEWAY)
                     .body(ErrorResponse("payment_provider_error"))
         }
     }
@@ -79,8 +84,9 @@ class PaymentController(
     fun getPaymentStatus(
         @PathVariable bookingId: UUID,
     ): ResponseEntity<Any> {
-        val payment = paymentQueryService.findByBookingId(BookingId(bookingId))
-            ?: return ResponseEntity.notFound().build()
+        val payment =
+            paymentQueryService.findByBookingId(BookingId(bookingId))
+                ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(payment.toStatusResponse())
     }
 }
@@ -106,30 +112,33 @@ data class PaymentStatusResponse(
     val failedAt: Instant?,
 )
 
-private fun InitiatePaymentResult.Initiated.toResponse() = InitiatePaymentResponse(
-    paymentId = payment.id.value,
-    bookingId = payment.bookingId.value,
-    checkoutUrl = checkoutUrl,
-    amountEur = payment.amountEur.toPlainString(),
-    currencyCode = payment.currencyCode,
-    status = payment.status,
-)
+private fun InitiatePaymentResult.Initiated.toResponse() =
+    InitiatePaymentResponse(
+        paymentId = payment.id.value,
+        bookingId = payment.bookingId.value,
+        checkoutUrl = checkoutUrl,
+        amountEur = payment.amountEur.toPlainString(),
+        currencyCode = payment.currencyCode,
+        status = payment.status,
+    )
 
-private fun InitiatePaymentResult.AlreadyInitiated.toResponse() = InitiatePaymentResponse(
-    paymentId = payment.id.value,
-    bookingId = payment.bookingId.value,
-    checkoutUrl = checkoutUrl,
-    amountEur = payment.amountEur.toPlainString(),
-    currencyCode = payment.currencyCode,
-    status = payment.status,
-)
+private fun InitiatePaymentResult.AlreadyInitiated.toResponse() =
+    InitiatePaymentResponse(
+        paymentId = payment.id.value,
+        bookingId = payment.bookingId.value,
+        checkoutUrl = checkoutUrl,
+        amountEur = payment.amountEur.toPlainString(),
+        currencyCode = payment.currencyCode,
+        status = payment.status,
+    )
 
-private fun Payment.toStatusResponse() = PaymentStatusResponse(
-    paymentId = id.value,
-    bookingId = bookingId.value,
-    amountEur = amountEur.toPlainString(),
-    currencyCode = currencyCode,
-    status = status,
-    paidAt = paidAt,
-    failedAt = failedAt,
-)
+private fun Payment.toStatusResponse() =
+    PaymentStatusResponse(
+        paymentId = id.value,
+        bookingId = bookingId.value,
+        amountEur = amountEur.toPlainString(),
+        currencyCode = currencyCode,
+        status = status,
+        paidAt = paidAt,
+        failedAt = failedAt,
+    )

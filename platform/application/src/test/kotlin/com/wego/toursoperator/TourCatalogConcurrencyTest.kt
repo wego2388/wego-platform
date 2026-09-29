@@ -51,10 +51,12 @@ import java.util.concurrent.Future
 @SpringBootTest
 @AutoConfigureMockMvc
 class TourCatalogConcurrencyTest {
-
     @Autowired private lateinit var mockMvc: MockMvc
+
     @Autowired private lateinit var userRepository: UserRepository
+
     @Autowired private lateinit var passwordHasher: PasswordHasher
+
     @Autowired private lateinit var dsl: DSLContext
 
     private val adminEmail = "conc-admin@example.com"
@@ -63,32 +65,38 @@ class TourCatalogConcurrencyTest {
     @BeforeEach
     fun seedAdmin() {
         if (userRepository.findByEmail(EmailAddress.of(adminEmail)) != null) return
-        val user = User(
-            id = UserId.generate(),
-            email = EmailAddress.of(adminEmail),
-            passwordHash = passwordHasher.hash(adminPassword),
-            status = UserStatus.ACTIVE,
-            roles = setOf(RoleCode.of("platform-admin")),
-            createdAt = Instant.now(),
-            failedLoginCount = 0,
-            lockedUntil = null,
-        )
+        val user =
+            User(
+                id = UserId.generate(),
+                email = EmailAddress.of(adminEmail),
+                passwordHash = passwordHasher.hash(adminPassword),
+                status = UserStatus.ACTIVE,
+                roles = setOf(RoleCode.of("platform-admin")),
+                createdAt = Instant.now(),
+                failedLoginCount = 0,
+                lockedUntil = null,
+            )
         userRepository.save(user)
     }
 
     // ── helpers ───────────────────────────────────────────────────────────────
 
     private fun login(): String {
-        val body = mockMvc
-            .post("/api/v1/identity/login") {
-                contentType = MediaType.APPLICATION_JSON
-                content = """{"email":"$adminEmail","password":"$adminPassword"}"""
-            }.andReturn().response.contentAsString
+        val body =
+            mockMvc
+                .post("/api/v1/identity/login") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = """{"email":"$adminEmail","password":"$adminPassword"}"""
+                }.andReturn()
+                .response.contentAsString
         val match = Regex(""""token"\s*:\s*"([^"]+)"""").find(body)
         return requireNotNull(match) { "No token in login response: $body" }.groupValues[1]
     }
 
-    private fun jsonField(body: String, field: String): String {
+    private fun jsonField(
+        body: String,
+        field: String,
+    ): String {
         val match = Regex(""""$field"\s*:\s*"([^"]+)"""").find(body)
         return requireNotNull(match) { "No field '$field' in: $body" }.groupValues[1]
     }
@@ -98,12 +106,14 @@ class TourCatalogConcurrencyTest {
         val now = OffsetDateTime.now(ZoneOffset.UTC)
         // Short, unique slug within the DB slug constraint (3–80 chars, a-z0-9 + hyphens)
         val shortId = tourId.toString().take(8)
-        val slug = "ct-$uniqueTag-$shortId"
-            .take(80)
-            .lowercase()
-            .replace(Regex("[^a-z0-9-]"), "-")
-            .trimEnd('-')
-        dsl.insertInto(TOURS_OPERATOR_TOUR)
+        val slug =
+            "ct-$uniqueTag-$shortId"
+                .take(80)
+                .lowercase()
+                .replace(Regex("[^a-z0-9-]"), "-")
+                .trimEnd('-')
+        dsl
+            .insertInto(TOURS_OPERATOR_TOUR)
             .set(TOURS_OPERATOR_TOUR.ID, tourId)
             .set(TOURS_OPERATOR_TOUR.SLUG, slug)
             .set(TOURS_OPERATOR_TOUR.CATEGORY, "DESERT")
@@ -119,10 +129,14 @@ class TourCatalogConcurrencyTest {
         return tourId
     }
 
-    private fun seedSlot(tourId: UUID, date: LocalDate = LocalDate.of(2028, 3, 10)): UUID {
+    private fun seedSlot(
+        tourId: UUID,
+        date: LocalDate = LocalDate.of(2028, 3, 10),
+    ): UUID {
         val slotId = UUID.randomUUID()
         val now = OffsetDateTime.now(ZoneOffset.UTC)
-        dsl.insertInto(TOURS_OPERATOR_TOUR_SLOT)
+        dsl
+            .insertInto(TOURS_OPERATOR_TOUR_SLOT)
             .set(TOURS_OPERATOR_TOUR_SLOT.ID, slotId)
             .set(TOURS_OPERATOR_TOUR_SLOT.TOUR_ID, tourId)
             .set(TOURS_OPERATOR_TOUR_SLOT.DATE, date)
@@ -151,7 +165,8 @@ class TourCatalogConcurrencyTest {
         val executor = Executors.newFixedThreadPool(2)
 
         // Request A: capacity 10, price 4000
-        val requestA = """
+        val requestA =
+            """
             {
               "category": "DESERT",
               "durationText": "4 hours",
@@ -160,10 +175,11 @@ class TourCatalogConcurrencyTest {
               "availableTimeSlots": ["MORNING"],
               "sortOrder": 1
             }
-        """.trimIndent()
+            """.trimIndent()
 
         // Request B: capacity 15, price 5000
-        val requestB = """
+        val requestB =
+            """
             {
               "category": "SEA",
               "durationText": "5 hours",
@@ -172,28 +188,37 @@ class TourCatalogConcurrencyTest {
               "availableTimeSlots": ["SUNSET"],
               "sortOrder": 2
             }
-        """.trimIndent()
+            """.trimIndent()
 
-        val futures: List<Future<Int>> = listOf(
-            executor.submit(Callable {
-                mockMvc.perform(
-                    org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .put("/api/v1/tours-operator/staff/tours/$tourId")
-                        .header("Authorization", "Bearer $token")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestA)
-                ).andReturn().response.status
-            }),
-            executor.submit(Callable {
-                mockMvc.perform(
-                    org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .put("/api/v1/tours-operator/staff/tours/$tourId")
-                        .header("Authorization", "Bearer $token")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestB)
-                ).andReturn().response.status
-            }),
-        )
+        val futures: List<Future<Int>> =
+            listOf(
+                executor.submit(
+                    Callable {
+                        mockMvc
+                            .perform(
+                                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                    .put("/api/v1/tours-operator/staff/tours/$tourId")
+                                    .header("Authorization", "Bearer $token")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(requestA),
+                            ).andReturn()
+                            .response.status
+                    },
+                ),
+                executor.submit(
+                    Callable {
+                        mockMvc
+                            .perform(
+                                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                    .put("/api/v1/tours-operator/staff/tours/$tourId")
+                                    .header("Authorization", "Bearer $token")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(requestB),
+                            ).andReturn()
+                            .response.status
+                    },
+                ),
+            )
         executor.shutdown()
 
         val statuses = futures.map { it.get() }
@@ -201,9 +226,11 @@ class TourCatalogConcurrencyTest {
         assertThat(statuses).allMatch { it == 204 }
 
         // Row must be in a coherent state that matches one of the two payloads
-        val row = dsl.selectFrom(TOURS_OPERATOR_TOUR)
-            .where(TOURS_OPERATOR_TOUR.ID.eq(tourId))
-            .fetchOne()!!
+        val row =
+            dsl
+                .selectFrom(TOURS_OPERATOR_TOUR)
+                .where(TOURS_OPERATOR_TOUR.ID.eq(tourId))
+                .fetchOne()!!
         val capacity = row.capacity
         val price = row.priceAdultCents
         // Either A's values or B's values — never a mixture
@@ -227,24 +254,31 @@ class TourCatalogConcurrencyTest {
         val token = login()
         val executor = Executors.newFixedThreadPool(3)
 
-        val futures: List<Future<Int>> = (1..3).map {
-            executor.submit(Callable {
-                mockMvc.perform(
-                    org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .patch("/api/v1/tours-operator/staff/tours/$tourId/activate")
-                        .header("Authorization", "Bearer $token")
-                ).andReturn().response.status
-            })
-        }
+        val futures: List<Future<Int>> =
+            (1..3).map {
+                executor.submit(
+                    Callable {
+                        mockMvc
+                            .perform(
+                                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                    .patch("/api/v1/tours-operator/staff/tours/$tourId/activate")
+                                    .header("Authorization", "Bearer $token"),
+                            ).andReturn()
+                            .response.status
+                    },
+                )
+            }
         executor.shutdown()
 
         val statuses = futures.map { it.get() }
         assertThat(statuses).allMatch { it == 204 }
 
-        val isActive = dsl.select(TOURS_OPERATOR_TOUR.IS_ACTIVE)
-            .from(TOURS_OPERATOR_TOUR)
-            .where(TOURS_OPERATOR_TOUR.ID.eq(tourId))
-            .fetchOne(TOURS_OPERATOR_TOUR.IS_ACTIVE)
+        val isActive =
+            dsl
+                .select(TOURS_OPERATOR_TOUR.IS_ACTIVE)
+                .from(TOURS_OPERATOR_TOUR)
+                .where(TOURS_OPERATOR_TOUR.ID.eq(tourId))
+                .fetchOne(TOURS_OPERATOR_TOUR.IS_ACTIVE)
         assertThat(isActive).isTrue()
     }
 
@@ -263,24 +297,31 @@ class TourCatalogConcurrencyTest {
         val token = login()
         val executor = Executors.newFixedThreadPool(2)
 
-        val futures: List<Future<Int>> = (1..2).map {
-            executor.submit(Callable {
-                mockMvc.perform(
-                    org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .patch("/api/v1/tours-operator/staff/tours/$tourId/slots/$slotId/block")
-                        .header("Authorization", "Bearer $token")
-                ).andReturn().response.status
-            })
-        }
+        val futures: List<Future<Int>> =
+            (1..2).map {
+                executor.submit(
+                    Callable {
+                        mockMvc
+                            .perform(
+                                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                    .patch("/api/v1/tours-operator/staff/tours/$tourId/slots/$slotId/block")
+                                    .header("Authorization", "Bearer $token"),
+                            ).andReturn()
+                            .response.status
+                    },
+                )
+            }
         executor.shutdown()
 
         val statuses = futures.map { it.get() }
         assertThat(statuses).allMatch { it == 204 }
 
-        val isBlocked = dsl.select(TOURS_OPERATOR_TOUR_SLOT.IS_BLOCKED)
-            .from(TOURS_OPERATOR_TOUR_SLOT)
-            .where(TOURS_OPERATOR_TOUR_SLOT.ID.eq(slotId))
-            .fetchOne(TOURS_OPERATOR_TOUR_SLOT.IS_BLOCKED)
+        val isBlocked =
+            dsl
+                .select(TOURS_OPERATOR_TOUR_SLOT.IS_BLOCKED)
+                .from(TOURS_OPERATOR_TOUR_SLOT)
+                .where(TOURS_OPERATOR_TOUR_SLOT.ID.eq(slotId))
+                .fetchOne(TOURS_OPERATOR_TOUR_SLOT.IS_BLOCKED)
         assertThat(isBlocked).isTrue()
     }
 
@@ -300,19 +341,24 @@ class TourCatalogConcurrencyTest {
         val token = login()
 
         // Attempt to block slotB via tourA's path
-        mockMvc.perform(
-            org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                .patch("/api/v1/tours-operator/staff/tours/$tourA/slots/$slotB/block")
-                .header("Authorization", "Bearer $token")
-        ).andExpect(
-            org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNotFound
-        )
+        mockMvc
+            .perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                    .patch("/api/v1/tours-operator/staff/tours/$tourA/slots/$slotB/block")
+                    .header("Authorization", "Bearer $token"),
+            ).andExpect(
+                org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                    .status()
+                    .isNotFound,
+            )
 
         // Verify slotB remains unblocked
-        val isBlocked = dsl.select(TOURS_OPERATOR_TOUR_SLOT.IS_BLOCKED)
-            .from(TOURS_OPERATOR_TOUR_SLOT)
-            .where(TOURS_OPERATOR_TOUR_SLOT.ID.eq(slotB))
-            .fetchOne(TOURS_OPERATOR_TOUR_SLOT.IS_BLOCKED)
+        val isBlocked =
+            dsl
+                .select(TOURS_OPERATOR_TOUR_SLOT.IS_BLOCKED)
+                .from(TOURS_OPERATOR_TOUR_SLOT)
+                .where(TOURS_OPERATOR_TOUR_SLOT.ID.eq(slotB))
+                .fetchOne(TOURS_OPERATOR_TOUR_SLOT.IS_BLOCKED)
         assertThat(isBlocked).isFalse()
     }
 
@@ -326,28 +372,36 @@ class TourCatalogConcurrencyTest {
         val token = login()
 
         // Block slotB properly first via tourB
-        mockMvc.perform(
-            org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                .patch("/api/v1/tours-operator/staff/tours/$tourB/slots/$slotB/block")
-                .header("Authorization", "Bearer $token")
-        ).andExpect(
-            org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNoContent
-        )
+        mockMvc
+            .perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                    .patch("/api/v1/tours-operator/staff/tours/$tourB/slots/$slotB/block")
+                    .header("Authorization", "Bearer $token"),
+            ).andExpect(
+                org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                    .status()
+                    .isNoContent,
+            )
 
         // Attempt to unblock via tourA's path — must fail
-        mockMvc.perform(
-            org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                .patch("/api/v1/tours-operator/staff/tours/$tourA/slots/$slotB/unblock")
-                .header("Authorization", "Bearer $token")
-        ).andExpect(
-            org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNotFound
-        )
+        mockMvc
+            .perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                    .patch("/api/v1/tours-operator/staff/tours/$tourA/slots/$slotB/unblock")
+                    .header("Authorization", "Bearer $token"),
+            ).andExpect(
+                org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                    .status()
+                    .isNotFound,
+            )
 
         // slotB must remain blocked
-        val isBlocked = dsl.select(TOURS_OPERATOR_TOUR_SLOT.IS_BLOCKED)
-            .from(TOURS_OPERATOR_TOUR_SLOT)
-            .where(TOURS_OPERATOR_TOUR_SLOT.ID.eq(slotB))
-            .fetchOne(TOURS_OPERATOR_TOUR_SLOT.IS_BLOCKED)
+        val isBlocked =
+            dsl
+                .select(TOURS_OPERATOR_TOUR_SLOT.IS_BLOCKED)
+                .from(TOURS_OPERATOR_TOUR_SLOT)
+                .where(TOURS_OPERATOR_TOUR_SLOT.ID.eq(slotB))
+                .fetchOne(TOURS_OPERATOR_TOUR_SLOT.IS_BLOCKED)
         assertThat(isBlocked).isTrue()
     }
 
@@ -364,13 +418,14 @@ class TourCatalogConcurrencyTest {
         val token = login()
         val tomorrow = LocalDate.now().plusDays(5).toString()
 
-        mockMvc.post("/api/v1/tours-operator/staff/tours/$unknownTourId/slots") {
-            header("Authorization", "Bearer $token")
-            contentType = MediaType.APPLICATION_JSON
-            content = """{"date":"$tomorrow","timeSlot":"MORNING","capacity":10}"""
-        }.andExpect {
-            status { isNotFound() }
-        }
+        mockMvc
+            .post("/api/v1/tours-operator/staff/tours/$unknownTourId/slots") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"date":"$tomorrow","timeSlot":"MORNING","capacity":10}"""
+            }.andExpect {
+                status { isNotFound() }
+            }
     }
 
     // ── Testcontainers setup ──────────────────────────────────────────────────

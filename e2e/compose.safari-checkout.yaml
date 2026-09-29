@@ -1,14 +1,8 @@
-# Safari's isolated deployment uses its own staff ERP at the same internal
-# `web:3000` boundary as the foundation ERP. This override lets the checkout
-# gate exercise that real client application without changing or duplicating
-# the shared PostgreSQL/backend/site/edge topology.
+# This override changes one thing only: it enables the explicit mock payment
+# adapter inside the already-isolated Safari release bundle. No production or
+# normal local Compose file enables it.
 services:
   backend:
     environment:
       # Isolated E2E only. Base/prod-like Compose always defaults to the real adapter.
       TOURS_OPERATOR_PAYMOB_MOCK_ENABLED: "true"
-
-  web:
-    build:
-      context: ../..
-      dockerfile: infrastructure/docker/safari-erp.Dockerfile

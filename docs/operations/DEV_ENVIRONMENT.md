@@ -152,8 +152,10 @@ pnpm --version                                     # 10.34.4
 docker info                                        # running
 docker compose version                             # v5+
 
-# 5. Backend build
-./gradlew :platform:application:check
+# 5. Every isolated backend build
+./gradlew :platform:application:check \
+  :platform:apps:sharm-to-go:check \
+  :platform:apps:safari-tours-sharm:check
 
 # 6. Mobile build
 ./gradlew :mobile:shared:check :mobile:apps:ops:check :mobile:apps:customer:check
@@ -167,14 +169,18 @@ pnpm --dir web run check
 pnpm --dir foundry install --frozen-lockfile
 pnpm --dir foundry run validate
 
-# 9. Infrastructure stack
+# 9. One isolated client stack (Safari example)
 docker compose --env-file .env.example \
-  -f infrastructure/compose/compose.yaml \
+  -f infrastructure/compose/safari-tours-sharm.compose.yaml \
   up --build --wait
 curl --fail http://127.0.0.1:58080/healthz
 docker compose --env-file .env.example \
-  -f infrastructure/compose/compose.yaml down
+  -f infrastructure/compose/safari-tours-sharm.compose.yaml down
 ```
+
+Use the matching explicit bundle for another client. Never combine client bundles or
+reuse their database volume, credentials, or environment file; see
+`docs/operations/ISOLATED_CLIENT_RELEASES.md`.
 
 ---
 

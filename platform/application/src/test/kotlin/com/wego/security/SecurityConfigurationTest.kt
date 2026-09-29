@@ -40,4 +40,10 @@ class SecurityConfigurationTest(
                 status { isUnauthorized() }
             }
     }
+
+    @Test
+    fun `other client API prefixes are not exposed by the Divers release`() {
+        listOf("/api/v1/tours-operator/tours", "/api/v1/travel-marketplace/public/services")
+            .forEach { path -> mockMvc.get(path).andExpect { status { isUnauthorized() } } }
+    }
 }

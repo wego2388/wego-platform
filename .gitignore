@@ -3,6 +3,8 @@
 .env.*
 !.env.example
 !.env.sharm-to-go.example
+!.env.safari-tours-sharm.example
+!.env.sharm-divers-club.example
 *.pem
 *.key
 *.p12

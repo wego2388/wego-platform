@@ -75,9 +75,10 @@ class Booking(
         // has ever been CONFIRMED and is never cleared on subsequent transitions
         // (COMPLETED, CANCELLED after confirm). It must NOT be set for bookings
         // that were never confirmed (NEW, EXPIRED).
-        val wasEverConfirmed = status == BookingStatus.CONFIRMED ||
-            status == BookingStatus.COMPLETED ||
-            (status == BookingStatus.CANCELLED && confirmedAt != null)
+        val wasEverConfirmed =
+            status == BookingStatus.CONFIRMED ||
+                status == BookingStatus.COMPLETED ||
+                (status == BookingStatus.CANCELLED && confirmedAt != null)
         require(wasEverConfirmed == (confirmedAt != null)) {
             "confirmedAt must be set for bookings that passed through CONFIRMED, and absent for those that did not (status: $status)"
         }

@@ -39,6 +39,12 @@ jobs:
           cache-dependency-path: foundry/pnpm-lock.yaml
       - run: pnpm --dir foundry install --frozen-lockfile
       - run: pnpm --dir foundry run validate
+      - name: Prove release generation is deterministic and committed
+        run: |
+          pnpm --dir foundry run generate:release
+          git diff --exit-code -- 'clients/*/release.lock.json' 'clients/*/release.plan.json'
+          pnpm --dir foundry run generate:release
+          git diff --exit-code -- 'clients/*/release.lock.json' 'clients/*/release.plan.json'
 
   backend:
     runs-on: ubuntu-24.04
@@ -49,7 +55,35 @@ jobs:
           distribution: temurin
           java-version: "25"
       - uses: gradle/actions/setup-gradle@67621b124fd2e251c5e8a0e6e3b91318f2287669 # v6.3.0
-      - run: ./gradlew :platform:application:check :platform:apps:sharm-to-go:check
+      - name: Verify all isolated backend applications
+        run: >-
+          ./gradlew
+          :platform:application:check
+          :platform:apps:sharm-to-go:check
+          :platform:apps:safari-tours-sharm:check
+      - name: Build and scan isolated backend artifacts
+        run: |
+          ./gradlew :platform:application:bootJar :platform:apps:sharm-to-go:bootJar :platform:apps:safari-tours-sharm:bootJar
+
+          divers_jar="platform/application/build/libs/application-0.1.0-SNAPSHOT.jar"
+          travel_jar="platform/apps/sharm-to-go/build/libs/sharm-to-go-0.1.0-SNAPSHOT.jar"
+          safari_jar="platform/apps/safari-tours-sharm/build/libs/safari-tours-sharm-0.1.0-SNAPSHOT.jar"
+
+          divers_entries="$(jar tf "$divers_jar")"
+          travel_entries="$(jar tf "$travel_jar")"
+          safari_entries="$(jar tf "$safari_jar")"
+
+          grep -q 'BOOT-INF/classes/com/wego/divers/' <<< "$divers_entries"
+          ! grep -q 'BOOT-INF/classes/com/wego/toursoperator/' <<< "$divers_entries"
+          ! grep -q 'BOOT-INF/classes/com/wego/travelmarketplace/' <<< "$divers_entries"
+
+          grep -q 'BOOT-INF/classes/com/wego/travelmarketplace/' <<< "$travel_entries"
+          ! grep -q 'BOOT-INF/classes/com/wego/divers/' <<< "$travel_entries"
+          ! grep -q 'BOOT-INF/classes/com/wego/toursoperator/' <<< "$travel_entries"
+
+          grep -q 'BOOT-INF/classes/com/wego/toursoperator/' <<< "$safari_entries"
+          ! grep -q 'BOOT-INF/classes/com/wego/divers/' <<< "$safari_entries"
+          ! grep -q 'BOOT-INF/classes/com/wego/travelmarketplace/' <<< "$safari_entries"
 
   mobile:
     runs-on: ubuntu-24.04
@@ -82,17 +116,17 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Validate Compose model
-        run: docker compose --env-file .env.example -f infrastructure/compose/compose.yaml config --quiet
-      - name: Validate Safari Tours isolated Compose override
+      - name: Validate Sharm Divers Club isolated Compose model
+        run: docker compose --env-file .env.example -f infrastructure/compose/sharm-divers-club.compose.yaml config --quiet
+      - name: Validate Safari Tours Sharm isolated Compose model
         run: >-
           docker compose --env-file .env.example
-          -f infrastructure/compose/compose.yaml
+          -f infrastructure/compose/safari-tours-sharm.compose.yaml
           -f e2e/compose.safari-checkout.yaml
           config --quiet
       - name: Validate Sharm To Go VPS Compose model
         run: docker compose --env-file .env.sharm-to-go.example -f infrastructure/compose/sharm-to-go.compose.yaml --profile tls config --quiet
-      - name: Build and start isolated foundation stack
+      - name: Build and start isolated Sharm Divers Club stack
         run: |
           # Anonymous pulls of the pinned public.ecr.aws/docker/library/{postgres,redis,nginx}
           # images intermittently return "toomanyrequests: Rate exceeded" under GitHub Actions'
@@ -100,7 +134,7 @@ jobs:
           # digests themselves (the same images have passed cleanly on every other run this
           # week). Retry with backoff instead of failing the whole job on a transient throttle.
           attempt=1
-          until docker compose --env-file .env.example -f infrastructure/compose/compose.yaml up --build --wait -d; do
+          until docker compose --env-file .env.example -f infrastructure/compose/sharm-divers-club.compose.yaml up --build --wait -d; do
             if [ "$attempt" -ge 5 ]; then
               echo "::error::Foundation stack failed to start after $attempt attempts"
               exit 1
@@ -124,20 +158,13 @@ jobs:
           echo "$erp_headers" | grep -qi '^X-Frame-Options: *DENY'
           grep -qi '<title' /tmp/erp-login.html
 
-          # The customer recovery endpoint is public-origin-only. The staff
-          # host must not create an unthrottled bypass around its edge limiter.
-          staff_lookup_status="$(curl --silent --resolve staff.localhost:58080:127.0.0.1 --output /dev/null --write-out '%{http_code}' \
-            -X POST -H 'Content-Type: application/json' \
-            --data '{"reference":"STR-2026-1","phone":"+201000000000"}' \
-            http://staff.localhost:58080/api/v1/tours-operator/bookings/lookup)"
-          test "$staff_lookup_status" = "404"
+          # Public origin cannot reach the staff/domain API at all.
+          public_api_status="$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:58080/api/v1/identity/me)"
+          test "$public_api_status" = "404"
 
-          # Deny-by-default for an unauthenticated caller against the API is
-          # 401 (not authenticated) with a challenge header, not 403
-          # (authenticated but forbidden) — see
-          # SecurityConfiguration/BearerAuthenticationEntryPoint. Must stay
-          # true through the /api/ prefix location, not just at the root.
-          deny_headers="$(curl --silent --dump-header - --output /dev/null http://127.0.0.1:58080/api/v1/identity/me)"
+          # The same unauthenticated request on the staff origin reaches the
+          # backend's deny-by-default boundary and returns a Bearer challenge.
+          deny_headers="$(curl --silent --resolve staff.localhost:58080:127.0.0.1 --dump-header - --output /dev/null http://staff.localhost:58080/api/v1/identity/me)"
           echo "$deny_headers" | grep -q '^HTTP/[0-9.]* 401'
           echo "$deny_headers" | grep -qi '^WWW-Authenticate: *Bearer'
       - uses: pnpm/action-setup@ff378ebe6b225b0680b81c1ad4498ae0d1d3a5e3 # v6.0.10
@@ -159,17 +186,36 @@ jobs:
           WEGO_POSTGRES_PASSWORD: wego-local-postgres-only
           WEGO_POSTGRES_DB: wego
           WEGO_E2E_SEED_CONFIRM: yes-this-is-a-disposable-e2e-database
+          WEGO_E2E_PRODUCT: divers
         run: pnpm --dir e2e run seed
       - name: Run the authenticated foundation ERP browser lifecycle (Playwright)
         env:
           WEGO_E2E_BASE_URL: http://staff.localhost:58080
         run: pnpm --dir e2e exec playwright test tests/erp-lifecycle.spec.ts
-      - name: Switch the isolated stack to the Safari Tours staff ERP
+      - name: Stop the disposable Sharm Divers Club stack
+        run: docker compose --env-file .env.example -f infrastructure/compose/sharm-divers-club.compose.yaml down --volumes
+      - name: Start the isolated Safari Tours Sharm stack
         run: >-
           docker compose --env-file .env.example
-          -f infrastructure/compose/compose.yaml
+          -f infrastructure/compose/safari-tours-sharm.compose.yaml
           -f e2e/compose.safari-checkout.yaml
           up --build --wait -d
+      - name: Seed the isolated Safari staff user and catalog fixture
+        env:
+          WEGO_POSTGRES_PORT: 55432
+          WEGO_POSTGRES_USER: wego_app
+          WEGO_POSTGRES_PASSWORD: wego-local-postgres-only
+          WEGO_POSTGRES_DB: wego
+          WEGO_E2E_SEED_CONFIRM: yes-this-is-a-disposable-e2e-database
+          WEGO_E2E_PRODUCT: safari
+        run: pnpm --dir e2e run seed
+      - name: Verify Safari public and staff route separation
+        run: |
+          staff_lookup_status="$(curl --silent --resolve staff.localhost:58080:127.0.0.1 --output /dev/null --write-out '%{http_code}' \
+            -X POST -H 'Content-Type: application/json' \
+            --data '{"reference":"STR-2026-1","phone":"+201000000000"}' \
+            http://staff.localhost:58080/api/v1/tours-operator/bookings/lookup)"
+          test "$staff_lookup_status" = "404"
       - name: Run the Safari checkout and staff-visibility lifecycle (Playwright)
         env:
           WEGO_E2E_BASE_URL: http://127.0.0.1:58080
@@ -195,7 +241,7 @@ jobs:
           grep -qi '^Retry-After: *[0-9]' /tmp/booking-lookup-rate-limit-headers.txt
       - name: Verify Safari checkout logs do not retain query secrets or customer PII
         run: |
-          compose_logs="$(docker compose --env-file .env.example -f infrastructure/compose/compose.yaml -f e2e/compose.safari-checkout.yaml logs --no-color)"
+          compose_logs="$(docker compose --env-file .env.example -f infrastructure/compose/safari-tours-sharm.compose.yaml -f e2e/compose.safari-checkout.yaml logs --no-color)"
           if rg -qi 'valid-hmac|hmac=wrong|rejected hmac=|STR-[0-9]{4}-[0-9]+|E2E Test Customer|\+20100000099|\+201099999999|e2e-safari@example\.com|"source_data"|"pan"[[:space:]]*:[[:space:]]*"1234"|payment_token=' <<< "$compose_logs"; then
             echo "Checkout HMAC, customer PII, or raw webhook data was retained in Compose logs" >&2
             exit 1
@@ -264,6 +310,20 @@ jobs:
           }
           assert_rate_limit_contract "$app_rate_limit_body" /tmp/app-rate-limit-headers.txt
           assert_rate_limit_contract "$edge_rate_limit_body" /tmp/edge-rate-limit-headers.txt
+      - name: Build and start isolated Sharm To Go stack
+        env:
+          COMPOSE_PROJECT_NAME: ci-sharm-to-go
+        run: |
+          docker compose --env-file .env.sharm-to-go.example \
+            -f infrastructure/compose/sharm-to-go.compose.yaml up --build --wait -d
+          curl --fail --silent --show-error http://127.0.0.1:58180/healthz
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:58180/login)" = "404"
+          test "$(curl --silent --resolve admin.sharmtogo.example:58181:127.0.0.1 --output /dev/null --write-out '%{http_code}' http://admin.sharmtogo.example:58181/login)" = "200"
+      - name: Stop disposable Sharm To Go stack
+        if: always()
+        env:
+          COMPOSE_PROJECT_NAME: ci-sharm-to-go
+        run: docker compose --env-file .env.sharm-to-go.example -f infrastructure/compose/sharm-to-go.compose.yaml down --volumes --remove-orphans || true
       - name: Upload Playwright report after a failure
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -273,10 +333,14 @@ jobs:
           retention-days: 7
       - name: Show logs after a failure
         if: failure()
-        run: docker compose --env-file .env.example -f infrastructure/compose/compose.yaml logs --no-color
-      - name: Stop scoped foundation stack
+        run: |
+          docker compose --env-file .env.example -f infrastructure/compose/sharm-divers-club.compose.yaml logs --no-color || true
+          docker compose --env-file .env.example -f infrastructure/compose/safari-tours-sharm.compose.yaml -f e2e/compose.safari-checkout.yaml logs --no-color || true
+      - name: Stop scoped client stacks
         if: always()
-        run: docker compose --env-file .env.example -f infrastructure/compose/compose.yaml down
+        run: |
+          docker compose --env-file .env.example -f infrastructure/compose/sharm-divers-club.compose.yaml down --volumes --remove-orphans || true
+          docker compose --env-file .env.example -f infrastructure/compose/safari-tours-sharm.compose.yaml -f e2e/compose.safari-checkout.yaml down --volumes --remove-orphans || true
 
   secrets-and-node-dependencies:
     runs-on: ubuntu-24.04

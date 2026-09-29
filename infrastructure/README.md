@@ -1,41 +1,39 @@
-# Wego development infrastructure
+# Wego isolated client infrastructure
 
-This Compose project is a local, single-client topology: PostgreSQL, ephemeral
-Redis, the Spring Boot application, and an Nginx edge. Images and build bases
-are immutable-digest pins from Docker Library's public ECR mirror. Ports bind to
-loopback only. The backend and edge use read-only filesystems and non-root users.
+Every client release has an explicit Compose bundle and its own PostgreSQL
+volume. Images and build bases use immutable digest pins; published ports bind
+to loopback by default; application containers are non-root and read-only.
 
-Start it from the repository root:
+| Client | Compose bundle | Backend |
+|---|---|---|
+| Safari Tours Sharm | `compose/safari-tours-sharm.compose.yaml` | `:platform:apps:safari-tours-sharm` |
+| Sharm To Go | `compose/sharm-to-go.compose.yaml` | `:platform:apps:sharm-to-go` |
+| Sharm Divers Club | `compose/sharm-divers-club.compose.yaml` | `:platform:application` |
+
+`compose/compose.yaml` is only a backward-compatible include for the explicit
+Safari local bundle. New commands and automation must name the client file.
+
+Example local start:
 
 ```bash
 docker compose --env-file .env.example \
-  -f infrastructure/compose/compose.yaml \
+  -f infrastructure/compose/safari-tours-sharm.compose.yaml \
   up --build --wait
 curl --fail http://127.0.0.1:58080/healthz
 ```
 
-Stop containers while preserving the development database:
+Stop while preserving the database:
 
 ```bash
 docker compose --env-file .env.example \
-  -f infrastructure/compose/compose.yaml \
-  down
+  -f infrastructure/compose/safari-tours-sharm.compose.yaml down
 ```
 
-`down --volumes` deletes only the explicitly named Wego development database
-volume, but is destructive and is never part of an automated command. Inspect
-the project name and volume before running it.
+Never add `--volumes` unless the exact disposable project and named volume have
+been inspected: that option deletes its database. `.env.example` contains only
+local placeholders. Production secrets, TLS/DNS, Paymob credentials, backup
+retention and monitoring must be supplied through the approved operator
+process; none are stored in a release plan.
 
-`.env.example` contains public local-development placeholders. Copy it to an
-ignored `.env` and replace values when needed. Production must use a distinct
-secret set, restricted networking, TLS, backup policy, Redis security policy,
-resource limits, and an approved release procedure; this file is not a
-production deployment definition.
-
-
-## Sharm To Go (single-VPS deployment)
-
-Sharm To Go has its own backend, customer site and staff ERP, so it has its own
-stack: `compose/sharm-to-go.compose.yaml`, `nginx/sharm-to-go.nginx.conf`,
-`caddy/Caddyfile` and the `sharm-to-go-*.Dockerfile` files. See
-[`SHARM_TO_GO_VPS.md`](SHARM_TO_GO_VPS.md) for the runbook.
+See [the isolated-client runbook](../docs/operations/ISOLATED_CLIENT_RELEASES.md)
+and [the Sharm To Go VPS notes](SHARM_TO_GO_VPS.md).

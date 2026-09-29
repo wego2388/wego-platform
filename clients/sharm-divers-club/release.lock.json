@@ -27,13 +27,25 @@
       "version": "0.1.0-SNAPSHOT"
     },
     {
+      "id": "product.accounting",
+      "version": "0.1.0-SNAPSHOT"
+    },
+    {
       "id": "product.divers",
+      "version": "0.1.0-SNAPSHOT"
+    },
+    {
+      "id": "product.hr",
+      "version": "0.1.0-SNAPSHOT"
+    },
+    {
+      "id": "product.payroll",
       "version": "0.1.0-SNAPSHOT"
     }
   ],
   "manifestDigests": {
     "client": "61d6a8d5b22ad52636e85a15c97afc131637207bcb06358bb9edd52065719914",
-    "product": "2d740ac268e4c9d57a5e08412ea60bc9b206bff551a0e2615bb4e539941c5165",
+    "product": "0775dedb46cce2314a51b4f2f8d7f8ad2b9db9b374ec9bd623ad21380083d38f",
     "moduleCatalog": "1d0e74b9935008d13a179cce88dcaf094e2a1a514f90e1c40a12314956d1b3cb"
   }
 }

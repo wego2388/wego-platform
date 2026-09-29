@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "clientId": "safari-tours-sharm",
+  "product": {
+    "id": "wego-tours-operator",
+    "version": "0.1.0"
+  },
+  "deploymentIsolation": "ISOLATED_INSTANCE",
+  "modules": [
+    "platform.events",
+    "platform.identity",
+    "platform.security",
+    "platform.transaction",
+    "product.tours-operator"
+  ],
+  "artifacts": {
+    "backend": {
+      "gradleProject": ":platform:apps:safari-tours-sharm",
+      "projectPath": "platform/apps/safari-tours-sharm",
+      "dockerfile": "infrastructure/docker/safari-backend.Dockerfile",
+      "jar": "platform/apps/safari-tours-sharm/build/libs/safari-tours-sharm-0.1.0-SNAPSHOT.jar",
+      "includedModules": [
+        "platform.events",
+        "platform.identity",
+        "platform.security",
+        "platform.transaction",
+        "product.tours-operator"
+      ],
+      "migrationVersions": [
+        "1",
+        "2",
+        "3",
+        "14",
+        "16",
+        "17",
+        "18",
+        "19"
+      ],
+      "migrationFiles": [
+        "platform/application/src/main/resources/db/migration/V1__platform_foundation.sql",
+        "platform/application/src/main/resources/db/migration/V2__identity_foundation.sql",
+        "platform/apps/safari-tours-sharm/src/main/resources/db/migration/V3__identity_administration.sql",
+        "platform/application/src/main/resources/db/migration/V14__tours_operator_foundation.sql",
+        "platform/application/src/main/resources/db/migration/V16__tours_operator_catalog_content.sql",
+        "platform/application/src/main/resources/db/migration/data/V17__tours_operator_catalog_seed.sql",
+        "platform/application/src/main/resources/db/migration/V18__tours_operator_payment.sql",
+        "platform/application/src/main/resources/db/migration/V19__tours_operator_payment_hardening.sql"
+      ]
+    },
+    "publicSite": {
+      "packageName": "@wego/safari-tours-sharm-site",
+      "path": "web/apps/safari-tours-sharm-site",
+      "dockerfile": "infrastructure/docker/safari-site.Dockerfile"
+    },
+    "staffApp": {
+      "packageName": "@wego/safari-tours-sharm-erp",
+      "path": "web/apps/safari-tours-sharm-erp",
+      "dockerfile": "infrastructure/docker/safari-erp.Dockerfile"
+    },
+    "apiContract": {
+      "path": "platform/contracts/openapi/v1/wego-api.yaml",
+      "ownedPathPrefixes": [
+        "/api/v1/identity/",
+        "/api/v1/tours-operator/"
+      ]
+    },
+    "compose": {
+      "path": "infrastructure/compose/safari-tours-sharm.compose.yaml",
+      "environmentExample": ".env.safari-tours-sharm.example",
+      "services": [
+        "postgres",
+        "backend",
+        "safari-site",
+        "web",
+        "edge"
+      ]
+    }
+  },
+  "dataIsolation": {
+    "schema": "wego",
+    "allowedTablePrefixes": [
+      "identity_",
+      "integration_",
+      "tours_operator_"
+    ],
+    "allowedPermissionPrefixes": [
+      "identity:",
+      "tours-operator."
+    ]
+  },
+  "digests": {
+    "releaseLock": "0cec7fbf3c8a77120601a45f54a6b678f233a54190e37627f2524e7286e4255a",
+    "releaseProfiles": "54168285a41b5eaf2a17ec19783fef4e959680bb4ca5cb8a70458049df18d0c5"
+  }
+}

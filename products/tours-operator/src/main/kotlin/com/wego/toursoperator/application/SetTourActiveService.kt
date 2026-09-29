@@ -4,6 +4,7 @@ import com.wego.toursoperator.domain.TourId
 
 sealed interface SetTourActiveResult {
     data object Success : SetTourActiveResult
+
     data object NotFound : SetTourActiveResult
 }
 

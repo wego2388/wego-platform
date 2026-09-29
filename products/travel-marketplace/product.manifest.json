@@ -8,12 +8,14 @@
     "platform.events",
     "platform.security",
     "platform.identity",
+    "platform.transaction",
     "product.travel-marketplace"
   ],
   "requiredCapabilities": [
     "platform.authorization",
     "platform.identity-authentication",
     "platform.integration-events",
+    "platform.transaction-boundary",
     "travel-marketplace.product-boundary"
   ]
 }

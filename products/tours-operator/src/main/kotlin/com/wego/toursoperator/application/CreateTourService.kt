@@ -27,7 +27,10 @@ data class CreateTourCommand(
 )
 
 sealed interface CreateTourResult {
-    data class Success(val tour: Tour) : CreateTourResult
+    data class Success(
+        val tour: Tour,
+    ) : CreateTourResult
+
     data object SlugAlreadyExists : CreateTourResult
 }
 

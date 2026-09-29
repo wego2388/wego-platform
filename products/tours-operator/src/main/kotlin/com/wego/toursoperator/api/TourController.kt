@@ -53,14 +53,18 @@ class TourController(
     ): List<TourSummaryResponse> = tourQueryService.list(category, activeOnly = true, page, size).map { it.toSummaryResponse() }
 
     @GetMapping("/tours/{id}")
-    fun findById(@PathVariable id: UUID): ResponseEntity<TourSummaryResponse> {
+    fun findById(
+        @PathVariable id: UUID,
+    ): ResponseEntity<TourSummaryResponse> {
         val tour = tourQueryService.findById(TourId(id)) ?: return ResponseEntity.notFound().build()
         if (!tour.isActive) return ResponseEntity.notFound().build()
         return ResponseEntity.ok(tour.toSummaryResponse())
     }
 
     @GetMapping("/tours/by-slug")
-    fun findBySlug(@RequestParam slug: String): ResponseEntity<TourSummaryResponse> {
+    fun findBySlug(
+        @RequestParam slug: String,
+    ): ResponseEntity<TourSummaryResponse> {
         val tour = tourQueryService.findBySlug(slug) ?: return ResponseEntity.notFound().build()
         if (!tour.isActive) return ResponseEntity.notFound().build()
         return ResponseEntity.ok(tour.toSummaryResponse())
@@ -83,7 +87,9 @@ class TourController(
 
     @GetMapping("/staff/tours/{id}")
     @PreAuthorize("hasAuthority('tours-operator.tour:view')")
-    fun findByIdForStaff(@PathVariable id: UUID): ResponseEntity<TourSummaryResponse> {
+    fun findByIdForStaff(
+        @PathVariable id: UUID,
+    ): ResponseEntity<TourSummaryResponse> {
         val tour = tourQueryService.findById(TourId(id)) ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(tour.toSummaryResponse())
     }
@@ -95,29 +101,31 @@ class TourController(
         authentication: Authentication,
     ): ResponseEntity<Any> {
         val createdByUserId = (authentication.principal as AuthenticatedUser).userId
-        val command = CreateTourCommand(
-            slug = request.slug,
-            category = request.category,
-            durationText = request.durationText,
-            priceAdultCents = request.priceAdultCents,
-            priceChildCents = request.priceChildCents,
-            capacity = request.capacity,
-            availableTimeSlots = request.availableTimeSlots,
-            sortOrder = request.sortOrder,
-            nameEn = request.nameEn,
-            tourType = request.tourType ?: TourType.TOUR,
-            imageUrl = request.imageUrl,
-            cancellationPolicy = request.cancellationPolicy ?: CancellationPolicy.STANDARD,
-            createdByUserId = createdByUserId,
-            pricingNote = request.pricingNote,
-        )
+        val command =
+            CreateTourCommand(
+                slug = request.slug,
+                category = request.category,
+                durationText = request.durationText,
+                priceAdultCents = request.priceAdultCents,
+                priceChildCents = request.priceChildCents,
+                capacity = request.capacity,
+                availableTimeSlots = request.availableTimeSlots,
+                sortOrder = request.sortOrder,
+                nameEn = request.nameEn,
+                tourType = request.tourType ?: TourType.TOUR,
+                imageUrl = request.imageUrl,
+                cancellationPolicy = request.cancellationPolicy ?: CancellationPolicy.STANDARD,
+                createdByUserId = createdByUserId,
+                pricingNote = request.pricingNote,
+            )
         return when (val result = createTourService.create(command)) {
             is CreateTourResult.Success -> {
-                val uri = ServletUriComponentsBuilder
-                    .fromCurrentContextPath()
-                    .path("/api/v1/tours-operator/staff/tours/{id}")
-                    .buildAndExpand(result.tour.id.value)
-                    .toUri()
+                val uri =
+                    ServletUriComponentsBuilder
+                        .fromCurrentContextPath()
+                        .path("/api/v1/tours-operator/staff/tours/{id}")
+                        .buildAndExpand(result.tour.id.value)
+                        .toUri()
                 ResponseEntity.created(uri).body(result.tour.toSummaryResponse())
             }
             CreateTourResult.SlugAlreadyExists ->
@@ -131,21 +139,22 @@ class TourController(
         @PathVariable id: UUID,
         @Valid @RequestBody request: UpdateTourRequest,
     ): ResponseEntity<Any> {
-        val command = UpdateTourCommand(
-            id = TourId(id),
-            category = request.category,
-            durationText = request.durationText,
-            priceAdultCents = request.priceAdultCents,
-            priceChildCents = request.priceChildCents,
-            capacity = request.capacity,
-            availableTimeSlots = request.availableTimeSlots,
-            sortOrder = request.sortOrder,
-            nameEn = request.nameEn,
-            tourType = request.tourType ?: TourType.TOUR,
-            imageUrl = request.imageUrl,
-            cancellationPolicy = request.cancellationPolicy ?: CancellationPolicy.STANDARD,
-            pricingNote = request.pricingNote,
-        )
+        val command =
+            UpdateTourCommand(
+                id = TourId(id),
+                category = request.category,
+                durationText = request.durationText,
+                priceAdultCents = request.priceAdultCents,
+                priceChildCents = request.priceChildCents,
+                capacity = request.capacity,
+                availableTimeSlots = request.availableTimeSlots,
+                sortOrder = request.sortOrder,
+                nameEn = request.nameEn,
+                tourType = request.tourType ?: TourType.TOUR,
+                imageUrl = request.imageUrl,
+                cancellationPolicy = request.cancellationPolicy ?: CancellationPolicy.STANDARD,
+                pricingNote = request.pricingNote,
+            )
         return when (updateTourService.update(command)) {
             UpdateTourResult.Success -> ResponseEntity.noContent().build()
             UpdateTourResult.NotFound -> ResponseEntity.notFound().build()
@@ -154,7 +163,9 @@ class TourController(
 
     @PatchMapping("/staff/tours/{id}/activate")
     @PreAuthorize("hasAuthority('tours-operator.tour:manage')")
-    fun activate(@PathVariable id: UUID): ResponseEntity<Any> =
+    fun activate(
+        @PathVariable id: UUID,
+    ): ResponseEntity<Any> =
         when (setTourActiveService.activate(TourId(id))) {
             SetTourActiveResult.Success -> ResponseEntity.noContent().build()
             SetTourActiveResult.NotFound -> ResponseEntity.notFound().build()
@@ -162,7 +173,9 @@ class TourController(
 
     @PatchMapping("/staff/tours/{id}/deactivate")
     @PreAuthorize("hasAuthority('tours-operator.tour:manage')")
-    fun deactivate(@PathVariable id: UUID): ResponseEntity<Any> =
+    fun deactivate(
+        @PathVariable id: UUID,
+    ): ResponseEntity<Any> =
         when (setTourActiveService.deactivate(TourId(id))) {
             SetTourActiveResult.Success -> ResponseEntity.noContent().build()
             SetTourActiveResult.NotFound -> ResponseEntity.notFound().build()
@@ -188,5 +201,4 @@ internal fun Tour.toSummaryResponse() =
         pricingNote = pricingNote,
     )
 
-internal fun Long.toMoneyResponse(): MoneyResponse =
-    MoneyResponse(amount = toBigDecimal().movePointLeft(2).setScale(2).toPlainString())
+internal fun Long.toMoneyResponse(): MoneyResponse = MoneyResponse(amount = toBigDecimal().movePointLeft(2).setScale(2).toPlainString())

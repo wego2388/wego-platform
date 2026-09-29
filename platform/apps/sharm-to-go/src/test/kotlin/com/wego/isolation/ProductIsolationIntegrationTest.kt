@@ -1,6 +1,7 @@
 package com.wego.isolation
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -57,7 +58,29 @@ class ProductIsolationIntegrationTest(
                     "travel_service_media",
                     "travel_marketplace_audit_event",
                 ).noneMatch { it.startsWith("divers_") }
+                .noneMatch { it.startsWith("tours_operator_") }
+
+            val permissionCodes =
+                connection.createStatement().executeQuery("SELECT code FROM wego.identity_permission ORDER BY code").use { rs ->
+                    generateSequence { if (rs.next()) rs.getString("code") else null }.toList()
+                }
+            assertThat(permissionCodes).containsExactly(
+                "identity:administer",
+                "identity:role-manage",
+                "identity:role-view",
+                "identity:user-manage",
+                "identity:user-view",
+                "provider:manage",
+                "provider:view",
+                "service:manage",
+                "service:view",
+            )
         }
+
+        assertThatThrownBy { Class.forName("com.wego.divers.api.BookingController") }
+            .isInstanceOf(ClassNotFoundException::class.java)
+        assertThatThrownBy { Class.forName("com.wego.toursoperator.api.TourController") }
+            .isInstanceOf(ClassNotFoundException::class.java)
     }
 
     companion object {

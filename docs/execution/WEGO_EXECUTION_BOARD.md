@@ -22,8 +22,8 @@ Rule: exactly one implementation packet may be `ACTIVE` in a worktree. Parent mi
 | WEGO-013 | Platform hardening: fix CI's first real run against `main`, mobile CI build coverage, client onboarding runbook | COMPLETE |
 | WEGO-014 | ERP professional UX/UI redesign: navigation shell, component library, dark mode, motion, responsive pass across all 17 routes | COMPLETE |
 | WEGO-015 | Sharm Divers Club customer-facing redesign: public website (`sharm-divers-club-site`) + mobile customer app (`mobile/apps/customer`) | COMPLETE |
-| WEGO-016 | Safari Tours Sharm: tours-operator product foundation — public booking site, staff ERP, Paymob payment flow, production catalog, and isolated deployment | NOT AUTHORIZED — paused after E for WEGO-017 |
-| WEGO-017 | Foundry executable client releases: artifact, data, deployment, and CI isolation for Safari Tours Sharm, Sharm To Go, and Sharm Divers Club | IN PROGRESS |
+| WEGO-016 | Safari Tours Sharm: tours-operator product foundation — public booking site, staff ERP, Paymob payment flow, production catalog, and isolated deployment | IN PROGRESS |
+| WEGO-017 | Foundry executable client releases: artifact, data, deployment, and CI isolation for Safari Tours Sharm, Sharm To Go, and Sharm Divers Club | COMPLETE |
 
 ## Automation and growth roadmap guardrails
 
@@ -2812,13 +2812,14 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-09-28 — WEGO-016-F: ERP finance aggregation + complete booking management
 
-- **Status:** IMPLEMENTED LOCALLY — DEFERRED / NOT ACTIVE
-- **Status note:** Commit `12259a2` exists locally, but F was implemented before
-  E's live Compose/Tier 1 gate closed and is not an active/closed packet yet.
-  Its finance view currently derives revenue from CONFIRMED/COMPLETED booking
-  totals rather than the PAID-minus-REFUNDED payment ledger, so it requires
-  correction and Tier 1 review when resumed. The owner prioritized WEGO-017
-  client-release isolation first. No push or deploy yet.
+- **Status:** ACTIVE
+- **Status note:** The owner explicitly resumed Safari implementation on
+  2026-09-29 after WEGO-017-A reached a zero-blocker Tier-1 verdict, then
+  authorized the local closure commit and activation of F with `ابدأ`. Commit
+  `12259a2` contains the earlier local implementation, but its finance view
+  derives revenue from CONFIRMED/COMPLETED booking totals rather than the
+  PAID-minus-REFUNDED payment ledger. This active round must correct that truth
+  boundary and complete Tier-1 review before F closes. No push or deploy.
 - **Review intensity:** Tier 1 — PII (booking customer data), permission gating on staff actions.
 - **Objective:** ERP operations — finance page uses real API with a testable composable, booking management pages are complete with correct permission gating.
 
@@ -2844,7 +2845,7 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ## WEGO-017 — Foundry executable isolated client releases
 
-- **Status:** IN PROGRESS
+- **Status:** COMPLETE
 - **Activated:** 2026-09-29 by the owner's explicit `كمل` response to the
   proposed close-E/activate-WEGO-017 transition.
 - **Objective:** Make Wego Foundry produce and prove independently deployable
@@ -2855,7 +2856,7 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-09-29 — WEGO-017-A: executable composition and isolation proof
 
-- **Status:** ACTIVE
+- **Status:** COMPLETE
 - **Review intensity:** Tier 1 — changes the client-isolation boundary,
   executable composition, migrations, permissions, and deployment artifacts.
 - **Objective:** Bind each client release lock to an exact backend/product,
@@ -2892,3 +2893,85 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   7. Existing product gates stay green; independent Tier 1 review returns zero
      blocking findings before commit.
 - **Commit / push / deploy:** not yet; no production/external state authorized.
+
+### 2026-09-29 — WEGO-017-A evidence and Tier-1 review round 1
+
+- **Review state:** ACTIVE; independent reviewer Linnaeus returned BLOCKERS,
+  so no commit or activation is permitted yet.
+- **Evidence captured:** the three backend checks plus mobile shared/ops/customer
+  checks and both Android debug assemblies passed on JDK 25; Foundry validation,
+  OpenAPI lint, repository YAML validation, repository-check, and `git diff --check`
+  passed; release generation was deterministic across two consecutive hashes.
+- **Executable bundles:** Safari Compose built and ran as
+  `wego-017-safari-final` with 13/13 Safari checkout Playwright tests passing;
+  Divers Compose built and ran as `wego-017-divers-final` with 6/6 ERP lifecycle
+  tests passing. Health, staff/public route boundaries, and log privacy checks
+  passed for both. The Sharm To Go backend image built after removing an invalid
+  wrapper download dependency, but the complete bundle could not finish because
+  npm registry/network timeouts prevented the two web image builds; no Sharm To
+  Go test containers remain running.
+- **Remediation in progress:** exact database permission catalogs and foreign
+  client API-boundary tests were added to all three release applications;
+  release profiles now enumerate exact migration SQL files and validation
+  reconciles versions, table prefixes, and permission prefixes against those
+  executable files. CI coverage for the Sharm To Go runtime bundle and client
+  specific environment examples remain follow-up items before close.
+- **Safety note:** Resort OS/Claude containers and data were not stopped,
+  modified, or pruned. Only explicitly named disposable Wego test stacks were
+  removed during disk-pressure cleanup.
+
+### 2026-09-29 — WEGO-017-A remediation round 2
+
+- **Foundry drift guard:** validator now derives the executable migration set
+  from each Gradle staging strategy in both directions, then rejects any
+  undeclared SQL table or permission prefix. `pnpm --dir foundry run
+  validate:manifests` passes.
+- **Route proof:** all three new filter-disabled MVC route-absence tests passed
+  with 404 responses; security-boundary tests continue to pass with 401 for
+  anonymous foreign-prefix requests.
+- **Environment safety:** Safari and Divers now use tracked, client-specific
+  `.env.*.example` files with explicit `.gitignore` exceptions; no shared
+  project/port/database defaults are referenced by their release plans.
+- **Sharm To Go runtime attempt:** backend image built successfully and the
+  complete Compose build reached both web installs, but ERP/site image builds
+  failed on repeated npm registry `EAI_AGAIN`/`ERR_SOCKET_TIMEOUT` errors.
+  The exact `wego-017-stg-verify` stack was removed with its volumes afterward;
+  no test containers remain. This is still an external network evidence gap,
+  not a code/test failure.
+
+### 2026-09-29 — WEGO-017-A complete Sharm To Go executable evidence
+
+- A retry using the populated pnpm cache built all three Sharm To Go images
+  (backend, public site, and ERP) successfully.
+- The complete disposable Compose bundle reached healthy state: PostgreSQL,
+  backend, public site, ERP, and edge all passed their healthchecks.
+- Runtime probes passed on the exact bundle: public `/healthz` returned 200;
+  public `/login` returned 404; admin `/login` returned 200; public
+  `/api/v1/identity/me` returned 404; admin API returned 401.
+- The exact `wego-017-stg-verify2` containers, network, and PostgreSQL volume
+  were removed after verification. Resort OS and the long-running Safari and
+  Divers stacks were not touched.
+
+### 2026-09-29 — WEGO-017-A final Tier-1 review
+
+- **Reviewer:** Linnaeus (`wego016e_tier1_review`), independent read-only review.
+- **Verdict:** READY — zero blocking findings.
+- Bidirectional migration reconciliation, undeclared SQL-prefix rejection,
+  exact permission catalogs, true foreign-route 404 tests, client-specific
+  environment examples, and complete-bundle evidence are all verified.
+- Advisory only: existing jOOQ ambiguous-key warnings and scheduler shutdown
+  noise in a filter-disabled Safari test context.
+- **Governance:** implementation is technically ready for a local commit;
+  commit, push, and deployment remain separately unauthorized until the owner
+  explicitly requests them.
+
+### 2026-09-29 — WEGO-017-A closure and Safari resume
+
+- The owner explicitly answered `ابدأ` to the request for a local closure
+  commit, with no push or deployment, followed by resuming Safari WEGO-016-F.
+- WEGO-017-A and its parent mission are complete; the final Tier-1 verdict is
+  READY with zero blockers and all three isolated bundles have executable
+  evidence.
+- WEGO-016-F is now the sole ACTIVE implementation packet. Its first required
+  correction is to derive finance from the immutable payment ledger
+  (`PAID - REFUNDED`) instead of booking status totals.

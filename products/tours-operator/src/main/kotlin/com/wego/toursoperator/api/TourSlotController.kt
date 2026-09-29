@@ -41,15 +41,13 @@ class TourSlotController(
         @PathVariable tourId: UUID,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) from: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate,
-    ): List<TourSlotResponse> =
-        tourSlotQueryService.findAvailable(TourId(tourId), from, to).map { it.toResponse() }
+    ): List<TourSlotResponse> = tourSlotQueryService.findAvailable(TourId(tourId), from, to).map { it.toResponse() }
 
     @GetMapping("/tours/{tourId}/slots/by-date")
     fun listByDate(
         @PathVariable tourId: UUID,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate,
-    ): List<TourSlotResponse> =
-        tourSlotQueryService.findByTourAndDate(TourId(tourId), date).map { it.toResponse() }
+    ): List<TourSlotResponse> = tourSlotQueryService.findByTourAndDate(TourId(tourId), date).map { it.toResponse() }
 
     // ── Staff endpoints — /staff/tours/{tourId}/slots/** ────────────────────
 
@@ -59,19 +57,21 @@ class TourSlotController(
         @PathVariable tourId: UUID,
         @Valid @RequestBody request: CreateSlotRequest,
     ): ResponseEntity<Any> {
-        val command = CreateSlotCommand(
-            tourId = TourId(tourId),
-            date = request.date,
-            timeSlot = request.timeSlot,
-            capacity = request.capacity,
-        )
+        val command =
+            CreateSlotCommand(
+                tourId = TourId(tourId),
+                date = request.date,
+                timeSlot = request.timeSlot,
+                capacity = request.capacity,
+            )
         return when (val result = createSlotService.create(command)) {
             is CreateSlotResult.Success -> {
-                val uri = ServletUriComponentsBuilder
-                    .fromCurrentContextPath()
-                    .path("/api/v1/tours-operator/staff/tours/{tourId}/slots/{id}")
-                    .buildAndExpand(tourId, result.slot.id.value)
-                    .toUri()
+                val uri =
+                    ServletUriComponentsBuilder
+                        .fromCurrentContextPath()
+                        .path("/api/v1/tours-operator/staff/tours/{tourId}/slots/{id}")
+                        .buildAndExpand(tourId, result.slot.id.value)
+                        .toUri()
                 ResponseEntity.created(uri).body(result.slot.toResponse())
             }
             CreateSlotResult.TourNotFound ->

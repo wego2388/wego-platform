@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "clientId": "sharm-to-go",
+  "product": {
+    "id": "wego-travel-marketplace",
+    "version": "0.1.0"
+  },
+  "deploymentIsolation": "ISOLATED_INSTANCE",
+  "modules": [
+    "platform.events",
+    "platform.identity",
+    "platform.security",
+    "platform.transaction",
+    "product.travel-marketplace"
+  ],
+  "artifacts": {
+    "backend": {
+      "gradleProject": ":platform:apps:sharm-to-go",
+      "projectPath": "platform/apps/sharm-to-go",
+      "dockerfile": "infrastructure/docker/sharm-to-go-backend.Dockerfile",
+      "jar": "platform/apps/sharm-to-go/build/libs/sharm-to-go-0.1.0-SNAPSHOT.jar",
+      "includedModules": [
+        "platform.events",
+        "platform.identity",
+        "platform.security",
+        "platform.transaction",
+        "product.travel-marketplace"
+      ],
+      "migrationVersions": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "migrationFiles": [
+        "platform/apps/sharm-to-go/src/main/resources/db/migration/V1__platform_foundation.sql",
+        "platform/apps/sharm-to-go/src/main/resources/db/migration/V2__identity_foundation.sql",
+        "platform/apps/sharm-to-go/src/main/resources/db/migration/V3__travel_marketplace_catalog.sql",
+        "platform/apps/sharm-to-go/src/main/resources/db/migration/V4__identity_administration.sql"
+      ]
+    },
+    "publicSite": {
+      "packageName": "@wego/sharm-to-go-site",
+      "path": "web/apps/sharm-to-go-site",
+      "dockerfile": "infrastructure/docker/sharm-to-go-web.Dockerfile",
+      "buildArgs": {
+        "WEB_APP": "sharm-to-go-site"
+      }
+    },
+    "staffApp": {
+      "packageName": "@wego/sharm-to-go-erp",
+      "path": "web/apps/sharm-to-go-erp",
+      "dockerfile": "infrastructure/docker/sharm-to-go-web.Dockerfile",
+      "buildArgs": {
+        "WEB_APP": "sharm-to-go-erp"
+      }
+    },
+    "apiContract": {
+      "path": "platform/contracts/openapi/v1/sharm-to-go-api.yaml",
+      "ownedPathPrefixes": [
+        "/api/v1/identity/",
+        "/api/v1/travel-marketplace/"
+      ]
+    },
+    "compose": {
+      "path": "infrastructure/compose/sharm-to-go.compose.yaml",
+      "environmentExample": ".env.sharm-to-go.example",
+      "services": [
+        "postgres",
+        "backend",
+        "site",
+        "erp",
+        "edge",
+        "caddy"
+      ]
+    }
+  },
+  "dataIsolation": {
+    "schema": "wego",
+    "allowedTablePrefixes": [
+      "identity_",
+      "integration_",
+      "travel_"
+    ],
+    "allowedPermissionPrefixes": [
+      "identity:",
+      "service:",
+      "provider:"
+    ]
+  },
+  "digests": {
+    "releaseLock": "8b828e1fea7a3cd6c7c0a3620a016d9faf4beb49a8432dde61e20dfd9a8f9327",
+    "releaseProfiles": "54168285a41b5eaf2a17ec19783fef4e959680bb4ca5cb8a70458049df18d0c5"
+  }
+}

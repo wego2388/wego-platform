@@ -140,7 +140,9 @@ class JooqTourRepository(
             nameEn = record.nameEn,
             tourType = record.tourType?.let { runCatching { TourType.valueOf(it) }.getOrDefault(TourType.TOUR) } ?: TourType.TOUR,
             imageUrl = record.imageUrl,
-            cancellationPolicy = record.cancellationPolicy?.let { runCatching { CancellationPolicy.valueOf(it) }.getOrDefault(CancellationPolicy.STANDARD) } ?: CancellationPolicy.STANDARD,
+            cancellationPolicy =
+                record.cancellationPolicy?.let { runCatching { CancellationPolicy.valueOf(it) }.getOrDefault(CancellationPolicy.STANDARD) }
+                    ?: CancellationPolicy.STANDARD,
             pricingNote = record.pricingNote,
         )
 

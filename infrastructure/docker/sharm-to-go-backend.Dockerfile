@@ -1,6 +1,7 @@
 # Sharm To Go's own backend (:platform:apps:sharm-to-go) — a separate
 # application from the multi-product :platform:application (WEGO-010-A
-# Packet 0R). Same digest pins as backend.Dockerfile.
+# Packet 0R). The pinned Gradle image already contains the exact approved
+# launcher, so the container build must not download the wrapper distribution.
 FROM public.ecr.aws/docker/library/gradle:9.5.0-jdk25@sha256:03305b464e024b29cfaad1c4a41fed61d06d15453176d2180f65bd4358b789a6 AS build
 
 WORKDIR /workspace
@@ -8,7 +9,7 @@ RUN chown gradle:gradle /workspace
 COPY --chown=gradle:gradle . .
 USER gradle
 RUN --mount=type=cache,target=/home/gradle/.gradle,uid=1000,gid=1000 \
-    ./gradlew --no-daemon :platform:apps:sharm-to-go:bootJar
+    gradle --no-daemon :platform:apps:sharm-to-go:bootJar
 
 FROM public.ecr.aws/docker/library/eclipse-temurin:25-jre-alpine@sha256:28db6fdf60e38945e43d840c0333aeaec66c15943070104f7586fd3c9d1665b0 AS runtime
 

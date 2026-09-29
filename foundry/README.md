@@ -1,25 +1,34 @@
-# Wego Foundry foundation
+# Wego Foundry executable releases
 
-Foundry is currently a multi-product, multi-client validation boundary, not a
-product generator. It discovers every direct child of `products/` and
-`clients/`, requires the corresponding manifest (and a release lock for each
-client), resolves each client to exactly its declared product/version, and
-validates the physical module/capability graph. Manifests are declarative and
-reject unknown properties. They must never carry secrets, SQL, executable
-hooks, or arbitrary class names.
+Foundry is the repository-owned composition boundary for Wego client releases.
+It discovers product and client manifests, resolves their module graph, and
+generates two deterministic files for every client:
+
+- `release.lock.json`: the exact platform/product module set.
+- `release.plan.json`: the exact backend Gradle project, migration versions,
+  site, staff app, Dockerfiles, API ownership, Compose bundle, and allowed data
+  prefixes for that lock.
+
+The trusted executable mappings live in
+`catalog/release-profiles.json`. Client manifests remain small declarative
+business inputs: they cannot contain secrets, SQL, hooks, shell commands, or
+arbitrary class names.
 
 From this directory:
 
 ```bash
 pnpm install --frozen-lockfile
+pnpm run generate:release
+pnpm run generate:release
+git diff --exit-code -- ../clients/*/release.lock.json ../clients/*/release.plan.json
 pnpm run validate
-pnpm run generate:lock
-pnpm run generate:lock
-git diff --exit-code -- ../clients/*/release.lock.json
 ```
 
-`generate:lock` regenerates every discovered client lock, hashes canonical JSON
-content, sorts resolved modules, and adds no timestamp or machine-specific
-path. Running it twice must be a no-op. A manifest or catalog change must update
-all affected locks in the same change. Schema evolution requires a new schema
-version; released v1 files are not changed incompatibly.
+Generation uses canonical JSON hashes and adds no timestamp or machine path.
+Running it twice must be a no-op. Validation also proves that every declared
+module is physically compiled by the selected backend, no undeclared product
+source root is compiled, web package names and Compose services match, and all
+referenced repository artifacts exist.
+
+Foundry creates a release plan; it does not deploy it. A plan never grants
+permission to push, deploy, change DNS, or use production credentials.

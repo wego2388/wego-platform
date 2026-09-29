@@ -12,6 +12,36 @@ group = "com.wego"
 version = rootProject.version
 
 val generatedJooqDirectory = layout.buildDirectory.dir("generated-src/jooq/main")
+val generatedJooqMigrations = layout.buildDirectory.dir("generated-migrations/jooq")
+val diversReleaseMigrations =
+    listOf(
+        "V1__platform_foundation.sql",
+        "V2__identity_foundation.sql",
+        "V3__divers_booking_foundation.sql",
+        "V4__divers_diver_profiles.sql",
+        "V5__divers_equipment_tracking.sql",
+        "V6__divers_boat_charter.sql",
+        "V7__divers_course_enrollment.sql",
+        "V8__divers_course_enrollment_uniqueness.sql",
+        "V9__identity_administration.sql",
+        "V10__hr_foundation.sql",
+        "V11__hr_attendance_leave.sql",
+        "V12__accounting_foundation.sql",
+        "V13__payroll_foundation.sql",
+    )
+val nonDiversMigrationResources =
+    listOf(
+        "db/migration/V14__tours_operator_foundation.sql",
+        "db/migration/V15__travel_marketplace_catalog.sql",
+        "db/migration/V16__tours_operator_catalog_content.sql",
+        "db/migration/data/V17__tours_operator_catalog_seed.sql",
+        "db/migration/V18__tours_operator_payment.sql",
+        "db/migration/V19__tours_operator_payment_hardening.sql",
+    )
+val stageDiversJooqMigrations by tasks.registering(Sync::class) {
+    into(generatedJooqMigrations)
+    from(diversReleaseMigrations.map { file("src/main/resources/db/migration/$it") })
+}
 
 java {
     toolchain {
@@ -19,6 +49,7 @@ java {
     }
     sourceSets.named("main") {
         java.srcDir(generatedJooqDirectory)
+        resources.exclude(nonDiversMigrationResources)
     }
 }
 
@@ -46,9 +77,10 @@ kotlin {
             "../../products/hr/src/main/kotlin",
             "../../products/accounting/src/main/kotlin",
             "../../products/payroll/src/main/kotlin",
-            "../../products/travel-marketplace/src/main/kotlin",
-            "../../products/tours-operator/src/main/kotlin",
         )
+    }
+    sourceSets.named("test") {
+        kotlin.exclude("com/wego/toursoperator/**")
     }
 }
 
@@ -105,7 +137,12 @@ jooq {
                         key = "scripts"
                         // DML-only seed files live in db/migration/data/ and are intentionally
                         // excluded from jOOQ codegen — H2/DDLDatabase cannot parse ON CONFLICT.
-                        value = file("src/main/resources/db/migration/*.sql").absolutePath
+                        value =
+                            generatedJooqMigrations
+                                .get()
+                                .asFile
+                                .resolve("*.sql")
+                                .absolutePath
                     }
                     property {
                         key = "sort"
@@ -138,6 +175,7 @@ jooq {
 // module, so this marks the top-level generated package OPEN on each
 // generation instead of hand-maintaining a file that would be wiped.
 tasks.named("jooqCodegen") {
+    dependsOn(stageDiversJooqMigrations)
     val packageInfoFile = generatedJooqDirectory.get().file("com/wego/generated/package-info.java").asFile
     doLast {
         packageInfoFile.parentFile.mkdirs()

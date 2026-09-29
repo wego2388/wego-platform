@@ -29,10 +29,71 @@ class DiversMigrationIntegrationTest(
     @Autowired private val flyway: Flyway,
 ) {
     @Test
+    fun `release artifact contains Divers operations but no Safari or Sharm To Go product`() {
+        assertThatThrownBy { Class.forName("com.wego.toursoperator.api.TourController") }
+            .isInstanceOf(ClassNotFoundException::class.java)
+        assertThatThrownBy { Class.forName("com.wego.travelmarketplace.api.PublicCatalogController") }
+            .isInstanceOf(ClassNotFoundException::class.java)
+
+        postgres.createConnection("").use { connection ->
+            val tableNames =
+                connection.metaData.getTables(null, "wego", "%", arrayOf("TABLE")).use { rs ->
+                    generateSequence {
+                        if (rs.next()) rs.getString("TABLE_NAME") else null
+                    }.toList()
+                }
+
+            assertThat(tableNames)
+                .anyMatch { it.startsWith("divers_") }
+                .noneMatch { it.startsWith("tours_operator_") }
+                .noneMatch { it.startsWith("travel_") }
+
+            val permissionCodes =
+                connection.createStatement().executeQuery("SELECT code FROM wego.identity_permission ORDER BY code").use { rs ->
+                    generateSequence { if (rs.next()) rs.getString("code") else null }.toList()
+                }
+            assertThat(permissionCodes).containsExactly(
+                "accounting:coa-manage",
+                "accounting:coa-view",
+                "accounting:journal-manage",
+                "accounting:journal-view",
+                "boat-charter:manage",
+                "boat-charter:view",
+                "booking:cancel",
+                "booking:create",
+                "booking:payment-update",
+                "booking:refund",
+                "booking:view",
+                "course:manage",
+                "course:view",
+                "diver:manage",
+                "diver:view",
+                "equipment:manage",
+                "equipment:view",
+                "hr:attendance-manage",
+                "hr:attendance-view",
+                "hr:employee-manage",
+                "hr:employee-view",
+                "hr:leave-manage",
+                "hr:leave-view",
+                "identity:administer",
+                "identity:role-manage",
+                "identity:role-view",
+                "identity:user-manage",
+                "identity:user-view",
+                "offering:manage",
+                "offering:view",
+                "payroll:manage",
+                "payroll:view",
+            )
+        }
+    }
+
+    @Test
     fun `boot auto migrates the divers schema and generated jooq types honor its constraints`() {
         assertThat(
             flyway.info().applied().map { it.version.toString() },
-        ).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19")
+        ).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13")
 
         postgres.createConnection("").use { connection ->
             val dsl = DSL.using(connection, SQLDialect.POSTGRES)

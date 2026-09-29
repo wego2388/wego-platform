@@ -25,6 +25,7 @@ data class UpdateTourCommand(
 
 sealed interface UpdateTourResult {
     data object Success : UpdateTourResult
+
     data object NotFound : UpdateTourResult
 }
 

@@ -28,6 +28,11 @@ async function main() {
     );
     process.exit(1);
   }
+  const product = process.env.WEGO_E2E_PRODUCT;
+  if (!new Set(["divers", "safari"]).has(product)) {
+    console.error("Refusing to seed: WEGO_E2E_PRODUCT must be exactly 'divers' or 'safari'.");
+    process.exit(1);
+  }
 
   const client = new pg.Client({
     host: "127.0.0.1",
@@ -78,19 +83,21 @@ async function main() {
     // dropdown only lists ACTIVE offerings, and padding rows must not
     // crowd out the real "E2E Lifecycle Trip" the test creates and later
     // books against.
-    const { rows: countRows } = await client.query(`SELECT count(*)::int AS count FROM wego.divers_offering`);
-    if (countRows[0].count < 50) {
-      for (let i = 0; i < 50; i += 1) {
-        await client.query(
-          `INSERT INTO wego.divers_offering
-             (id, offering_type, title, starts_on, pricing_basis, unit_price, currency_code, status, created_by_user_id, created_at, closed_at)
-           VALUES ($1, 'DIVE_TRIP', $2, $3, 'PER_PARTICIPANT', 10.00, 'EUR', 'CLOSED', $4, now(), now())`,
-          [randomUUID(), `E2E Pagination Padding ${i}`, `2020-01-${String((i % 28) + 1).padStart(2, "0")}`, resolvedUserId],
-        );
+    if (product === "divers") {
+      const { rows: countRows } = await client.query(`SELECT count(*)::int AS count FROM wego.divers_offering`);
+      if (countRows[0].count < 50) {
+        for (let i = 0; i < 50; i += 1) {
+          await client.query(
+            `INSERT INTO wego.divers_offering
+               (id, offering_type, title, starts_on, pricing_basis, unit_price, currency_code, status, created_by_user_id, created_at, closed_at)
+             VALUES ($1, 'DIVE_TRIP', $2, $3, 'PER_PARTICIPANT', 10.00, 'EUR', 'CLOSED', $4, now(), now())`,
+            [randomUUID(), `E2E Pagination Padding ${i}`, `2020-01-${String((i % 28) + 1).padStart(2, "0")}`, resolvedUserId],
+          );
+        }
+        console.log("Seeded 50 padding offerings for the pagination step.");
+      } else {
+        console.log("Padding offerings already present; skipped.");
       }
-      console.log("Seeded 50 padding offerings for the pagination step.");
-    } else {
-      console.log("Padding offerings already present; skipped.");
     }
 
     // ── tours-operator seed ───────────────────────────────────────────────────
@@ -98,42 +105,44 @@ async function main() {
     // The ERP frontend uses these for the tours/slots pages smoke test.
     // Idempotent: ON CONFLICT DO NOTHING on both inserts.
 
-    const tourId = randomUUID();
-    const slotId = randomUUID();
+    if (product === "safari") {
+      const tourId = randomUUID();
+      const slotId = randomUUID();
 
     // Compute next Monday (or today if Monday) as the slot date so the
     // slot is always in the future during a test run.
-    const today = new Date();
-    const daysUntilMonday = (1 - today.getUTCDay() + 7) % 7 || 7;
-    const nextMonday = new Date(today);
-    nextMonday.setUTCDate(today.getUTCDate() + daysUntilMonday);
-    const slotDate = nextMonday.toISOString().slice(0, 10);
+      const today = new Date();
+      const daysUntilMonday = (1 - today.getUTCDay() + 7) % 7 || 7;
+      const nextMonday = new Date(today);
+      nextMonday.setUTCDate(today.getUTCDate() + daysUntilMonday);
+      const slotDate = nextMonday.toISOString().slice(0, 10);
 
-    await client.query(
-      `INSERT INTO wego.tours_operator_tour
+      await client.query(
+        `INSERT INTO wego.tours_operator_tour
          (id, slug, category, duration_text, price_adult_cents, price_child_cents,
           capacity, available_time_slots, sort_order, is_active, created_by_user_id, created_at)
        VALUES ($1, 'e2e-desert-quad-safari', 'DESERT', '4 hours', 3500, 1750,
                10, 'MORNING', 1, true, $2, now())
        ON CONFLICT (slug) DO NOTHING`,
-      [tourId, resolvedUserId],
-    );
+        [tourId, resolvedUserId],
+      );
 
     // Resolve the actual tour id (may already exist from a previous seed run).
-    const { rows: tourRows } = await client.query(
-      `SELECT id FROM wego.tours_operator_tour WHERE slug = 'e2e-desert-quad-safari'`,
-    );
-    const resolvedTourId = tourRows[0].id;
+      const { rows: tourRows } = await client.query(
+        `SELECT id FROM wego.tours_operator_tour WHERE slug = 'e2e-desert-quad-safari'`,
+      );
+      const resolvedTourId = tourRows[0].id;
 
-    await client.query(
-      `INSERT INTO wego.tours_operator_tour_slot
+      await client.query(
+        `INSERT INTO wego.tours_operator_tour_slot
          (id, tour_id, date, time_slot, capacity, booked_count, is_blocked, created_at)
        VALUES ($1, $2, $3, 'MORNING', 10, 0, false, now())
        ON CONFLICT (tour_id, date, time_slot) DO NOTHING`,
-      [slotId, resolvedTourId, slotDate],
-    );
+        [slotId, resolvedTourId, slotDate],
+      );
 
-    console.log(`Seeded tours-operator tour (slug=e2e-desert-quad-safari, slot=${slotDate} MORNING).`);
+      console.log(`Seeded tours-operator tour (slug=e2e-desert-quad-safari, slot=${slotDate} MORNING).`);
+    }
   } finally {
     await client.end();
   }

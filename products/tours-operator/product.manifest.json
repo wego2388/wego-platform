@@ -8,12 +8,14 @@
     "platform.events",
     "platform.identity",
     "platform.security",
+    "platform.transaction",
     "product.tours-operator"
   ],
   "requiredCapabilities": [
     "platform.authorization",
     "platform.identity-authentication",
     "platform.integration-events",
+    "platform.transaction-boundary",
     "tours-operator.product-boundary"
   ]
 }

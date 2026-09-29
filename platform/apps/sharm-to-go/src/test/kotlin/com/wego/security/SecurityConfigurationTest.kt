@@ -55,4 +55,10 @@ class SecurityConfigurationTest(
                 status { isUnauthorized() }
             }
     }
+
+    @Test
+    fun `other client API prefixes are not exposed by the Sharm To Go release`() {
+        listOf("/api/v1/tours-operator/tours", "/api/v1/divers/offerings", "/api/v1/hr/employees")
+            .forEach { path -> mockMvc.get(path).andExpect { status { isUnauthorized() } } }
+    }
 }

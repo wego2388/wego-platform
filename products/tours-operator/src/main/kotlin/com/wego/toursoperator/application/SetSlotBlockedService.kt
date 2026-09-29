@@ -5,7 +5,9 @@ import com.wego.toursoperator.domain.TourSlotId
 
 sealed interface SetSlotBlockedResult {
     data object Success : SetSlotBlockedResult
+
     data object NotFound : SetSlotBlockedResult
+
     /** The slot exists but belongs to a different tour than the path's tourId. */
     data object WrongTour : SetSlotBlockedResult
 }

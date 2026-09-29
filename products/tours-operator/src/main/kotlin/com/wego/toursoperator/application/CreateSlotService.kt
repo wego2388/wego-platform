@@ -17,7 +17,9 @@ data class CreateSlotCommand(
 )
 
 sealed interface CreateSlotResult {
-    data class Success(val slot: TourSlot) : CreateSlotResult
+    data class Success(
+        val slot: TourSlot,
+    ) : CreateSlotResult
 
     /** The tour referenced by tourId does not exist. */
     data object TourNotFound : CreateSlotResult

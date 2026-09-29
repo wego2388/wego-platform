@@ -22,6 +22,7 @@ rootProject.name = "wego-platform"
 
 include(":platform:application")
 include(":platform:apps:sharm-to-go")
+include(":platform:apps:safari-tours-sharm")
 include(":mobile:shared")
 include(":mobile:apps:ops")
 include(":mobile:apps:customer")
@@ -31,3 +32,4 @@ include(":mobile:apps:sharm-to-go-android")
 
 project(":platform:application").projectDir = file("platform/application")
 project(":platform:apps:sharm-to-go").projectDir = file("platform/apps/sharm-to-go")
+project(":platform:apps:safari-tours-sharm").projectDir = file("platform/apps/safari-tours-sharm")

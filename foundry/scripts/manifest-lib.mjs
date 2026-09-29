@@ -11,6 +11,7 @@ export const paths = Object.freeze({
   clientsDirectory: path.join(repositoryRoot, "clients"),
   moduleCatalog: path.join(repositoryRoot, "foundry/catalog/modules.json"),
   productsDirectory: path.join(repositoryRoot, "products"),
+  releaseProfiles: path.join(repositoryRoot, "foundry/catalog/release-profiles.json"),
 });
 
 export async function readJson(filePath) {
@@ -62,25 +63,34 @@ export async function discoverCompositionFiles() {
   ]);
 
   return {
-    clients: clientDirectories.map((entry) => ({ ...entry, lockPath: path.join(entry.directory, "release.lock.json") })),
+    clients: clientDirectories.map((entry) => ({
+      ...entry,
+      lockPath: path.join(entry.directory, "release.lock.json"),
+      planPath: path.join(entry.directory, "release.plan.json"),
+    })),
     products: productDirectories,
   };
 }
 
 export async function loadFoundryInputs() {
-  const [files, moduleCatalog] = await Promise.all([discoverCompositionFiles(), readJson(paths.moduleCatalog)]);
+  const [files, moduleCatalog, releaseProfiles] = await Promise.all([
+    discoverCompositionFiles(),
+    readJson(paths.moduleCatalog),
+    readJson(paths.releaseProfiles),
+  ]);
   const [clients, products] = await Promise.all([
     Promise.all(
       files.clients.map(async (file) => ({
         ...file,
         manifest: await readJson(file.manifestPath),
         releaseLock: await readJson(file.lockPath),
+        releasePlan: await readJson(file.planPath),
       })),
     ),
     Promise.all(files.products.map(async (file) => ({ ...file, manifest: await readJson(file.manifestPath) }))),
   ]);
 
-  return { clients, products, moduleCatalog };
+  return { clients, products, moduleCatalog, releaseProfiles };
 }
 
 export function indexUnique(items, keyOf, label) {
@@ -136,6 +146,28 @@ export function buildReleaseLock({ client, product, moduleCatalog }) {
       client: sha256(client),
       product: sha256(product),
       moduleCatalog: sha256(moduleCatalog),
+    },
+  };
+}
+
+export function buildReleasePlan({ client, releaseLock, releaseProfileCatalog, profile }) {
+  return {
+    schemaVersion: 1,
+    clientId: client.clientId,
+    product: { ...releaseLock.product },
+    deploymentIsolation: client.deploymentIsolation,
+    modules: releaseLock.modules.map((module) => module.id),
+    artifacts: {
+      backend: profile.backend,
+      publicSite: profile.publicSite,
+      staffApp: profile.staffApp,
+      apiContract: profile.apiContract,
+      compose: profile.compose,
+    },
+    dataIsolation: profile.dataIsolation,
+    digests: {
+      releaseLock: sha256(releaseLock),
+      releaseProfiles: sha256(releaseProfileCatalog),
     },
   };
 }
