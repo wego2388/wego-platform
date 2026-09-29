@@ -22,7 +22,8 @@ Rule: exactly one implementation packet may be `ACTIVE` in a worktree. Parent mi
 | WEGO-013 | Platform hardening: fix CI's first real run against `main`, mobile CI build coverage, client onboarding runbook | COMPLETE |
 | WEGO-014 | ERP professional UX/UI redesign: navigation shell, component library, dark mode, motion, responsive pass across all 17 routes | COMPLETE |
 | WEGO-015 | Sharm Divers Club customer-facing redesign: public website (`sharm-divers-club-site`) + mobile customer app (`mobile/apps/customer`) | COMPLETE |
-| WEGO-016 | Safari Tours Sharm: tours-operator product foundation — public booking site, staff ERP, Paymob payment flow, production catalog, and isolated deployment | IN PROGRESS — C+D committed `0029492`; E next |
+| WEGO-016 | Safari Tours Sharm: tours-operator product foundation — public booking site, staff ERP, Paymob payment flow, production catalog, and isolated deployment | NOT AUTHORIZED — paused after E for WEGO-017 |
+| WEGO-017 | Foundry executable client releases: artifact, data, deployment, and CI isolation for Safari Tours Sharm, Sharm To Go, and Sharm Divers Club | IN PROGRESS |
 
 ## Automation and growth roadmap guardrails
 
@@ -2379,7 +2380,7 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
 
 ## WEGO-016 — Safari Tours Sharm: tours-operator product foundation
 
-- **Status:** IN PROGRESS
+- **Status:** PAUSED — E complete locally; WEGO-017-A is the sole active packet
 - **Activated:** 2026-09-27
 - **Review intensity:** Tier 1 — this packet adds a new product boundary (`products/tours-operator`), a new Flyway migration (V14), a new client isolation profile (`clients/safari-tours-sharm`), and will later touch payment/PII/auth surfaces. Every sub-packet that adds a migration, modifies auth, or handles customer payment data requires independent Tier 1 review before merge.
 - **Origin:** The owner asked to establish Safari Tours Sharm as a first-class Wego Platform product — on the same standards as Sharm Divers Club and Sharm To Go — with a public booking website, a staff ERP, a real Paymob payment flow, a production tour catalog, and an isolated deployment. The handoff document at `clients/safari-tours-sharm/handoff/SAFARI_TOURS_PRODUCTION_MATURITY_HANDOFF.md` is the authoritative reference for current maturity, open P0 issues, and the phased delivery plan.
@@ -2651,45 +2652,173 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   - HMAC signature field `created_at` and `integration_id` are empty strings in `buildSignatureFields` — must be populated from the real webhook payload before production use (fixed in WEGO-016-D critical fixes commit `41b4bfa`).
   - No Playwright E2E covering the full checkout → webhook → confirmation path yet (deferred to WEGO-016-E) — **resolved in WEGO-016-E commit `5174f25`**.
 
-- **NEXT SUB-PACKET:** WEGO-016-E — Public website checkout completion + Playwright E2E (NOT STARTED; requires Tier 1 review of C+D and owner authorization).
+- **NEXT SUB-PACKET:** WEGO-016-E is ACTIVE below. Its implementation commit
+  exists, but live Compose E2E and independent Tier 1 closure are still pending.
 
 ---
 
 ### 2026-09-28 — WEGO-016-E: Playwright E2E checkout flow (mock Paymob)
 
-- **Status:** COMPLETE LOCALLY
-- **Status note:** Implementation complete, all gates green. Commit `5174f25` on branch `wego-016-safari-tours-baseline`. No push, no deploy yet — push requires explicit owner authorization after Tier 1 review.
+- **Status:** COMPLETE
+- **Status note:** Implementation plus the 2026-09-29 hardening is locally
+  proven against a fresh disposable Compose stack (**13/13 Playwright**).
+  Independent Tier 1 final review returned **READY — ZERO BLOCKING findings**.
+  The owner accepted the checkpoint and explicitly authorized the local commit
+  and continuation on 2026-09-29. Implementation commit: `8a5e643`. No push or
+  deploy occurred; both still require separate explicit authorization.
 - **Review intensity:** Tier 1 — payment flow, PII (customer data in booking), browser E2E.
 - **Objective:** Prove the full checkout flow (booking → pay → webhook → confirm) end-to-end in a real browser against the composed stack, without real Paymob credentials.
 
 - **What was implemented:**
-  - `MockPaymobClient` (`infrastructure/MockPaymobClient.kt`): accepts `"valid-hmac"` as the only valid HMAC, returns deterministic `MOCK-ORDER-{n}` order IDs (atomic counter), `buildCheckoutUrl` uses `MOCKINTEG_` prefix so the E2E spec can parse the orderId via `split("_").slice(1).join("_")`. Always succeeds on refund.
+  - `MockPaymobClient` (`infrastructure/MockPaymobClient.kt`): accepts `"valid-hmac"` as the only valid HMAC, uses collision-safe UUID order IDs, and returns a mock Unified Checkout URL whose client secret carries the order identity for E2E only. Always succeeds on refund.
   - `@ConditionalOnProperty("tours-operator.paymob.mock-enabled")` on both `paymobClient` (real, default) and `mockPaymobClient` (mock, when property is `true`) beans in `ToursOperatorBeanConfiguration`. Never activates in production unless `TOURS_OPERATOR_PAYMOB_MOCK_ENABLED=true` is set.
   - `application.yml`: added `tours-operator.paymob.mock-enabled: ${TOURS_OPERATOR_PAYMOB_MOCK_ENABLED:false}`.
-  - `compose.yaml`: added `TOURS_OPERATOR_PAYMOB_MOCK_ENABLED: "true"` to `backend` environment (E2E/local dev only).
+  - Base `compose.yaml` does not enable the mock. Only the explicit
+    `e2e/compose.safari-checkout.yaml` override sets
+    `TOURS_OPERATOR_PAYMOB_MOCK_ENABLED=true`.
   - `safari-site.Dockerfile`: builds `@wego/safari-tours-sharm-site` on port 3001, same Node 24 pinned base image as `web.Dockerfile`, non-root uid 10001.
   - `compose.yaml`: added `safari-site` service with healthcheck on `/tours`; `edge` depends_on updated to include `safari-site`.
   - `nginx.conf`: added `wego_safari_site` upstream + `location ~ ^/(tours|tour|category|booking|my-booking|contact|privacy|terms)` routing to `safari-site:3001`, placed before the ERP catch-all `location /`.
-  - `e2e/tests/safari-checkout.spec.ts` (9 tests E1–E9): booking creation → NEW status; payment initiation → PENDING + checkoutUrl with `payment_token`; idempotent second pay call → 200; valid webhook confirms booking → CONFIRMED + PAID; duplicate webhook → `already_processed`; invalid HMAC → 400 `invalid_signature`; payment-status endpoint → PAID after webhook; `/booking/confirmation` page renders the reference; ERP `/bookings` page shows CONFIRMED status.
+  - `e2e/tests/safari-checkout.spec.ts` (12 tests E0–E10, including E2b):
+    public/staff host separation; booking creation → NEW; payment initiation →
+    PENDING; idempotent second pay; valid/duplicate/bad-HMAC callbacks;
+    PAID/CONFIRMED truth; session-only confirmation; ERP visibility/logout
+    token revocation; and a real browser Guest Checkout through the form to a
+    backend-confirmed confirmation.
 
 - **Evidence:**
   - `./gradlew :platform:application:test --rerun-tasks` — **BUILD SUCCESSFUL**, all tests passing (backend).
   - `pnpm run check` in `web/` — contract check, lint, typecheck, **391 Vitest tests**, 6 production builds — all green, EXIT: 0.
   - Commit `5174f25` is clean: `git diff --check` passes, `git status --short` shows only the 7 intended files.
 
+- **2026-09-29 live remediation and evidence (Codex implementer; not an
+  independent review):**
+  - Proved V17 migration discovery separately: runtime Flyway reads root plus
+    `db/migration/data`, while jOOQ's migration glob reads root DDL only;
+    `jooqCodegen` and the real PostgreSQL migration integration test passed.
+  - Added a Safari ERP Dockerfile and Compose override. Fixed its login to use
+    `/identity/login` then authenticated `/identity/me`, and proved the Safari
+    bookings screen rather than the generic platform ERP.
+  - Isolated public Nuxt assets under `/_safari/`; fixed the edge so `/` belongs
+    to the public site, `/favicon.svg` reaches that site, and `/login`/staff
+    paths remain ERP-owned. Fixed the pre-scroll header contrast.
+  - Hardened booking recovery: `POST /bookings/lookup` with validated JSON body
+    instead of reference/phone in a GET query string; regenerated OpenAPI web
+    types; added a per-IP Nginx limiter. A live burst produced 6 backend 400s
+    then 14 JSON 429s with `Retry-After: 6`.
+  - Sanitized the edge access log to method + normalized `$uri` without args.
+    The final Compose log scan found no E2E HMAC, phone, email, payment token,
+    or raw webhook body; callback and lookup log lines contain paths only.
+  - Removed unverified public claims (ratings/counts/24×7/history/universal
+    pickup/payment methods/security wording) and made the approved cancellation
+    tiers consistent across EN/AR/RU/IT. Added regression tests against fake
+    testimonials, scarcity, ratings and policy drift.
+  - Final disposable project `wego-safari-e2e-codex-final` on edge port 58082:
+    health `UP`; seed succeeded; **11/11 Chromium tests passed** — E0 public
+    root/assets plus E1–E9 booking, idempotent payment, valid/duplicate/bad-HMAC
+    webhook, PAID/CONFIRMED truth, confirmation page and ERP visibility.
+  - Unified gate components passed: full backend `BUILD SUCCESSFUL`; generated
+    contract drift check, lint, all typechecks, **444 web tests**
+    (6 + 88 + 38 + 134 + 24 + 37 + 52 + 11 + 54), all six Nuxt builds,
+    Foundry manifests/OpenAPI/YAML. The first unified invocation reached the
+    final repository check and correctly rejected temporary runtime artifacts;
+    those were moved out of the repo, after which `repository-check.sh` and
+    `git diff --check` passed.
+  - Original Safari site and ERP Dockerfiles built successfully. One original
+    backend image build was blocked by external DNS resolution for
+    `plugins.gradle.org`; the fresh local bootJar built successfully and ran in
+    the final Compose image, so this is recorded as environment evidence, not
+    disguised as an original Dockerfile success.
+
+- **2026-09-29 Tier-1 Round-1 hardening and frozen evidence:**
+  - Independent reviewer reported 19 blocking findings covering the altered
+    V17 checksum, canonical HMAC fields and merchant identity, pending/late/
+    refund state handling, expiry/confirmation lock order, concurrent payment
+    initiation, mock ID collisions, manual staff confirmation, real Paymob
+    checkout, mock isolation, host separation, logout revocation, public PII,
+    browser checkout coverage, edge logs, and raw callback retention.
+  - Remediation added V19 payment constraints/indexes/audit-column hardening;
+    Paymob Intention + Unified Checkout adapter; amount/currency/integration/
+    owner checks; REVIEW_REQUIRED late-success handling; lock-safe initiation
+    and expiry; removal of manual confirmation; minimized public lookup;
+    server-side logout proof; public/staff virtual hosts; and redacted audit.
+  - Clean project `wego-safari-e2e-codex-hardened` on `127.0.0.1:58083`:
+    original Dockerfiles built; health `UP`; public `/` 200; staff `/login`
+    200; public `/login` 404; **12/12 Chromium passed**.
+  - Full backend **387 tests** passed. Safari site lint/typecheck/11 tests/build
+    and ERP lint/typecheck/54 tests/build passed. Contract drift, rate-limit,
+    sensitive-log scan, and callback-path signal passed.
+  - Status remains `ACTIVE`: snapshot re-review verdict is still required.
+
+- **2026-09-29 Tier-1 re-review blockers remediated and independently approved:**
+  - The independent re-review found six further blockers: V19 could not upgrade
+    pre-existing duplicate provider references; payment initiation lacked a
+    crash-stable provider identity; retry erased the identity needed for late
+    events; confirmation trusted browser state; staff host bypassed public
+    lookup isolation; and CI still expected public `/login` to return 200.
+  - V19 now assigns a stable `provider_reference`, quarantines every ambiguous
+    duplicate V18 order/transaction reference before unique indexes are
+    created, and adds `RECONCILIATION_REQUIRED`. A Testcontainers V18-to-V19
+    upgrade test proves the duplicate-data path and the post-upgrade indexes.
+  - Payment initiation is now three phased: persist the locked payment and its
+    stable provider reference, call Paymob outside the DB transaction, then
+    attach checkout state under a second lock. Ambiguous provider outcomes are
+    not retried into a second payable attempt; old provider identities are not
+    erased; late callbacks stay attributable and reconcilable.
+  - Confirmation now queries authoritative payment status and only renders a
+    paid/confirmed state for backend `PAID`. E8b creates a real unpaid `NEW`
+    booking, writes it to mutable Session Storage, and proves the page refuses
+    false confirmation. The status contract now returns authoritative amount
+    and currency rather than displaying mutable browser totals.
+  - Staff exact `/bookings/lookup` is an edge 404, while the public endpoint
+    retains its limiter. CI now asserts public `/login` 404, staff `/login`
+    200, and staff lookup 404. Logout retains local bearer state on a network
+    or non-success response, and malformed webhook logging is fixed text.
+  - Unified Safari gate passed: backend **390 tests**, web contract/lint/all
+    typechecks, **446 Vitest tests**, six production builds, Foundry/OpenAPI/
+    YAML/repository guards, and `git diff --check` all green.
+  - Fresh Compose project `wego-safari-e2e-final` applied V19 successfully and
+    kept PostgreSQL, Redis, backend, public site, Safari ERP, and edge healthy.
+    Chromium checkout passed **13/13**: guest booking without login, stable
+    payment resumption, signed/duplicate/invalid callbacks, authoritative
+    PAID/CONFIRMED truth, forged-browser-state rejection, ERP visibility,
+    logout revocation, and full browser checkout. Runtime logs contained zero
+    error-like lines and zero matches for the synthetic customer credentials/
+    PII scan.
+  - Final independent verdict: **READY — ZERO BLOCKING findings**. The reviewer
+    independently reran the V18-to-V19 migration plus payment suites (**22/22
+    passed**), verified all six fresh Compose services healthy, re-probed public
+    `/login` 404, staff `/login` 200, staff lookup 404, and confirmed Flyway,
+    V17 checksum/SHA, sensitive-log scan, error-log scan, `git diff --check`,
+    and repository invariants.
+  - Owner accepted and authorized the local commit; implementation was recorded
+    in `8a5e643`. No push, deploy, DNS, or live Paymob action occurred.
+
 - **Risks:**
-  - E2E tests in `safari-checkout.spec.ts` have not been run against a live Compose stack yet — that requires Docker and the full build (backend + two frontend containers). The spec is structurally correct and all API shapes match the backend implementation verified by unit + integration tests. A full Compose E2E run must be part of the Tier 1 review gate.
+  - Tier-1 has zero blockers, but this does not authorize production: real
+    Paymob sandbox checkout/callback/refund/reconciliation are still unproven.
+  - `RECONCILIATION_REQUIRED` and the V19 quarantine preserve evidence, but a
+    staff reconciliation UI/provider-inquiry automation is not implemented.
+  - Missing real Paymob credentials still resolve to placeholder configuration
+    rather than failing application startup; production remains an explicit
+    NO-GO until deployment configuration and sandbox gates enforce this.
   - `MockPaymobClient` is guarded by `@ConditionalOnProperty` — it cannot activate unless `TOURS_OPERATOR_PAYMOB_MOCK_ENABLED=true` is explicitly set. The `compose.yaml` sets this only for the local/CI stack; production deployments must never set this variable.
   - `safari-site.Dockerfile` and the nginx routing for safari-site are new infrastructure not previously reviewed. CSP for safari-site uses `'unsafe-inline'` for `style-src` (same as the existing `web` CSP rationale for Nuxt/Tailwind inline styles).
 
-- **NEXT SUB-PACKET:** WEGO-016-F — ERP operations completion + staff roles + finance ledger (NOT STARTED; requires Tier 1 review of E and owner authorization).
+- **NEXT SUB-PACKET:** the owner chose Foundry-wide client isolation before
+  resuming Safari F. `WEGO-017-A` is ACTIVE below; F remains deferred.
 
 ---
 
 ### 2026-09-28 — WEGO-016-F: ERP finance aggregation + complete booking management
 
-- **Status:** COMPLETE LOCALLY
-- **Status note:** Implementation complete, all gates green. Commit `12259a2` on branch `wego-016-safari-tours-baseline`. No push, no deploy yet.
+- **Status:** IMPLEMENTED LOCALLY — DEFERRED / NOT ACTIVE
+- **Status note:** Commit `12259a2` exists locally, but F was implemented before
+  E's live Compose/Tier 1 gate closed and is not an active/closed packet yet.
+  Its finance view currently derives revenue from CONFIRMED/COMPLETED booking
+  totals rather than the PAID-minus-REFUNDED payment ledger, so it requires
+  correction and Tier 1 review when resumed. The owner prioritized WEGO-017
+  client-release isolation first. No push or deploy yet.
 - **Review intensity:** Tier 1 — PII (booking customer data), permission gating on staff actions.
 - **Objective:** ERP operations — finance page uses real API with a testable composable, booking management pages are complete with correct permission gating.
 
@@ -2708,4 +2837,58 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   - `finance.vue` fetches all bookings without date filtering at the API level (fetches all, filters client-side). This is correct for small-to-medium catalogs but could be slow for large booking histories. A server-side date-range filter on the list endpoint would be the follow-up optimization. Documented, not blocked.
   - Staff roles management UI is out of scope for F per the brief (deferred to G).
 
-- **NEXT SUB-PACKET:** WEGO-016-G — Notifications + transactional outbox (NOT STARTED; requires Tier 1 review of F and owner authorization).
+- **NEXT SUB-PACKET:** none from WEGO-016 while WEGO-017-A is ACTIVE. F must be
+  explicitly resumed, corrected, and reviewed later; G is not authorized.
+
+---
+
+## WEGO-017 — Foundry executable isolated client releases
+
+- **Status:** IN PROGRESS
+- **Activated:** 2026-09-29 by the owner's explicit `كمل` response to the
+  proposed close-E/activate-WEGO-017 transition.
+- **Objective:** Make Wego Foundry produce and prove independently deployable
+  client releases, rather than only validating commercial manifests.
+- **Clients in scope:** Safari Tours Sharm, Sharm To Go, Sharm Divers Club.
+- **Non-goals:** shared SaaS tenancy, shared client databases, live VPS changes,
+  DNS, production credentials, or deployment.
+
+### 2026-09-29 — WEGO-017-A: executable composition and isolation proof
+
+- **Status:** ACTIVE
+- **Review intensity:** Tier 1 — changes the client-isolation boundary,
+  executable composition, migrations, permissions, and deployment artifacts.
+- **Objective:** Bind each client release lock to an exact backend/product,
+  migration set, public site, staff application, and container bundle, then
+  prove the other clients' code and data surfaces are absent.
+- **Verified starting gap:** Foundry currently validates manifests and
+  deterministic locks but explicitly says it is not a product generator.
+  `:platform:apps:sharm-to-go` already has a physically separate application
+  and migration path, while `:platform:application` currently compiles Divers,
+  HR, Accounting, Payroll, Travel Marketplace, and Tours Operator together.
+  Safari and Sharm Divers therefore do not yet have lock-enforced artifact
+  composition even though every client declares `ISOLATED_INSTANCE`.
+- **Scope:**
+  - deterministic release-plan generation from `client.manifest.json`, product
+    manifest, module catalog, and `release.lock.json`;
+  - isolated backend application composition for all three clients;
+  - client-scoped Flyway resources and generated jOOQ model;
+  - client-specific site/ERP/backend Docker and Compose release bundles;
+  - CI isolation matrix and absence tests for classes, routes, permissions,
+    migrations, tables, and cross-client configuration;
+  - operator documentation for one-VPS-per-client secrets, backup, restore,
+    monitoring, upgrade, and rollback boundaries.
+- **Acceptance criteria:**
+  1. All three backend artifacts build from their declared locks.
+  2. Jar/class scans prove unrelated product controllers/classes are absent.
+  3. Each artifact migrates a fresh PostgreSQL database with only its declared
+     platform/product tables and permissions.
+  4. Cross-product public and staff routes are absent at runtime, not merely
+     hidden in navigation.
+  5. Each release bundle selects only the correct site, ERP, backend, database,
+     Redis/configuration and contains no production secret.
+  6. Foundry validation fails on lock/plan/artifact drift and remains
+     deterministic over two consecutive generations.
+  7. Existing product gates stay green; independent Tier 1 review returns zero
+     blocking findings before commit.
+- **Commit / push / deploy:** not yet; no production/external state authorized.

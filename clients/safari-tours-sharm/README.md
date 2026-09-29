@@ -2,17 +2,35 @@
 
 ## Start here
 
+> **لأي حساب ChatGPT جديد:** ابدأ من
+> `clients/safari-tours-sharm/handoff/2026-09-29_NEW-CHATGPT-ACCOUNT_START-HERE.md`
+> واتبع `clients/safari-tours-sharm/handoff/CHATGPT_MULTI_ACCOUNT_WORKFLOW.md`.
+> الحالة الحية: `WEGO-016-E COMPLETE` محليًا في `8a5e643`، لا deploy؛
+> `WEGO-017-A` هو الـpacket النشط لعزل Releases العملاء؛ التفاصيل التاريخية
+> أسفل الملف لا تتقدم على هذا checkpoint أو Execution Board.
+
 هذا الملف يشرح حدود المنتج فقط. حالة التنفيذ الحالية ومهام أي Agent موجودة في:
 
-1. `docs/execution/WEGO_EXECUTION_BOARD.md` — التفويض والـpacket الوحيد `ACTIVE`.
-2. `clients/safari-tours-sharm/handoff/README.md` — نقطة دخول أي Agent.
-3. `clients/safari-tours-sharm/handoff/SAFARI_TOURS_PRODUCTION_MATURITY_HANDOFF.md`
+1. `clients/safari-tours-sharm/OWNER_PROJECT_MAP_AR.md` — خريطة المالك المبسطة.
+2. `docs/execution/WEGO_EXECUTION_BOARD.md` — التفويض والـpacket الوحيد `ACTIVE`.
+3. `clients/safari-tours-sharm/handoff/README.md` — نقطة دخول أي Agent.
+4. `clients/safari-tours-sharm/handoff/SAFARI_TOURS_PRODUCTION_MATURITY_HANDOFF.md`
    — النواقص والمراحل وعلامات `[x]` / `[ ]` / `[!]`.
-4. `clients/safari-tours-sharm/content-research/README.md` — محتوى الموقع
+5. `clients/safari-tours-sharm/handoff/SAFARI_TOURS_MASTER_DELIVERY_AND_GROWTH_PLAN.md`
+   — خطة المنتج والتسويق والتصميم الموحدة.
+6. `clients/safari-tours-sharm/design/DESIGN_UX_FRONTEND_EXCELLENCE_SPEC.md`
+   — مواصفات الواجهة، المقاسات، الحركة والوصول.
+7. `clients/safari-tours-sharm/marketing/CURRENT_STATE_AUDIT_2026-09-29.md`
+   — تدقيق P0/P1/P2 للمحتوى وSEO والتحويل.
+8. `clients/safari-tours-sharm/mobile/ANDROID_EXECUTION_PLAN.md`
+   — خطة تطبيق Android التنفيذية من المعمارية حتى Play Store.
+9. `clients/safari-tours-sharm/content-research/README.md` — محتوى الموقع
    القديم وقواعد المراجعة قبل النقل والنشر.
 
 لا تعتمد على عناوين المراحل التاريخية أدناه لتحديد الجاهزية التجارية. الحالة
-الحالية `NO-GO`، و`WEGO-016-A` هو الـsub-packet الجاري حتى تُغلق بوابات الـbaseline.
+الحالية `NO-GO` للإنتاج. `WEGO-016-E` اكتمل محليًا بعد **13/13** E2E وحكم
+Tier 1 نهائي بصفر موانع. `WEGO-017-A` يعزل artifacts وقواعد البيانات والنشر
+للعملاء الثلاثة؛ تنفيذ F المحلي لا يفتح G تلقائيًا.
 
 ## What this is
 
@@ -85,10 +103,12 @@ Engineering rules:
   docs/architecture/SECURITY_MODEL.md
 ```
 
-## Current status
+## Historical baseline snapshot
 
-> الخلاصة التنفيذية هنا فقط؛ التفاصيل والأدلة في ملف التسليم. وجود UI أو API
-> لا يساوي production-ready.
+> **لا تنفذ من القوائم أدناه.** هي snapshot يشرح ما كان موجودًا عند تأسيس
+> العميل، وبنود كثيرة أُنجزت بعده. الحالة التنفيذية الحالية في ملف البداية
+> المؤرخ 2026-09-29 وExecution Board. وجود UI أو API لا يساوي
+> production-ready.
 
 Foundation: **implemented; baseline gate still open**
 - [x] `product.manifest.json` — `wego-tours-operator` registered

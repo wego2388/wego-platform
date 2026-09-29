@@ -1,10 +1,39 @@
 # Safari Tours Sharm — Production Maturity Handoff
 
 - **نوع الوثيقة:** ملف تسليم تنفيذي للوصول إلى منتج ناضج وقابل للإطلاق
-- **آخر تحقق فعلي:** 2026-09-27 — Africa/Cairo
+- **آخر تحديث:** 2026-09-29 — Africa/Cairo
 - **الحالة:** `NO-GO` للإطلاق التجاري حاليًا
 - **النطاق:** Backend + Public Website + Staff ERP + Payments + Content + Operations
 - **المالك المقترح:** Wego Digital / Safari Tours Sharm
+
+> **تنبيه حالة أحدث — 2026-09-29:** هذه الوثيقة تظل سجل الفجوات وبوابات
+> النضج، لكن بعض checkboxes التفصيلية أدناه أقدم من commits E/F. الحسابات
+> الجديدة تبدأ من
+> `2026-09-29_NEW-CHATGPT-ACCOUNT_START-HERE.md`؛ الحالة الرسمية الآن
+> `WEGO-016-E COMPLETE LOCALLY` في `8a5e643`. Fresh Compose مثبت **13/13**؛
+> Tier 1 النهائي أعاد الأدلة وحكم `READY — ZERO BLOCKING findings`.
+> `WEGO-017-A` هو الـpacket النشط لعزل Releases العملاء. لا تنظف تعديل هذا
+> الملف أو حذف V17 الموجودين في worktree قبل مراجعة checkpoint الجديد.
+
+### Checkpoint مثبت — 2026-09-29
+
+- [x] migration V17 فعالة مرة واحدة، وjOOQ لا ينفذ catalog DML.
+- [x] الموقع العام يعمل على `/` والـERP على `/login` ومسارات الإدارة.
+- [x] Compose disposable + Safari browser flow: **13/13 passed**، ويتضمن
+      Guest Checkout من الواجهة بلا login للعميل.
+- [x] public lookup أصبح POST body مع rate limit وlogs بدون query secrets/PII.
+- [x] fake ratings/counts/scarcity/support/pickup/payment claims أزيلت.
+- [x] full backend: **390 tests**؛ Safari site **11/11** وERP **56/56**؛
+      contract/lint/typecheck/build وDocker images خضراء.
+- [x] Round-1 independent Tier 1 review تم وسجل 19 blocker.
+- [x] remediation + re-review مكتملان بصفر blocking؛ E أُغلق محليًا.
+- [!] real Paymob sandbox، deployment/restore وUAT لم تتم.
+
+الخطة والتدقيق الأحدث:
+
+- `SAFARI_TOURS_MASTER_DELIVERY_AND_GROWTH_PLAN.md`
+- `../marketing/CURRENT_STATE_AUDIT_2026-09-29.md`
+- `../design/DESIGN_UX_FRONTEND_EXCELLENCE_SPEC.md`
 
 > هذه الوثيقة هي مصدر حقيقة حالة Safari Tours ومهام نضجه. أما صلاحية بدء
 > التنفيذ وترتيب الـpackets وحالة `ACTIVE` الرسمية فمصدرها
@@ -52,10 +81,10 @@
 |---:|---|---|---|
 | 0 | Baseline + Governance | `DONE` | 2026-09-27 |
 | 1 | Domain + API Contract | `DONE` | 2026-09-27 |
-| 2 | Catalog + ERP CRUD | `IMPLEMENTATION COMPLETE — TIER 1 REVIEW PENDING` | 2026-09-28 |
-| 3 | Payment + Expiry | `NOT STARTED` | — |
-| 4 | Public Website | `NOT STARTED` | — |
-| 5 | ERP Operations | `NOT STARTED` | — |
+| 2 | Catalog + ERP CRUD | `DONE — TIER 1 REVIEW PENDING PUSH` | 2026-09-28 |
+| 3 | Payment + Expiry | `DONE — TIER 1 REVIEW PENDING PUSH` | 2026-09-28 |
+| 4 | Public Website (checkout) | `CHECKOUT DONE — E2E 13/13, CONTENT/SEO OPEN` | 2026-09-29 |
+| 5 | ERP Operations | `PARTIAL — FINANCE + BOOKINGS COMPLETE, ROLES NOT STARTED` | 2026-09-28 |
 | 6 | Notifications | `NOT STARTED` | — |
 | 7 | Infrastructure + Security | `NOT STARTED` | — |
 | 8 | UAT + Launch | `NOT STARTED` | — |
