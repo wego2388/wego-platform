@@ -29,6 +29,8 @@ const errorMsg = ref("");
 
 const canViewBookings = computed(() => hasPermission(session.value, "tours-operator.booking:view"));
 const canViewTours    = computed(() => hasPermission(session.value, "tours-operator.tour:view"));
+const canViewStaff    = computed(() =>
+  hasPermission(session.value, "identity:user-view") || hasPermission(session.value, "identity:role-view"));
 
 // Today's date (Africa/Cairo = UTC+3, use offset string for display)
 const todayIso = new Date().toLocaleDateString("sv-SE", { timeZone: "Africa/Cairo" });
@@ -182,6 +184,13 @@ onMounted(() => {
         >
           Settings
         </NuxtLink>
+        <NuxtLink
+          v-if="canViewStaff"
+          to="/staff"
+          class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
+        >
+          Staff
+        </NuxtLink>
       </nav>
 
       <WegoAlert v-if="state === 'error'" variant="danger" class="mt-6">{{ errorMsg }}</WegoAlert>
@@ -193,7 +202,7 @@ onMounted(() => {
           <article
             v-for="kpi in [
               { label: 'Today\'s Bookings', value: state === 'loaded' ? String(todayBookings.length) : '…', sub: 'tours today' },
-              { label: 'Today\'s Revenue',  value: state === 'loaded' ? formatMoney(todayRevenue) : '…',   sub: 'confirmed + completed' },
+              { label: 'Today\'s Tour Value', value: state === 'loaded' ? formatMoney(todayRevenue) : '…', sub: 'booked value of today\'s tours — revenue is on Finance' },
               { label: 'Pending Confirm',   value: state === 'loaded' ? String(pendingConfirm) : '…',      sub: 'awaiting payment confirm' },
               { label: 'Upcoming',          value: state === 'loaded' ? String(upcomingCount) : '…',       sub: 'confirmed future bookings' },
             ]"

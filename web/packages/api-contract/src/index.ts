@@ -11,6 +11,8 @@ export type CreateBookingPayload = components["schemas"]["CreateToursOperatorBoo
 export type Booking = components["schemas"]["ToursOperatorBookingResponse"];
 export type PaymentLedgerEntry = components["schemas"]["ToursOperatorPaymentLedgerEntry"];
 export type ToursOperatorPaymentStatus = components["schemas"]["ToursOperatorPaymentStatus"];
+export type BookingHistoryEntry = components["schemas"]["ToursOperatorBookingHistoryEntry"];
+export type PaymentHistoryEntry = components["schemas"]["ToursOperatorPaymentHistoryEntry"];
 
 const DECIMAL_AMOUNT = /^(0|[1-9]\d{0,16})\.\d{2}$/;
 const ISO_CURRENCY_CODE = /^[A-Z]{3}$/;

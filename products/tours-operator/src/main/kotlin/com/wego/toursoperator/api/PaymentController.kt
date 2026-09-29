@@ -4,6 +4,7 @@ import com.wego.events.CorrelationContext
 import com.wego.toursoperator.application.InitiatePaymentResult
 import com.wego.toursoperator.application.InitiatePaymentService
 import com.wego.toursoperator.application.PaymentActivity
+import com.wego.toursoperator.application.PaymentHistoryEntry
 import com.wego.toursoperator.application.PaymentQueryService
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.Payment
@@ -100,6 +101,14 @@ class PaymentController(
                 ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(payment.toStatusResponse())
     }
+
+    /** Staff-only payment status history for one booking, oldest first. */
+    @GetMapping("/staff/bookings/{bookingId}/payment-history")
+    @PreAuthorize("hasAuthority('tours-operator.payment:view')")
+    fun paymentHistory(
+        @PathVariable bookingId: UUID,
+    ): List<PaymentHistoryEntryResponse> =
+        paymentQueryService.historyForBooking(BookingId(bookingId)).map { it.toHistoryResponse() }
 
     /** Staff-only immutable payment ledger used by finance and reconciliation. */
     @GetMapping("/staff/payments")
@@ -210,4 +219,23 @@ private fun PaymentActivity.toLedgerResponse() =
         failedAt = payment.failedAt,
         refundedAt = payment.refundedAt,
         revenueRecognisedAt = payment.revenueRecognisedAt,
+    )
+
+data class PaymentHistoryEntryResponse(
+    val paymentId: UUID,
+    val fromStatus: PaymentStatus?,
+    val toStatus: PaymentStatus,
+    val providerStatus: String?,
+    val occurredAt: Instant,
+    val recorded: Boolean,
+)
+
+private fun PaymentHistoryEntry.toHistoryResponse() =
+    PaymentHistoryEntryResponse(
+        paymentId = paymentId.value,
+        fromStatus = fromStatus,
+        toStatus = toStatus,
+        providerStatus = providerStatus,
+        occurredAt = occurredAt,
+        recorded = recorded,
     )

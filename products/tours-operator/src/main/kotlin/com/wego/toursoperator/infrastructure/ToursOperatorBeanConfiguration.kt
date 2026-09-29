@@ -4,6 +4,7 @@ import com.wego.events.OutboxWriter
 import com.wego.identity.AuthenticatedApiPrefix
 import com.wego.identity.PublicApiPrefix
 import com.wego.toursoperator.application.BookingAuditRecorder
+import com.wego.toursoperator.application.BookingHistoryQuery
 import com.wego.toursoperator.application.BookingQueryService
 import com.wego.toursoperator.application.BookingRepository
 import com.wego.toursoperator.application.CancelBookingService
@@ -145,7 +146,8 @@ class ToursOperatorBeanConfiguration {
     @Bean("stoBookingQueryService")
     fun bookingQueryService(
         @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
-    ): BookingQueryService = BookingQueryService(bookingRepository)
+        bookingHistoryQuery: BookingHistoryQuery,
+    ): BookingQueryService = BookingQueryService(bookingRepository, bookingHistoryQuery)
 
     // ── Command services ─────────────────────────────────────────────────────
 

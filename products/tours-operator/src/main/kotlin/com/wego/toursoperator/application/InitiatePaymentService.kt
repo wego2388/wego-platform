@@ -196,7 +196,7 @@ class InitiatePaymentService(
 
             payment.assignPaymobCheckout(checkout.orderId, checkout.checkoutToken)
             if (booking.status != BookingStatus.NEW) {
-                payment.markReconciliationRequired("BOOKING_${booking.status.name}")
+                payment.markReconciliationRequired("BOOKING_${booking.status.name}", Instant.now(clock))
                 paymentRepository.save(payment)
                 return@runInTransaction InitiatePaymentResult.ReconciliationRequired
             }
@@ -216,7 +216,7 @@ class InitiatePaymentService(
             bookingRepository.findByIdForUpdate(preparation.bookingId)
             val payment = paymentRepository.findByIdForUpdate(preparation.paymentId)
             if (payment?.status == PaymentStatus.PENDING && payment.paymobOrderId == null) {
-                payment.markReconciliationRequired(providerStatus)
+                payment.markReconciliationRequired(providerStatus, Instant.now(clock))
                 paymentRepository.save(payment)
             }
         }

@@ -15,6 +15,17 @@ data class PaymentActivity(
     val childrenCount: Int,
 )
 
+/** One recorded payment status change, as shown to finance staff. */
+data class PaymentHistoryEntry(
+    val paymentId: PaymentId,
+    val fromStatus: PaymentStatus?,
+    val toStatus: PaymentStatus,
+    val providerStatus: String?,
+    val occurredAt: Instant,
+    /** False for steps reconstructed from pre-history state (V21 backfill). */
+    val recorded: Boolean,
+)
+
 /**
  * Repository contract for Payment aggregate.
  * All mutating methods must be called inside a transaction.
@@ -51,5 +62,9 @@ interface PaymentRepository {
         size: Int,
     ): List<PaymentActivity>
 
+    /** Payment status history for a booking, oldest first. */
+    fun historyForBooking(bookingId: BookingId): List<PaymentHistoryEntry>
+
+    /** Persists state and appends every drained [Payment.drainTransitions] entry in one transaction. */
     fun save(payment: Payment)
 }

@@ -302,4 +302,151 @@ class ToursOperatorMigrationIntegrationTest(
             registry.add("spring.flyway.enabled") { true }
         }
     }
+
+    @Test
+    fun `V20 and V21 upgrade existing V19 payments with recognition and backfilled history`() {
+        val upgradePostgres =
+            PostgreSQLContainer("postgres:18.4-alpine")
+                .withDatabaseName("wego_v19_upgrade")
+                .withUsername("wego_upgrade")
+                .withPassword("wego_upgrade")
+        upgradePostgres.start()
+        try {
+            val migrationLocations = arrayOf("classpath:db/migration", "classpath:db/migration/data")
+            Flyway
+                .configure()
+                .dataSource(upgradePostgres.jdbcUrl, upgradePostgres.username, upgradePostgres.password)
+                .locations(*migrationLocations)
+                .target("19")
+                .load()
+                .migrate()
+
+            // status -> (paid_at offset, refunded_at offset) in minutes after creation
+            val seeded =
+                listOf(
+                    "PENDING" to Pair(null, null),
+                    "PAID" to Pair(5, null),
+                    "REFUNDED" to Pair(5, 60),
+                    "RECONCILIATION_REQUIRED" to Pair(null, null),
+                )
+            upgradePostgres.createConnection("").use { connection ->
+                val dsl = DSL.using(connection, SQLDialect.POSTGRES)
+                val tourId =
+                    dsl.fetchValue(
+                        "SELECT id FROM wego.tours_operator_tour ORDER BY sort_order LIMIT 1",
+                        UUID::class.java,
+                    ) ?: error("V17 seeded tour missing")
+                seeded.forEachIndexed { index, (status, offsets) ->
+                    val slotId = UUID.randomUUID()
+                    val bookingId = UUID.randomUUID()
+                    val paymentId = UUID.randomUUID()
+                    dsl.execute(
+                        """
+                        INSERT INTO wego.tours_operator_tour_slot
+                          (id, tour_id, date, time_slot, capacity, booked_count, is_blocked, created_at)
+                        VALUES (?, ?, DATE '2027-02-10' + ?, 'MORNING', 10, 1, false, now())
+                        """.trimIndent(),
+                        slotId,
+                        tourId,
+                        index,
+                    )
+                    dsl.execute(
+                        """
+                        INSERT INTO wego.tours_operator_booking
+                          (id, reference, tour_id, slot_id, tour_date, time_slot,
+                           adults_count, children_count, price_adult_eur, price_child_eur, total_eur,
+                           customer_full_name, customer_phone, customer_nationality,
+                           hotel_name, locale, status, created_at)
+                        VALUES (?, ?, ?, ?, DATE '2027-02-10' + ?, 'MORNING',
+                                1, 0, 10.00, NULL, 10.00,
+                                'Migration Test', '+20100000000', 'EG',
+                                'Migration Hotel', 'en', 'NEW', now())
+                        """.trimIndent(),
+                        bookingId,
+                        "STR-2027-2${index + 1}",
+                        tourId,
+                        slotId,
+                        index,
+                    )
+                    dsl.execute(
+                        """
+                        INSERT INTO wego.tours_operator_payment
+                          (id, booking_id, amount_eur, amount_minor_units, currency_code, provider_reference,
+                           status, provider_status, created_at, paid_at, refunded_at)
+                        VALUES (?, ?, 10.00, 1000, 'EUR', ?, ?, ?, TIMESTAMPTZ '2027-01-01 10:00:00+00',
+                                TIMESTAMPTZ '2027-01-01 10:00:00+00' + make_interval(mins => ?),
+                                TIMESTAMPTZ '2027-01-01 10:00:00+00' + make_interval(mins => ?))
+                        """.trimIndent(),
+                        paymentId,
+                        bookingId,
+                        "sts-$paymentId",
+                        status,
+                        if (status == "PENDING") null else "PRE_V20",
+                        offsets.first,
+                        offsets.second,
+                    )
+                }
+            }
+
+            val upgraded =
+                Flyway
+                    .configure()
+                    .dataSource(upgradePostgres.jdbcUrl, upgradePostgres.username, upgradePostgres.password)
+                    .locations(*migrationLocations)
+                    .load()
+            upgraded.migrate()
+            assertThat(upgraded.info().applied().map { it.version.toString() }).contains("20", "21")
+
+            upgradePostgres.createConnection("").use { connection ->
+                val dsl = DSL.using(connection, SQLDialect.POSTGRES)
+                val recognised =
+                    dsl
+                        .fetch("SELECT status FROM wego.tours_operator_payment WHERE revenue_recognised_at IS NOT NULL")
+                        .map { it.get(0, String::class.java) }
+                // Pre-V20 REFUNDED rows are ambiguous and stay unrecognised by design.
+                assertThat(recognised).containsExactly("PAID")
+
+                val history =
+                    dsl
+                        .fetch(
+                            """
+                            SELECT p.status, e.from_status, e.to_status, e.source, e.occurred_at, e.seq
+                            FROM wego.tours_operator_payment_audit_event e
+                            JOIN wego.tours_operator_payment p ON p.id = e.payment_id
+                            ORDER BY p.status, e.occurred_at, e.seq
+                            """.trimIndent(),
+                        ).map { record ->
+                            listOf<String?>(
+                                record.get(0, String::class.java),
+                                record.get(1, String::class.java),
+                                record.get(2, String::class.java),
+                                record.get(3, String::class.java),
+                            )
+                        }
+                assertThat(history).containsExactly(
+                    listOf("PAID", null, "PENDING", "BACKFILL"),
+                    listOf("PAID", null, "PAID", "BACKFILL"),
+                    listOf("PENDING", null, "PENDING", "BACKFILL"),
+                    // Same occurred_at as creation: seq keeps creation first.
+                    listOf("RECONCILIATION_REQUIRED", null, "PENDING", "BACKFILL"),
+                    listOf("RECONCILIATION_REQUIRED", null, "RECONCILIATION_REQUIRED", "BACKFILL"),
+                    listOf("REFUNDED", null, "PENDING", "BACKFILL"),
+                    listOf("REFUNDED", null, "REFUNDED", "BACKFILL"),
+                )
+                val refundedAt =
+                    dsl.fetchValue(
+                        """
+                        SELECT e.occurred_at = p.refunded_at
+                        FROM wego.tours_operator_payment_audit_event e
+                        JOIN wego.tours_operator_payment p ON p.id = e.payment_id
+                        WHERE e.to_status = 'REFUNDED'
+                        """.trimIndent(),
+                        Boolean::class.java,
+                    )
+                assertThat(refundedAt).isEqualTo(true)
+            }
+        } finally {
+            upgradePostgres.stop()
+        }
+    }
 }

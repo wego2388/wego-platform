@@ -1682,6 +1682,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tours-operator/bookings/{id}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Booking lifecycle history for staff
+         * @description Append-only lifecycle events oldest first: who changed the booking, when, and why. actorEmail is null for system or customer actions.
+         */
+        get: operations["getToursOperatorBookingHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tours-operator/bookings/{id}/cancel": {
         parameters: {
             query?: never;
@@ -1745,6 +1765,26 @@ export interface paths {
         };
         /** Poll payment status after returning from Paymob checkout */
         get: operations["getToursOperatorPaymentStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/bookings/{bookingId}/payment-history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Payment status history for one booking
+         * @description Every payment status change oldest first. recorded=false marks steps reconstructed from pre-history state (V21 backfill).
+         */
+        get: operations["getToursOperatorPaymentHistory"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2077,6 +2117,28 @@ export interface components {
             refundedAt?: string | null;
             /** Format: date-time */
             revenueRecognisedAt?: string | null;
+        };
+        ToursOperatorBookingHistoryEntry: {
+            /** @enum {string} */
+            eventType: "BOOKING_CREATED" | "BOOKING_CONFIRMED" | "BOOKING_CANCELLED" | "BOOKING_COMPLETED" | "BOOKING_EXPIRED";
+            fromStatus?: string | null;
+            toStatus?: string | null;
+            reason?: string | null;
+            /** Format: uuid */
+            actorUserId?: string | null;
+            actorEmail?: string | null;
+            /** Format: date-time */
+            occurredAt: string;
+        };
+        ToursOperatorPaymentHistoryEntry: {
+            /** Format: uuid */
+            paymentId: string;
+            fromStatus?: components["schemas"]["ToursOperatorPaymentStatus"] | null;
+            toStatus: components["schemas"]["ToursOperatorPaymentStatus"];
+            providerStatus?: string | null;
+            /** Format: date-time */
+            occurredAt: string;
+            recorded: boolean;
         };
         /** @enum {string} */
         ToursOperatorPaymentStatus: "PENDING" | "PAID" | "FAILED" | "REFUNDED" | "REVIEW_REQUIRED" | "RECONCILIATION_REQUIRED";
@@ -7055,6 +7117,38 @@ export interface operations {
             };
         };
     };
+    getToursOperatorBookingHistory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Booking history, oldest first. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorBookingHistoryEntry"][];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Booking not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     cancelToursOperatorBooking: {
         parameters: {
             query?: never;
@@ -7223,6 +7317,31 @@ export interface operations {
                 };
                 content?: never;
             };
+        };
+    };
+    getToursOperatorPaymentHistory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Payment history, oldest first; empty when never paid. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorPaymentHistoryEntry"][];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
         };
     };
     listToursOperatorPaymentLedger: {

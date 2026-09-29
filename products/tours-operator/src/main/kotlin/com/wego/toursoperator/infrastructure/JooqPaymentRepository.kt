@@ -2,7 +2,9 @@ package com.wego.toursoperator.infrastructure
 
 import com.wego.generated.jooq.tables.ToursOperatorBooking.TOURS_OPERATOR_BOOKING
 import com.wego.generated.jooq.tables.ToursOperatorPayment.TOURS_OPERATOR_PAYMENT
+import com.wego.generated.jooq.tables.ToursOperatorPaymentAuditEvent.TOURS_OPERATOR_PAYMENT_AUDIT_EVENT
 import com.wego.toursoperator.application.PaymentActivity
+import com.wego.toursoperator.application.PaymentHistoryEntry
 import com.wego.toursoperator.application.PaymentRepository
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.Payment
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.OffsetDateTime
+import java.util.UUID
 
 @Repository("stoPaymentRepositoryImpl")
 class JooqPaymentRepository(
@@ -168,6 +171,42 @@ class JooqPaymentRepository(
             .set(t.REFUNDED_AT, payment.refundedAt?.let(::toOffset))
             .set(t.REVENUE_RECOGNISED_AT, payment.revenueRecognisedAt?.let(::toOffset))
             .execute()
+        val a = TOURS_OPERATOR_PAYMENT_AUDIT_EVENT
+        payment.drainTransitions().forEach { transition ->
+            dsl
+                .insertInto(a)
+                .set(a.ID, UUID.randomUUID())
+                .set(a.PAYMENT_ID, payment.id.value)
+                .set(a.FROM_STATUS, transition.fromStatus?.name)
+                .set(a.TO_STATUS, transition.toStatus.name)
+                .set(a.PROVIDER_STATUS, transition.providerStatus?.take(32))
+                .set(a.OCCURRED_AT, toOffset(transition.occurredAt))
+                .set(a.SOURCE, "LIVE")
+                .execute()
+        }
+    }
+
+    @Transactional(readOnly = true)
+    override fun historyForBooking(bookingId: BookingId): List<PaymentHistoryEntry> {
+        val a = TOURS_OPERATOR_PAYMENT_AUDIT_EVENT
+        val t = TOURS_OPERATOR_PAYMENT
+        return dsl
+            .select(a.PAYMENT_ID, a.FROM_STATUS, a.TO_STATUS, a.PROVIDER_STATUS, a.OCCURRED_AT, a.SOURCE)
+            .from(a)
+            .join(t)
+            .on(t.ID.eq(a.PAYMENT_ID))
+            .where(t.BOOKING_ID.eq(bookingId.value))
+            .orderBy(a.OCCURRED_AT.asc(), a.SEQ.asc())
+            .fetch { r ->
+                PaymentHistoryEntry(
+                    paymentId = PaymentId(checkNotNull(r[a.PAYMENT_ID])),
+                    fromStatus = r[a.FROM_STATUS]?.let(PaymentStatus::valueOf),
+                    toStatus = PaymentStatus.valueOf(checkNotNull(r[a.TO_STATUS])),
+                    providerStatus = r[a.PROVIDER_STATUS],
+                    occurredAt = checkNotNull(r[a.OCCURRED_AT]).toInstant(),
+                    recorded = r[a.SOURCE] == "LIVE",
+                )
+            }
     }
 
     private fun toDomain(r: com.wego.generated.jooq.tables.records.ToursOperatorPaymentRecord): Payment =

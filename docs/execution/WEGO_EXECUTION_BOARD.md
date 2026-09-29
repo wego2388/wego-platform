@@ -22,7 +22,7 @@ Rule: exactly one implementation packet may be `ACTIVE` in a worktree. Parent mi
 | WEGO-013 | Platform hardening: fix CI's first real run against `main`, mobile CI build coverage, client onboarding runbook | COMPLETE |
 | WEGO-014 | ERP professional UX/UI redesign: navigation shell, component library, dark mode, motion, responsive pass across all 17 routes | COMPLETE |
 | WEGO-015 | Sharm Divers Club customer-facing redesign: public website (`sharm-divers-club-site`) + mobile customer app (`mobile/apps/customer`) | COMPLETE |
-| WEGO-016 | Safari Tours Sharm: tours-operator product foundation — public booking site, staff ERP, Paymob payment flow, production catalog, and isolated deployment | NOT AUTHORIZED — paused after F (committed locally); G needs owner activation |
+| WEGO-016 | Safari Tours Sharm: tours-operator product foundation — public booking site, staff ERP, Paymob payment flow, production catalog, and isolated deployment | NOT AUTHORIZED — paused after F2; G needs owner activation |
 | WEGO-017 | Foundry executable client releases: artifact, data, deployment, and CI isolation for Safari Tours Sharm, Sharm To Go, and Sharm Divers Club | COMPLETE |
 
 ## Automation and growth roadmap guardrails
@@ -2380,7 +2380,7 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
 
 ## WEGO-016 — Safari Tours Sharm: tours-operator product foundation
 
-- **Status:** PAUSED — A–F complete locally (F closed 2026-09-30); G–I require explicit owner activation
+- **Status:** PAUSED — A–F2 complete (F2 closed 2026-09-30); G–I require explicit owner activation
 - **Activated:** 2026-09-27
 - **Review intensity:** Tier 1 — this packet adds a new product boundary (`products/tours-operator`), a new Flyway migration (V14), a new client isolation profile (`clients/safari-tours-sharm`), and will later touch payment/PII/auth surfaces. Every sub-packet that adds a migration, modifies auth, or handles customer payment data requires independent Tier 1 review before merge.
 - **Origin:** The owner asked to establish Safari Tours Sharm as a first-class Wego Platform product — on the same standards as Sharm Divers Club and Sharm To Go — with a public booking website, a staff ERP, a real Paymob payment flow, a production tour catalog, and an isolated deployment. The handoff document at `clients/safari-tours-sharm/handoff/SAFARI_TOURS_PRODUCTION_MATURITY_HANDOFF.md` is the authoritative reference for current maturity, open P0 issues, and the phased delivery plan.
@@ -2406,6 +2406,7 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
 | WEGO-016-D | Payment aggregate + Paymob integration + expiry worker + reconciliation | Tier 1 |
 | WEGO-016-E | Public website checkout completion + Playwright E2E | Tier 1 (payment/PII) |
 | WEGO-016-F | ERP operations completion + staff roles + finance ledger | Tier 1 (permissions/PII) |
+| WEGO-016-F2 | Booking + payment history, staff users/roles UI | Tier 1 (migration/money/permissions) |
 | WEGO-016-G | Notifications + transactional outbox | Tier 1 |
 | WEGO-016-H | Isolated deployment + observability + backup/restore drill | Tier 1 |
 | WEGO-016-I | UAT + controlled launch + closure evidence | Tier 1 final review |
@@ -2879,6 +2880,53 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 - **Follow-ups (not blocking):** index for ledger timestamp ranges once volume
   grows; deploy V20 and its binary together (old binary cannot write PAID).
 - **NEXT SUB-PACKET:** none authorized. G requires explicit owner activation.
+
+---
+
+### 2026-09-30 — WEGO-016-F2: booking/payment history and staff administration
+
+- **Status:** COMPLETE — owner authorized commit and push (`كمل واعمل commit وارفع`, 2026-09-30); no deploy.
+- **Activation:** owner approved roadmap phase 1 (`clients/safari-tours-sharm/ROADMAP_AR.md`)
+  on 2026-09-30 with `كمل` after choosing "ERP remainder first".
+- **Review intensity:** Tier 1 — new migration (V21), payment history (money),
+  staff-account administration (permissions).
+- **Objective:** close F-08 and the deferred staff-roles UI.
+- **Scope:**
+  1. Staff read API + ERP timeline for the existing append-only
+     `tours_operator_booking_audit_event` (who/when/why).
+  2. V21 append-only payment audit events for every payment state transition,
+     readable only with `tours-operator.payment:view`.
+  3. Safari ERP staff users/roles page over the existing `/api/v1/identity`
+     admin endpoints (no identity backend changes planned).
+- **Out of scope:** notifications (G), real Paymob (H), staff-initiated refunds.
+- **Acceptance:** tests for each history path and permission gate, Safari gate
+  green, `pnpm run check` green, independent Tier-1 READY.
+- **Delivered:**
+  - `GET /api/v1/tours-operator/bookings/{id}/history` (booking:view): booking
+    audit events with staff actor email; ERP booking page timeline.
+  - V21 `tours_operator_payment_audit_event`: `Payment` records every status
+    transition (incl. creation and review→refund inside one webhook), persisted
+    append-only in the same transaction by `JooqPaymentRepository.save`;
+    `seq` identity orders equal-timestamp steps; pre-V21 rows BACKFILL-marked.
+    `GET /api/v1/tours-operator/staff/bookings/{id}/payment-history`
+    (payment:view, no customer PII). Refund steps now carry the refund's
+    provider status.
+  - Safari ERP `/staff`: accounts (create/disable/enable/reset password/roles)
+    and roles (grouped permission editor) over existing identity admin API.
+  - Found and fixed: `products/tours-operator/src/test` domain tests were
+    compiled by no module since WEGO-017 (58 tests never ran) — now in the
+    Safari app test source set; overview "Today's Revenue" (booking-status
+    based) relabelled "Today's Tour Value".
+- **Tier-1 review:** round 1 READY with 5 MINOR + 1 NIT (equal-timestamp order,
+  stale refund provider status, payment actor labels, staff page without
+  role-view, backfill untested) → all MINOR fixed → round 2 READY.
+- **Evidence (2026-09-30):**
+  - `./gradlew :platform:apps:safari-tours-sharm:test` — 146 tests, 0 failures,
+    0 skipped (incl. D10a–D10d, V19→V21 upgrade test, booking history tests).
+  - `./gradlew :platform:application:test` — 0 failures.
+  - `scripts/safari-tours-sharm-check.sh` — passed.
+  - `pnpm run check` in `web/` — exit 0, 451 tests.
+- **NEXT SUB-PACKET:** G (notifications) requires explicit owner activation.
 
 ---
 

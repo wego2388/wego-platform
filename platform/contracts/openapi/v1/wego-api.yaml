@@ -4502,6 +4502,41 @@ paths:
           $ref: "#/components/responses/ForbiddenResponse"
         "404":
           description: Booking not found.
+  /api/v1/tours-operator/bookings/{id}/history:
+    get:
+      operationId: getToursOperatorBookingHistory
+      summary: Booking lifecycle history for staff
+      description: >
+        Append-only lifecycle events oldest first: who changed the booking,
+        when, and why. actorEmail is null for system or customer actions.
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Booking history, oldest first.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ToursOperatorBookingHistoryEntry"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Booking not found.
   /api/v1/tours-operator/bookings/{id}/cancel:
     post:
       operationId: cancelToursOperatorBooking
@@ -4647,6 +4682,39 @@ paths:
                 $ref: "#/components/schemas/ToursOperatorPaymentStatusResponse"
         "404":
           description: No payment record for this booking.
+  /api/v1/tours-operator/staff/bookings/{bookingId}/payment-history:
+    get:
+      operationId: getToursOperatorPaymentHistory
+      summary: Payment status history for one booking
+      description: >
+        Every payment status change oldest first. recorded=false marks steps
+        reconstructed from pre-history state (V21 backfill).
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Payment history, oldest first; empty when never paid.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ToursOperatorPaymentHistoryEntry"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
   /api/v1/tours-operator/staff/payments:
     get:
       operationId: listToursOperatorPaymentLedger
@@ -5673,6 +5741,72 @@ components:
             - string
             - "null"
           format: date-time
+    ToursOperatorBookingHistoryEntry:
+      type: object
+      additionalProperties: false
+      required:
+        - eventType
+        - occurredAt
+      properties:
+        eventType:
+          type: string
+          enum:
+            - BOOKING_CREATED
+            - BOOKING_CONFIRMED
+            - BOOKING_CANCELLED
+            - BOOKING_COMPLETED
+            - BOOKING_EXPIRED
+        fromStatus:
+          type:
+            - string
+            - "null"
+        toStatus:
+          type:
+            - string
+            - "null"
+        reason:
+          type:
+            - string
+            - "null"
+        actorUserId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        actorEmail:
+          type:
+            - string
+            - "null"
+        occurredAt:
+          type: string
+          format: date-time
+    ToursOperatorPaymentHistoryEntry:
+      type: object
+      additionalProperties: false
+      required:
+        - paymentId
+        - toStatus
+        - occurredAt
+        - recorded
+      properties:
+        paymentId:
+          type: string
+          format: uuid
+        fromStatus:
+          oneOf:
+            - $ref: "#/components/schemas/ToursOperatorPaymentStatus"
+            - type: "null"
+        toStatus:
+          $ref: "#/components/schemas/ToursOperatorPaymentStatus"
+        providerStatus:
+          type:
+            - string
+            - "null"
+        occurredAt:
+          type: string
+          format: date-time
+        recorded:
+          type: boolean
     ToursOperatorPaymentStatus:
       type: string
       enum:

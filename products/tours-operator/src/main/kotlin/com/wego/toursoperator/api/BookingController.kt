@@ -2,6 +2,7 @@ package com.wego.toursoperator.api
 
 import com.wego.events.CorrelationContext
 import com.wego.identity.AuthenticatedUser
+import com.wego.toursoperator.application.BookingHistoryEntry
 import com.wego.toursoperator.application.BookingQueryService
 import com.wego.toursoperator.application.CancelBookingResult
 import com.wego.toursoperator.application.CancelBookingService
@@ -162,6 +163,16 @@ class BookingController(
         return ResponseEntity.ok(booking.toResponse())
     }
 
+    /** Staff-only lifecycle history: who changed the booking, when, and why. */
+    @GetMapping("/{id}/history")
+    @PreAuthorize("hasAuthority('tours-operator.booking:view')")
+    fun history(
+        @PathVariable id: UUID,
+    ): ResponseEntity<List<BookingHistoryEntryResponse>> {
+        bookingQueryService.findById(BookingId(id)) ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(bookingQueryService.history(BookingId(id)).map { it.toResponse() })
+    }
+
     /**
      * Public lookup — customer retrieves their booking by reference + phone.
      * No authentication required.
@@ -224,4 +235,25 @@ private fun Booking.toPublicLookupResponse() =
         hotelName = hotelName,
         status = status,
         cancellationReason = cancellationReason,
+    )
+
+data class BookingHistoryEntryResponse(
+    val eventType: String,
+    val fromStatus: String?,
+    val toStatus: String?,
+    val reason: String?,
+    val actorUserId: UUID?,
+    val actorEmail: String?,
+    val occurredAt: java.time.Instant,
+)
+
+private fun BookingHistoryEntry.toResponse() =
+    BookingHistoryEntryResponse(
+        eventType = eventType,
+        fromStatus = fromStatus,
+        toStatus = toStatus,
+        reason = reason,
+        actorUserId = actorUserId,
+        actorEmail = actorEmail,
+        occurredAt = occurredAt,
     )

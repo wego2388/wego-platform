@@ -23,6 +23,7 @@ val selectedSharedDdlMigrations =
         sharedMigrationDirectory.resolve("V18__tours_operator_payment.sql"),
         sharedMigrationDirectory.resolve("V19__tours_operator_payment_hardening.sql"),
         sharedMigrationDirectory.resolve("V20__tours_operator_payment_revenue_recognition.sql"),
+        sharedMigrationDirectory.resolve("V21__tours_operator_payment_audit.sql"),
     )
 val selectedDdlMigrations =
     selectedSharedDdlMigrations + file("src/main/resources/db/migration/V3__identity_administration.sql")
@@ -76,6 +77,9 @@ kotlin {
         // during this extraction, but compile and run against this artifact's
         // selected classes and migrations as well.
         kotlin.srcDir("../../application/src/test/kotlin/com/wego/toursoperator")
+        // Pure domain tests owned by the product itself. Without this they were
+        // compiled by no module after the WEGO-017 extraction and never ran.
+        kotlin.srcDir("../../../products/tours-operator/src/test/kotlin")
     }
 }
 

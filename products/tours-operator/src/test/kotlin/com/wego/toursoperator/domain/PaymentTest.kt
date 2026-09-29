@@ -133,7 +133,7 @@ class PaymentTest {
         val p = pendingPayment()
         val stableReference = p.providerReference
         p.assignPaymobCheckout("ORDER-1", "TOKEN-1")
-        p.markReconciliationRequired("CREATE_OUTCOME_UNKNOWN")
+        p.markReconciliationRequired("CREATE_OUTCOME_UNKNOWN", now)
 
         assertEquals(PaymentStatus.RECONCILIATION_REQUIRED, p.status)
         assertNull(p.failedAt)
@@ -147,7 +147,7 @@ class PaymentTest {
     fun `reconciled payment can accept a late verified success`() {
         val p = pendingPayment()
         p.assignPaymobCheckout("ORDER-1", "TOKEN-1")
-        p.markReconciliationRequired("CREATE_OUTCOME_UNKNOWN")
+        p.markReconciliationRequired("CREATE_OUTCOME_UNKNOWN", now)
 
         p.markPaid("TXN-LATE", "APPROVED", "{}", now)
 
@@ -173,7 +173,7 @@ class PaymentTest {
     fun `markRefunded transitions PAID to REFUNDED`() {
         val p = pendingPayment()
         p.markPaid("TXN-1", "APPROVED", "{}", now)
-        p.markRefunded("{refund}", now.plusSeconds(60))
+        p.markRefunded("REFUNDED", "{refund}", now.plusSeconds(60))
         assertEquals(PaymentStatus.REFUNDED, p.status)
         assertNotNull(p.refundedAt)
         assertNotNull(p.paidAt)
@@ -183,7 +183,47 @@ class PaymentTest {
     fun `markRefunded rejects non-PAID payment`() {
         val p = pendingPayment()
         assertThrows<IllegalArgumentException> {
-            p.markRefunded("{}", now)
+            p.markRefunded("REFUNDED", "{}", now)
         }
+    }
+
+    // ── transition history ────────────────────────────────────────────────
+
+    @Test
+    fun `every status change is recorded in order, including review then refund`() {
+        val p = pendingPayment()
+        val later = now.plusSeconds(60)
+        p.markReviewRequired("TXN-1", "SUCCESS", "{}", later)
+        p.markRefunded("REFUNDED", "{}", later.plusSeconds(60))
+
+        val transitions = p.drainTransitions()
+        assertEquals(
+            listOf(
+                null to PaymentStatus.PENDING,
+                PaymentStatus.PENDING to PaymentStatus.REVIEW_REQUIRED,
+                PaymentStatus.REVIEW_REQUIRED to PaymentStatus.REFUNDED,
+            ),
+            transitions.map { it.fromStatus to it.toStatus },
+        )
+        assertEquals(listOf(now, later, later.plusSeconds(60)), transitions.map { it.occurredAt })
+        assertEquals("SUCCESS", transitions[1].providerStatus)
+        assertEquals("REFUNDED", transitions[2].providerStatus)
+    }
+
+    @Test
+    fun `draining clears transitions so a second save records nothing twice`() {
+        val p = pendingPayment()
+        p.drainTransitions()
+        p.markPaid("TXN-2", "SUCCESS", "{}", now)
+        assertEquals(1, p.drainTransitions().size)
+        assertEquals(0, p.drainTransitions().size)
+    }
+
+    @Test
+    fun `a rejected transition records nothing`() {
+        val p = pendingPayment()
+        p.drainTransitions()
+        assertThrows<IllegalArgumentException> { p.markRefunded("REFUNDED", "{}", now) }
+        assertEquals(0, p.drainTransitions().size)
     }
 }

@@ -126,7 +126,7 @@ class HandlePaymobWebhookService(
                 return@runInTransaction when (payment.status) {
                     PaymentStatus.REFUNDED -> HandlePaymobWebhookResult.AlreadyProcessed
                     PaymentStatus.PAID, PaymentStatus.REVIEW_REQUIRED -> {
-                        payment.markRefunded(audit, now)
+                        payment.markRefunded(providerStatus, audit, now)
                         paymentRepository.save(payment)
                         HandlePaymobWebhookResult.RefundRecorded
                     }
@@ -135,7 +135,7 @@ class HandlePaymobWebhookService(
                     PaymentStatus.RECONCILIATION_REQUIRED,
                     -> {
                         payment.markReviewRequired(payload.transactionId, providerStatus, audit, now)
-                        payment.markRefunded(audit, now)
+                        payment.markRefunded(providerStatus, audit, now)
                         paymentRepository.save(payment)
                         HandlePaymobWebhookResult.RefundRecorded
                     }

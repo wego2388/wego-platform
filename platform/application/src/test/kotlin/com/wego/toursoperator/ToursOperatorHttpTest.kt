@@ -1029,4 +1029,58 @@ class ToursOperatorHttpTest {
             registry.add("tours-operator.paymob.mock-enabled") { true }
         }
     }
+
+    // ── booking history (WEGO-016-F2) ─────────────────────────────────────────
+
+    @Test
+    fun `GET history shows who cancelled a booking, when and why`() {
+        val (_, slotId) = seedTourAndSlot("history-f2", capacity = 10)
+        val adminToken = login(adminEmail, adminPassword)
+        val bookingId =
+            jsonField(
+                mockMvc
+                    .post("/api/v1/tours-operator/bookings") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = bookingRequestBody(slotId)
+                    }.andExpect { status { isCreated() } }
+                    .andReturn()
+                    .response.contentAsString,
+                "id",
+            )
+        mockMvc
+            .post("/api/v1/tours-operator/bookings/$bookingId/cancel") {
+                header("Authorization", "Bearer $adminToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"reason":"Customer called to cancel"}"""
+            }.andExpect { status { isOk() } }
+
+        mockMvc
+            .get("/api/v1/tours-operator/bookings/$bookingId/history") {
+                header("Authorization", "Bearer $adminToken")
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.length()") { value(2) }
+                jsonPath("$[0].eventType") { value("BOOKING_CREATED") }
+                jsonPath("$[0].actorEmail") { isEmpty() }
+                jsonPath("$[1].eventType") { value("BOOKING_CANCELLED") }
+                jsonPath("$[1].fromStatus") { value("NEW") }
+                jsonPath("$[1].toStatus") { value("CANCELLED") }
+                jsonPath("$[1].reason") { value("Customer called to cancel") }
+                jsonPath("$[1].actorEmail") { value(adminEmail) }
+                jsonPath("$[1].occurredAt") { isNotEmpty() }
+            }
+    }
+
+    @Test
+    fun `GET history requires authentication and returns 404 for an unknown booking`() {
+        val adminToken = login(adminEmail, adminPassword)
+        val unknown = java.util.UUID.randomUUID()
+        mockMvc
+            .get("/api/v1/tours-operator/bookings/$unknown/history")
+            .andExpect { status { isUnauthorized() } }
+        mockMvc
+            .get("/api/v1/tours-operator/bookings/$unknown/history") {
+                header("Authorization", "Bearer $adminToken")
+            }.andExpect { status { isNotFound() } }
+    }
 }

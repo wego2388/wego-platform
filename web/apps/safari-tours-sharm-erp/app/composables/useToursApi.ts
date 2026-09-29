@@ -8,6 +8,8 @@ import type {
   TourSlot,
   PaymentLedgerEntry,
   ToursOperatorPaymentStatus,
+  BookingHistoryEntry,
+  PaymentHistoryEntry,
 } from "@wego/api-contract";
 
 export type {
@@ -21,6 +23,8 @@ export type {
   TourSlot,
   PaymentLedgerEntry,
   ToursOperatorPaymentStatus,
+  BookingHistoryEntry,
+  PaymentHistoryEntry,
 } from "@wego/api-contract";
 export { addMoney, divideMoney, formatMoney, minorUnitsToMoney, moneyToMinorUnits } from "@wego/api-contract";
 
@@ -131,6 +135,14 @@ export function completeBooking(token: string, id: string): Promise<Booking> {
   return request<Booking>(`/api/v1/tours-operator/bookings/${id}/complete`, token, {
     method: "POST",
   });
+}
+
+export function getBookingHistory(token: string, id: string): Promise<BookingHistoryEntry[]> {
+  return request<BookingHistoryEntry[]>(`/api/v1/tours-operator/bookings/${id}/history`, token);
+}
+
+export function getPaymentHistory(token: string, bookingId: string): Promise<PaymentHistoryEntry[]> {
+  return request<PaymentHistoryEntry[]>(`/api/v1/tours-operator/staff/bookings/${bookingId}/payment-history`, token);
 }
 
 export function listPaymentLedger(

@@ -12,10 +12,13 @@ import {
   cancelBooking,
   completeBooking,
   getBooking,
+  getBookingHistory,
+  getPaymentHistory,
   formatMoney,
   ToursApiError,
   type Booking,
 } from "../../composables/useToursApi";
+import { mergeTimeline, type TimelineItem } from "../../composables/useBookingTimeline";
 
 useHead({ title: "Booking Detail · Safari Tours Sharm" });
 
@@ -30,9 +33,12 @@ const actionState    = ref<"idle" | "submitting" | "success" | "error">("idle");
 const actionError    = ref("");
 const cancelReason   = ref("");
 const showCancelForm = ref(false);
+const timeline       = ref<TimelineItem[]>([]);
+const timelineError  = ref("");
 
 const canCancel   = computed(() => hasPermission(session.value, "tours-operator.booking:cancel"));
 const canComplete = computed(() => hasPermission(session.value, "tours-operator.booking:complete"));
+const canViewPayments = computed(() => hasPermission(session.value, "tours-operator.payment:view"));
 
 const bookingId = computed(() => String(route.params.id));
 
@@ -50,10 +56,28 @@ async function load() {
   try {
     booking.value   = await getBooking(session.value.token, bookingId.value);
     loadState.value = "loaded";
+    void loadTimeline();
   } catch (err) {
     handleApiError(err);
     loadError.value = err instanceof ToursApiError ? err.errorCode : "Failed to load booking.";
     loadState.value = "error";
+  }
+}
+
+/** History is secondary: a failure here never hides the booking itself. */
+async function loadTimeline() {
+  if (!session.value) return;
+  timelineError.value = "";
+  try {
+    const token = session.value.token;
+    const [bookingHistory, paymentHistory] = await Promise.all([
+      getBookingHistory(token, bookingId.value),
+      canViewPayments.value ? getPaymentHistory(token, bookingId.value) : Promise.resolve([]),
+    ]);
+    timeline.value = mergeTimeline(bookingHistory, paymentHistory);
+  } catch (err) {
+    handleApiError(err);
+    timelineError.value = "History could not be loaded.";
   }
 }
 
@@ -70,6 +94,7 @@ async function doCancel() {
     actionState.value    = "success";
     showCancelForm.value = false;
     cancelReason.value   = "";
+    void loadTimeline();
   } catch (err) {
     handleApiError(err);
     actionError.value = err instanceof ToursApiError ? err.errorCode : "Action failed.";
@@ -84,6 +109,7 @@ async function doComplete() {
   try {
     booking.value     = await completeBooking(session.value.token, booking.value.id);
     actionState.value = "success";
+    void loadTimeline();
   } catch (err) {
     handleApiError(err);
     actionError.value = err instanceof ToursApiError ? err.errorCode : "Action failed.";
@@ -295,6 +321,34 @@ onMounted(() => {
           </div>
 
         </div>
+
+        <!-- History -->
+        <section class="mt-6 rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm" aria-labelledby="history-heading">
+          <h2 id="history-heading" class="mb-1 text-sm font-semibold text-sts-muted uppercase tracking-wide">History</h2>
+          <p v-if="!canViewPayments" class="mb-3 text-xs text-sts-muted">Payment steps need payment-view permission.</p>
+          <WegoAlert v-if="timelineError" variant="danger" class="mt-2">{{ timelineError }}</WegoAlert>
+          <p v-else-if="timeline.length === 0" class="text-sm text-sts-muted">No history recorded yet.</p>
+          <ol v-else class="mt-3 space-y-3">
+            <li v-for="item in timeline" :key="item.key" class="flex gap-3 text-sm">
+              <span
+                class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+                :class="item.source === 'payment' ? 'bg-sts-gold' : 'bg-sts-ocean'"
+                aria-hidden="true"
+              />
+              <div class="min-w-0">
+                <p class="font-medium">
+                  {{ item.title }}
+                  <span v-if="!item.recorded" class="ms-1 text-xs font-normal text-sts-muted">(reconstructed)</span>
+                </p>
+                <p class="text-xs text-sts-muted">
+                  <time :datetime="item.occurredAt">{{ new Date(item.occurredAt).toLocaleString() }}</time>
+                  <span v-if="item.actor"> · {{ item.actor }}</span>
+                </p>
+                <p v-if="item.detail" class="mt-0.5 text-xs">{{ item.detail }}</p>
+              </div>
+            </li>
+          </ol>
+        </section>
       </template>
 
     </div>

@@ -16,6 +16,14 @@ value class PaymentId(
     }
 }
 
+/** One append-only payment status change; [fromStatus] is null for creation. */
+data class PaymentTransition(
+    val fromStatus: PaymentStatus?,
+    val toStatus: PaymentStatus,
+    val providerStatus: String?,
+    val occurredAt: Instant,
+)
+
 /**
  * Payment aggregate for a tours-operator booking.
  *
@@ -91,6 +99,23 @@ class Payment(
     var revenueRecognisedAt: Instant? = revenueRecognisedAt
         private set
 
+    private val unsavedTransitions = mutableListOf<PaymentTransition>()
+
+    /**
+     * Status changes made on this instance since it was loaded or created, in
+     * order. The repository persists them append-only in the same transaction
+     * as the state itself, then they are cleared.
+     */
+    fun drainTransitions(): List<PaymentTransition> = unsavedTransitions.toList().also { unsavedTransitions.clear() }
+
+    private fun transitionTo(
+        target: PaymentStatus,
+        now: Instant,
+    ) {
+        unsavedTransitions += PaymentTransition(status, target, providerStatus, now)
+        status = target
+    }
+
     init {
         require(amountEur > BigDecimal.ZERO) { "Payment amount must be positive" }
         require(amountMinorUnits > 0L) { "Payment minor units must be positive" }
@@ -139,13 +164,16 @@ class Payment(
      * receive or persist the response. Keep every known identifier and block
      * automatic retries until an operator/provider inquiry reconciles it.
      */
-    fun markReconciliationRequired(providerStatus: String) {
+    fun markReconciliationRequired(
+        providerStatus: String,
+        now: Instant,
+    ) {
         require(status == PaymentStatus.PENDING) {
             "Only an initiating PENDING payment can require reconciliation (current: $status)"
         }
         providerCheckoutToken = null
         this.providerStatus = providerStatus.take(32)
-        status = PaymentStatus.RECONCILIATION_REQUIRED
+        transitionTo(PaymentStatus.RECONCILIATION_REQUIRED, now)
         failedAt = null
     }
 
@@ -166,7 +194,7 @@ class Payment(
         this.providerStatus = providerStatus
         this.lastCallbackAudit = callbackAudit
         this.providerCheckoutToken = null
-        this.status = PaymentStatus.PAID
+        transitionTo(PaymentStatus.PAID, now)
         this.paidAt = now
         this.revenueRecognisedAt = now
         this.failedAt = null
@@ -186,7 +214,7 @@ class Payment(
         this.providerStatus = providerStatus
         this.lastCallbackAudit = callbackAudit
         this.providerCheckoutToken = null
-        this.status = PaymentStatus.FAILED
+        transitionTo(PaymentStatus.FAILED, now)
         this.failedAt = now
     }
 
@@ -219,22 +247,24 @@ class Payment(
         this.providerStatus = providerStatus
         this.lastCallbackAudit = callbackAudit
         this.providerCheckoutToken = null
-        this.status = PaymentStatus.REVIEW_REQUIRED
+        transitionTo(PaymentStatus.REVIEW_REQUIRED, now)
         this.paidAt = now
         this.failedAt = null
     }
 
     /** Refund confirmed by Paymob. */
     fun markRefunded(
+        providerStatus: String,
         callbackAudit: String,
         now: Instant,
     ) {
         require(status == PaymentStatus.PAID || status == PaymentStatus.REVIEW_REQUIRED) {
             "Only captured payments can be refunded (current: $status)"
         }
+        this.providerStatus = providerStatus
         this.lastCallbackAudit = callbackAudit
         this.providerCheckoutToken = null
-        this.status = PaymentStatus.REFUNDED
+        transitionTo(PaymentStatus.REFUNDED, now)
         this.refundedAt = now
     }
 
@@ -265,6 +295,6 @@ class Payment(
                 failedAt = null,
                 refundedAt = null,
                 revenueRecognisedAt = null,
-            )
+            ).also { it.unsavedTransitions += PaymentTransition(null, PaymentStatus.PENDING, null, now) }
     }
 }

@@ -1,7 +1,10 @@
 package com.wego.toursoperator.infrastructure
 
+import com.wego.generated.jooq.tables.IdentityUser.IDENTITY_USER
 import com.wego.generated.jooq.tables.ToursOperatorBookingAuditEvent.TOURS_OPERATOR_BOOKING_AUDIT_EVENT
 import com.wego.toursoperator.application.BookingAuditRecorder
+import com.wego.toursoperator.application.BookingHistoryEntry
+import com.wego.toursoperator.application.BookingHistoryQuery
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.BookingStatus
 import org.jooq.DSLContext
@@ -15,7 +18,31 @@ import java.util.UUID
 @Component("toursOperatorBookingAuditRecorder")
 class JooqBookingAuditRecorder(
     private val dsl: DSLContext,
-) : BookingAuditRecorder {
+) : BookingAuditRecorder,
+    BookingHistoryQuery {
+    @Transactional(readOnly = true)
+    override fun findByBooking(bookingId: BookingId): List<BookingHistoryEntry> {
+        val t = TOURS_OPERATOR_BOOKING_AUDIT_EVENT
+        return dsl
+            .select(t.EVENT_TYPE, t.FROM_STATUS, t.TO_STATUS, t.REASON, t.ACTOR_USER_ID, t.OCCURRED_AT, IDENTITY_USER.EMAIL)
+            .from(t)
+            .leftJoin(IDENTITY_USER)
+            .on(IDENTITY_USER.ID.eq(t.ACTOR_USER_ID))
+            .where(t.BOOKING_ID.eq(bookingId.value))
+            .orderBy(t.OCCURRED_AT.asc(), t.ID.asc())
+            .fetch { r ->
+                BookingHistoryEntry(
+                    eventType = checkNotNull(r[t.EVENT_TYPE]),
+                    fromStatus = r[t.FROM_STATUS],
+                    toStatus = r[t.TO_STATUS],
+                    reason = r[t.REASON],
+                    actorUserId = r[t.ACTOR_USER_ID],
+                    actorEmail = r[IDENTITY_USER.EMAIL],
+                    occurredAt = checkNotNull(r[t.OCCURRED_AT]).toInstant(),
+                )
+            }
+    }
+
     @Transactional
     override fun recordCreated(
         bookingId: BookingId,

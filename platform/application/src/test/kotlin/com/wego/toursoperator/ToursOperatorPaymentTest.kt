@@ -1,6 +1,7 @@
 package com.wego.toursoperator
 
 import com.wego.generated.jooq.tables.ToursOperatorBooking.TOURS_OPERATOR_BOOKING
+import com.wego.generated.jooq.tables.ToursOperatorPaymentAuditEvent.TOURS_OPERATOR_PAYMENT_AUDIT_EVENT
 import com.wego.generated.jooq.tables.ToursOperatorPayment.TOURS_OPERATOR_PAYMENT
 import com.wego.generated.jooq.tables.ToursOperatorTour.TOURS_OPERATOR_TOUR
 import com.wego.generated.jooq.tables.ToursOperatorTourSlot.TOURS_OPERATOR_TOUR_SLOT
@@ -873,5 +874,118 @@ class ToursOperatorPaymentTest {
         assertThat(seen).doesNotHaveDuplicates()
         assertThat(seen).containsExactlyInAnyOrderElementsOf(inserted)
         assertThat(seen).isSorted()
+    }
+
+    // ── D10: payment status history (WEGO-016-F2) ─────────────────────────
+
+    @Test
+    fun `D10a - review then refund is recorded as separate history steps`() {
+        val bookingId = createBooking()
+        mockMvc
+            .post("/api/v1/tours-operator/bookings/$bookingId/pay") {
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect { status { isCreated() } }
+        dsl
+            .update(TOURS_OPERATOR_BOOKING)
+            .set(TOURS_OPERATOR_BOOKING.STATUS, "EXPIRED")
+            .set(TOURS_OPERATOR_BOOKING.EXPIRED_AT, OffsetDateTime.now(ZoneOffset.UTC))
+            .where(TOURS_OPERATOR_BOOKING.ID.eq(UUID.fromString(bookingId)))
+            .execute()
+        listOf(
+            webhookBody("ORDER-TEST-123", "TXN-HIST", "true", "false", "false", 4500),
+            webhookBody("ORDER-TEST-123", "TXN-HIST", "false", "false", "true", 4500),
+        ).forEach { body ->
+            mockMvc
+                .post("/api/v1/tours-operator/payments/paymob-callback?hmac=valid-hmac") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = body
+                }.andExpect { status { isOk() } }
+        }
+
+        mockMvc
+            .get("/api/v1/tours-operator/staff/bookings/$bookingId/payment-history") {
+                with(user("finance-operator").authorities(SimpleGrantedAuthority("tours-operator.payment:view")))
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.length()") { value(3) }
+                jsonPath("$[0].fromStatus") { isEmpty() }
+                jsonPath("$[0].toStatus") { value("PENDING") }
+                jsonPath("$[1].fromStatus") { value("PENDING") }
+                jsonPath("$[1].toStatus") { value("REVIEW_REQUIRED") }
+                jsonPath("$[2].fromStatus") { value("REVIEW_REQUIRED") }
+                jsonPath("$[2].toStatus") { value("REFUNDED") }
+                jsonPath("$[2].recorded") { value(true) }
+                jsonPath("$[2].providerStatus") { value("REFUNDED") }
+            }
+    }
+
+    @Test
+    fun `D10b - a duplicate webhook adds no history step`() {
+        val bookingId = createBooking()
+        mockMvc
+            .post("/api/v1/tours-operator/bookings/$bookingId/pay") {
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect { status { isCreated() } }
+        repeat(2) {
+            mockMvc
+                .post("/api/v1/tours-operator/payments/paymob-callback?hmac=valid-hmac") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = webhookBody("ORDER-TEST-123", "TXN-DUP-HIST", "true", "false", "false", 4500)
+                }.andExpect { status { isOk() } }
+        }
+        mockMvc
+            .get("/api/v1/tours-operator/staff/bookings/$bookingId/payment-history") {
+                with(user("finance-operator").authorities(SimpleGrantedAuthority("tours-operator.payment:view")))
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.length()") { value(2) }
+                jsonPath("$[1].toStatus") { value("PAID") }
+            }
+    }
+
+    @Test
+    fun `D10c - payment history requires payment view permission`() {
+        val bookingId = UUID.randomUUID()
+        mockMvc
+            .get("/api/v1/tours-operator/staff/bookings/$bookingId/payment-history")
+            .andExpect { status { isUnauthorized() } }
+        mockMvc
+            .get("/api/v1/tours-operator/staff/bookings/$bookingId/payment-history") {
+                with(user("booking-operator").authorities(SimpleGrantedAuthority("tours-operator.booking:view")))
+            }.andExpect { status { isForbidden() } }
+    }
+
+    @Test
+    fun `D10d - review and refund from one webhook keep their order despite equal timestamps`() {
+        val bookingId = createBooking()
+        mockMvc
+            .post("/api/v1/tours-operator/bookings/$bookingId/pay") {
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect { status { isCreated() } }
+        // A refund for a still-PENDING payment runs markReviewRequired and
+        // markRefunded with the same instant in one transaction.
+        mockMvc
+            .post("/api/v1/tours-operator/payments/paymob-callback?hmac=valid-hmac") {
+                contentType = MediaType.APPLICATION_JSON
+                content = webhookBody("ORDER-TEST-123", "TXN-ONE-SHOT", "false", "false", "true", 4500)
+            }.andExpect { status { isOk() } }
+
+        mockMvc
+            .get("/api/v1/tours-operator/staff/bookings/$bookingId/payment-history") {
+                with(user("finance-operator").authorities(SimpleGrantedAuthority("tours-operator.payment:view")))
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.length()") { value(3) }
+                jsonPath("$[1].toStatus") { value("REVIEW_REQUIRED") }
+                jsonPath("$[2].fromStatus") { value("REVIEW_REQUIRED") }
+                jsonPath("$[2].toStatus") { value("REFUNDED") }
+            }
+        val occurredAt =
+            dsl
+                .select(TOURS_OPERATOR_PAYMENT_AUDIT_EVENT.OCCURRED_AT)
+                .from(TOURS_OPERATOR_PAYMENT_AUDIT_EVENT)
+                .where(TOURS_OPERATOR_PAYMENT_AUDIT_EVENT.TO_STATUS.`in`("REVIEW_REQUIRED", "REFUNDED"))
+                .fetch(TOURS_OPERATOR_PAYMENT_AUDIT_EVENT.OCCURRED_AT)
+        assertThat(occurredAt.toSet()).hasSize(1)
     }
 }

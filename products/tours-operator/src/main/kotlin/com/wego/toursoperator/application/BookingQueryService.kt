@@ -8,7 +8,10 @@ import java.time.LocalDate
 
 class BookingQueryService(
     private val bookingRepository: BookingRepository,
+    private val bookingHistoryQuery: BookingHistoryQuery,
 ) {
+    fun history(id: BookingId): List<BookingHistoryEntry> = bookingHistoryQuery.findByBooking(id)
+
     fun findById(id: BookingId): Booking? = bookingRepository.findById(id)
 
     fun findByReference(reference: String): Booking? = bookingRepository.findByReference(reference)

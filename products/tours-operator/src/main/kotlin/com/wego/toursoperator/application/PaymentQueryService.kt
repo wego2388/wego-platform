@@ -15,6 +15,8 @@ class PaymentQueryService(
 ) {
     fun findByBookingId(bookingId: BookingId): Payment? = paymentRepository.findByBookingId(bookingId)
 
+    fun historyForBooking(bookingId: BookingId): List<PaymentHistoryEntry> = paymentRepository.historyForBooking(bookingId)
+
     fun listActivity(
         fromInclusive: Instant,
         toExclusive: Instant,
