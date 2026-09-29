@@ -37,6 +37,7 @@ val nonDiversMigrationResources =
         "db/migration/data/V17__tours_operator_catalog_seed.sql",
         "db/migration/V18__tours_operator_payment.sql",
         "db/migration/V19__tours_operator_payment_hardening.sql",
+        "db/migration/V20__tours_operator_payment_revenue_recognition.sql",
     )
 val stageDiversJooqMigrations by tasks.registering(Sync::class) {
     into(generatedJooqMigrations)

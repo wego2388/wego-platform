@@ -11,7 +11,7 @@ import {
   cancelBooking,
   completeBooking,
   listBookings,
-  listTours,
+  listAllStaffTours,
   formatMoney,
   ToursApiError,
   type Booking,
@@ -45,6 +45,7 @@ const cancelReason = ref<Record<string, string>>({});
 const canView     = computed(() => hasPermission(session.value, "tours-operator.booking:view"));
 const canCancel   = computed(() => hasPermission(session.value, "tours-operator.booking:cancel"));
 const canComplete = computed(() => hasPermission(session.value, "tours-operator.booking:complete"));
+const canViewTours = computed(() => hasPermission(session.value, "tours-operator.tour:view"));
 
 function tourName(tourId: string): string {
   return toursById.value[tourId]?.slug ?? tourId.slice(0, 8);
@@ -135,10 +136,12 @@ onMounted(async () => {
   session.value = readAuthSession();
   if (!session.value) { void router.replace("/login"); return; }
   // Load tour list for filter dropdown
-  try {
-    allTours.value = await listTours(session.value.token, { size: 200 });
-    toursById.value = Object.fromEntries(allTours.value.map((t) => [t.id, t]));
-  } catch { /* non-fatal */ }
+  if (canViewTours.value) {
+    try {
+      allTours.value = await listAllStaffTours(session.value.token);
+      toursById.value = Object.fromEntries(allTours.value.map((t) => [t.id, t]));
+    } catch { /* non-fatal */ }
+  }
   void load();
 });
 </script>

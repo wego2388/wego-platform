@@ -9,6 +9,8 @@ export type TourSlot = components["schemas"]["ToursOperatorSlotResponse"];
 export type BookingCustomer = components["schemas"]["ToursOperatorCustomerResponse"];
 export type CreateBookingPayload = components["schemas"]["CreateToursOperatorBookingRequest"];
 export type Booking = components["schemas"]["ToursOperatorBookingResponse"];
+export type PaymentLedgerEntry = components["schemas"]["ToursOperatorPaymentLedgerEntry"];
+export type ToursOperatorPaymentStatus = components["schemas"]["ToursOperatorPaymentStatus"];
 
 const DECIMAL_AMOUNT = /^(0|[1-9]\d{0,16})\.\d{2}$/;
 const ISO_CURRENCY_CODE = /^[A-Z]{3}$/;

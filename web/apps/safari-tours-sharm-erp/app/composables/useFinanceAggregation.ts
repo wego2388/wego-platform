@@ -1,38 +1,58 @@
 /**
- * Finance aggregation composable for the Safari Tours Sharm ERP.
+ * Finance aggregation for the Safari Tours Sharm ERP.
  *
- * All functions are pure (no network calls) so they are directly
- * unit-testable with Vitest.  The page layer fetches the bookings
- * list from the API and passes the result here.
+ * Financial truth comes from immutable payment activity, never from a booking
+ * status. A sale is recognised on revenueRecognisedAt and its refund on
+ * refundedAt, which keeps cross-period refunds accurate. A capture that was
+ * never recognised (held for review) is never revenue, even once refunded, so
+ * a later refund cannot restate a closed period.
  */
 import {
-  addMoney,
   divideMoney,
+  formatMoney,
+  minorUnitsToMoney,
   moneyToMinorUnits,
 } from "@wego/api-contract";
-import type { Booking, Money, Tour } from "@wego/api-contract";
+import type { Booking, Money, PaymentLedgerEntry, Tour } from "@wego/api-contract";
 
-// ── Types ──────────────────────────────────────────────────────────────────
+const REPORTING_TIME_ZONE = "Africa/Cairo";
+
+export interface SignedMoney {
+  amount: string;
+  currencyCode: string;
+}
+
+export interface PaymentLedgerEvent {
+  paymentId: string;
+  bookingId: string;
+  tourId: string;
+  adultsCount: number;
+  childrenCount: number;
+  kind: "PAID" | "REFUNDED";
+  occurredAt: string;
+  amountMinorUnits: bigint;
+  currencyCode: string;
+}
 
 export interface RevenueSummary {
-  /** Total revenue from CONFIRMED + COMPLETED bookings. */
-  totalRevenue: Money;
-  /** Number of revenue-generating bookings. */
-  confirmedCount: number;
-  /** Total number of bookings (all statuses). */
-  totalCount: number;
-  /** Total pax (adults + children) across revenue bookings. */
+  grossPaid: Money;
+  refunded: Money;
+  netRevenue: SignedMoney;
+  paidCount: number;
+  refundedCount: number;
+  totalPaymentCount: number;
   paxTotal: number;
-  /** Average revenue per confirmed/completed booking. */
-  averagePerBooking: Money | null;
+  averagePaidBooking: Money | null;
 }
 
 export interface RevenueByTourRow {
   tourId: string;
   tourSlug: string | null;
-  bookingCount: number;
-  total: Money;
-  /** Share of total revenue as a number 0–100. */
+  paidCount: number;
+  refundedCount: number;
+  grossPaid: Money;
+  refunded: Money;
+  netRevenue: SignedMoney;
   sharePercent: number;
 }
 
@@ -41,147 +61,241 @@ export interface BookingStatusCount {
   count: number;
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+export interface PaymentStatusCount {
+  status: PaymentLedgerEntry["status"];
+  count: number;
+}
 
-const REVENUE_STATUSES = new Set(["CONFIRMED", "COMPLETED"]);
+export interface DailyRevenueRow {
+  date: string;
+  paidCount: number;
+  refundedCount: number;
+  netRevenue: SignedMoney;
+}
 
-/** Returns only bookings that contribute to revenue. */
-export function revenueBookings(bookings: Booking[]): Booking[] {
-  return bookings.filter((b) => REVENUE_STATUSES.has(b.status));
+function dateInReportingZone(instant: string): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: REPORTING_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(instant));
+}
+
+function isInDateRange(instant: string, from: string, to: string): boolean {
+  const date = dateInReportingZone(instant);
+  return date >= from && date <= to;
 }
 
 /**
- * Filters bookings to the inclusive date range [from, to].
- * Dates are compared as ISO-8601 strings (YYYY-MM-DD) — lexicographic
- * comparison is correct for this format.
+ * Only recognised events are checked, so a stray pending or review row in
+ * another currency cannot break the report. Call it from the loader so a real
+ * mix surfaces as a load error, not as a render crash.
  */
-export function filterByDateRange(
-  bookings: Booking[],
+export function assertSingleCurrency(events: PaymentLedgerEvent[]): string {
+  const currencies = new Set(events.map((event) => event.currencyCode));
+  if (currencies.size > 1) throw new Error("Finance report cannot mix currencies");
+  return currencies.values().next().value ?? "EUR";
+}
+
+/** Keyset pages never overlap, but the report must still count each payment once. */
+export function uniqueByPaymentId(payments: PaymentLedgerEntry[]): PaymentLedgerEntry[] {
+  return Array.from(new Map(payments.map((payment) => [payment.paymentId, payment])).values());
+}
+
+function signedMoney(minorUnits: bigint, currencyCode: string): SignedMoney {
+  const sign = minorUnits < 0n ? "-" : "";
+  const absolute = minorUnits < 0n ? -minorUnits : minorUnits;
+  const whole = absolute / 100n;
+  const fraction = (absolute % 100n).toString().padStart(2, "0");
+  return { amount: `${sign}${whole}.${fraction}`, currencyCode };
+}
+
+function signedMoneyToMinorUnits(money: SignedMoney): bigint {
+  const negative = money.amount.startsWith("-");
+  const unsigned = negative ? money.amount.slice(1) : money.amount;
+  const [whole, fraction] = unsigned.split(".") as [string, string];
+  const value = BigInt(whole) * 100n + BigInt(fraction);
+  return negative ? -value : value;
+}
+
+export function formatSignedMoney(money: SignedMoney): string {
+  const negative = money.amount.startsWith("-");
+  const unsigned = negative ? money.amount.slice(1) : money.amount;
+  const formatted = formatMoney({ amount: unsigned, currencyCode: money.currencyCode });
+  return negative ? `-${formatted}` : formatted;
+}
+
+/** Operational booking-date filter. It is deliberately separate from finance. */
+export function filterByDateRange(bookings: Booking[], from: string, to: string): Booking[] {
+  return bookings.filter((booking) => booking.tourDate >= from && booking.tourDate <= to);
+}
+
+/**
+ * Converts ledger rows to financial events in the requested Cairo-local range.
+ * Only captures with revenueRecognisedAt produce events; REVIEW_REQUIRED,
+ * RECONCILIATION_REQUIRED and refunds of never-recognised captures do not.
+ */
+export function paymentLedgerEvents(
+  payments: PaymentLedgerEntry[],
   from: string,
   to: string,
-): Booking[] {
-  return bookings.filter((b) => b.tourDate >= from && b.tourDate <= to);
+): PaymentLedgerEvent[] {
+  const events: PaymentLedgerEvent[] = [];
+  for (const payment of uniqueByPaymentId(payments)) {
+    const recognisedAt = payment.revenueRecognisedAt;
+    if (!recognisedAt) continue;
+    if (isInDateRange(recognisedAt, from, to)) {
+      events.push({
+        paymentId: payment.paymentId,
+        bookingId: payment.bookingId,
+        tourId: payment.tourId,
+        adultsCount: payment.adultsCount,
+        childrenCount: payment.childrenCount,
+        kind: "PAID",
+        occurredAt: recognisedAt,
+        amountMinorUnits: moneyToMinorUnits(payment.amount),
+        currencyCode: payment.amount.currencyCode,
+      });
+    }
+    if (
+      payment.status === "REFUNDED"
+      && payment.refundedAt
+      && isInDateRange(payment.refundedAt, from, to)
+    ) {
+      events.push({
+        paymentId: payment.paymentId,
+        bookingId: payment.bookingId,
+        tourId: payment.tourId,
+        adultsCount: payment.adultsCount,
+        childrenCount: payment.childrenCount,
+        kind: "REFUNDED",
+        occurredAt: payment.refundedAt,
+        amountMinorUnits: -moneyToMinorUnits(payment.amount),
+        currencyCode: payment.amount.currencyCode,
+      });
+    }
+  }
+  return events;
 }
 
-// ── Aggregation functions ──────────────────────────────────────────────────
-
-/**
- * Computes the top-level revenue KPIs for a set of bookings.
- */
-export function computeRevenueSummary(bookings: Booking[]): RevenueSummary {
-  const revenue = revenueBookings(bookings);
-  const totalRevenue =
-    revenue.length > 0
-      ? addMoney(revenue.map((b) => b.totalPrice))
-      : { amount: "0.00", currencyCode: "EUR" };
-
-  const paxTotal = revenue.reduce(
-    (sum, b) => sum + b.adultsCount + b.childrenCount,
-    0,
-  );
-
-  const averagePerBooking =
-    revenue.length > 0 ? divideMoney(totalRevenue, revenue.length) : null;
+export function computeRevenueSummary(
+  payments: PaymentLedgerEntry[],
+  from: string,
+  to: string,
+): RevenueSummary {
+  const events = paymentLedgerEvents(payments, from, to);
+  const currencyCode = assertSingleCurrency(events);
+  const paidEvents = events.filter((event) => event.kind === "PAID");
+  const refundEvents = events.filter((event) => event.kind === "REFUNDED");
+  const grossMinor = paidEvents.reduce((sum, event) => sum + event.amountMinorUnits, 0n);
+  const refundMinor = refundEvents.reduce((sum, event) => sum - event.amountMinorUnits, 0n);
+  // Net pax mirrors net revenue: a refund removes its travellers in the
+  // period the refund happened, so a cross-period refund can make it negative.
+  const pax = (event: PaymentLedgerEvent) => event.adultsCount + event.childrenCount;
+  const paxTotal = paidEvents.reduce((sum, event) => sum + pax(event), 0)
+    - refundEvents.reduce((sum, event) => sum + pax(event), 0);
+  const grossPaid = minorUnitsToMoney(grossMinor, currencyCode);
 
   return {
-    totalRevenue,
-    confirmedCount: revenue.length,
-    totalCount: bookings.length,
+    grossPaid,
+    refunded: minorUnitsToMoney(refundMinor, currencyCode),
+    netRevenue: signedMoney(grossMinor - refundMinor, currencyCode),
+    paidCount: paidEvents.length,
+    refundedCount: refundEvents.length,
+    totalPaymentCount: uniqueByPaymentId(payments).length,
     paxTotal,
-    averagePerBooking,
+    averagePaidBooking: paidEvents.length > 0 ? divideMoney(grossPaid, paidEvents.length) : null,
   };
 }
 
-/**
- * Groups revenue by tour, sorted descending by total revenue.
- * Tours with no bookings are excluded.
- */
 export function computeRevenueByTour(
-  bookings: Booking[],
+  payments: PaymentLedgerEntry[],
   tours: Tour[],
+  from: string,
+  to: string,
 ): RevenueByTourRow[] {
-  const tourMap = new Map(tours.map((t) => [t.id, t]));
-  const revenue = revenueBookings(bookings);
+  const events = paymentLedgerEvents(payments, from, to);
+  const currencyCode = assertSingleCurrency(events);
+  const tourMap = new Map(tours.map((tour) => [tour.id, tour]));
+  const rows = new Map<string, { paid: bigint; refunded: bigint; paidCount: number; refundedCount: number }>();
 
-  const map = new Map<
-    string,
-    { count: number; total: Money; slug: string | null }
-  >();
-
-  for (const b of revenue) {
-    const existing = map.get(b.tourId);
-    if (!existing) {
-      map.set(b.tourId, {
-        count: 1,
-        total: { ...b.totalPrice },
-        slug: tourMap.get(b.tourId)?.slug ?? null,
-      });
+  for (const event of events) {
+    const tourId = event.tourId;
+    const row = rows.get(tourId) ?? { paid: 0n, refunded: 0n, paidCount: 0, refundedCount: 0 };
+    if (event.kind === "PAID") {
+      row.paid += event.amountMinorUnits;
+      row.paidCount++;
     } else {
-      existing.count++;
-      existing.total = addMoney([existing.total, b.totalPrice]);
+      row.refunded -= event.amountMinorUnits;
+      row.refundedCount++;
     }
+    rows.set(tourId, row);
   }
 
-  // Compute total for share percentage
-  const grandTotal = revenue.length > 0
-    ? moneyToMinorUnits(addMoney(revenue.map((b) => b.totalPrice)))
-    : 0n;
-
-  const rows: RevenueByTourRow[] = Array.from(map.entries()).map(
-    ([tourId, { count, total, slug }]) => ({
+  const totalGross = Array.from(rows.values()).reduce((sum, row) => sum + row.paid, 0n);
+  return Array.from(rows.entries())
+    .map(([tourId, row]) => ({
       tourId,
-      tourSlug: slug,
-      bookingCount: count,
-      total,
-      sharePercent:
-        grandTotal > 0n
-          ? Math.round(
-              (Number(moneyToMinorUnits(total)) / Number(grandTotal)) * 100,
-            )
-          : 0,
-    }),
-  );
-
-  return rows.sort((a, b) => {
-    const diff =
-      moneyToMinorUnits(b.total) - moneyToMinorUnits(a.total);
-    return diff === 0n ? 0 : diff > 0n ? 1 : -1;
-  });
+      tourSlug: tourMap.get(tourId)?.slug ?? null,
+      paidCount: row.paidCount,
+      refundedCount: row.refundedCount,
+      grossPaid: minorUnitsToMoney(row.paid, currencyCode),
+      refunded: minorUnitsToMoney(row.refunded, currencyCode),
+      netRevenue: signedMoney(row.paid - row.refunded, currencyCode),
+      sharePercent: totalGross > 0n ? Number((row.paid * 100n + totalGross / 2n) / totalGross) : 0,
+    }))
+    .sort((left, right) => {
+      const difference = signedMoneyToMinorUnits(right.netRevenue) - signedMoneyToMinorUnits(left.netRevenue);
+      return difference === 0n ? 0 : difference > 0n ? 1 : -1;
+    });
 }
 
-/**
- * Counts bookings by status, returns all 5 statuses (0 if none).
- */
 export function computeStatusCounts(bookings: Booking[]): BookingStatusCount[] {
-  const ALL_STATUSES = ["NEW", "CONFIRMED", "COMPLETED", "CANCELLED", "EXPIRED"];
+  const statuses = ["NEW", "CONFIRMED", "COMPLETED", "CANCELLED", "EXPIRED"];
   const counts: Record<string, number> = {};
-  for (const b of bookings) {
-    counts[b.status] = (counts[b.status] ?? 0) + 1;
-  }
-  return ALL_STATUSES.map((status) => ({ status, count: counts[status] ?? 0 }));
+  for (const booking of bookings) counts[booking.status] = (counts[booking.status] ?? 0) + 1;
+  return statuses.map((status) => ({ status, count: counts[status] ?? 0 }));
 }
 
-/**
- * Groups revenue bookings by tourDate (YYYY-MM-DD), sorted ascending.
- * Useful for a revenue-over-time chart or daily breakdown table.
- */
-export function computeDailyRevenue(
-  bookings: Booking[],
-): Array<{ date: string; count: number; total: Money }> {
-  const revenue = revenueBookings(bookings);
-  const map = new Map<string, { count: number; total: Money }>();
-
-  for (const b of revenue) {
-    const existing = map.get(b.tourDate);
-    if (!existing) {
-      map.set(b.tourDate, { count: 1, total: { ...b.totalPrice } });
-    } else {
-      existing.count++;
-      existing.total = addMoney([existing.total, b.totalPrice]);
-    }
+export function computePaymentStatusCounts(payments: PaymentLedgerEntry[]): PaymentStatusCount[] {
+  const statuses: PaymentLedgerEntry["status"][] = [
+    "PENDING",
+    "PAID",
+    "REFUNDED",
+    "FAILED",
+    "REVIEW_REQUIRED",
+    "RECONCILIATION_REQUIRED",
+  ];
+  const counts = new Map<PaymentLedgerEntry["status"], number>();
+  for (const payment of uniqueByPaymentId(payments)) {
+    counts.set(payment.status, (counts.get(payment.status) ?? 0) + 1);
   }
+  return statuses.map((status) => ({ status, count: counts.get(status) ?? 0 }));
+}
 
-  return Array.from(map.entries())
-    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-    .map(([date, { count, total }]) => ({ date, count, total }));
+export function computeDailyRevenue(
+  payments: PaymentLedgerEntry[],
+  from: string,
+  to: string,
+): DailyRevenueRow[] {
+  const events = paymentLedgerEvents(payments, from, to);
+  const currencyCode = assertSingleCurrency(events);
+  const rows = new Map<string, { net: bigint; paidCount: number; refundedCount: number }>();
+  for (const event of events) {
+    const date = dateInReportingZone(event.occurredAt);
+    const row = rows.get(date) ?? { net: 0n, paidCount: 0, refundedCount: 0 };
+    row.net += event.amountMinorUnits;
+    if (event.kind === "PAID") row.paidCount++;
+    else row.refundedCount++;
+    rows.set(date, row);
+  }
+  return Array.from(rows.entries())
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([date, row]) => ({
+      date,
+      paidCount: row.paidCount,
+      refundedCount: row.refundedCount,
+      netRevenue: signedMoney(row.net, currencyCode),
+    }));
 }

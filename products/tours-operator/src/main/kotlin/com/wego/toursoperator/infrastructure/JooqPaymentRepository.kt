@@ -1,11 +1,14 @@
 package com.wego.toursoperator.infrastructure
 
+import com.wego.generated.jooq.tables.ToursOperatorBooking.TOURS_OPERATOR_BOOKING
 import com.wego.generated.jooq.tables.ToursOperatorPayment.TOURS_OPERATOR_PAYMENT
+import com.wego.toursoperator.application.PaymentActivity
 import com.wego.toursoperator.application.PaymentRepository
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.Payment
 import com.wego.toursoperator.domain.PaymentId
 import com.wego.toursoperator.domain.PaymentStatus
+import com.wego.toursoperator.domain.TourId
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
@@ -79,6 +82,57 @@ class JooqPaymentRepository(
             ?.let(::toDomain)
     }
 
+    @Transactional(readOnly = true)
+    override fun listActivity(
+        fromInclusive: Instant,
+        toExclusive: Instant,
+        status: PaymentStatus?,
+        afterId: PaymentId?,
+        size: Int,
+    ): List<PaymentActivity> {
+        val t = TOURS_OPERATOR_PAYMENT
+        val from = toOffset(fromInclusive)
+        val to = toOffset(toExclusive)
+        val activityInRange =
+            t.CREATED_AT
+                .ge(from)
+                .and(t.CREATED_AT.lt(to))
+                .or(t.PAID_AT.ge(from).and(t.PAID_AT.lt(to)))
+                .or(t.FAILED_AT.ge(from).and(t.FAILED_AT.lt(to)))
+                .or(t.REFUNDED_AT.ge(from).and(t.REFUNDED_AT.lt(to)))
+        val withStatus = status?.let { activityInRange.and(t.STATUS.eq(it.name)) } ?: activityInRange
+        val condition = afterId?.let { withStatus.and(t.ID.gt(it.value)) } ?: withStatus
+        val payments =
+            dsl
+                .selectFrom(t)
+                .where(condition)
+                .orderBy(t.ID.asc())
+                .limit(size)
+                .fetch()
+                .map(::toDomain)
+        if (payments.isEmpty()) return emptyList()
+        val bookingContext =
+            dsl
+                .select(
+                    TOURS_OPERATOR_BOOKING.ID,
+                    TOURS_OPERATOR_BOOKING.TOUR_ID,
+                    TOURS_OPERATOR_BOOKING.ADULTS_COUNT,
+                    TOURS_OPERATOR_BOOKING.CHILDREN_COUNT,
+                ).from(TOURS_OPERATOR_BOOKING)
+                .where(TOURS_OPERATOR_BOOKING.ID.`in`(payments.map { it.bookingId.value }))
+                .fetch()
+                .associateBy { it[TOURS_OPERATOR_BOOKING.ID] }
+        return payments.map { payment ->
+            val booking = checkNotNull(bookingContext[payment.bookingId.value])
+            PaymentActivity(
+                payment = payment,
+                tourId = TourId(checkNotNull(booking[TOURS_OPERATOR_BOOKING.TOUR_ID])),
+                adultsCount = checkNotNull(booking[TOURS_OPERATOR_BOOKING.ADULTS_COUNT]),
+                childrenCount = checkNotNull(booking[TOURS_OPERATOR_BOOKING.CHILDREN_COUNT]),
+            )
+        }
+    }
+
     @Transactional
     override fun save(payment: Payment) {
         val t = TOURS_OPERATOR_PAYMENT
@@ -100,6 +154,7 @@ class JooqPaymentRepository(
             .set(t.PAID_AT, payment.paidAt?.let(::toOffset))
             .set(t.FAILED_AT, payment.failedAt?.let(::toOffset))
             .set(t.REFUNDED_AT, payment.refundedAt?.let(::toOffset))
+            .set(t.REVENUE_RECOGNISED_AT, payment.revenueRecognisedAt?.let(::toOffset))
             .onConflict(t.ID)
             .doUpdate()
             .set(t.PAYMOB_ORDER_ID, payment.paymobOrderId)
@@ -111,6 +166,7 @@ class JooqPaymentRepository(
             .set(t.PAID_AT, payment.paidAt?.let(::toOffset))
             .set(t.FAILED_AT, payment.failedAt?.let(::toOffset))
             .set(t.REFUNDED_AT, payment.refundedAt?.let(::toOffset))
+            .set(t.REVENUE_RECOGNISED_AT, payment.revenueRecognisedAt?.let(::toOffset))
             .execute()
     }
 
@@ -132,6 +188,7 @@ class JooqPaymentRepository(
             paidAt = r.paidAt?.toInstant(),
             failedAt = r.failedAt?.toInstant(),
             refundedAt = r.refundedAt?.toInstant(),
+            revenueRecognisedAt = r.revenueRecognisedAt?.toInstant(),
         )
 
     private fun toOffset(instant: Instant): OffsetDateTime = OffsetDateTime.ofInstant(instant, java.time.ZoneOffset.UTC)

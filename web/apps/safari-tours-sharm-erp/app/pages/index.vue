@@ -10,7 +10,7 @@ import {
 } from "../composables/useAuthSession";
 import {
   listBookings,
-  listTours,
+  listAllStaffTours,
   addMoney,
   formatMoney,
   type Booking,
@@ -87,7 +87,7 @@ async function load() {
   try {
     const [bookingsResult, toursResult] = await Promise.all([
       canViewBookings.value ? listBookings(token, { size: 100 }) : Promise.resolve([] as Booking[]),
-      canViewTours.value    ? listTours(token, { size: 200 }) : Promise.resolve([] as Tour[]),
+      canViewTours.value    ? listAllStaffTours(token) : Promise.resolve([] as Tour[]),
     ]);
     bookings.value = bookingsResult;
     toursById.value = Object.fromEntries(toursResult.map((t) => [t.id, t]));

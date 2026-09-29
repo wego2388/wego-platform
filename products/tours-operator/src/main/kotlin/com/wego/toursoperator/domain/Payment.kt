@@ -54,6 +54,7 @@ class Payment(
     paidAt: Instant?,
     failedAt: Instant?,
     refundedAt: Instant?,
+    revenueRecognisedAt: Instant?,
 ) {
     var paymobOrderId: String? = paymobOrderId
         private set
@@ -82,6 +83,14 @@ class Payment(
     var refundedAt: Instant? = refundedAt
         private set
 
+    /**
+     * When the capture was accepted as revenue. Set only by [markPaid], never
+     * for a REVIEW_REQUIRED capture, and kept through a refund so finance can
+     * tell a refunded sale from a refunded unrecognised capture.
+     */
+    var revenueRecognisedAt: Instant? = revenueRecognisedAt
+        private set
+
     init {
         require(amountEur > BigDecimal.ZERO) { "Payment amount must be positive" }
         require(amountMinorUnits > 0L) { "Payment minor units must be positive" }
@@ -104,6 +113,12 @@ class Payment(
         }
         require((status == PaymentStatus.REFUNDED) == (refundedAt != null)) {
             "refundedAt must be set if and only if status is REFUNDED (status: $status)"
+        }
+        require(status != PaymentStatus.PAID || revenueRecognisedAt != null) {
+            "a PAID payment must be recognised as revenue"
+        }
+        require(revenueRecognisedAt == null || status in setOf(PaymentStatus.PAID, PaymentStatus.REFUNDED)) {
+            "only PAID or REFUNDED payments can carry revenue recognition (status: $status)"
         }
     }
 
@@ -153,6 +168,7 @@ class Payment(
         this.providerCheckoutToken = null
         this.status = PaymentStatus.PAID
         this.paidAt = now
+        this.revenueRecognisedAt = now
         this.failedAt = null
     }
 
@@ -248,6 +264,7 @@ class Payment(
                 paidAt = null,
                 failedAt = null,
                 refundedAt = null,
+                revenueRecognisedAt = null,
             )
     }
 }

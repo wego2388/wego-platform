@@ -22,7 +22,7 @@ Rule: exactly one implementation packet may be `ACTIVE` in a worktree. Parent mi
 | WEGO-013 | Platform hardening: fix CI's first real run against `main`, mobile CI build coverage, client onboarding runbook | COMPLETE |
 | WEGO-014 | ERP professional UX/UI redesign: navigation shell, component library, dark mode, motion, responsive pass across all 17 routes | COMPLETE |
 | WEGO-015 | Sharm Divers Club customer-facing redesign: public website (`sharm-divers-club-site`) + mobile customer app (`mobile/apps/customer`) | COMPLETE |
-| WEGO-016 | Safari Tours Sharm: tours-operator product foundation — public booking site, staff ERP, Paymob payment flow, production catalog, and isolated deployment | IN PROGRESS |
+| WEGO-016 | Safari Tours Sharm: tours-operator product foundation — public booking site, staff ERP, Paymob payment flow, production catalog, and isolated deployment | NOT AUTHORIZED — paused after F (committed locally); G needs owner activation |
 | WEGO-017 | Foundry executable client releases: artifact, data, deployment, and CI isolation for Safari Tours Sharm, Sharm To Go, and Sharm Divers Club | COMPLETE |
 
 ## Automation and growth roadmap guardrails
@@ -2380,7 +2380,7 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
 
 ## WEGO-016 — Safari Tours Sharm: tours-operator product foundation
 
-- **Status:** PAUSED — E complete locally; WEGO-017-A is the sole active packet
+- **Status:** PAUSED — A–F complete locally (F closed 2026-09-30); G–I require explicit owner activation
 - **Activated:** 2026-09-27
 - **Review intensity:** Tier 1 — this packet adds a new product boundary (`products/tours-operator`), a new Flyway migration (V14), a new client isolation profile (`clients/safari-tours-sharm`), and will later touch payment/PII/auth surfaces. Every sub-packet that adds a migration, modifies auth, or handles customer payment data requires independent Tier 1 review before merge.
 - **Origin:** The owner asked to establish Safari Tours Sharm as a first-class Wego Platform product — on the same standards as Sharm Divers Club and Sharm To Go — with a public booking website, a staff ERP, a real Paymob payment flow, a production tour catalog, and an isolated deployment. The handoff document at `clients/safari-tours-sharm/handoff/SAFARI_TOURS_PRODUCTION_MATURITY_HANDOFF.md` is the authoritative reference for current maturity, open P0 issues, and the phased delivery plan.
@@ -2812,7 +2812,8 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-09-28 — WEGO-016-F: ERP finance aggregation + complete booking management
 
-- **Status:** ACTIVE
+- **Status:** COMPLETE
+- **Closure state (2026-09-30):** Tier-1 READY with evidence below; the owner authorized the local closure commit (`اعمل commit محلي`). No push or deploy.
 - **Status note:** The owner explicitly resumed Safari implementation on
   2026-09-29 after WEGO-017-A reached a zero-blocker Tier-1 verdict, then
   authorized the local closure commit and activation of F with `ابدأ`. Commit
@@ -2840,6 +2841,44 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 - **NEXT SUB-PACKET:** none from WEGO-016 while WEGO-017-A is ACTIVE. F must be
   explicitly resumed, corrected, and reviewed later; G is not authorized.
+
+---
+
+### 2026-09-30 — WEGO-016-F payment-ledger truth correction and Tier-1 closure
+
+- **Finance truth:** new staff-only `GET /api/v1/tours-operator/staff/payments`
+  (`tours-operator.payment:view`, no customer PII) returns payment rows with any
+  lifecycle event in a half-open Cairo-local range. The ERP finance page derives
+  revenue only from this ledger: a sale on `revenueRecognisedAt`, its refund on
+  `refundedAt`; net pax subtracts refunded travellers in the refund's period.
+- **V20 `tours_operator_payment_revenue_recognition`:** adds
+  `revenue_recognised_at`, set only by `markPaid`, never for REVIEW_REQUIRED
+  captures, kept through refunds, guarded by domain invariants and CHECK
+  constraints. Prevents a refund of an unrecognised capture from restating a
+  closed period. Backfill recognises pre-V20 PAID rows only; pre-V20 REFUNDED
+  sandbox rows stay unrecognised (no production payments exist) — note for UAT.
+  Registered in both Gradle builds, `foundry/catalog/release-profiles.json`, and
+  regenerated release plans (Divers/Sharm To Go plans: profile digest only).
+- **Ledger paging:** keyset by payment id (`after` cursor), never offset, plus
+  client-side dedupe — a payment arriving mid-load can never be counted twice.
+- **Other fixes found during the round:** finance aggregates use the applied
+  (fetched) range, not live date inputs; ERP overview/bookings/finance requested
+  `size=200` tours against a `@Max(100)` endpoint (overview failed with 400) —
+  now paged through `/staff/tours`, gated on `tours-operator.tour:view`;
+  `@Validated` enforces ledger size bounds; a currency mix surfaces as a load
+  error instead of a render crash.
+- **Tier-1 review:** independent reviewer (Claude Opus subagent) round 1 NOT
+  READY (2 MAJOR: offset-paging double count, review-refund restatement; 3
+  MINOR; 2 NIT) → all addressed → round 2 **READY, 0 blocker / 0 major**.
+- **Evidence (2026-09-30):**
+  - `./gradlew :platform:apps:safari-tours-sharm:test` — 81 tests, 0 failures,
+    0 skipped (payment suite 25 incl. D9a–D9h).
+  - `./gradlew :platform:application:test` — 323 tests, 0 failures, 0 skipped.
+  - `scripts/safari-tours-sharm-check.sh` — passed; `scripts/repository-check.sh` — passed.
+  - `pnpm run check` in `web/` — exit 0, 445 tests (ERP 55).
+- **Follow-ups (not blocking):** index for ledger timestamp ranges once volume
+  grows; deploy V20 and its binary together (old binary cannot write PAID).
+- **NEXT SUB-PACKET:** none authorized. G requires explicit owner activation.
 
 ---
 

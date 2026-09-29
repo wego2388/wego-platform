@@ -22,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.MediaType
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.bean.override.mockito.MockitoBean
@@ -33,6 +35,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.UUID
 import java.util.concurrent.Callable
@@ -186,6 +189,40 @@ class ToursOperatorPaymentTest {
               "order":{"id":"$orderId"},
               "source_data":{"pan":"1234","sub_type":"MasterCard","type":"card"},
               "data":{}}}"""
+
+    private fun cairoMidnight(date: LocalDate): OffsetDateTime =
+        date.atStartOfDay(ZoneId.of("Africa/Cairo")).toOffsetDateTime()
+
+    /** Inserts a ledger row directly so tests can place lifecycle events at exact instants. */
+    private fun insertPayment(
+        status: String,
+        createdAt: OffsetDateTime,
+        paidAt: OffsetDateTime? = null,
+        refundedAt: OffsetDateTime? = null,
+        revenueRecognisedAt: OffsetDateTime? = null,
+    ): UUID {
+        val paymentId = UUID.randomUUID()
+        dsl
+            .insertInto(TOURS_OPERATOR_PAYMENT)
+            .set(TOURS_OPERATOR_PAYMENT.ID, paymentId)
+            .set(TOURS_OPERATOR_PAYMENT.BOOKING_ID, UUID.fromString(createBooking()))
+            .set(TOURS_OPERATOR_PAYMENT.AMOUNT_EUR, java.math.BigDecimal("45.00"))
+            .set(TOURS_OPERATOR_PAYMENT.AMOUNT_MINOR_UNITS, 4500L)
+            .set(TOURS_OPERATOR_PAYMENT.CURRENCY_CODE, "EUR")
+            .set(TOURS_OPERATOR_PAYMENT.PROVIDER_REFERENCE, "sts-$paymentId")
+            .set(TOURS_OPERATOR_PAYMENT.STATUS, status)
+            .set(TOURS_OPERATOR_PAYMENT.CREATED_AT, createdAt)
+            .set(TOURS_OPERATOR_PAYMENT.PAID_AT, paidAt)
+            .set(TOURS_OPERATOR_PAYMENT.REFUNDED_AT, refundedAt)
+            .set(TOURS_OPERATOR_PAYMENT.REVENUE_RECOGNISED_AT, revenueRecognisedAt)
+            .execute()
+        return paymentId
+    }
+
+    private fun ledger(query: String) =
+        mockMvc.get("/api/v1/tours-operator/staff/payments?$query") {
+            with(user("finance-operator").authorities(SimpleGrantedAuthority("tours-operator.payment:view")))
+        }
 
     // ── D1: Initiate creates PENDING record ────────────────────────────────
 
@@ -680,5 +717,161 @@ class ToursOperatorPaymentTest {
             .post("/api/v1/tours-operator/bookings/${UUID.randomUUID()}/pay") {
                 contentType = MediaType.APPLICATION_JSON
             }.andExpect { status { isNotFound() } }
+    }
+
+    // ── D9: Staff payment ledger ──────────────────────────────────────────
+
+    @Test
+    fun `D9a - payment ledger requires authentication`() {
+        val today = LocalDate.now(ZoneId.of("Africa/Cairo"))
+        mockMvc
+            .get("/api/v1/tours-operator/staff/payments?from=$today&to=$today")
+            .andExpect { status { isUnauthorized() } }
+    }
+
+    @Test
+    fun `D9b - payment ledger rejects staff without payment view permission`() {
+        val today = LocalDate.now(ZoneId.of("Africa/Cairo"))
+        mockMvc
+            .get("/api/v1/tours-operator/staff/payments?from=$today&to=$today") {
+                with(user("booking-operator").authorities(SimpleGrantedAuthority("tours-operator.booking:view")))
+            }.andExpect { status { isForbidden() } }
+    }
+
+    @Test
+    fun `D9c - payment ledger exposes immutable captured and refunded timestamps`() {
+        val today = LocalDate.now(ZoneId.of("Africa/Cairo"))
+        val bookingId = createBooking()
+        mockMvc
+            .post("/api/v1/tours-operator/bookings/$bookingId/pay") {
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect { status { isCreated() } }
+        mockMvc
+            .post("/api/v1/tours-operator/payments/paymob-callback?hmac=valid-hmac") {
+                contentType = MediaType.APPLICATION_JSON
+                content = webhookBody("ORDER-TEST-123", "TXN-LEDGER", "true", "false", "false", 4500)
+            }.andExpect { status { isOk() } }
+        mockMvc
+            .post("/api/v1/tours-operator/payments/paymob-callback?hmac=valid-hmac") {
+                contentType = MediaType.APPLICATION_JSON
+                content = webhookBody("ORDER-TEST-123", "TXN-LEDGER", "false", "false", "true", 4500)
+            }.andExpect { status { isOk() } }
+
+        mockMvc
+            .get("/api/v1/tours-operator/staff/payments?from=$today&to=$today&status=REFUNDED") {
+                with(user("finance-operator").authorities(SimpleGrantedAuthority("tours-operator.payment:view")))
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$[0].bookingId") { value(bookingId) }
+                jsonPath("$[0].tourId") { value(tourId.toString()) }
+                jsonPath("$[0].adultsCount") { value(1) }
+                jsonPath("$[0].childrenCount") { value(0) }
+                jsonPath("$[0].amount.amount") { value("45.00") }
+                jsonPath("$[0].amount.currencyCode") { value("EUR") }
+                jsonPath("$[0].status") { value("REFUNDED") }
+                jsonPath("$[0].paidAt") { isNotEmpty() }
+                jsonPath("$[0].refundedAt") { isNotEmpty() }
+                jsonPath("$[0].revenueRecognisedAt") { isNotEmpty() }
+                jsonPath("$[0].customer") { doesNotExist() }
+            }
+    }
+
+    @Test
+    fun `D9d - payment ledger rejects an inverted date range`() {
+        mockMvc
+            .get("/api/v1/tours-operator/staff/payments?from=2026-10-02&to=2026-10-01") {
+                with(user("finance-operator").authorities(SimpleGrantedAuthority("tours-operator.payment:view")))
+            }.andExpect {
+                status { isBadRequest() }
+                jsonPath("$.error") { value("invalid_date_range") }
+            }
+    }
+
+    @Test
+    fun `D9e - payment ledger enforces page size bounds`() {
+        val today = LocalDate.now(ZoneId.of("Africa/Cairo"))
+        listOf("size=0", "size=201").forEach { bound ->
+            mockMvc
+                .get("/api/v1/tours-operator/staff/payments?from=$today&to=$today&$bound") {
+                    with(user("finance-operator").authorities(SimpleGrantedAuthority("tours-operator.payment:view")))
+                }.andExpect { status { isBadRequest() } }
+        }
+    }
+
+    @Test
+    fun `D9f - a refunded review capture is never recognised as revenue`() {
+        val today = LocalDate.now(ZoneId.of("Africa/Cairo"))
+        val bookingId = createBooking()
+        mockMvc
+            .post("/api/v1/tours-operator/bookings/$bookingId/pay") {
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect { status { isCreated() } }
+        dsl
+            .update(TOURS_OPERATOR_BOOKING)
+            .set(TOURS_OPERATOR_BOOKING.STATUS, "EXPIRED")
+            .set(TOURS_OPERATOR_BOOKING.EXPIRED_AT, OffsetDateTime.now(ZoneOffset.UTC))
+            .where(TOURS_OPERATOR_BOOKING.ID.eq(UUID.fromString(bookingId)))
+            .execute()
+        mockMvc
+            .post("/api/v1/tours-operator/payments/paymob-callback?hmac=valid-hmac") {
+                contentType = MediaType.APPLICATION_JSON
+                content = webhookBody("ORDER-TEST-123", "TXN-REVIEW", "true", "false", "false", 4500)
+            }.andExpect { jsonPath("$.status") { value("review_required") } }
+        mockMvc
+            .post("/api/v1/tours-operator/payments/paymob-callback?hmac=valid-hmac") {
+                contentType = MediaType.APPLICATION_JSON
+                content = webhookBody("ORDER-TEST-123", "TXN-REVIEW", "false", "false", "true", 4500)
+            }.andExpect { status { isOk() } }
+
+        ledger("from=$today&to=$today").andExpect {
+            status { isOk() }
+            jsonPath("$[0].status") { value("REFUNDED") }
+            jsonPath("$[0].paidAt") { isNotEmpty() }
+            jsonPath("$[0].revenueRecognisedAt") { isEmpty() }
+        }
+    }
+
+    @Test
+    fun `D9g - ledger includes cross-period refunds and honours the half-open Cairo range`() {
+        val from = LocalDate.of(2026, 10, 1)
+        val to = LocalDate.of(2026, 10, 31)
+        val septemberSale = cairoMidnight(LocalDate.of(2026, 9, 15))
+        val crossPeriodRefund =
+            insertPayment(
+                status = "REFUNDED",
+                createdAt = septemberSale,
+                paidAt = septemberSale,
+                refundedAt = cairoMidnight(LocalDate.of(2026, 10, 5)),
+                revenueRecognisedAt = septemberSale,
+            )
+        val lastInstantInRange = cairoMidnight(to.plusDays(1)).minusNanos(1_000)
+        val endOfRange =
+            insertPayment("PAID", lastInstantInRange, lastInstantInRange, revenueRecognisedAt = lastInstantInRange)
+        val nextDay = cairoMidnight(to.plusDays(1))
+        insertPayment("PAID", nextDay, nextDay, revenueRecognisedAt = nextDay)
+
+        val body = ledger("from=$from&to=$to&size=200").andExpect { status { isOk() } }.andReturn().response.contentAsString
+        val ids = Regex(""""paymentId"\s*:\s*"([0-9a-f\-]{36})"""").findAll(body).map { it.groupValues[1] }.toSet()
+        assertThat(ids).containsExactlyInAnyOrder(crossPeriodRefund.toString(), endOfRange.toString())
+    }
+
+    @Test
+    fun `D9h - keyset pages never overlap and cover every row`() {
+        val day = LocalDate.of(2026, 10, 10)
+        val at = cairoMidnight(day).plusHours(12)
+        val inserted = (1..5).map { insertPayment("PAID", at, at, revenueRecognisedAt = at).toString() }
+        val idPattern = Regex(""""paymentId"\s*:\s*"([0-9a-f\-]{36})"""")
+        val seen = mutableListOf<String>()
+        var after: String? = null
+        do {
+            val cursor = after?.let { "&after=$it" } ?: ""
+            val body = ledger("from=$day&to=$day&size=2$cursor").andExpect { status { isOk() } }.andReturn().response.contentAsString
+            val page = idPattern.findAll(body).map { it.groupValues[1] }.toList()
+            seen += page
+            after = page.lastOrNull()
+        } while (page.size == 2)
+        assertThat(seen).doesNotHaveDuplicates()
+        assertThat(seen).containsExactlyInAnyOrderElementsOf(inserted)
+        assertThat(seen).isSorted()
     }
 }

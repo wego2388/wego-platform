@@ -6,6 +6,8 @@ import type {
   Tour,
   TourCategory,
   TourSlot,
+  PaymentLedgerEntry,
+  ToursOperatorPaymentStatus,
 } from "@wego/api-contract";
 
 export type {
@@ -17,6 +19,8 @@ export type {
   Tour,
   TourCategory,
   TourSlot,
+  PaymentLedgerEntry,
+  ToursOperatorPaymentStatus,
 } from "@wego/api-contract";
 export { addMoney, divideMoney, formatMoney, minorUnitsToMoney, moneyToMinorUnits } from "@wego/api-contract";
 
@@ -129,6 +133,27 @@ export function completeBooking(token: string, id: string): Promise<Booking> {
   });
 }
 
+export function listPaymentLedger(
+  token: string,
+  params: {
+    from: string;
+    to: string;
+    status?: ToursOperatorPaymentStatus;
+    /** Keyset cursor: the last paymentId of the previous page. */
+    after?: string;
+    size?: number;
+  },
+): Promise<PaymentLedgerEntry[]> {
+  const q = new URLSearchParams({
+    from: params.from,
+    to: params.to,
+    size: String(params.size ?? PAGE_SIZE),
+  });
+  if (params.status) q.set("status", params.status);
+  if (params.after) q.set("after", params.after);
+  return request<PaymentLedgerEntry[]>(`/api/v1/tours-operator/staff/payments?${q}`, token);
+}
+
 // ── Staff tours ────────────────────────────────────────────────────────────
 
 export type CreateTourPayload = {
@@ -159,6 +184,22 @@ export function listStaffTours(
   q.set("page", String(params.page ?? 0));
   q.set("size", String(params.size ?? PAGE_SIZE));
   return request<Tour[]>(`/api/v1/tours-operator/staff/tours?${q}`, token);
+}
+
+/** Server-side cap for tour list pages (`@Max(100)` on both tour list endpoints). */
+const TOUR_PAGE_MAX = 100;
+
+/**
+ * Loads every tour for id→name lookups, including deactivated tours that still
+ * own historical bookings and payments. Requires `tours-operator.tour:view`.
+ */
+export async function listAllStaffTours(token: string): Promise<Tour[]> {
+  const tours: Tour[] = [];
+  for (let page = 0; ; page++) {
+    const batch = await listStaffTours(token, { page, size: TOUR_PAGE_MAX });
+    tours.push(...batch);
+    if (batch.length < TOUR_PAGE_MAX) return tours;
+  }
 }
 
 export function getStaffTour(token: string, id: string): Promise<Tour> {

@@ -9,64 +9,83 @@ import {
   type AuthSession,
 } from "../composables/useAuthSession";
 import {
-  listBookings,
-  listTours,
+  listPaymentLedger,
+  listAllStaffTours,
   formatMoney,
   ToursApiError,
-  type Booking,
+  type PaymentLedgerEntry,
   type Tour,
   PAGE_SIZE,
 } from "../composables/useToursApi";
 import {
-  filterByDateRange,
+  assertSingleCurrency,
   computeRevenueSummary,
+  paymentLedgerEvents,
+  uniqueByPaymentId,
   computeRevenueByTour,
-  computeStatusCounts,
+  computePaymentStatusCounts,
+  formatSignedMoney,
   type RevenueSummary,
   type RevenueByTourRow,
-  type BookingStatusCount,
+  type PaymentStatusCount,
 } from "../composables/useFinanceAggregation";
 
 useHead({ title: "Finance · Safari Tours Sharm" });
 
 const router  = useRouter();
 const session = ref<AuthSession | null>(null);
-const bookings = ref<Booking[]>([]);
+const payments = ref<PaymentLedgerEntry[]>([]);
 const tours    = ref<Tour[]>([]);
 const state    = ref<"idle" | "loading" | "loaded" | "error">("idle");
 const error    = ref("");
 
 // Date range filter — default: current month
 function currentMonthRange() {
-  const now = new Date();
-  const from = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
-  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  const to = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${lastDay}`;
+  const parts = new Intl.DateTimeFormat("en", {
+    timeZone: "Africa/Cairo",
+    year: "numeric",
+    month: "2-digit",
+  }).formatToParts(new Date());
+  const year = parts.find((part) => part.type === "year")!.value;
+  const month = parts.find((part) => part.type === "month")!.value;
+  const lastDay = new Date(Date.UTC(Number(year), Number(month), 0)).getUTCDate();
+  const from = `${year}-${month}-01`;
+  const to = `${year}-${month}-${lastDay}`;
   return { from, to };
 }
 
 const { from: defaultFrom, to: defaultTo } = currentMonthRange();
 const filterFrom = ref(defaultFrom);
 const filterTo   = ref(defaultTo);
+// Aggregations use the range the ledger was actually fetched for, so editing
+// the date inputs never re-slices stale data before Apply reloads it.
+const appliedFrom = ref(defaultFrom);
+const appliedTo   = ref(defaultTo);
 
-const canView = computed(() => hasPermission(session.value, "tours-operator.booking:view"));
+const canView = computed(() => hasPermission(session.value, "tours-operator.payment:view"));
+const canViewTours = computed(() => hasPermission(session.value, "tours-operator.tour:view"));
 
 // ── Computed finance aggregations (via pure composable) ───────────────────
 
-const filteredBookings = computed(() =>
-  filterByDateRange(bookings.value, filterFrom.value, filterTo.value),
-);
-
 const summary = computed<RevenueSummary>(() =>
-  computeRevenueSummary(filteredBookings.value),
+  computeRevenueSummary(
+    payments.value,
+    appliedFrom.value,
+    appliedTo.value,
+  ),
 );
 
 const revenueByTour = computed<RevenueByTourRow[]>(() =>
-  computeRevenueByTour(filteredBookings.value, tours.value),
+  computeRevenueByTour(
+    payments.value,
+    tours.value,
+    appliedFrom.value,
+    appliedTo.value,
+  ),
 );
 
-const statusCounts = computed<BookingStatusCount[]>(() =>
-  computeStatusCounts(filteredBookings.value),
+const statusCounts = computed<PaymentStatusCount[]>(() =>
+  computePaymentStatusCounts(payments.value),
 );
 
 function handleApiError(err: unknown) {
@@ -78,36 +97,50 @@ function handleApiError(err: unknown) {
 
 async function load() {
   if (!session.value) return;
+  if (filterTo.value < filterFrom.value) {
+    error.value = "End date must be on or after start date.";
+    state.value = "error";
+    return;
+  }
+  const from = filterFrom.value;
+  const to = filterTo.value;
   state.value = "loading";
   error.value = "";
   try {
-    // Fetch all bookings for the selected month (paginate if needed)
-    const allBookings: Booking[] = [];
-    let page = 0;
-    let hasMore = true;
-    while (hasMore) {
-      const batch = await listBookings(session.value.token, {
-        page,
+    const fetched: PaymentLedgerEntry[] = [];
+    let after: string | undefined;
+    for (;;) {
+      const batch = await listPaymentLedger(session.value.token, {
+        from,
+        to,
+        after,
         size: PAGE_SIZE,
       });
-      allBookings.push(...batch);
-      hasMore = batch.length === PAGE_SIZE;
-      page++;
+      fetched.push(...batch);
+      if (batch.length < PAGE_SIZE) break;
+      after = batch[batch.length - 1]!.paymentId;
     }
-    bookings.value = allBookings;
-    tours.value = await listTours(session.value.token, { activeOnly: false });
+    const allPayments = uniqueByPaymentId(fetched);
+    // Surface a currency mix as a load error instead of a render crash.
+    assertSingleCurrency(paymentLedgerEvents(allPayments, from, to));
+    // Tour names are a label only; finance must not depend on catalog access.
+    const allTours = canViewTours.value ? await listAllStaffTours(session.value.token) : [];
+    payments.value = allPayments;
+    tours.value = allTours;
+    appliedFrom.value = from;
+    appliedTo.value = to;
     state.value = "loaded";
   } catch (err) {
     handleApiError(err);
-    error.value = err instanceof ToursApiError ? err.errorCode : "Failed to load finance data.";
+    error.value = err instanceof ToursApiError
+      ? err.errorCode
+      : err instanceof Error ? err.message : "Failed to load finance data.";
     state.value = "error";
   }
 }
 
 function applyFilters() {
-  // Filtering is computed client-side from already-loaded data
-  // Re-fetch only if data not yet loaded
-  if (state.value !== "loaded") void load();
+  void load();
 }
 
 async function logout() {
@@ -148,7 +181,7 @@ onMounted(() => {
 
       <!-- Permission check -->
       <WegoAlert v-if="!canView" variant="danger" class="mt-6">
-        You don't have permission to view finance data.
+        You need payment-view permission to access finance data.
       </WegoAlert>
 
       <template v-else>
@@ -183,36 +216,42 @@ onMounted(() => {
         <template v-else-if="state === 'loaded'">
 
           <!-- KPI cards -->
-          <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
-              <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Revenue</p>
-              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ formatMoney(summary.totalRevenue) }}</p>
-              <p class="mt-0.5 text-xs text-sts-muted">confirmed + completed</p>
+              <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Net revenue</p>
+              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ formatSignedMoney(summary.netRevenue) }}</p>
+              <p class="mt-0.5 text-xs text-sts-muted">paid minus refunds</p>
             </div>
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
-              <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Bookings</p>
-              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ summary.confirmedCount }}</p>
-              <p class="mt-0.5 text-xs text-sts-muted">of {{ summary.totalCount }} total</p>
+              <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Gross paid</p>
+              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ formatMoney(summary.grossPaid) }}</p>
+              <p class="mt-0.5 text-xs text-sts-muted">{{ summary.paidCount }} captured payments</p>
             </div>
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
-              <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Pax</p>
-              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ summary.paxTotal }}</p>
-              <p class="mt-0.5 text-xs text-sts-muted">adults + children</p>
+              <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Refunded</p>
+              <p class="mt-1 text-2xl font-black tabular-nums text-rose-700">{{ formatMoney(summary.refunded) }}</p>
+              <p class="mt-0.5 text-xs text-sts-muted">{{ summary.refundedCount }} refund events</p>
             </div>
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
               <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Avg / booking</p>
               <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">
-                {{ summary.averagePerBooking ? formatMoney(summary.averagePerBooking) : '—' }}
+                {{ summary.averagePaidBooking ? formatMoney(summary.averagePaidBooking) : '—' }}
               </p>
-              <p class="mt-0.5 text-xs text-sts-muted">confirmed + completed</p>
+              <p class="mt-0.5 text-xs text-sts-muted">captured payments only</p>
+            </div>
+            <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
+              <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Net pax</p>
+              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ summary.paxTotal }}</p>
+              <p class="mt-0.5 text-xs text-sts-muted">adults + children, minus refunds</p>
             </div>
           </div>
 
-          <!-- Status breakdown -->
+          <!-- Ledger status breakdown -->
           <div class="mt-6 grid gap-4 sm:grid-cols-2">
 
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
-              <h2 class="mb-3 text-sm font-semibold text-sts-muted uppercase tracking-wide">Bookings by status</h2>
+              <h2 class="mb-1 text-sm font-semibold text-sts-muted uppercase tracking-wide">Payment status</h2>
+              <p class="mb-3 text-xs text-sts-muted">Pending and review captures never count as revenue, even after a refund.</p>
               <dl class="space-y-2">
                 <div
                   v-for="row in statusCounts"
@@ -241,9 +280,10 @@ onMounted(() => {
                     {{ row.tourSlug ?? 'Unknown tour' }}
                   </dt>
                   <dd class="flex items-center gap-3 shrink-0">
-                    <span class="text-xs text-sts-muted">{{ row.bookingCount }} bookings</span>
-                    <span class="text-xs text-sts-muted">{{ row.sharePercent }}%</span>
-                    <span class="money font-semibold">{{ formatMoney(row.total) }}</span>
+                    <span class="text-xs text-sts-muted">{{ row.paidCount }} paid</span>
+                    <span v-if="row.refundedCount" class="text-xs text-rose-700">{{ row.refundedCount }} refunded</span>
+                    <span class="text-xs text-sts-muted">{{ row.sharePercent }}% of gross</span>
+                    <span class="money font-semibold">{{ formatSignedMoney(row.netRevenue) }}</span>
                   </dd>
                 </div>
               </dl>

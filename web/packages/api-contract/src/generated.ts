@@ -1753,6 +1753,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tours-operator/staff/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List payment ledger activity for staff finance views
+         * @description Returns immutable payment records when any lifecycle event occurred in the requested Cairo-local date range. Revenue must be derived from ledger events, never from booking status: a sale on revenueRecognisedAt and its refund on refundedAt. A capture without revenueRecognisedAt (held for review) is never revenue, even after a refund. Keyset-paged by paymentId ascending; pass the last paymentId of the previous page as `after`.
+         */
+        get: operations["listToursOperatorPaymentLedger"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tours-operator/payments/paymob-callback": {
         parameters: {
             query?: never;
@@ -2033,6 +2053,30 @@ export interface components {
             paidAt?: string | null;
             /** Format: date-time */
             failedAt?: string | null;
+            /** Format: date-time */
+            refundedAt?: string | null;
+        };
+        ToursOperatorPaymentLedgerEntry: {
+            /** Format: uuid */
+            paymentId: string;
+            /** Format: uuid */
+            bookingId: string;
+            /** Format: uuid */
+            tourId: string;
+            adultsCount: number;
+            childrenCount: number;
+            amount: components["schemas"]["Money"];
+            status: components["schemas"]["ToursOperatorPaymentStatus"];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            paidAt?: string | null;
+            /** Format: date-time */
+            failedAt?: string | null;
+            /** Format: date-time */
+            refundedAt?: string | null;
+            /** Format: date-time */
+            revenueRecognisedAt?: string | null;
         };
         /** @enum {string} */
         ToursOperatorPaymentStatus: "PENDING" | "PAID" | "FAILED" | "REFUNDED" | "REVIEW_REQUIRED" | "RECONCILIATION_REQUIRED";
@@ -7179,6 +7223,35 @@ export interface operations {
                 };
                 content?: never;
             };
+        };
+    };
+    listToursOperatorPaymentLedger: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+                status?: components["schemas"]["ToursOperatorPaymentStatus"];
+                after?: string;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Payment ledger activity visible to authorized staff. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorPaymentLedgerEntry"][];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
         };
     };
     handleToursOperatorPaymobCallback: {

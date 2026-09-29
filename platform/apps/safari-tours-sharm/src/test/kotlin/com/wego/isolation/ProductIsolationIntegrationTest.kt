@@ -26,7 +26,7 @@ class ProductIsolationIntegrationTest(
     @Test
     fun `boots and migrates only Safari Tours Sharm product capabilities`() {
         assertThat(flyway.info().applied().map { it.version.toString() })
-            .containsExactly("1", "2", "3", "14", "16", "17", "18", "19")
+            .containsExactly("1", "2", "3", "14", "16", "17", "18", "19", "20")
 
         postgres.createConnection("").use { connection ->
             val tableNames =
