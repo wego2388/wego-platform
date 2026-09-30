@@ -16,6 +16,12 @@ spring:
     sql-dialect: POSTGRES
   lifecycle:
     timeout-per-shutdown-phase: 20s
+  task:
+    scheduling:
+      # Booking expiry and customer email delivery must never share one
+      # thread: a slow mail relay may not stop unpaid bookings from expiring.
+      pool:
+        size: 2
   modulith:
     runtime:
       verification-enabled: true
@@ -41,3 +47,14 @@ management:
 tours-operator:
   paymob:
     mock-enabled: ${TOURS_OPERATOR_PAYMOB_MOCK_ENABLED:false}
+  # Customer emails (WEGO-016-G). SMTP itself is configured only through the
+  # standard SPRING_MAIL_HOST / _PORT / _USERNAME / _PASSWORD environment
+  # variables; enabling the dispatcher without them fails startup on purpose.
+  notifications:
+    enabled: ${TOURS_OPERATOR_NOTIFICATIONS_ENABLED:false}
+    from: ${TOURS_OPERATOR_NOTIFICATIONS_FROM:}
+    reply-to: ${TOURS_OPERATOR_NOTIFICATIONS_REPLY_TO:}
+    site-base-url: ${TOURS_OPERATOR_SITE_BASE_URL:http://localhost:3000}
+    review-url: ${TOURS_OPERATOR_REVIEW_URL:}
+    max-attempts: ${TOURS_OPERATOR_NOTIFICATIONS_MAX_ATTEMPTS:5}
+    review-request-delay: ${TOURS_OPERATOR_REVIEW_REQUEST_DELAY:PT24H}

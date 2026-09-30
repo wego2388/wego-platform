@@ -4715,6 +4715,79 @@ paths:
           $ref: "#/components/responses/UnauthenticatedResponse"
         "403":
           $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/tours-operator/staff/notifications:
+    get:
+      operationId: listToursOperatorNotifications
+      summary: Customer notification delivery status for staff
+      description: >
+        Newest first. Carries the booking reference but never the recipient
+        address or message body.
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/ToursOperatorNotificationStatus"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 10000
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: Notifications, newest first.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ToursOperatorNotification"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/tours-operator/staff/notifications/{id}/resend:
+    post:
+      operationId: resendToursOperatorNotification
+      summary: Queue a customer notification again
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "202":
+          description: Queued for delivery.
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Notification not found.
+        "409":
+          description: The message is no longer true for the booking (booking_state_changed).
   /api/v1/tours-operator/staff/payments:
     get:
       operationId: listToursOperatorPaymentLedger
@@ -5807,6 +5880,69 @@ components:
           format: date-time
         recorded:
           type: boolean
+    ToursOperatorNotificationStatus:
+      type: string
+      enum:
+        - PENDING
+        - SENT
+        - FAILED
+        - SKIPPED
+    ToursOperatorNotification:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - bookingId
+        - bookingReference
+        - kind
+        - status
+        - attemptCount
+        - availableAt
+        - createdAt
+        - resendCount
+      properties:
+        id:
+          type: string
+          format: uuid
+        bookingId:
+          type: string
+          format: uuid
+        bookingReference:
+          type: string
+        kind:
+          type: string
+          enum:
+            - BOOKING_CONFIRMED
+            - BOOKING_CANCELLED
+            - REVIEW_REQUEST
+        status:
+          $ref: "#/components/schemas/ToursOperatorNotificationStatus"
+        attemptCount:
+          type: integer
+          minimum: 0
+        lastError:
+          type:
+            - string
+            - "null"
+        availableAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        sentAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        resendCount:
+          type: integer
+          minimum: 0
+        lastResentAt:
+          type:
+            - string
+            - "null"
+          format: date-time
     ToursOperatorPaymentStatus:
       type: string
       enum:

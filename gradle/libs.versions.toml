@@ -5,6 +5,7 @@ spring-modulith = "2.1.0"
 jooq = "3.21.5"
 ktlint-plugin = "14.2.0"
 archunit = "1.4.1"
+greenmail = "2.1.14"
 compose-multiplatform = "1.11.1"
 compose-material3 = "1.9.0"
 coroutines = "1.11.0"
@@ -18,6 +19,7 @@ spring-modulith-bom = { module = "org.springframework.modulith:spring-modulith-b
 spring-modulith-core = { module = "org.springframework.modulith:spring-modulith-starter-core" }
 spring-modulith-test = { module = "org.springframework.modulith:spring-modulith-starter-test" }
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
+greenmail-junit5 = { module = "com.icegreen:greenmail-junit5", version.ref = "greenmail" }
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-multiplatform" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "compose-material3" }
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose-multiplatform" }

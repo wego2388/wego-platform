@@ -1793,6 +1793,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tours-operator/staff/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Customer notification delivery status for staff
+         * @description Newest first. Carries the booking reference but never the recipient address or message body.
+         */
+        get: operations["listToursOperatorNotifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/notifications/{id}/resend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Queue a customer notification again */
+        post: operations["resendToursOperatorNotification"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tours-operator/staff/payments": {
         parameters: {
             query?: never;
@@ -2139,6 +2176,29 @@ export interface components {
             /** Format: date-time */
             occurredAt: string;
             recorded: boolean;
+        };
+        /** @enum {string} */
+        ToursOperatorNotificationStatus: "PENDING" | "SENT" | "FAILED" | "SKIPPED";
+        ToursOperatorNotification: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            bookingId: string;
+            bookingReference: string;
+            /** @enum {string} */
+            kind: "BOOKING_CONFIRMED" | "BOOKING_CANCELLED" | "REVIEW_REQUEST";
+            status: components["schemas"]["ToursOperatorNotificationStatus"];
+            attemptCount: number;
+            lastError?: string | null;
+            /** Format: date-time */
+            availableAt: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            sentAt?: string | null;
+            resendCount: number;
+            /** Format: date-time */
+            lastResentAt?: string | null;
         };
         /** @enum {string} */
         ToursOperatorPaymentStatus: "PENDING" | "PAID" | "FAILED" | "REFUNDED" | "REVIEW_REQUIRED" | "RECONCILIATION_REQUIRED";
@@ -7342,6 +7402,70 @@ export interface operations {
             400: components["responses"]["ToursOperatorValidationResponse"];
             401: components["responses"]["UnauthenticatedResponse"];
             403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    listToursOperatorNotifications: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["ToursOperatorNotificationStatus"];
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Notifications, newest first. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorNotification"][];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    resendToursOperatorNotification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Queued for delivery. */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Notification not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The message is no longer true for the booking (booking_state_changed). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     listToursOperatorPaymentLedger: {

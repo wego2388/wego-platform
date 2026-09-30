@@ -19,6 +19,7 @@ import {
   type Booking,
 } from "../../composables/useToursApi";
 import { mergeTimeline, type TimelineItem } from "../../composables/useBookingTimeline";
+import { whatsappLink } from "../../composables/useWhatsApp";
 
 useHead({ title: "Booking Detail · Safari Tours Sharm" });
 
@@ -41,6 +42,7 @@ const canComplete = computed(() => hasPermission(session.value, "tours-operator.
 const canViewPayments = computed(() => hasPermission(session.value, "tours-operator.payment:view"));
 
 const bookingId = computed(() => String(route.params.id));
+const whatsappUrl = computed(() => (booking.value ? whatsappLink(booking.value) : null));
 
 function handleApiError(err: unknown) {
   if (err instanceof ToursApiError && err.status === 401) {
@@ -172,6 +174,15 @@ onMounted(() => {
             <span :class="`badge badge-${booking.status}`">{{ booking.status }}</span>
           </div>
           <div class="ms-auto flex flex-wrap gap-2">
+            <a
+              v-if="whatsappUrl"
+              :href="whatsappUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center rounded-xl border border-sts-border px-3 py-1.5 text-sm font-semibold text-sts-ocean hover:bg-sts-canvas"
+            >
+              WhatsApp customer
+            </a>
             <WegoButton
               v-if="booking.status === 'CONFIRMED' && canComplete"
               type="button" variant="primary" size="sm"

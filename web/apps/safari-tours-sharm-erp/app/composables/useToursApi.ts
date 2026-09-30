@@ -10,6 +10,8 @@ import type {
   ToursOperatorPaymentStatus,
   BookingHistoryEntry,
   PaymentHistoryEntry,
+  CustomerNotification,
+  NotificationStatus,
 } from "@wego/api-contract";
 
 export type {
@@ -25,6 +27,8 @@ export type {
   ToursOperatorPaymentStatus,
   BookingHistoryEntry,
   PaymentHistoryEntry,
+  CustomerNotification,
+  NotificationStatus,
 } from "@wego/api-contract";
 export { addMoney, divideMoney, formatMoney, minorUnitsToMoney, moneyToMinorUnits } from "@wego/api-contract";
 
@@ -143,6 +147,22 @@ export function getBookingHistory(token: string, id: string): Promise<BookingHis
 
 export function getPaymentHistory(token: string, bookingId: string): Promise<PaymentHistoryEntry[]> {
   return request<PaymentHistoryEntry[]>(`/api/v1/tours-operator/staff/bookings/${bookingId}/payment-history`, token);
+}
+
+export function listNotifications(
+  token: string,
+  params: { status?: NotificationStatus; page?: number; size?: number } = {},
+): Promise<CustomerNotification[]> {
+  const q = new URLSearchParams({
+    page: String(params.page ?? 0),
+    size: String(params.size ?? PAGE_SIZE),
+  });
+  if (params.status) q.set("status", params.status);
+  return request<CustomerNotification[]>(`/api/v1/tours-operator/staff/notifications?${q}`, token);
+}
+
+export function resendNotification(token: string, id: string): Promise<undefined> {
+  return request<undefined>(`/api/v1/tours-operator/staff/notifications/${id}/resend`, token, { method: "POST" });
 }
 
 export function listPaymentLedger(

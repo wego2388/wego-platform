@@ -13,6 +13,8 @@ export type PaymentLedgerEntry = components["schemas"]["ToursOperatorPaymentLedg
 export type ToursOperatorPaymentStatus = components["schemas"]["ToursOperatorPaymentStatus"];
 export type BookingHistoryEntry = components["schemas"]["ToursOperatorBookingHistoryEntry"];
 export type PaymentHistoryEntry = components["schemas"]["ToursOperatorPaymentHistoryEntry"];
+export type CustomerNotification = components["schemas"]["ToursOperatorNotification"];
+export type NotificationStatus = components["schemas"]["ToursOperatorNotificationStatus"];
 
 const DECIMAL_AMOUNT = /^(0|[1-9]\d{0,16})\.\d{2}$/;
 const ISO_CURRENCY_CODE = /^[A-Z]{3}$/;

@@ -9,20 +9,20 @@ import java.math.BigDecimal
 import java.time.Instant
 
 class PaymentTest {
-
     private val bookingId = BookingId.generate()
     private val now = Instant.parse("2026-09-28T10:00:00Z")
     private val amountEur = BigDecimal("45.00")
     private val amountMinorUnits = 4500L
 
-    private fun pendingPayment() = Payment.createPending(
-        id = PaymentId.generate(),
-        bookingId = bookingId,
-        amountEur = amountEur,
-        amountMinorUnits = amountMinorUnits,
-        currencyCode = "EUR",
-        now = now,
-    )
+    private fun pendingPayment() =
+        Payment.createPending(
+            id = PaymentId.generate(),
+            bookingId = bookingId,
+            amountEur = amountEur,
+            amountMinorUnits = amountMinorUnits,
+            currencyCode = "EUR",
+            now = now,
+        )
 
     // ── createPending ──────────────────────────────────────────────────────
 
@@ -59,7 +59,7 @@ class PaymentTest {
                 bookingId = bookingId,
                 amountEur = amountEur,
                 amountMinorUnits = amountMinorUnits,
-                currencyCode = "eu",   // lowercase — invalid
+                currencyCode = "eu", // lowercase — invalid
                 now = now,
             )
         }

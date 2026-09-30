@@ -13,13 +13,18 @@ import com.wego.toursoperator.application.ConfirmBookingService
 import com.wego.toursoperator.application.CreateBookingService
 import com.wego.toursoperator.application.CreateSlotService
 import com.wego.toursoperator.application.CreateTourService
+import com.wego.toursoperator.application.DispatchNotificationsService
+import com.wego.toursoperator.application.EmailSender
 import com.wego.toursoperator.application.ExpireBookingService
 import com.wego.toursoperator.application.ExpireOverduePaymentsService
 import com.wego.toursoperator.application.HandlePaymobWebhookService
 import com.wego.toursoperator.application.InitiatePaymentService
+import com.wego.toursoperator.application.NotificationRepository
+import com.wego.toursoperator.application.NotificationSettings
 import com.wego.toursoperator.application.PaymentQueryService
 import com.wego.toursoperator.application.PaymentRepository
 import com.wego.toursoperator.application.PaymobClient
+import com.wego.toursoperator.application.ResendNotificationService
 import com.wego.toursoperator.application.SetSlotBlockedService
 import com.wego.toursoperator.application.SetTourActiveService
 import com.wego.toursoperator.application.TourQueryService
@@ -28,14 +33,18 @@ import com.wego.toursoperator.application.TourSlotQueryService
 import com.wego.toursoperator.application.TourSlotRepository
 import com.wego.toursoperator.application.TransactionRunner
 import com.wego.toursoperator.application.UpdateTourService
+import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.mail.javamail.JavaMailSender
+import org.springframework.mail.javamail.JavaMailSenderImpl
 import org.springframework.scheduling.annotation.EnableScheduling
 import tools.jackson.databind.ObjectMapper
 import java.time.Clock
+import java.time.Duration
 
 /**
  * All bean names are prefixed with "sto" (Safari Tours Operator) to avoid
@@ -178,6 +187,7 @@ class ToursOperatorBeanConfiguration {
         @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
         @Qualifier("stoPaymentRepositoryImpl") paymentRepository: PaymentRepository,
         bookingAuditRecorder: BookingAuditRecorder,
+        @Qualifier("stoNotificationRepositoryImpl") notificationRepository: NotificationRepository,
         outboxWriter: OutboxWriter,
         transactionRunner: TransactionRunner,
         @Qualifier("stoObjectMapper") toursOperatorObjectMapper: ObjectMapper,
@@ -187,6 +197,7 @@ class ToursOperatorBeanConfiguration {
             bookingRepository,
             paymentRepository,
             bookingAuditRecorder,
+            notificationRepository,
             outboxWriter,
             transactionRunner,
             toursOperatorObjectMapper,
@@ -198,6 +209,7 @@ class ToursOperatorBeanConfiguration {
         @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
         @Qualifier("stoTourSlotRepositoryImpl") slotRepository: TourSlotRepository,
         bookingAuditRecorder: BookingAuditRecorder,
+        @Qualifier("stoNotificationRepositoryImpl") notificationRepository: NotificationRepository,
         outboxWriter: OutboxWriter,
         transactionRunner: TransactionRunner,
         @Qualifier("stoObjectMapper") toursOperatorObjectMapper: ObjectMapper,
@@ -207,6 +219,7 @@ class ToursOperatorBeanConfiguration {
             bookingRepository,
             slotRepository,
             bookingAuditRecorder,
+            notificationRepository,
             outboxWriter,
             transactionRunner,
             toursOperatorObjectMapper,
@@ -217,6 +230,8 @@ class ToursOperatorBeanConfiguration {
     fun completeBookingService(
         @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
         bookingAuditRecorder: BookingAuditRecorder,
+        @Qualifier("stoNotificationRepositoryImpl") notificationRepository: NotificationRepository,
+        @Value("\${tours-operator.notifications.review-request-delay:PT24H}") reviewRequestDelay: Duration,
         outboxWriter: OutboxWriter,
         transactionRunner: TransactionRunner,
         @Qualifier("stoObjectMapper") toursOperatorObjectMapper: ObjectMapper,
@@ -225,11 +240,74 @@ class ToursOperatorBeanConfiguration {
         CompleteBookingService(
             bookingRepository,
             bookingAuditRecorder,
+            notificationRepository,
+            reviewRequestDelay,
             outboxWriter,
             transactionRunner,
             toursOperatorObjectMapper,
             clock,
         )
+
+    // ── Customer notifications ───────────────────────────────────────────────
+
+    /**
+     * SMTP when spring.mail.host is configured. Without it, enabling the
+     * dispatcher is a configuration error and fails startup instead of
+     * silently failing every email.
+     */
+    @Bean("stoEmailSender")
+    fun emailSender(
+        mailSender: ObjectProvider<JavaMailSender>,
+        @Value("\${tours-operator.notifications.enabled:false}") enabled: Boolean,
+        @Value("\${tours-operator.notifications.from:}") from: String,
+        @Value("\${tours-operator.notifications.reply-to:}") replyTo: String,
+    ): EmailSender {
+        val smtp = mailSender.ifAvailable
+        (smtp as? JavaMailSenderImpl)?.let { SmtpEmailSender.applyDefaultTimeouts(it, Duration.ofSeconds(15)) }
+        if (smtp == null) {
+            require(!enabled) { "tours-operator.notifications.enabled=true requires spring.mail.host" }
+            return EmailSender { throw IllegalStateException("email_not_configured") }
+        }
+        require(!enabled || from.isNotBlank()) { "tours-operator.notifications.from is required when notifications are enabled" }
+        return SmtpEmailSender(smtp, from, replyTo.ifBlank { null })
+    }
+
+    @Bean("stoDispatchNotificationsService")
+    fun dispatchNotificationsService(
+        @Qualifier("stoNotificationRepositoryImpl") notificationRepository: NotificationRepository,
+        @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
+        @Qualifier("stoTourRepositoryImpl") tourRepository: TourRepository,
+        emailSender: EmailSender,
+        transactionRunner: TransactionRunner,
+        @Value("\${tours-operator.notifications.site-base-url:http://localhost:3000}") siteBaseUrl: String,
+        @Value("\${tours-operator.notifications.review-url:}") reviewUrl: String,
+        @Value("\${tours-operator.notifications.max-attempts:5}") maxAttempts: Int,
+        @Value("\${tours-operator.notifications.enabled:false}") enabled: Boolean,
+        clock: Clock,
+    ): DispatchNotificationsService {
+        // Every confirmation links to the public site; never let a live
+        // dispatcher send customers to a localhost or plain-http default.
+        require(!enabled || siteBaseUrl.startsWith("https://")) {
+            "tours-operator.notifications.site-base-url must be an https:// URL when notifications are enabled"
+        }
+        return DispatchNotificationsService(
+            notificationRepository,
+            bookingRepository,
+            tourRepository,
+            emailSender,
+            transactionRunner,
+            NotificationSettings(siteBaseUrl, reviewUrl.ifBlank { null }, maxAttempts),
+            clock,
+        )
+    }
+
+    @Bean("stoResendNotificationService")
+    fun resendNotificationService(
+        @Qualifier("stoNotificationRepositoryImpl") notificationRepository: NotificationRepository,
+        @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): ResendNotificationService = ResendNotificationService(notificationRepository, bookingRepository, transactionRunner, clock)
 
     @Bean("stoExpireBookingService")
     fun expireBookingService(

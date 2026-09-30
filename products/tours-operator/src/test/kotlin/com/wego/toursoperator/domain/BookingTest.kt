@@ -14,7 +14,10 @@ class BookingTest {
     private val now: Instant = Instant.parse("2026-09-27T00:00:00Z")
     private val later: Instant = Instant.parse("2026-09-27T01:00:00Z")
 
-    private fun pricing(adults: Int = 2, children: Int = 0): BookingPricing {
+    private fun pricing(
+        adults: Int = 2,
+        children: Int = 0,
+    ): BookingPricing {
         val priceAdult = Money(BigDecimal("35.00"))
         val priceChild = if (children > 0) Money(BigDecimal("17.50")) else null
         return BookingPricing.compute(adults, children, priceAdult, priceChild)

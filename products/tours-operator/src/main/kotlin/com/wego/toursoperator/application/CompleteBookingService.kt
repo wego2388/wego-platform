@@ -5,8 +5,10 @@ import com.wego.events.OutboxWriter
 import com.wego.toursoperator.domain.Booking
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.BookingStatus
+import com.wego.toursoperator.domain.NotificationKind
 import tools.jackson.databind.ObjectMapper
 import java.time.Clock
+import java.time.Duration
 import java.time.Instant
 import java.util.UUID
 
@@ -23,6 +25,9 @@ sealed class CompleteBookingResult {
 class CompleteBookingService(
     private val bookingRepository: BookingRepository,
     private val bookingAuditRecorder: BookingAuditRecorder,
+    private val notificationRepository: NotificationRepository,
+    /** How long after completion the review request is sent. */
+    private val reviewRequestDelay: Duration,
     private val outboxWriter: OutboxWriter,
     private val transactionRunner: TransactionRunner,
     private val objectMapper: ObjectMapper,
@@ -46,6 +51,7 @@ class CompleteBookingService(
             booking.complete(now)
             bookingRepository.save(booking)
             bookingAuditRecorder.recordCompleted(booking.id, actorUserId, now, correlationId)
+            notificationRepository.enqueueOnce(booking.id, NotificationKind.REVIEW_REQUEST, now.plus(reviewRequestDelay), now)
             outboxWriter.write(completedEnvelope(booking, now, correlationId))
 
             CompleteBookingResult.Completed(booking)

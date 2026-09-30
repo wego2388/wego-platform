@@ -1,8 +1,8 @@
 package com.wego.toursoperator
 
 import com.wego.generated.jooq.tables.ToursOperatorBooking.TOURS_OPERATOR_BOOKING
-import com.wego.generated.jooq.tables.ToursOperatorPaymentAuditEvent.TOURS_OPERATOR_PAYMENT_AUDIT_EVENT
 import com.wego.generated.jooq.tables.ToursOperatorPayment.TOURS_OPERATOR_PAYMENT
+import com.wego.generated.jooq.tables.ToursOperatorPaymentAuditEvent.TOURS_OPERATOR_PAYMENT_AUDIT_EVENT
 import com.wego.generated.jooq.tables.ToursOperatorTour.TOURS_OPERATOR_TOUR
 import com.wego.generated.jooq.tables.ToursOperatorTourSlot.TOURS_OPERATOR_TOUR_SLOT
 import com.wego.toursoperator.application.PaymobCheckoutCommand
@@ -191,8 +191,7 @@ class ToursOperatorPaymentTest {
               "source_data":{"pan":"1234","sub_type":"MasterCard","type":"card"},
               "data":{}}}"""
 
-    private fun cairoMidnight(date: LocalDate): OffsetDateTime =
-        date.atStartOfDay(ZoneId.of("Africa/Cairo")).toOffsetDateTime()
+    private fun cairoMidnight(date: LocalDate): OffsetDateTime = date.atStartOfDay(ZoneId.of("Africa/Cairo")).toOffsetDateTime()
 
     /** Inserts a ledger row directly so tests can place lifecycle events at exact instants. */
     private fun insertPayment(
@@ -851,7 +850,11 @@ class ToursOperatorPaymentTest {
         val nextDay = cairoMidnight(to.plusDays(1))
         insertPayment("PAID", nextDay, nextDay, revenueRecognisedAt = nextDay)
 
-        val body = ledger("from=$from&to=$to&size=200").andExpect { status { isOk() } }.andReturn().response.contentAsString
+        val body =
+            ledger("from=$from&to=$to&size=200")
+                .andExpect { status { isOk() } }
+                .andReturn()
+                .response.contentAsString
         val ids = Regex(""""paymentId"\s*:\s*"([0-9a-f\-]{36})"""").findAll(body).map { it.groupValues[1] }.toSet()
         assertThat(ids).containsExactlyInAnyOrder(crossPeriodRefund.toString(), endOfRange.toString())
     }
@@ -866,7 +869,11 @@ class ToursOperatorPaymentTest {
         var after: String? = null
         do {
             val cursor = after?.let { "&after=$it" } ?: ""
-            val body = ledger("from=$day&to=$day&size=2$cursor").andExpect { status { isOk() } }.andReturn().response.contentAsString
+            val body =
+                ledger("from=$day&to=$day&size=2$cursor")
+                    .andExpect { status { isOk() } }
+                    .andReturn()
+                    .response.contentAsString
             val page = idPattern.findAll(body).map { it.groupValues[1] }.toList()
             seen += page
             after = page.lastOrNull()

@@ -5,6 +5,7 @@ import com.wego.events.OutboxWriter
 import com.wego.toursoperator.domain.Booking
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.BookingStatus
+import com.wego.toursoperator.domain.NotificationKind
 import com.wego.toursoperator.domain.PaymentStatus
 import tools.jackson.databind.ObjectMapper
 import java.time.Clock
@@ -38,6 +39,7 @@ class ConfirmBookingService(
     private val bookingRepository: BookingRepository,
     private val paymentRepository: PaymentRepository,
     private val bookingAuditRecorder: BookingAuditRecorder,
+    private val notificationRepository: NotificationRepository,
     private val outboxWriter: OutboxWriter,
     private val transactionRunner: TransactionRunner,
     private val objectMapper: ObjectMapper,
@@ -71,6 +73,7 @@ class ConfirmBookingService(
             booking.confirm(now)
             bookingRepository.save(booking)
             bookingAuditRecorder.recordConfirmed(booking.id, null, now, correlationId)
+            notificationRepository.enqueueOnce(booking.id, NotificationKind.BOOKING_CONFIRMED, now, now)
             outboxWriter.write(confirmedEnvelope(booking, now, correlationId))
 
             ConfirmBookingResult.Confirmed(booking)

@@ -22,7 +22,7 @@ Rule: exactly one implementation packet may be `ACTIVE` in a worktree. Parent mi
 | WEGO-013 | Platform hardening: fix CI's first real run against `main`, mobile CI build coverage, client onboarding runbook | COMPLETE |
 | WEGO-014 | ERP professional UX/UI redesign: navigation shell, component library, dark mode, motion, responsive pass across all 17 routes | COMPLETE |
 | WEGO-015 | Sharm Divers Club customer-facing redesign: public website (`sharm-divers-club-site`) + mobile customer app (`mobile/apps/customer`) | COMPLETE |
-| WEGO-016 | Safari Tours Sharm: tours-operator product foundation — public booking site, staff ERP, Paymob payment flow, production catalog, and isolated deployment | NOT AUTHORIZED — paused after F2; G needs owner activation |
+| WEGO-016 | Safari Tours Sharm: tours-operator product foundation — public booking site, staff ERP, Paymob payment flow, production catalog, and isolated deployment | NOT AUTHORIZED — paused after G; H needs owner activation |
 | WEGO-017 | Foundry executable client releases: artifact, data, deployment, and CI isolation for Safari Tours Sharm, Sharm To Go, and Sharm Divers Club | COMPLETE |
 
 ## Automation and growth roadmap guardrails
@@ -2380,7 +2380,7 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
 
 ## WEGO-016 — Safari Tours Sharm: tours-operator product foundation
 
-- **Status:** PAUSED — A–F2 complete (F2 closed 2026-09-30); G–I require explicit owner activation
+- **Status:** PAUSED — A–G complete (G closed 2026-09-30); H–I require explicit owner activation
 - **Activated:** 2026-09-27
 - **Review intensity:** Tier 1 — this packet adds a new product boundary (`products/tours-operator`), a new Flyway migration (V14), a new client isolation profile (`clients/safari-tours-sharm`), and will later touch payment/PII/auth surfaces. Every sub-packet that adds a migration, modifies auth, or handles customer payment data requires independent Tier 1 review before merge.
 - **Origin:** The owner asked to establish Safari Tours Sharm as a first-class Wego Platform product — on the same standards as Sharm Divers Club and Sharm To Go — with a public booking website, a staff ERP, a real Paymob payment flow, a production tour catalog, and an isolated deployment. The handoff document at `clients/safari-tours-sharm/handoff/SAFARI_TOURS_PRODUCTION_MATURITY_HANDOFF.md` is the authoritative reference for current maturity, open P0 issues, and the phased delivery plan.
@@ -2927,6 +2927,69 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   - `scripts/safari-tours-sharm-check.sh` — passed.
   - `pnpm run check` in `web/` — exit 0, 451 tests.
 - **NEXT SUB-PACKET:** G (notifications) requires explicit owner activation.
+
+---
+
+### 2026-09-30 — WEGO-016-G: transactional customer notifications
+
+- **Status:** COMPLETE — owner authorized commit and push (`اعمل و كوميت`, 2026-09-30); no deploy.
+- **Activation:** owner answered the G scoping questions on 2026-09-30 after
+  being told G starts on those answers.
+- **Owner decisions:** automatic email only; WhatsApp is a manual staff
+  click-to-chat button (no WhatsApp Business API); messages = booking
+  confirmed (after payment), booking cancelled, review request after
+  COMPLETED; email provider/domain chosen in H — build on generic SMTP and
+  prove locally with a disposable mail catcher.
+- **Review intensity:** Tier 1 — new migration, customer PII (email address)
+  handling, background delivery with retries.
+- **Design:** the platform `integration_outbox` has writers but no relay in
+  any app; a generic relay would change every client app. G therefore adds a
+  product-local `tours_operator_notification` queue written in the same
+  transaction as the booking transition (unique per booking + kind =
+  exactly-once intent), a scheduled dispatcher with row locking, bounded
+  retries/backoff and a visible FAILED state, and an `EmailSender` port with an
+  SMTP adapter. The recipient address is resolved at send time and never
+  logged.
+- **Out of scope:** WhatsApp API, pickup reminders (needs approved pickup
+  facts), marketing email, real provider credentials (H).
+- **Acceptance:** exactly-once under duplicate/retried transitions, retry and
+  FAILED paths tested, no PII in logs, 4-locale templates, ERP notifications
+  page with resend, Safari gate + `pnpm run check` green, Tier-1 READY.
+- **Delivered:**
+  - V22 `tours_operator_notification` (unique booking+kind, resend audit
+    columns, `tours-operator.notification:manage`); intents enqueued in the
+    Confirm, Cancel (from CONFIRMED only) and Complete (+24h review request)
+    transactions.
+  - `DispatchNotificationsService`: one row per transaction via SKIP LOCKED;
+    sends only while still true (booking status must match the kind; past
+    confirmations skipped); whole delivery counted as an attempt; exponential
+    backoff to FAILED; logs/API/lastError carry no address or body.
+  - `SmtpEmailSender` (provider-agnostic, 15s default SMTP timeouts),
+    scheduler behind `tours-operator.notifications.enabled` with fail-fast
+    config checks (SMTP host, from, https site URL); scheduling pool of 2 so
+    expiry never waits on email.
+  - EN/AR/RU/IT templates (DRAFT wording pending owner approval); staff
+    list/resend API (409 when the message is no longer true); ERP "Customer
+    messages" page with confirmed resend; WhatsApp click-to-chat on bookings
+    (international numbers only).
+- **Tier-1 review:** round 1 NOT READY (2 MAJOR: unbounded SMTP wait on the
+  shared scheduler thread; stale/contradictory emails) + 4 MINOR + 2 NIT → all
+  fixed → round 2 READY. Remaining NITs (follow-ups): resend of a past
+  confirmation returns 202 then SKIPs instead of 409; only the last resend
+  actor/time is kept, not a full history.
+- **Evidence (2026-09-30):**
+  - `./gradlew :platform:apps:safari-tours-sharm:test` — 168 tests, 0 failures,
+    0 skipped (incl. ToursOperatorNotificationTest: exactly-once, retry→FAILED
+    →resend, skip without email, confirm→cancel stale skip + 409, review delay,
+    concurrent dispatchers; GreenMail SMTP round trip incl. Arabic and a
+    stalled-relay timeout test).
+  - `./gradlew :platform:application:test` — 323 tests, 0 failures.
+  - `scripts/safari-tours-sharm-check.sh` — passed.
+  - `pnpm run check` in `web/` — exit 0, 454 tests.
+- **Deployment note for H:** set `TOURS_OPERATOR_NOTIFICATIONS_ENABLED=true`,
+  `_FROM`, `_REPLY_TO`, `TOURS_OPERATOR_SITE_BASE_URL` (https),
+  `TOURS_OPERATOR_REVIEW_URL`, and `SPRING_MAIL_HOST/PORT/USERNAME/PASSWORD`
+  (+ SPF/DKIM on the sending domain). Compose is unchanged until H.
 
 ---
 

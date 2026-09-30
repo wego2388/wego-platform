@@ -107,8 +107,7 @@ class PaymentController(
     @PreAuthorize("hasAuthority('tours-operator.payment:view')")
     fun paymentHistory(
         @PathVariable bookingId: UUID,
-    ): List<PaymentHistoryEntryResponse> =
-        paymentQueryService.historyForBooking(BookingId(bookingId)).map { it.toHistoryResponse() }
+    ): List<PaymentHistoryEntryResponse> = paymentQueryService.historyForBooking(BookingId(bookingId)).map { it.toHistoryResponse() }
 
     /** Staff-only immutable payment ledger used by finance and reconciliation. */
     @GetMapping("/staff/payments")

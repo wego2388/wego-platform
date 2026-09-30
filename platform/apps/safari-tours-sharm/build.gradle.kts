@@ -24,6 +24,7 @@ val selectedSharedDdlMigrations =
         sharedMigrationDirectory.resolve("V19__tours_operator_payment_hardening.sql"),
         sharedMigrationDirectory.resolve("V20__tours_operator_payment_revenue_recognition.sql"),
         sharedMigrationDirectory.resolve("V21__tours_operator_payment_audit.sql"),
+        sharedMigrationDirectory.resolve("V22__tours_operator_notification.sql"),
     )
 val selectedDdlMigrations =
     selectedSharedDdlMigrations + file("src/main/resources/db/migration/V3__identity_administration.sql")
@@ -91,6 +92,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("org.springframework.boot:spring-boot-starter-jooq")
+    implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
@@ -108,6 +110,7 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation(libs.spring.modulith.test)
     testImplementation(libs.archunit.junit5)
+    testImplementation(libs.greenmail.junit5)
     testImplementation("org.testcontainers:testcontainers-junit-jupiter")
     testImplementation("org.testcontainers:testcontainers-postgresql")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

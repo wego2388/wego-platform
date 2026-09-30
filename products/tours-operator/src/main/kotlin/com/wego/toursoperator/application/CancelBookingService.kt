@@ -5,6 +5,7 @@ import com.wego.events.OutboxWriter
 import com.wego.toursoperator.domain.Booking
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.BookingStatus
+import com.wego.toursoperator.domain.NotificationKind
 import tools.jackson.databind.ObjectMapper
 import java.time.Clock
 import java.time.Instant
@@ -26,6 +27,7 @@ class CancelBookingService(
     private val bookingRepository: BookingRepository,
     private val slotRepository: TourSlotRepository,
     private val bookingAuditRecorder: BookingAuditRecorder,
+    private val notificationRepository: NotificationRepository,
     private val outboxWriter: OutboxWriter,
     private val transactionRunner: TransactionRunner,
     private val objectMapper: ObjectMapper,
@@ -63,6 +65,11 @@ class CancelBookingService(
 
             bookingRepository.save(booking)
             bookingAuditRecorder.recordCancelled(booking.id, fromStatus, reason, actorUserId, now, correlationId)
+            // Only a confirmed (paid) booking was ever announced to the customer;
+            // an unpaid NEW booking cancelled by staff gets no email.
+            if (fromStatus == BookingStatus.CONFIRMED) {
+                notificationRepository.enqueueOnce(booking.id, NotificationKind.BOOKING_CANCELLED, now, now)
+            }
             outboxWriter.write(cancelledEnvelope(booking, now, correlationId))
 
             CancelBookingResult.Cancelled(booking)
