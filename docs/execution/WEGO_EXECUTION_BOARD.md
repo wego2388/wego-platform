@@ -2380,7 +2380,7 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
 
 ## WEGO-016 — Safari Tours Sharm: tours-operator product foundation
 
-- **Status:** IN PROGRESS — A–G complete; phase 4 UX-0..UX-2 complete, UX-3 next (2026-09-30); H–I require explicit owner activation
+- **Status:** IN PROGRESS — A–G complete; phase 4 UX-0..UX-3 complete, UX-4 ACTIVE (2026-10-01); H–I require explicit owner activation
 - **Activated:** 2026-09-27
 - **Review intensity:** Tier 1 — this packet adds a new product boundary (`products/tours-operator`), a new Flyway migration (V14), a new client isolation profile (`clients/safari-tours-sharm`), and will later touch payment/PII/auth surfaces. Every sub-packet that adds a migration, modifies auth, or handles customer payment data requires independent Tier 1 review before merge.
 - **Origin:** The owner asked to establish Safari Tours Sharm as a first-class Wego Platform product — on the same standards as Sharm Divers Club and Sharm To Go — with a public booking website, a staff ERP, a real Paymob payment flow, a production tour catalog, and an isolated deployment. The handoff document at `clients/safari-tours-sharm/handoff/SAFARI_TOURS_PRODUCTION_MATURITY_HANDOFF.md` is the authoritative reference for current maturity, open P0 issues, and the phased delivery plan.
@@ -3148,19 +3148,51 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-09-30 — WEGO-016-UX3: tour page (story, facts, map, calendar)
 
-- **Status:** ACTIVE
+- **Status:** COMPLETE (2026-10-01)
 - **Activation:** owner standing instruction (`ابدا نفذ و سيطر علي المشروع و كمل البناء`, 2026-09-30).
 - **Review intensity:** Tier 2 — public presentation of published content.
-- **Scope (FRONTEND_MASTER_PLAN_AR.md §7.4, §14 UX-3):** tour page rebuilt on
-  published content and facts (localized story, includes/excludes, know
-  before you go, meeting point), approved media gallery, itinerary map,
-  availability calendar feeding checkout, request-only tours with a
-  WhatsApp CTA, Product/TouristTrip JSON-LD.
-- **Scope (FRONTEND_MASTER_PLAN_AR.md §6.2, §7.1–7.3, §14 UX-2):** new
-  SiteHeader/SiteFooter on the design system (localized labels), home page
-  sections, `/tours` with instant search + URL-synced filters + layout
-  animation, category pages, TourCard with View Transitions to the tour page,
-  localized published names from the UX-0 API, route rules/caching, JS budget.
+- **Delivered:** `/{locale}/tour/{slug}` rebuilt and server-rendered from the
+  UX-0 public content API (`useTourPage`): hero with approved cover (view
+  transition from the card), quick facts only when facts are published,
+  localized story, itinerary, meeting point, includes/excludes, know before
+  you go, approved-media gallery with lightbox, per-tour cancellation policy
+  text, similar tours, TouristTrip/Offer + BreadcrumbList JSON-LD (escaped),
+  real 404 for unknown/inactive tours. Booking card: live availability
+  (browser only), month calendar in operator time (Africa/Cairo, locale week
+  start), departure radios with seats left, guests bounded by seats, child
+  pricing rules, total, handoff to the existing checkout query contract.
+  One instance only: sticky aside on desktop, bottom bar + sheet on mobile,
+  chosen after hydration. REQUEST_ONLY tours → WhatsApp request panel.
+  **Transfers are request-only on the site until UX-4**: the owner prices them
+  per vehicle but checkout charges per person. Tour page copy in
+  `app/content/tourPage.ts` (EN/AR, RU/IT pending review). Floating WhatsApp
+  button hidden on tour pages (card has its own). Codex consultation brief
+  written for the owner: `clients/safari-tours-sharm/CODEX_REVIEW_BRIEF.md`.
+- **Decision — map:** OpenFreeMap tiles + MapLibre, lazy-loaded, when stop
+  coordinates are published; no tour has approved coordinates yet, so the
+  itinerary renders as a numbered timeline and the map is deferred (no code
+  or dependency added now).
+- **Evidence:** site lint/typecheck clean; 43 site tests (6 new in
+  `test/availability.spec.ts`); `pnpm run check` exit 0; production build
+  against the Safari backend: tour 200, unknown slug 404, Playwright desktop
+  date→time pick and AR mobile sheet → checkout URL with the right query, no
+  console/hydration errors (a desktop/mobile hydration mismatch was found and
+  fixed), no horizontal overflow. Independent Sonnet review: 9 findings; fixed
+  transfer per-vehicle vs per-person contradiction, DisplayNames crash,
+  JSON-LD escaping, radio semantics, lightbox keys, FAB on booking pages,
+  duplicate card instances, IT/AR copy, policy guard; stale "today" after
+  midnight accepted (server revalidates).
+
+### 2026-10-01 — WEGO-016-UX4: booking, payment and confirmation (Tier 1)
+
+- **Status:** ACTIVE
+- **Activation:** owner standing instruction (`ابدا نفذ و سيطر علي المشروع و كمل البناء`, 2026-09-30).
+- **Review intensity:** Tier 1 — customer data and payment.
+- **Scope (FRONTEND_MASTER_PLAN_AR.md §7.6–7.8, §14 UX-4):** booking stepper
+  on the design system with validation and localized copy, sold-out/double
+  submit/network/429 states, payment-result polling + confirmation ticket
+  (.ics, WhatsApp), `/my-booking` redesign; owner-approved catalog revisions
+  applied by data migration; per-vehicle transfer pricing.
 
 ---
 

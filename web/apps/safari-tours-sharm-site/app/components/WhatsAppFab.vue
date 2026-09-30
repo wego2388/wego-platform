@@ -5,10 +5,15 @@ import { siteCopy, whatsappUrl } from "../content/locales";
 
 const locale = useSiteLocale();
 const label = computed(() => siteCopy[locale.value].whatsappFab);
+// Tour pages carry their own WhatsApp action next to the booking controls;
+// the floating button would cover them.
+const route = useRoute();
+const hidden = computed(() => /^\/[a-z]{2}\/tour\//.test(route.path));
 </script>
 
 <template>
   <a
+    v-if="!hidden"
     :href="whatsappUrl"
     target="_blank"
     rel="noopener"
