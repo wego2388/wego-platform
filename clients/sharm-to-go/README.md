@@ -2,11 +2,24 @@
 
 > **Sharm To Go. Where you must go.**
 
+> **Start here:** [`ROADMAP_AR.md`](ROADMAP_AR.md) is the single canonical
+> source of truth for phase order, status and evidence — mirroring
+> `clients/safari-tours-sharm/ROADMAP_AR.md`. Every other document below
+> (including this README, `CLAUDE_HANDOFF.md`, `delivery/`, `handoff/`) is
+> detailed historical/reference material; when anything conflicts, the
+> roadmap wins.
+
 The current product direction is a marketing-and-booking travel companion for
 Sharm El Sheikh: inspire the visitor, help them choose for their budget, then
 turn that interest into either a structured request or a contextual WhatsApp
 enquiry. Start with [the brand and conversion strategy](BRAND_AND_GROWTH_STRATEGY.md)
 before treating older "marketplace" wording as customer-facing positioning.
+
+> **Coordination state (2026-09-30): reactivated.** The owner explicitly
+> authorized resuming WEGO-010 on 2026-09-30 ("انا بعطي لك تريح مني و موافقه
+> و موكلك انت تعمل الصح و المظبوط... ابداء هندل و ظبط شرم تو جو"). See
+> `ROADMAP_AR.md` Phase 0 for the exact reorganization evidence and
+> `docs/execution/WEGO_EXECUTION_BOARD.md` for the canonical board status.
 
 Sharm To Go now exists in the correct place: this is the isolated client profile
 for `wego-travel-marketplace` inside the shared `/home/wego/wego-platform`
@@ -15,16 +28,18 @@ nested inside or coupled to the other.
 
 ## What is executable now
 
-- Start with [`CLAUDE_HANDOFF.md`](CLAUDE_HANDOFF.md) before continuing work.
-  It records the current branch/worktree boundary, completed packets, next
-  authorized scope, required toolchains, and the exact quality gate.
+- Start with the [agent handoff index](handoff/README.md), then the dated
+  start-here file. `CLAUDE_HANDOFF.md` remains the detailed technical history,
+  not authorization to start its next planned packet.
 
 - `client.manifest.json` declares the client, product, Cairo timezone, initial
   Arabic/English locales, EGP organizational currency, and isolated deployment.
 - `release.lock.json` deterministically resolves only the Travel Marketplace
   product and its platform dependencies as Foundry metadata. As of Packet 0R
-  (2026-09-02, self-verified, independent Tier 1 review outstanding — see
-  `TECHNICAL_EXECUTION_PLAN.md` and the WEGO-010-A board entry), this is also
+  (2026-09-02, self-verified; an independent Tier 1 attempt found real issues
+  that were fixed but did not finish, and the owner accepted self-verification
+  for continuation — see `TECHNICAL_EXECUTION_PLAN.md` and the WEGO-010-A board
+  entry), this is also
   a proven runtime claim: `platform/apps/sharm-to-go` is a separate, real
   Spring Boot application from `platform/application` (Sharm Divers Club),
   compiled with `products/travel-marketplace` on its classpath and
@@ -46,10 +61,14 @@ nested inside or coupled to the other.
 - `mobile/apps/sharm-to-go` (+ `-android`) now has the Packet 1D Home/
   Experiences list/detail screens, backed by `mobile/shared`'s
   `TravelCatalogSnapshot` (bundled, versioned per release). A real debug APK
-  builds. Packet 1E, a real owner-approved launch service, has not started.
+  builds. Packet 1E ran `STG-TRN-001` through the real workflow to `APPROVED`
+  in disposable verification, but no production service was published and the
+  bundled mobile catalog remains honestly empty.
 
 ## Decision documents
 
+- [**Roadmap (canonical)**](ROADMAP_AR.md) — phase order, status, evidence and
+  owner-input tracking. Read this first.
 - [Complete delivery workbook](delivery/README.md) — ordered phase checklists,
   cross-surface gates, owner inputs and the evidence ledger every continuing
   agent must update as work is completed.

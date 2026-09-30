@@ -31,6 +31,40 @@ Copy this block for every completed packet:
 
 ## Current proven baseline
 
+### 2026-09-29 — new-account onboarding and pause alignment
+
+- Commit: `uncommitted documentation checkpoint on aff1a27`
+- Scope completed:
+  - [x] Added one dated start point for new Codex and Claude accounts.
+  - [x] Recorded exact worktree, branch, hashes and two local-only commits.
+  - [x] Defined single-writer and independent-review account roles.
+  - [x] Aligned this isolated worktree's board to the current paused WEGO-010
+    state without changing product code or historical evidence.
+  - [x] Corrected the active README's stale Packet 1E claim: `STG-TRN-001` was
+    proven through `APPROVED`, but nothing was published to production.
+- Automated evidence:
+  - `git diff --check` — passed.
+  - `bash scripts/repository-check.sh` — passed; board invariants valid with no
+    active mission/packet in this paused worktree.
+- Live evidence:
+  - Git inspected from the isolated worktree; baseline HEAD `aff1a27`, remote
+    Sharm branch `3a9a297`, and two local-only continuation commits confirmed.
+- Regression evidence:
+  - Documentation-only change; no backend, web or mobile executable file was
+    changed. The product gate was not rerun and is not claimed.
+- Review:
+  - Tier 2 documentation coordination; self-verified.
+- Residual risks:
+  - The preserved branch is intentionally divergent from current `origin/main`.
+    Reconciliation is a future owner-authorized resume gate, not part of this
+    checkpoint.
+- Owner inputs consumed:
+  - The owner requested new-account onboarding and explicitly left product
+    thinking/implementation to Codex and the new Claude account.
+- Next unchecked gate:
+  - Explicit owner reactivation of WEGO-010, then the resume/integration gate in
+    `../handoff/2026-09-29_NEW-AGENTS_START-HERE.md`.
+
 ### 2026-09-27 — brand and conversion preparation
 
 - Commit: `4be891e`

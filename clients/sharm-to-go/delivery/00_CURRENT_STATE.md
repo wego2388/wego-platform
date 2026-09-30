@@ -1,6 +1,21 @@
 # Phase 0 — current state and baseline
 
-Updated: 2026-09-27
+Updated: 2026-09-29
+
+## Coordination status
+
+- [x] WEGO-010 was paused 2026-09-27 through 2026-09-29 while WEGO-016 was
+  active in a separate worktree.
+- [x] The isolated Sharm To Go continuation worktree is preserved for inspection
+  and future deliberate integration.
+- [x] The owner explicitly reactivated WEGO-010 on 2026-09-30 ("انا بعطي لك
+  تريح مني و موافقه و موكلك انت تعمل الصح و المظبوط... ابداء هندل و ظبط شرم
+  تو جو") and the current execution board reflects it. See `ROADMAP_AR.md`
+  Phase 0 for evidence.
+- [ ] An implementer and independent reviewer have been assigned without both
+  writing to the same worktree. (Note: per `AGENTS.md`, the single-active-
+  packet invariant is scoped per implementation worktree; WEGO-016 remains
+  active in its own separate worktree.)
 
 ## Repository and isolation
 

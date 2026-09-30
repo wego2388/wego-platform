@@ -1,19 +1,30 @@
-# Sharm To Go — continuation handoff
+# Sharm To Go — technical continuation handoff
 
-Status refreshed: 2026-09-27 (brand/conversion direction and delivery workbook).
+Status refreshed: 2026-09-30 (reactivation and reorganization).
+
+> **Superseded pointer:** [`ROADMAP_AR.md`](ROADMAP_AR.md) is now the
+> canonical status/order source (same pattern as Safari's own
+> `ROADMAP_AR.md`). This file remains implemented history and technical
+> detail, not the current plan. The owner explicitly reactivated WEGO-010 on
+> 2026-09-30.
 
 ## Start here
 
-1. Read [`delivery/README.md`](delivery/README.md) and
+1. Read the [dated agent checkpoint](handoff/2026-09-29_NEW-AGENTS_START-HERE.md)
+   and [multi-account workflow](handoff/CHATGPT_AND_CLAUDE_MULTI_ACCOUNT_WORKFLOW.md)
+   before this technical history.
+2. Read [`delivery/README.md`](delivery/README.md) and
    [`delivery/00_CURRENT_STATE.md`](delivery/00_CURRENT_STATE.md), then read
    `AGENTS.md`, `docs/ENGINEERING_CONSTITUTION.md`, and the WEGO-010-A
    section of `docs/execution/WEGO_EXECUTION_BOARD.md`.
-2. Run `git status --short --branch` and `git worktree list`. Do not assume the
+3. Run `git status --short --branch` and `git worktree list`. Do not assume the
    checkout at `/home/wego/wego-platform` contains the latest Sharm To Go code.
-3. The current implementation is on branch
+4. The preserved continuation implementation is on branch
    `worktree-wego-010a-0r-isolation` in the existing isolated worktree. If that
    branch has not yet been integrated, do not reimplement its work on `main`.
-4. Run `bash scripts/sharm-to-go-check.sh` before claiming the branch is green.
+5. While the packet is paused, inspection and reporting are allowed but product
+   implementation is not. After explicit reactivation, run
+   `bash scripts/sharm-to-go-check.sh` before claiming the branch is green.
 
 ## Implemented on this branch
 
@@ -51,9 +62,11 @@ No production deployment, production customer data, live payment or external
 publication has occurred. Rights-cleared real photography and production
 availability remain launch gates.
 
-## Next scope
+## Next scope after explicit reactivation
 
-The next planned implementation packet is the request/booking foundation in
+No implementation packet is authorized today. Once the owner explicitly
+reactivates WEGO-010, the next planned implementation packet is the
+request/booking foundation in
 [`delivery/01_REQUEST_AND_BOOKING.md`](delivery/01_REQUEST_AND_BOOKING.md): one
 durable public request/reference, safe lifecycle and immutable service/price
 snapshot, followed by the ERP queue, website conversion flow and mobile

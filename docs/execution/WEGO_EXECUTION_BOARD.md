@@ -16,7 +16,7 @@ Rule: exactly one implementation packet may be `ACTIVE` in a worktree. Parent mi
 | WEGO-007 | Proven automation recipes and operations surface (Wego Flow) | NOT AUTHORIZED — roadmap only |
 | WEGO-008 | Wego Growth Command Center and first end-to-end channel | NOT AUTHORIZED — roadmap only |
 | WEGO-009 | Safe omnichannel auto-response and Growth Copilot | NOT AUTHORIZED — roadmap only |
-| WEGO-010 | Travel Marketplace product and Sharm To Go client foundation | IN PROGRESS |
+| WEGO-010 | Travel Marketplace product and Sharm To Go client foundation | NOT AUTHORIZED — paused for WEGO-016 |
 | WEGO-011 | DiveOS Phase 1: real diver profiles (certifications, dive log summary, medical/emergency contact, equipment sizing) | COMPLETE |
 | WEGO-012 | Platform administration: staff accounts/RBAC, a real super-admin dashboard, HR (employees, attendance, leave, payroll), and a full double-entry accounting module | COMPLETE |
 | WEGO-013 | Platform hardening: fix CI's first real run against `main`, mobile CI build coverage, client onboarding runbook | COMPLETE |
@@ -214,7 +214,20 @@ provider constraints are revalidated against the implemented repository.
 
 ## WEGO-010-A — Travel Marketplace composition and Sharm To Go client foundation
 
-- **Status:** ACTIVE
+- **Status:** ACTIVE (reactivated 2026-09-30, scoped to this worktree)
+- **Paused (2026-09-27 → 2026-09-30):** This isolated continuation worktree
+  was aligned with the repository's coordination state while WEGO-016 (Safari
+  Tours Sharm) was the active mission in the separate `wego-foundry-isolation`
+  checkout. The branch and its two local-only continuation commits were
+  preserved unchanged during the pause.
+- **Reactivated (2026-09-30):** The owner explicitly authorized resuming work
+  here ("انا بعطي لك تريح مني و موافقه و موكلك انت تعمل الصح و المظبوط...
+  ابداء هندل و ظبط شرم تو جو"). Per `AGENTS.md`, the single-active-packet
+  invariant is scoped per implementation worktree — WEGO-016 remains
+  independently active in its own separate worktree, so both are active at
+  once without conflict. See the dated 2026-09-30 entry below and
+  `clients/sharm-to-go/ROADMAP_AR.md` for the reorganization this reactivation
+  started with.
 - **Pause note (2026-08-29):** The owner redirected active priority to WEGO-011 (DiveOS diver profiles) while this packet's own implementing session was idle, so this and WEGO-011 are never both `ACTIVE` at once — the repository's own single-active-packet invariant still holds. Nothing in this packet's scope, code, or documentation was touched; its independent Tier 1 review is still outstanding and its Phase 1 business content is still blocked on real service data. Resume by flipping this line back to `ACTIVE` and pausing/completing whatever else is active at that time.
 - **Resumed (2026-09-02):** The owner explicitly asked to resume this packet ("عايز اعمل المشروع ده بدون ما ياثر علي مشروع شرم دايفرز كلوب") and confirmed closing WEGO-011 `COMPLETE` (see that packet's own 2026-09-02 entry) specifically to free the board's single-`ACTIVE` slot back to this one. Work resumed with Packet 0R — see the dated entry below — in an isolated worktree (`.claude/worktrees/wego-010a-0r-isolation`) per the owner's own explicit choice, matching the WEGO-012 precedent for genuinely parallel packets.
 - **Review intensity:** Tier 1 — this packet establishes a second product/client composition and therefore changes an explicit client-isolation boundary. It does not add booking, payment, or PII persistence, but the composition resolver itself must still receive independent adversarial review before completion.
@@ -508,6 +521,75 @@ provider constraints are revalidated against the implemented repository.
 - **Verified for real:** site 24/24 tests (including the updated identity test), typecheck, lint; ERP 37/37 tests, typecheck (a separate, confirmed pre-existing `vue/no-multiple-template-root` lint failure surfaced when linting the ERP app in isolation, on three page files this round never touched — the authoritative root `pnpm run check` / `pnpm run lint` that CI actually runs reports zero errors on the exact same tree, so this is a latent per-package-vs-root config quirk, not a regression, and out of scope to fix here); full `pnpm run check` across all 6 web packages clean. Mobile: real Android debug APK built, `lintDebug` clean, full workspace re-run (`shared`/`ops`/`customer`/`customer-android`/`sharm-to-go`/`sharm-to-go-android`) clean. Real production builds of both web apps were served and screenshotted live (header mark on the site, sidebar/top-bar mark on the ERP at both mobile and desktop widths) — not just asserted by tests.
 - **Rollback considerations:** binary asset + small template/config changes across `sharm-to-go-site`, `sharm-to-go-erp`, `sharm-to-go-android`, and the design register; no backend, schema or shared-package change.
 - **Next:** nothing blocking — this closes the "logo" gap the owner raised. Real service photography remains the one deferred visual-asset item.
+
+### 2026-09-30 — Reactivation and Phase 0 reorganization (self-verified, Tier 2 — documentation and Git hygiene only)
+
+- **Status:** `ACTIVE`. The owner explicitly authorized resuming Sharm To Go
+  in this worktree, in the session's own judgment ("انا بعطي لك تريح مني و
+  موافقه و موكلك انت تعمل الصح و المظبوط... ابداء هندل و ظبط شرم تو جو"),
+  after a side-by-side review of this packet against Safari Tours Sharm's
+  now-cleaner `ROADMAP_AR.md`-based organization.
+- **What was found:** `worktree-wego-010a-0r-isolation` had two real commits
+  (`4be891e` brand/marketing-and-booking alignment, `aff1a27` the 7-phase
+  delivery workbook) that existed only on local disk — no upstream configured,
+  not present on `origin/wego-010a-sharm-to-go` or `origin/main`. Separately,
+  the client's planning documentation had sprawled across 10+ files with no
+  single canonical source (`CLAUDE_HANDOFF.md`, `EXECUTION_PLAN.md`,
+  `PRODUCT_BLUEPRINT.md`, `MARKETPLACE_EXPANSION_PLAN.md`,
+  `CONVERSION_DELIVERY_PLAN.md`, `BRAND_AND_GROWTH_STRATEGY.md`, the 8-file
+  `delivery/` workbook, the 3-file `handoff/` directory), several still
+  asserting the 2026-09-29 `PAUSED` state as current.
+- **What was done:**
+  - Verified `origin/main`'s two merge commits ahead of this branch's base
+    (`3a9a297`) are empty diffs (PR #39/#40 merged content already identical
+    to that base) — zero file-level conflict risk confirmed before touching
+    anything.
+  - Pushed the branch to `origin/wego-010a-sharm-to-go` (fast-forward,
+    non-destructive) so the two previously-local-only commits are backed up.
+  - Added `clients/sharm-to-go/ROADMAP_AR.md` as the single canonical
+    phase-order/status source, mirroring `clients/safari-tours-sharm/ROADMAP_AR.md`'s
+    format exactly: a work-location table (including the intentionally-empty
+    future client-delivery repo `github.com/wego2388/sharm-to-go`, same
+    pattern as `safari-tours-sharm`), `[x]/[~]/[ ]/[!]` evidence markers, the
+    existing 7-phase delivery workbook condensed and re-ordered under it
+    (Phase 1 = real request/booking persistence is now explicitly the first
+    implementation packet — the single biggest gap versus Safari, which has a
+    real end-to-end payment/booking flow and Sharm To Go currently has none),
+    and one consolidated "مطلوب من محمد" section collecting every owner-only
+    input (domain/hosting, WhatsApp/email ownership confirmation, real
+    photography, legal entity, payment-provider choice, app-store accounts)
+    in parallel instead of deferred to the last phase.
+  - Updated every stale `PAUSED`/"start here" pointer (`README.md`,
+    `CLAUDE_HANDOFF.md`, `delivery/README.md`, `delivery/00_CURRENT_STATE.md`,
+    `handoff/README.md`, `handoff/CHATGPT_AND_CLAUDE_MULTI_ACCOUNT_WORKFLOW.md`)
+    to point at `ROADMAP_AR.md` as canonical, without deleting their
+    historical/technical content. The preserved 2026-09-29 checkpoint file
+    (`handoff/2026-09-29_NEW-AGENTS_START-HERE.md`) is left as-is — it is a
+    dated snapshot of the pause moment, not a live status file.
+- **Verified:** `git fetch` + `git log --oneline` confirm the branch/remote
+  relationship before any push; `git diff --name-only` confirmed the
+  zero-overlap claim before reconciling with `origin/main`.
+- **Quality-gate baseline (2026-09-30), captured before any feature code:**
+  `bash scripts/sharm-to-go-check.sh` — Gradle `:platform:apps:sharm-to-go:check`
+  and `:platform:application:check` `BUILD SUCCESSFUL`; mobile
+  (`:mobile:shared/customer/customer-android/sharm-to-go/sharm-to-go-android:check`)
+  `BUILD SUCCESSFUL`; `sharm-to-go-site` lint/typecheck/test/build all green;
+  `sharm-to-go-erp` lint fails on the same pre-existing
+  `vue/no-multiple-template-root` finding on `categories.vue`/`index.vue`/
+  `providers.vue`/`services.vue` documented in the 2026-09-23 entry above
+  (confirmed non-blocking again: root `pnpm run check` in `web/` exits 0 on
+  the identical tree). This means the gate script itself stops early and
+  never reaches `foundry run validate` or `repository-check.sh` in one pass —
+  a real latent gap in the script (it should lint at the root like CI does,
+  not per-package), not fixed here since it is outside this reorganization's
+  scope. Both of those steps were run independently instead: `foundry run
+  validate` (OpenAPI + repository YAML) exit 0; `bash
+  scripts/repository-check.sh` exit 0, confirming this board edit did not
+  break the canonical-status invariant.
+- **Next:** commit this reorganization, push, and open a PR (not merged
+  without a fresh explicit owner instruction, per this packet's own standing
+  pattern). After that, the first scoped implementation packet is
+  `delivery/01_REQUEST_AND_BOOKING.md` (real request/booking persistence).
 
 ## WEGO-003 — Reliable integration delivery and replay
 

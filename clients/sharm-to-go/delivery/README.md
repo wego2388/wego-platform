@@ -4,17 +4,26 @@ This folder is the operational handoff for every agent continuing Sharm To Go.
 It turns the product strategy into ordered, checkable work across backend,
 website, ERP and mobile.
 
+> **Coordination gate (2026-09-30):** WEGO-010 was explicitly reactivated by
+> the owner on 2026-09-30. [`../ROADMAP_AR.md`](../ROADMAP_AR.md) is now the
+> canonical phase-order/status source — this workbook is the detailed
+> checklist behind each of its phases. Follow the roadmap's phase order;
+> change a checkbox here only with matching evidence recorded in
+> `07_ACCEPTANCE_AND_EVIDENCE.md`.
+
 ## How an agent uses this workbook
 
-1. Read `00_CURRENT_STATE.md`, then the active phase file.
-2. Confirm the dependency gate at the top of that phase is satisfied.
-3. Work on one coherent packet at a time; do not mark future work complete.
-4. Change `[ ]` to `[x]` only after implementation **and** the stated evidence
+1. Confirm WEGO-010 is explicitly active. If it is paused, stop after inspection
+   and report; do not select a phase or write implementation code.
+2. Read `00_CURRENT_STATE.md`, then the active phase file.
+3. Confirm the dependency gate at the top of that phase is satisfied.
+4. Work on one coherent packet at a time; do not mark future work complete.
+5. Change `[ ]` to `[x]` only after implementation **and** the stated evidence
    exist. A created file or passing compile alone is not completion.
-5. Add the commit hash and evidence to `07_ACCEPTANCE_AND_EVIDENCE.md`.
-6. Update `docs/execution/WEGO_EXECUTION_BOARD.md` without breaking its
+6. Add the commit hash and evidence to `07_ACCEPTANCE_AND_EVIDENCE.md`.
+7. Update `docs/execution/WEGO_EXECUTION_BOARD.md` without breaking its
    canonical-status invariant.
-7. Run `bash scripts/sharm-to-go-check.sh` before handoff.
+8. Run `bash scripts/sharm-to-go-check.sh` before handoff.
 
 ## Checkbox vocabulary
 
