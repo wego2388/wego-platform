@@ -26,12 +26,12 @@ useHead(() => ({
     <h1 class="font-display text-3xl font-semibold">{{ copy.notFound.title }}</h1>
     <p class="max-w-sm text-sts-muted">{{ copy.notFound.body }}</p>
     <div class="flex flex-wrap justify-center gap-3">
-      <NuxtLink
+      <NuxtLinkLocale
         to="/"
         class="rounded-full bg-sts-ocean px-6 py-3 font-semibold text-white transition-transform hover:-translate-y-0.5"
       >
         {{ copy.notFound.cta }}
-      </NuxtLink>
+      </NuxtLinkLocale>
       <a
         :href="whatsappUrl"
         target="_blank"

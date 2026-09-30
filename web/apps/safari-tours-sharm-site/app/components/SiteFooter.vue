@@ -28,16 +28,16 @@ defineProps<{
           <h2 class="text-xs font-bold tracking-[0.12em] text-sts-sand uppercase">Tours</h2>
           <ul class="mt-4 grid gap-2 text-sm">
             <li>
-              <NuxtLink to="/tours" class="text-white/70 hover:text-white">{{ links.tours }}</NuxtLink>
+              <NuxtLinkLocale to="/tours" class="text-white/70 hover:text-white">{{ links.tours }}</NuxtLinkLocale>
             </li>
             <li>
-              <NuxtLink to="/category/desert" class="text-white/70 hover:text-white">Desert & Safari</NuxtLink>
+              <NuxtLinkLocale to="/category/desert" class="text-white/70 hover:text-white">Desert & Safari</NuxtLinkLocale>
             </li>
             <li>
-              <NuxtLink to="/category/sea" class="text-white/70 hover:text-white">Sea & Water</NuxtLink>
+              <NuxtLinkLocale to="/category/sea" class="text-white/70 hover:text-white">Sea & Water</NuxtLinkLocale>
             </li>
             <li>
-              <NuxtLink to="/category/cultural" class="text-white/70 hover:text-white">Cultural Tours</NuxtLink>
+              <NuxtLinkLocale to="/category/cultural" class="text-white/70 hover:text-white">Cultural Tours</NuxtLinkLocale>
             </li>
           </ul>
         </div>
@@ -47,13 +47,13 @@ defineProps<{
           <h2 class="text-xs font-bold tracking-[0.12em] text-sts-sand uppercase">Company</h2>
           <ul class="mt-4 grid gap-2 text-sm">
             <li>
-              <NuxtLink to="/contact" class="text-white/70 hover:text-white">{{ links.contact }}</NuxtLink>
+              <NuxtLinkLocale to="/contact" class="text-white/70 hover:text-white">{{ links.contact }}</NuxtLinkLocale>
             </li>
             <li>
-              <NuxtLink to="/privacy" class="text-white/70 hover:text-white">{{ links.privacy }}</NuxtLink>
+              <NuxtLinkLocale to="/privacy" class="text-white/70 hover:text-white">{{ links.privacy }}</NuxtLinkLocale>
             </li>
             <li>
-              <NuxtLink to="/terms" class="text-white/70 hover:text-white">{{ links.terms }}</NuxtLink>
+              <NuxtLinkLocale to="/terms" class="text-white/70 hover:text-white">{{ links.terms }}</NuxtLinkLocale>
             </li>
           </ul>
         </div>
@@ -94,8 +94,8 @@ defineProps<{
       >
         <span>{{ rights }}</span>
         <span class="flex gap-4">
-          <NuxtLink to="/privacy" class="hover:text-white">{{ links.privacy }}</NuxtLink>
-          <NuxtLink to="/terms" class="hover:text-white">{{ links.terms }}</NuxtLink>
+          <NuxtLinkLocale to="/privacy" class="hover:text-white">{{ links.privacy }}</NuxtLinkLocale>
+          <NuxtLinkLocale to="/terms" class="hover:text-white">{{ links.terms }}</NuxtLinkLocale>
         </span>
       </div>
     </div>

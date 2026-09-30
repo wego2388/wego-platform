@@ -22,6 +22,7 @@ import {
 const ALL_LOCALES: StsLocale[] = ["en", "ru", "ar", "it"];
 const route = useRoute();
 const router = useRouter();
+const localePath = useLocalePath();
 
 const locale = useSiteLocale();
 const copy = computed(() => siteCopy[locale.value]);
@@ -142,7 +143,7 @@ useHead(() => ({
 function proceedToBook() {
   if (!selectedSlot.value) return;
   void router.push({
-    path: `/booking/${selectedSlot.value.id}`,
+    path: localePath(`/booking/${selectedSlot.value.id}`),
     query: {
       adults: String(adultsCount.value),
       children: String(childrenCount.value),
@@ -191,7 +192,7 @@ const whatsappBookUrl = computed(() => {
       >
         <p class="text-5xl" aria-hidden="true">🗺️</p>
         <h1 class="text-2xl font-semibold">Tour not found</h1>
-        <NuxtLink to="/tours" class="text-sts-ocean hover:underline">← Back to Tours</NuxtLink>
+        <NuxtLinkLocale to="/tours" class="text-sts-ocean hover:underline">← Back to Tours</NuxtLinkLocale>
       </div>
 
       <!-- ── Error ─────────────────────────────────────────────────── -->
@@ -210,14 +211,14 @@ const whatsappBookUrl = computed(() => {
         <!-- Breadcrumb -->
         <div class="border-b border-sts-border bg-sts-surface px-6 py-3 lg:px-10">
           <nav class="mx-auto flex max-w-7xl items-center gap-2 text-sm text-sts-muted" aria-label="Breadcrumb">
-            <NuxtLink to="/" class="hover:text-sts-ink">Home</NuxtLink>
+            <NuxtLinkLocale to="/" class="hover:text-sts-ink">Home</NuxtLinkLocale>
             <span aria-hidden="true">/</span>
-            <NuxtLink
+            <NuxtLinkLocale
               :to="`/category/${categoryMeta[tour.category].slug}`"
               class="hover:text-sts-ink capitalize"
             >
               {{ copy.categories[tour.category].name }}
-            </NuxtLink>
+            </NuxtLinkLocale>
             <span aria-hidden="true">/</span>
             <span class="text-sts-ink capitalize">{{ tour.slug.replace(/-/g, " ") }}</span>
           </nav>

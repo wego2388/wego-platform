@@ -72,12 +72,12 @@ useHead(() => ({
       <!-- Category hero -->
       <div class="bg-sts-ocean px-6 py-16 text-white lg:px-10">
         <div class="mx-auto max-w-7xl">
-          <NuxtLink
+          <NuxtLinkLocale
             to="/tours"
             class="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-white/60 hover:text-white"
           >
             ← {{ copy.nav.tours }}
-          </NuxtLink>
+          </NuxtLinkLocale>
           <div class="flex items-center gap-4">
             <span
               v-if="meta"
@@ -123,7 +123,7 @@ useHead(() => ({
 
         <!-- Tours -->
         <div v-else class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          <NuxtLink
+          <NuxtLinkLocale
             v-for="tour in tours"
             :key="tour.id"
             :to="`/tour/${tour.slug}`"
@@ -144,7 +144,7 @@ useHead(() => ({
                 </span>
               </div>
             </div>
-          </NuxtLink>
+          </NuxtLinkLocale>
         </div>
       </section>
     </main>

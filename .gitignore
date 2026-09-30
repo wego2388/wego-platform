@@ -51,3 +51,7 @@ infrastructure/data/
 # Test artifacts
 test-results/
 reports/
+
+# Python bytecode (content tooling scripts)
+__pycache__/
+*.pyc

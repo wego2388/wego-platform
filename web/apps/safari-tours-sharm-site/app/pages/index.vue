@@ -81,12 +81,12 @@ const CATEGORIES: TourCategory[] = ["DESERT", "SEA", "CULTURAL", "SHOWS", "TRANS
           </p>
 
           <div class="mt-8 flex flex-wrap gap-3">
-            <NuxtLink
+            <NuxtLinkLocale
               to="/tours"
               class="rounded-full bg-sts-coral px-7 py-3.5 font-semibold text-white shadow-lg transition-transform hover:-translate-y-0.5"
             >
               {{ copy.hero.cta }}
-            </NuxtLink>
+            </NuxtLinkLocale>
             <a
               :href="whatsappUrl"
               target="_blank"
@@ -139,7 +139,7 @@ const CATEGORIES: TourCategory[] = ["DESERT", "SEA", "CULTURAL", "SHOWS", "TRANS
       </div>
 
       <div class="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-        <NuxtLink
+        <NuxtLinkLocale
           v-for="(cat, index) in CATEGORIES"
           :key="cat"
           :to="`/category/${categoryMeta[cat].slug}`"
@@ -159,16 +159,16 @@ const CATEGORIES: TourCategory[] = ["DESERT", "SEA", "CULTURAL", "SHOWS", "TRANS
           <p class="mt-2 text-sm leading-6 text-sts-muted">
             {{ copy.categories[cat].description }}
           </p>
-        </NuxtLink>
+        </NuxtLinkLocale>
       </div>
 
       <div class="mt-8 text-center">
-        <NuxtLink
+        <NuxtLinkLocale
           to="/tours"
           class="inline-flex rounded-full border border-sts-ocean px-7 py-3 font-semibold text-sts-ocean transition-transform hover:-translate-y-0.5 hover:bg-sts-ocean hover:text-white"
         >
           {{ copy.nav.tours }} →
-        </NuxtLink>
+        </NuxtLinkLocale>
       </div>
     </section>
 
@@ -219,12 +219,12 @@ const CATEGORIES: TourCategory[] = ["DESERT", "SEA", "CULTURAL", "SHOWS", "TRANS
         </h2>
         <p class="mt-4 leading-7 text-white/75">{{ copy.cancellationBody }}</p>
         <div class="mt-8 flex flex-wrap justify-center gap-4">
-          <NuxtLink
+          <NuxtLinkLocale
             to="/tours"
             class="rounded-full bg-sts-coral px-7 py-3.5 font-semibold text-white shadow-lg transition-transform hover:-translate-y-0.5"
           >
             {{ copy.hero.cta }}
-          </NuxtLink>
+          </NuxtLinkLocale>
           <a
             :href="whatsappUrl"
             target="_blank"

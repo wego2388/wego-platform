@@ -3,26 +3,36 @@
 @import "@fontsource/playfair-display/400.css";
 @import "@fontsource/playfair-display/600.css";
 @import "@fontsource/playfair-display/700.css";
-@import "@fontsource/cairo/400.css";
-@import "@fontsource/cairo/600.css";
-@import "@fontsource/cairo/700.css";
+@import "@fontsource-variable/readex-pro";
+@import "@fontsource/ibm-plex-sans-arabic/arabic-400.css";
+@import "@fontsource/ibm-plex-sans-arabic/arabic-500.css";
+@import "@fontsource/ibm-plex-sans-arabic/arabic-600.css";
+@import "@fontsource/ibm-plex-sans-arabic/arabic-700.css";
 
-/* ── Brand tokens ──────────────────────────────────────────────────── */
+/* ══ Sinai Afterglow — design tokens v1 (FRONTEND_MASTER_PLAN_AR.md §3) ══
+ * Light values on :root; dark values apply when the visitor picks dark, or
+ * picks "system" and the OS is dark. Components use only these tokens.   */
 :root {
+  /* Brand */
   --sts-color-ocean:          #0A2342;
   --sts-color-ocean-bright:   #1B4F8A;
+  --sts-color-sunset:         #FF8C42;
+  --sts-color-sunset-strong:  #E06A1B;
   --sts-color-coral:          #FF6B6B;
   --sts-color-sand:           #C8A97E;
   --sts-color-sand-soft:      #F0E6D3;
-  --sts-color-sunset:         #FF8C42;
   --sts-color-palm:           #2D6A4F;
 
+  /* Surfaces & text */
   --sts-color-canvas:         #F7F4F0;
   --sts-color-surface:        #FFFFFF;
+  --sts-color-surface-raised: #FFFFFF;
   --sts-color-ink:            #1A1A2E;
-  --sts-color-muted:          #6B7280;
+  --sts-color-muted:          #5F6673;
   --sts-color-border:         #E8E4DF;
+  --sts-color-on-brand:       #FFFFFF;
 
+  /* Status */
   --sts-color-success:        #0f7a3d;
   --sts-color-success-soft:   #dcf5e4;
   --sts-color-warning:        #8a5809;
@@ -30,29 +40,88 @@
   --sts-color-danger:         #b3261e;
   --sts-color-danger-soft:    #fbdcd9;
 
+  /* Tour categories (map, badges, tiles) */
+  --sts-cat-sea:              #0E7C86;
+  --sts-cat-desert:           #C0712F;
+  --sts-cat-cultural:         #9A4A2E;
+  --sts-cat-shows:            #5B3A8C;
+  --sts-cat-transfers:        #4A5568;
+
   /* override wego platform accent with brand primary */
   --wego-color-accent:        #0A2342;
   --wego-color-accent-soft:   #F0E6D3;
 
+  /* Typography */
   --sts-font-display:  "Playfair Display", ui-serif, Georgia, serif;
   --sts-font-sans:     "Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif;
-  --sts-font-arabic:   "Cairo", "Tajawal", ui-sans-serif, system-ui, sans-serif;
+  --sts-font-arabic-display: "Readex Pro Variable", "IBM Plex Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+  --sts-font-arabic:   "IBM Plex Sans Arabic", "Readex Pro Variable", ui-sans-serif, system-ui, sans-serif;
 
-  --sts-ease:          cubic-bezier(0.4, 0, 0.2, 1);
+  /* Shape & depth */
+  --sts-radius-control: 10px;
+  --sts-radius-card:    16px;
+  --sts-radius-media:   20px;
+  --sts-radius-btn:     10px;
+  --sts-shadow-base:    0 1px 2px rgb(10 35 66 / 0.06), 0 1px 3px rgb(10 35 66 / 0.08);
+  --sts-shadow-raised:  0 10px 30px rgb(10 35 66 / 0.10);
+  --sts-shadow-overlay: 0 24px 64px rgb(10 35 66 / 0.22);
+  --sts-focus-ring:     0 0 0 3px var(--sts-color-sand), 0 0 0 5px rgb(10 35 66 / 0.35);
+
+  /* Layers */
+  --sts-z-sticky:   30;
+  --sts-z-dropdown: 40;
+  --sts-z-sheet:    50;
+  --sts-z-modal:    60;
+  --sts-z-toast:    70;
+
+  /* Motion */
+  --sts-ease:          cubic-bezier(0.22, 1, 0.36, 1);
   --sts-ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+  --sts-dur-instant:   100ms;
+  --sts-dur-quick:     180ms;
+  --sts-dur-base:      260ms;
+  --sts-dur-reveal:    500ms;
 
-  --sts-radius-card:   12px;
-  --sts-radius-btn:    8px;
+  color-scheme: light;
 }
 
-/* ── Dark mode ─────────────────────────────────────────────────────── */
+/* Dark: explicit choice, or "system" on a dark OS. */
+:root[data-theme="dark"] {
+  --sts-color-ocean-bright:   #6FA3E0;
+  --sts-color-sunset:         #FF9F5E;
+  --sts-color-sunset-strong:  #FFB27D;
+  --sts-color-sand-soft:      #2A2418;
+  --sts-color-canvas:         #0B1320;
+  --sts-color-surface:        #122036;
+  --sts-color-surface-raised: #182A45;
+  --sts-color-ink:            #EEF2F7;
+  --sts-color-muted:          #A2AEBF;
+  --sts-color-border:         #26385A;
+  --sts-color-success-soft:   #12301F;
+  --sts-color-warning-soft:   #33260C;
+  --sts-color-danger-soft:    #3A1614;
+  --sts-shadow-raised:  0 10px 30px rgb(0 0 0 / 0.35);
+  --sts-shadow-overlay: 0 24px 64px rgb(0 0 0 / 0.55);
+  color-scheme: dark;
+}
 @media (prefers-color-scheme: dark) {
-  :root {
-    --sts-color-canvas:         #0F172A;
-    --sts-color-surface:        #1E293B;
-    --sts-color-ink:            #F1F5F9;
-    --sts-color-muted:          #94A3B8;
-    --sts-color-border:         #334155;
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    --sts-color-ocean-bright:   #6FA3E0;
+    --sts-color-sunset:         #FF9F5E;
+    --sts-color-sunset-strong:  #FFB27D;
+    --sts-color-sand-soft:      #2A2418;
+    --sts-color-canvas:         #0B1320;
+    --sts-color-surface:        #122036;
+    --sts-color-surface-raised: #182A45;
+    --sts-color-ink:            #EEF2F7;
+    --sts-color-muted:          #A2AEBF;
+    --sts-color-border:         #26385A;
+    --sts-color-success-soft:   #12301F;
+    --sts-color-warning-soft:   #33260C;
+    --sts-color-danger-soft:    #3A1614;
+    --sts-shadow-raised:  0 10px 30px rgb(0 0 0 / 0.35);
+    --sts-shadow-overlay: 0 24px 64px rgb(0 0 0 / 0.55);
+    color-scheme: dark;
   }
 }
 
@@ -67,6 +136,17 @@ html {
 [lang="ar"], [dir="rtl"] {
   font-family: var(--sts-font-arabic);
   line-height: 1.8;
+}
+[lang="ar"] :is(h1, h2, h3, .font-display) {
+  font-family: var(--sts-font-arabic-display);
+  letter-spacing: 0;
+}
+
+/* One visible focus style everywhere (keyboard only). */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--sts-focus-ring);
+  border-radius: 6px;
 }
 
 /* ── Tailwind theme bridge ─────────────────────────────────────────── */
@@ -89,9 +169,24 @@ html {
   --color-sts-warning-soft: var(--sts-color-warning-soft);
   --color-sts-danger:       var(--sts-color-danger);
   --color-sts-danger-soft:  var(--sts-color-danger-soft);
+  --color-sts-sunset-strong: var(--sts-color-sunset-strong);
+  --color-sts-surface-raised: var(--sts-color-surface-raised);
+  --color-sts-on-brand:     var(--sts-color-on-brand);
+  --color-sts-cat-sea:      var(--sts-cat-sea);
+  --color-sts-cat-desert:   var(--sts-cat-desert);
+  --color-sts-cat-cultural: var(--sts-cat-cultural);
+  --color-sts-cat-shows:    var(--sts-cat-shows);
+  --color-sts-cat-transfers: var(--sts-cat-transfers);
+  --radius-sts-control:     var(--sts-radius-control);
+  --radius-sts-card:        var(--sts-radius-card);
+  --radius-sts-media:       var(--sts-radius-media);
+  --shadow-sts-base:        var(--sts-shadow-base);
+  --shadow-sts-raised:      var(--sts-shadow-raised);
+  --shadow-sts-overlay:     var(--sts-shadow-overlay);
   --font-display:           var(--sts-font-display);
   --font-sans:              var(--sts-font-sans);
   --font-arabic:            var(--sts-font-arabic);
+  --font-arabic-display:    var(--sts-font-arabic-display);
 }
 
 /* ── Hero section ──────────────────────────────────────────────────── */
@@ -140,10 +235,13 @@ html {
 }
 
 /* ── Skip link ─────────────────────────────────────────────────────── */
+/* Hidden by moving it up out of view, never sideways: a large negative
+   `left` creates ~10,000px of horizontal scroll in right-to-left pages. */
 .sts-skip-link {
   position: absolute;
-  left: -9999px;
+  inset-inline-start: 1rem;
   top: 1rem;
+  transform: translateY(-200%);
   z-index: 100;
   background: var(--sts-color-ocean);
   color: #fff;
@@ -153,7 +251,7 @@ html {
   font-size: 0.875rem;
 }
 .sts-skip-link:focus {
-  left: 1rem;
+  transform: none;
 }
 
 /* ── WhatsApp FAB ──────────────────────────────────────────────────── */
@@ -164,6 +262,18 @@ html {
   transform: translateY(-4px) scale(1.04);
   box-shadow: 0 12px 32px rgb(37 211 102 / 0.35);
 }
+
+/* ── Overlay motion (dialogs, sheets, popovers) ───────────────────── */
+.sts-overlay[data-state="open"] { animation: sts-fade-in var(--sts-dur-base) var(--sts-ease); }
+.sts-pop[data-state="open"] { animation: sts-pop-in var(--sts-dur-base) var(--sts-ease); }
+.sts-sheet-up[data-state="open"] { animation: sts-sheet-up var(--sts-dur-base) var(--sts-ease); }
+.sts-sheet-side[data-state="open"] { animation: sts-sheet-side var(--sts-dur-base) var(--sts-ease); }
+@keyframes sts-fade-in { from { opacity: 0; } }
+@keyframes sts-pop-in { from { opacity: 0; transform: translate(-50%, -48%) scale(0.97); } }
+@keyframes sts-sheet-up { from { transform: translateY(100%); } }
+@keyframes sts-sheet-side { from { transform: translateX(100%); } }
+[dir="rtl"] .sts-sheet-side[data-state="open"] { animation-name: sts-sheet-side-rtl; }
+@keyframes sts-sheet-side-rtl { from { transform: translateX(-100%); } }
 
 /* ── Reduced motion ────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {

@@ -25,6 +25,7 @@ import {
 
 const ALL_LOCALES: StsLocale[] = ["en", "ru", "ar", "it"];
 const router = useRouter();
+const localePath = useLocalePath();
 
 const locale    = useSiteLocale();
 const copy      = computed(() => siteCopy[locale.value]);
@@ -78,7 +79,7 @@ async function pollPaymentStatus(attempt = 0): Promise<void> {
       case "PAID":
         state.value = "confirmed";
         // Redirect to the full confirmation page
-        void router.replace("/booking/confirmation");
+        void router.replace(localePath("/booking/confirmation"));
         return;
 
       case "FAILED":
@@ -178,12 +179,12 @@ const whatsappHelpUrl = computed(() => {
 
         <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <!-- Retry — go back to the booking page -->
-          <NuxtLink
+          <NuxtLinkLocale
             to="/tours"
             class="flex items-center justify-center rounded-2xl border border-sts-border px-7 py-3.5 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
           >
             Try Again
-          </NuxtLink>
+          </NuxtLinkLocale>
           <a
             :href="whatsappHelpUrl"
             target="_blank"

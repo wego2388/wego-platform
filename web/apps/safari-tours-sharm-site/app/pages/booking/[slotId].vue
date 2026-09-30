@@ -457,9 +457,9 @@ v-if="i < 2" class="mx-2 h-0.5 flex-1 rounded-full"
           >
           <span class="text-sm text-sts-muted">
             I agree to the
-            <NuxtLink to="/terms" class="text-sts-ocean hover:underline">Terms & Conditions</NuxtLink>
+            <NuxtLinkLocale to="/terms" class="text-sts-ocean hover:underline">Terms & Conditions</NuxtLinkLocale>
             and
-            <NuxtLink to="/privacy" class="text-sts-ocean hover:underline">Privacy Policy</NuxtLink>.
+            <NuxtLinkLocale to="/privacy" class="text-sts-ocean hover:underline">Privacy Policy</NuxtLinkLocale>.
           </span>
         </label>
 

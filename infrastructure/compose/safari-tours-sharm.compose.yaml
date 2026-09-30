@@ -64,6 +64,8 @@ services:
       dockerfile: infrastructure/docker/safari-site.Dockerfile
     environment:
       NUXT_PUBLIC_API_BASE: ""
+      # Public origin used in canonical and hreflang links (production: https://<domain>).
+      NUXT_PUBLIC_I18N_BASE_URL: ${WEGO_SITE_PUBLIC_URL:-http://127.0.0.1:58080}
     healthcheck:
       test: [CMD-SHELL, "wget -q -O /dev/null http://127.0.0.1:3001/tours"]
       interval: 5s

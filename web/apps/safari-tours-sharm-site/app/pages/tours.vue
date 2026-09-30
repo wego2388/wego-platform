@@ -45,7 +45,7 @@ useHead(() => ({
       <!-- Category grid -->
       <section class="mx-auto max-w-7xl px-6 py-14 lg:px-10">
         <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          <NuxtLink
+          <NuxtLinkLocale
             v-for="cat in CATEGORIES"
             :key="cat"
             :to="`/category/${categoryMeta[cat].slug}`"
@@ -69,7 +69,7 @@ useHead(() => ({
             >
               {{ copy.hero.cta }} →
             </span>
-          </NuxtLink>
+          </NuxtLinkLocale>
         </div>
 
         <!-- WhatsApp CTA -->

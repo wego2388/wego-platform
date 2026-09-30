@@ -2380,7 +2380,7 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
 
 ## WEGO-016 — Safari Tours Sharm: tours-operator product foundation
 
-- **Status:** IN PROGRESS — A–G complete; phase 4 UX-0 complete, UX-1 ACTIVE (2026-09-30); H–I require explicit owner activation
+- **Status:** IN PROGRESS — A–G complete; phase 4 UX-0..UX-1 complete, UX-2 ACTIVE (2026-09-30); H–I require explicit owner activation
 - **Activated:** 2026-09-27
 - **Review intensity:** Tier 1 — this packet adds a new product boundary (`products/tours-operator`), a new Flyway migration (V14), a new client isolation profile (`clients/safari-tours-sharm`), and will later touch payment/PII/auth surfaces. Every sub-packet that adds a migration, modifies auth, or handles customer payment data requires independent Tier 1 review before merge.
 - **Origin:** The owner asked to establish Safari Tours Sharm as a first-class Wego Platform product — on the same standards as Sharm Divers Club and Sharm To Go — with a public booking website, a staff ERP, a real Paymob payment flow, a production tour catalog, and an isolated deployment. The handoff document at `clients/safari-tours-sharm/handoff/SAFARI_TOURS_PRODUCTION_MATURITY_HANDOFF.md` is the authoritative reference for current maturity, open P0 issues, and the phased delivery plan.
@@ -3040,7 +3040,7 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-09-30 — WEGO-016-UX1: site foundations (identity, i18n routing, components)
 
-- **Status:** ACTIVE
+- **Status:** COMPLETE — committed and pushed under the owner's standing autonomy instruction (2026-09-30); no deploy.
 - **Activation:** owner `اعمل commit وارفع وابدأ UX-1` (2026-09-30).
 - **Review intensity:** Tier 2 — public-site presentation layer; no data,
   money or permission changes.
@@ -3058,6 +3058,69 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 - **Acceptance:** unit tests for components, axe on `/_design`, Playwright
   screenshots light/dark × EN/AR, SSR returns correct `lang/dir`, site
   `lint/typecheck/test/build` green, `pnpm run check` green, Tier-2 review.
+- **Delivered (in progress record):**
+  - `@nuxtjs/i18n` prefix routing (`/en /ar /ru /it`), SSR `lang/dir`,
+    canonical + reciprocal hreflang + `x-default` via `useLocaleHead`; root
+    detects browser language once, then the `sts_locale` cookie wins.
+  - `server/middleware/locale-prefix.ts` + pure `localeRedirectTarget`:
+    language-less URLs (fixed Paymob return URL, bookmarks) 302 to the
+    visitor's locale with the query string kept.
+  - All internal links → `NuxtLinkLocale`; programmatic navigation via
+    `useLocalePath`; `useSiteLocale()` now reads the route locale and switches
+    by navigating (existing pages unchanged).
+  - Sinai Afterglow tokens v1 (light/dark via `data-theme` cookie rendered on
+    the server — no theme flash; category colours; motion/z/shadow/radius
+    tokens), Readex Pro + IBM Plex Sans Arabic for Arabic, visible focus ring.
+  - Components: `ui/*` (Button, Field, Input, Textarea, Select, Checkbox,
+    Stepper, ErrorSummary, Badge, Skeleton, EmptyState, Dialog, Sheet,
+    Popover, Tooltip, Tabs, Accordion — Reka UI primitives), `brand/*`
+    (BrandLogo mockup following theme, TourMedia branded placeholder,
+    SectionDivider), `site/*` (LocaleSwitcher, ThemeToggle); inline-SVG
+    Lucide icons; internal `/{locale}/design-system` showcase (404 unless dev
+    or `NUXT_PUBLIC_DESIGN_SYSTEM=true`, noindex).
+  - Mockups: `public/brand/logo*.svg` (replace in place), tour media under
+    `public/media/tours/<slug>/`.
+- **Found and fixed:** the skip link was hidden with `left:-9999px`, which in
+  RTL produced ~10,000px of horizontal scroll on every Arabic page of the
+  current site; now hidden vertically.
+- **Deviations from the plan (recorded):** `@nuxt/fonts` not added (fonts
+  were already self-hosted via Fontsource); `@pinia/colada` deferred to UX-2
+  where client caching is first needed; Arabic body font changed from Cairo to
+  IBM Plex Sans Arabic as planned.
+- **Known build noise:** `@nuxtjs/i18n` 10.6 triggers a Node 24 loader
+  `unhandledRejection` log while importing `vue-router/unplugin` during
+  build; the build succeeds and routing is verified at runtime.
+- **Tier-2 review:** READY with 1 MAJOR (canonical/hreflang base URL would
+  fall back to localhost in production) — fixed: runtime
+  `NUXT_PUBLIC_I18N_BASE_URL` wired in compose (`WEGO_SITE_PUBLIC_URL`) and
+  verified absolute alternates at runtime; minors fixed: redirect only known
+  legacy roots (junk → 404, `/EN/…` normalised), `Cache-Control: no-store` on
+  cookie-dependent redirects, open-redirect regression tests. Deferred to
+  UX-2: localize component default labels when the new header adopts them.
+- **CI hygiene found in this packet:** pushes since F2 were red because of
+  (a) a committed `.pyc` (removed, `.gitignore` updated), (b) newly published
+  high advisories in transitive `undici`/`brace-expansion` (pnpm overrides,
+  audit now clean at high), (c) ECR Public anonymous "Data limit exceeded"
+  for base images on shared GitHub runners — external; owner chose to wait
+  (option 1). Durable fix later: authenticated registry pulls via repo secret.
+- **Evidence (2026-09-30):** `pnpm run check` in `web/` exit 0 (467 tests);
+  Safari gate passed; runtime checks listed above; Playwright hydration/width
+  checks clean on 6 pages; screenshots reviewed (EN/AR × light/dark ×
+  1280/390). Full compose e2e not runnable locally (docker build network) —
+  to be proven by CI once registry pulls succeed.
+
+---
+
+### 2026-09-30 — WEGO-016-UX2: discovery (header/footer, home, tours, categories)
+
+- **Status:** ACTIVE
+- **Activation:** owner standing instruction (`ابدا نفذ و سيطر علي المشروع و كمل البناء`, 2026-09-30).
+- **Review intensity:** Tier 2 — public presentation; reads published content only.
+- **Scope (FRONTEND_MASTER_PLAN_AR.md §6.2, §7.1–7.3, §14 UX-2):** new
+  SiteHeader/SiteFooter on the design system (localized labels), home page
+  sections, `/tours` with instant search + URL-synced filters + layout
+  animation, category pages, TourCard with View Transitions to the tour page,
+  localized published names from the UX-0 API, route rules/caching, JS budget.
 
 ---
 

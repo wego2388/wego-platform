@@ -476,7 +476,8 @@ test.describe("Safari Tours checkout flow — mock Paymob", () => {
     await page.getByRole("checkbox").check();
     await page.getByRole("button", { name: /Confirm & Pay/ }).click();
 
-    await expect(page).toHaveURL(`${SITE_BASE}/booking/confirmation`, { timeout: 20_000 });
+    // Public pages live under a locale prefix; the language-less return URL redirects to it.
+    await expect(page).toHaveURL(new RegExp(`^${SITE_BASE}/(en|ar|ru|it)/booking/confirmation$`), { timeout: 20_000 });
     expect(callbackFailure).toBe("");
     await expect(page.getByText("Booking Confirmed", { exact: false })).toBeVisible();
     expect(new URL(page.url()).search).toBe("");

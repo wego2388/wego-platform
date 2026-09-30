@@ -173,20 +173,20 @@ const whatsappConfirmUrl = computed(() => {
           >
             💬 Confirm on WhatsApp
           </a>
-          <NuxtLink
+          <NuxtLinkLocale
             to="/tours"
             class="flex items-center justify-center rounded-2xl border border-sts-border px-7 py-3.5 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
           >
             Book Another Tour
-          </NuxtLink>
+          </NuxtLinkLocale>
         </div>
 
         <!-- My Booking link -->
         <p class="mt-6 text-sm text-sts-muted">
           Want to check your booking later?
-          <NuxtLink to="/my-booking" class="text-sts-ocean hover:underline">
+          <NuxtLinkLocale to="/my-booking" class="text-sts-ocean hover:underline">
             My Booking →
-          </NuxtLink>
+          </NuxtLinkLocale>
         </p>
       </template>
 
@@ -203,9 +203,9 @@ const whatsappConfirmUrl = computed(() => {
           >
             Contact local support
           </a>
-          <NuxtLink to="/my-booking" class="inline-flex items-center justify-center rounded-2xl border border-amber-300 px-6 py-3 font-semibold">
+          <NuxtLinkLocale to="/my-booking" class="inline-flex items-center justify-center rounded-2xl border border-amber-300 px-6 py-3 font-semibold">
             Check My Booking
-          </NuxtLink>
+          </NuxtLinkLocale>
         </div>
       </div>
 

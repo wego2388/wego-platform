@@ -36,7 +36,7 @@ function closeMenu() {
       :class="scrolled ? 'text-sts-ink' : 'text-white'"
     >
       <!-- Logo -->
-      <NuxtLink
+      <NuxtLinkLocale
         to="/"
         class="flex items-center gap-3 font-semibold"
         :aria-label="props.nav.home"
@@ -49,27 +49,27 @@ function closeMenu() {
           STS
         </span>
         <span class="hidden font-semibold sm:inline">Safari Tours Sharm</span>
-      </NuxtLink>
+      </NuxtLinkLocale>
 
       <!-- Desktop nav -->
       <nav
         class="hidden items-center gap-6 text-sm font-semibold md:flex"
         aria-label="Primary navigation"
       >
-        <NuxtLink
+        <NuxtLinkLocale
           to="/tours"
           class="transition-colors hover:text-sts-coral"
           :class="scrolled ? 'text-sts-ink' : 'text-white/90'"
         >
           {{ props.nav.tours }}
-        </NuxtLink>
-        <NuxtLink
+        </NuxtLinkLocale>
+        <NuxtLinkLocale
           to="/contact"
           class="transition-colors hover:text-sts-coral"
           :class="scrolled ? 'text-sts-ink' : 'text-white/90'"
         >
           {{ props.nav.contact }}
-        </NuxtLink>
+        </NuxtLinkLocale>
       </nav>
 
       <!-- Actions -->
@@ -157,22 +157,22 @@ function closeMenu() {
       aria-label="Mobile navigation"
     >
       <div class="grid gap-1 text-sm font-semibold text-white">
-        <NuxtLink
+        <NuxtLinkLocale
           to="/tours"
           class="rounded-xl px-3 py-3 transition-colors hover:bg-white/10"
           :class="scrolled ? 'text-sts-ink hover:bg-sts-canvas' : ''"
           @click="closeMenu"
         >
           {{ props.nav.tours }}
-        </NuxtLink>
-        <NuxtLink
+        </NuxtLinkLocale>
+        <NuxtLinkLocale
           to="/contact"
           class="rounded-xl px-3 py-3 transition-colors hover:bg-white/10"
           :class="scrolled ? 'text-sts-ink hover:bg-sts-canvas' : ''"
           @click="closeMenu"
         >
           {{ props.nav.contact }}
-        </NuxtLink>
+        </NuxtLinkLocale>
       </div>
 
       <div class="mt-4 flex flex-wrap gap-2">
