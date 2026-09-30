@@ -18,13 +18,14 @@ import org.testcontainers.postgresql.PostgreSQLContainer
  * physically contains V1 (platform foundation), V2 (identity foundation,
  * both copied by hand from `:platform:application` rather than shared — an
  * accepted duplication risk recorded on the WEGO-010-A board entry), this
- * module's own V3 (Packet 1A travel marketplace catalog), and V4 (identity
+ * module's own V3 (Packet 1A travel marketplace catalog), V4 (identity
  * administration, ported — not shared — from origin/main's WEGO-012 with
- * this app's own real permission set, not Divers' ones) — the Divers
- * product's own migration files (a disjoint numbering sequence in a
- * different application) do not exist under this module at all. This test
- * proves the *database* consequence of that: a real, freshly migrated Sharm
- * To Go database contains the travel marketplace catalog tables and zero
+ * this app's own real permission set, not Divers' ones), and V5 (Phase 1
+ * travel request/booking foundation) — the Divers product's own migration
+ * files (a disjoint numbering sequence in a different application) do not
+ * exist under this module at all. This test proves the *database*
+ * consequence of that: a real, freshly migrated Sharm To Go database
+ * contains the travel marketplace catalog and request tables and zero
  * Divers tables.
  */
 @Testcontainers(disabledWithoutDocker = true)
@@ -34,7 +35,7 @@ class ProductIsolationIntegrationTest(
 ) {
     @Test
     fun `boots and migrates only the shared platform, identity, and travel marketplace catalog foundation, never any Divers table`() {
-        assertThat(flyway.info().applied().map { it.version.toString() }).containsExactly("1", "2", "3", "4")
+        assertThat(flyway.info().applied().map { it.version.toString() }).containsExactly("1", "2", "3", "4", "5")
 
         postgres.createConnection("").use { connection ->
             val tableNames =
@@ -56,6 +57,8 @@ class ProductIsolationIntegrationTest(
                     "travel_service_option",
                     "travel_service_media",
                     "travel_marketplace_audit_event",
+                    "travel_request",
+                    "travel_request_audit_event",
                 ).noneMatch { it.startsWith("divers_") }
         }
     }

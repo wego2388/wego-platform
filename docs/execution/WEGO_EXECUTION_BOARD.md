@@ -591,6 +591,78 @@ provider constraints are revalidated against the implemented repository.
   pattern). After that, the first scoped implementation packet is
   `delivery/01_REQUEST_AND_BOOKING.md` (real request/booking persistence).
 
+### 2026-09-30 — Phase 1A: TravelRequest domain, persistence and concurrency proof (self-verified, Tier 1)
+
+- **Status:** `ACTIVE`. The owner explicitly authorized implementation
+  ("ابدأ و ابدأ سيطرة على المشروع") after the Phase 0 reorganization above.
+- **Objective:** Close this client's single biggest gap versus Safari Tours
+  Sharm — a real, durable customer request, not just a catalog the website
+  displays. Scoped to `delivery/01_REQUEST_AND_BOOKING.md`'s "Contract and
+  domain" + "Persistence and concurrency" sections only; the API/controller
+  layer (public create-request endpoint, staff endpoints, OpenAPI) is the
+  next sub-packet (1B), deliberately not started in this pass.
+- **What was built:**
+  - Domain: `TravelRequest` aggregate (`NEW -> IN_REVIEW -> CONFIRMED ->
+    COMPLETED`, with `CANCELLED`/`EXPIRED` as terminal exits), snapshotting
+    service/option/price/policy at creation so a later catalog edit never
+    retroactively changes what a customer was shown. `TravelRequestReference`
+    — an 8-character `SecureRandom` code from a 32-symbol unambiguous
+    alphabet (~40 bits entropy), deliberately not sequential so it cannot be
+    enumerated, unlike a `STR-2026-NNNN`-style booking number. Typed actor
+    (`CUSTOMER`/`STAFF`/`SYSTEM`) and typed cancel reason, not free text.
+  - Migration `V5__travel_request_foundation.sql`: `travel_request` +
+    `travel_request_audit_event`, with CHECK constraints mirroring every
+    Kotlin invariant, plus the 5 new `travel-request:*` permission codes
+    (registered in both `identity_permission` and `identity_role_permission`
+    — a real FK a V3-era insert-only pattern would have missed, caught by
+    reading V4's own migration first).
+  - `JooqTravelRequestRepository`/`JooqTravelRequestAuditRecorder`,
+    `findByIdForUpdate` row-locking on every mutating transition (same
+    pattern as the existing `ServiceRepository`).
+  - `CreateTravelRequestService` (idempotency-key fast-path pre-check, a
+    unique DB constraint as the real concurrency safety net, party-size
+    validated against the snapshotted option's `maxParticipants`, automatic
+    `confirm()` as a separate action immediately after creation for an
+    `INSTANT` service — request receipt is never itself confirmation, even
+    then), `StartTravelRequestReviewService`, `ConfirmTravelRequestService`,
+    `CancelTravelRequestService`, `CompleteTravelRequestService`,
+    `ExpireTravelRequestsService` (date-based sweep: a `NEW`/`IN_REVIEW`
+    request expires once its own `requestedDate` has passed, not an
+    arbitrary "N hours since creation" cutoff that would have been an
+    invented business rule).
+  - Capacity scope note: "capacity" here is the single request's own party
+    size against the snapshotted option's `maxParticipants` — a plain
+    validation, not a shared cross-request availability pool. This product
+    has no per-day slot/calendar concept yet (unlike Safari's `TourSlot`);
+    building one is out of this sub-packet's scope and is not claimed.
+- **Verified:**
+  - `TravelRequestDomainTest.kt` — 20 unit tests covering every transition,
+    every invariant, and the reference/customer value objects.
+  - `TravelRequestServiceTest.kt` — 10 tests against real PostgreSQL via
+    Testcontainers: INSTANT auto-confirm with snapshot proof, STAFF_REVIEW
+    staying NEW, party-size rejection, idempotent resubmission, **8 parallel
+    threads submitting the same idempotency key — exactly 1 row created,
+    proven, not asserted**, the full staff lifecycle (review → confirm →
+    complete) persisting and reloading correctly at every step, cancel
+    leaving `confirmedAt` as a sticky historical marker, the staff-actor
+    invariant enforced at the command boundary, the date-based expiry sweep
+    expiring an overdue unconfirmed request while leaving a confirmed one
+    untouched, and an unpublished service correctly rejected.
+  - `ProductIsolationIntegrationTest` updated and green: V5 migrates
+    cleanly, the new tables are present, zero Divers tables, same as before.
+  - `:platform:apps:sharm-to-go:check` (ktlint + all 71 tests) — green.
+  - `:platform:application:check` (Divers regression gate) — green,
+    unaffected.
+- **Rollback considerations:** one new forward-only migration in an isolated
+  app-local Flyway location; no shared-schema change; no existing table
+  altered. Reverting means a new down-migration or dropping the two new
+  tables — no data exists yet to lose.
+- **Next:** sub-packet 1B — public create-request + status-lookup endpoints,
+  staff roster/detail/action endpoints with the 5 new permissions actually
+  enforced, OpenAPI contract, HTTP + public-projection-privacy tests. Not
+  started; will only proceed under the same standing authorization, with a
+  commit/push per packet and no merge without a fresh explicit "اعمل merge".
+
 ## WEGO-003 — Reliable integration delivery and replay
 
 - **Status:** NOT AUTHORIZED — roadmap only; WEGO-002 must close first and owner activation is still required.
