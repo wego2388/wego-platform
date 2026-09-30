@@ -61,7 +61,9 @@
       واقف على نفس مشكلة lint قديمة موثقة (غير مانعة — `pnpm run check` من
       الجذر بينجح على نفس الشجرة)، `foundry run validate` و
       `repository-check.sh` نظيفين. التفاصيل في قيد اللوحة بتاريخ 2026-09-30.
-- [ ] 0-7 commit + push + فتح PR للتنظيم ده (بدون merge تلقائي — زي كل مرة).
+- [x] 0-7 commit (`380018d`) + push + فتح
+      [PR #46](https://github.com/wego2388/wego-platform/pull/46) للتنظيم ده
+      (بدون merge تلقائي — مستني "اعمل merge" صريح من محمد لنفس الـPR).
 
 ## المرحلة 1 — الحجز الحقيقي (تفصيل كامل في `delivery/01_REQUEST_AND_BOOKING.md`)
 
