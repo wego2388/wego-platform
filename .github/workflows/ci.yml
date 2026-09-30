@@ -242,11 +242,11 @@ jobs:
       - name: Verify Safari checkout logs do not retain query secrets or customer PII
         run: |
           compose_logs="$(docker compose --env-file .env.example -f infrastructure/compose/safari-tours-sharm.compose.yaml -f e2e/compose.safari-checkout.yaml logs --no-color)"
-          if rg -qi 'valid-hmac|hmac=wrong|rejected hmac=|STR-[0-9]{4}-[0-9]+|E2E Test Customer|\+20100000099|\+201099999999|e2e-safari@example\.com|"source_data"|"pan"[[:space:]]*:[[:space:]]*"1234"|payment_token=' <<< "$compose_logs"; then
+          if grep -qiE 'valid-hmac|hmac=wrong|rejected hmac=|STR-[0-9]{4}-[0-9]+|E2E Test Customer|\+20100000099|\+201099999999|e2e-safari@example\.com|"source_data"|"pan"[[:space:]]*:[[:space:]]*"1234"|payment_token=' <<< "$compose_logs"; then
             echo "Checkout HMAC, customer PII, or raw webhook data was retained in Compose logs" >&2
             exit 1
           fi
-          rg -q '"POST /api/v1/tours-operator/payments/paymob-callback HTTP/[0-9.]+"' <<< "$compose_logs"
+          grep -qE '"POST /api/v1/tours-operator/payments/paymob-callback HTTP/[0-9.]+"' <<< "$compose_logs"
       - name: Verify login rate limiting
         # Deliberately last: this step exhausts nginx's edge-level login
         # limiter (login_rate: 5r/m, burst 3) on purpose. Running it before
