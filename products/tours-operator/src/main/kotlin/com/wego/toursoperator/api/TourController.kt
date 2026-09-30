@@ -4,6 +4,7 @@ import com.wego.identity.AuthenticatedUser
 import com.wego.toursoperator.application.CreateTourCommand
 import com.wego.toursoperator.application.CreateTourResult
 import com.wego.toursoperator.application.CreateTourService
+import com.wego.toursoperator.application.PublicTourContentQuery
 import com.wego.toursoperator.application.SetTourActiveResult
 import com.wego.toursoperator.application.SetTourActiveService
 import com.wego.toursoperator.application.TourQueryService
@@ -11,6 +12,7 @@ import com.wego.toursoperator.application.UpdateTourCommand
 import com.wego.toursoperator.application.UpdateTourResult
 import com.wego.toursoperator.application.UpdateTourService
 import com.wego.toursoperator.domain.CancellationPolicy
+import com.wego.toursoperator.domain.ContentLocale
 import com.wego.toursoperator.domain.Tour
 import com.wego.toursoperator.domain.TourCategory
 import com.wego.toursoperator.domain.TourId
@@ -42,6 +44,7 @@ class TourController(
     private val createTourService: CreateTourService,
     private val updateTourService: UpdateTourService,
     private val setTourActiveService: SetTourActiveService,
+    private val publicTourContentQuery: PublicTourContentQuery,
 ) {
     // ── Public endpoints ─────────────────────────────────────────────────────
 
@@ -50,7 +53,8 @@ class TourController(
         @RequestParam(required = false) category: TourCategory?,
         @RequestParam(required = false, defaultValue = "0") @Min(0) page: Int,
         @RequestParam(required = false, defaultValue = "50") @Min(1) @Max(100) size: Int,
-    ): List<TourSummaryResponse> = tourQueryService.list(category, activeOnly = true, page, size).map { it.toSummaryResponse() }
+        @RequestParam(required = false) locale: String?,
+    ): List<TourSummaryResponse> = localize(tourQueryService.list(category, activeOnly = true, page, size), locale)
 
     @GetMapping("/tours/{id}")
     fun findById(
@@ -64,10 +68,28 @@ class TourController(
     @GetMapping("/tours/by-slug")
     fun findBySlug(
         @RequestParam slug: String,
+        @RequestParam(required = false) locale: String?,
     ): ResponseEntity<TourSummaryResponse> {
         val tour = tourQueryService.findBySlug(slug) ?: return ResponseEntity.notFound().build()
         if (!tour.isActive) return ResponseEntity.notFound().build()
-        return ResponseEntity.ok(tour.toSummaryResponse())
+        return ResponseEntity.ok(localize(listOf(tour), locale).single())
+    }
+
+    /** One batched query for all cards; an unknown locale simply means "no localization". */
+    private fun localize(
+        tours: List<Tour>,
+        locale: String?,
+    ): List<TourSummaryResponse> {
+        val contentLocale = locale?.let(ContentLocale::fromCode) ?: return tours.map { it.toSummaryResponse() }
+        val summaries = publicTourContentQuery.publishedSummaries(tours.map { it.id }, contentLocale)
+        return tours.map { tour ->
+            tour.toSummaryResponse().copy(
+                localized =
+                    summaries[tour.id]?.let {
+                        LocalizedTourSummaryResponse(it.locale.code, it.name, it.shortDescription)
+                    },
+            )
+        }
     }
 
     // ── Staff endpoints — /staff/tours/** ────────────────────────────────────

@@ -3946,6 +3946,11 @@ paths:
             minimum: 1
             maximum: 100
             default: 50
+        - name: locale
+          in: query
+          description: Adds the published localized name/summary (requested locale, else English).
+          schema:
+            $ref: "#/components/schemas/ToursOperatorContentLocale"
       responses:
         "200":
           description: Active tours visible under the requested filters.
@@ -4181,6 +4186,11 @@ paths:
           schema:
             type: string
             pattern: "^[a-z0-9][a-z0-9-]{1,78}[a-z0-9]$"
+        - name: locale
+          in: query
+          description: Adds the published localized name/summary (requested locale, else English).
+          schema:
+            $ref: "#/components/schemas/ToursOperatorContentLocale"
       responses:
         "200":
           description: Tour details.
@@ -4190,6 +4200,424 @@ paths:
                 $ref: "#/components/schemas/ToursOperatorTourResponse"
         "404":
           description: Tour not found.
+  /api/v1/tours-operator/tours/by-slug/content:
+    get:
+      operationId: getToursOperatorPublicTourContent
+      summary: Published tour content for the public site
+      description: >
+        PUBLISHED text in the requested locale (else published English, with
+        servedLocale reporting which), published facts, stops that have both
+        published coordinates and text, and rights-APPROVED media only.
+      tags:
+        - ToursOperator
+      security: []
+      parameters:
+        - name: slug
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: locale
+          in: query
+          schema:
+            $ref: "#/components/schemas/ToursOperatorContentLocale"
+      responses:
+        "200":
+          description: Public content (fields are empty when nothing is published).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorPublicTourContent"
+        "400":
+          description: Unsupported locale.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorContentErrorResponse"
+        "404":
+          description: Tour not found or not active.
+  /api/v1/tours-operator/staff/tours/{id}/content:
+    get:
+      operationId: getToursOperatorStaffTourContent
+      summary: Draft and published content, facts and media for staff
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Staff content view.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorStaffTourContent"
+        "400":
+          description: Invalid request (content rule, locale or media rule) or malformed body.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ToursOperatorContentErrorResponse"
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Tour not found.
+  /api/v1/tours-operator/staff/tours/{id}/content/{locale}:
+    put:
+      operationId: saveToursOperatorTourContentDraft
+      summary: Save the DRAFT content of one locale
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: locale
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ToursOperatorContentLocale"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ToursOperatorTourContentDocument"
+      responses:
+        "204":
+          description: Done.
+        "400":
+          description: Invalid request (content rule, locale or media rule) or malformed body.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ToursOperatorContentErrorResponse"
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Tour not found.
+  /api/v1/tours-operator/staff/tours/{id}/content/{locale}/publish:
+    post:
+      operationId: publishToursOperatorTourContent
+      summary: Publish the DRAFT of one locale
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: locale
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ToursOperatorContentLocale"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ToursOperatorPublishRequest"
+      responses:
+        "204":
+          description: Done.
+        "400":
+          description: Invalid request (content rule, locale or media rule) or malformed body.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ToursOperatorContentErrorResponse"
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Tour not found.
+        "409":
+          description: nothing_to_publish (no draft / nothing published) or draft_changed (the reviewed revision is outdated).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorContentErrorResponse"
+  /api/v1/tours-operator/staff/tours/{id}/content/{locale}/unpublish:
+    post:
+      operationId: unpublishToursOperatorTourContent
+      summary: Remove one locale from the public site (draft kept)
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: locale
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ToursOperatorContentLocale"
+      responses:
+        "204":
+          description: Done.
+        "400":
+          description: Invalid request (content rule, locale or media rule) or malformed body.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ToursOperatorContentErrorResponse"
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Tour not found.
+        "409":
+          description: nothing_to_publish (no draft / nothing published) or draft_changed (the reviewed revision is outdated).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorContentErrorResponse"
+  /api/v1/tours-operator/staff/tours/{id}/facts:
+    put:
+      operationId: saveToursOperatorTourFactsDraft
+      summary: Save the DRAFT facts and stops
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ToursOperatorTourFactsDocument"
+      responses:
+        "204":
+          description: Done.
+        "400":
+          description: Invalid request (content rule, locale or media rule) or malformed body.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ToursOperatorContentErrorResponse"
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Tour not found.
+  /api/v1/tours-operator/staff/tours/{id}/facts/publish:
+    post:
+      operationId: publishToursOperatorTourFacts
+      summary: Publish the DRAFT facts
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ToursOperatorPublishRequest"
+      responses:
+        "204":
+          description: Done.
+        "400":
+          description: Invalid request (content rule, locale or media rule) or malformed body.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ToursOperatorContentErrorResponse"
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Tour not found.
+        "409":
+          description: nothing_to_publish (no draft / nothing published) or draft_changed (the reviewed revision is outdated).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorContentErrorResponse"
+  /api/v1/tours-operator/staff/tours/{id}/facts/unpublish:
+    post:
+      operationId: unpublishToursOperatorTourFacts
+      summary: Remove facts from the public site (draft kept)
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Done.
+        "400":
+          description: Invalid request (content rule, locale or media rule) or malformed body.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ToursOperatorContentErrorResponse"
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Tour not found.
+        "409":
+          description: nothing_to_publish (no draft / nothing published) or draft_changed (the reviewed revision is outdated).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorContentErrorResponse"
+  /api/v1/tours-operator/staff/tours/{id}/media:
+    put:
+      operationId: replaceToursOperatorTourMedia
+      summary: Replace the media list (approval kept only for unchanged id + path)
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              maxItems: 30
+              items:
+                $ref: "#/components/schemas/ToursOperatorTourMediaInput"
+      responses:
+        "204":
+          description: Done.
+        "400":
+          description: Invalid request (content rule, locale or media rule) or malformed body.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ToursOperatorContentErrorResponse"
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Tour not found.
+  /api/v1/tours-operator/staff/tours/{id}/media/{mediaId}/approve:
+    post:
+      operationId: approveToursOperatorTourMedia
+      summary: Approve usage rights of one media item
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: mediaId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ToursOperatorPublishRequest"
+      responses:
+        "204":
+          description: Done.
+        "400":
+          description: Invalid request (content rule, locale or media rule) or malformed body.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ToursOperatorContentErrorResponse"
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Tour or media item not found.
+        "409":
+          description: draft_changed — the media changed after review.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorContentErrorResponse"
   /api/v1/tours-operator/tours/{tourId}/slots:
     get:
       operationId: listToursOperatorAvailableSlots
@@ -5195,6 +5623,467 @@ components:
         - COMPLETED
         - CANCELLED
         - EXPIRED
+    ToursOperatorContentErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - invalid_content
+            - unsupported_locale
+            - too_many_media
+            - multiple_covers
+            - duplicate_media_path
+            - duplicate_media_id
+            - english_alt_required
+            - nothing_to_publish
+            - draft_changed
+        detail:
+          type:
+            - string
+            - "null"
+          description: The broken rule for invalid_content (field-level, never stored data).
+    ToursOperatorPublishRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - revision
+      properties:
+        revision:
+          type: string
+          minLength: 1
+          description: Revision of the draft (or media item) the publisher reviewed.
+    ToursOperatorContentLocale:
+      type: string
+      enum:
+        - en
+        - ar
+        - ru
+        - it
+    ToursOperatorLocalizedTourSummary:
+      type: object
+      additionalProperties: false
+      required:
+        - locale
+        - name
+        - shortDescription
+      properties:
+        locale:
+          $ref: "#/components/schemas/ToursOperatorContentLocale"
+        name:
+          type: string
+        shortDescription:
+          type: string
+    ToursOperatorStopText:
+      type: object
+      additionalProperties: false
+      required:
+        - stopKey
+        - name
+      properties:
+        stopKey:
+          type: string
+          pattern: "^[a-z0-9][a-z0-9-]{0,39}$"
+        name:
+          type: string
+          maxLength: 120
+        description:
+          type:
+            - string
+            - "null"
+    ToursOperatorTourContentDocument:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - shortDescription
+        - description
+      properties:
+        name:
+          type: string
+          maxLength: 120
+        shortDescription:
+          type: string
+          maxLength: 300
+        description:
+          type: string
+          maxLength: 6000
+        includes:
+          type:
+            - array
+            - "null"
+          maxItems: 20
+          items:
+            type: string
+            maxLength: 200
+        excludes:
+          type:
+            - array
+            - "null"
+          maxItems: 20
+          items:
+            type: string
+            maxLength: 200
+        knowBeforeYouGo:
+          type:
+            - array
+            - "null"
+          maxItems: 20
+          items:
+            type: string
+            maxLength: 200
+        meetingPoint:
+          type:
+            - string
+            - "null"
+        stops:
+          type:
+            - array
+            - "null"
+          maxItems: 12
+          items:
+            $ref: "#/components/schemas/ToursOperatorStopText"
+    ToursOperatorHotelPickup:
+      type: string
+      enum:
+        - INCLUDED
+        - NOT_INCLUDED
+        - SOME_AREAS
+    ToursOperatorTourStop:
+      type: object
+      additionalProperties: false
+      required:
+        - key
+        - kind
+        - latitude
+        - longitude
+      properties:
+        key:
+          type: string
+          pattern: "^[a-z0-9][a-z0-9-]{0,39}$"
+        kind:
+          type: string
+          enum:
+            - STOP
+            - MEETING_POINT
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+    ToursOperatorTourFactsDocument:
+      type: object
+      additionalProperties: false
+      properties:
+        childrenAllowed:
+          type:
+            - boolean
+            - "null"
+        minimumAge:
+          type:
+            - integer
+            - "null"
+          minimum: 0
+          maximum: 99
+        guideLanguages:
+          type:
+            - array
+            - "null"
+          maxItems: 10
+          uniqueItems: true
+          items:
+            type: string
+            pattern: "^[a-z]{2}$"
+        hotelPickup:
+          oneOf:
+            - $ref: "#/components/schemas/ToursOperatorHotelPickup"
+            - type: "null"
+        stops:
+          type:
+            - array
+            - "null"
+          maxItems: 12
+          items:
+            $ref: "#/components/schemas/ToursOperatorTourStop"
+    ToursOperatorTourMediaInput:
+      type: object
+      additionalProperties: false
+      required:
+        - path
+        - width
+        - height
+      properties:
+        id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        path:
+          type: string
+          maxLength: 300
+          pattern: "^/media/tours/[a-z0-9-]+/[a-z0-9._-]+\\.(avif|webp|jpg|jpeg|png)$"
+        width:
+          type: integer
+          minimum: 1
+        height:
+          type: integer
+          minimum: 1
+        isCover:
+          type:
+            - boolean
+            - "null"
+        alt:
+          type:
+            - object
+            - "null"
+          additionalProperties:
+            type: string
+            maxLength: 200
+    ToursOperatorPublicTourContent:
+      type: object
+      additionalProperties: false
+      required:
+        - tourId
+        - slug
+        - requestedLocale
+        - includes
+        - excludes
+        - knowBeforeYouGo
+        - stops
+        - media
+      properties:
+        tourId:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        requestedLocale:
+          $ref: "#/components/schemas/ToursOperatorContentLocale"
+        servedLocale:
+          oneOf:
+            - $ref: "#/components/schemas/ToursOperatorContentLocale"
+            - type: "null"
+        name:
+          type:
+            - string
+            - "null"
+        shortDescription:
+          type:
+            - string
+            - "null"
+        description:
+          type:
+            - string
+            - "null"
+        includes:
+          type: array
+          items:
+            type: string
+        excludes:
+          type: array
+          items:
+            type: string
+        knowBeforeYouGo:
+          type: array
+          items:
+            type: string
+        meetingPoint:
+          type:
+            - string
+            - "null"
+        facts:
+          oneOf:
+            - type: object
+              additionalProperties: false
+              required:
+                - guideLanguages
+              properties:
+                childrenAllowed:
+                  type:
+                    - boolean
+                    - "null"
+                minimumAge:
+                  type:
+                    - integer
+                    - "null"
+                guideLanguages:
+                  type: array
+                  items:
+                    type: string
+                hotelPickup:
+                  oneOf:
+                    - $ref: "#/components/schemas/ToursOperatorHotelPickup"
+                    - type: "null"
+            - type: "null"
+        stops:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - key
+              - kind
+              - latitude
+              - longitude
+              - name
+            properties:
+              key:
+                type: string
+              kind:
+                type: string
+                enum:
+                  - STOP
+                  - MEETING_POINT
+              latitude:
+                type: number
+              longitude:
+                type: number
+              name:
+                type: string
+              description:
+                type:
+                  - string
+                  - "null"
+        media:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - path
+              - width
+              - height
+              - isCover
+              - alt
+            properties:
+              path:
+                type: string
+              width:
+                type: integer
+              height:
+                type: integer
+              isCover:
+                type: boolean
+              alt:
+                type: string
+    ToursOperatorStaffTourContent:
+      type: object
+      additionalProperties: false
+      required:
+        - content
+        - facts
+        - media
+      properties:
+        content:
+          type: object
+          description: Locale code → its DRAFT and/or PUBLISHED documents.
+          additionalProperties:
+            type: array
+            items:
+              type: object
+              additionalProperties: false
+              required:
+                - stage
+                - document
+                - updatedAt
+                - revision
+              properties:
+                stage:
+                  type: string
+                  enum:
+                    - DRAFT
+                    - PUBLISHED
+                document:
+                  $ref: "#/components/schemas/ToursOperatorTourContentDocument"
+                updatedAt:
+                  type: string
+                  format: date-time
+                updatedByUserId:
+                  type:
+                    - string
+                    - "null"
+                  format: uuid
+                revision:
+                  type: string
+        facts:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - stage
+              - document
+              - updatedAt
+              - revision
+            properties:
+              stage:
+                type: string
+                enum:
+                  - DRAFT
+                  - PUBLISHED
+              document:
+                $ref: "#/components/schemas/ToursOperatorTourFactsDocument"
+              updatedAt:
+                type: string
+                format: date-time
+              updatedByUserId:
+                type:
+                  - string
+                  - "null"
+                format: uuid
+              revision:
+                type: string
+        media:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - id
+              - position
+              - path
+              - width
+              - height
+              - isCover
+              - alt
+              - rightsStatus
+              - revision
+            properties:
+              id:
+                type: string
+                format: uuid
+              position:
+                type: integer
+              path:
+                type: string
+              width:
+                type: integer
+              height:
+                type: integer
+              isCover:
+                type: boolean
+              alt:
+                type: object
+                additionalProperties:
+                  type: string
+              rightsStatus:
+                type: string
+                enum:
+                  - DRAFT
+                  - APPROVED
+              approvedAt:
+                type:
+                  - string
+                  - "null"
+                format: date-time
+              revision:
+                type: string
     ToursOperatorTourResponse:
       type: object
       additionalProperties: false
@@ -5259,6 +6148,10 @@ components:
           type:
             - string
             - "null"
+        localized:
+          oneOf:
+            - $ref: "#/components/schemas/ToursOperatorLocalizedTourSummary"
+            - type: "null"
     ToursOperatorSlotResponse:
       type: object
       additionalProperties: false

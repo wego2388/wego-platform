@@ -1539,6 +1539,179 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tours-operator/tours/by-slug/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Published tour content for the public site
+         * @description PUBLISHED text in the requested locale (else published English, with servedLocale reporting which), published facts, stops that have both published coordinates and text, and rights-APPROVED media only.
+         */
+        get: operations["getToursOperatorPublicTourContent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/tours/{id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Draft and published content, facts and media for staff */
+        get: operations["getToursOperatorStaffTourContent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/tours/{id}/content/{locale}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Save the DRAFT content of one locale */
+        put: operations["saveToursOperatorTourContentDraft"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/tours/{id}/content/{locale}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish the DRAFT of one locale */
+        post: operations["publishToursOperatorTourContent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/tours/{id}/content/{locale}/unpublish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Remove one locale from the public site (draft kept) */
+        post: operations["unpublishToursOperatorTourContent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/tours/{id}/facts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Save the DRAFT facts and stops */
+        put: operations["saveToursOperatorTourFactsDraft"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/tours/{id}/facts/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish the DRAFT facts */
+        post: operations["publishToursOperatorTourFacts"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/tours/{id}/facts/unpublish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Remove facts from the public site (draft kept) */
+        post: operations["unpublishToursOperatorTourFacts"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/tours/{id}/media": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace the media list (approval kept only for unchanged id + path) */
+        put: operations["replaceToursOperatorTourMedia"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/tours/{id}/media/{mediaId}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve usage rights of one media item */
+        post: operations["approveToursOperatorTourMedia"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tours-operator/tours/{tourId}/slots": {
         parameters: {
             query?: never;
@@ -1956,6 +2129,143 @@ export interface components {
         ToursOperatorTimeSlot: "SUNRISE" | "MORNING" | "AFTERNOON" | "SUNSET";
         /** @enum {string} */
         ToursOperatorBookingStatus: "NEW" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "EXPIRED";
+        ToursOperatorContentErrorResponse: {
+            /** @enum {string} */
+            error: "invalid_content" | "unsupported_locale" | "too_many_media" | "multiple_covers" | "duplicate_media_path" | "duplicate_media_id" | "english_alt_required" | "nothing_to_publish" | "draft_changed";
+            /** @description The broken rule for invalid_content (field-level, never stored data). */
+            detail?: string | null;
+        };
+        ToursOperatorPublishRequest: {
+            /** @description Revision of the draft (or media item) the publisher reviewed. */
+            revision: string;
+        };
+        /** @enum {string} */
+        ToursOperatorContentLocale: "en" | "ar" | "ru" | "it";
+        ToursOperatorLocalizedTourSummary: {
+            locale: components["schemas"]["ToursOperatorContentLocale"];
+            name: string;
+            shortDescription: string;
+        };
+        ToursOperatorStopText: {
+            stopKey: string;
+            name: string;
+            description?: string | null;
+        };
+        ToursOperatorTourContentDocument: {
+            name: string;
+            shortDescription: string;
+            description: string;
+            includes?: string[] | null;
+            excludes?: string[] | null;
+            knowBeforeYouGo?: string[] | null;
+            meetingPoint?: string | null;
+            stops?: components["schemas"]["ToursOperatorStopText"][] | null;
+        };
+        /** @enum {string} */
+        ToursOperatorHotelPickup: "INCLUDED" | "NOT_INCLUDED" | "SOME_AREAS";
+        ToursOperatorTourStop: {
+            key: string;
+            /** @enum {string} */
+            kind: "STOP" | "MEETING_POINT";
+            latitude: number;
+            longitude: number;
+        };
+        ToursOperatorTourFactsDocument: {
+            childrenAllowed?: boolean | null;
+            minimumAge?: number | null;
+            guideLanguages?: string[] | null;
+            hotelPickup?: components["schemas"]["ToursOperatorHotelPickup"] | null;
+            stops?: components["schemas"]["ToursOperatorTourStop"][] | null;
+        };
+        ToursOperatorTourMediaInput: {
+            /** Format: uuid */
+            id?: string | null;
+            path: string;
+            width: number;
+            height: number;
+            isCover?: boolean | null;
+            alt?: {
+                [key: string]: string;
+            } | null;
+        };
+        ToursOperatorPublicTourContent: {
+            /** Format: uuid */
+            tourId: string;
+            slug: string;
+            requestedLocale: components["schemas"]["ToursOperatorContentLocale"];
+            servedLocale?: components["schemas"]["ToursOperatorContentLocale"] | null;
+            name?: string | null;
+            shortDescription?: string | null;
+            description?: string | null;
+            includes: string[];
+            excludes: string[];
+            knowBeforeYouGo: string[];
+            meetingPoint?: string | null;
+            facts?: {
+                childrenAllowed?: boolean | null;
+                minimumAge?: number | null;
+                guideLanguages: string[];
+                hotelPickup?: components["schemas"]["ToursOperatorHotelPickup"] | null;
+            } | null;
+            stops: {
+                key: string;
+                /** @enum {string} */
+                kind: "STOP" | "MEETING_POINT";
+                latitude: number;
+                longitude: number;
+                name: string;
+                description?: string | null;
+            }[];
+            media: {
+                path: string;
+                width: number;
+                height: number;
+                isCover: boolean;
+                alt: string;
+            }[];
+        };
+        ToursOperatorStaffTourContent: {
+            /** @description Locale code → its DRAFT and/or PUBLISHED documents. */
+            content: {
+                [key: string]: {
+                    /** @enum {string} */
+                    stage: "DRAFT" | "PUBLISHED";
+                    document: components["schemas"]["ToursOperatorTourContentDocument"];
+                    /** Format: date-time */
+                    updatedAt: string;
+                    /** Format: uuid */
+                    updatedByUserId?: string | null;
+                    revision: string;
+                }[];
+            };
+            facts: {
+                /** @enum {string} */
+                stage: "DRAFT" | "PUBLISHED";
+                document: components["schemas"]["ToursOperatorTourFactsDocument"];
+                /** Format: date-time */
+                updatedAt: string;
+                /** Format: uuid */
+                updatedByUserId?: string | null;
+                revision: string;
+            }[];
+            media: {
+                /** Format: uuid */
+                id: string;
+                position: number;
+                path: string;
+                width: number;
+                height: number;
+                isCover: boolean;
+                alt: {
+                    [key: string]: string;
+                };
+                /** @enum {string} */
+                rightsStatus: "DRAFT" | "APPROVED";
+                /** Format: date-time */
+                approvedAt?: string | null;
+                revision: string;
+            }[];
+        };
         ToursOperatorTourResponse: {
             /** Format: uuid */
             id: string;
@@ -1973,6 +2283,7 @@ export interface components {
             imageUrl: string | null;
             cancellationPolicy: components["schemas"]["ToursOperatorCancellationPolicy"];
             pricingNote: string | null;
+            localized?: components["schemas"]["ToursOperatorLocalizedTourSummary"] | null;
         };
         ToursOperatorSlotResponse: {
             /** Format: uuid */
@@ -6628,6 +6939,8 @@ export interface operations {
                 category?: components["schemas"]["ToursOperatorCategory"];
                 page?: number;
                 size?: number;
+                /** @description Adds the published localized name/summary (requested locale, else English). */
+                locale?: components["schemas"]["ToursOperatorContentLocale"];
             };
             header?: never;
             path?: never;
@@ -6868,6 +7181,8 @@ export interface operations {
         parameters: {
             query: {
                 slug: string;
+                /** @description Adds the published localized name/summary (requested locale, else English). */
+                locale?: components["schemas"]["ToursOperatorContentLocale"];
             };
             header?: never;
             path?: never;
@@ -6890,6 +7205,462 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    getToursOperatorPublicTourContent: {
+        parameters: {
+            query: {
+                slug: string;
+                locale?: components["schemas"]["ToursOperatorContentLocale"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Public content (fields are empty when nothing is published). */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorPublicTourContent"];
+                };
+            };
+            /** @description Unsupported locale. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorContentErrorResponse"];
+                };
+            };
+            /** @description Tour not found or not active. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getToursOperatorStaffTourContent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Staff content view. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorStaffTourContent"];
+                };
+            };
+            /** @description Invalid request (content rule, locale or media rule) or malformed body. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorContentErrorResponse"] | components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Tour not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    saveToursOperatorTourContentDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                locale: components["schemas"]["ToursOperatorContentLocale"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorTourContentDocument"];
+            };
+        };
+        responses: {
+            /** @description Done. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid request (content rule, locale or media rule) or malformed body. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorContentErrorResponse"] | components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Tour not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    publishToursOperatorTourContent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                locale: components["schemas"]["ToursOperatorContentLocale"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorPublishRequest"];
+            };
+        };
+        responses: {
+            /** @description Done. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid request (content rule, locale or media rule) or malformed body. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorContentErrorResponse"] | components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Tour not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description nothing_to_publish (no draft / nothing published) or draft_changed (the reviewed revision is outdated). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorContentErrorResponse"];
+                };
+            };
+        };
+    };
+    unpublishToursOperatorTourContent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                locale: components["schemas"]["ToursOperatorContentLocale"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Done. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid request (content rule, locale or media rule) or malformed body. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorContentErrorResponse"] | components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Tour not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description nothing_to_publish (no draft / nothing published) or draft_changed (the reviewed revision is outdated). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorContentErrorResponse"];
+                };
+            };
+        };
+    };
+    saveToursOperatorTourFactsDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorTourFactsDocument"];
+            };
+        };
+        responses: {
+            /** @description Done. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid request (content rule, locale or media rule) or malformed body. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorContentErrorResponse"] | components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Tour not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    publishToursOperatorTourFacts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorPublishRequest"];
+            };
+        };
+        responses: {
+            /** @description Done. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid request (content rule, locale or media rule) or malformed body. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorContentErrorResponse"] | components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Tour not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description nothing_to_publish (no draft / nothing published) or draft_changed (the reviewed revision is outdated). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorContentErrorResponse"];
+                };
+            };
+        };
+    };
+    unpublishToursOperatorTourFacts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Done. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid request (content rule, locale or media rule) or malformed body. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorContentErrorResponse"] | components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Tour not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description nothing_to_publish (no draft / nothing published) or draft_changed (the reviewed revision is outdated). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorContentErrorResponse"];
+                };
+            };
+        };
+    };
+    replaceToursOperatorTourMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorTourMediaInput"][];
+            };
+        };
+        responses: {
+            /** @description Done. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid request (content rule, locale or media rule) or malformed body. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorContentErrorResponse"] | components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Tour not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    approveToursOperatorTourMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                mediaId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorPublishRequest"];
+            };
+        };
+        responses: {
+            /** @description Done. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid request (content rule, locale or media rule) or malformed body. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorContentErrorResponse"] | components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Tour or media item not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description draft_changed — the media changed after review. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorContentErrorResponse"];
+                };
             };
         };
     };

@@ -25,6 +25,7 @@ val selectedSharedDdlMigrations =
         sharedMigrationDirectory.resolve("V20__tours_operator_payment_revenue_recognition.sql"),
         sharedMigrationDirectory.resolve("V21__tours_operator_payment_audit.sql"),
         sharedMigrationDirectory.resolve("V22__tours_operator_notification.sql"),
+        sharedMigrationDirectory.resolve("V23__tours_operator_tour_content.sql"),
     )
 val selectedDdlMigrations =
     selectedSharedDdlMigrations + file("src/main/resources/db/migration/V3__identity_administration.sql")

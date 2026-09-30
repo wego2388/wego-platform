@@ -15,6 +15,14 @@ export type BookingHistoryEntry = components["schemas"]["ToursOperatorBookingHis
 export type PaymentHistoryEntry = components["schemas"]["ToursOperatorPaymentHistoryEntry"];
 export type CustomerNotification = components["schemas"]["ToursOperatorNotification"];
 export type NotificationStatus = components["schemas"]["ToursOperatorNotificationStatus"];
+export type ContentLocale = components["schemas"]["ToursOperatorContentLocale"];
+export type PublicTourContent = components["schemas"]["ToursOperatorPublicTourContent"];
+export type StaffTourContent = components["schemas"]["ToursOperatorStaffTourContent"];
+export type TourContentDocument = components["schemas"]["ToursOperatorTourContentDocument"];
+export type TourFactsDocument = components["schemas"]["ToursOperatorTourFactsDocument"];
+export type TourMediaInput = components["schemas"]["ToursOperatorTourMediaInput"];
+export type ContentErrorResponse = components["schemas"]["ToursOperatorContentErrorResponse"];
+export type PublishRequest = components["schemas"]["ToursOperatorPublishRequest"];
 
 const DECIMAL_AMOUNT = /^(0|[1-9]\d{0,16})\.\d{2}$/;
 const ISO_CURRENCY_CODE = /^[A-Z]{3}$/;

@@ -49,6 +49,15 @@ data class TourSummaryResponse(
     val imageUrl: String?,
     val cancellationPolicy: String,
     val pricingNote: String? = null,
+    /** Published localized name/summary, present only when `locale` was requested and content is published. */
+    val localized: LocalizedTourSummaryResponse? = null,
+)
+
+data class LocalizedTourSummaryResponse(
+    /** The locale the text is in: the requested one, or English as fallback. */
+    val locale: String,
+    val name: String,
+    val shortDescription: String,
 )
 
 // ── Slot responses ────────────────────────────────────────────────────────────

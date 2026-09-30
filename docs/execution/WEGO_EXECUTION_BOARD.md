@@ -22,7 +22,7 @@ Rule: exactly one implementation packet may be `ACTIVE` in a worktree. Parent mi
 | WEGO-013 | Platform hardening: fix CI's first real run against `main`, mobile CI build coverage, client onboarding runbook | COMPLETE |
 | WEGO-014 | ERP professional UX/UI redesign: navigation shell, component library, dark mode, motion, responsive pass across all 17 routes | COMPLETE |
 | WEGO-015 | Sharm Divers Club customer-facing redesign: public website (`sharm-divers-club-site`) + mobile customer app (`mobile/apps/customer`) | COMPLETE |
-| WEGO-016 | Safari Tours Sharm: tours-operator product foundation — public booking site, staff ERP, Paymob payment flow, production catalog, and isolated deployment | NOT AUTHORIZED — paused after G; H needs owner activation |
+| WEGO-016 | Safari Tours Sharm: tours-operator product foundation — public booking site, staff ERP, Paymob payment flow, production catalog, and isolated deployment | IN PROGRESS |
 | WEGO-017 | Foundry executable client releases: artifact, data, deployment, and CI isolation for Safari Tours Sharm, Sharm To Go, and Sharm Divers Club | COMPLETE |
 
 ## Automation and growth roadmap guardrails
@@ -2380,7 +2380,7 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
 
 ## WEGO-016 — Safari Tours Sharm: tours-operator product foundation
 
-- **Status:** PAUSED — A–G complete (G closed 2026-09-30); H–I require explicit owner activation
+- **Status:** IN PROGRESS — A–G complete; phase 4 UX-0 complete, UX-1 ACTIVE (2026-09-30); H–I require explicit owner activation
 - **Activated:** 2026-09-27
 - **Review intensity:** Tier 1 — this packet adds a new product boundary (`products/tours-operator`), a new Flyway migration (V14), a new client isolation profile (`clients/safari-tours-sharm`), and will later touch payment/PII/auth surfaces. Every sub-packet that adds a migration, modifies auth, or handles customer payment data requires independent Tier 1 review before merge.
 - **Origin:** The owner asked to establish Safari Tours Sharm as a first-class Wego Platform product — on the same standards as Sharm Divers Club and Sharm To Go — with a public booking website, a staff ERP, a real Paymob payment flow, a production tour catalog, and an isolated deployment. The handoff document at `clients/safari-tours-sharm/handoff/SAFARI_TOURS_PRODUCTION_MATURITY_HANDOFF.md` is the authoritative reference for current maturity, open P0 issues, and the phased delivery plan.
@@ -2408,6 +2408,7 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
 | WEGO-016-F | ERP operations completion + staff roles + finance ledger | Tier 1 (permissions/PII) |
 | WEGO-016-F2 | Booking + payment history, staff users/roles UI | Tier 1 (migration/money/permissions) |
 | WEGO-016-G | Notifications + transactional outbox | Tier 1 |
+| WEGO-016-UX0..UX8 | Phase 4 frontend (`clients/safari-tours-sharm/design/FRONTEND_MASTER_PLAN_AR.md`) | UX-0/UX-4 Tier 1, others Tier 2 |
 | WEGO-016-H | Isolated deployment + observability + backup/restore drill | Tier 1 |
 | WEGO-016-I | UAT + controlled launch + closure evidence | Tier 1 final review |
 
@@ -2990,6 +2991,73 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   `_FROM`, `_REPLY_TO`, `TOURS_OPERATOR_SITE_BASE_URL` (https),
   `TOURS_OPERATOR_REVIEW_URL`, and `SPRING_MAIL_HOST/PORT/USERNAME/PASSWORD`
   (+ SPF/DKIM on the sending domain). Compose is unchanged until H.
+
+---
+
+### 2026-09-30 — WEGO-016-UX0: tour content model (draft/published, per locale)
+
+- **Status:** COMPLETE — owner authorized commit and push (`اعمل commit وارفع وابدأ UX-1`, 2026-09-30); no deploy.
+- **Activation:** owner approved the phase 4 plan and said `اعمل commit وارفع
+  وابدأ بـ UX-1 و UX-0` (2026-09-30). Only one packet may be ACTIVE per
+  worktree, so UX-0 runs first (UX-1 depends on nothing but UX-3 depends on
+  UX-0) and UX-1 is activated when UX-0 closes.
+- **Review intensity:** Tier 1 — new migration, new permission, public content
+  exposure rules.
+- **Design:** every localized content document and the locale-independent
+  facts document exist as a DRAFT and a PUBLISHED copy. Staff edit DRAFT;
+  a user with `tours-operator.content:publish` copies DRAFT → PUBLISHED. The
+  public API reads PUBLISHED only, so editing never removes live content and
+  nothing unapproved reaches customers. Media items carry their own rights
+  status (DRAFT/APPROVED) and only APPROVED media is public.
+- **Out of scope:** importing legacy WordPress text as drafts (separate
+  step, needs editorial review), binary upload/storage, ERP editor UI (UX-6).
+- **Acceptance:** drafts never public; publish/unpublish per locale and for
+  facts; fallback to published EN with the served locale reported; localized
+  names on public tour lists without N+1 queries; permission tests; Safari
+  gate + web check green; Tier-1 READY.
+- **Delivered:** V23 (`tours_operator_tour_content`, `_tour_facts`,
+  `_tour_media`, permission `tours-operator.content:publish`); domain
+  documents with bounded validation; publish = copy DRAFT → PUBLISHED with a
+  **revision precondition** (fingerprint of the reviewed draft; stale →
+  409 `draft_changed`); media approval kept only for an unchanged file + alt
+  texts (length-prefixed fingerprint); public
+  `GET /tours/by-slug/content` (published/approved only, EN fallback with
+  `servedLocale`, stops need published coordinates and text); `locale` on the
+  public tour list/by-slug adds a batched `localized` summary; staff content,
+  facts and media endpoints; OpenAPI + TS types.
+- **Tier-1 review:** round 1 NOT READY (3 MAJOR: alt edit kept approval,
+  publish without revision check, OpenAPI error bodies) + 5 MINOR + 2 NIT →
+  fixed → round 2 READY; its 2 remaining small notes (duplicate media id → 400,
+  unambiguous media fingerprint) also fixed.
+- **Evidence (2026-09-30):** `:platform:apps:safari-tours-sharm:test` 184
+  tests, 0 failures, 0 skipped (ToursOperatorTourContentTest + domain tests);
+  `:platform:application:test` 0 failures; Safari gate passed;
+  `pnpm run check` exit 0 (454); OpenAPI lint valid; contract check green.
+- **Deferred:** importing legacy WordPress text as DRAFT content (editorial
+  step), binary upload/storage, ERP editor UI (UX-6).
+
+---
+
+### 2026-09-30 — WEGO-016-UX1: site foundations (identity, i18n routing, components)
+
+- **Status:** ACTIVE
+- **Activation:** owner `اعمل commit وارفع وابدأ UX-1` (2026-09-30).
+- **Review intensity:** Tier 2 — public-site presentation layer; no data,
+  money or permission changes.
+- **Scope (FRONTEND_MASTER_PLAN_AR.md §3, §4.1, §6.1, §14 UX-1):**
+  1. Modules: `@nuxtjs/i18n` (prefix routes `/en /ar /ru /it`, SSR
+     `html lang/dir`), `@nuxt/image`, `@nuxt/fonts`, `@nuxt/icon` + Lucide,
+     `@vueuse/nuxt`, `@pinia/colada`, `reka-ui`, `motion-v`.
+  2. Sinai Afterglow tokens v1 (light/dark, category colours, motion tokens)
+     wired into Tailwind 4 `@theme`.
+  3. Per-locale fonts (Playfair/Inter; Readex Pro/IBM Plex Sans Arabic).
+  4. Base component set §6.1 + internal `/_design` showcase (not in prod).
+  5. Mockup system: `BrandLogo` + tour image placeholders on fixed asset paths.
+  6. Existing dictionaries moved into i18n; existing pages keep working under
+     locale prefixes; legacy unprefixed routes redirect to `/en`.
+- **Acceptance:** unit tests for components, axe on `/_design`, Playwright
+  screenshots light/dark × EN/AR, SSR returns correct `lang/dir`, site
+  `lint/typecheck/test/build` green, `pnpm run check` green, Tier-2 review.
 
 ---
 

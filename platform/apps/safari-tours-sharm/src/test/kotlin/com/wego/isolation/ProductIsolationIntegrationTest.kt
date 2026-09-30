@@ -26,7 +26,7 @@ class ProductIsolationIntegrationTest(
     @Test
     fun `boots and migrates only Safari Tours Sharm product capabilities`() {
         assertThat(flyway.info().applied().map { it.version.toString() })
-            .containsExactly("1", "2", "3", "14", "16", "17", "18", "19", "20", "21", "22")
+            .containsExactly("1", "2", "3", "14", "16", "17", "18", "19", "20", "21", "22", "23")
 
         postgres.createConnection("").use { connection ->
             val tableNames =
@@ -66,6 +66,7 @@ class ProductIsolationIntegrationTest(
                 "tours-operator.booking:complete",
                 "tours-operator.booking:payment-update",
                 "tours-operator.booking:view",
+                "tours-operator.content:publish",
                 "tours-operator.notification:manage",
                 "tours-operator.payment:refund",
                 "tours-operator.payment:view",

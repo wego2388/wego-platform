@@ -24,9 +24,12 @@ import com.wego.toursoperator.application.NotificationSettings
 import com.wego.toursoperator.application.PaymentQueryService
 import com.wego.toursoperator.application.PaymentRepository
 import com.wego.toursoperator.application.PaymobClient
+import com.wego.toursoperator.application.PublicTourContentQuery
 import com.wego.toursoperator.application.ResendNotificationService
 import com.wego.toursoperator.application.SetSlotBlockedService
 import com.wego.toursoperator.application.SetTourActiveService
+import com.wego.toursoperator.application.TourContentRepository
+import com.wego.toursoperator.application.TourContentService
 import com.wego.toursoperator.application.TourQueryService
 import com.wego.toursoperator.application.TourRepository
 import com.wego.toursoperator.application.TourSlotQueryService
@@ -86,6 +89,9 @@ class ToursOperatorBeanConfiguration {
     fun toursOperatorPublicTourBySlugPrefix(): PublicApiPrefix = PublicApiPrefix("/api/v1/tours-operator/tours/by-slug")
 
     @Bean
+    fun toursOperatorPublicTourContentPrefix(): PublicApiPrefix = PublicApiPrefix("/api/v1/tours-operator/tours/by-slug/content")
+
+    @Bean
     fun toursOperatorPublicTourSlotListPrefix(): PublicApiPrefix = PublicApiPrefix("/api/v1/tours-operator/tours/*/slots")
 
     @Bean
@@ -115,6 +121,21 @@ class ToursOperatorBeanConfiguration {
     fun tourQueryService(
         @Qualifier("stoTourRepositoryImpl") tourRepository: TourRepository,
     ): TourQueryService = TourQueryService(tourRepository)
+
+    @Bean("stoPublicTourContentQuery")
+    fun publicTourContentQuery(
+        @Qualifier("stoTourRepositoryImpl") tourRepository: TourRepository,
+        @Qualifier("stoTourContentRepositoryImpl") contentRepository: TourContentRepository,
+        transactionRunner: TransactionRunner,
+    ): PublicTourContentQuery = PublicTourContentQuery(tourRepository, contentRepository, transactionRunner)
+
+    @Bean("stoTourContentService")
+    fun tourContentService(
+        @Qualifier("stoTourRepositoryImpl") tourRepository: TourRepository,
+        @Qualifier("stoTourContentRepositoryImpl") contentRepository: TourContentRepository,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): TourContentService = TourContentService(tourRepository, contentRepository, transactionRunner, clock)
 
     @Bean("stoCreateTourService")
     fun createTourService(
