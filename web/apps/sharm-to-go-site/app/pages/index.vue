@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import MockPhoto from "../components/MockPhoto.vue";
+import GuestStepper from "../components/GuestStepper.vue";
 import { accentForIndex, toneForIndex } from "../content/categoryAccents";
 import { directionFor, type SharmLocale, siteCopy } from "../content/locales";
 import { contact, emailLink, whatsappLink } from "../content/contact";
 import { vReveal } from "../composables/useScrollReveal";
+import { listPublicCategories, type PublicCategory } from "../composables/usePublicCatalog";
 
 const locale = ref<SharmLocale>("en");
 const copy = computed(() => siteCopy[locale.value]);
@@ -23,6 +25,39 @@ function toggleLocale() {
 }
 
 const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "bg-sharm-sun text-sharm-ink"];
+
+// Real search state, routed into the catalog page's own query params (and
+// from there forward into the request flow's date/party pre-fill) — see
+// experiences/index.vue and experiences/[id]/request.vue.
+const router = useRouter();
+const categories = ref<PublicCategory[]>([]);
+const searchCategoryId = ref("");
+const searchDate = ref("");
+const searchAdults = ref(2);
+const searchChildren = ref(0);
+
+const minSearchDate = computed(() => {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return tomorrow.toISOString().slice(0, 10);
+});
+
+onMounted(async () => {
+  try {
+    categories.value = await listPublicCategories();
+  } catch {
+    categories.value = [];
+  }
+});
+
+function submitSearch() {
+  const query: Record<string, string> = {};
+  if (searchCategoryId.value) query.category = searchCategoryId.value;
+  if (searchDate.value) query.date = searchDate.value;
+  query.adults = String(searchAdults.value);
+  if (searchChildren.value > 0) query.children = String(searchChildren.value);
+  router.push({ path: "/experiences", query });
+}
 </script>
 
 <template>
@@ -87,27 +122,63 @@ const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "
           </div>
         </div>
 
-        <div class="self-end rounded-[2rem] border border-sharm-surface/80 bg-sharm-surface/90 p-5 shadow-2xl shadow-sharm-sea/10 backdrop-blur">
+        <form class="self-end rounded-[2rem] border border-sharm-surface/80 bg-sharm-surface/90 p-5 shadow-2xl shadow-sharm-sea/10 backdrop-blur" @submit.prevent="submitSearch">
           <div class="grid gap-3">
             <div class="rounded-2xl border border-black/5 p-4">
-              <p class="text-xs font-bold tracking-[0.12em] text-sharm-muted uppercase">{{ copy.search.category }}</p>
-              <p class="mt-2 font-semibold">{{ copy.search.anyCategory }}</p>
+              <label for="search-category" class="block text-xs font-bold tracking-[0.12em] text-sharm-muted uppercase">{{ copy.search.category }}</label>
+              <select
+                id="search-category"
+                v-model="searchCategoryId"
+                class="mt-2 w-full min-h-10 rounded-lg border-0 bg-transparent p-0 font-semibold focus:outline-none"
+              >
+                <option value="">{{ copy.search.anyCategory }}</option>
+                <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name[locale] }}</option>
+              </select>
             </div>
             <div class="grid gap-3 sm:grid-cols-2">
               <div class="rounded-2xl border border-black/5 p-4">
-                <p class="text-xs font-bold tracking-[0.12em] text-sharm-muted uppercase">{{ copy.search.date }}</p>
-                <p class="mt-2 font-semibold">{{ copy.search.flexible }}</p>
+                <label for="search-date" class="block text-xs font-bold tracking-[0.12em] text-sharm-muted uppercase">{{ copy.search.date }}</label>
+                <input
+                  id="search-date"
+                  v-model="searchDate"
+                  type="date"
+                  :min="minSearchDate"
+                  :placeholder="copy.search.flexible"
+                  class="mt-2 w-full min-h-10 rounded-lg border-0 bg-transparent p-0 font-semibold focus:outline-none"
+                >
               </div>
               <div class="rounded-2xl border border-black/5 p-4">
                 <p class="text-xs font-bold tracking-[0.12em] text-sharm-muted uppercase">{{ copy.search.guests }}</p>
-                <p class="mt-2 font-semibold">{{ copy.search.people }}</p>
+                <p class="mt-2 font-semibold">{{ searchAdults + searchChildren }} {{ copy.search.people }}</p>
               </div>
             </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <GuestStepper
+                v-model:count="searchAdults"
+                :label="copy.request.adultsLabel"
+                :minimum="1"
+                :decrease-label="copy.detail.back"
+                :increase-label="copy.request.continueButton"
+              />
+              <GuestStepper
+                v-model:count="searchChildren"
+                :label="copy.request.childrenLabel"
+                :minimum="0"
+                :decrease-label="copy.detail.back"
+                :increase-label="copy.request.continueButton"
+              />
+            </div>
           </div>
-          <div class="mt-5 rounded-2xl bg-sharm-lagoon p-4 text-sm leading-6 text-sharm-sea">
+          <button
+            type="submit"
+            class="mt-4 w-full rounded-full bg-sharm-sea px-6 py-3 font-semibold text-white shadow-lg shadow-sharm-sea/20 transition-transform hover:-translate-y-0.5 hover:shadow-xl"
+          >
+            {{ copy.search.searchButton }}
+          </button>
+          <div class="mt-4 rounded-2xl bg-sharm-lagoon p-4 text-sm leading-6 text-sharm-sea">
             {{ copy.marketplaceNotice }}
           </div>
-        </div>
+        </form>
       </section>
     </div>
 

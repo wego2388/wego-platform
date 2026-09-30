@@ -924,6 +924,72 @@ provider constraints are revalidated against the implemented repository.
   not started, not authorized. PR #46 stays unmerged pending the owner's
   own fresh "اعمل merge" instruction for it.
 
+### 2026-10-01 — Phase 3B: homepage search box wiring (self-verified, Tier 2)
+
+- **Status:** `ACTIVE`, continuing under the owner's standing broad
+  authorization for this packet ("انا بعطي لك تريح مني و موافقه ... ابداء
+  هندل و ظبط شرم تو جو") and the explicit "كمل" that followed the 3A
+  report — the owner was shown 3B/3C/analytics as candidate next
+  sub-packets and chose to continue rather than stop, so 3B proceeded
+  under that same delegated judgment, not a fresh separate approval.
+- **Review intensity:** Tier 2 — pure client-side routing/state wiring
+  against an already-proven backend surface (the public catalog
+  category list, proven live in the 3A verification round); no new
+  backend endpoint, no new permission, no state-changing behavior.
+- **What was built:** the homepage's category/date/guest box — previously
+  three static text blocks — replaced with a real category `<select>`
+  (populated from the live catalog), a real date input, and two real
+  `GuestStepper` controls (the same component the request form already
+  used), submitting to `/experiences?category=…&date=…&adults=…
+  &children=…`. The catalog page now reads `category` from the URL to
+  pre-select its own filter on load, and selecting a category there now
+  also updates the URL (closing a real gap recorded in the Phase 2A
+  entry — catalog deep links did not preserve filter state; they now do
+  for category, the only real server-side filter). `date`/`adults`/
+  `children` are not real catalog filters — the backend only filters by
+  category — so they are carried forward unchanged through the catalog
+  page's own service links, into the detail page's request CTA, into the
+  request form, which pre-fills its party/date step from them. The
+  request form's existing capacity check still runs unchanged on top of
+  a carried-over value exactly as it would on a typed one.
+- **Verified:** 6 new Vitest tests (`Home.spec.ts` — real search box
+  submits the right query; `Experiences.spec.ts` ×2 — category
+  pre-selection from the URL, date/party forwarded into each service
+  link; `ExperienceDetail.spec.ts` — forwarded into the request CTA and
+  back link; `RequestFlow.spec.ts` ×2 — party step pre-filled from the
+  query and still capacity-checked, a past date in the query is not
+  silently accepted). 49/49 site tests pass (up from 43), 50/50 ERP
+  unaffected. Root `pnpm run check` (lint across every app in the
+  monorepo) and `nuxt typecheck` both clean; a real production
+  `nuxt build` of the site succeeds. Two pre-existing `Home.spec.ts`
+  tests were updated to stub `fetch` (the homepage now makes a real
+  catalog-category request on mount; without a stub those two tests hit
+  an unmocked network call and failed with `ECONNREFUSED`, caught by the
+  page's own error handling but noisy and non-deterministic in a test —
+  fixed by stubbing, not by removing the new network call).
+- **Honestly recorded, not done this round:** no real-backend manual
+  walkthrough of this specific packet — the only backend touchpoint this
+  packet added (fetching the category list on the homepage) reuses a
+  call already proven live in the 3A verification round, and everything
+  new in 3B is pure in-browser routing with no backend behavior of its
+  own, so a fresh throwaway-infrastructure round was judged unnecessary
+  rather than skipped for convenience. No real-browser (Claude-in-Chrome)
+  visual check this round either — not connected this session, same
+  standing gap as 3A.
+- **Rollback considerations:** no backend change at all; homepage,
+  catalog, detail, and request pages each got additive query-handling
+  code (none of their existing non-query behavior changed); two test
+  files' shared `useRoute` stub gained a `query` field (the previous
+  stub was already an incomplete mirror of Nuxt's real `useRoute()`,
+  which always returns one).
+- **Next:** commit, push, update board/roadmap evidence (done in this
+  same pass). 3C (shared header/footer/locale extraction) and
+  analytics/SEO remain candidate future sub-packets — not started, not
+  automatically authorized; homepage "featured/popular" and "offer"
+  placements remain explicitly blocked on their own stated dependencies
+  (an ERP-side popularity model; owner-approved offer terms). PR #46
+  stays unmerged pending the owner's own fresh "اعمل merge" instruction.
+
 ## WEGO-003 — Reliable integration delivery and replay
 
 - **Status:** NOT AUTHORIZED — roadmap only; WEGO-002 must close first and owner activation is still required.

@@ -10,6 +10,16 @@ import { getPublicService, listPublicCategories, type PublicCategory, type Publi
 const route = useRoute();
 const serviceId = String(route.params.id);
 
+// Forwarded straight through from the catalog page (itself forwarded from
+// the homepage search box, if the visitor used it) — see experiences/index.vue.
+const forwardedQuery = computed<Record<string, string>>(() => {
+  const query: Record<string, string> = {};
+  if (typeof route.query.date === "string") query.date = route.query.date;
+  if (typeof route.query.adults === "string") query.adults = route.query.adults;
+  if (typeof route.query.children === "string") query.children = route.query.children;
+  return query;
+});
+
 const locale = ref<SharmLocale>("en");
 const copy = computed(() => siteCopy[locale.value]);
 const direction = computed(() => directionFor(locale.value));
@@ -112,7 +122,7 @@ onMounted(async () => {
             </li>
           </ul>
           <NuxtLink
-            :to="`/experiences/${service.id}/request`"
+            :to="{ path: `/experiences/${service.id}/request`, query: forwardedQuery }"
             class="mt-5 inline-flex w-full items-center justify-center rounded-full bg-sharm-sea px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-sharm-sea/20 transition-transform hover:-translate-y-0.5 hover:shadow-xl sm:w-auto"
           >
             {{ copy.detail.requestCta }}
@@ -163,7 +173,10 @@ onMounted(async () => {
           <p class="money mt-3 text-xs text-sharm-muted">{{ contact.whatsappDisplay }} · {{ contact.email }}</p>
         </section>
 
-        <NuxtLink to="/experiences" class="mt-8 inline-flex rounded-full border border-sharm-border bg-sharm-surface px-6 py-3 font-semibold text-sharm-sea">
+        <NuxtLink
+          :to="{ path: '/experiences', query: forwardedQuery }"
+          class="mt-8 inline-flex rounded-full border border-sharm-border bg-sharm-surface px-6 py-3 font-semibold text-sharm-sea"
+        >
           {{ copy.detail.back }}
         </NuxtLink>
       </article>

@@ -48,9 +48,20 @@ const minDate = computed(() => {
   return tomorrow.toISOString().slice(0, 10);
 });
 
-const requestedDate = ref("");
-const adults = ref(2);
-const children = ref(0);
+// Pre-filled from the homepage search box, forwarded through the catalog and
+// detail pages as query params (see experiences/index.vue and
+// experiences/[id].vue) — a convenience, not a capacity guarantee: the
+// existing party-vs-capacity check below still runs on submit exactly as it
+// would for a value the visitor typed here directly.
+function queryNumber(value: unknown): number | null {
+  if (typeof value !== "string") return null;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+}
+
+const requestedDate = ref(typeof route.query.date === "string" && route.query.date >= minDate.value ? route.query.date : "");
+const adults = ref(queryNumber(route.query.adults) ?? 2);
+const children = ref(queryNumber(route.query.children) ?? 0);
 const hotelOrPickup = ref("");
 const notes = ref("");
 const partyError = ref(false);

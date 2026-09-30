@@ -18,7 +18,7 @@ function mountIndex() {
 }
 
 function mountReference(reference: string) {
-  vi.stubGlobal("useRoute", () => ({ params: { reference } }));
+  vi.stubGlobal("useRoute", () => ({ params: { reference }, query: {} }));
   return mount(TrackReferencePage, {
     global: { stubs: { NuxtLink: { template: "<a><slot /></a>" } } },
   });

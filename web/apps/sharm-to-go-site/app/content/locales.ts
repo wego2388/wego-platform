@@ -13,7 +13,7 @@ interface SiteCopy {
   nav: { experiences: string; howItWorks: string; trust: string; about: string; faq: string; contact: string; home: string; menu: string };
   hero: { eyebrow: string; title: string; body: string; browse: string; plan: string };
   proof: { heading: string; body: string; facts: Array<{ value: string; label: string }> };
-  search: { category: string; date: string; guests: string; anyCategory: string; flexible: string; people: string };
+  search: { category: string; date: string; guests: string; anyCategory: string; flexible: string; people: string; searchButton: string };
   categoriesHeading: string;
   categoriesBody: string;
   categories: CategoryCopy[];
@@ -186,9 +186,10 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       category: "What do you want to do?",
       date: "When?",
       guests: "Who is going?",
-      anyCategory: "Choose a category",
+      anyCategory: "Any category",
       flexible: "Flexible dates",
       people: "Travellers",
+      searchButton: "Search experiences",
     },
     categoriesHeading: "Start with the kind of day you want",
     categoriesBody: "Sea, desert, transfers and local discoveries — start with an idea or ask us to shape the day around you.",
@@ -454,9 +455,10 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       category: "حابب تعمل إيه؟",
       date: "إمتى؟",
       guests: "مين معاك؟",
-      anyCategory: "اختر فئة",
+      anyCategory: "أي فئة",
       flexible: "مواعيد مرنة",
       people: "عدد المسافرين",
+      searchButton: "ابحث عن تجارب",
     },
     categoriesHeading: "ابدأ بشكل اليوم اللي يناسبك",
     categoriesBody: "بحر وصحراء وانتقالات واكتشافات محلية — ابدأ بفكرة أو خلّينا نصمملك اليوم حسب رغبتك.",

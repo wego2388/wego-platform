@@ -33,8 +33,8 @@ const sampleCategory = {
   description: null,
 };
 
-function withRoute(id: string) {
-  vi.stubGlobal("useRoute", () => ({ params: { id } }));
+function withRoute(id: string, query: Record<string, string> = {}) {
+  vi.stubGlobal("useRoute", () => ({ params: { id }, query }));
 }
 
 function stubFetch(serviceResponse: () => Response) {
@@ -50,9 +50,25 @@ function stubFetch(serviceResponse: () => Response) {
   );
 }
 
+// `to` can be a plain string or a `{ path, query }` route object (used by
+// the request/back links so a forwarded search date/party survives
+// navigation) — resolve both the same way Nuxt's real NuxtLink would.
+const NuxtLinkStub = {
+  props: ["to"],
+  computed: {
+    href(): string {
+      if (typeof this.to === "string") return this.to;
+      const query = this.to?.query ?? {};
+      const search = new URLSearchParams(query).toString();
+      return search ? `${this.to.path}?${search}` : this.to.path;
+    },
+  },
+  template: "<a :href=\"href\"><slot /></a>",
+};
+
 function mountPage() {
   return mount(ExperienceDetailPage, {
-    global: { stubs: { NuxtLink: { template: "<a :href=\"to\"><slot /></a>", props: ["to"] } } },
+    global: { stubs: { NuxtLink: NuxtLinkStub } },
   });
 }
 
@@ -87,6 +103,19 @@ describe("experience detail page", () => {
     expect(requestLink?.attributes("href")).toBe(`/experiences/${serviceId}/request`);
     // The contact block is now explicitly secondary ("ask first"), not the only option.
     expect(wrapper.text()).toContain("Prefer to ask first?");
+  });
+
+  it("forwards a date/party carried over from the homepage search box into the request CTA and the back link", async () => {
+    withRoute(serviceId, { date: "2099-06-15", adults: "2" });
+    stubFetch(() => new Response(JSON.stringify(sampleService), { status: 200 }));
+
+    const wrapper = mountPage();
+    await flushPromises();
+
+    const requestLink = wrapper.findAll("a").find((link) => link.text() === "Request this experience");
+    expect(requestLink?.attributes("href")).toBe(`/experiences/${serviceId}/request?date=2099-06-15&adults=2`);
+    const backLink = wrapper.findAll("a").find((link) => link.text() === "Back to experiences");
+    expect(backLink?.attributes("href")).toBe("/experiences?date=2099-06-15&adults=2");
   });
 
   it("shows an honest not-found state for an unknown or unpublished id, not a crash", async () => {

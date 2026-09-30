@@ -30,8 +30,8 @@ function sampleService(overrides: Partial<Record<string, unknown>> = {}) {
   };
 }
 
-function withRoute(id: string) {
-  vi.stubGlobal("useRoute", () => ({ params: { id } }));
+function withRoute(id: string, query: Record<string, string> = {}) {
+  vi.stubGlobal("useRoute", () => ({ params: { id }, query }));
 }
 
 function mountPage() {
@@ -221,6 +221,37 @@ describe("real request flow", () => {
     await flushPromises();
 
     expect(wrapper.text()).toContain("Your party is larger than this option allows");
+  });
+
+  it("pre-fills the party step from a date/adults/children carried over from the homepage search box", async () => {
+    withRoute(serviceId, { date: "2099-06-15", adults: "3", children: "1" });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify(sampleService()), { status: 200 })),
+    );
+
+    const wrapper = mountPage();
+    await flushPromises();
+
+    expect((wrapper.get("#date").element as HTMLInputElement).value).toBe("2099-06-15");
+    // adults(3) + children(1) = 4, one more than the sample option's maxParticipants(3) —
+    // proves the pre-fill does not silently bypass the real capacity check.
+    await wrapper.get("form").trigger("submit");
+    await flushPromises();
+    expect(wrapper.text()).toContain("fits up to 3 people");
+  });
+
+  it("ignores a past date carried over in the query instead of silently accepting it", async () => {
+    withRoute(serviceId, { date: "2020-01-01" });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify(sampleService()), { status: 200 })),
+    );
+
+    const wrapper = mountPage();
+    await flushPromises();
+
+    expect((wrapper.get("#date").element as HTMLInputElement).value).toBe("");
   });
 
   it("shows an honest not-found state for an unknown or unpublished service id", async () => {

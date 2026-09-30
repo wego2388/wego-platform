@@ -9,7 +9,8 @@ vi.stubGlobal("defineEventHandler", <T>(handler: T) => handler);
 
 beforeEach(() => {
   vi.stubGlobal("useHead", () => {});
-  vi.stubGlobal("useRoute", () => ({ params: {} }));
+  vi.stubGlobal("useRoute", () => ({ params: {}, query: {} }));
+  vi.stubGlobal("useRouter", () => ({ push: () => {}, replace: () => {} }));
   vi.stubGlobal("useRuntimeConfig", () => ({ travelMarketplaceApiBase: "http://localhost:8081" }));
   vi.stubGlobal("getQuery", (event: { query?: Record<string, unknown> }) => event.query ?? {});
   vi.stubGlobal("getRouterParam", (event: { params?: Record<string, string> }, name: string) => event.params?.[name]);

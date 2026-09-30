@@ -29,9 +29,28 @@ function toggleLocale() {
   locale.value = locale.value === "en" ? "ar" : "en";
 }
 
+const route = useRoute();
+const router = useRouter();
+
+// Carried over from the homepage search box (or a previous visit to this
+// page) — not catalog filters themselves (the backend only filters by
+// category), but forwarded into each service link so a date/party already
+// given once does not have to be re-entered on the request form.
+const searchDate = ref(typeof route.query.date === "string" ? route.query.date : "");
+const searchAdults = ref(typeof route.query.adults === "string" ? route.query.adults : "");
+const searchChildren = ref(typeof route.query.children === "string" ? route.query.children : "");
+
+const forwardedQuery = computed<Record<string, string>>(() => {
+  const query: Record<string, string> = {};
+  if (searchDate.value) query.date = searchDate.value;
+  if (searchAdults.value) query.adults = searchAdults.value;
+  if (searchChildren.value) query.children = searchChildren.value;
+  return query;
+});
+
 const categories = ref<PublicCategory[]>([]);
 const services = ref<PublicService[]>([]);
-const selectedCategoryId = ref<string>("");
+const selectedCategoryId = ref<string>(typeof route.query.category === "string" ? route.query.category : "");
 const state = ref<"loading" | "loaded" | "error">("loading");
 
 function categoryName(categoryId: string): string {
@@ -56,6 +75,9 @@ async function loadServices() {
 async function selectCategory(categoryId: string) {
   selectedCategoryId.value = categoryId;
   state.value = "loading";
+  const query = { ...forwardedQuery.value };
+  if (categoryId) query.category = categoryId;
+  router.replace({ path: "/experiences", query });
   await loadServices();
 }
 
@@ -144,7 +166,7 @@ onMounted(async () => {
               <span class="text-xs font-normal text-sharm-muted">{{ priceBasisLabel(startingPrice(service)?.priceBasis ?? "PER_PERSON") }}</span>
             </p>
             <NuxtLink
-              :to="`/experiences/${service.id}`"
+              :to="{ path: `/experiences/${service.id}`, query: forwardedQuery }"
               class="mt-4 inline-flex justify-center rounded-full border border-sharm-sea bg-sharm-surface px-5 py-2.5 text-sm font-semibold text-sharm-sea"
             >
               {{ copy.browse.viewDetails }}
