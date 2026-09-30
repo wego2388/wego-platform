@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "approvedAt": "2026-09-28",
+  "approvedAt": "2026-09-30",
   "approvedBy": "owner",
   "source": "legacy-wordpress-export.json",
   "cancellationPolicy": {
@@ -16,10 +16,13 @@
       "category": "DESERT",
       "tourType": "TOUR",
       "durationText": "5–6 hours",
-      "priceAdultEur": 35.00,
+      "priceAdultEur": 35.0,
       "priceChildEur": null,
       "capacity": 20,
-      "availableTimeSlots": ["MORNING", "SUNSET"],
+      "availableTimeSlots": [
+        "MORNING",
+        "SUNSET"
+      ],
       "sortOrder": 1,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2025/11/IMG-20240419-WA0015-300x225.jpg"
@@ -30,10 +33,12 @@
       "category": "DESERT",
       "tourType": "TOUR",
       "durationText": "2–3 hours",
-      "priceAdultEur": 30.00,
+      "priceAdultEur": 35.0,
       "priceChildEur": null,
       "capacity": 15,
-      "availableTimeSlots": ["SUNSET"],
+      "availableTimeSlots": [
+        "SUNSET"
+      ],
       "sortOrder": 2,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2026/01/quad-biking-tour-in-sharm-el-sheikh-desert-2436382-300x200.webp"
@@ -44,10 +49,13 @@
       "category": "DESERT",
       "tourType": "TOUR",
       "durationText": "2–3 hours",
-      "priceAdultEur": 45.00,
+      "priceAdultEur": 30.0,
       "priceChildEur": null,
       "capacity": 10,
-      "availableTimeSlots": ["MORNING", "SUNSET"],
+      "availableTimeSlots": [
+        "MORNING",
+        "AFTERNOON"
+      ],
       "sortOrder": 3,
       "isActive": true,
       "pricingNote": "Price per buggy (seats 2 adults)",
@@ -59,10 +67,12 @@
       "category": "DESERT",
       "tourType": "TOUR",
       "durationText": "3–4 hours",
-      "priceAdultEur": 30.00,
+      "priceAdultEur": 35.0,
       "priceChildEur": null,
       "capacity": 25,
-      "availableTimeSlots": ["SUNSET"],
+      "availableTimeSlots": [
+        "SUNSET"
+      ],
       "sortOrder": 4,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2025/11/IMG-20240419-WA0027-300x225.jpg"
@@ -73,10 +83,12 @@
       "category": "CULTURAL",
       "tourType": "TOUR",
       "durationText": "8–10 hours",
-      "priceAdultEur": 35.00,
+      "priceAdultEur": 35.0,
       "priceChildEur": null,
       "capacity": 20,
-      "availableTimeSlots": ["MORNING"],
+      "availableTimeSlots": [
+        "MORNING"
+      ],
       "sortOrder": 5,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2025/11/FB_IMG_1731410704834-221x300.jpg"
@@ -87,10 +99,14 @@
       "category": "DESERT",
       "tourType": "TOUR",
       "durationText": "1 hour",
-      "priceAdultEur": 25.00,
+      "priceAdultEur": 25.0,
       "priceChildEur": null,
       "capacity": 20,
-      "availableTimeSlots": ["MORNING", "AFTERNOON", "SUNSET"],
+      "availableTimeSlots": [
+        "MORNING",
+        "AFTERNOON",
+        "SUNSET"
+      ],
       "sortOrder": 6,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2026/01/83-300x200.jpg"
@@ -101,10 +117,12 @@
       "category": "SEA",
       "tourType": "TOUR",
       "durationText": "8–9 hours",
-      "priceAdultEur": 45.00,
+      "priceAdultEur": 40.0,
       "priceChildEur": null,
       "capacity": 30,
-      "availableTimeSlots": ["MORNING"],
+      "availableTimeSlots": [
+        "MORNING"
+      ],
       "sortOrder": 7,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2025/11/IMG-20240419-WA0156-300x169.jpg"
@@ -114,11 +132,13 @@
       "nameEn": "Evening Cruise",
       "category": "SEA",
       "tourType": "TOUR",
-      "durationText": "2–5 hours",
-      "priceAdultEur": 40.00,
+      "durationText": "About 4 hours (18:00–22:00)",
+      "priceAdultEur": 35.0,
       "priceChildEur": null,
       "capacity": 40,
-      "availableTimeSlots": ["SUNSET"],
+      "availableTimeSlots": [
+        "SUNSET"
+      ],
       "sortOrder": 8,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2025/11/IMG-20240419-WA0166-300x231.jpg"
@@ -129,10 +149,13 @@
       "category": "SEA",
       "tourType": "TOUR",
       "durationText": "1.5 hours",
-      "priceAdultEur": 20.00,
+      "priceAdultEur": 15.0,
       "priceChildEur": null,
       "capacity": 30,
-      "availableTimeSlots": ["MORNING", "AFTERNOON"],
+      "availableTimeSlots": [
+        "MORNING",
+        "AFTERNOON"
+      ],
       "sortOrder": 9,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2025/11/IMG-20240419-WA0069-201x300.jpg"
@@ -143,10 +166,12 @@
       "category": "SEA",
       "tourType": "TOUR",
       "durationText": "2–3 days",
-      "priceAdultEur": 400.00,
+      "priceAdultEur": 400.0,
       "priceChildEur": null,
       "capacity": 8,
-      "availableTimeSlots": ["MORNING"],
+      "availableTimeSlots": [
+        "MORNING"
+      ],
       "sortOrder": 10,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2026/01/PPB1-TaeMHJYU-1024x576-1-300x169.jpg"
@@ -155,15 +180,19 @@
       "slug": "intro-diving",
       "nameEn": "Intro Diving",
       "category": "SEA",
-      "tourType": "TOUR",
+      "tourType": "REQUEST_ONLY",
       "durationText": "15 minutes underwater",
-      "priceAdultEur": 25.00,
+      "priceAdultEur": 20.0,
       "priceChildEur": null,
       "capacity": 10,
-      "availableTimeSlots": ["MORNING", "AFTERNOON"],
+      "availableTimeSlots": [
+        "MORNING",
+        "AFTERNOON"
+      ],
       "sortOrder": 11,
-      "isActive": true,
-      "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2025/11/IMG-20240419-WA0165-300x225.jpg"
+      "isActive": false,
+      "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2025/11/IMG-20240419-WA0165-300x225.jpg",
+      "pricingNote": "From €20 — booked on request via WhatsApp"
     },
     {
       "slug": "private-boat",
@@ -174,7 +203,9 @@
       "priceAdultEur": null,
       "priceChildEur": null,
       "capacity": 20,
-      "availableTimeSlots": ["MORNING"],
+      "availableTimeSlots": [
+        "MORNING"
+      ],
       "sortOrder": 12,
       "isActive": false,
       "pricingNote": "Price on request — contact via WhatsApp",
@@ -186,10 +217,12 @@
       "category": "SEA",
       "tourType": "TOUR",
       "durationText": "5–8 hours",
-      "priceAdultEur": 65.00,
+      "priceAdultEur": 65.0,
       "priceChildEur": null,
       "capacity": 25,
-      "availableTimeSlots": ["MORNING"],
+      "availableTimeSlots": [
+        "MORNING"
+      ],
       "sortOrder": 13,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2026/01/pirates-boat-cruise.jpg"
@@ -200,10 +233,12 @@
       "category": "SEA",
       "tourType": "TOUR",
       "durationText": "4–6 hours",
-      "priceAdultEur": 30.00,
+      "priceAdultEur": 30.0,
       "priceChildEur": null,
       "capacity": 30,
-      "availableTimeSlots": ["MORNING"],
+      "availableTimeSlots": [
+        "MORNING"
+      ],
       "sortOrder": 14,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2025/11/IMG-20240419-WA01671-225x300.jpg"
@@ -214,10 +249,13 @@
       "category": "SEA",
       "tourType": "TOUR",
       "durationText": "10–15 minutes",
-      "priceAdultEur": 25.00,
+      "priceAdultEur": 25.0,
       "priceChildEur": null,
       "capacity": 8,
-      "availableTimeSlots": ["MORNING", "AFTERNOON"],
+      "availableTimeSlots": [
+        "MORNING",
+        "AFTERNOON"
+      ],
       "sortOrder": 15,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2025/11/IMG-20240419-WA0130-300x199.jpg"
@@ -228,10 +266,13 @@
       "category": "SEA",
       "tourType": "TOUR",
       "durationText": "6–10 minutes flight",
-      "priceAdultEur": 25.00,
+      "priceAdultEur": 25.0,
       "priceChildEur": null,
       "capacity": 2,
-      "availableTimeSlots": ["MORNING", "AFTERNOON"],
+      "availableTimeSlots": [
+        "MORNING",
+        "AFTERNOON"
+      ],
       "sortOrder": 16,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2025/11/IMG-20240419-WA0102-300x199.jpg"
@@ -241,11 +282,14 @@
       "nameEn": "Speed Boat Adventure",
       "category": "SEA",
       "tourType": "TOUR",
-      "durationText": "30–60 minutes",
-      "priceAdultEur": 100.00,
+      "durationText": "3 hours (private boat)",
+      "priceAdultEur": 150.0,
       "priceChildEur": null,
-      "capacity": 8,
-      "availableTimeSlots": ["MORNING", "AFTERNOON"],
+      "capacity": 5,
+      "availableTimeSlots": [
+        "MORNING",
+        "AFTERNOON"
+      ],
       "sortOrder": 17,
       "isActive": true,
       "pricingNote": "Price per boat",
@@ -257,10 +301,13 @@
       "category": "SEA",
       "tourType": "TOUR",
       "durationText": "1.5–2 hours",
-      "priceAdultEur": 35.00,
+      "priceAdultEur": 35.0,
       "priceChildEur": null,
       "capacity": 30,
-      "availableTimeSlots": ["MORNING", "AFTERNOON"],
+      "availableTimeSlots": [
+        "MORNING",
+        "AFTERNOON"
+      ],
       "sortOrder": 18,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2026/01/sharm-el-sheikh-seascope-subma17373741644-300x183.webp"
@@ -271,10 +318,12 @@
       "category": "SEA",
       "tourType": "TOUR",
       "durationText": "8–9 hours",
-      "priceAdultEur": 45.00,
+      "priceAdultEur": 45.0,
       "priceChildEur": null,
       "capacity": 30,
-      "availableTimeSlots": ["MORNING"],
+      "availableTimeSlots": [
+        "MORNING"
+      ],
       "sortOrder": 19,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2026/01/2000x2000-0-70-8da5c8a9db726301dd34107cb7334fee-300x197.jpg"
@@ -285,10 +334,13 @@
       "category": "SEA",
       "tourType": "TOUR",
       "durationText": "10–15 minutes",
-      "priceAdultEur": 25.00,
+      "priceAdultEur": 25.0,
       "priceChildEur": null,
       "capacity": 4,
-      "availableTimeSlots": ["MORNING", "AFTERNOON"],
+      "availableTimeSlots": [
+        "MORNING",
+        "AFTERNOON"
+      ],
       "sortOrder": 20,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2026/01/31ca45b4-8e30-4d89-9f1d-fe4d6612e8fb_sea-fun-glass-bottom-boat-tube-ride-parasailing-sharm-el-sheikh-300x200.png"
@@ -299,10 +351,12 @@
       "category": "CULTURAL",
       "tourType": "TOUR",
       "durationText": "20–24 hours",
-      "priceAdultEur": 75.00,
+      "priceAdultEur": 75.0,
       "priceChildEur": null,
       "capacity": 30,
-      "availableTimeSlots": ["MORNING"],
+      "availableTimeSlots": [
+        "MORNING"
+      ],
       "sortOrder": 21,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2026/01/61-300x200.jpg"
@@ -313,10 +367,12 @@
       "category": "CULTURAL",
       "tourType": "TOUR",
       "durationText": "20–24 hours",
-      "priceAdultEur": 280.00,
+      "priceAdultEur": 280.0,
       "priceChildEur": null,
       "capacity": 20,
-      "availableTimeSlots": ["MORNING"],
+      "availableTimeSlots": [
+        "MORNING"
+      ],
       "sortOrder": 22,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2026/01/Cairo-Trip-by-Plane-Sharm-El-Sheikh-e1669435434944-300x169.webp"
@@ -327,10 +383,12 @@
       "category": "CULTURAL",
       "tourType": "TOUR",
       "durationText": "15–16 hours",
-      "priceAdultEur": 50.00,
+      "priceAdultEur": 40.0,
       "priceChildEur": null,
       "capacity": 25,
-      "availableTimeSlots": ["MORNING"],
+      "availableTimeSlots": [
+        "MORNING"
+      ],
       "sortOrder": 23,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2026/01/FB_IMG_1754255597368-225x300.jpg"
@@ -341,10 +399,12 @@
       "category": "CULTURAL",
       "tourType": "TOUR",
       "durationText": "20–24 hours",
-      "priceAdultEur": 280.00,
+      "priceAdultEur": 280.0,
       "priceChildEur": null,
       "capacity": 20,
-      "availableTimeSlots": ["MORNING"],
+      "availableTimeSlots": [
+        "MORNING"
+      ],
       "sortOrder": 24,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2026/01/Excursions-from-Sharm-J-300x300.webp"
@@ -355,10 +415,12 @@
       "category": "CULTURAL",
       "tourType": "TOUR",
       "durationText": "11–12 hours",
-      "priceAdultEur": 45.00,
+      "priceAdultEur": 45.0,
       "priceChildEur": null,
       "capacity": 25,
-      "availableTimeSlots": ["MORNING"],
+      "availableTimeSlots": [
+        "MORNING"
+      ],
       "sortOrder": 25,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2026/01/saint-catherine-s-monastery-300x200.jpg"
@@ -369,10 +431,13 @@
       "category": "SHOWS",
       "tourType": "TOUR",
       "durationText": "1–2 hours",
-      "priceAdultEur": 45.00,
+      "priceAdultEur": 45.0,
       "priceChildEur": null,
       "capacity": 20,
-      "availableTimeSlots": ["MORNING", "AFTERNOON"],
+      "availableTimeSlots": [
+        "MORNING",
+        "AFTERNOON"
+      ],
       "sortOrder": 26,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2026/01/42-300x200.jpg"
@@ -383,10 +448,13 @@
       "category": "SHOWS",
       "tourType": "TOUR",
       "durationText": "1 hour",
-      "priceAdultEur": 20.00,
+      "priceAdultEur": 20.0,
       "priceChildEur": null,
       "capacity": 50,
-      "availableTimeSlots": ["MORNING", "AFTERNOON"],
+      "availableTimeSlots": [
+        "MORNING",
+        "AFTERNOON"
+      ],
       "sortOrder": 27,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2026/01/2016130396531-300x200.jpg"
@@ -397,10 +465,13 @@
       "category": "SHOWS",
       "tourType": "TOUR",
       "durationText": "15 minutes",
-      "priceAdultEur": 65.00,
+      "priceAdultEur": 70.0,
       "priceChildEur": null,
       "capacity": 10,
-      "availableTimeSlots": ["MORNING", "AFTERNOON"],
+      "availableTimeSlots": [
+        "MORNING",
+        "AFTERNOON"
+      ],
       "sortOrder": 28,
       "isActive": true,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2026/01/swim-with-dolphins-activity-sharm-300x199.webp"
@@ -411,12 +482,15 @@
       "category": "SHOWS",
       "tourType": "TOUR",
       "durationText": "1 hour",
-      "priceAdultEur": 20.00,
+      "priceAdultEur": 20.0,
       "priceChildEur": null,
       "capacity": 50,
-      "availableTimeSlots": ["MORNING", "AFTERNOON"],
+      "availableTimeSlots": [
+        "MORNING",
+        "AFTERNOON"
+      ],
       "sortOrder": 29,
-      "isActive": true,
+      "isActive": false,
       "imageUrl": "https://safaritourssharm.com/wp-content/uploads/2026/01/crocodile-snake-sharm-trip-day-show-34-300x225.jpg"
     },
     {
@@ -425,14 +499,147 @@
       "category": "TRANSFERS",
       "tourType": "TRANSFER",
       "durationText": "30–60 minutes",
-      "priceAdultEur": 15.00,
+      "priceAdultEur": 15.0,
       "priceChildEur": null,
       "capacity": 4,
-      "availableTimeSlots": ["SUNRISE", "MORNING", "AFTERNOON", "SUNSET"],
+      "availableTimeSlots": [
+        "SUNRISE",
+        "MORNING",
+        "AFTERNOON",
+        "SUNSET"
+      ],
       "sortOrder": 30,
       "isActive": true,
-      "pricingNote": "€15/person shared or €35/vehicle private",
+      "pricingNote": "Per vehicle: sedan €15 · SUV €20 · Hiace minibus €35",
       "imageUrl": null
+    }
+  ],
+  "revisions": [
+    {
+      "date": "2026-09-30",
+      "by": "owner (Excel review: owner-edited-2026-09-30.xlsx)",
+      "changes": [
+        {
+          "slug": "sunset-quad-bike",
+          "field": "priceAdultEur",
+          "from": 30.0,
+          "to": 35.0
+        },
+        {
+          "slug": "double-buggy-camel-ride",
+          "field": "priceAdultEur",
+          "from": 45.0,
+          "to": 30.0
+        },
+        {
+          "slug": "double-buggy-camel-ride",
+          "field": "availableTimeSlots",
+          "from": [
+            "MORNING",
+            "SUNSET"
+          ],
+          "to": [
+            "MORNING",
+            "AFTERNOON"
+          ]
+        },
+        {
+          "slug": "bedouin-dinner-camel-ride",
+          "field": "priceAdultEur",
+          "from": 30.0,
+          "to": 35.0
+        },
+        {
+          "slug": "ras-mohamed-white-island-boat",
+          "field": "priceAdultEur",
+          "from": 45.0,
+          "to": 40.0
+        },
+        {
+          "slug": "evening-cruise",
+          "field": "priceAdultEur",
+          "from": 40.0,
+          "to": 35.0
+        },
+        {
+          "slug": "evening-cruise",
+          "field": "durationText",
+          "from": "2–5 hours",
+          "to": "About 4 hours (18:00–22:00)"
+        },
+        {
+          "slug": "glass-bottom-boat",
+          "field": "priceAdultEur",
+          "from": 20.0,
+          "to": 15.0
+        },
+        {
+          "slug": "intro-diving",
+          "field": "priceAdultEur",
+          "from": 25.0,
+          "to": 20.0
+        },
+        {
+          "slug": "intro-diving",
+          "field": "tourType",
+          "from": "TOUR",
+          "to": "REQUEST_ONLY"
+        },
+        {
+          "slug": "intro-diving",
+          "field": "isActive",
+          "from": true,
+          "to": false
+        },
+        {
+          "slug": "intro-diving",
+          "field": "pricingNote",
+          "from": null,
+          "to": "From €20 — booked on request via WhatsApp"
+        },
+        {
+          "slug": "speed-boat-adventure",
+          "field": "priceAdultEur",
+          "from": 100.0,
+          "to": 150.0
+        },
+        {
+          "slug": "speed-boat-adventure",
+          "field": "capacity",
+          "from": 8,
+          "to": 5
+        },
+        {
+          "slug": "speed-boat-adventure",
+          "field": "durationText",
+          "from": "30–60 minutes",
+          "to": "3 hours (private boat)"
+        },
+        {
+          "slug": "mount-sinai-st-catherine",
+          "field": "priceAdultEur",
+          "from": 50.0,
+          "to": 40.0
+        },
+        {
+          "slug": "swimming-with-dolphins",
+          "field": "priceAdultEur",
+          "from": 65.0,
+          "to": 70.0
+        },
+        {
+          "slug": "crocodile-show",
+          "field": "isActive",
+          "from": true,
+          "to": false
+        },
+        {
+          "slug": "sharm-airport-transfer",
+          "field": "pricingNote",
+          "from": "€15/person shared or €35/vehicle private",
+          "to": "Per vehicle: sedan €15 · SUV €20 · Hiace minibus €35"
+        }
+      ]
     }
   ]
 }
