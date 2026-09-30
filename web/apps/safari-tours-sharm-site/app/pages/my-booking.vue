@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import SiteHeader from "../components/SiteHeader.vue";
-import SiteFooter from "../components/SiteFooter.vue";
+import { ref } from "vue";
 import { useSiteLocale } from "../composables/useSiteLocale";
-import { directionFor, siteCopy, whatsappUrl } from "../content/locales";
-import type { StsLocale } from "../content/locales";
+import { whatsappUrl } from "../content/locales";
 import {
   lookupBooking,
   formatPrice,
@@ -14,15 +11,11 @@ import {
   PublicApiError,
 } from "../composables/usePublicToursApi";
 
-const ALL_LOCALES: StsLocale[] = ["en", "ru", "ar", "it"];
 
 const locale    = useSiteLocale();
-const copy      = computed(() => siteCopy[locale.value]);
-const direction = computed(() => directionFor(locale.value));
 
 useHead(() => ({
   title: "My Booking — Safari Tours Sharm",
-  htmlAttrs: { dir: direction.value, lang: locale.value },
 }));
 
 const reference = ref("");
@@ -59,15 +52,7 @@ const statusColor: Record<string, string> = {
 </script>
 
 <template>
-  <div :dir="direction" :lang="locale" class="min-h-screen bg-sts-canvas text-sts-ink">
-    <SiteHeader
-      :locale="locale"
-      :direction="direction"
-      :nav="copy.nav"
-      :whatsapp-label="copy.whatsappFab"
-      :current-locales="ALL_LOCALES"
-      @set-locale="(l) => (locale = l)"
-    />
+  <div>
 
     <main id="main-content" tabindex="-1" class="mx-auto max-w-xl px-6 py-16 lg:px-0">
 
@@ -189,10 +174,5 @@ const statusColor: Record<string, string> = {
 
     </main>
 
-    <SiteFooter
-      :tagline="copy.footerTagline"
-      :links="copy.footerLinks"
-      :rights="copy.footerRights"
-    />
   </div>
 </template>

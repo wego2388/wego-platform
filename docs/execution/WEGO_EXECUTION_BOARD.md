@@ -2380,7 +2380,7 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
 
 ## WEGO-016 — Safari Tours Sharm: tours-operator product foundation
 
-- **Status:** IN PROGRESS — A–G complete; phase 4 UX-0..UX-1 complete, UX-2 ACTIVE (2026-09-30); H–I require explicit owner activation
+- **Status:** IN PROGRESS — A–G complete; phase 4 UX-0..UX-2 complete, UX-3 next (2026-09-30); H–I require explicit owner activation
 - **Activated:** 2026-09-27
 - **Review intensity:** Tier 1 — this packet adds a new product boundary (`products/tours-operator`), a new Flyway migration (V14), a new client isolation profile (`clients/safari-tours-sharm`), and will later touch payment/PII/auth surfaces. Every sub-packet that adds a migration, modifies auth, or handles customer payment data requires independent Tier 1 review before merge.
 - **Origin:** The owner asked to establish Safari Tours Sharm as a first-class Wego Platform product — on the same standards as Sharm Divers Club and Sharm To Go — with a public booking website, a staff ERP, a real Paymob payment flow, a production tour catalog, and an isolated deployment. The handoff document at `clients/safari-tours-sharm/handoff/SAFARI_TOURS_PRODUCTION_MATURITY_HANDOFF.md` is the authoritative reference for current maturity, open P0 issues, and the phased delivery plan.
@@ -3113,9 +3113,49 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-09-30 — WEGO-016-UX2: discovery (header/footer, home, tours, categories)
 
-- **Status:** ACTIVE
+- **Status:** COMPLETE
 - **Activation:** owner standing instruction (`ابدا نفذ و سيطر علي المشروع و كمل البناء`, 2026-09-30).
 - **Review intensity:** Tier 2 — public presentation; reads published content only.
+- **Delivered:** shared `layouts/default.vue` with a new localized
+  SiteHeader (logo, nav, language menu, theme toggle, mobile sheet) and
+  SiteFooter; per-page header/footer props removed from all 11 pages. Home
+  rebuilt (hero + quick experience links, category tiles with live counts,
+  featured tours, why-direct, FAQ accordion, CTA; TravelAgency JSON-LD).
+  `/tours`: SSR catalogue, instant dependency-free search (Arabic/Latin
+  folding, searches localized text, English name and category names in all
+  languages), URL-synced filters (`q,cat,dur,time,max,sort`, whitelisted,
+  unrelated params kept), sidebar on desktop / bottom sheet on mobile,
+  animated result list. Category pages on the same catalogue with 404 via
+  `validate`. TourCard/CategoryTile; durations localized from catalogue text.
+  Catalogue rendered on the server via `NUXT_API_INTERNAL_BASE`
+  (compose: `http://backend:8080`) with a 60 s per-URL server cache; HTML is
+  not cached (per-visitor theme/lang). View Transitions enabled (card picture
+  → tour hero). Old WordPress 300px thumbnails (`imageUrl`, rights
+  unconfirmed) are no longer shown; branded placeholders until approved
+  media (UX-3). Discovery copy in `app/content/discovery.ts` (EN/AR final
+  drafts, RU/IT pending native review).
+- **Evidence:** site lint/typecheck clean; 37 site tests (13 new in
+  `test/discovery.spec.ts`); production build served against the Safari
+  backend: SSR lists 30 tours, `/ar/tours?cat=sea` renders 13; Playwright
+  screenshots EN/AR/RU × light/dark × 1280/390 with no console/hydration
+  errors and no horizontal overflow (a 17px RTL header overflow was found
+  and fixed). Independent Sonnet review: 10 findings; 9 fixed
+  (request-only price sort, "per person" pricing claim, search length,
+  utm params kept, cache delete race, AR/RU wording, nav label, client 404);
+  1 declined (reusing unapproved WordPress thumbnails).
+- **Follow-ups:** tour page redesign and approved media (UX-3); WhatsApp FAB
+  overlaps the last card's link on narrow screens (UX-8 polish).
+
+### 2026-09-30 — WEGO-016-UX3: tour page (story, facts, map, calendar)
+
+- **Status:** ACTIVE
+- **Activation:** owner standing instruction (`ابدا نفذ و سيطر علي المشروع و كمل البناء`, 2026-09-30).
+- **Review intensity:** Tier 2 — public presentation of published content.
+- **Scope (FRONTEND_MASTER_PLAN_AR.md §7.4, §14 UX-3):** tour page rebuilt on
+  published content and facts (localized story, includes/excludes, know
+  before you go, meeting point), approved media gallery, itinerary map,
+  availability calendar feeding checkout, request-only tours with a
+  WhatsApp CTA, Product/TouristTrip JSON-LD.
 - **Scope (FRONTEND_MASTER_PLAN_AR.md §6.2, §7.1–7.3, §14 UX-2):** new
   SiteHeader/SiteFooter on the design system (localized labels), home page
   sections, `/tours` with instant search + URL-synced filters + layout

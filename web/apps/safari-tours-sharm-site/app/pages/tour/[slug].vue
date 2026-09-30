@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
-import SiteHeader from "../../components/SiteHeader.vue";
-import SiteFooter from "../../components/SiteFooter.vue";
 import { useSiteLocale } from "../../composables/useSiteLocale";
-import { directionFor, siteCopy, whatsappUrl, categoryMeta } from "../../content/locales";
-import type { StsLocale } from "../../content/locales";
+import { siteCopy, whatsappUrl, categoryMeta } from "../../content/locales";
 import {
   getTourBySlug,
   getAvailableSlots,
@@ -19,14 +16,12 @@ import {
   PublicApiError,
 } from "../../composables/usePublicToursApi";
 
-const ALL_LOCALES: StsLocale[] = ["en", "ru", "ar", "it"];
 const route = useRoute();
 const router = useRouter();
 const localePath = useLocalePath();
 
 const locale = useSiteLocale();
 const copy = computed(() => siteCopy[locale.value]);
-const direction = computed(() => directionFor(locale.value));
 
 // ── Data ───────────────────────────────────────────────────────────────────
 
@@ -126,7 +121,6 @@ useHead(() => ({
   title: tour.value
     ? `${tour.value.slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} — Safari Tours Sharm`
     : "Tour — Safari Tours Sharm",
-  htmlAttrs: { dir: direction.value, lang: locale.value },
   meta: tour.value
     ? [
         {
@@ -168,15 +162,7 @@ const whatsappBookUrl = computed(() => {
 </script>
 
 <template>
-  <div :dir="direction" :lang="locale" class="min-h-screen bg-sts-canvas text-sts-ink">
-    <SiteHeader
-      :locale="locale"
-      :direction="direction"
-      :nav="copy.nav"
-      :whatsapp-label="copy.whatsappFab"
-      :current-locales="ALL_LOCALES"
-      @set-locale="(l) => (locale = l)"
-    />
+  <div>
 
     <main id="main-content" tabindex="-1">
 
@@ -230,23 +216,10 @@ const whatsappBookUrl = computed(() => {
 
             <!-- ── LEFT — Content ──────────────────────────────────── -->
             <article>
-              <!-- Owner-approved catalog image when available; honest fallback otherwise. -->
-              <div
-                class="aspect-[16/9] w-full overflow-hidden rounded-2xl bg-sts-ocean/10 flex items-center justify-center"
-                aria-label="Tour image"
-              >
-                <img
-                  v-if="tour.imageUrl"
-                  :src="tour.imageUrl"
-                  :alt="tour.nameEn ?? tour.slug.replace(/-/g, ' ')"
-                  width="1200"
-                  height="675"
-                  class="size-full object-cover"
-                  fetchpriority="high"
-                >
-                <span v-else class="text-6xl" aria-hidden="true">
-                  {{ categoryMeta[tour.category].icon }}
-                </span>
+              <!-- Branded placeholder until approved tour media is published (UX-3);
+                   the name matches the tour card so the picture morphs between pages. -->
+              <div class="overflow-hidden rounded-[var(--sts-radius-media)]" :style="{ viewTransitionName: `tour-media-${tour.slug}` }">
+                <BrandTourMedia alt="" :category="tour.category" ratio="16 / 9" priority sizes="(max-width: 1024px) 100vw, 60vw" />
               </div>
 
               <!-- Title + meta -->
@@ -476,10 +449,5 @@ const whatsappBookUrl = computed(() => {
 
     </main>
 
-    <SiteFooter
-      :tagline="copy.footerTagline"
-      :links="copy.footerLinks"
-      :rights="copy.footerRights"
-    />
   </div>
 </template>

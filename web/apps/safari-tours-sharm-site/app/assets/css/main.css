@@ -291,3 +291,31 @@ html {
   }
   .sts-hero::after { display: none; }
 }
+
+/* ── Header: current section ───────────────────────────────────────── */
+.sts-nav-active {
+  box-shadow: inset 0 -2px 0 var(--color-sts-sunset);
+}
+
+/* ── Result lists: cards glide into their new place when filters change ── */
+.sts-list-move,
+.sts-list-enter-active,
+.sts-list-leave-active {
+  transition: transform var(--sts-dur-base) var(--sts-ease), opacity var(--sts-dur-base) var(--sts-ease);
+}
+.sts-list-enter-from,
+.sts-list-leave-to {
+  opacity: 0;
+  transform: scale(0.96);
+}
+.sts-list-leave-active {
+  position: absolute;
+  visibility: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sts-list-move,
+  .sts-list-enter-active,
+  .sts-list-leave-active {
+    transition: none;
+  }
+}

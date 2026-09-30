@@ -1,33 +1,19 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import SiteHeader from "../components/SiteHeader.vue";
-import SiteFooter from "../components/SiteFooter.vue";
 import { useSiteLocale } from "../composables/useSiteLocale";
-import { directionFor, siteCopy, whatsappUrl, whatsappPhone, siteEmail } from "../content/locales";
-import type { StsLocale } from "../content/locales";
+import { siteCopy, whatsappUrl, whatsappPhone, siteEmail } from "../content/locales";
 
-const ALL_LOCALES: StsLocale[] = ["en", "ru", "ar", "it"];
 
 const locale = useSiteLocale();
 const copy = computed(() => siteCopy[locale.value]);
-const direction = computed(() => directionFor(locale.value));
 
 useHead(() => ({
   title: copy.value.nav.contact + " — Safari Tours Sharm",
-  htmlAttrs: { dir: direction.value, lang: locale.value },
 }));
 </script>
 
 <template>
-  <div :dir="direction" :lang="locale" class="min-h-screen bg-sts-canvas text-sts-ink">
-    <SiteHeader
-      :locale="locale"
-      :direction="direction"
-      :nav="copy.nav"
-      :whatsapp-label="copy.whatsappFab"
-      :current-locales="ALL_LOCALES"
-      @set-locale="(l) => (locale = l)"
-    />
+  <div>
 
     <main id="main-content" tabindex="-1">
       <div class="bg-sts-ocean px-6 py-16 text-white lg:px-10">
@@ -76,10 +62,5 @@ useHead(() => ({
       </section>
     </main>
 
-    <SiteFooter
-      :tagline="copy.footerTagline"
-      :links="copy.footerLinks"
-      :rights="copy.footerRights"
-    />
   </div>
 </template>

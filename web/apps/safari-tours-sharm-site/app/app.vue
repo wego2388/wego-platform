@@ -31,6 +31,8 @@ const skipLabel = computed(() => SKIP[locale.value] ?? SKIP.en);
 
 <template>
   <a href="#main-content" class="sts-skip-link">{{ skipLabel }}</a>
-  <NuxtPage />
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
   <WhatsAppFab />
 </template>

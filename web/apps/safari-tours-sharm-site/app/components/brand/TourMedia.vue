@@ -6,7 +6,7 @@ import { CATEGORY_VISUAL, type CategoryKey } from "../../utils/categoryVisual";
  * A tour picture. With an approved `src` it renders an optimised responsive
  * image; without one it renders a branded placeholder in the category colour
  * (a mockup, never a stock photo), at the same aspect ratio so nothing shifts
- * when the real photo arrives.
+ * when the real photo arrives. An empty `alt` marks the picture decorative.
  */
 const props = withDefaults(
   defineProps<{
@@ -36,8 +36,9 @@ const visual = computed(() => CATEGORY_VISUAL[props.category]);
     />
     <div
       v-else
-      role="img"
-      :aria-label="alt"
+      :role="alt ? 'img' : undefined"
+      :aria-label="alt || undefined"
+      :aria-hidden="alt ? undefined : 'true'"
       class="absolute inset-0 grid place-items-center"
       :style="{ background: `radial-gradient(circle at 70% 25%, rgb(255 140 66 / 0.35), transparent 45%), linear-gradient(150deg, var(${visual.colorVar}), var(--sts-color-ocean))` }"
     >

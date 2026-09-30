@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import SiteHeader from "../../components/SiteHeader.vue";
-import SiteFooter from "../../components/SiteFooter.vue";
 import { useSiteLocale } from "../../composables/useSiteLocale";
-import { directionFor, siteCopy, whatsappUrl } from "../../content/locales";
-import type { StsLocale } from "../../content/locales";
+import { whatsappUrl } from "../../content/locales";
 import {
   formatDate,
   formatTimeSlot,
@@ -15,14 +12,10 @@ import {
   type PaymentStatusResponse,
 } from "../../composables/usePublicToursApi";
 
-const ALL_LOCALES: StsLocale[] = ["en", "ru", "ar", "it"];
 const locale    = useSiteLocale();
-const copy      = computed(() => siteCopy[locale.value]);
-const direction = computed(() => directionFor(locale.value));
 
 useHead(() => ({
   title: "Booking Status — Safari Tours Sharm",
-  htmlAttrs: { dir: direction.value, lang: locale.value },
 }));
 
 const booking  = ref<BookingConfirmation | null>(null);
@@ -83,15 +76,7 @@ const whatsappConfirmUrl = computed(() => {
 </script>
 
 <template>
-  <div :dir="direction" :lang="locale" class="min-h-screen bg-sts-canvas text-sts-ink">
-    <SiteHeader
-      :locale="locale"
-      :direction="direction"
-      :nav="copy.nav"
-      :whatsapp-label="copy.whatsappFab"
-      :current-locales="ALL_LOCALES"
-      @set-locale="(l) => (locale = l)"
-    />
+  <div>
 
     <main id="main-content" tabindex="-1" class="mx-auto max-w-2xl px-6 py-16 text-center lg:px-0">
 
@@ -211,10 +196,5 @@ const whatsappConfirmUrl = computed(() => {
 
     </main>
 
-    <SiteFooter
-      :tagline="copy.footerTagline"
-      :links="copy.footerLinks"
-      :rights="copy.footerRights"
-    />
   </div>
 </template>

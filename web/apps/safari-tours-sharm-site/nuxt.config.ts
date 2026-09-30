@@ -70,11 +70,18 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
+    // Server-side rendering reads the catalog from the backend directly on the
+    // internal network (NUXT_API_INTERNAL_BASE); the browser uses same-origin /api.
+    apiInternalBase: "http://127.0.0.1:8080",
     public: {
       // Internal component showcase (/{locale}/design-system); off in production.
       designSystem: process.env.NUXT_PUBLIC_DESIGN_SYSTEM === "true",
     },
   },
+  // Same-document View Transitions between pages (tour card picture → tour
+  // page hero). Browsers without support, and visitors who prefer reduced
+  // motion, get a normal navigation.
+  experimental: { viewTransition: true },
   typescript: { strict: true, typeCheck: true },
   vite: {
     plugins: [tailwindcss()],

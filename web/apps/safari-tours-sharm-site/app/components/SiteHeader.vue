@@ -1,208 +1,74 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
+import { useDiscoveryCopy } from "../composables/useDiscoveryCopy";
 import { useScrolled } from "../composables/useScrolled";
-import { whatsappUrl, localeNames } from "../content/locales";
-import type { StsLocale } from "../content/locales";
+import { whatsappUrl } from "../content/locales";
 
-const props = defineProps<{
-  locale: StsLocale;
-  direction: "ltr" | "rtl";
-  nav: { home: string; tours: string; about: string; contact: string; menu: string };
-  whatsappLabel: string;
-  currentLocales: StsLocale[];
-}>();
-
-const emit = defineEmits<{ "set-locale": [locale: StsLocale] }>();
-
+/**
+ * Site header. Over the ocean band at the top of the page it is light-on-dark;
+ * once the page scrolls it becomes a solid surface bar.
+ */
+const copy = useDiscoveryCopy();
 const { scrolled } = useScrolled();
 const menuOpen = ref(false);
-
-function closeMenu() {
-  menuOpen.value = false;
-}
+const route = useRoute();
+watch(() => route.fullPath, () => (menuOpen.value = false));
 </script>
 
 <template>
   <div
-    class="sts-header sticky top-0 z-40 transition-all duration-300"
-    :class="
-      scrolled
-        ? 'border-b border-sts-border bg-sts-surface/95 shadow-sm backdrop-blur'
-        : 'bg-sts-ocean'
-    "
+    class="sts-header sticky top-0 z-[var(--sts-z-sticky)] transition-[background-color,box-shadow] duration-[var(--sts-dur-base)]"
+    :class="scrolled ? 'border-b border-sts-border bg-sts-surface/95 shadow-sts-base backdrop-blur' : 'bg-sts-ocean'"
   >
-    <header
-      class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-10"
-      :class="scrolled ? 'text-sts-ink' : 'text-white'"
-    >
-      <!-- Logo -->
-      <NuxtLinkLocale
-        to="/"
-        class="flex items-center gap-3 font-semibold"
-        :aria-label="props.nav.home"
-        @click="closeMenu"
-      >
-        <span
-          class="grid size-10 place-items-center rounded-xl font-display text-sm font-black"
-          :class="scrolled ? 'bg-sts-ocean text-white' : 'bg-white/20 backdrop-blur'"
-        >
-          STS
-        </span>
-        <span class="hidden font-semibold sm:inline">Safari Tours Sharm</span>
+    <header class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-10">
+      <NuxtLinkLocale to="/" class="flex shrink-0 items-center rounded-md" aria-label="Safari Tours Sharm">
+        <BrandLogo :inverse="!scrolled" :height="36" />
       </NuxtLinkLocale>
 
-      <!-- Desktop nav -->
-      <nav
-        class="hidden items-center gap-6 text-sm font-semibold md:flex"
-        aria-label="Primary navigation"
-      >
+      <nav class="hidden items-center gap-1 text-sm font-semibold md:flex" :aria-label="copy.nav.main">
         <NuxtLinkLocale
-          to="/tours"
-          class="transition-colors hover:text-sts-coral"
-          :class="scrolled ? 'text-sts-ink' : 'text-white/90'"
+          v-for="item in [
+            { to: '/tours', label: copy.nav.tours },
+            { to: '/my-booking', label: copy.nav.myBooking },
+            { to: '/contact', label: copy.nav.contact },
+          ]"
+          :key="item.to"
+          :to="item.to"
+          class="rounded-full px-3.5 py-2 transition-colors"
+          :class="scrolled ? 'text-sts-ink hover:bg-sts-sand-soft' : 'text-white/90 hover:bg-white/12 hover:text-white'"
+          active-class="sts-nav-active"
         >
-          {{ props.nav.tours }}
-        </NuxtLinkLocale>
-        <NuxtLinkLocale
-          to="/contact"
-          class="transition-colors hover:text-sts-coral"
-          :class="scrolled ? 'text-sts-ink' : 'text-white/90'"
-        >
-          {{ props.nav.contact }}
+          {{ item.label }}
         </NuxtLinkLocale>
       </nav>
 
-      <!-- Actions -->
-      <div class="flex items-center gap-2">
-        <!-- WhatsApp CTA -->
-        <a
-          :href="whatsappUrl"
-          target="_blank"
-          rel="noopener"
-          class="hidden rounded-full px-4 py-2 text-sm font-semibold transition-transform hover:-translate-y-0.5 sm:inline-flex"
-          :class="
-            scrolled
-              ? 'bg-sts-coral text-white'
-              : 'border border-white/30 bg-white/10 text-white backdrop-blur'
-          "
-        >
-          {{ props.whatsappLabel }}
-        </a>
-
-        <!-- Language switcher -->
-        <div class="flex gap-1">
-          <button
-            v-for="lang in props.currentLocales"
-            :key="lang"
-            type="button"
-            class="min-h-9 rounded-full border px-3 text-xs font-bold transition-colors"
-            :class="
-              lang === props.locale
-                ? scrolled
-                  ? 'border-sts-ocean bg-sts-ocean text-white'
-                  : 'border-white bg-white/20 text-white backdrop-blur'
-                : scrolled
-                  ? 'border-sts-border text-sts-muted hover:border-sts-ocean hover:text-sts-ink'
-                  : 'border-white/20 text-white/60 hover:border-white/50 hover:text-white'
-            "
-            :aria-pressed="lang === props.locale"
-            :aria-label="`Switch to ${lang}`"
-            @click="emit('set-locale', lang)"
-          >
-            {{ localeNames[lang] }}
-          </button>
-        </div>
-
-        <!-- Mobile hamburger -->
+      <div class="flex items-center gap-1">
+        <SiteLocaleSwitcher :label="copy.nav.language" :tone="scrolled ? 'dark' : 'light'" />
+        <SiteThemeToggle :labels="copy.nav.theme" :tone="scrolled ? 'dark' : 'light'" />
+        <span class="ms-1 hidden sm:block"><UiButton to="/tours" size="sm">{{ copy.nav.book }}</UiButton></span>
         <button
           type="button"
-          class="grid min-h-10 min-w-10 place-items-center rounded-full border transition-colors md:hidden"
-          :class="
-            scrolled
-              ? 'border-sts-border bg-sts-surface text-sts-ink hover:bg-sts-canvas'
-              : 'border-white/25 bg-white/10 text-white hover:bg-white/20'
-          "
+          class="grid size-10 place-items-center rounded-full md:hidden"
+          :class="scrolled ? 'text-sts-ink hover:bg-sts-sand-soft' : 'text-white hover:bg-white/12'"
+          :aria-label="copy.nav.menu"
           :aria-expanded="menuOpen"
-          aria-controls="sts-mobile-menu"
-          :aria-label="props.nav.menu"
-          @click="menuOpen = !menuOpen"
+          @click="menuOpen = true"
         >
-          <svg
-            viewBox="0 0 24 24"
-            width="20"
-            height="20"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            aria-hidden="true"
-          >
-            <path v-if="!menuOpen" d="M4 6h16M4 12h16M4 18h16" />
-            <path v-else d="M6 6l12 12M18 6 6 18" />
-          </svg>
+          <Icon name="lucide:menu" class="size-5" aria-hidden="true" />
         </button>
       </div>
     </header>
 
-    <!-- Mobile menu -->
-    <nav
-      v-if="menuOpen"
-      id="sts-mobile-menu"
-      class="border-t px-5 py-4 md:hidden"
-      :class="
-        scrolled
-          ? 'border-sts-border bg-sts-surface'
-          : 'border-white/15 bg-sts-ocean'
-      "
-      aria-label="Mobile navigation"
-    >
-      <div class="grid gap-1 text-sm font-semibold text-white">
-        <NuxtLinkLocale
-          to="/tours"
-          class="rounded-xl px-3 py-3 transition-colors hover:bg-white/10"
-          :class="scrolled ? 'text-sts-ink hover:bg-sts-canvas' : ''"
-          @click="closeMenu"
-        >
-          {{ props.nav.tours }}
-        </NuxtLinkLocale>
-        <NuxtLinkLocale
-          to="/contact"
-          class="rounded-xl px-3 py-3 transition-colors hover:bg-white/10"
-          :class="scrolled ? 'text-sts-ink hover:bg-sts-canvas' : ''"
-          @click="closeMenu"
-        >
-          {{ props.nav.contact }}
-        </NuxtLinkLocale>
+    <UiSheet v-model:open="menuOpen" :title="copy.nav.menu" :close-label="copy.nav.closeMenu" side="end">
+      <nav class="grid gap-1 text-base font-semibold" :aria-label="copy.nav.menu">
+        <NuxtLinkLocale to="/tours" class="rounded-[var(--sts-radius-control)] px-3 py-3 hover:bg-sts-sand-soft">{{ copy.nav.tours }}</NuxtLinkLocale>
+        <NuxtLinkLocale to="/my-booking" class="rounded-[var(--sts-radius-control)] px-3 py-3 hover:bg-sts-sand-soft">{{ copy.nav.myBooking }}</NuxtLinkLocale>
+        <NuxtLinkLocale to="/contact" class="rounded-[var(--sts-radius-control)] px-3 py-3 hover:bg-sts-sand-soft">{{ copy.nav.contact }}</NuxtLinkLocale>
+      </nav>
+      <div class="mt-6 grid gap-3">
+        <UiButton to="/tours" block>{{ copy.nav.book }}</UiButton>
+        <UiButton :href="whatsappUrl" variant="secondary" icon="lucide:message-circle" block>{{ copy.nav.whatsapp }}</UiButton>
       </div>
-
-      <div class="mt-4 flex flex-wrap gap-2">
-        <a
-          :href="whatsappUrl"
-          target="_blank"
-          rel="noopener"
-          class="flex-1 rounded-full bg-sts-coral px-4 py-3 text-center text-sm font-semibold text-white"
-          @click="closeMenu"
-        >
-          {{ props.whatsappLabel }}
-        </a>
-        <div class="flex gap-1">
-          <button
-            v-for="lang in props.currentLocales"
-            :key="lang"
-            type="button"
-            class="rounded-full border px-3 py-3 text-xs font-bold"
-            :class="
-              lang === props.locale
-                ? 'border-sts-coral bg-sts-coral text-white'
-                : 'border-white/30 text-white/70'
-            "
-            :aria-pressed="lang === props.locale"
-            @click="emit('set-locale', lang); closeMenu()"
-          >
-            {{ localeNames[lang] }}
-          </button>
-        </div>
-      </div>
-    </nav>
+    </UiSheet>
   </div>
 </template>

@@ -1,158 +1,87 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
-import SiteHeader from "../../components/SiteHeader.vue";
-import SiteFooter from "../../components/SiteFooter.vue";
+import { computed } from "vue";
+import type { TourCategory } from "@wego/api-contract";
+import { CATEGORY_ORDER, useCatalog } from "../../composables/useCatalog";
+import { useDiscoveryCopy } from "../../composables/useDiscoveryCopy";
 import { useSiteLocale } from "../../composables/useSiteLocale";
-import { directionFor, siteCopy, whatsappUrl, categoryMeta } from "../../content/locales";
-import type { StsLocale, TourCategory } from "../../content/locales";
-import { formatPrice, listToursPublic, type Tour } from "../../composables/usePublicToursApi";
+import { categoryMeta, siteCopy, whatsappUrl } from "../../content/locales";
+import { CATEGORY_VISUAL } from "../../utils/categoryVisual";
 
-const ALL_LOCALES: StsLocale[] = ["en", "ru", "ar", "it"];
 const route = useRoute();
-
+const copy = useDiscoveryCopy();
 const locale = useSiteLocale();
-const copy = computed(() => siteCopy[locale.value]);
-const direction = computed(() => directionFor(locale.value));
 
-// Resolve category from slug
-const SLUG_TO_CAT: Record<string, TourCategory> = {
-  desert:    "DESERT",
-  sea:       "SEA",
-  cultural:  "CULTURAL",
-  shows:     "SHOWS",
-  transfers: "TRANSFERS",
-};
+definePageMeta({
+  // Unknown category slugs are a real 404, on the server and on client navigation.
+  validate: (to) => Object.values(categoryMeta).some((meta) => meta.slug === String(to.params.slug)),
+});
 
-const slug = computed(() => route.params.slug as string);
-const category = computed(() => SLUG_TO_CAT[slug.value] as TourCategory | undefined);
-const categoryName = computed(() =>
-  category.value ? copy.value.categories[category.value].name : slug.value,
+const category = computed<TourCategory | undefined>(() =>
+  CATEGORY_ORDER.find((c) => categoryMeta[c].slug === String(route.params.slug)),
 );
-const categoryDescription = computed(() =>
-  category.value ? copy.value.categories[category.value].description : "",
-);
-const meta = computed(() => (category.value ? categoryMeta[category.value] : null));
 
-// ── Tours from API ─────────────────────────────────────────────────────────
-const tours = ref<Tour[]>([]);
-const loadState = ref<"loading" | "loaded" | "error">("loading");
+const { data: catalog, status, refresh, countsByCategory } = useCatalog();
+const tours = computed(() => (catalog.value ?? []).filter((entry) => entry.tour.category === category.value));
+const text = computed(() => siteCopy[locale.value].categories[category.value!]);
+const visual = computed(() => CATEGORY_VISUAL[category.value!]);
+const others = computed(() => CATEGORY_ORDER.filter((c) => c !== category.value));
 
-async function loadTours() {
-  loadState.value = "loading";
-  try {
-    tours.value = await listToursPublic({ category: category.value });
-    loadState.value = "loaded";
-  } catch {
-    loadState.value = "error";
-  }
-}
-
-watch(category, loadTours, { immediate: true });
-onMounted(loadTours);
-
-useHead(() => ({
-  title: categoryName.value + " — Safari Tours Sharm",
-  htmlAttrs: { dir: direction.value, lang: locale.value },
-  meta: [{ name: "description", content: categoryDescription.value }],
-}));
+useSeoMeta({
+  title: () => `${text.value.name} — Safari Tours Sharm`,
+  description: () => text.value.description,
+  ogTitle: () => text.value.name,
+  ogDescription: () => text.value.description,
+});
 </script>
 
 <template>
-  <div :dir="direction" :lang="locale" class="min-h-screen bg-sts-canvas text-sts-ink">
-    <SiteHeader
-      :locale="locale"
-      :direction="direction"
-      :nav="copy.nav"
-      :whatsapp-label="copy.whatsappFab"
-      :current-locales="ALL_LOCALES"
-      @set-locale="(l) => (locale = l)"
-    />
-
-    <main id="main-content" tabindex="-1">
-      <!-- Category hero -->
-      <div class="bg-sts-ocean px-6 py-16 text-white lg:px-10">
-        <div class="mx-auto max-w-7xl">
-          <NuxtLinkLocale
-            to="/tours"
-            class="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-white/60 hover:text-white"
-          >
-            ← {{ copy.nav.tours }}
-          </NuxtLinkLocale>
-          <div class="flex items-center gap-4">
-            <span
-              v-if="meta"
-              class="grid size-14 place-items-center rounded-2xl text-3xl"
-              :class="meta.colorClass"
-              aria-hidden="true"
-            >
-              {{ meta.icon }}
-            </span>
-            <h1 class="font-display text-3xl font-semibold sm:text-4xl">
-              {{ categoryName }}
-            </h1>
-          </div>
-          <p class="mt-3 max-w-xl text-white/75">{{ categoryDescription }}</p>
+  <main id="main-content" tabindex="-1">
+    <div class="relative isolate overflow-hidden bg-sts-ocean px-4 pt-10 pb-12 text-white sm:px-6 lg:px-10" :style="{ '--tile': `var(${visual.colorVar})` }">
+      <span class="pointer-events-none absolute -end-24 -top-24 -z-10 size-80 rounded-full bg-[var(--tile)] opacity-40 blur-3xl" aria-hidden="true" />
+      <div class="mx-auto max-w-7xl">
+        <NuxtLinkLocale to="/tours" class="inline-flex items-center gap-1 text-sm font-semibold text-white/75 hover:text-white">
+          <Icon name="lucide:arrow-left" class="size-4 rtl:-scale-x-100" aria-hidden="true" />{{ copy.category.all }}
+        </NuxtLinkLocale>
+        <div class="mt-5 flex items-center gap-4">
+          <span class="grid size-14 place-items-center rounded-2xl bg-[var(--tile)] text-white" aria-hidden="true">
+            <Icon :name="visual.icon" class="size-7" />
+          </span>
+          <h1 class="font-display text-3xl font-semibold sm:text-4xl">{{ text.name }}</h1>
         </div>
+        <p class="mt-4 max-w-2xl text-white/80">{{ text.description }}</p>
       </div>
+    </div>
 
-      <!-- Tours grid -->
-      <section class="mx-auto max-w-7xl px-6 py-14 lg:px-10">
-        <!-- Loading skeleton -->
-        <div v-if="loadState === 'loading'" class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          <div v-for="i in 6" :key="i" class="h-64 animate-pulse rounded-2xl bg-sts-border" />
-        </div>
+    <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-10" :aria-label="text.name">
+      <p class="text-sm font-semibold text-sts-muted">{{ copy.tours.results(tours.length) }}</p>
 
-        <!-- Error / empty -->
-        <div
-          v-else-if="loadState === 'error' || (loadState === 'loaded' && tours.length === 0)"
-          class="rounded-2xl border border-dashed border-sts-border bg-sts-surface p-12 text-center"
-        >
-          <p class="text-4xl" aria-hidden="true">{{ meta?.icon ?? "🗺️" }}</p>
-          <p class="mt-4 font-semibold text-sts-muted">
-            {{ loadState === 'error' ? 'Could not load tours.' : 'No tours in this category yet.' }}
-          </p>
-          <a
-            :href="whatsappUrl"
-            target="_blank"
-            rel="noopener"
-            class="mt-6 inline-flex rounded-full bg-sts-coral px-7 py-3 font-semibold text-white transition-transform hover:-translate-y-0.5"
-          >
-            {{ copy.whatsappFab }}
-          </a>
-        </div>
+      <ul v-if="status === 'pending' && !catalog?.length" class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" aria-hidden="true">
+        <li v-for="i in 3" :key="i"><UiSkeleton class="aspect-[4/5] w-full" /></li>
+      </ul>
+      <div v-else-if="status === 'error'" class="mt-6">
+        <UiEmptyState icon="lucide:cloud-off" :title="copy.errors.load">
+          <UiButton variant="secondary" icon="lucide:refresh-cw" @click="refresh()">{{ copy.errors.retry }}</UiButton>
+        </UiEmptyState>
+      </div>
+      <div v-else-if="tours.length === 0" class="mt-6">
+        <UiEmptyState :icon="visual.icon" :title="copy.tours.emptyTitle" :body="copy.tours.emptyBody">
+          <UiButton :href="whatsappUrl" icon="lucide:message-circle">{{ copy.tours.askWhatsapp }}</UiButton>
+        </UiEmptyState>
+      </div>
+      <ul v-else class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <li v-for="(entry, index) in tours" :key="entry.tour.id">
+          <TourCard :entry="entry" :priority="index < 3" heading-level="h2" />
+        </li>
+      </ul>
+    </section>
 
-        <!-- Tours -->
-        <div v-else class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          <NuxtLinkLocale
-            v-for="tour in tours"
-            :key="tour.id"
-            :to="`/tour/${tour.slug}`"
-            class="hover-lift group flex flex-col rounded-2xl border border-sts-border bg-sts-surface shadow-sm overflow-hidden"
-          >
-            <div class="flex h-44 items-center justify-center bg-sts-ocean/10">
-              <span class="text-5xl" aria-hidden="true">{{ meta?.icon ?? "🗺️" }}</span>
-            </div>
-            <div class="flex flex-1 flex-col p-5">
-              <h2 class="font-semibold capitalize group-hover:text-sts-coral transition-colors">
-                {{ tour.slug.replace(/-/g, " ") }}
-              </h2>
-              <p class="mt-1 text-xs text-sts-muted">⏱ {{ tour.durationText }}</p>
-              <div class="mt-auto flex items-center justify-between pt-4">
-                <span class="text-sm text-sts-muted">From</span>
-                <span class="font-display text-xl font-bold text-sts-ocean">
-                  {{ formatPrice(tour.priceAdult) }}
-                </span>
-              </div>
-            </div>
-          </NuxtLinkLocale>
-        </div>
-      </section>
-    </main>
-
-    <SiteFooter
-      :tagline="copy.footerTagline"
-      :links="copy.footerLinks"
-      :rights="copy.footerRights"
-    />
-  </div>
+    <section class="bg-sts-sand-soft px-4 py-14 sm:px-6 lg:px-10" aria-labelledby="other-categories">
+      <div class="mx-auto max-w-7xl">
+        <h2 id="other-categories" class="font-display text-2xl font-semibold">{{ copy.category.back }}</h2>
+        <ul class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <li v-for="other in others" :key="other"><CategoryTile :category="other" :count="countsByCategory[other]" /></li>
+        </ul>
+      </div>
+    </section>
+  </main>
 </template>
