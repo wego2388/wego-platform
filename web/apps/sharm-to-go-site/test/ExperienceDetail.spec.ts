@@ -52,7 +52,7 @@ function stubFetch(serviceResponse: () => Response) {
 
 function mountPage() {
   return mount(ExperienceDetailPage, {
-    global: { stubs: { NuxtLink: { template: "<a><slot /></a>" } } },
+    global: { stubs: { NuxtLink: { template: "<a :href=\"to\"><slot /></a>", props: ["to"] } } },
   });
 }
 
@@ -75,7 +75,7 @@ describe("experience detail page", () => {
     expect(wrapper.text()).toContain("1 photo");
   });
 
-  it("never shows a fake booking action, only an honest contact placeholder", async () => {
+  it("shows a real request action that links to the real request flow, not a fake instant-book button", async () => {
     withRoute(serviceId);
     stubFetch(() => new Response(JSON.stringify(sampleService), { status: 200 }));
 
@@ -83,7 +83,10 @@ describe("experience detail page", () => {
     await flushPromises();
 
     expect(wrapper.text()).not.toMatch(/book now/i);
-    expect(wrapper.text()).toContain("Online booking for this experience isn't live yet.");
+    const requestLink = wrapper.findAll("a").find((link) => link.text() === "Request this experience");
+    expect(requestLink?.attributes("href")).toBe(`/experiences/${serviceId}/request`);
+    // The contact block is now explicitly secondary ("ask first"), not the only option.
+    expect(wrapper.text()).toContain("Prefer to ask first?");
   });
 
   it("shows an honest not-found state for an unknown or unpublished id, not a crash", async () => {

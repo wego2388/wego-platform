@@ -77,6 +77,7 @@ class PublicCatalogController(
             options =
                 options.map {
                     PublicServiceOptionResponse(
+                        id = it.id,
                         label = it.label.toDto(),
                         durationMinutes = it.durationMinutes,
                         maxParticipants = it.maxParticipants,

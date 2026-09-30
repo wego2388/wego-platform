@@ -1424,12 +1424,17 @@ components:
       type: object
       additionalProperties: false
       required:
+        - id
         - label
         - maxParticipants
         - priceAmount
         - priceCurrency
         - priceBasis
       properties:
+        id:
+          type: string
+          format: uuid
+          description: Required so a public caller creating a travel request can say which option they chose.
         label:
           $ref: "#/components/schemas/LocalizedText"
         durationMinutes:

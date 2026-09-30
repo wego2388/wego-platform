@@ -205,6 +205,7 @@ const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "
           <h2 class="font-bold text-sharm-ink">{{ copy.footerFull.exploreHeading }}</h2>
           <ul class="mt-4 space-y-3">
             <li><NuxtLink to="/experiences" class="hover:text-sharm-sea">{{ copy.footerFull.exploreLinks.experiences }}</NuxtLink></li>
+            <li><NuxtLink to="/track" class="hover:text-sharm-sea">{{ copy.footerFull.exploreLinks.trackRequest }}</NuxtLink></li>
             <li><NuxtLink to="/booking-preview" class="hover:text-sharm-sea">{{ copy.footerFull.exploreLinks.bookingPreview }}</NuxtLink></li>
           </ul>
         </div>

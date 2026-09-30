@@ -19,10 +19,11 @@ export interface PublicCategory {
   description: LocalizedText | null;
 }
 
-export type ConfirmationType = "INSTANT" | "REQUEST";
-export type PriceBasis = "PER_PERSON" | "PER_GROUP" | "PER_VEHICLE";
+export type ConfirmationType = "INSTANT" | "STAFF_REVIEW";
+export type PriceBasis = "PER_PERSON" | "PER_GROUP" | "PER_VEHICLE" | "FLAT";
 
 export interface PublicServiceOption {
+  id: string;
   label: LocalizedText;
   durationMinutes: number | null;
   maxParticipants: number;

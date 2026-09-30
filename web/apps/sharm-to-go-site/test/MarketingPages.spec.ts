@@ -27,10 +27,10 @@ describe("marketing and trust pages", () => {
     expect(hrefs.some(href => href?.startsWith("mailto:info@sharmtogo.com"))).toBe(true);
   });
 
-  it("does not represent an enquiry as an instant confirmed booking", () => {
+  it("is honest that a WhatsApp message alone is never a confirmation, while a real site request can be", () => {
     const wrapper = mount(FaqPage, { global });
 
-    expect(wrapper.text()).toContain("Sending a request or WhatsApp message is not itself a confirmed booking");
-    expect(wrapper.text()).not.toContain("request is confirmed instantly");
+    expect(wrapper.text()).toContain("a WhatsApp message alone is never itself a confirmed booking");
+    expect(wrapper.text()).toContain("Most experiences confirm instantly once you send your request");
   });
 });

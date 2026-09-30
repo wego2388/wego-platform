@@ -111,6 +111,12 @@ onMounted(async () => {
               </span>
             </li>
           </ul>
+          <NuxtLink
+            :to="`/experiences/${service.id}/request`"
+            class="mt-5 inline-flex w-full items-center justify-center rounded-full bg-sharm-sea px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-sharm-sea/20 transition-transform hover:-translate-y-0.5 hover:shadow-xl sm:w-auto"
+          >
+            {{ copy.detail.requestCta }}
+          </NuxtLink>
         </section>
 
         <section class="mt-8">

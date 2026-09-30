@@ -154,13 +154,7 @@ onMounted(async () => {
       </div>
 
       <div class="mt-10 flex flex-wrap gap-3">
-        <NuxtLink to="/booking-preview" class="inline-flex rounded-full bg-sharm-sea px-6 py-3 font-semibold text-white">
-          {{ copy.catalog.previewBooking }}
-        </NuxtLink>
-        <NuxtLink to="/design-system" class="inline-flex rounded-full border border-sharm-border bg-sharm-surface px-6 py-3 font-semibold text-sharm-sea">
-          {{ copy.catalog.viewSystem }}
-        </NuxtLink>
-        <NuxtLink to="/" class="inline-flex rounded-full border border-sharm-border bg-sharm-surface px-6 py-3 font-semibold text-sharm-sea">
+        <NuxtLink to="/" class="inline-flex rounded-full bg-sharm-sea px-6 py-3 font-semibold text-white">
           {{ copy.catalog.back }}
         </NuxtLink>
       </div>

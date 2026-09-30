@@ -85,7 +85,16 @@ data class ServiceErrorResponse(
     val error: String,
 )
 
+/**
+ * [id] is required — not just descriptive — so a public caller creating a
+ * travel request (`CreateTravelRequestApiRequest.serviceOptionId`) has a
+ * real, stable way to say which option they chose. This response was
+ * originally id-less (a pure catalog-display DTO, WEGO-010-A Packet 1C);
+ * the request-creation flow added in Phase 1B needs it, so it was added
+ * here rather than inventing a parallel lookup.
+ */
 data class PublicServiceOptionResponse(
+    val id: UUID,
     val label: LocalizedTextDto,
     val durationMinutes: Int?,
     val maxParticipants: Int,

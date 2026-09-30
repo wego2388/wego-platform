@@ -50,11 +50,67 @@ interface SiteCopy {
     emailCta: string;
     whatsappMessage: (serviceName: string) => string;
     emailSubject: (serviceName: string) => string;
+    requestCta: string;
+  };
+  request: {
+    backToService: string;
+    steps: { partyDate: string; contact: string; review: string };
+    partyDateHeading: string;
+    optionLabel: string;
+    dateLabel: string;
+    dateHelp: string;
+    adultsLabel: string;
+    childrenLabel: string;
+    partyExceedsCapacity: (max: number) => string;
+    pickupLabel: string;
+    pickupPlaceholder: string;
+    notesLabel: string;
+    continueButton: string;
+    contactHeading: string;
+    nameLabel: string;
+    phoneLabel: string;
+    emailLabel: string;
+    contactHelp: string;
+    contactRequiredError: string;
+    backButton: string;
+    reviewHeading: string;
+    reviewNote: string;
+    reviewService: string;
+    reviewDate: string;
+    reviewParty: string;
+    reviewPickup: string;
+    reviewPrice: string;
+    submitButton: string;
+    submittingButton: string;
+    errorServiceNotFound: string;
+    errorOptionNotFound: string;
+    errorPartyTooLarge: string;
+    errorGeneric: string;
+    successHeadingConfirmed: string;
+    successHeadingAwaiting: string;
+    successBodyConfirmed: string;
+    successBodyAwaiting: string;
+    referenceLabel: string;
+    trackLink: string;
+    copySummary: string;
+    copied: string;
+    whatsappShare: string;
+    startOver: string;
+  };
+  track: {
+    heading: string;
+    body: string;
+    inputLabel: string;
+    inputPlaceholder: string;
+    searchButton: string;
+    searching: string;
+    notFound: string;
+    statusLabel: string;
   };
   footerFull: {
     tagline: string;
     exploreHeading: string;
-    exploreLinks: { experiences: string; bookingPreview: string; designSystem: string };
+    exploreLinks: { experiences: string; trackRequest: string; bookingPreview: string; designSystem: string };
     companyHeading: string;
     companyLinks: { faq: string; contact: string };
     contactHeading: string;
@@ -189,17 +245,73 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       pickupHeading: "Pickup",
       inclusionsHeading: "Included",
       exclusionsHeading: "Not included",
-      contactHeading: "Interested?",
-      contactBody: "Online booking for this experience isn't live yet. Message us directly and we will confirm availability for your date.",
+      contactHeading: "Prefer to ask first?",
+      contactBody: "Send a real request above and we'll confirm it, or message us directly if you have questions before deciding.",
       whatsappCta: "Message us on WhatsApp",
       emailCta: "Email us",
       whatsappMessage: (serviceName: string) => `Hello Sharm To Go, I'm interested in: ${serviceName}. Is it available on my dates?`,
       emailSubject: (serviceName: string) => `Enquiry: ${serviceName}`,
+      requestCta: "Request this experience",
+    },
+    request: {
+      backToService: "Back to experience",
+      steps: { partyDate: "Date & party", contact: "Your details", review: "Review & send" },
+      partyDateHeading: "When, and for how many?",
+      optionLabel: "Option",
+      dateLabel: "Date",
+      dateHelp: "Pick a date in the future — we'll confirm availability.",
+      adultsLabel: "Adults",
+      childrenLabel: "Children",
+      partyExceedsCapacity: (max: number) => `This option fits up to ${max} people. Please reduce your party or message us on WhatsApp for a larger group.`,
+      pickupLabel: "Hotel / pickup point (optional)",
+      pickupPlaceholder: "e.g. Four Seasons Sharm El Sheikh",
+      notesLabel: "Anything else we should know? (optional)",
+      continueButton: "Continue",
+      contactHeading: "How should we reach you?",
+      nameLabel: "Full name",
+      phoneLabel: "Phone (WhatsApp works best)",
+      emailLabel: "Email (optional if you gave a phone)",
+      contactHelp: "We'll only use this to confirm your request — never shared, never sold.",
+      contactRequiredError: "Please add your name and at least one way to reach you (phone or email).",
+      backButton: "Back",
+      reviewHeading: "Review your request",
+      reviewNote: "This is a request, not a confirmed booking yet. Depending on the experience, you'll either be confirmed instantly or after a quick check by our team.",
+      reviewService: "Experience",
+      reviewDate: "Date",
+      reviewParty: "Party",
+      reviewPickup: "Pickup",
+      reviewPrice: "Price",
+      submitButton: "Send request",
+      submittingButton: "Sending…",
+      errorServiceNotFound: "This experience is no longer available. Please go back and choose another.",
+      errorOptionNotFound: "This option is no longer available. Please go back and choose another.",
+      errorPartyTooLarge: "Your party is larger than this option allows. Please go back and reduce it.",
+      errorGeneric: "Something went wrong sending your request. Please try again, or message us on WhatsApp.",
+      successHeadingConfirmed: "Confirmed!",
+      successHeadingAwaiting: "Request received",
+      successBodyConfirmed: "Your request is confirmed. Save your reference below — our team may still reach out with pickup details.",
+      successBodyAwaiting: "Our team will review your request and confirm availability shortly. Save your reference below to check the status any time.",
+      referenceLabel: "Your reference",
+      trackLink: "Check this request later",
+      copySummary: "Copy summary",
+      copied: "Copied!",
+      whatsappShare: "Send this to WhatsApp",
+      startOver: "Request another experience",
+    },
+    track: {
+      heading: "Track your request",
+      body: "Enter the reference we gave you when you sent your request.",
+      inputLabel: "Reference",
+      inputPlaceholder: "e.g. STG-AB12CD34",
+      searchButton: "Check status",
+      searching: "Checking…",
+      notFound: "We couldn't find a request with that reference. Double-check it, or message us on WhatsApp.",
+      statusLabel: "Status",
     },
     footerFull: {
       tagline: "One clear starting point for Sharm El Sheikh — Sharm To Go operates and confirms every experience directly.",
       exploreHeading: "Explore",
-      exploreLinks: { experiences: "Experiences", bookingPreview: "Booking prototype", designSystem: "Design system" },
+      exploreLinks: { experiences: "Experiences", trackRequest: "Track a request", bookingPreview: "Booking prototype", designSystem: "Design system" },
       companyHeading: "Company",
       companyLinks: { faq: "FAQ", contact: "Contact" },
       contactHeading: "Contact",
@@ -239,7 +351,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
         },
         {
           q: "When is my request confirmed?",
-          a: "Only after our team verifies the service, date, party, pickup and price and sends you a clear confirmation. Sending a request or WhatsApp message is not itself a confirmed booking.",
+          a: "Most experiences confirm instantly once you send your request. A few that depend on flights, ferries or other outside providers are reviewed by our team first, usually quickly. Either way, a WhatsApp message alone is never itself a confirmed booking — only a request submitted through the site is.",
         },
         {
           q: "Who actually runs the experience?",
@@ -401,17 +513,73 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       pickupHeading: "الانتقال",
       inclusionsHeading: "يشمل",
       exclusionsHeading: "لا يشمل",
-      contactHeading: "مهتم؟",
-      contactBody: "الحجز الإلكتروني لهذه التجربة غير متاح بعد. راسلنا مباشرة وسنؤكد لك التوفر في موعدك.",
+      contactHeading: "تفضل تسأل الأول؟",
+      contactBody: "ابعت طلب حقيقي فوق وهنأكده، أو راسلنا مباشرة لو عندك أسئلة قبل ما تقرر.",
       whatsappCta: "راسلنا على واتساب",
       emailCta: "راسلنا بالإيميل",
       whatsappMessage: (serviceName: string) => `مرحبًا Sharm To Go، مهتم بـ: ${serviceName}. هل متاحة في موعدي؟`,
       emailSubject: (serviceName: string) => `استفسار: ${serviceName}`,
+      requestCta: "اطلب هذه التجربة",
+    },
+    request: {
+      backToService: "العودة للتجربة",
+      steps: { partyDate: "الموعد وعدد الأفراد", contact: "بياناتك", review: "المراجعة والإرسال" },
+      partyDateHeading: "إمتى، ولعدد كام؟",
+      optionLabel: "الخيار",
+      dateLabel: "التاريخ",
+      dateHelp: "اختر تاريخ في المستقبل — هنأكد التوفر.",
+      adultsLabel: "البالغين",
+      childrenLabel: "الأطفال",
+      partyExceedsCapacity: (max: number) => `الخيار ده بيستوعب حتى ${max} فرد. قلّل عدد الأفراد أو راسلنا على واتساب لمجموعة أكبر.`,
+      pickupLabel: "الفندق / نقطة الاستلام (اختياري)",
+      pickupPlaceholder: "مثال: فندق Four Seasons شرم الشيخ",
+      notesLabel: "أي حاجة تانية تحب نعرفها؟ (اختياري)",
+      continueButton: "التالي",
+      contactHeading: "إزاي نوصلك؟",
+      nameLabel: "الاسم بالكامل",
+      phoneLabel: "رقم الهاتف (واتساب أفضل وسيلة)",
+      emailLabel: "الإيميل (اختياري لو كتبت رقم هاتف)",
+      contactHelp: "هنستخدم البيانات دي بس عشان نأكد طلبك — من غير مشاركة أو بيع أبدًا.",
+      contactRequiredError: "اكتب اسمك ووسيلة تواصل واحدة على الأقل (هاتف أو إيميل).",
+      backButton: "رجوع",
+      reviewHeading: "راجع طلبك",
+      reviewNote: "ده طلب، لسه مش حجز مؤكد. حسب التجربة، هيتأكد فورًا أو بعد مراجعة سريعة من فريقنا.",
+      reviewService: "التجربة",
+      reviewDate: "التاريخ",
+      reviewParty: "عدد الأفراد",
+      reviewPickup: "الاستلام",
+      reviewPrice: "السعر",
+      submitButton: "ابعت الطلب",
+      submittingButton: "جاري الإرسال…",
+      errorServiceNotFound: "التجربة دي مش متاحة دلوقتي. ارجع واختار تجربة تانية.",
+      errorOptionNotFound: "الخيار ده مش متاح دلوقتي. ارجع واختار خيار تاني.",
+      errorPartyTooLarge: "عدد الأفراد أكبر من المسموح للخيار ده. ارجع وقلل العدد.",
+      errorGeneric: "حصلت مشكلة في إرسال طلبك. حاول تاني، أو راسلنا على واتساب.",
+      successHeadingConfirmed: "تم التأكيد!",
+      successHeadingAwaiting: "استلمنا طلبك",
+      successBodyConfirmed: "طلبك اتأكد. احتفظ برقم المرجع تحت — فريقنا ممكن يتواصل معاك لتفاصيل الاستلام.",
+      successBodyAwaiting: "فريقنا هيراجع طلبك ويأكد التوفر قريبًا. احتفظ برقم المرجع تحت عشان تتابع الحالة في أي وقت.",
+      referenceLabel: "رقم المرجع بتاعك",
+      trackLink: "تابع الطلب ده بعدين",
+      copySummary: "انسخ الملخص",
+      copied: "تم النسخ!",
+      whatsappShare: "ابعته على واتساب",
+      startOver: "اطلب تجربة تانية",
+    },
+    track: {
+      heading: "تابع طلبك",
+      body: "اكتب رقم المرجع اللي اديناهولك لما بعتت طلبك.",
+      inputLabel: "رقم المرجع",
+      inputPlaceholder: "مثال: STG-AB12CD34",
+      searchButton: "اعرف الحالة",
+      searching: "بنبحث…",
+      notFound: "معلش، مش لاقيين طلب بالمرجع ده. تأكد منه، أو راسلنا على واتساب.",
+      statusLabel: "الحالة",
     },
     footerFull: {
       tagline: "نقطة بداية واحدة وواضحة لشرم الشيخ — Sharm To Go تشغّل وتؤكد كل تجربة مباشرةً.",
       exploreHeading: "استكشف",
-      exploreLinks: { experiences: "التجارب", bookingPreview: "نموذج الحجز", designSystem: "نظام التصميم" },
+      exploreLinks: { experiences: "التجارب", trackRequest: "تابع طلبك", bookingPreview: "نموذج الحجز", designSystem: "نظام التصميم" },
       companyHeading: "الشركة",
       companyLinks: { faq: "الأسئلة الشائعة", contact: "تواصل" },
       contactHeading: "تواصل",
@@ -451,7 +619,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
         },
         {
           q: "إمتى بيتأكد طلبي؟",
-          a: "بعد ما فريقنا يراجع الخدمة والموعد والعدد والانتقال والسعر ويبعتلك تأكيد واضح. إرسال الطلب أو رسالة واتساب لوحده مش معناه إن الحجز اتأكد.",
+          a: "أغلب التجارب بتتأكد فورًا لما تبعت طلبك. عدد قليل بيعتمد على طيران أو عبّارات أو جهات خارجية بيراجعها فريقنا الأول، وعادةً بسرعة. في الحالتين، رسالة واتساب لوحدها مش معناها إن الحجز اتأكد — بس الطلب اللي اتبعت من الموقع هو اللي بيتأكد.",
         },
         {
           q: "مين اللي بيشغّل التجربة فعليًا؟",

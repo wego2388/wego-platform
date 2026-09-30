@@ -819,6 +819,111 @@ provider constraints are revalidated against the implemented repository.
   WhatsApp" section from Phase 1) is the next candidate packet; not
   started, not automatically authorized.
 
+### 2026-10-01 — Phase 3A: connect the real public site to the real request API (self-verified, Tier 2)
+
+- **Status:** `ACTIVE`, continuing under the same standing authorization.
+  Closes Phase 3's core sub-packet — the site can now create and look up
+  real requests against the real backend; homepage conversion wiring,
+  the shared header/footer extraction, and analytics/SEO remain separate,
+  not-started, not-authorized future sub-packets (3B/3C).
+- **Review intensity:** Tier 2 — pure frontend consumption of an
+  already Tier-1-reviewed API, plus one small additive backend DTO field
+  (no new migration, no new permission).
+- **A real backend gap found first, closed before the frontend needed
+  it:** `PublicServiceOptionResponse` had no `id` — the public catalog was
+  built purely for display before the request-creation flow existed, so
+  there was no technical way for a client to reference a specific option
+  when creating a request. Added `id: UUID` to the DTO, the controller
+  construction, and the OpenAPI schema (`redocly lint` clean). Verified
+  end-to-end against a real running backend that the public catalog now
+  returns the option's real UUID.
+- **Two dormant frontend type bugs found and fixed while building the
+  request form:** `usePublicCatalog.ts`'s `ConfirmationType` union was
+  `"INSTANT" | "REQUEST"` — the real backend value is `"STAFF_REVIEW"`,
+  never `"REQUEST"`; its `PriceBasis` union was missing `"FLAT"`. Neither
+  was exercised by any existing code path before this phase.
+- **What was built:**
+  - `useTravelRequests.ts` — typed client (`createTravelRequest`,
+    `getTravelRequestByReference`, `TravelRequestError`), an
+    `Idempotency-Key` generated per submit attempt.
+  - `server/api/requests/index.post.ts` and `[reference].get.ts` — the
+    site's own same-origin Nitro proxy routes (the browser cannot call the
+    backend directly — CORS), forwarding the `Idempotency-Key` header and
+    passing the backend's status/body straight through, with a clean 400
+    if the header is missing and a clean 502 if the backend is unreachable.
+  - `experiences/[id]/request.vue` — the real 4-step request flow
+    (party/date → contact incl. hotel/pickup/notes → review → result),
+    using the existing `GuestStepper` unmodified, capacity-checked against
+    the selected option's `maxParticipants`, per-error-code messages for
+    `service_not_found`/`option_not_found`/`party_size_exceeds_capacity`
+    with an honest generic fallback for everything else, and an honest
+    "Request received" vs "Confirmed!" heading depending on the real
+    returned status.
+  - `track/index.vue` and `track/[reference].vue` — a standalone lookup
+    page so a customer who left mid-flow can still find their request by
+    reference, with an honest not-found state (not a crash) for an unknown
+    reference.
+  - `experiences/[id].vue` — added the real "Request this experience"
+    primary CTA; `experiences/index.vue` — removed the misleading
+    primary-styled "Preview booking" link that looked like a real booking
+    action but went to `/booking-preview`.
+  - Two copy-accuracy fixes (not new content, corrections to existing
+    inaccurate claims): `experiences/[id].vue`'s contact section no
+    longer claims booking "isn't live yet"; the FAQ's confirmation-timing
+    answer no longer implies every request needs manual review when
+    `INSTANT` services confirm immediately.
+- **Real, honestly-recorded gap, not fixed this round:** no consent
+  checkbox or inline privacy-policy link on the contact step of the
+  request form. Recorded in `delivery/03_MARKETING_WEBSITE.md`, not
+  silently dropped.
+- **Verified:**
+  - 16 new Vitest tests (`RequestFlow.spec.ts` ×6, `RequestsProxy.spec.ts`
+    ×6, `Track.spec.ts` ×4) plus 2 existing tests rewritten because they
+    encoded the old, now-inaccurate copy as correct (not reverted, not
+    bypassed — rewritten to assert the corrected behavior). 43/43 site
+    tests and 50/50 ERP tests pass (93 total).
+  - `nuxt typecheck`, root `eslint apps packages --max-warnings=0`, and a
+    real production `nuxt build` of the site — all green.
+  - **Manual, real-infrastructure verification (no mocks):** a fresh
+    throwaway PostgreSQL, a real Spring Boot backend on a scratch port
+    with migrations 1→5 applying clean, a real category and `INSTANT`
+    service created and published over real authenticated HTTP, then the
+    site's own actual built Nitro server (`node .output/server/index.mjs`)
+    started against that real backend. Confirmed the public catalog proxy
+    route returns the option's real id (proving the backend fix works
+    through the full stack, not just in isolation). Submitted a real
+    request through the site's own `POST /api/requests` proxy with a real
+    `Idempotency-Key` — got back reference `STG-Y2PCLJKX`, status
+    `CONFIRMED` (correct for an `INSTANT` service). `GET
+    /api/requests/STG-Y2PCLJKX` returned the same record with no
+    customer name/phone/email anywhere in the body — the public/staff
+    response-shape privacy contract holds through the real proxy, not
+    just in the backend's own tests. An unknown reference correctly
+    proxied through as a 404.
+  - **Honestly recorded gap:** the new request was not separately
+    re-confirmed visible in the ERP UI this round (that endpoint was
+    already proven against real requests in the Phase 2A verification);
+    no real-browser (Claude-in-Chrome) visual confirmation across mobile/
+    desktop/Arabic/English this round — not connected this session.
+  - All throwaway verification infrastructure (the uniquely-named Postgres
+    container, the backend process, the site process) was torn down after
+    verification, confirmed via port checks and `docker ps`. One stale
+    backend process left running on a different port from an earlier,
+    already-interrupted verification round in this same worktree was
+    found not responding to health checks and cleaned up in the same
+    pass; every other session's running container (Safari, Divers,
+    wego-foundation, resort-os, etc.) was left untouched.
+- **Rollback considerations:** one additive backend DTO field (no schema
+  change); two dormant frontend type-union bugs fixed (widen, not
+  narrow — cannot break an existing caller); new site pages and two new
+  Nitro proxy routes; two pre-existing pages edited (CTA swap, copy
+  correction); no existing page's request/response contract changed.
+- **Next:** commit, push, update board/roadmap evidence (done in this same
+  pass). 3B (homepage conversion wiring), 3C (shared header/footer/locale
+  extraction), and analytics/SEO remain candidate future sub-packets —
+  not started, not authorized. PR #46 stays unmerged pending the owner's
+  own fresh "اعمل merge" instruction for it.
+
 ## WEGO-003 — Reliable integration delivery and replay
 
 - **Status:** NOT AUTHORIZED — roadmap only; WEGO-002 must close first and owner activation is still required.
