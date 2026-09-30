@@ -68,14 +68,29 @@
   (`TravelRequestAuditRecorder`/`JooqTravelRequestAuditRecorder`,
   `travel_request_audit_event` table).
 
-## API and security
+## API and security — sub-packet 1B, done 2026-09-30
 
-- [ ] Public create-request endpoint with strict validation and rate-limit plan.
-- [ ] Public reference/status lookup that does not expose another customer's PII.
-- [ ] Staff list/detail endpoints with roster vs full-record projections.
-- [ ] Separate staff permissions for view, review, confirm, cancel and complete.
-- [ ] Update OpenAPI schemas, errors and examples.
-- [ ] Return clean 400/404/409 responses; never raw database errors.
+- [x] Public create-request endpoint with strict validation
+  (`PublicTravelRequestController.create`, Bean Validation on every field).
+  Rate-limit plan: at the Nginx edge (`limit_req_zone`), same established
+  pattern as this client's other public write surfaces — not in-application
+  code; not yet wired into a deployed edge config (no deployment exists yet).
+- [x] Public reference/status lookup that does not expose another customer's
+  PII — `TravelRequestPublicResponse` carries no customer name/phone/email
+  at all; proven by an HTTP test asserting the response body excludes them.
+- [x] Staff list/detail endpoints with roster vs full-record projections —
+  `TravelRequestController` returns `TravelRequestStaffResponse` (includes
+  customer contact), distinct from the public shape.
+- [x] Separate staff permissions for view, review, confirm, cancel and
+  complete — each staff action `@PreAuthorize`'s its own
+  `travel-request:*` permission; proven by an HTTP test showing a
+  no-permission account gets 403 on the roster.
+- [x] OpenAPI schemas, errors and examples updated
+  (`sharm-to-go-api.yaml`: 7 new paths, 9 new schemas) — `redocly lint`
+  passes.
+- [x] Clean 400/404/409 responses; never raw database errors — reused the
+  existing `TravelMarketplaceExceptionHandler`; proven by an HTTP test for
+  a missing required header (400, not 500).
 
 ## Summary and WhatsApp
 
@@ -94,15 +109,27 @@
 - [ ] HTTP validation and permission tests. (1B: no controller yet.)
 - [x] Idempotency and capacity concurrency tests — see the 8-thread
   concurrent-duplicate proof above.
-- [ ] Public projection privacy tests. (1B: no public endpoint yet.)
-- [ ] OpenAPI validation. (1B: no contract added yet.)
+- [x] Public projection privacy tests — HTTP test asserts the create and
+  lookup response bodies never contain the customer's name or phone.
+- [x] OpenAPI validation — `redocly lint` on both contract files, exit 0.
 - [x] Full Divers regression gate — `:platform:application:check` green,
   unaffected (sharm-to-go's migrations live in a disjoint application).
-- [ ] Synthetic live walkthrough recorded in the evidence file. (1B/API-layer.)
+- [x] Synthetic live walkthrough recorded in the evidence file — see
+  `07_ACCEPTANCE_AND_EVIDENCE.md`'s 2026-09-30 entries: a real category and
+  service published through the actual HTTP API, then a request created,
+  reviewed, confirmed and completed end to end, all over real HTTP against
+  real PostgreSQL (`TravelRequestHttpTest.kt`, 7 tests).
 
 ## Exit gate
 
-- [ ] One synthetic published service can receive a request and return a public
-  reference without claiming confirmation.
-- [ ] A staff-authorized confirmation produces an immutable commercial snapshot.
-- [ ] Duplicate/concurrent submissions are safe and auditable.
+- [x] One synthetic published service can receive a request and return a
+  public reference without claiming confirmation — proven for both
+  `STAFF_REVIEW` (stays `NEW`) and `INSTANT` (auto-confirms as a separate
+  action) services.
+- [x] A staff-authorized confirmation produces an immutable commercial
+  snapshot — price/policy/service/option snapshotted at creation, never
+  re-read live; proven by the full staff-lifecycle HTTP test.
+- [x] Duplicate/concurrent submissions are safe and auditable — 8-thread
+  concurrency proof (service layer) + HTTP-level idempotent-resubmission
+  proof (200 with the original request, not a second 201), each write
+  recorded in `travel_request_audit_event`.

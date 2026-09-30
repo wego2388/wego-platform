@@ -663,6 +663,70 @@ provider constraints are revalidated against the implemented repository.
   started; will only proceed under the same standing authorization, with a
   commit/push per packet and no merge without a fresh explicit "اعمل merge".
 
+### 2026-09-30 — Phase 1B: public + staff API layer, OpenAPI, HTTP privacy proof (self-verified, Tier 1)
+
+- **Status:** `ACTIVE`, continuing under the same standing authorization as
+  1A ("ابدأ و ابدأ سيطرة على المشروع"). This closes Phase 1's exit gate.
+- **What was built:**
+  - `PublicTravelRequestController` (`POST /api/v1/travel-marketplace/public/requests`,
+    `GET .../{reference}`) — unauthenticated, registered under the same
+    `PublicApiPrefix` wildcard `PublicCatalogController` already
+    contributes. Idempotency key taken from a required `Idempotency-Key`
+    header (standard REST convention), not the request body.
+  - `TravelRequestController` — staff roster/detail plus
+    `start-review`/`confirm`/`cancel`/`complete` actions, each
+    `@PreAuthorize`'d on its own `travel-request:*` permission (the 5
+    permissions V5's migration already registered but nothing enforced
+    until now).
+  - Two response shapes, not one: `TravelRequestPublicResponse` (reference,
+    status, service/option/price/policy, date, party, pickup,
+    confirmed/awaiting state — **no customer name, phone or email**) vs
+    `TravelRequestStaffResponse` (same plus full customer contact, internal
+    id, locale, notes, source channel, cancel reason/detail). This is the
+    actual mechanism behind delivery/01's "does not expose another
+    customer's PII" requirement, not just a filtering convention.
+  - `sharm-to-go-api.yaml`: 7 new paths, 9 new schemas
+    (`TravelRequestStatus`/`SourceChannel`/`CancelReason`/`Customer`,
+    `CreateTravelRequestRequest`, `CancelTravelRequestRequest`,
+    `TravelRequestErrorResponse`, `TravelRequestPublicResponse`,
+    `TravelRequestStaffResponse`).
+- **Verified:**
+  - `TravelRequestHttpTest.kt` — 7 real HTTP tests (Testcontainers
+    PostgreSQL, real login, real published service through the full staff
+    workflow): public create auto-confirms an INSTANT service and the
+    reference lookup returns it; **the response body is asserted to not
+    contain the customer's name or phone, at both create and lookup**;
+    idempotent resubmission returns HTTP 200 with the original reference,
+    not a second 201; party size over capacity is a clean 409; a missing
+    `Idempotency-Key` header is a clean 400, not a 500; an unknown reference
+    is 404; the full staff lifecycle (start-review → confirm → complete)
+    works end to end, and a no-permission account gets 403 on the roster;
+    cancel requires a typed reason and a second cancel on an already-
+    terminal request is a clean 409.
+  - `redocly lint` on both OpenAPI files — exit 0.
+  - `:platform:apps:sharm-to-go:check` (ktlint + all tests, 78 total) — green.
+  - `:platform:application:check` (Divers regression gate) — green,
+    unaffected.
+- **Rollback considerations:** additive-only — two new controllers, two new
+  DTO files, an OpenAPI extension. No schema change in this sub-packet (V5
+  from 1A already covers persistence); no existing endpoint's behavior
+  changed.
+- **Phase 1 exit gate:** now fully met — a synthetic published service can
+  receive a request and return a public reference without claiming
+  confirmation (proven for both `INSTANT` and `STAFF_REVIEW`); a
+  staff-authorized confirmation produces an immutable commercial snapshot;
+  duplicate/concurrent submissions are safe and auditable at both the
+  service layer (8-thread proof) and the HTTP layer (idempotent resubmission
+  proof). What remains in `delivery/01_REQUEST_AND_BOOKING.md` is the
+  "Summary and WhatsApp" section — a website/ERP frontend concern that
+  belongs with Phase 3 (`03_MARKETING_WEBSITE.md`), not more backend work —
+  and a standalone PII consent/retention policy document, deferred to the
+  Phase 6 "Privacy, legal and support" work already tracked.
+- **Next:** commit, push, update `ROADMAP_AR.md`/`delivery/01_REQUEST_AND_BOOKING.md`
+  evidence (done in this same pass). Phase 2 (`02_OPERATIONS_ERP.md` — ERP
+  screens consuming this API) is the next candidate packet; not started, not
+  automatically authorized.
+
 ## WEGO-003 — Reliable integration delivery and replay
 
 - **Status:** NOT AUTHORIZED — roadmap only; WEGO-002 must close first and owner activation is still required.
