@@ -1,8 +1,10 @@
 package com.wego.travelmarketplace.infrastructure
 
 import com.wego.generated.jooq.tables.TravelRequestAuditEvent.TRAVEL_REQUEST_AUDIT_EVENT
+import com.wego.generated.jooq.tables.records.TravelRequestAuditEventRecord
 import com.wego.travelmarketplace.application.TravelRequestAuditRecorder
 import com.wego.travelmarketplace.domain.TravelRequestActorType
+import com.wego.travelmarketplace.domain.TravelRequestAuditEvent
 import com.wego.travelmarketplace.domain.TravelRequestCancelReason
 import com.wego.travelmarketplace.domain.TravelRequestStatus
 import org.jooq.DSLContext
@@ -43,4 +45,27 @@ class JooqTravelRequestAuditRecorder(
             .set(TRAVEL_REQUEST_AUDIT_EVENT.CORRELATION_ID, correlationId)
             .execute()
     }
+
+    @Transactional(readOnly = true)
+    override fun findByRequestId(requestId: UUID): List<TravelRequestAuditEvent> =
+        dsl
+            .selectFrom(TRAVEL_REQUEST_AUDIT_EVENT)
+            .where(TRAVEL_REQUEST_AUDIT_EVENT.REQUEST_ID.eq(requestId))
+            .orderBy(TRAVEL_REQUEST_AUDIT_EVENT.OCCURRED_AT.desc())
+            .fetch()
+            .map(::toDomain)
+
+    private fun toDomain(record: TravelRequestAuditEventRecord): TravelRequestAuditEvent =
+        TravelRequestAuditEvent(
+            id = record.id,
+            requestId = record.requestId,
+            occurredAt = record.occurredAt.toInstant(),
+            fromStatus = record.fromStatus?.let(TravelRequestStatus::valueOf),
+            toStatus = TravelRequestStatus.valueOf(record.toStatus),
+            actorType = TravelRequestActorType.valueOf(record.actorType),
+            actorUserId = record.actorUserId,
+            reason = record.reason?.let(TravelRequestCancelReason::valueOf),
+            detail = record.detail,
+            correlationId = record.correlationId,
+        )
 }

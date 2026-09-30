@@ -27,6 +27,7 @@ import com.wego.travelmarketplace.application.SubmitServiceForReviewService
 import com.wego.travelmarketplace.application.SuspendServiceService
 import com.wego.travelmarketplace.application.TransactionRunner
 import com.wego.travelmarketplace.application.TravelMarketplaceAuditRecorder
+import com.wego.travelmarketplace.application.TravelRequestAuditQueryService
 import com.wego.travelmarketplace.application.TravelRequestAuditRecorder
 import com.wego.travelmarketplace.application.TravelRequestQueryService
 import com.wego.travelmarketplace.application.TravelRequestRepository
@@ -227,4 +228,8 @@ class TravelMarketplaceBeanConfiguration {
     @Bean
     fun travelRequestQueryService(requestRepository: TravelRequestRepository): TravelRequestQueryService =
         TravelRequestQueryService(requestRepository)
+
+    @Bean
+    fun travelRequestAuditQueryService(auditRecorder: TravelRequestAuditRecorder): TravelRequestAuditQueryService =
+        TravelRequestAuditQueryService(auditRecorder)
 }

@@ -242,3 +242,101 @@ export function suspendService(token: string, id: string): Promise<Service> {
 export function archiveService(token: string, id: string): Promise<Service> {
   return request<Service>(`/api/v1/travel-marketplace/services/${id}/archive`, token, { method: "POST" });
 }
+
+// --- Travel requests (WEGO-010-A Phase 1/2) ---------------------------------
+
+export type TravelRequestStatus = "NEW" | "IN_REVIEW" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "EXPIRED";
+export type TravelRequestSourceChannel = "WEBSITE" | "MOBILE";
+export type TravelRequestCancelReason = "CUSTOMER_REQUESTED" | "STAFF_REJECTED" | "SERVICE_UNAVAILABLE" | "DUPLICATE_REQUEST" | "OTHER";
+export type TravelRequestActorType = "CUSTOMER" | "STAFF" | "SYSTEM";
+
+export interface TravelRequestCustomer {
+  name: string;
+  phone?: string;
+  email?: string;
+}
+
+/** The full staff-facing shape — `TravelRequestStaffResponse` on the backend. Includes customer contact; the public shape (never used here) does not. */
+export interface TravelRequest {
+  id: string;
+  reference: string;
+  status: TravelRequestStatus;
+  serviceId: string;
+  serviceOptionId: string;
+  serviceName: LocalizedText;
+  optionLabel: LocalizedText;
+  priceAmount: string;
+  priceCurrency: string;
+  priceBasis: PriceBasis;
+  cancellationPolicy: LocalizedText;
+  requestedDate: string;
+  requestedTime?: string;
+  adults: number;
+  children: number;
+  hotelOrPickup?: string;
+  locale: string;
+  notes?: string;
+  sourceChannel: TravelRequestSourceChannel;
+  customer: TravelRequestCustomer;
+  createdAt: string;
+  confirmedAt?: string;
+  completedAt?: string;
+  cancelledAt?: string;
+  cancelReason?: TravelRequestCancelReason;
+  cancelDetail?: string;
+  expiredAt?: string;
+}
+
+export interface TravelRequestAuditEvent {
+  id: string;
+  occurredAt: string;
+  fromStatus?: TravelRequestStatus;
+  toStatus: TravelRequestStatus;
+  actorType: TravelRequestActorType;
+  actorUserId?: string;
+  reason?: TravelRequestCancelReason;
+  detail?: string;
+}
+
+export function listTravelRequests(
+  token: string,
+  params: { status?: TravelRequestStatus; page?: number; size?: number } = {},
+): Promise<TravelRequest[]> {
+  const query = new URLSearchParams();
+  if (params.status) query.set("status", params.status);
+  query.set("page", String(params.page ?? 0));
+  query.set("size", String(params.size ?? PAGE_SIZE));
+  return request<TravelRequest[]>(`/api/v1/travel-marketplace/requests?${query.toString()}`, token);
+}
+
+export function getTravelRequest(token: string, id: string): Promise<TravelRequest> {
+  return request<TravelRequest>(`/api/v1/travel-marketplace/requests/${id}`, token);
+}
+
+export function getTravelRequestAudit(token: string, id: string): Promise<TravelRequestAuditEvent[]> {
+  return request<TravelRequestAuditEvent[]>(`/api/v1/travel-marketplace/requests/${id}/audit`, token);
+}
+
+export function startTravelRequestReview(token: string, id: string): Promise<TravelRequest> {
+  return request<TravelRequest>(`/api/v1/travel-marketplace/requests/${id}/start-review`, token, { method: "POST" });
+}
+
+export function confirmTravelRequest(token: string, id: string): Promise<TravelRequest> {
+  return request<TravelRequest>(`/api/v1/travel-marketplace/requests/${id}/confirm`, token, { method: "POST" });
+}
+
+export function cancelTravelRequest(
+  token: string,
+  id: string,
+  body: { reason: TravelRequestCancelReason; detail?: string },
+): Promise<TravelRequest> {
+  return request<TravelRequest>(`/api/v1/travel-marketplace/requests/${id}/cancel`, token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+export function completeTravelRequest(token: string, id: string): Promise<TravelRequest> {
+  return request<TravelRequest>(`/api/v1/travel-marketplace/requests/${id}/complete`, token, { method: "POST" });
+}

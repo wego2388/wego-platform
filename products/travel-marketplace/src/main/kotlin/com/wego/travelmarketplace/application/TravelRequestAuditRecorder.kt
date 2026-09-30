@@ -1,6 +1,7 @@
 package com.wego.travelmarketplace.application
 
 import com.wego.travelmarketplace.domain.TravelRequestActorType
+import com.wego.travelmarketplace.domain.TravelRequestAuditEvent
 import com.wego.travelmarketplace.domain.TravelRequestCancelReason
 import com.wego.travelmarketplace.domain.TravelRequestStatus
 import java.time.Instant
@@ -28,4 +29,7 @@ interface TravelRequestAuditRecorder {
         correlationId: UUID?,
         occurredAt: Instant,
     )
+
+    /** Newest first — the natural order for an audit timeline UI. */
+    fun findByRequestId(requestId: UUID): List<TravelRequestAuditEvent>
 }

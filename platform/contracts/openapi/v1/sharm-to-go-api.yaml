@@ -917,6 +917,29 @@ paths:
           $ref: "#/components/responses/ForbiddenResponse"
         "404":
           description: No request with this id.
+  /api/v1/travel-marketplace/requests/{id}/audit:
+    get:
+      operationId: getTravelRequestAuditHistory
+      summary: Read one request's audit timeline, newest first
+      tags:
+        - TravelRequests
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPathParameter"
+      responses:
+        "200":
+          description: The audit timeline (possibly empty).
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TravelRequestAuditEventResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
   /api/v1/travel-marketplace/requests/{id}/start-review:
     post:
       operationId: startTravelRequestReview
@@ -1925,3 +1948,45 @@ components:
             - string
             - "null"
           format: date-time
+    TravelRequestActorType:
+      type: string
+      enum:
+        - CUSTOMER
+        - STAFF
+        - SYSTEM
+    TravelRequestAuditEventResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - occurredAt
+        - toStatus
+        - actorType
+      properties:
+        id:
+          type: string
+          format: uuid
+        occurredAt:
+          type: string
+          format: date-time
+        fromStatus:
+          oneOf:
+            - $ref: "#/components/schemas/TravelRequestStatus"
+            - type: "null"
+        toStatus:
+          $ref: "#/components/schemas/TravelRequestStatus"
+        actorType:
+          $ref: "#/components/schemas/TravelRequestActorType"
+        actorUserId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        reason:
+          oneOf:
+            - $ref: "#/components/schemas/TravelRequestCancelReason"
+            - type: "null"
+        detail:
+          type:
+            - string
+            - "null"

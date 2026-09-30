@@ -1,6 +1,7 @@
 package com.wego.travelmarketplace.api
 
 import com.wego.travelmarketplace.domain.PriceBasis
+import com.wego.travelmarketplace.domain.TravelRequestActorType
 import com.wego.travelmarketplace.domain.TravelRequestCancelReason
 import com.wego.travelmarketplace.domain.TravelRequestSourceChannel
 import com.wego.travelmarketplace.domain.TravelRequestStatus
@@ -103,4 +104,15 @@ data class TravelRequestStaffResponse(
     val cancelReason: TravelRequestCancelReason?,
     val cancelDetail: String?,
     val expiredAt: Instant?,
+)
+
+data class TravelRequestAuditEventResponse(
+    val id: UUID,
+    val occurredAt: Instant,
+    val fromStatus: TravelRequestStatus?,
+    val toStatus: TravelRequestStatus,
+    val actorType: TravelRequestActorType,
+    val actorUserId: UUID?,
+    val reason: TravelRequestCancelReason?,
+    val detail: String?,
 )

@@ -10,6 +10,7 @@ import com.wego.travelmarketplace.application.ConfirmTravelRequestResult
 import com.wego.travelmarketplace.application.ConfirmTravelRequestService
 import com.wego.travelmarketplace.application.StartTravelRequestReviewResult
 import com.wego.travelmarketplace.application.StartTravelRequestReviewService
+import com.wego.travelmarketplace.application.TravelRequestAuditQueryService
 import com.wego.travelmarketplace.application.TravelRequestQueryService
 import com.wego.travelmarketplace.domain.TravelRequest
 import com.wego.travelmarketplace.domain.TravelRequestActorType
@@ -37,6 +38,7 @@ import java.util.UUID
 @RequestMapping("/api/v1/travel-marketplace/requests")
 class TravelRequestController(
     private val travelRequestQueryService: TravelRequestQueryService,
+    private val travelRequestAuditQueryService: TravelRequestAuditQueryService,
     private val startTravelRequestReviewService: StartTravelRequestReviewService,
     private val confirmTravelRequestService: ConfirmTravelRequestService,
     private val cancelTravelRequestService: CancelTravelRequestService,
@@ -58,6 +60,24 @@ class TravelRequestController(
         val request = travelRequestQueryService.findById(TravelRequestId(id)) ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(request.toStaffResponse())
     }
+
+    @GetMapping("/{id}/audit")
+    @PreAuthorize("hasAuthority('travel-request:view')")
+    fun auditHistory(
+        @PathVariable id: UUID,
+    ): List<TravelRequestAuditEventResponse> =
+        travelRequestAuditQueryService.findByRequestId(id).map {
+            TravelRequestAuditEventResponse(
+                id = it.id,
+                occurredAt = it.occurredAt,
+                fromStatus = it.fromStatus,
+                toStatus = it.toStatus,
+                actorType = it.actorType,
+                actorUserId = it.actorUserId,
+                reason = it.reason,
+                detail = it.detail,
+            )
+        }
 
     @PostMapping("/{id}/start-review")
     @PreAuthorize("hasAuthority('travel-request:review')")

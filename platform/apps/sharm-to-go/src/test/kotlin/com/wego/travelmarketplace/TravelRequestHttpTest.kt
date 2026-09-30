@@ -339,6 +339,22 @@ class TravelRequestHttpTest {
                 status { isOk() }
                 jsonPath("$.status") { value("COMPLETED") }
             }
+
+        // Every transition left a trace, newest first: COMPLETED, CONFIRMED, IN_REVIEW, NEW.
+        mockMvc
+            .get("/api/v1/travel-marketplace/requests/$requestId/audit") { header("Authorization", "Bearer $staffToken") }
+            .andExpect {
+                status { isOk() }
+                jsonPath("$.length()") { value(4) }
+                jsonPath("$[0].toStatus") { value("COMPLETED") }
+                jsonPath("$[0].actorType") { value("STAFF") }
+                jsonPath("$[3].toStatus") { value("NEW") }
+                jsonPath("$[3].actorType") { value("CUSTOMER") }
+            }
+
+        mockMvc
+            .get("/api/v1/travel-marketplace/requests/$requestId/audit") { header("Authorization", "Bearer $noPermissionToken") }
+            .andExpect { status { isForbidden() } }
     }
 
     @Test

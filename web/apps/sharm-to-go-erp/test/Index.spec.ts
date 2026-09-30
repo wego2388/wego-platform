@@ -81,6 +81,34 @@ describe("index page", () => {
     expect(wrapper.text()).toContain("1");
   });
 
+  it("shows real request counts for a user with travel-request:view", async () => {
+    seedSession(["travel-request:view"]);
+    vi.stubGlobal(
+      "fetch",
+      fetchRoutedBy({
+        "/api/v1/travel-marketplace/requests": () =>
+          new Response(
+            JSON.stringify([
+              { id: "r1", status: "NEW", requestedDate: "2026-12-01" },
+              { id: "r2", status: "IN_REVIEW", requestedDate: "2026-12-02" },
+              { id: "r3", status: "CONFIRMED", requestedDate: "2099-01-01" },
+              { id: "r4", status: "CANCELLED", requestedDate: "2026-11-01" },
+            ]),
+            { status: 200 },
+          ),
+      }),
+    );
+
+    const wrapper = mount(IndexPage);
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("1 New");
+    expect(wrapper.text()).toContain("1 In review");
+    expect(wrapper.text()).toContain("1 Confirmed");
+    expect(wrapper.text()).toContain("1 Cancelled/expired");
+    expect(wrapper.text()).toContain("1 confirmed, today or upcoming");
+  });
+
   it("only requests the widgets the account actually has permission for", async () => {
     seedSession(["provider:view"]);
     const fetchMock = fetchRoutedBy({

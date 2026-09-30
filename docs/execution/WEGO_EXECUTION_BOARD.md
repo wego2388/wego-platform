@@ -727,6 +727,98 @@ provider constraints are revalidated against the implemented repository.
   screens consuming this API) is the next candidate packet; not started, not
   automatically authorized.
 
+### 2026-09-30 — Phase 2A: ERP requests queue, detail and dashboard (self-verified, Tier 2)
+
+- **Status:** `ACTIVE`, continuing under the same standing authorization
+  ("ابدأ و ابدأ سيطرة على المشروع"). Closes Phase 2's core exit gate.
+- **Review intensity:** Tier 2 — pure frontend consumption of an already
+  Tier-1-reviewed API; no new migration, no new permission semantics (one
+  new read-only endpoint added first, see below).
+- **A small backend gap found first, closed before the frontend:** the
+  ERP's own "audit timeline" requirement had no backing endpoint —
+  `TravelRequestAuditRecorder` was write-only. Added
+  `findByRequestId`, a `TravelRequestAuditQueryService`, a
+  `GET /requests/{id}/audit` endpoint behind `travel-request:view`, and the
+  matching OpenAPI schema/path. One new HTTP test proves all 4 transitions
+  of a full lifecycle appear newest-first with the right actor type, and
+  that the endpoint is itself permission-gated.
+- **What was built:**
+  - `useTravelMarketplaceApi.ts` extended with the full `TravelRequest`
+    client (list/get/audit/start-review/confirm/cancel/complete).
+  - `requests.vue` — staff queue: status filter (server-side), reference/
+    customer-name search (client-side, current page only — documented
+    limitation), empty/loading/error/no-permission states, an unclaimed
+    `NEW` request marked with both a border color and a text label (not
+    color alone).
+  - `requests/[id].vue` — full detail: customer contact, service/price
+    snapshot, audit timeline, an explicit "no payment collected" note,
+    review/confirm/complete actions and a typed-reason cancel behind a real
+    `WegoDialog` (not `window.confirm`), a copyable customer-safe summary,
+    and a `wa.me` link pre-filled with that summary addressed to the
+    *customer's* own phone.
+  - `index.vue` dashboard: a new "Requests" panel (new/in-review/confirmed/
+    upcoming/cancelled-or-expired counts, same accepted 50-row-sample
+    limitation the existing services widget already has).
+  - `app-shell.vue`: new "Operations" nav group with "Requests".
+- **Two deliberate non-gaps, documented so they are not mistaken for
+  oversights:** "Confirm... with capacity and price revalidation" was not
+  built because re-validating either would contradict the Phase 1 snapshot
+  design (the price is frozen on purpose; there is no shared capacity pool
+  to revalidate against). An "Expire" button was not added because
+  `TravelRequest.expire()` is system-only by domain design — a staff-
+  triggered expire would violate that invariant.
+- **Two real, honestly-recorded gaps:** date/service/source filters on the
+  queue were not built (status filter + client-side search only); deep
+  links do not preserve filter state (consistent with every existing
+  catalog page, not a regression). Both recorded in
+  `delivery/02_OPERATIONS_ERP.md`, not silently dropped.
+- **Verified:**
+  - 13 new Vitest tests (`Requests.spec.ts` ×6, `RequestDetail.spec.ts` ×6,
+    one `Index.spec.ts` addition) — permission gating, the status filter,
+    client-side search, a full confirm action round-trip, and a rejected
+    action showing the mapped error, not a raw one. All 37 pre-existing
+    ERP tests still pass — 50 total.
+  - `nuxt typecheck`, root `eslint apps packages --max-warnings=0`, and a
+    real production `nuxt build` — all green.
+  - **Manual, real-infrastructure verification:** a real Spring Boot
+    backend run against a throwaway PostgreSQL (migrations 0→5 applied
+    fresh, not Testcontainers this time — an actually running local
+    server), a real category and `STAFF_REVIEW` service created and
+    published over real HTTP, a real customer request created via the
+    public endpoint, then reviewed → confirmed → completed entirely over
+    real HTTP — the exact same calls the ERP pages themselves make — with
+    the resulting `/audit` timeline showing all 4 events correctly. The
+    Nuxt ERP was served through a real same-origin reverse proxy (this
+    client's dev setup has no built-in one) and both new routes' SSR shells
+    were confirmed rendering (200, not a crash).
+  - **Honestly recorded gap:** the Claude-in-Chrome browser extension was
+    not connected in this session, so the fully-authenticated,
+    data-populated UI was not visually confirmed by eye in a real graphical
+    browser. The 13 component tests above are real (they execute actual
+    Vue component logic — mount, fetch, permission checks, action
+    dispatch), just not inside a browser engine. Recorded as a real gap in
+    `delivery/02_OPERATIONS_ERP.md`'s evidence section, not claimed as done.
+  - No dedicated accessibility pass (no axe scan, no keyboard-only
+    walkthrough) — recorded as a real gap, not claimed.
+  - All throwaway verification infrastructure (a uniquely-named Postgres
+    container, the backend process, the Nuxt dev server, the proxy script)
+    was torn down after verification. Other sessions' running stacks
+    (Safari, Divers, wego-foundation) were not touched.
+- **Rollback considerations:** one new read-only backend endpoint (additive,
+  no schema change); four new/changed frontend files plus one nav-shell
+  edit. No existing page's behavior changed.
+- **Phase 2 exit gate:** met for its core claim — staff can take a new
+  request from receipt to confirmation/completion using only the ERP, with
+  every transition visible in audit history — proven both in the manual
+  real-HTTP walkthrough and in `RequestDetail.spec.ts`. The "Catalog
+  support for conversion" section is deliberately deferred as a separate,
+  lower-priority catalog feature, not part of this exit gate.
+- **Next:** commit, push, update board/roadmap evidence (done in this same
+  pass). Phase 3 (`03_MARKETING_WEBSITE.md` — connecting the real public
+  site to this request API, plus the still-outstanding "Summary and
+  WhatsApp" section from Phase 1) is the next candidate packet; not
+  started, not automatically authorized.
+
 ## WEGO-003 — Reliable integration delivery and replay
 
 - **Status:** NOT AUTHORIZED — roadmap only; WEGO-002 must close first and owner activation is still required.
