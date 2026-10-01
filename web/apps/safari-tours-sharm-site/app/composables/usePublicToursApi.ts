@@ -33,6 +33,7 @@ export type PublicBookingLookup = Pick<
   | "hotelName"
   | "status"
   | "cancellationReason"
+  | "unit"
 >;
 export { calculateBookingTotal, formatMoney, moneyToMinorUnits, multiplyMoney } from "@wego/api-contract";
 

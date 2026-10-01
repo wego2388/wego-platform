@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { useSiteLocale } from "../../composables/useSiteLocale";
+import { bookingResultCopy } from "../../content/bookingResult";
 import { whatsappUrl } from "../../content/locales";
 import {
   getPaymentStatus,
@@ -21,11 +23,10 @@ import {
 
 const router = useRouter();
 const localePath = useLocalePath();
+const locale = useSiteLocale();
+const copy = computed(() => bookingResultCopy[locale.value]);
 
-
-useHead(() => ({
-  title: "Payment Result — Safari Tours Sharm",
-}));
+useSeoMeta({ title: () => `${copy.value.checking.title} — Safari Tours Sharm`, robots: "noindex" });
 
 type PageState = "loading" | "confirmed" | "failed" | "pending" | "review" | "error";
 
@@ -47,7 +48,7 @@ onMounted(async () => {
   booking.value = peekLatestBookingConfirmation();
   if (!bookingId.value) {
     state.value = "error";
-    errorMsg.value = "Missing booking information. Please check your booking via WhatsApp.";
+    errorMsg.value = copy.value.error.missing;
     return;
   }
 
@@ -55,7 +56,14 @@ onMounted(async () => {
   await pollPaymentStatus();
 });
 
+// Stop polling (and never redirect) once the visitor has left this page.
+let disposed = false;
+onBeforeUnmount(() => {
+  disposed = true;
+});
+
 async function pollPaymentStatus(attempt = 0): Promise<void> {
+  if (disposed) return;
   if (attempt >= MAX_POLLS) {
     // Timed out — show pending state with WhatsApp fallback
     state.value = "pending";
@@ -68,6 +76,7 @@ async function pollPaymentStatus(attempt = 0): Promise<void> {
 
     switch (status.status) {
       case "PAID":
+        if (disposed) return;
         state.value = "confirmed";
         // Redirect to the full confirmation page
         void router.replace(localePath("/booking/confirmation"));
@@ -96,131 +105,75 @@ async function pollPaymentStatus(attempt = 0): Promise<void> {
       return pollPaymentStatus(attempt + 1);
     }
     state.value = "error";
-    errorMsg.value = "Could not retrieve payment status. Please contact us on WhatsApp.";
+    errorMsg.value = copy.value.error.status;
   }
 }
 
+function checkAgain() {
+  state.value = "loading";
+  void pollPaymentStatus();
+}
+
 const whatsappHelpUrl = computed(() => {
-  const ref = bookingRef.value ?? "unknown";
-  const msg = encodeURIComponent(
-    `Hi, I just tried to pay for booking ${ref} but I'm not sure if the payment went through. Can you help?`,
-  );
+  const msg = encodeURIComponent(copy.value.whatsapp.paymentHelp(bookingRef.value ?? "—"));
   return `${whatsappUrl}?text=${msg}`;
 });
 </script>
 
 <template>
-  <div>
-
-    <main id="main-content" tabindex="-1" class="mx-auto max-w-2xl px-6 py-16 text-center lg:px-0">
-
-      <!-- Loading / polling ──────────────────────────────────── -->
+  <main id="main-content" tabindex="-1" class="mx-auto max-w-xl px-4 py-16 text-center sm:px-6">
+    <div aria-live="polite">
       <template v-if="state === 'loading' || state === 'pending'">
-        <div class="size-16 animate-spin rounded-full border-4 border-sts-ocean border-t-transparent mx-auto" aria-hidden="true" />
-        <h1 class="mt-6 text-2xl font-semibold text-sts-ink">
-          {{ state === 'loading' ? 'Checking payment…' : 'Waiting for payment confirmation…' }}
-        </h1>
-        <p class="mt-3 text-sm text-sts-muted">
-          This usually takes a few seconds. Please do not close this page.
-        </p>
-
-        <div v-if="state === 'pending'" class="mt-8">
-          <p class="text-sm text-sts-muted">Taking longer than expected?</p>
-          <a
-            :href="whatsappHelpUrl"
-            target="_blank"
-            rel="noopener"
-            class="mt-3 inline-flex items-center gap-2 rounded-2xl bg-green-500 px-6 py-3 font-semibold text-white shadow"
-          >
-            💬 Contact us on WhatsApp
-          </a>
+        <span class="mx-auto block size-14 animate-spin rounded-full border-4 border-sts-ocean-bright border-t-transparent motion-reduce:animate-none" aria-hidden="true" />
+        <h1 class="mt-6 font-display text-2xl font-semibold">{{ state === 'loading' ? copy.checking.title : copy.checking.waiting }}</h1>
+        <p class="mt-3 text-sm text-sts-muted">{{ copy.checking.body }}</p>
+        <div v-if="state === 'pending'" class="mt-8 grid justify-items-center gap-3">
+          <p class="text-sm text-sts-muted">{{ copy.checking.slow }}</p>
+          <UiButton variant="secondary" icon="lucide:refresh-cw" @click="checkAgain">{{ copy.checking.again }}</UiButton>
+          <UiButton :href="whatsappHelpUrl" icon="lucide:message-circle">{{ copy.support }}</UiButton>
         </div>
       </template>
 
-      <!-- Confirmed — redirecting ─────────────────────────────── -->
       <template v-else-if="state === 'confirmed'">
-        <div class="inline-grid size-20 place-items-center rounded-3xl bg-green-100 text-5xl shadow-sm" aria-hidden="true">
-          ✅
-        </div>
-        <h1 class="mt-6 font-display text-3xl font-semibold text-green-700">
-          Payment Confirmed!
-        </h1>
-        <p class="mt-3 text-sts-muted">Redirecting to your booking details…</p>
+        <span class="mx-auto grid size-16 place-items-center rounded-full bg-sts-success-soft text-sts-success" aria-hidden="true">
+          <Icon name="lucide:circle-check" class="size-9" />
+        </span>
+        <h1 class="mt-6 font-display text-3xl font-semibold">{{ copy.paid.title }}</h1>
+        <p class="mt-3 text-sts-muted">{{ copy.paid.body }}</p>
       </template>
 
-      <!-- Failed ──────────────────────────────────────────────── -->
       <template v-else-if="state === 'failed'">
-        <div class="inline-grid size-20 place-items-center rounded-3xl bg-red-100 text-5xl shadow-sm" aria-hidden="true">
-          ❌
-        </div>
-        <h1 class="mt-6 font-display text-3xl font-semibold text-red-700">
-          Payment Failed
-        </h1>
-        <p class="mt-3 text-sts-muted">
-          Your payment was not completed. Your slot reservation will be released shortly.
-        </p>
-
-        <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <!-- Retry — go back to the booking page -->
-          <NuxtLinkLocale
-            to="/tours"
-            class="flex items-center justify-center rounded-2xl border border-sts-border px-7 py-3.5 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
-          >
-            Try Again
-          </NuxtLinkLocale>
-          <a
-            :href="whatsappHelpUrl"
-            target="_blank"
-            rel="noopener"
-            class="flex items-center justify-center gap-2 rounded-2xl bg-green-500 px-7 py-3.5 font-semibold text-white shadow"
-          >
-            💬 Book via WhatsApp
-          </a>
+        <span class="mx-auto grid size-16 place-items-center rounded-full bg-sts-danger-soft text-sts-danger" aria-hidden="true">
+          <Icon name="lucide:circle-x" class="size-9" />
+        </span>
+        <h1 class="mt-6 font-display text-3xl font-semibold">{{ copy.failed.title }}</h1>
+        <p class="mt-3 text-sts-muted">{{ copy.failed.body }}</p>
+        <div class="mt-8 flex flex-wrap justify-center gap-3">
+          <UiButton to="/tours" variant="secondary">{{ copy.failed.retry }}</UiButton>
+          <UiButton :href="whatsappHelpUrl" icon="lucide:message-circle">{{ copy.support }}</UiButton>
         </div>
       </template>
 
-      <!-- Provider outcome requires reconciliation ───────────── -->
       <template v-else-if="state === 'review'">
-        <div class="inline-grid size-20 place-items-center rounded-3xl bg-amber-100 text-5xl shadow-sm" aria-hidden="true">
-          ⚠️
-        </div>
-        <h1 class="mt-6 font-display text-3xl font-semibold text-amber-800">
-          We’re checking your payment
-        </h1>
-        <p class="mt-3 text-sts-muted">
-          We cannot safely confirm the final payment result yet. Please do not pay again until local support checks it.
-        </p>
-        <a
-          :href="whatsappHelpUrl"
-          target="_blank"
-          rel="noopener"
-          class="mt-8 inline-flex items-center gap-2 rounded-2xl bg-green-500 px-7 py-3.5 font-semibold text-white shadow"
-        >
-          💬 Contact local support
-        </a>
+        <span class="mx-auto grid size-16 place-items-center rounded-full bg-sts-warning-soft text-sts-warning" aria-hidden="true">
+          <Icon name="lucide:shield-alert" class="size-9" />
+        </span>
+        <h1 class="mt-6 font-display text-3xl font-semibold">{{ copy.review.title }}</h1>
+        <p class="mt-3 text-sts-muted">{{ copy.review.body }}</p>
+        <UiButton class="mt-8" :href="whatsappHelpUrl" icon="lucide:message-circle">{{ copy.support }}</UiButton>
       </template>
 
-      <!-- Error ───────────────────────────────────────────────── -->
-      <template v-else-if="state === 'error'">
-        <div class="inline-grid size-20 place-items-center rounded-3xl bg-yellow-100 text-5xl shadow-sm" aria-hidden="true">
-          ⚠️
-        </div>
-        <h1 class="mt-6 text-2xl font-semibold text-sts-ink">
-          Something went wrong
-        </h1>
+      <template v-else>
+        <span class="mx-auto grid size-16 place-items-center rounded-full bg-sts-warning-soft text-sts-warning" aria-hidden="true">
+          <Icon name="lucide:triangle-alert" class="size-9" />
+        </span>
+        <h1 class="mt-6 font-display text-2xl font-semibold">{{ copy.error.title }}</h1>
         <p class="mt-3 text-sm text-sts-muted">{{ errorMsg }}</p>
-
-        <a
-          :href="whatsappHelpUrl"
-          target="_blank"
-          rel="noopener"
-          class="mt-8 inline-flex items-center gap-2 rounded-2xl bg-green-500 px-7 py-3.5 font-semibold text-white shadow"
-        >
-          💬 Contact us on WhatsApp
-        </a>
+        <div class="mt-8 flex flex-wrap justify-center gap-3">
+          <UiButton to="/my-booking" variant="secondary">{{ copy.unconfirmed.check }}</UiButton>
+          <UiButton :href="whatsappHelpUrl" icon="lucide:message-circle">{{ copy.support }}</UiButton>
+        </div>
       </template>
-
-    </main>
-
-  </div>
+    </div>
+  </main>
 </template>

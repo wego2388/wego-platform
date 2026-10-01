@@ -2380,7 +2380,7 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
 
 ## WEGO-016 — Safari Tours Sharm: tours-operator product foundation
 
-- **Status:** IN PROGRESS — A–G complete; phase 4 UX-0..UX-3 complete, UX-4 ACTIVE (2026-10-01); H–I require explicit owner activation
+- **Status:** IN PROGRESS — A–G complete; phase 4 UX-0..UX-4 complete, UX-5 ACTIVE (2026-10-01); H–I require explicit owner activation
 - **Activated:** 2026-09-27
 - **Review intensity:** Tier 1 — this packet adds a new product boundary (`products/tours-operator`), a new Flyway migration (V14), a new client isolation profile (`clients/safari-tours-sharm`), and will later touch payment/PII/auth surfaces. Every sub-packet that adds a migration, modifies auth, or handles customer payment data requires independent Tier 1 review before merge.
 - **Origin:** The owner asked to establish Safari Tours Sharm as a first-class Wego Platform product — on the same standards as Sharm Divers Club and Sharm To Go — with a public booking website, a staff ERP, a real Paymob payment flow, a production tour catalog, and an isolated deployment. The handoff document at `clients/safari-tours-sharm/handoff/SAFARI_TOURS_PRODUCTION_MATURITY_HANDOFF.md` is the authoritative reference for current maturity, open P0 issues, and the phased delivery plan.
@@ -3185,7 +3185,7 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-10-01 — WEGO-016-UX4: booking, payment and confirmation (Tier 1)
 
-- **Status:** ACTIVE
+- **Status:** COMPLETE (2026-10-01) — PWA/offline copy of the last booking moved to UX-8 polish.
 - **Activation:** owner standing instruction (`ابدا نفذ و سيطر علي المشروع و كمل البناء`, 2026-09-30).
 - **Review intensity:** Tier 1 — customer data and payment.
 - **Scope (FRONTEND_MASTER_PLAN_AR.md §7.6–7.8, §14 UX-4):** booking stepper
@@ -3222,6 +3222,34 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
     findings M1/M2/L1/L2/L4/L5 fixed; L3 noted — **deploy V24/V25 with a
     stop-then-start, never a rolling restart** (an old instance would miscount
     places); L6 (party of 9+ for transfers) is an owner decision.
+- **UX4-B/C delivered (2026-10-01, Tier 1, Opus-reviewed):** checkout
+  `/booking/{slotId}` rebuilt on the design system in four languages
+  (details → review → pay, field + summary validation with focus moves,
+  client-only nationality list from `Intl.DisplayNames`, phones normalised to
+  one stored form for lookup, server-limit-aligned lengths, unit choice
+  forwarded, per-tour cancellation policy always shown, error states for
+  full/blocked/inactive/invalid pricing/429/network/payment); a retried
+  payment reuses the booking this page created (no duplicate bookings), and a
+  page restored from bfcache is not left "submitting". Payment result page
+  (server polling only, stops when left, "check again"), confirmation ticket
+  (shown only for server-PAID of the stored booking id; neutral "find your
+  booking" when the tab has nothing stored; RFC 5545 .ics with folding) and
+  My booking (POST lookup, status explanations) redesigned. No PII in URLs,
+  titles, WhatsApp prefills (reference only) or localStorage. e2e checkout now
+  picks a nationality. Evidence: site 55 tests, `pnpm run check` exit 0,
+  Playwright EN/AR/RU screenshots without console/hydration errors (an ICU
+  country-name SSR mismatch was found and fixed). Opus findings 1–10 fixed.
+
+### 2026-10-01 — WEGO-016-UX5: trip finder, information pages and consent (Tier 2)
+
+- **Status:** ACTIVE
+- **Activation:** owner standing instruction (`ابدا نفذ و سيطر علي المشروع و كمل البناء`, 2026-09-30).
+- **Review intensity:** Tier 2 — public content; consent touches analytics only.
+- **Scope (FRONTEND_MASTER_PLAN_AR.md §7.5, §7.9, §14 UX-5):** "help me
+  choose" trip finder (rule-based, a reason per suggestion, result in the
+  URL), contact / about / FAQ / terms / privacy / cancellation pages in four
+  languages from owner-approved facts, cookie consent that gates any
+  analytics, 404/error pages on the design system.
 
 ---
 

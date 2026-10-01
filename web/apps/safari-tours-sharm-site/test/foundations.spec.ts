@@ -70,7 +70,10 @@ describe("Field", () => {
     });
     expect(wrapper.get("label").attributes("for")).toBe("name");
     expect(wrapper.get("input").attributes("aria-describedby")).toBe("name-hint name-error");
-    expect(wrapper.get("[role=alert]").text()).toContain("Required");
+    // Inline errors are read through aria-describedby; the form's error
+    // summary is the single live announcement (no duplicate alerts).
+    expect(wrapper.get("#name-error").text()).toContain("Required");
+    expect(wrapper.find("[role=alert]").exists()).toBe(false);
   });
 });
 

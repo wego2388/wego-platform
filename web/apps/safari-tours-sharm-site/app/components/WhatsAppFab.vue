@@ -5,10 +5,10 @@ import { siteCopy, whatsappUrl } from "../content/locales";
 
 const locale = useSiteLocale();
 const label = computed(() => siteCopy[locale.value].whatsappFab);
-// Tour pages carry their own WhatsApp action next to the booking controls;
-// the floating button would cover them.
+// Tour pages and the checkout form carry their own WhatsApp action; the
+// floating button would cover their controls.
 const route = useRoute();
-const hidden = computed(() => /^\/[a-z]{2}\/tour\//.test(route.path));
+const hidden = computed(() => /^\/[a-z]{2}\/(tour\/|booking\/[0-9a-f-]{36}$)/.test(route.path));
 </script>
 
 <template>

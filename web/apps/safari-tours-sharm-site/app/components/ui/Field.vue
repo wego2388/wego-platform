@@ -33,7 +33,7 @@ const describedBy = computed(() => [hintId.value, errorId.value].filter(Boolean)
       :required="required"
     />
     <p v-if="hint" :id="hintId" class="text-xs text-sts-muted">{{ hint }}</p>
-    <p v-if="error" :id="errorId" class="flex items-center gap-1 text-xs font-medium text-sts-danger" role="alert">
+    <p v-if="error" :id="errorId" class="flex items-center gap-1 text-xs font-medium text-sts-danger">
       <Icon name="lucide:circle-alert" class="size-3.5 shrink-0" aria-hidden="true" />{{ error }}
     </p>
   </div>

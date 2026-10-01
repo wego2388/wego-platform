@@ -470,6 +470,7 @@ test.describe("Safari Tours checkout flow — mock Paymob", () => {
     await page.goto(bookingUrl.toString(), { waitUntil: "networkidle" });
     await page.locator("#fullName").fill("E2E Browser Customer");
     await page.locator("#phone").fill("+20100000123");
+    await page.locator("#nationality").selectOption("EG");
     await page.locator("#email").fill("browser-checkout@example.com");
     await page.locator("#hotelName").fill("E2E Browser Hotel");
     await page.getByRole("button", { name: /Continue/ }).click();
