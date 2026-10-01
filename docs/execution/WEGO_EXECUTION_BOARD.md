@@ -3390,7 +3390,7 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-10-01 — WEGO-016-OPS: operations readiness without owner inputs (Tier 1)
 
-- **Status:** ACTIVE
+- **Status:** COMPLETE (2026-10-01)
 - **Activation:** owner standing instruction (`ابدا نفذ و سيطر علي المشروع و كمل البناء`, 2026-09-30; `كمل`, 2026-10-01).
 - **Review intensity:** Tier 1 (backup/restore, booking/payment kill switch).
 - **Scope:** the phase-H items that need no owner keys or server:
@@ -3429,6 +3429,37 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   fail the drill, GPG round trip passes.
 - **Owner decisions still open:** where the off-server backup copy goes;
   which channel receives alerts.
+- **CI:** 3f6cdf0 failed only `pnpm audit` on a devalue advisory published
+  the same day (GHSA-j22f-vq7h-c4qm, via nuxt) — pinned `devalue >=5.9.3`
+  with a pnpm override (28702c7). That run's first attempt failed once in the
+  foundation ERP HR attendance e2e (`Actually on time` after reload); the
+  rerun of the same commit passed every job — recorded as a flaky test.
+
+### 2026-10-01 — WEGO-016-QA: launch test plan and automated release smoke (Tier 2)
+
+- **Status:** ACTIVE
+- **Activation:** owner instruction `اعمل كل اللي تقدر عليه من مهام` (2026-10-01).
+- **Review intensity:** Tier 2.
+- **Scope:** roadmap 5-1 — a written launch test matrix (language × device ×
+  payment outcome × booking state × sales switch), automate every row that
+  can run against the local/CI stack with the mock payment provider, and a
+  manual checklist for the rows that need the real Paymob sandbox, domain or
+  e-mail provider (still owner-gated). No deploy, no external sends.
+- **Delivered:**
+  - `clients/safari-tours-sharm/LAUNCH_TEST_PLAN.md`: languages × pages,
+    devices, payment outcomes, booking states/capacity, sales switch, staff,
+    operations — every row mapped to an automated test id or marked MANUAL
+    with the owner input it waits for; go-live gate; Arabic summary.
+  - `e2e/tests/safari-launch.spec.ts` (new CI step after the site journeys):
+    L1 Arabic on an iPhone-13 viewport — RTL, no sideways scroll, declined
+    card ends on "لم يكتمل الدفع" with payment FAILED; L2 Russian and Italian
+    checkout forms; L3 emergency switch — site warning, API 503, resume;
+    L4 staff cancellation shown on My booking; L5 oversized party refused.
+- **Evidence:** 5/5 locally three runs in a row against the current backend
+  jar (V26, mock Paymob) + production site build; sales left open afterwards.
+  The compose image build could not run locally (Docker build network
+  dropping Gradle/npm downloads), so the host-run backend was used; CI runs
+  the same spec on the full compose stack.
 ---
 
 ## WEGO-017 — Foundry executable isolated client releases
