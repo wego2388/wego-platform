@@ -15,6 +15,7 @@ describe("marketing and trust pages", () => {
     expect(wrapper.text()).toContain("more than three million customers");
     expect(wrapper.text()).toContain("participated in organising more than five million successful trips");
     expect(wrapper.text()).toContain("Where you must go");
+    expect(wrapper.text()).toContain("All rights reserved");
   });
 
   it("links the real owner-supplied contact channels", () => {

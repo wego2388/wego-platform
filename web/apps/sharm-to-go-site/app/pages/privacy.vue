@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
 import SiteSubHeader from "../components/SiteSubHeader.vue";
-import { directionFor, type SharmLocale, siteCopy } from "../content/locales";
-const locale = ref<SharmLocale>("en");
-const copy = computed(() => siteCopy[locale.value]);
-const direction = computed(() => directionFor(locale.value));
+import SiteFooter from "../components/SiteFooter.vue";
+import { useSiteLocale } from "../composables/useSiteLocale";
+const { locale, copy, direction, toggleLocale } = useSiteLocale();
 useHead(() => ({ title: locale.value === "ar" ? "سياسة الخصوصية · Sharm To Go" : "Privacy · Sharm To Go", htmlAttrs: { dir: direction.value, lang: locale.value } }));
-function toggleLocale() { locale.value = locale.value === "en" ? "ar" : "en"; }
 </script>
 <template>
   <main :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas px-6 py-8 text-sharm-ink lg:px-10">
@@ -19,5 +16,6 @@ function toggleLocale() { locale.value = locale.value === "en" ? "ar" : "en"; }
       </section>
       <NuxtLink to="/" class="my-12 inline-flex font-bold text-sharm-sea underline">{{ copy.legalPages.back }}</NuxtLink>
     </article>
+    <SiteFooter :locale="locale" />
   </main>
 </template>

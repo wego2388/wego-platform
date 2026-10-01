@@ -5,16 +5,57 @@
 - [x] Phase 1 public request API exists.
 - [x] Phase 2 confirms the staff team can receive and operate submitted requests.
 
-## Shared site foundation
+## Shared site foundation — 3C, core done 2026-10-01
 
 - [x] Brand positioning and owner-approved story are live in code.
 - [x] About, FAQ, Contact, Privacy and Terms routes exist.
 - [x] Real contact channels and global WhatsApp action exist.
 - [x] Public catalog list and detail routes exist.
 - [x] Sitemap includes static trust pages and dynamic service URLs.
-- [ ] Extract one shared responsive header/footer/locale state across every route.
-- [ ] Add mobile navigation and persistent locale choice.
-- [ ] Add a consistent skip link and one main landmark per page.
+- [x] Extract one shared responsive header/footer/locale state across every
+  route. The header side of this was already ~92% done before 3C — every
+  page but the homepage already used the shared `SiteSubHeader`; the
+  homepage keeps its own distinct full-nav header on purpose (a landing
+  page's primary nav is a different thing from a sub-page's "back" header,
+  not duplication worth collapsing into one component). The real,
+  previously-undocumented gap was the **footer**: only the homepage had
+  one at all — about/contact/faq/privacy/terms/experiences list and
+  detail/the request flow/both track pages had none, so a visitor on any
+  of those pages had no way to reach the privacy policy, terms, or
+  contact info without going back to the homepage first. New
+  `SiteFooter.vue` (the homepage's own footer markup, extracted, parametrized
+  by locale) is now on every one of those pages. New `useSiteLocale()`
+  composable replaces the locale-ref/copy/direction/toggle block that 12
+  pages each duplicated inline. One deliberate exception: the request
+  flow (`/experiences/:id/request`) uses `useSiteLocale()` for its own
+  locale state but does **not** get `SiteFooter` — a footer full of exit
+  links at the bottom of an in-progress request form invites drop-off in
+  exactly the flow this whole phase exists to protect; every other real
+  page gets it.
+- [x] Add persistent locale choice. `useSiteLocale()` persists the chosen
+  locale to `localStorage` on toggle and adopts a stored choice on the
+  next page's mount — starting "en" on first synchronous render always,
+  so server and client markup match (no hydration mismatch), then
+  switching post-mount if a stored choice exists. A storage failure
+  (private browsing, blocked site data) falls back to "en" silently,
+  exactly like every page already did before this existed.
+- [ ] Add mobile navigation. Not done this round — `SiteSubHeader`'s nav
+  links are already responsive-safe (there are few enough to fit), but a
+  true hamburger/mobile-drawer pattern for the homepage's fuller nav was
+  not built.
+- [ ] Add a consistent skip link and one main landmark per page. Not done
+  this round — every page already has exactly one `<main>` landmark (true
+  before and after 3C), but no skip-to-content link exists anywhere. Real
+  gap, not claimed.
+- **Deliberately excluded from this refactor:** `booking-preview.vue` and
+  `design-system.vue`. Both are self-contained internal/prototype tooling
+  pages with their own separate inline copy objects (not `siteCopy`), not
+  part of the real customer journey this shared-foundation work is about —
+  forcing them onto `useSiteLocale`/`SiteFooter` would mean either
+  restructuring their own copy model or giving a "prototype, contains no
+  live business data" page the same trust-building footer as a real page,
+  neither of which is the right call for pages already explicitly marked
+  as non-production.
 
 ## Homepage conversion — 3B, core done 2026-10-01
 
@@ -93,11 +134,14 @@
 ## Required evidence
 
 - [x] Current marketing-site tests, lint, typecheck and production build pass.
-  49/49 site tests pass (16 new from 3A, plus 6 new from 3B covering the
-  real search box and query forwarding through catalog → detail →
-  request), 50/50 ERP tests pass. Root `pnpm run check` (lint across
-  every app) and `nuxt typecheck` both clean; a real production
-  `nuxt build` of the site succeeds.
+  56/56 site tests pass (16 new from 3A, 6 new from 3B covering the real
+  search box and query forwarding through catalog → detail → request, 7
+  new from 3C covering `SiteFooter` in both locales, `useSiteLocale`'s
+  SSR-safe-then-persisted locale behavior including a storage-failure
+  fallback, and a footer-presence assertion added to every page spec
+  that previously had none), 50/50 ERP tests pass. Root `pnpm run check`
+  (lint across every app) and `nuxt typecheck` both clean; a real
+  production `nuxt build` of the site succeeds.
 - [x] Component/page tests for the real request flow. `RequestFlow.spec.ts`
   covers instant confirm, staff-review outcome, capacity block, contact
   validation, 409 error mapping, unknown-service 404, and (from 3B) a

@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from "vue";
 import GuestStepper from "../../../components/GuestStepper.vue";
 import SiteSubHeader from "../../../components/SiteSubHeader.vue";
 import { whatsappLink } from "../../../content/contact";
-import { directionFor, type SharmLocale, siteCopy } from "../../../content/locales";
+import { useSiteLocale } from "../../../composables/useSiteLocale";
 import { getPublicService, type PublicService, type PublicServiceOption } from "../../../composables/usePublicCatalog";
 import {
   createTravelRequest,
@@ -14,19 +14,13 @@ import {
 const route = useRoute();
 const serviceId = String(route.params.id);
 
-const locale = ref<SharmLocale>("en");
-const copy = computed(() => siteCopy[locale.value]);
-const direction = computed(() => directionFor(locale.value));
+const { locale, copy, direction, toggleLocale } = useSiteLocale();
 
 useHead(() => ({
   title: locale.value === "ar" ? "اطلب التجربة · Sharm To Go" : "Request experience · Sharm To Go",
   htmlAttrs: { dir: direction.value, lang: locale.value },
   meta: [{ name: "robots", content: "noindex,nofollow" }],
 }));
-
-function toggleLocale() {
-  locale.value = locale.value === "en" ? "ar" : "en";
-}
 
 function priceBasisLabel(basis: string): string {
   if (basis === "PER_GROUP") return copy.value.browse.perGroup;

@@ -2,9 +2,10 @@
 import { computed, onMounted, ref } from "vue";
 import MockPhoto from "../../components/MockPhoto.vue";
 import SiteSubHeader from "../../components/SiteSubHeader.vue";
+import SiteFooter from "../../components/SiteFooter.vue";
 import { contact, emailLink, whatsappLink } from "../../content/contact";
 import { toneForIndex } from "../../content/categoryAccents";
-import { directionFor, type SharmLocale, siteCopy } from "../../content/locales";
+import { useSiteLocale } from "../../composables/useSiteLocale";
 import { getPublicService, listPublicCategories, type PublicCategory, type PublicService } from "../../composables/usePublicCatalog";
 
 const route = useRoute();
@@ -20,9 +21,7 @@ const forwardedQuery = computed<Record<string, string>>(() => {
   return query;
 });
 
-const locale = ref<SharmLocale>("en");
-const copy = computed(() => siteCopy[locale.value]);
-const direction = computed(() => directionFor(locale.value));
+const { locale, copy, direction, toggleLocale } = useSiteLocale();
 
 const service = ref<PublicService | null>(null);
 const categories = ref<PublicCategory[]>([]);
@@ -48,10 +47,6 @@ useHead(() => ({
     lang: locale.value,
   },
 }));
-
-function toggleLocale() {
-  locale.value = locale.value === "en" ? "ar" : "en";
-}
 
 function priceBasisLabel(basis: string): string {
   if (basis === "PER_GROUP") return copy.value.browse.perGroup;
@@ -181,5 +176,6 @@ onMounted(async () => {
         </NuxtLink>
       </article>
     </section>
+    <SiteFooter :locale="locale" />
   </main>
 </template>

@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
 import SiteSubHeader from "../components/SiteSubHeader.vue";
-import { directionFor, type SharmLocale, siteCopy } from "../content/locales";
+import SiteFooter from "../components/SiteFooter.vue";
+import { useSiteLocale } from "../composables/useSiteLocale";
 
-const locale = ref<SharmLocale>("en");
-const copy = computed(() => siteCopy[locale.value]);
-const direction = computed(() => directionFor(locale.value));
+const { locale, copy, direction, toggleLocale } = useSiteLocale();
 useHead(() => ({ title: locale.value === "ar" ? "الأسئلة الشائعة · Sharm To Go" : "FAQ · Sharm To Go", htmlAttrs: { dir: direction.value, lang: locale.value } }));
-function toggleLocale() { locale.value = locale.value === "en" ? "ar" : "en"; }
 </script>
 
 <template>
@@ -35,5 +32,6 @@ function toggleLocale() { locale.value = locale.value === "en" ? "ar" : "en"; }
         </ul>
       </section>
     </div>
+    <SiteFooter :locale="locale" />
   </main>
 </template>

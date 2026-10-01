@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
 import SiteSubHeader from "../components/SiteSubHeader.vue";
+import SiteFooter from "../components/SiteFooter.vue";
 import { contact, emailLink, whatsappLink } from "../content/contact";
-import { directionFor, type SharmLocale, siteCopy } from "../content/locales";
+import { useSiteLocale } from "../composables/useSiteLocale";
 
-const locale = ref<SharmLocale>("en");
-const copy = computed(() => siteCopy[locale.value]);
-const direction = computed(() => directionFor(locale.value));
+const { locale, copy, direction, toggleLocale } = useSiteLocale();
 useHead(() => ({ title: locale.value === "ar" ? "تواصل معنا · Sharm To Go" : "Contact · Sharm To Go", htmlAttrs: { dir: direction.value, lang: locale.value } }));
-function toggleLocale() { locale.value = locale.value === "en" ? "ar" : "en"; }
 </script>
 
 <template>
@@ -26,5 +23,6 @@ function toggleLocale() { locale.value = locale.value === "en" ? "ar" : "en"; }
         <p class="mt-4 text-sm leading-6 text-sharm-muted">{{ copy.contactPage.responseNote }}</p>
       </section>
     </div>
+    <SiteFooter :locale="locale" />
   </main>
 </template>

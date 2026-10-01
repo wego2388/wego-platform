@@ -21,4 +21,8 @@ beforeEach(() => {
     const error = new Error(input.statusMessage ?? "Error");
     return Object.assign(error, input);
   });
+  // useSiteLocale persists the chosen locale to localStorage by design — real
+  // behavior across page loads for a real visitor, but it must not leak from
+  // one test to the next.
+  localStorage.clear();
 });

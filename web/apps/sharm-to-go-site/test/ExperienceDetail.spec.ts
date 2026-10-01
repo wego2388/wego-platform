@@ -89,6 +89,8 @@ describe("experience detail page", () => {
     expect(wrapper.text()).toContain("Dinner and water.");
     expect(wrapper.text()).toContain("Personal expenses.");
     expect(wrapper.text()).toContain("1 photo");
+    // This page previously had no footer at all — proves the real shared one is wired in.
+    expect(wrapper.text()).toContain("All rights reserved");
   });
 
   it("shows a real request action that links to the real request flow, not a fake instant-book button", async () => {

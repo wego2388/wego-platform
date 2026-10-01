@@ -80,6 +80,9 @@ describe("experiences page", () => {
 
     expect(wrapper.text()).toContain("No live experiences yet");
     expect(wrapper.text()).not.toContain("Desert Safari");
+    // Every page now carries the real shared footer (privacy/terms/contact) —
+    // this page previously had none at all.
+    expect(wrapper.text()).toContain("All rights reserved");
   });
 
   it("renders real published services with category, price and operator", async () => {

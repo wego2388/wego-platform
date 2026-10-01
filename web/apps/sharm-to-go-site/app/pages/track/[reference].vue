@@ -1,24 +1,19 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import SiteSubHeader from "../../components/SiteSubHeader.vue";
-import { directionFor, type SharmLocale, siteCopy } from "../../content/locales";
+import SiteFooter from "../../components/SiteFooter.vue";
+import { useSiteLocale } from "../../composables/useSiteLocale";
 import { getTravelRequestByReference, type TravelRequestPublicResponse } from "../../composables/useTravelRequests";
 
 const route = useRoute();
 const reference = String(route.params.reference);
 
-const locale = ref<SharmLocale>("en");
-const copy = computed(() => siteCopy[locale.value]);
-const direction = computed(() => directionFor(locale.value));
+const { locale, copy, direction, toggleLocale } = useSiteLocale();
 
 useHead(() => ({
   title: locale.value === "ar" ? "تابع طلبك · Sharm To Go" : "Track your request · Sharm To Go",
   htmlAttrs: { dir: direction.value, lang: locale.value },
 }));
-
-function toggleLocale() {
-  locale.value = locale.value === "en" ? "ar" : "en";
-}
 
 const result = ref<TravelRequestPublicResponse | null>(null);
 const state = ref<"loading" | "loaded" | "not-found" | "error">("loading");
@@ -97,5 +92,6 @@ function formatDate(value: string): string {
         </div>
       </form>
     </section>
+    <SiteFooter :locale="locale" />
   </main>
 </template>

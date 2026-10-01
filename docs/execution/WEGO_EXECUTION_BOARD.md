@@ -990,6 +990,94 @@ provider constraints are revalidated against the implemented repository.
   (an ERP-side popularity model; owner-approved offer terms). PR #46
   stays unmerged pending the owner's own fresh "اعمل merge" instruction.
 
+### 2026-10-01 — Phase 3C: shared header/footer/locale foundation (self-verified, Tier 2)
+
+- **Status:** `ACTIVE`, continuing under the owner's standing broad
+  authorization for this packet plus the "كمل" that followed each of
+  3A and 3B's reports (with one interruption: the owner sent "توقف لحد
+  ما اقولك كمل تاني" mid-packet, work stopped immediately with nothing
+  committed, and resumed only after a later explicit "كمل باقي المهام" —
+  recorded here because it is the kind of mid-task stop/resume this
+  board is meant to make traceable, not because anything about the
+  packet's scope changed).
+- **Review intensity:** Tier 2 — pure frontend refactor (new shared
+  component + composable, used by existing pages) and one additive
+  UX gap closed (a missing footer); no backend change, no new
+  permission, no change to any page's business behavior.
+- **What was actually wrong, found by auditing every page rather than
+  assuming the roadmap's own wording was precise:** the roadmap item
+  read "extract one shared responsive header/footer/locale state across
+  every route," which reads as if headers were duplicated. A page-by-page
+  audit (`grep` over every file in `app/pages/`) found the opposite: the
+  header was already ~92% shared — every page but the homepage already
+  used `SiteSubHeader`, and the homepage's own distinct full-nav header
+  is a deliberate, different thing (a landing page's primary nav is not
+  the same component as a sub-page's "back" header, so collapsing them
+  would not be a real simplification). The real, previously-undocumented
+  gap was the **footer**: only the homepage had one. Every other real
+  page — about, contact, faq, privacy, terms, the catalog list, the
+  service detail page, the request flow, both track pages — had no
+  footer at all, meaning a visitor anywhere except the homepage had no
+  way to reach the privacy policy, terms, or contact info without first
+  navigating back home.
+- **What was built:** new `SiteFooter.vue` (the homepage's own footer
+  markup, extracted, taking `locale` as a prop) now included on every
+  real page except the request flow (see below). New `useSiteLocale()`
+  composable replaces the locale-ref/copy/direction/toggle block that 12
+  pages each duplicated inline, and adds persisted locale choice —
+  closing the "persistent locale choice" item from the same roadmap
+  line — via `localStorage`, read only `onMounted` (never in the
+  synchronous initial ref) so the first client render always matches
+  the server-rendered "en" markup before switching, avoiding a
+  hydration mismatch; a storage failure (private browsing, blocked site
+  data) falls back to "en" silently, exactly like every page already
+  did before this existed.
+- **One deliberate exception:** the request flow
+  (`/experiences/:id/request`) adopts `useSiteLocale()` for its own
+  locale state but does not get `SiteFooter` — a footer full of exit
+  links at the bottom of an in-progress request form works against the
+  exact conversion this whole phase exists to protect.
+- **Two pages deliberately left out of the refactor entirely:**
+  `booking-preview.vue` and `design-system.vue` — both self-contained
+  internal/prototype pages with their own separate inline copy objects
+  (not `siteCopy`), explicitly marked non-production (the design-system
+  page's own copy says "contains no live business data"). Forcing them
+  onto the shared composable/footer would mean either restructuring
+  their copy model for no real benefit or giving a prototype page the
+  same trust-building footer as a real one — neither is the right call.
+- **Verified:** 7 new Vitest tests — `SiteFooter.spec.ts` (every real
+  trust/legal link and the real contact channels present in English;
+  the Arabic render contains no English leftovers), `useSiteLocale.spec.ts`
+  (first render is always English even with a stored Arabic choice;
+  the stored choice is adopted post-mount; a toggle in one component
+  instance persists and is picked up by a fresh mount simulating page
+  navigation; a thrown `localStorage` access does not crash the page) —
+  plus one footer-presence assertion added to each of the existing specs
+  for pages that previously had none (`Experiences.spec.ts`,
+  `ExperienceDetail.spec.ts`, `Track.spec.ts` ×2, `MarketingPages.spec.ts`).
+  56/56 site tests pass (up from 49), 50/50 ERP unaffected. Root
+  `pnpm run check` (lint across every app in the monorepo) and
+  `nuxt typecheck` both clean; a real production `nuxt build` of the
+  site succeeds.
+- **Honestly recorded, not done this round:** mobile navigation
+  (hamburger/drawer) for the homepage's fuller nav — not built, real
+  gap. A skip-to-content link — not built; every page already has
+  exactly one `<main>` landmark (true before and after this packet, not
+  a 3C contribution). No real-browser (Claude-in-Chrome) visual check
+  this round — not connected this session, same standing gap as 3A/3B.
+- **Rollback considerations:** two new files (`SiteFooter.vue`,
+  `useSiteLocale.ts`), additive to every page that adopts them; each
+  adopting page's own non-locale, non-footer behavior is unchanged;
+  `test/setup.ts` gained a global `localStorage.clear()` in its
+  `beforeEach` (required once any page under test can read/write it via
+  `useSiteLocale`, otherwise a locale toggled in one test leaks into the
+  next test in the same file via real browser storage).
+- **Next:** commit, push, update board/roadmap evidence (done in this
+  same pass). Mobile navigation, the skip link, and analytics/SEO remain
+  candidate future sub-packets — not started, not automatically
+  authorized. PR #46 stays unmerged pending the owner's own fresh
+  "اعمل merge" instruction.
+
 ## WEGO-003 — Reliable integration delivery and replay
 
 - **Status:** NOT AUTHORIZED — roadmap only; WEGO-002 must close first and owner activation is still required.

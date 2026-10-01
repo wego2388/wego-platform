@@ -32,6 +32,11 @@ describe("track index page", () => {
 
     expect(push).toHaveBeenCalledWith("/track/STG-ABCDEFGH");
   });
+
+  it("carries the real shared footer, which this page previously had none of", () => {
+    const { wrapper } = mountIndex();
+    expect(wrapper.text()).toContain("All rights reserved");
+  });
 });
 
 describe("track reference page", () => {
@@ -60,6 +65,7 @@ describe("track reference page", () => {
     expect(wrapper.text()).toContain("Desert Safari");
     expect(wrapper.text()).toContain("CONFIRMED");
     expect(wrapper.text()).toContain("EGP 500.00");
+    expect(wrapper.text()).toContain("All rights reserved");
   });
 
   it("shows an honest not-found message for an unknown reference, not a crash", async () => {

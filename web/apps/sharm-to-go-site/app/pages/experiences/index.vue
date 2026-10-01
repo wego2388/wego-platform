@@ -2,9 +2,10 @@
 import { computed, onMounted, ref } from "vue";
 import MockPhoto from "../../components/MockPhoto.vue";
 import SiteSubHeader from "../../components/SiteSubHeader.vue";
+import SiteFooter from "../../components/SiteFooter.vue";
 import { accentForIndex, toneForIndex } from "../../content/categoryAccents";
-import { directionFor, type SharmLocale, siteCopy } from "../../content/locales";
 import { vReveal } from "../../composables/useScrollReveal";
+import { useSiteLocale } from "../../composables/useSiteLocale";
 import {
   listPublicCategories,
   listPublicServices,
@@ -13,9 +14,7 @@ import {
   startingPrice,
 } from "../../composables/usePublicCatalog";
 
-const locale = ref<SharmLocale>("en");
-const copy = computed(() => siteCopy[locale.value]);
-const direction = computed(() => directionFor(locale.value));
+const { locale, copy, direction, toggleLocale } = useSiteLocale();
 
 useHead(() => ({
   title: locale.value === "ar" ? "التجارب · Sharm To Go" : "Experiences · Sharm To Go",
@@ -24,10 +23,6 @@ useHead(() => ({
     lang: locale.value,
   },
 }));
-
-function toggleLocale() {
-  locale.value = locale.value === "en" ? "ar" : "en";
-}
 
 const route = useRoute();
 const router = useRouter();
@@ -181,5 +176,6 @@ onMounted(async () => {
         </NuxtLink>
       </div>
     </section>
+    <SiteFooter :locale="locale" />
   </main>
 </template>
