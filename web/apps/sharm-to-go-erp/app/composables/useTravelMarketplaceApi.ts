@@ -17,6 +17,9 @@ export class TravelMarketplaceApiError extends Error {
   constructor(
     public readonly status: number,
     public readonly errorCode: string,
+    // Only set for "version_conflict" — the service's real current version,
+    // so the caller can tell staff what to reload against.
+    public readonly currentVersion?: number,
   ) {
     super(errorCode);
   }
@@ -31,7 +34,8 @@ async function request<T>(path: string, token: string, init: RequestInit = {}): 
   if (!response.ok) {
     const body = await response.json().catch(() => null);
     const errorCode = (body && typeof body === "object" && "error" in body ? String(body.error) : null) ?? `http_${response.status}`;
-    throw new TravelMarketplaceApiError(response.status, errorCode);
+    const currentVersion = body && typeof body === "object" && "currentVersion" in body ? Number(body.currentVersion) : undefined;
+    throw new TravelMarketplaceApiError(response.status, errorCode, currentVersion);
   }
 
   const text = await response.text();
@@ -174,6 +178,7 @@ export interface Service {
   createdAt: string;
   publishedAt?: string;
   archivedAt?: string;
+  version: number;
 }
 
 export interface UpsertServiceBody {
@@ -189,6 +194,10 @@ export interface UpsertServiceBody {
   exclusions?: LocalizedText;
   options: ServiceOption[];
   media: ServiceMedia[];
+  // Required on an update (the version the editor loaded — a mismatch
+  // means someone else saved first); omitted on create, where there is
+  // nothing to be stale against yet.
+  expectedVersion?: number;
 }
 
 export function listServices(

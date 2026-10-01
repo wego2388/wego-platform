@@ -13,7 +13,25 @@ export default defineEventHandler(async (event) => {
   const base = useRuntimeConfig().travelMarketplaceApiBase as string;
   const reference = getRouterParam(event, "reference");
 
-  const response = await fetch(`${base}/api/v1/travel-marketplace/public/requests/${encodeURIComponent(String(reference))}`);
+  // This proxy's own fetch() to the backend bypasses nginx entirely, so
+  // nginx's edge request id never reaches CorrelationIdFilter on its own —
+  // generate one here (or keep one the browser already sent) and echo it
+  // back, so a customer-visible failure can be traced into the backend
+  // audit trail.
+  const correlationId = getHeader(event, "x-correlation-id") ?? crypto.randomUUID();
+  setResponseHeader(event, "x-correlation-id", correlationId);
+
+  // fetch() itself throws on a true connection failure (DNS, refused,
+  // timeout) — the !response.ok branch below only ever sees a real HTTP
+  // response, so it cannot catch this case on its own.
+  let response: Response;
+  try {
+    response = await fetch(`${base}/api/v1/travel-marketplace/public/requests/${encodeURIComponent(String(reference))}`, {
+      headers: { "X-Correlation-Id": correlationId },
+    });
+  } catch {
+    throw createError({ statusCode: 502, statusMessage: "Could not reach the request service." });
+  }
   if (response.status === 404) {
     setResponseStatus(event, 404);
     return null;

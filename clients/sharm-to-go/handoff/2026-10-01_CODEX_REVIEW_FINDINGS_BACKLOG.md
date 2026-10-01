@@ -8,10 +8,12 @@ state. Full report: `codex exec` session `01a0f732-b104-73e1-a0d7-ab5ab4e65596`
 **How this file was built:** Claude read the full review, independently
 re-verified severe findings against the real code and a real running
 build/live database before accepting any of them (see each entry's
-"Verified" note), fixed what that verification confirmed across two
-rounds, and recorded the rest here rather than fixing all 24 at once.
-Severity labels are Codex's own; prioritization and verification notes are
-Claude's.
+"Verified" note), and fixed what that verification confirmed across four
+rounds (2026-10-01 through 2026-10-02). All 24 of Codex's original
+findings are now fixed; the fourth round's 7 items were tracked as
+individual tasks per the owner's instruction to carry the project through
+to completion rather than stop at a partial sweep. Severity labels are
+Codex's own; prioritization and verification notes are Claude's.
 
 ## Fixed in the 2026-10-01 review-fix round (first pass)
 
@@ -166,30 +168,117 @@ Claude's.
     success-with-failed-refresh path, and the already-passing rejection
     path.
 
-## Not yet fixed — not independently re-verified, reported here as Codex found them
+## Fixed in the 2026-10-02 review-fix round (fourth pass — remaining medium-priority items)
 
-### Medium priority
+All seven items previously listed as "not yet fixed" below have now been
+fixed and independently verified against real infrastructure (a real
+Postgres via Testcontainers for the backend items, a real nginx container
+for the rate-limit item). This closes the backlog opened by the 2026-10-01
+review — nothing from that review remains open. This round proceeded as a
+set of tracked tasks per the owner's instruction to work through the
+project "كامل" (end to end), including fixing problems discovered along
+the way, not just the originally listed Codex findings.
 
-- The catalog snapshot (`JooqServiceRepository.kt:76-83`) reads
-  publication/options/media across separate unlocked queries — a
-  concurrent catalog edit can produce a mixed-generation snapshot.
-- The expiry sweep throws and stops early if a request is confirmed
-  between candidate-selection and per-row locking (`ExpireTravelRequestsService.kt:26-35`).
-- The booking proxy (`server/api/requests/index.post.ts`) lets a backend
-  connection failure escape without a controlled service response —
-  separate from the ERP-side failure-handling fix above, this is the
-  public site's own proxy route.
-- The ERP service editor can silently overwrite another staff member's
-  concurrent edit (no optimistic version check) and can silently delete
-  an option/media row that was merely left incomplete in the form.
-- The public catalog proxy and the sitemap both stop at the backend's
-  first page (50 services) — anything published beyond that is invisible
-  to search and to the "browse all" experience.
-- No correlation ID connects a customer-visible failure to its backend
-  audit trail end to end (Nitro doesn't propagate one; staff actions pass
-  `null`).
-- Anonymous request-creation traffic shares the edge's general
-  20 req/s browsing rate limit rather than a tighter, purpose-specific one.
+20. **The catalog snapshot (`JooqServiceRepository.kt`) could read
+    mixed-generation data under a concurrent edit.** `findById`/`findAll`/
+    `findAllPublished`/`findPublishedById` each make 3 separate SELECTs
+    (service row, options, media); under the default READ COMMITTED
+    isolation, a concurrent `save()` landing between them (it deletes and
+    reinserts options/media) could return old service fields paired with
+    new options, or vice versa. Fixed by running these four read paths at
+    `REPEATABLE_READ` instead, which gives every statement in the
+    transaction one consistent snapshot. Safe to apply broadly: these are
+    read-only transactions, so none of Postgres's REPEATABLE_READ
+    write-write serialization-failure behavior applies. **Verified**: full
+    backend suite green against real PostgreSQL.
+21. **The expiry sweep crashed and stopped the whole batch early if a
+    request was confirmed between candidate-selection and per-row
+    locking** (`ExpireTravelRequestsService.kt`) — the guard checked
+    `status.isTerminal`, but `CONFIRMED` is not terminal, so a request
+    confirmed in that narrow window reached `expire()`'s own precondition
+    check, which threw and aborted every request still queued behind it
+    in the same sweep. Fixed by matching `expire()`'s actual precondition
+    exactly (`status != NEW && status != IN_REVIEW` → skip, don't throw).
+    **Not given a new timing-based test** — reproducing the exact race
+    would need either a flaky thread-interleaving test or production
+    instrumentation hooks this code has no reason to carry; relied
+    instead on the guard provably matching `expire()`'s own precondition,
+    plus the full regression suite passing.
+22. **The site's own request-creation and reference-lookup proxies let a
+    true backend connection failure escape uncontrolled** — `fetch()`
+    itself throws on a real connection failure (DNS, refused, timeout),
+    distinct from the backend responding with a real HTTP error status,
+    and the old code only handled the latter. Fixed by wrapping the
+    `fetch()` call specifically (not the whole handler, so a real
+    passthrough status like `409 price_changed` still reaches the caller
+    unchanged) in both `server/api/requests/index.post.ts` and
+    `[reference].get.ts`, turning a true connection failure into a clean
+    `502`. New tests mock `fetch` to throw and assert the clean 502 for
+    both routes.
+23. **The ERP service editor had no optimistic-concurrency check, and
+    silently dropped incomplete option/media rows.** Two staff editing
+    the same service at once meant the second save silently discarded
+    the first's changes with no error to either of them; a form row left
+    half-filled (one field blank) was silently stripped from the saved
+    service, which could delete real existing content rather than just
+    an untouched placeholder row. Fixed with:
+    - A new `version` column (Flyway `V6__travel_service_optimistic_locking.sql`)
+      on `travel_service`, bumped by `Service.withUpdatedDetails()` on
+      every content edit.
+    - `UpdateServiceService.update()` now compares the editor's
+      `expectedVersion` against the real current version — inside the
+      same `findByIdForUpdate`-locked transaction that reads it, so the
+      comparison is race-free — and rejects a stale save with a new
+      `409 version_conflict` (carrying the real current version) instead
+      of overwriting it.
+    - The ERP's `services.vue` now rejects a half-filled option/media row
+      with a clear validation error before ever calling the API,
+      distinguishing it from a genuinely untouched blank row (both
+      fields empty), which is still silently dropped as before.
+    - OpenAPI contract, backend, and ERP frontend all updated; new tests
+      at every layer, including an HTTP-level test that reproduces the
+      exact scenario (staff A saves, staff B's stale save is rejected,
+      staff B reloads and retries successfully) against real PostgreSQL.
+      (Opportunistically also added `would_invalidate_published_content`
+      to the OpenAPI error enum — it was already a real response the API
+      returns, just never documented.)
+24. **The public catalog proxy and the sitemap both stopped at the
+    backend's first page (50 services)** — anything published beyond
+    that was invisible to search and to the "browse all" experience.
+    Fixed by walking every backend page (200 per page, the backend's own
+    max) in `server/api/catalog/services.get.ts` and `sitemap.xml.ts`
+    until a short page signals the end, preserving the `categoryId`
+    filter across every page walked. New tests cover the multi-page walk,
+    the common single-page case, filter preservation across pages, and a
+    connection failure mid-walk. (Opportunistically closed the same
+    missing-`fetch()`-try/catch gap in `categories.get.ts` and
+    `services/[id].get.ts` while in this file.)
+25. **No correlation ID connected a customer-visible failure to its
+    backend audit trail end to end.** The backend already had a proven
+    `CorrelationContext`/`CorrelationIdFilter` convention used by every
+    other product (`divers`, `accounting`, `hr`, `payroll`) — travel-
+    marketplace was the one product still generating a throwaway
+    `UUID.randomUUID()` (public create) or passing `null` (all four staff
+    actions on `TravelRequestController`) instead of using it. Fixed by
+    switching both controllers to `CorrelationContext.currentCorrelationId()`.
+    On the site, Nitro's own `fetch()` to the backend bypasses nginx
+    entirely, so nginx's edge request id could never reach the backend's
+    filter on its own — fixed by having the two public proxy routes
+    (`requests/index.post.ts`, `requests/[reference].get.ts`) forward an
+    incoming `X-Correlation-Id` if the caller sent one, generate a fresh
+    one otherwise, pass it to the backend, and echo it back to the
+    browser. nginx's existing log format already references
+    `$sent_http_x_correlation_id` — it was just always empty before this
+    fix gave it a real value to log. New tests cover both the
+    generate-when-absent and forward-when-present cases for both routes.
+26. **Anonymous request-creation traffic shared the edge's general
+    20 req/s browsing rate limit** rather than a tighter, purpose-specific
+    one. Fixed with a dedicated `request_create_rate` zone (10 requests/
+    minute, burst 10) applied only to `/api/requests`, ahead of the
+    general `location /` block. **Verified live**: booted a real
+    `nginx:1.30.4-alpine` container and hammered both paths — `/api/requests`
+    hit `429` after 11 requests while `/` kept passing through at the
+    general limit within the same window.
 
 ## Not findings — explicitly already-acknowledged gaps Codex confirmed, not new
 

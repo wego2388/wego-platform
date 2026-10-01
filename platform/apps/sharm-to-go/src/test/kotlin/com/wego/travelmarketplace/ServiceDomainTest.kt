@@ -168,6 +168,11 @@ class ServiceTest {
     }
 
     @Test
+    fun `a newly created service starts at version 1`() {
+        assertThat(create().version).isEqualTo(1)
+    }
+
+    @Test
     fun `the full happy path reaches PUBLISHED through review and approval`() {
         val service = create()
 
@@ -275,5 +280,28 @@ class ServiceTest {
         assertThat(updated.status).isEqualTo(service.status)
         assertThat(updated.createdAt).isEqualTo(service.createdAt)
         assertThat(updated.options).containsExactly(newOption)
+    }
+
+    @Test
+    fun `updating details bumps the version by one, so a stale caller's own copy is detectably behind`() {
+        val service = create()
+
+        val updated =
+            service.withUpdatedDetails(
+                categoryId = service.categoryId,
+                name = service.name,
+                description = service.description,
+                fulfilmentModel = service.fulfilmentModel,
+                providerId = service.providerId,
+                confirmationType = service.confirmationType,
+                cancellationPolicy = service.cancellationPolicy,
+                pickupInfo = service.pickupInfo,
+                inclusions = service.inclusions,
+                exclusions = service.exclusions,
+                options = service.options,
+                media = service.media,
+            )
+
+        assertThat(updated.version).isEqualTo(service.version + 1)
     }
 }

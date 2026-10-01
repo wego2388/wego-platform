@@ -1214,6 +1214,14 @@ components:
             - invalid_transition
             - missing_publishable_option
             - missing_rights_cleared_media
+            - would_invalidate_published_content
+            - expected_version_required
+            - version_conflict
+        currentVersion:
+          description: Only present for a `version_conflict` — the service's real current version, for the editor to reload against.
+          type:
+            - integer
+            - "null"
     LocalizedText:
       type: object
       additionalProperties: false
@@ -1511,6 +1519,11 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ServiceMedia"
+        expectedVersion:
+          description: Null on create — nothing to be stale against yet. Required on update, or the request is rejected with `expected_version_required`; see ServiceResponse.version.
+          type:
+            - integer
+            - "null"
     ServiceResponse:
       type: object
       additionalProperties: false
@@ -1526,6 +1539,7 @@ components:
         - media
         - status
         - createdAt
+        - version
       properties:
         id:
           type: string
@@ -1583,6 +1597,9 @@ components:
             - string
             - "null"
           format: date-time
+        version:
+          description: Send back as `expectedVersion` on the next update — a mismatch means someone else saved first; see UpsertServiceRequest.expectedVersion.
+          type: integer
     PublicCategoryResponse:
       type: object
       additionalProperties: false

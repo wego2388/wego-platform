@@ -1279,6 +1279,114 @@ provider constraints are revalidated against the implemented repository.
   them up by the backlog file's own stated order. PR #46 stays unmerged
   pending the owner's own fresh "اعمل merge" instruction.
 
+### 2026-10-02 — Codex review fix round, fourth pass: the remaining 7 findings closed
+
+- **Status:** `ACTIVE`, continuing under the same owner authorization —
+  the owner explicitly said "اعملهم مهام كلهم و انت ايضا و انت شغال ممكن
+  تلاقي مشاكل او فجوات اعملها مهام و اشتغل عليها" (make them all tasks,
+  and if you find problems or gaps while working, make those tasks too;
+  the project should be complete). Each of the 7 remaining findings was
+  tracked as an individual task and worked through to a verified fix
+  rather than left as a backlog list.
+- **Catalog snapshot mixed-generation read:** `JooqServiceRepository`'s
+  four read paths (`findById`, `findAll`, `findAllPublished`,
+  `findPublishedById`) each made 3 separate SELECTs that could straddle a
+  concurrent `save()`'s delete+reinsert of options/media under the
+  default READ COMMITTED isolation. Fixed by running these specific
+  read-only transactions at `REPEATABLE_READ` instead (the write path,
+  `findByIdForUpdate`, is unaffected — different semantics, already
+  pessimistically locked). Verified: full backend suite green against
+  real PostgreSQL.
+- **Expiry sweep crash on a confirmed-during-sweep request:**
+  `ExpireTravelRequestsService`'s guard checked `status.isTerminal`, but
+  `CONFIRMED` is not terminal, so a request confirmed in the narrow
+  window between candidate-selection and per-row locking reached
+  `expire()`'s own precondition and threw, aborting the rest of that
+  sweep batch. Fixed by matching `expire()`'s actual precondition
+  exactly. Deliberately not given a new timing-based test — reproducing
+  the exact race would need flaky thread-interleaving or production
+  instrumentation this code has no other reason to carry; relied on the
+  guard provably matching `expire()`'s own precondition, plus the full
+  regression suite passing.
+- **Site's own request-creation/lookup proxies uncontrolled on a true
+  connection failure:** `fetch()` itself throws on a real connection
+  failure, distinct from the backend returning a real HTTP error status
+  (which must still pass through, e.g. `409 price_changed`). Fixed by
+  wrapping the `fetch()` call specifically (not the whole handler) in
+  both `server/api/requests/index.post.ts` and `[reference].get.ts`.
+  New tests mock a throwing `fetch` and assert a clean 502.
+- **ERP catalog editor had no optimistic-concurrency check and silently
+  dropped incomplete rows:** new `version` column
+  (`V6__travel_service_optimistic_locking.sql`), bumped on every content
+  edit; `UpdateServiceService.update()` compares the editor's
+  `expectedVersion` against the real current version inside the same
+  `findByIdForUpdate`-locked transaction that reads it (race-free) and
+  rejects a stale save with `409 version_conflict` instead of
+  overwriting it; the ERP form now blocks submission with a clear
+  validation error on a half-filled option/media row instead of silently
+  dropping it, while a genuinely untouched blank row (both fields empty)
+  is still dropped as before. OpenAPI, backend, and ERP frontend all
+  updated. New tests at every layer, including an HTTP-level test
+  against real PostgreSQL that reproduces the exact scenario (staff A
+  saves, staff B's stale save is rejected with the real current version,
+  staff B reloads and retries successfully).
+- **Public catalog proxy and sitemap stopped at the backend's first page
+  (50 services):** both now walk every backend page (200/page, the
+  backend's own max) until a short page signals the end, preserving the
+  `categoryId` filter across pages. New tests cover the multi-page walk,
+  the common single-page case, filter preservation, and a connection
+  failure mid-walk.
+- **No correlation ID connected a customer-visible failure to its
+  backend audit trail:** travel-marketplace was the one product not
+  using the existing, already-proven `CorrelationContext`/
+  `CorrelationIdFilter` convention (`divers`, `accounting`, `hr`,
+  `payroll` all already did) — its public controller generated a
+  throwaway `UUID.randomUUID()` and its staff controller passed `null`
+  on all four actions. Fixed by switching both to
+  `CorrelationContext.currentCorrelationId()`. Since Nitro's own
+  `fetch()` to the backend bypasses nginx entirely, the site's two
+  public proxy routes now forward an incoming `X-Correlation-Id` (or
+  generate one), pass it to the backend, and echo it back to the
+  browser — nginx's existing log format already referenced
+  `$sent_http_x_correlation_id`, it was just always empty before this.
+  New tests cover generate-when-absent and forward-when-present for both
+  routes.
+- **Anonymous request-creation shared the general browsing rate limit:**
+  fixed with a dedicated `request_create_rate` zone (10 req/min, burst
+  10) on `/api/requests` only. **Verified live** against a real
+  `nginx:1.30.4-alpine` container: `/api/requests` hit `429` after 11
+  requests in the test window while `/` kept passing through under the
+  general limit.
+- **Verified:** full backend suite green against real PostgreSQL
+  (Testcontainers), including `ktlintCheck`; site suite 81/81 (up from
+  69), `nuxt typecheck` clean, real production `nuxt build` succeeds,
+  lint clean; ERP suite 59/59 (up from 56), `nuxt typecheck` clean, real
+  production `nuxt build` succeeds (ERP lint has the same 6
+  pre-existing, unrelated `vue/no-multiple-template-root` failures
+  present before this round — confirmed via `git stash`, not introduced
+  here); OpenAPI contract re-validated as well-formed YAML.
+- **Rollback considerations:** one additive Flyway migration (new
+  `version` column, `DEFAULT 1`, backward-compatible with every existing
+  row); `UpsertServiceRequest.expectedVersion` is nullable (create is
+  unaffected; update now requires it, rejected with a clean 400 rather
+  than silently accepted if omitted); isolation-level change is
+  read-only, no write-path behavior changed; nginx changes are
+  rate-limiting and header plumbing only, verified live against a real
+  container before being treated as done. No production deploy occurred.
+- **Findings backlog status:** all 24 of Codex's original findings are
+  now fixed — see
+  `clients/sharm-to-go/handoff/2026-10-01_CODEX_REVIEW_FINDINGS_BACKLOG.md`
+  for the full accounting. Not yet addressed, not part of this review:
+  ERP's broader optimistic-locking pattern beyond services (if any other
+  editors share the same silent-overwrite shape), and the previously
+  acknowledged non-findings (payments, shared availability pooling,
+  mobile API integration, scheduler for the expiry sweep, consent
+  checkbox, real-browser visual verification) remain exactly as
+  documented elsewhere.
+- **Next:** commit, push, update board/roadmap evidence (done in this
+  same pass). PR #46 stays unmerged pending the owner's own fresh "اعمل
+  merge" instruction.
+
 ## WEGO-003 — Reliable integration delivery and replay
 
 - **Status:** NOT AUTHORIZED — roadmap only; WEGO-002 must close first and owner activation is still required.

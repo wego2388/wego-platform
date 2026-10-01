@@ -196,6 +196,7 @@ class TravelRequestServiceTest {
             createdAt = now,
             publishedAt = now,
             archivedAt = null,
+            version = 1,
         )
     }
 

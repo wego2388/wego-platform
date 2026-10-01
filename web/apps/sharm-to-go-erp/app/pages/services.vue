@@ -80,6 +80,10 @@ function errorText(error: unknown): string {
     if (error.errorCode === "would_invalidate_published_content") {
       return "This service is live — it can't be saved with no options or no media while published/suspended.";
     }
+    if (error.errorCode === "version_conflict") {
+      return "Someone else saved changes to this service while you were editing. Reload it and redo your changes.";
+    }
+    if (error.errorCode === "expected_version_required") return "Reload this service and try again.";
     if (error.status === 404) return "Not found.";
     if (error.status === 400) return "Check the form for an invalid value.";
     return `Request failed (${error.errorCode}).`;
@@ -172,6 +176,10 @@ function blankForm() {
 
 const form = ref(blankForm());
 const editingServiceId = ref<string | null>(null);
+// The version the edit form was loaded against — sent back as
+// expectedVersion so a save against a service someone else already changed
+// is rejected (409 version_conflict) instead of silently overwriting it.
+const editingServiceVersion = ref<number | null>(null);
 const formState = ref<"idle" | "submitting" | "error">("idle");
 const formError = ref("");
 
@@ -198,6 +206,7 @@ async function startEdit(summary: Service) {
   if (!session.value) return;
   const service = await getService(session.value.token, summary.id);
   editingServiceId.value = service.id;
+  editingServiceVersion.value = service.version;
   form.value = {
     categoryId: service.categoryId,
     nameEn: service.name.en,
@@ -225,6 +234,7 @@ async function startEdit(summary: Service) {
 
 function cancelEdit() {
   editingServiceId.value = null;
+  editingServiceVersion.value = null;
   form.value = blankForm();
   formState.value = "idle";
   formError.value = "";
@@ -232,6 +242,39 @@ function cancelEdit() {
 
 function optionalText(en: string, ar: string): { en: string; ar: string } | undefined {
   return en.trim() !== "" || ar.trim() !== "" ? { en, ar } : undefined;
+}
+
+// An untouched row from "Add option"/"Add photo" (neither field ever
+// filled in) is a harmless placeholder, dropped silently on save. A row
+// with ONLY one field filled is a mistake, not a placeholder — it used to
+// be dropped the same silent way, which could delete an existing option or
+// photo's real content just because one of its two fields was blank when
+// the form was submitted. That case is now a blocking validation error
+// instead (see validateForm), never a silent save.
+function isBlankOption(option: ServiceOption): boolean {
+  return !option.label.en.trim() && !option.label.ar.trim();
+}
+
+function isIncompleteOption(option: ServiceOption): boolean {
+  return !isBlankOption(option) && (!option.label.en.trim() || !option.label.ar.trim());
+}
+
+function isBlankMedia(media: ServiceMedia): boolean {
+  return !media.assetReference.trim() && !media.rightsEvidence.trim();
+}
+
+function isIncompleteMedia(media: ServiceMedia): boolean {
+  return !isBlankMedia(media) && (!media.assetReference.trim() || !media.rightsEvidence.trim());
+}
+
+function validateForm(): string | null {
+  if (form.value.options.some(isIncompleteOption)) {
+    return "An option is missing its English or Arabic label. Fill in both, or remove the row.";
+  }
+  if (form.value.media.some(isIncompleteMedia)) {
+    return "A photo is missing its asset reference or rights evidence. Fill in both, or remove the row.";
+  }
+  return null;
 }
 
 function buildRequestBody(): UpsertServiceBody {
@@ -246,13 +289,20 @@ function buildRequestBody(): UpsertServiceBody {
     pickupInfo: optionalText(form.value.pickupInfoEn, form.value.pickupInfoAr),
     inclusions: optionalText(form.value.inclusionsEn, form.value.inclusionsAr),
     exclusions: optionalText(form.value.exclusionsEn, form.value.exclusionsAr),
-    options: form.value.options.filter((option) => option.label.en && option.label.ar),
-    media: form.value.media.filter((media) => media.assetReference && media.rightsEvidence),
+    options: form.value.options.filter((option) => !isBlankOption(option)),
+    media: form.value.media.filter((media) => !isBlankMedia(media)),
+    expectedVersion: editingServiceId.value ? (editingServiceVersion.value ?? undefined) : undefined,
   };
 }
 
 async function submitForm() {
   if (!session.value) return;
+  const validationError = validateForm();
+  if (validationError) {
+    formState.value = "error";
+    formError.value = validationError;
+    return;
+  }
   formState.value = "submitting";
   formError.value = "";
   try {

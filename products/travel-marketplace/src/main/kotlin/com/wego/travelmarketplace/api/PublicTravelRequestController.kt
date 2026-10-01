@@ -1,5 +1,6 @@
 package com.wego.travelmarketplace.api
 
+import com.wego.events.CorrelationContext
 import com.wego.travelmarketplace.application.CreateTravelRequestCommand
 import com.wego.travelmarketplace.application.CreateTravelRequestResult
 import com.wego.travelmarketplace.application.CreateTravelRequestService
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
 
 /**
  * Unauthenticated by construction — registered under the same public
@@ -58,7 +58,7 @@ class PublicTravelRequestController(
                 sourceChannel = request.sourceChannel,
                 customer = TravelRequestCustomer(request.customer.name, request.customer.phone, request.customer.email),
                 idempotencyKey = idempotencyKey,
-                correlationId = UUID.randomUUID(),
+                correlationId = CorrelationContext.currentCorrelationId(),
                 expectedPrice = Money(request.expectedPriceAmount.setScale(2), request.expectedPriceCurrency),
             )
         return when (val result = createTravelRequestService.create(command)) {

@@ -1,6 +1,7 @@
 package com.wego.travelmarketplace.application
 
 import com.wego.travelmarketplace.domain.TravelRequestActorType
+import com.wego.travelmarketplace.domain.TravelRequestStatus
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
@@ -28,7 +29,16 @@ class ExpireTravelRequestsService(
         expirable.forEach { request ->
             transactionRunner.runInTransaction {
                 val locked = requestRepository.findByIdForUpdate(request.id) ?: return@runInTransaction
-                if (locked.status.isTerminal) return@runInTransaction
+                // expire() only accepts NEW/IN_REVIEW and throws otherwise.
+                // A plain "not terminal" check lets CONFIRMED through (it is
+                // not a terminal status), which would throw here and stop
+                // the rest of this sweep's batch — this can genuinely race
+                // with a real confirm() between candidate selection above
+                // and this lock. Skip anything that moved out of the
+                // expirable states instead of letting expire() find out.
+                if (locked.status != TravelRequestStatus.NEW && locked.status != TravelRequestStatus.IN_REVIEW) {
+                    return@runInTransaction
+                }
 
                 val fromStatus = locked.status
                 val now = Instant.now(clock)

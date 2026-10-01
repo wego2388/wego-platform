@@ -36,14 +36,49 @@ describe("POST /api/requests (proxy)", () => {
   it("marks its response no-store — the body carries a fresh bearer-secret reference", async () => {
     await loadHandlers();
     vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ reference: "STG-ABCDEFGH", status: "NEW" }), { status: 201 })));
-    let capturedHeader: [string, string] | undefined;
+    const capturedHeaders: Array<[string, string]> = [];
     vi.stubGlobal("setResponseHeader", (_event: unknown, name: string, value: string) => {
-      capturedHeader = [name, value];
+      capturedHeaders.push([name, value]);
     });
 
     await createHandler({ headers: { "idempotency-key": "k" }, body: {} } as never);
 
-    expect(capturedHeader).toEqual(["cache-control", "no-store"]);
+    expect(capturedHeaders).toContainEqual(["cache-control", "no-store"]);
+  });
+
+  it("generates a correlation id and forwards it to the backend when the caller sent none", async () => {
+    await loadHandlers();
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      new Response(JSON.stringify({ reference: "STG-ABCDEFGH" }), { status: 201 }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await createHandler({ headers: { "idempotency-key": "k" }, body: {} } as never);
+
+    const [, init] = fetchMock.mock.calls[0]!;
+    const forwarded = (init?.headers as Record<string, string>)["X-Correlation-Id"];
+    expect(forwarded).toMatch(/^[0-9a-f-]{36}$/i);
+  });
+
+  it("reuses the caller's own correlation id instead of generating a new one, and echoes it back", async () => {
+    await loadHandlers();
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      new Response(JSON.stringify({ reference: "STG-ABCDEFGH" }), { status: 201 }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const capturedHeaders: Array<[string, string]> = [];
+    vi.stubGlobal("setResponseHeader", (_event: unknown, name: string, value: string) => {
+      capturedHeaders.push([name, value]);
+    });
+
+    await createHandler({
+      headers: { "idempotency-key": "k", "x-correlation-id": "incoming-id" },
+      body: {},
+    } as never);
+
+    const [, init] = fetchMock.mock.calls[0]!;
+    expect((init?.headers as Record<string, string>)["X-Correlation-Id"]).toBe("incoming-id");
+    expect(capturedHeaders).toContainEqual(["x-correlation-id", "incoming-id"]);
   });
 
   it("rejects with a clean 400 when the Idempotency-Key header is missing, before ever calling the backend", async () => {
@@ -71,6 +106,18 @@ describe("POST /api/requests (proxy)", () => {
     expect(capturedStatus).toBe(409);
     expect(result).toEqual({ error: "party_size_exceeds_capacity" });
   });
+
+  it("throws a clean 502, not a raw unhandled crash, when fetch itself fails (a true connection failure, not an HTTP error status)", async () => {
+    await loadHandlers();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new TypeError("fetch failed");
+      }),
+    );
+
+    await expect(createHandler({ headers: { "idempotency-key": "k" }, body: {} } as never)).rejects.toMatchObject({ statusCode: 502 });
+  });
 });
 
 describe("GET /api/requests/[reference] (proxy)", () => {
@@ -93,9 +140,21 @@ describe("GET /api/requests/[reference] (proxy)", () => {
     expect(result).toBeNull();
   });
 
-  it("throws a clean 502, not a raw crash, when the real backend is unreachable", async () => {
+  it("throws a clean 502, not a raw crash, when the backend responds with a real HTTP error status", async () => {
     await loadHandlers();
     vi.stubGlobal("fetch", vi.fn(async () => new Response("boom", { status: 500 })));
+
+    await expect(lookupHandler({ params: { reference: "STG-ABCDEFGH" } } as never)).rejects.toMatchObject({ statusCode: 502 });
+  });
+
+  it("throws a clean 502, not a raw unhandled crash, when fetch itself fails (a true connection failure, not an HTTP error status)", async () => {
+    await loadHandlers();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new TypeError("fetch failed");
+      }),
+    );
 
     await expect(lookupHandler({ params: { reference: "STG-ABCDEFGH" } } as never)).rejects.toMatchObject({ statusCode: 502 });
   });
@@ -103,13 +162,48 @@ describe("GET /api/requests/[reference] (proxy)", () => {
   it("marks its response no-store — a reference is a bearer secret, see the nginx config's own logging hardening", async () => {
     await loadHandlers();
     vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ reference: "STG-ABCDEFGH" }), { status: 200 })));
-    let capturedHeader: [string, string] | undefined;
+    const capturedHeaders: Array<[string, string]> = [];
     vi.stubGlobal("setResponseHeader", (_event: unknown, name: string, value: string) => {
-      capturedHeader = [name, value];
+      capturedHeaders.push([name, value]);
     });
 
     await lookupHandler({ params: { reference: "STG-ABCDEFGH" } } as never);
 
-    expect(capturedHeader).toEqual(["cache-control", "no-store"]);
+    expect(capturedHeaders).toContainEqual(["cache-control", "no-store"]);
+  });
+
+  it("generates a correlation id and forwards it to the backend when the caller sent none", async () => {
+    await loadHandlers();
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      new Response(JSON.stringify({ reference: "STG-ABCDEFGH" }), { status: 200 }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await lookupHandler({ params: { reference: "STG-ABCDEFGH" }, headers: {} } as never);
+
+    const [, init] = fetchMock.mock.calls[0]!;
+    const forwarded = (init?.headers as Record<string, string>)["X-Correlation-Id"];
+    expect(forwarded).toMatch(/^[0-9a-f-]{36}$/i);
+  });
+
+  it("reuses the caller's own correlation id instead of generating a new one, and echoes it back", async () => {
+    await loadHandlers();
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      new Response(JSON.stringify({ reference: "STG-ABCDEFGH" }), { status: 200 }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const capturedHeaders: Array<[string, string]> = [];
+    vi.stubGlobal("setResponseHeader", (_event: unknown, name: string, value: string) => {
+      capturedHeaders.push([name, value]);
+    });
+
+    await lookupHandler({
+      params: { reference: "STG-ABCDEFGH" },
+      headers: { "x-correlation-id": "incoming-id" },
+    } as never);
+
+    const [, init] = fetchMock.mock.calls[0]!;
+    expect((init?.headers as Record<string, string>)["X-Correlation-Id"]).toBe("incoming-id");
+    expect(capturedHeaders).toContainEqual(["x-correlation-id", "incoming-id"]);
   });
 });

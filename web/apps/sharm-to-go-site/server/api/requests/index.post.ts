@@ -17,11 +17,33 @@ export default defineEventHandler(async (event) => {
   }
   const body = await readBody(event);
 
-  const response = await fetch(`${base}/api/v1/travel-marketplace/public/requests`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Idempotency-Key": idempotencyKey },
-    body: JSON.stringify(body),
-  });
+  // This proxy's own fetch() to the backend bypasses nginx entirely, so
+  // nginx's edge request id never reaches CorrelationIdFilter on its own —
+  // generate one here (or keep one the browser already sent) and echo it
+  // back, so a customer-visible failure can be traced into the backend
+  // audit trail.
+  const correlationId = getHeader(event, "x-correlation-id") ?? crypto.randomUUID();
+  setResponseHeader(event, "x-correlation-id", correlationId);
+
+  // fetch() itself throws on a true connection failure (DNS, refused,
+  // timeout) — distinct from the backend responding with a real HTTP error
+  // status, which is deliberately passed through unchanged below so a
+  // specific error code like price_changed or party_size_exceeds_capacity
+  // reaches the caller intact.
+  let response: Response;
+  try {
+    response = await fetch(`${base}/api/v1/travel-marketplace/public/requests`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Idempotency-Key": idempotencyKey,
+        "X-Correlation-Id": correlationId,
+      },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    throw createError({ statusCode: 502, statusMessage: "Could not reach the request service." });
+  }
 
   const payload = await response.json().catch(() => null);
   setResponseStatus(event, response.status);

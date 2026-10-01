@@ -1,5 +1,6 @@
 package com.wego.travelmarketplace.api
 
+import com.wego.events.CorrelationContext
 import com.wego.identity.AuthenticatedUser
 import com.wego.travelmarketplace.application.CancelTravelRequestCommand
 import com.wego.travelmarketplace.application.CancelTravelRequestResult
@@ -86,7 +87,9 @@ class TravelRequestController(
         authentication: Authentication,
     ): ResponseEntity<Any> {
         val actorUserId = (authentication.principal as AuthenticatedUser).userId
-        return when (val result = startTravelRequestReviewService.start(TravelRequestId(id), actorUserId, null)) {
+        return when (
+            val result = startTravelRequestReviewService.start(TravelRequestId(id), actorUserId, CorrelationContext.currentCorrelationId())
+        ) {
             is StartTravelRequestReviewResult.Started -> ResponseEntity.ok(result.request.toStaffResponse())
             StartTravelRequestReviewResult.NotFound -> ResponseEntity.notFound().build()
             StartTravelRequestReviewResult.InvalidTransition ->
@@ -101,7 +104,9 @@ class TravelRequestController(
         authentication: Authentication,
     ): ResponseEntity<Any> {
         val actorUserId = (authentication.principal as AuthenticatedUser).userId
-        return when (val result = confirmTravelRequestService.confirm(TravelRequestId(id), actorUserId, null)) {
+        return when (
+            val result = confirmTravelRequestService.confirm(TravelRequestId(id), actorUserId, CorrelationContext.currentCorrelationId())
+        ) {
             is ConfirmTravelRequestResult.Confirmed -> ResponseEntity.ok(result.request.toStaffResponse())
             ConfirmTravelRequestResult.NotFound -> ResponseEntity.notFound().build()
             ConfirmTravelRequestResult.InvalidTransition ->
@@ -124,7 +129,7 @@ class TravelRequestController(
                 detail = request.detail,
                 actorType = TravelRequestActorType.STAFF,
                 actorUserId = actorUserId,
-                correlationId = null,
+                correlationId = CorrelationContext.currentCorrelationId(),
             )
         return when (val result = cancelTravelRequestService.cancel(command)) {
             is CancelTravelRequestResult.Cancelled -> ResponseEntity.ok(result.request.toStaffResponse())
@@ -141,7 +146,9 @@ class TravelRequestController(
         authentication: Authentication,
     ): ResponseEntity<Any> {
         val actorUserId = (authentication.principal as AuthenticatedUser).userId
-        return when (val result = completeTravelRequestService.complete(TravelRequestId(id), actorUserId, null)) {
+        return when (
+            val result = completeTravelRequestService.complete(TravelRequestId(id), actorUserId, CorrelationContext.currentCorrelationId())
+        ) {
             is CompleteTravelRequestResult.Completed -> ResponseEntity.ok(result.request.toStaffResponse())
             CompleteTravelRequestResult.NotFound -> ResponseEntity.notFound().build()
             CompleteTravelRequestResult.InvalidTransition ->
