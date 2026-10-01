@@ -3503,13 +3503,23 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
     staff alert, and a documented manual refund procedure (owner input).
   - MEDIUM — partial refunds answer `amount_mismatch` forever.
   - LOW — password reset does not revoke existing sessions; public matchers
-    are not pinned to HTTP methods; sequential booking references; full
-    exception logging in the Paymob HTTP client; nonce-based CSP to remove
+    are not pinned to HTTP methods; sequential booking references; nonce-based CSP to remove
     `script-src 'unsafe-inline'`.
+  - Test hygiene (not Safari): the foundation ERP lifecycle e2e asserts
+    right after `page.reload()` and has flaked twice; worth an
+    `expect.poll`/retry-on-reload in its owning packet.
 - **Evidence:** backend 206 tests; launch + site e2e 16/16 through the new
   nginx config (local edge in front of the current backend jar); live edge
   probes (public login/staff 404, 413 on 100 KB, per-IP 429 after the burst
   and separate buckets per forwarded client, HSTS present).
+- **CI:** d644226 failed only E9 (my ERP header change had hidden the
+  signed-in email) → fixed in 91fad4b; that run's first attempt failed once
+  in the foundation ERP payroll e2e (`POSTED` after reload — same
+  reload-timing pattern as the earlier HR attendance flake, unrelated to
+  Safari); the rerun passed every job, including the full Safari suites
+  with the new edge rules and staff-host login throttling.
+- **Also fixed:** Paymob HTTP client errors log only the exception type and
+  HTTP status, never the provider's response body.
 ---
 
 ## WEGO-017 — Foundry executable isolated client releases

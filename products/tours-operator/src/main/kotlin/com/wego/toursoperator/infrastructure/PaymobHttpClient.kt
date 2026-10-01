@@ -101,7 +101,7 @@ class PaymobHttpClient(
 
             PaymobCheckoutResult.Success(orderId, checkoutToken)
         } catch (ex: RestClientException) {
-            log.error("Paymob intention creation failed", ex)
+            log.error("Paymob intention creation failed: {}", describe(ex))
             PaymobCheckoutResult.Failure("Provider checkout creation failed")
         }
     }
@@ -198,7 +198,7 @@ class PaymobHttpClient(
                 PaymobRefundResult.Failure("Refund declined by provider")
             }
         } catch (ex: RestClientException) {
-            log.error("Paymob refund failed", ex)
+            log.error("Paymob refund failed: {}", describe(ex))
             PaymobRefundResult.Failure("Provider refund failed")
         }
     }
@@ -220,7 +220,7 @@ class PaymobHttpClient(
             @Suppress("UNCHECKED_CAST")
             (response as? Map<String, Any>)?.get("token")?.toString()
         } catch (ex: RestClientException) {
-            log.error("Paymob authentication failed", ex)
+            log.error("Paymob authentication failed: {}", describe(ex))
             null
         }
 
@@ -296,3 +296,13 @@ data class PaymobConfig(
             httpsUrl("TOURS_OPERATOR_PAYMOB_REDIRECTION_URL", redirectionUrl)
         }
 }
+
+/**
+ * Exception messages from the HTTP client can carry the provider's response
+ * body (keys, customer data). Log only the exception type and HTTP status.
+ */
+private fun describe(ex: RestClientException): String =
+    when (ex) {
+        is org.springframework.web.client.RestClientResponseException -> "${ex.javaClass.simpleName} status=${ex.statusCode.value()}"
+        else -> ex.javaClass.simpleName
+    }
