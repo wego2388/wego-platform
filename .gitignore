@@ -55,3 +55,6 @@ reports/
 # Python bytecode (content tooling scripts)
 __pycache__/
 *.pyc
+
+# LibreOffice lock files
+.~lock.*#

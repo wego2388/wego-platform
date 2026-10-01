@@ -1,9 +1,15 @@
-"""Builds the owner's master data workbook (one Excel file, one sheet per
-topic) for Safari Tours Sharm. The owner fills the yellow cells; agents read
-rows by the stable `key` column. See OWNER_DATA_HUB.md for the schema.
+"""Bootstrap a new Safari Tours Sharm owner-data workbook.
 
-Run from this directory:  python3 build_owner_hub.py
-Never put passwords, API keys or secret tokens in the workbook."""
+This script intentionally generates only the original catalogue-backed base
+sheets. The checked-in workbook is the working source of truth and contains
+later owner answers plus account-audit and marketing sheets. To avoid silent
+data loss, an existing workbook is never overwritten without the explicit
+``--force-bootstrap`` flag.
+
+Never put passwords, API keys or secret tokens in the workbook. See
+OWNER_DATA_HUB.md for the live schema and agent rules.
+"""
+import argparse
 import json
 from datetime import date
 from pathlib import Path
@@ -304,7 +310,26 @@ def changelog(wb):
     sheet(wb, "سجل التغييرات", ["التاريخ", "مين", "إيه اللي اتغيّر"], rows, {"التاريخ", "مين", "إيه اللي اتغيّر"}, [16, 16, 90])
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Create the original Safari Tours owner-data bootstrap workbook."
+    )
+    parser.add_argument(
+        "--force-bootstrap",
+        action="store_true",
+        help="overwrite the live workbook with the original bootstrap (data loss risk)",
+    )
+    return parser.parse_args()
+
+
 def main():
+    args = parse_args()
+    if OUT.exists() and not args.force_bootstrap:
+        raise SystemExit(
+            f"Refusing to overwrite the live owner workbook: {OUT}\n"
+            "The workbook contains owner answers and audited account data. "
+            "Use --force-bootstrap only when intentionally creating a disposable base copy."
+        )
     wb = Workbook()
     readme(wb)
     company(wb)
