@@ -81,7 +81,7 @@ async function signOut() {
       <div class="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-8">
         <NuxtLink to="/" class="flex shrink-0 items-center gap-2 font-semibold">
           <span class="grid size-8 place-items-center rounded-lg bg-sts-gold text-xs font-black text-sts-ocean">STS</span>
-          <span class="hidden sm:inline xl:hidden 2xl:inline">Safari Tours Sharm · Staff</span>
+          <span class="hidden sm:inline xl:hidden">Safari Tours Sharm · Staff</span>
         </NuxtLink>
         <nav v-if="session" class="hidden flex-1 items-center gap-1 overflow-x-auto xl:flex" aria-label="Main navigation">
           <NuxtLink
@@ -96,7 +96,7 @@ async function signOut() {
           </NuxtLink>
         </nav>
         <div v-if="session" class="ms-auto flex items-center gap-2">
-          <span class="hidden text-xs text-white/70 md:inline xl:hidden" :title="session.email">{{ session.email }}</span>
+          <span class="hidden max-w-40 truncate text-xs text-white/70 md:inline-block" :title="session.email">{{ session.email }}</span>
           <button type="button" class="rounded-lg border border-white/25 px-3 py-1.5 text-sm font-semibold hover:bg-white/10" @click="signOut">Sign out</button>
           <button
             type="button"
