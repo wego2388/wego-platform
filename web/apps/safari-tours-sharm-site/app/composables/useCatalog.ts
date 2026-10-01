@@ -1,4 +1,4 @@
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import type { Tour, TourCategory } from "@wego/api-contract";
 import { useSiteLocale } from "./useSiteLocale";
 
@@ -21,7 +21,8 @@ export const CATEGORY_ORDER: TourCategory[] = ["DESERT", "SEA", "CULTURAL", "SHO
 export function apiFetch<T>(path: string): Promise<T> {
   if (import.meta.server) {
     const base = useRuntimeConfig().apiInternalBase as string;
-    return $fetch<T>(`${base}${path}`) as Promise<T>;
+    // Bounded: a slow backend must not hold the page render for long.
+    return $fetch<T>(`${base}${path}`, { timeout: 8000, retry: 1, retryDelay: 300 }) as Promise<T>;
   }
   // Typed by hand: these are backend API paths, not this app's Nitro routes.
   return $fetch<T>(path) as Promise<T>;
@@ -80,6 +81,11 @@ export function useCatalog() {
   const result = useAsyncData(() => `catalog-${locale.value}`, () => fetchAllActiveTours(locale.value), {
     watch: [locale],
     default: () => [] as CatalogTour[],
+  });
+  // If the server could not reach the backend (e.g. it was still starting),
+  // the browser tries once more instead of showing an empty catalogue.
+  onMounted(() => {
+    if (result.error.value || (result.status.value === "success" && !(result.data.value ?? []).length)) void result.refresh();
   });
   const countsByCategory = computed(() => {
     const counts = Object.fromEntries(CATEGORY_ORDER.map((c) => [c, 0])) as Record<TourCategory, number>;
