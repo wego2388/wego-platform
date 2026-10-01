@@ -5,7 +5,7 @@ export const SITE_LOCALES = ["en", "ar", "ru", "it"] as const;
  * redirected, so junk URLs (/wp-admin, typos) get a straight 404 instead of a
  * redirect hop, and a wrongly-cased locale (/EN/tours) is normalised.
  */
-const LEGACY_ROOTS = ["tours", "tour", "category", "booking", "my-booking", "contact", "privacy", "terms", "design-system"];
+const LEGACY_ROOTS = ["tours", "tour", "category", "booking", "my-booking", "contact", "privacy", "terms", "about", "faq", "trip-finder", "design-system"];
 
 /**
  * Where a language-less URL should go, or null when it needs no redirect.

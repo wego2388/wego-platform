@@ -5,6 +5,14 @@ export const whatsappPhone = "+201111292690";
 export const siteEmail = "safaritourssharm@gmail.com";
 export const siteWebsite = "https://safaritourssharm.com";
 
+// Owner-confirmed channels (owner data hub, 2026-10-01).
+export const instagramUrl = "https://www.instagram.com/safari_tours_sharm";
+export const facebookUrl = "https://www.facebook.com/100063820752767/";
+export const googleMapsUrl = "https://www.google.com/maps/place/safari+tours+sharm/data=!4m2!3m1!1s0x0:0x4157d683723a2ede";
+export const googleReviewUrl = "https://g.page/r/Cd4uOnKD1ldBEAI/review";
+export const tripadvisorUrl =
+  "https://www.tripadvisor.com/Attraction_Review-g297555-d34123701-Reviews-Safari_Tours_Sharm-Sharm_El_Sheikh_South_Sinai_Red_Sea_and_Sinai.htm";
+
 export const rtlLocales: StsLocale[] = ["ar"];
 
 export function directionFor(locale: StsLocale): "ltr" | "rtl" {

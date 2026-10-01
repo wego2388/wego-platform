@@ -4,8 +4,12 @@ import { useCatalog } from "../composables/useCatalog";
 import { useDiscoveryCopy } from "../composables/useDiscoveryCopy";
 import { MAX_QUERY_LENGTH, SORTS, activeFilterCount, applyTourFilters, useTourFilters, type TourSort } from "../composables/useTourFilters";
 import { whatsappUrl } from "../content/locales";
+import { infoCopy } from "../content/info";
+import { useSiteLocale } from "../composables/useSiteLocale";
 
 const copy = useDiscoveryCopy();
+const siteLocale = useSiteLocale();
+const finderTitle = computed(() => infoCopy[siteLocale.value].finder.title);
 const { data: catalog, status, refresh } = useCatalog();
 const { filters, update, clear } = useTourFilters();
 
@@ -41,6 +45,9 @@ useSeoMeta({
       <div class="mx-auto max-w-7xl">
         <h1 class="font-display text-3xl font-semibold sm:text-4xl">{{ copy.tours.title }}</h1>
         <p class="mt-3 max-w-2xl text-white/80">{{ copy.tours.body }}</p>
+        <NuxtLinkLocale to="/trip-finder" class="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-sts-sand hover:text-white">
+          <Icon name="lucide:sparkles" class="size-4" aria-hidden="true" />{{ finderTitle }}
+        </NuxtLinkLocale>
         <form class="relative mt-8 max-w-2xl" role="search" @submit.prevent="update({ q: query })">
           <label for="tour-search" class="sr-only">{{ copy.tours.searchLabel }}</label>
           <Icon name="lucide:search" class="pointer-events-none absolute inset-y-0 start-4 my-auto size-5 text-sts-muted" aria-hidden="true" />

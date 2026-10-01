@@ -2380,7 +2380,7 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
 
 ## WEGO-016 — Safari Tours Sharm: tours-operator product foundation
 
-- **Status:** IN PROGRESS — A–G complete; phase 4 UX-0..UX-4 complete, UX-5 ACTIVE (2026-10-01); H–I require explicit owner activation
+- **Status:** IN PROGRESS — A–G complete; phase 4 UX-0..UX-5 complete, UX-6 ACTIVE (2026-10-01); H–I require explicit owner activation
 - **Activated:** 2026-09-27
 - **Review intensity:** Tier 1 — this packet adds a new product boundary (`products/tours-operator`), a new Flyway migration (V14), a new client isolation profile (`clients/safari-tours-sharm`), and will later touch payment/PII/auth surfaces. Every sub-packet that adds a migration, modifies auth, or handles customer payment data requires independent Tier 1 review before merge.
 - **Origin:** The owner asked to establish Safari Tours Sharm as a first-class Wego Platform product — on the same standards as Sharm Divers Club and Sharm To Go — with a public booking website, a staff ERP, a real Paymob payment flow, a production tour catalog, and an isolated deployment. The handoff document at `clients/safari-tours-sharm/handoff/SAFARI_TOURS_PRODUCTION_MATURITY_HANDOFF.md` is the authoritative reference for current maturity, open P0 issues, and the phased delivery plan.
@@ -3242,15 +3242,44 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-10-01 — WEGO-016-UX5: trip finder, information pages and consent (Tier 2)
 
+- **Status:** COMPLETE (2026-10-01)
+- **Activation:** owner standing instruction (`ابدا نفذ و سيطر علي المشروع و كمل البناء`, 2026-09-30).
+- **Review intensity:** Tier 2 — public content.
+- **Delivered:** four-language contact (owner-confirmed phone/WhatsApp
+  +20 111 129 2690, email, Delta Sharm office with Google Maps link — no office
+  number or support hours until confirmed — Instagram, Facebook, Google and
+  Tripadvisor reviews), about, FAQ (only owner-hub answers marked filled; FAQPage
+  JSON-LD), terms and privacy rebuilt from approved facts (cancellation tiers,
+  EUR, per-person/per-unit, Paymob, payment-verified confirmation, essential
+  cookies only), rule-based trip finder (`/trip-finder`, answers in the URL, a
+  reason per suggestion, per-unit price shared per seat, transfers and
+  request-only excluded), error page on the layout with theme and skip link.
+  Footer and /tours link the new pages; language-less legacy redirects cover
+  them. New guard test fails when a template uses a component name Nuxt does not
+  register (caught a real blank-page bug during this packet).
+- **Decision — consent:** the site has no analytics or tracking today, so no
+  consent banner is shown; consent is built together with GA4/Meta in UX-7 and
+  gates every tag.
+- **Evidence:** site 113 tests (incl. finder, info copy shape, cancellation
+  truth, component resolution), lint/typecheck clean, `pnpm run check` exit 0,
+  production build: all new routes 200 in four languages, unknown page 404,
+  Playwright AR/EN/RU/IT light/dark without console errors or overflow.
+  Sonnet review: fixed error-page theme/skip link, anchor under sticky header,
+  finder load-failure state, live region, per-unit budget guard, results only
+  after an explicit search.
+- **Follow-ups:** terms and privacy need a legal review before launch (legal
+  name, tax registration and tourism licence to be added once confirmed);
+  support hours and office number when the owner confirms.
+
+### 2026-10-01 — WEGO-016-UX6: Safari ERP on the design system (Tier 2)
+
 - **Status:** ACTIVE
 - **Activation:** owner standing instruction (`ابدا نفذ و سيطر علي المشروع و كمل البناء`, 2026-09-30).
-- **Review intensity:** Tier 2 — public content; consent touches analytics only.
-- **Scope (FRONTEND_MASTER_PLAN_AR.md §7.5, §7.9, §14 UX-5):** "help me
-  choose" trip finder (rule-based, a reason per suggestion, result in the
-  URL), contact / about / FAQ / terms / privacy / cancellation pages in four
-  languages from owner-approved facts, cookie consent that gates any
-  analytics, 404/error pages on the design system.
-
+- **Review intensity:** Tier 2 (Tier 1 for any change to money or permissions).
+- **Scope (FRONTEND_MASTER_PLAN_AR.md §8, §14 UX-6):** staff ERP moved onto
+  the shared design tokens and components (light/dark, Arabic RTL), per-unit
+  bookings and seat-based capacity visible to staff, today's departures view,
+  tour content and price-option visibility.
 ---
 
 ## WEGO-017 — Foundry executable isolated client releases

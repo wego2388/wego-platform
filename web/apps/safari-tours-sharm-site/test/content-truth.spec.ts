@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { siteCopy } from "../app/content/locales";
+import { infoCopy } from "../app/content/info";
 
 const appRoot = process.cwd();
 
@@ -18,11 +19,14 @@ describe("commercial content truth", () => {
       expect(copy.cancellationBody).toContain("50");
     }
 
-    const terms = source("app/pages/terms.vue");
-    expect(terms).toContain("at least 48 hours");
-    expect(terms).toContain("24–48 hours");
-    expect(terms).toContain("50% refund");
-    expect(terms).toContain("no-shows are non-refundable");
+    // The terms page text lives in app/content/info.ts (four languages).
+    for (const copy of Object.values(infoCopy)) {
+      const cancellation = copy.terms.sections[3]!.body.join(" ");
+      expect(cancellation).toContain("48");
+      expect(cancellation).toContain("24");
+      expect(cancellation).toContain("50%");
+    }
+    expect(infoCopy.en.terms.sections[3]!.body.join(" ")).toMatch(/At least 48 hours.*full refund.*24 and 48 hours.*50% refund.*do not show up: no refund/);
   });
 
   it("does not publish placeholder social proof, payment methods, or universal inclusions", () => {
@@ -34,6 +38,7 @@ describe("commercial content truth", () => {
       source("app/pages/booking/[slotId].vue"),
       source("app/pages/booking/confirmation.vue"),
       source("app/pages/terms.vue"),
+      source("app/content/info.ts"),
     ].join("\n");
 
     expect(runtimeContent).not.toMatch(/4\.9|500\+|since 2010|24\/7|100% secure/i);

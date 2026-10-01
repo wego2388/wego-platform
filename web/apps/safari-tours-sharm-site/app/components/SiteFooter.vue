@@ -1,12 +1,15 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { useDiscoveryCopy } from "../composables/useDiscoveryCopy";
-import { siteCopy, siteEmail, whatsappPhone, whatsappUrl, categoryMeta } from "../content/locales";
+import { siteCopy, siteEmail, whatsappPhone, whatsappUrl, categoryMeta, instagramUrl, facebookUrl } from "../content/locales";
+import { infoCopy } from "../content/info";
 import { useSiteLocale } from "../composables/useSiteLocale";
 import { CATEGORY_ORDER } from "../composables/useCatalog";
 
 const copy = useDiscoveryCopy();
 const locale = useSiteLocale();
 const year = new Date().getFullYear();
+const info = computed(() => infoCopy[locale.value]);
 </script>
 
 <template>
@@ -35,7 +38,10 @@ const year = new Date().getFullYear();
           <h2 class="text-xs font-bold tracking-[0.12em] text-sts-sand uppercase">{{ copy.footer.help }}</h2>
           <ul class="mt-4 grid gap-2 text-sm">
             <li><NuxtLinkLocale to="/my-booking" class="text-white/75 hover:text-white">{{ copy.footer.myBooking }}</NuxtLinkLocale></li>
-            <li><NuxtLinkLocale to="/terms" class="text-white/75 hover:text-white">{{ copy.footer.cancellation }}</NuxtLinkLocale></li>
+            <li><NuxtLinkLocale to="/trip-finder" class="text-white/75 hover:text-white">{{ info.finder.title }}</NuxtLinkLocale></li>
+            <li><NuxtLinkLocale to="/faq" class="text-white/75 hover:text-white">{{ info.faq.title }}</NuxtLinkLocale></li>
+            <li><NuxtLinkLocale to="/terms#section-4" class="text-white/75 hover:text-white">{{ copy.footer.cancellation }}</NuxtLinkLocale></li>
+            <li><NuxtLinkLocale to="/about" class="text-white/75 hover:text-white">{{ info.about.title }}</NuxtLinkLocale></li>
             <li><NuxtLinkLocale to="/contact" class="text-white/75 hover:text-white">{{ copy.footer.contact }}</NuxtLinkLocale></li>
           </ul>
         </div>
@@ -43,6 +49,16 @@ const year = new Date().getFullYear();
         <div>
           <h2 class="text-xs font-bold tracking-[0.12em] text-sts-sand uppercase">{{ copy.footer.company }}</h2>
           <ul class="mt-4 grid gap-2 text-sm">
+            <li>
+              <a :href="instagramUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-white/75 hover:text-white">
+                <Icon name="lucide:instagram" class="size-4" aria-hidden="true" />Instagram
+              </a>
+            </li>
+            <li>
+              <a :href="facebookUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-white/75 hover:text-white">
+                <Icon name="lucide:facebook" class="size-4" aria-hidden="true" />Facebook
+              </a>
+            </li>
             <li>
               <a :href="whatsappUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-white/75 hover:text-white">
                 <Icon name="lucide:message-circle" class="size-4" aria-hidden="true" />{{ copy.nav.whatsapp }}
