@@ -189,8 +189,12 @@ class JooqBookingRepository(
             .set(TOURS_OPERATOR_BOOKING.PRICE_OPTION_LABEL, booking.pricing.unit?.optionLabel)
             .set(TOURS_OPERATOR_BOOKING.SEATS_PER_UNIT, booking.pricing.unit?.seatsPerUnit)
             .set(TOURS_OPERATOR_BOOKING.UNIT_COUNT, booking.pricing.unit?.unitCount)
-            .set(TOURS_OPERATOR_BOOKING.UNIT_PRICE_EUR, booking.pricing.unit?.unitPrice?.amount)
-            .set(TOURS_OPERATOR_BOOKING.CUSTOMER_FULL_NAME, booking.customer.fullName)
+            .set(
+                TOURS_OPERATOR_BOOKING.UNIT_PRICE_EUR,
+                booking.pricing.unit
+                    ?.unitPrice
+                    ?.amount,
+            ).set(TOURS_OPERATOR_BOOKING.CUSTOMER_FULL_NAME, booking.customer.fullName)
             .set(TOURS_OPERATOR_BOOKING.CUSTOMER_PHONE, booking.customer.phone)
             .set(TOURS_OPERATOR_BOOKING.CUSTOMER_NATIONALITY, booking.customer.nationality)
             .set(TOURS_OPERATOR_BOOKING.CUSTOMER_EMAIL, booking.customer.email)

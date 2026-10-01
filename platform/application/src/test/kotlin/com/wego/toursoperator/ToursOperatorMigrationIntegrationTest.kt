@@ -543,6 +543,7 @@ class ToursOperatorMigrationIntegrationTest(
 
             upgradePostgres.createConnection("").use { connection ->
                 val dsl = DSL.using(connection, SQLDialect.POSTGRES)
+
                 fun slot(id: UUID) =
                     dsl.fetchOne("SELECT capacity, booked_count FROM wego.tours_operator_tour_slot WHERE id = ?", id)!!.let {
                         it.get(0, Int::class.java) to it.get(1, Int::class.java)
