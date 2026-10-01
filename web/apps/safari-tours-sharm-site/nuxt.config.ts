@@ -74,6 +74,10 @@ export default defineNuxtConfig({
     // internal network (NUXT_API_INTERNAL_BASE); the browser uses same-origin /api.
     apiInternalBase: "http://127.0.0.1:8080",
     public: {
+      // Analytics IDs come from deployment config only (NUXT_PUBLIC_GA4_ID,
+      // NUXT_PUBLIC_META_PIXEL_ID). Empty = no consent banner, no tags at all.
+      ga4Id: "",
+      metaPixelId: "",
       // Internal component showcase (/{locale}/design-system); off in production.
       designSystem: process.env.NUXT_PUBLIC_DESIGN_SYSTEM === "true",
     },

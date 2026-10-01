@@ -15,7 +15,7 @@ const copy = computed(() => myBookingCopy[locale.value]);
 const tourCopy = computed(() => tourPageCopy[locale.value].booking);
 const discovery = useDiscoveryCopy();
 const intlLocale = computed(() => (locale.value === "ar" ? "ar-EG" : locale.value));
-useSeoMeta({ title: () => `${copy.value.title} — Safari Tours Sharm`, description: () => copy.value.intro });
+useSeoMeta({ title: () => `${copy.value.title} — Safari Tours Sharm`, description: () => copy.value.intro, robots: "noindex" });
 
 const reference = ref("");
 const phone = ref("");

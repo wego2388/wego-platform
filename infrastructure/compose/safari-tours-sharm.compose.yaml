@@ -67,6 +67,9 @@ services:
       NUXT_API_INTERNAL_BASE: http://backend:8080
       # Public origin used in canonical and hreflang links (production: https://<domain>).
       NUXT_PUBLIC_I18N_BASE_URL: ${WEGO_SITE_PUBLIC_URL:-http://127.0.0.1:58080}
+      # Optional. Empty = no consent banner and no analytics tags at all.
+      NUXT_PUBLIC_GA4_ID: ${WEGO_SITE_GA4_ID:-}
+      NUXT_PUBLIC_META_PIXEL_ID: ${WEGO_SITE_META_PIXEL_ID:-}
     healthcheck:
       test: [CMD-SHELL, "wget -q -O /dev/null http://127.0.0.1:3001/tours"]
       interval: 5s

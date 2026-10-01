@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
+import { useAnalytics } from "../../composables/useAnalytics";
 import { formatMoney } from "@wego/api-contract";
 import { useCatalog } from "../../composables/useCatalog";
 import { useDiscoveryCopy } from "../../composables/useDiscoveryCopy";
@@ -86,6 +87,10 @@ const similar = computed(() =>
 );
 
 const bookingOpen = ref(false);
+const analytics = useAnalytics();
+onMounted(() =>
+  analytics.track("view_item", { item_id: tour.value.slug, item_category: tour.value.category, value: Number(tour.value.priceAdult.amount), currency: tour.value.priceAdult.currencyCode }),
+);
 // One booking card at a time: sticky aside on desktop, bottom sheet on mobile.
 // Decided after hydration (the server can't know the viewport), so the
 // server HTML and the first client render always match.

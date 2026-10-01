@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { formatMoney } from "@wego/api-contract";
 import { useCatalog } from "../../composables/useCatalog";
+import { useAnalytics } from "../../composables/useAnalytics";
 import { useDiscoveryCopy } from "../../composables/useDiscoveryCopy";
 import { useSiteLocale } from "../../composables/useSiteLocale";
 import { bookingResultCopy, buildCalendarFile } from "../../content/bookingResult";
@@ -20,6 +21,7 @@ import {
  * server's payment status alone decides whether this page says confirmed.
  */
 const locale = useSiteLocale();
+const analytics = useAnalytics();
 const copy = computed(() => bookingResultCopy[locale.value]);
 const tourCopy = computed(() => tourPageCopy[locale.value].booking);
 const discovery = useDiscoveryCopy();
@@ -53,6 +55,8 @@ onMounted(async () => {
     booking.value = stored;
     takeLatestBookingConfirmation();
     state.value = "confirmed";
+    // Sent once: the tab-scoped booking was just consumed, so a refresh cannot repeat it.
+    analytics.track("purchase", { transaction_id: stored.reference, value: Number(authoritative.amountEur), currency: authoritative.currencyCode });
   } catch {
     state.value = "unconfirmed";
     message.value = copy.value.unconfirmed.verify;

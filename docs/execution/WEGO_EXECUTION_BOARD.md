@@ -2380,7 +2380,7 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
 
 ## WEGO-016 — Safari Tours Sharm: tours-operator product foundation
 
-- **Status:** IN PROGRESS — A–G complete; phase 4 UX-0..UX-6 complete, UX-7 ACTIVE (2026-10-01); H–I require explicit owner activation
+- **Status:** IN PROGRESS — A–G complete; phase 4 UX-0..UX-7 complete, UX-8 ACTIVE (2026-10-01); H–I require explicit owner activation
 - **Activated:** 2026-09-27
 - **Review intensity:** Tier 1 — this packet adds a new product boundary (`products/tours-operator`), a new Flyway migration (V14), a new client isolation profile (`clients/safari-tours-sharm`), and will later touch payment/PII/auth surfaces. Every sub-packet that adds a migration, modifies auth, or handles customer payment data requires independent Tier 1 review before merge.
 - **Origin:** The owner asked to establish Safari Tours Sharm as a first-class Wego Platform product — on the same standards as Sharm Divers Club and Sharm To Go — with a public booking website, a staff ERP, a real Paymob payment flow, a production tour catalog, and an isolated deployment. The handoff document at `clients/safari-tours-sharm/handoff/SAFARI_TOURS_PRODUCTION_MATURITY_HANDOFF.md` is the authoritative reference for current maturity, open P0 issues, and the phased delivery plan.
@@ -3300,14 +3300,46 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-10-01 — WEGO-016-UX7: SEO, analytics with consent, legacy redirects (Tier 2)
 
+- **Status:** COMPLETE (2026-10-01)
+- **Activation:** owner standing instruction (`ابدا نفذ و سيطر علي المشروع و كمل البناء`, 2026-09-30).
+- **Owner decision:** the old WordPress site is being deleted from Hostinger;
+  treat the site as new, so no legacy URL map is built (language-less URLs of
+  the new site still redirect to their language).
+- **Delivered:** `/sitemap.xml` (every public page × four languages with
+  hreflang + x-default, tours from the live catalogue, bounded paging, 1 h
+  cache) and `/robots.txt` (booking, my-booking, design-system and API kept
+  out); my-booking noindex; default 1200×630 share image and og/twitter meta;
+  start-up warning when the public origin is still local in production.
+  Consent-gated analytics: GA4 and/or Meta Pixel load only when their IDs are
+  configured (`WEGO_SITE_GA4_ID`, `WEGO_SITE_META_PIXEL_ID`, public IDs) **and**
+  the visitor allows; banner only when configured; decline/reset removes
+  `_ga*`/`_fbp`/`_fbc`; Meta automatic advanced matching disabled (checkout
+  holds names/phones/emails); events view_item, begin_checkout (once per
+  details), purchase (once, after server-PAID), whatsapp_click; path-only page
+  locations, no query strings; privacy page describes analytics only when it
+  is configured. Public-site CSP now allows the Google/Meta hosts (staff host
+  CSP unchanged).
+- **Evidence:** site 117 tests (sitemap/robots), lint/typecheck clean,
+  `pnpm run check` exit 0, Safari gate passed; production build: sitemap 172
+  URLs (13 static + 30 tours × 4), robots, og image 200, canonical and
+  hreflang absolute; Playwright with test IDs: zero Google/Meta requests before
+  consent, both scripts after "Allow", none after "No thanks". Sonnet review
+  findings fixed (Meta autoConfig, cookie clean-up, CSP hosts, origin
+  fallback, checkout event dedupe, initial page view, secure cookie).
+- **Owner follow-ups:** create GA4 property / confirm Meta dataset and give
+  the IDs; disable GA "page changes based on browser history" enhanced
+  measurement (manual page views are sent).
+
+### 2026-10-01 — WEGO-016-UX8: polish and final proof (Tier 2)
+
 - **Status:** ACTIVE
 - **Activation:** owner standing instruction (`ابدا نفذ و سيطر علي المشروع و كمل البناء`, 2026-09-30).
-- **Review intensity:** Tier 2 (consent and tracking reviewed carefully).
-- **Scope (FRONTEND_MASTER_PLAN_AR.md §14 UX-7):** sitemap and robots,
-  canonical/hreflang audit, per-page metadata and share images, structured
-  data, 301 redirects from the old WordPress URLs to the new pages, consent
-  banner that gates GA4/Meta tags (IDs from config only, nothing loads before
-  consent), analytics events from the owner hub list.
+- **Review intensity:** Tier 2.
+- **Scope (FRONTEND_MASTER_PLAN_AR.md §14 UX-8):** cross-page accessibility
+  and performance pass (Lighthouse/axe on key pages, JS weight), RTL and dark
+  audit, offline copy of the last booking (moved from UX-4), WhatsApp button
+  overlap on narrow screens, e2e coverage for the new flows, final screenshot
+  set for the owner.
 ---
 
 ## WEGO-017 — Foundry executable isolated client releases

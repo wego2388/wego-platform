@@ -32,6 +32,7 @@ export interface InfoCopy {
     submit: string; reset: string; results: string; none: string; noneBody: string;
     reasons: { category: string; duration: string; budget: string; family: string; group: string };
   };
+  consent: { title: string; body: string; accept: string; decline: string; more: string; analyticsCookies: string };
   error: { notFound: string; notFoundBody: string; generic: string; genericBody: string; home: string; tours: string };
   updated: string;
 }
@@ -100,6 +101,11 @@ const en: InfoCopy = {
     submit: "Show my suggestions", reset: "Start again", results: "Our suggestions for you", none: "Nothing matches all of that",
     noneBody: "Try a different time or budget — or tell us on WhatsApp what you are looking for.",
     reasons: { category: "matches what you enjoy", duration: "fits your time", budget: "within your budget", family: "short enough for children", group: "good for a group" },
+  },
+  consent: {
+    title: "Can we measure visits?", body: "With your permission we use Google Analytics and Meta Pixel to see which pages and tours people use, so we can improve the site. Nothing is loaded unless you agree.",
+    accept: "Allow", decline: "No thanks", more: "Privacy policy",
+    analyticsCookies: "If you allow it, we also use Google Analytics and Meta Pixel cookies to understand how the site is used. They load only after you agree, and you can change your choice at any time from the link at the bottom of the page.",
   },
   error: {
     notFound: "Page not found", notFoundBody: "The page you are looking for does not exist or has moved.",
@@ -174,6 +180,11 @@ const ar: InfoCopy = {
     noneBody: "جرّب وقتًا أو ميزانية مختلفة — أو أخبرنا على واتساب بما تبحث عنه.",
     reasons: { category: "تطابق ما تحب", duration: "تناسب وقتك", budget: "ضمن ميزانيتك", family: "قصيرة ومناسبة للأطفال", group: "مناسبة للمجموعات" },
   },
+  consent: {
+    title: "هل تسمح لنا بقياس الزيارات؟", body: "بإذنك نستخدم Google Analytics وMeta Pixel لمعرفة الصفحات والرحلات الأكثر استخدامًا لتحسين الموقع. لا يتم تحميل أي شيء دون موافقتك.",
+    accept: "أسمح", decline: "لا، شكرًا", more: "سياسة الخصوصية",
+    analyticsCookies: "إذا سمحت بذلك، نستخدم أيضًا كوكيز Google Analytics وMeta Pixel لفهم طريقة استخدام الموقع. لا تُحمَّل إلا بعد موافقتك، ويمكنك تغيير اختيارك في أي وقت من الرابط أسفل الصفحة.",
+  },
   error: {
     notFound: "الصفحة غير موجودة", notFoundBody: "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
     generic: "حدث خطأ", genericBody: "حاول مرة أخرى بعد قليل، أو تواصل معنا على واتساب.",
@@ -247,6 +258,11 @@ const ru: InfoCopy = {
     noneBody: "Попробуйте другое время или бюджет — или напишите нам в WhatsApp, что вы ищете.",
     reasons: { category: "то, что вам нравится", duration: "подходит по времени", budget: "в рамках бюджета", family: "недолго, подходит детям", group: "хорошо для группы" },
   },
+  consent: {
+    title: "Можно учитывать посещения?", body: "С вашего разрешения мы используем Google Analytics и Meta Pixel, чтобы понимать, какие страницы и туры смотрят, и улучшать сайт. Без вашего согласия ничего не загружается.",
+    accept: "Разрешить", decline: "Нет, спасибо", more: "Политика конфиденциальности",
+    analyticsCookies: "Если вы разрешите, мы также используем cookies Google Analytics и Meta Pixel, чтобы понимать, как используется сайт. Они загружаются только после согласия; изменить выбор можно в любой момент по ссылке внизу страницы.",
+  },
   error: {
     notFound: "Страница не найдена", notFoundBody: "Страница не существует или была перемещена.",
     generic: "Что-то пошло не так", genericBody: "Попробуйте ещё раз чуть позже или напишите нам в WhatsApp.",
@@ -319,6 +335,11 @@ const it: InfoCopy = {
     submit: "Mostra i suggerimenti", reset: "Ricomincia", results: "I nostri suggerimenti", none: "Nessuna escursione corrisponde a tutto",
     noneBody: "Prova un altro tempo o budget — oppure scrivici su WhatsApp cosa cerchi.",
     reasons: { category: "in linea con i tuoi gusti", duration: "adatta al tuo tempo", budget: "nel tuo budget", family: "breve, adatta ai bambini", group: "ideale per gruppi" },
+  },
+  consent: {
+    title: "Possiamo misurare le visite?", body: "Con il tuo permesso usiamo Google Analytics e Meta Pixel per capire quali pagine ed escursioni vengono usate e migliorare il sito. Senza il tuo consenso non viene caricato nulla.",
+    accept: "Consenti", decline: "No, grazie", more: "Informativa sulla privacy",
+    analyticsCookies: "Se lo consenti, usiamo anche i cookie di Google Analytics e Meta Pixel per capire come viene usato il sito. Vengono caricati solo dopo il tuo consenso e puoi cambiare scelta in qualsiasi momento dal link in fondo alla pagina.",
   },
   error: {
     notFound: "Pagina non trovata", notFoundBody: "La pagina che cerchi non esiste o è stata spostata.",

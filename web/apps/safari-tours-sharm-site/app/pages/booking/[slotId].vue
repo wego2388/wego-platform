@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import { calculateBookingTotal, formatMoney, multiplyMoney, type Booking, type TimeSlot } from "@wego/api-contract";
 import { useCatalog } from "../../composables/useCatalog";
+import { useAnalytics } from "../../composables/useAnalytics";
 import { useDiscoveryCopy } from "../../composables/useDiscoveryCopy";
 import { useSiteLocale } from "../../composables/useSiteLocale";
 import {
@@ -30,6 +31,7 @@ useSeoMeta({ title: () => `${copy.value.title} — Safari Tours Sharm`, robots: 
 // Locale-dependent text (dates, country names) differs between the server's
 // and browsers' ICU data, so it is rendered after hydration.
 const mounted = useMounted();
+const analytics = useAnalytics();
 
 // ── Trip from the tour page (non-personal query only) ──────────────────────
 const slotId = computed(() => String(route.params.slotId));
@@ -191,6 +193,7 @@ function messageFor(error: unknown): string {
 // same details (e.g. after returning from Paymob or a payment-start error),
 // so a retry never creates a second booking.
 let created: { key: string; booking: Booking } | null = null;
+let trackedCheckout: string | null = null;
 function payloadKey() {
   return JSON.stringify([slotId.value, adults.value, children.value, optionCode.value, units.value, form.value]);
 }
@@ -210,6 +213,11 @@ async function pay() {
   errors.value = {};
   submitError.value = "";
   submitting.value = true;
+  // Once per set of details: a retry after an error is not a new checkout.
+  if (trackedCheckout !== payloadKey()) {
+    trackedCheckout = payloadKey();
+    analytics.track("begin_checkout", { item_id: tour.value?.slug, value: total.value ? Number(total.value.amount) : undefined, currency: total.value?.currencyCode });
+  }
   try {
     const key = payloadKey();
     const booking = created?.key === key ? created.booking : await createBooking({

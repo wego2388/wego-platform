@@ -21,9 +21,10 @@ export const CATEGORY_ORDER: TourCategory[] = ["DESERT", "SEA", "CULTURAL", "SHO
 export function apiFetch<T>(path: string): Promise<T> {
   if (import.meta.server) {
     const base = useRuntimeConfig().apiInternalBase as string;
-    return $fetch<T>(`${base}${path}`);
+    return $fetch<T>(`${base}${path}`) as Promise<T>;
   }
-  return $fetch<T>(path);
+  // Typed by hand: these are backend API paths, not this app's Nitro routes.
+  return $fetch<T>(path) as Promise<T>;
 }
 
 // The public catalogue changes rarely; the server keeps each answer for a

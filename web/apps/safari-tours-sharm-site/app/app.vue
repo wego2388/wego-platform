@@ -20,6 +20,20 @@ useHead(() => ({
   meta: localeHead.value.meta,
 }));
 
+// Default share card; pages with their own picture override it.
+// Absolute URL from the configured public origin, else the request's own origin.
+const configuredBase = String((useRuntimeConfig().public.i18n as { baseUrl?: string } | undefined)?.baseUrl ?? "");
+const siteBase = (configuredBase || useRequestURL().origin).replace(/\/+$/, "");
+useSeoMeta({
+  ogImage: `${siteBase}/og-default.png`,
+  ogImageWidth: 1200,
+  ogImageHeight: 630,
+  ogImageAlt: "Safari Tours Sharm",
+  twitterCard: "summary_large_image",
+  twitterImage: `${siteBase}/og-default.png`,
+  ogSiteName: "Safari Tours Sharm",
+});
+
 const SKIP: Record<string, string> = {
   en: "Skip to content",
   ar: "تخطي إلى المحتوى",
@@ -35,4 +49,5 @@ const skipLabel = computed(() => SKIP[locale.value] ?? SKIP.en);
     <NuxtPage />
   </NuxtLayout>
   <WhatsAppFab />
+  <SiteConsentBanner />
 </template>

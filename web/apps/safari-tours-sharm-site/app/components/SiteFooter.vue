@@ -3,6 +3,7 @@ import { computed } from "vue";
 import { useDiscoveryCopy } from "../composables/useDiscoveryCopy";
 import { siteCopy, siteEmail, whatsappPhone, whatsappUrl, categoryMeta, instagramUrl, facebookUrl } from "../content/locales";
 import { infoCopy } from "../content/info";
+import { useConsent } from "../composables/useConsent";
 import { useSiteLocale } from "../composables/useSiteLocale";
 import { CATEGORY_ORDER } from "../composables/useCatalog";
 
@@ -10,6 +11,12 @@ const copy = useDiscoveryCopy();
 const locale = useSiteLocale();
 const year = new Date().getFullYear();
 const info = computed(() => infoCopy[locale.value]);
+const consent = useConsent();
+/** Forget the choice and reload, so already-loaded tags are gone and the banner asks again. */
+function changeCookies() {
+  consent.reset();
+  window.location.reload();
+}
 </script>
 
 <template>
@@ -83,6 +90,7 @@ const info = computed(() => infoCopy[locale.value]);
         <span class="flex gap-4">
           <NuxtLinkLocale to="/privacy" class="hover:text-white">{{ copy.footer.privacy }}</NuxtLinkLocale>
           <NuxtLinkLocale to="/terms" class="hover:text-white">{{ copy.footer.terms }}</NuxtLinkLocale>
+          <button v-if="consent.configured.value" type="button" class="hover:text-white" @click="changeCookies">{{ info.consent.title }}</button>
         </span>
       </div>
     </div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useAnalytics } from "../composables/useAnalytics";
 import { useSiteLocale } from "../composables/useSiteLocale";
 import { siteCopy, whatsappUrl } from "../content/locales";
 
@@ -8,6 +9,7 @@ const label = computed(() => siteCopy[locale.value].whatsappFab);
 // Tour pages and the checkout form carry their own WhatsApp action; the
 // floating button would cover their controls.
 const route = useRoute();
+const analytics = useAnalytics();
 const hidden = computed(() => /^\/[a-z]{2}\/(tour\/|booking\/[0-9a-f-]{36}$)/.test(route.path));
 </script>
 
@@ -19,6 +21,7 @@ const hidden = computed(() => /^\/[a-z]{2}\/(tour\/|booking\/[0-9a-f-]{36}$)/.te
     rel="noopener"
     class="wa-fab fixed bottom-5 end-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 font-semibold text-white shadow-xl"
     :aria-label="label"
+    @click="analytics.track('whatsapp_click', { placement: 'floating' })"
   >
     <!-- WhatsApp icon -->
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
