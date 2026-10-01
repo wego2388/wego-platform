@@ -118,7 +118,7 @@
           "Hotel pickup and drop-off",
           "Air-conditioned transport",
           "Camel ride",
-          "Barbecue Bedouin dinner (open buffet)",
+          "Barbecue Bedouin dinner (open buffet) in a private VIP tent",
           "Bedouin tea",
           "Fire show and Tanoura show",
           "Tour guide",
@@ -127,8 +127,7 @@
         "excludes": [],
         "knowBeforeYouGo": [
           "Comfortable clothes and shoes",
-          "A light jacket for the evening",
-          "Travelling as a family or group? A private tent can be arranged on request."
+          "A light jacket for the evening"
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
@@ -137,7 +136,9 @@
         "hotelPickup": "INCLUDED",
         "childrenAllowed": true
       },
-      "reviewFlags": []
+      "reviewFlags": [
+        "محمد 2026-10-01: «العشاء البدوي في الخاص في اي بي انكلوديت» — الخيمة الخاصة VIP مشمولة."
+      ]
     },
     {
       "slug": "dahab-colored-canyon",
@@ -209,13 +210,13 @@
           "Air-conditioned transport",
           "Ras Mohammed National Park entrance fees",
           "Boat trip with two snorkeling stops",
-          "Snorkeling equipment",
           "Snorkeling guide",
           "Visit to White Island",
           "Buffet lunch on board",
           "Unlimited soft and hot drinks"
         ],
         "excludes": [
+          "Snorkeling equipment (available to rent for an extra fee)",
           "Introductory dive (optional, extra charge)"
         ],
         "knowBeforeYouGo": [
@@ -232,7 +233,7 @@
         "minimumAge": null
       },
       "reviewFlags": [
-        "قراري: معدات السنوركل مشمولة (زي أحدث قايمة في الموقع القديم) — لو بفلوس زيادة قولي."
+        "محمد 2026-10-01: إيجار معدات السنوركل بفلوس إضافية."
       ]
     },
     {
@@ -567,11 +568,11 @@
           "Air-conditioned transport",
           "Entrance fees",
           "Boat trip with two snorkeling stops",
-          "Snorkeling equipment",
           "Buffet lunch on board",
           "Unlimited soft and hot drinks"
         ],
         "excludes": [
+          "Snorkeling equipment (available to rent for an extra fee)",
           "Introductory dive (optional, extra charge)"
         ],
         "knowBeforeYouGo": [

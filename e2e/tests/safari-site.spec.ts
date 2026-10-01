@@ -15,8 +15,12 @@ test.describe("Safari public site", () => {
   test("home and tours list are server-rendered with the live catalogue", async ({ page }) => {
     await page.goto(`${SITE}/en`);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    // The raw server HTML must already list tours (SSR), independent of which
+    // tours the database holds (CI did not list the seeded e2e tour by name).
+    const html = await (await page.request.get(`${SITE}/en/tours`)).text();
+    expect(html).toMatch(/href="\/en\/tour\/[a-z0-9-]+"/);
     await page.goto(`${SITE}/en/tours`);
-    await expect(page.getByRole("link", { name: /e2e/i }).first()).toBeVisible();
+    await expect(page.locator('main a[href^="/en/tour/"]').first()).toBeVisible();
   });
 
   test("search and filters live in the URL", async ({ page }) => {

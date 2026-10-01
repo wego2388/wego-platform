@@ -1,12 +1,14 @@
-"""Imports tour-content-drafts.en.json into a running Safari backend as DRAFT
-content and facts, and (only with --publish) publishes them.
+"""Imports tour-content-drafts.<locale>.json into a running Safari backend as
+DRAFT content (and, from the English file, facts), and (only with --publish)
+publishes them.
 
 Usage:
-  python3 import_drafts.py --base-url https://api.example --email admin@... [--publish]
+  python3 import_drafts.py --base-url https://api.example --email admin@... [--locale en|ar|ru|it|all] [--publish]
 The password is read from the STS_ADMIN_PASSWORD environment variable, never
 from the command line. Publishing sends the revision just read back, so it
 publishes exactly what was imported. Never run --publish before the owner has
-approved the drafts (status must be OWNER_APPROVED in the JSON file).
+approved the drafts: the English file must be OWNER_APPROVED and a
+translation APPROVED (both are set only after the owner's sign-off).
 """
 import argparse
 import json
@@ -34,12 +36,19 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--base-url", required=True)
     parser.add_argument("--email", required=True)
+    parser.add_argument("--locale", default="en", choices=["en", "ar", "ru", "it", "all"])
     parser.add_argument("--publish", action="store_true")
     args = parser.parse_args()
 
-    drafts = json.load(open(os.path.join(os.path.dirname(__file__), "tour-content-drafts.en.json")))
-    if args.publish and drafts.get("status") != "OWNER_APPROVED":
-        sys.exit("Refusing to publish: drafts are not marked OWNER_APPROVED.")
+    locales = ["en", "ar", "ru", "it"] if args.locale == "all" else [args.locale]
+    here = os.path.dirname(__file__)
+    files = []
+    for locale in locales:
+        drafts = json.load(open(os.path.join(here, f"tour-content-drafts.{locale}.json")))
+        allowed = "OWNER_APPROVED" if locale == "en" else "APPROVED"
+        if args.publish and drafts.get("status") != allowed:
+            sys.exit(f"Refusing to publish {locale}: status is {drafts.get('status')}, expected {allowed}.")
+        files.append(drafts)
     password = os.environ.get("STS_ADMIN_PASSWORD") or sys.exit("Set STS_ADMIN_PASSWORD.")
 
     status, login = call(args.base_url, "POST", "/api/v1/identity/login", body={"email": args.email, "password": password})
@@ -47,6 +56,14 @@ def main():
         sys.exit(f"Login failed: {status}")
     token = login["token"]
 
+    failures = 0
+    for drafts in files:
+        failures += import_locale(args, token, drafts)
+    sys.exit(1 if failures else 0)
+
+
+def import_locale(args, token, drafts):
+    """Imports one locale file; returns the number of failures."""
     failures = 0
     for tour in drafts["tours"]:
         status, found = call(args.base_url, "GET", f"/api/v1/tours-operator/tours/by-slug?slug={tour['slug']}")
@@ -56,7 +73,8 @@ def main():
             continue
         tour_id = found["id"]
         steps = [("PUT", f"/api/v1/tours-operator/staff/tours/{tour_id}/content/{drafts['locale']}", tour["content"])]
-        if tour.get("facts"):
+        # Facts are locale-independent and owned by the English file.
+        if drafts["locale"] == "en" and tour.get("facts"):
             steps.append(("PUT", f"/api/v1/tours-operator/staff/tours/{tour_id}/facts", tour["facts"]))
         for method, path, body in steps:
             status, result = call(args.base_url, method, path, token, body)
@@ -75,8 +93,8 @@ def main():
                 if status != 204:
                     print(f"FAIL publish {tour['slug']} {action}: {status} {result}")
                     failures += 1
-        print(f"OK   {tour['slug']}")
-    sys.exit(1 if failures else 0)
+        print(f"OK   {drafts['locale']} {tour['slug']}")
+    return failures
 
 
 if __name__ == "__main__":

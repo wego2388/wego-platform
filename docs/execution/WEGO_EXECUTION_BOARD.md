@@ -3360,13 +3360,44 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-10-01 — WEGO-016-CNT: tour content in four languages (Tier 2)
 
-- **Status:** ACTIVE
+- **Status:** COMPLETE (2026-10-01)
 - **Activation:** owner standing instruction (`ابدا نفذ و سيطر علي المشروع و كمل البناء`, 2026-09-30).
 - **Review intensity:** Tier 2 (content only; prices stay in migrations).
 - **Scope:** apply the owner's in-sheet answers to the EN drafts, draft
   Arabic (and RU/IT for native review) tour content from the approved EN,
   keep the import script ready for publishing through the revision-checked
   staff API once a server runs; nothing published without owner sign-off.
+- **Delivered:**
+  - EN drafts updated with the owner's answers: snorkel equipment is a paid
+    rental (Ras Mohamed, Tiran), the Bedouin dinner includes the private VIP
+    tent. EN stays `OWNER_APPROVED` (30 tours, fingerprint `f5bdf64ea726511d`).
+  - `tour-content-drafts.{ar,ru,it}.json`: full translations of all 30 tours,
+    each tied to the EN fingerprint, then an independent native-level review
+    per language (AR 90, RU 23, IT 59 string fixes — terminology, naturalness;
+    no fact errors found). Facts spot-checked against EN.
+  - `import_drafts.py --locale en|ar|ru|it|all`: facts only from EN;
+    `--publish` refuses unless EN is `OWNER_APPROVED` and translations are
+    `APPROVED`.
+  - Contact page office address (Office 238, Building 167, Delta Sharm) in
+    four languages; owner data hub updated (tax ID, address, phone, Instagram,
+    support hours 12 h/day — exact window still open).
+- **Approval:** owner delegated translation approval after review
+  (`واعتمد المراجعه اللغات بعد ما تخلص`, 2026-10-01); translations marked
+  `APPROVED` with the basis recorded in each file.
+- **Not done (needs a server):** the actual import into a live database —
+  `import_drafts.py --locale all --publish` once phase H provides one.
+- **Evidence:** structure/limit validation 3/3 languages, site 118 unit tests.
+
+### 2026-10-01 — WEGO-016-OPS: operations readiness without owner inputs (Tier 1)
+
+- **Status:** ACTIVE
+- **Activation:** owner standing instruction (`ابدا نفذ و سيطر علي المشروع و كمل البناء`, 2026-09-30; `كمل`, 2026-10-01).
+- **Review intensity:** Tier 1 (backup/restore, booking/payment kill switch).
+- **Scope:** the phase-H items that need no owner keys or server:
+  monitoring and alerts without customer data, database backup plus a timed
+  real restore rehearsal on a local copy, a written rollback plan
+  (stop-then-start for V24/V25), and a fast switch that pauses new bookings
+  and payments. No deploy, DNS, real credentials or external sends.
 ---
 
 ## WEGO-017 — Foundry executable isolated client releases
