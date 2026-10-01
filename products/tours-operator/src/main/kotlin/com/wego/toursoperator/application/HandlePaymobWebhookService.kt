@@ -156,6 +156,16 @@ class HandlePaymobWebhookService(
                     return@runInTransaction HandlePaymobWebhookResult.AlreadyProcessed
                 }
 
+                // "success" on an authorisation-only, voided or errored
+                // transaction is not captured money: never confirm on it,
+                // hand it to staff instead.
+                if (payload.isAuth.isTrue() || payload.isVoided.isTrue() || payload.errorOccurred.isTrue()) {
+                    payment.markReviewRequired(payload.transactionId, providerStatus, audit, now)
+                    paymentRepository.save(payment)
+                    outboxWriter.write(reviewRequiredEnvelope(payment.id, booking.id, booking.status))
+                    return@runInTransaction HandlePaymobWebhookResult.ReviewRequired
+                }
+
                 if (booking.status != BookingStatus.NEW) {
                     payment.markReviewRequired(payload.transactionId, providerStatus, audit, now)
                     paymentRepository.save(payment)

@@ -181,9 +181,10 @@ class ToursOperatorPaymentTest {
         amountCents: Long,
         currency: String = "EUR",
         integrationId: String = "100001",
+        isAuth: Boolean = false,
     ) = """{"obj":{"id":"$transactionId","success":$success,"pending":$pending,
               "is_refunded":$isRefund,"error_occured":false,"has_parent_transaction":false,
-              "is_3d_secure":true,"is_auth":false,"is_capture":false,
+              "is_3d_secure":true,"is_auth":$isAuth,"is_capture":false,
               "is_standalone_payment":true,"is_voided":false,"owner":"100001",
               "amount_cents":$amountCents,"currency":"$currency",
               "created_at":"2026-09-28T10:00:00Z","integration_id":"$integrationId",
@@ -612,6 +613,39 @@ class ToursOperatorPaymentTest {
                 .fetchOne(TOURS_OPERATOR_BOOKING.STATUS)
         assertThat(paymentStatus).isEqualTo("REVIEW_REQUIRED")
         assertThat(bookingStatus).isEqualTo("EXPIRED")
+    }
+
+    @Test
+    fun `D6h - success on an authorisation-only transaction is reviewed and never confirms`() {
+        val bookingId = createBooking()
+        mockMvc
+            .post("/api/v1/tours-operator/bookings/$bookingId/pay") {
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect { status { isCreated() } }
+
+        mockMvc
+            .post("/api/v1/tours-operator/payments/paymob-callback?hmac=valid-hmac") {
+                contentType = MediaType.APPLICATION_JSON
+                content = webhookBody("ORDER-TEST-123", "TXN-AUTH-ONLY", "true", "false", "false", 4500, isAuth = true)
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.status") { value("review_required") }
+            }
+
+        val paymentStatus =
+            dsl
+                .select(TOURS_OPERATOR_PAYMENT.STATUS)
+                .from(TOURS_OPERATOR_PAYMENT)
+                .where(TOURS_OPERATOR_PAYMENT.BOOKING_ID.eq(UUID.fromString(bookingId)))
+                .fetchOne(TOURS_OPERATOR_PAYMENT.STATUS)
+        val bookingStatus =
+            dsl
+                .select(TOURS_OPERATOR_BOOKING.STATUS)
+                .from(TOURS_OPERATOR_BOOKING)
+                .where(TOURS_OPERATOR_BOOKING.ID.eq(UUID.fromString(bookingId)))
+                .fetchOne(TOURS_OPERATOR_BOOKING.STATUS)
+        assertThat(paymentStatus).isEqualTo("REVIEW_REQUIRED")
+        assertThat(bookingStatus).isEqualTo("NEW")
     }
 
     @Test

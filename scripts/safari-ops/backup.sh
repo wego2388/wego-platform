@@ -3,7 +3,7 @@
 #
 #   SAFARI_COMPOSE_PROJECT=wego-safari-tours-sharm \
 #   SAFARI_BACKUP_DIR=/var/backups/safari-tours-sharm \
-#   [SAFARI_BACKUP_GPG_RECIPIENT=<key id>] [SAFARI_BACKUP_KEEP_DAYS=14] \
+#   SAFARI_BACKUP_GPG_RECIPIENT=<key id> [SAFARI_BACKUP_KEEP_DAYS=14] \
 #   scripts/safari-ops/backup.sh
 #
 # Writes <stamp>.dump (pg_dump custom format, or .dump.gpg when a recipient is
@@ -16,6 +16,12 @@ source "$(dirname "$0")/lib.sh"
 : "${SAFARI_BACKUP_DIR:=/var/backups/safari-tours-sharm}"
 : "${SAFARI_BACKUP_KEEP_DAYS:=14}"
 : "${SAFARI_BACKUP_GPG_RECIPIENT:=}"
+
+# A plaintext dump holds every customer's contact details: refuse before
+# reading anything unless the operator explicitly accepts it (local drills).
+if [ -z "$SAFARI_BACKUP_GPG_RECIPIENT" ] && [ "${SAFARI_ALLOW_PLAIN_BACKUP:-0}" != 1 ]; then
+  die "SAFARI_BACKUP_GPG_RECIPIENT is not set; set it, or SAFARI_ALLOW_PLAIN_BACKUP=1 to keep an unencrypted dump"
+fi
 
 umask 077
 mkdir -p "$SAFARI_BACKUP_DIR"
@@ -44,7 +50,7 @@ if [ -n "$SAFARI_BACKUP_GPG_RECIPIENT" ]; then
   mv "$tmp.gpg" "$final"
   encrypted=true
 else
-  log "WARNING: SAFARI_BACKUP_GPG_RECIPIENT is not set — the dump is NOT encrypted (file mode 600 only)"
+  log "WARNING: unencrypted dump kept on request (SAFARI_ALLOW_PLAIN_BACKUP=1, file mode 600 only)"
   mv "$tmp" "$final"
   encrypted=false
 fi

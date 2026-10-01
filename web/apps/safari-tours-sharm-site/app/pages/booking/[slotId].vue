@@ -173,6 +173,7 @@ function messageFor(error: unknown): string {
     case "slot_fully_booked":
       return e.slotFull;
     case "slot_blocked":
+    case "slot_in_past":
       return e.slotBlocked;
     case "tour_not_active":
       return e.tourInactive;
@@ -256,6 +257,8 @@ async function pay() {
     // Tab-scoped handoff to the result pages; never in the URL.
     storeBookingConfirmation(booking);
     const payment = await initiatePayment(booking.id);
+    // Only ever leave the site for an https payment page.
+    if (new URL(payment.checkoutUrl).protocol !== "https:") throw new Error("unsafe_checkout_url");
     window.location.href = payment.checkoutUrl;
   } catch (error) {
     submitError.value = messageFor(error);

@@ -3437,7 +3437,7 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-10-01 — WEGO-016-QA: launch test plan and automated release smoke (Tier 2)
 
-- **Status:** ACTIVE
+- **Status:** COMPLETE (2026-10-01) — CI 93ff0b6 green on every job, including the new launch spec on the full compose stack.
 - **Activation:** owner instruction `اعمل كل اللي تقدر عليه من مهام` (2026-10-01).
 - **Review intensity:** Tier 2.
 - **Scope:** roadmap 5-1 — a written launch test matrix (language × device ×
@@ -3460,6 +3460,56 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   The compose image build could not run locally (Docker build network
   dropping Gradle/npm downloads), so the host-run backend was used; CI runs
   the same spec on the full compose stack.
+
+### 2026-10-01 — WEGO-016-SEC: independent pre-launch security review (Tier 1)
+
+- **Status:** ACTIVE
+- **Activation:** owner instruction `اعمل كل اللي تقدر عليه من مهام` (2026-10-01); roadmap 3-6.
+- **Review intensity:** Tier 1.
+- **Scope:** an independent read-and-probe security review of the whole
+  Safari release (backend API and auth, payment webhook, public site,
+  staff ERP, edge nginx/CSP, compose, ops scripts) against a local stack with
+  the mock payment provider; fix every confirmed finding with a test.
+  Nothing external is scanned or contacted; no real credentials.
+- **Review:** two independent read-and-probe reviews on 2026-10-01/02
+  (backend + payments; web + edge + infra + ops). The Opus reviewers stopped
+  on the weekly model limit (resets 2026-10-06), so this round ran on Sonnet;
+  an Opus re-check of the money-path fixes is due when the limit resets.
+  No CRITICAL findings.
+- **Fixed in this round (each with a test or a live probe):**
+  - HIGH — real Paymob adapter now refuses to start on blank/placeholder
+    keys or non-https callback URLs (`PaymobConfig.missingProductionSettings`,
+    unit test); compose passes `TOURS_OPERATOR_PAYMOB_*` through and the env
+    example lists them empty. Tests that start the app enable the mock.
+  - HIGH (edge part) — per-IP limits on public booking creation and payment
+    start; party size capped at 50 adults + 50 children (contract + 400 test).
+  - MEDIUM — bookings for past departures refused (`409 slot_in_past`, test).
+  - MEDIUM — a "success" webhook on an authorisation-only, voided or errored
+    transaction goes to staff review and never confirms (D6h test).
+  - MEDIUM — edge: real client IP from trusted hops for rate limits; backend
+    receives only the resolved address; the customer origin proxies only the
+    public site's API (identity/staff → 404, CI asserts it); 64 KB body cap
+    on the public origin; HSTS + Permissions-Policy on every response.
+  - LOW — payment redirect only to https; sitemap cached for an hour;
+    compose requires `WEGO_POSTGRES_PASSWORD`; env example origin port fixed;
+    backups refuse to run unencrypted unless explicitly allowed.
+  - ERP header no longer hides menu links on laptop widths.
+- **Open, scheduled for the Opus-gated follow-up (not yet fixed):**
+  - MEDIUM — per-email login throttle can be used to slow a known staff
+    member's logins (shared identity kernel; change needs care for all
+    products).
+  - MEDIUM — a refund webhook leaves the booking CONFIRMED with its places;
+    staff cancellation does not refund. Decide: auto-cancel on full refund +
+    staff alert, and a documented manual refund procedure (owner input).
+  - MEDIUM — partial refunds answer `amount_mismatch` forever.
+  - LOW — password reset does not revoke existing sessions; public matchers
+    are not pinned to HTTP methods; sequential booking references; full
+    exception logging in the Paymob HTTP client; nonce-based CSP to remove
+    `script-src 'unsafe-inline'`.
+- **Evidence:** backend 206 tests; launch + site e2e 16/16 through the new
+  nginx config (local edge in front of the current backend jar); live edge
+  probes (public login/staff 404, 413 on 100 KB, per-IP 429 after the burst
+  and separate buckets per forwarded client, HSTS present).
 ---
 
 ## WEGO-017 — Foundry executable isolated client releases

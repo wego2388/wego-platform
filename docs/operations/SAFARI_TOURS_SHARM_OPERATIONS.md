@@ -47,8 +47,8 @@ SQL
 `pg_restore --list` before it is kept, plus a `.json` with SHA-256, Flyway
 version and per-table row counts. Set `SAFARI_BACKUP_GPG_RECIPIENT` to a
 public key whose private half is **not** on the server, so a stolen server
-does not expose the backups; without it the script warns and keeps the file
-mode 600. Retention: `SAFARI_BACKUP_KEEP_DAYS` (default 14).
+does not expose the backups; without it the script refuses to run unless
+`SAFARI_ALLOW_PLAIN_BACKUP=1` is set (local drills only). Retention: `SAFARI_BACKUP_KEEP_DAYS` (default 14).
 
 Schedule (crontab of the deploy user):
 
@@ -122,7 +122,19 @@ curl -fsS "$SAFARI_HEALTH_URL/api/v1/tours-operator/sales-status"
 Then in a browser: one tour page shows its calendar, the ERP login works, and
 the Online sales page shows "open".
 
-## 7. Monitoring
+## 7. Edge and TLS terminator
+
+The edge container listens only on a loopback port; the host's TLS
+terminator (e.g. Caddy) forwards to it. The terminator **must overwrite**
+`X-Forwarded-For` with the real client address (not append to a
+client-supplied one): the edge trusts that header from private/loopback
+hops for its per-visitor rate limits. After the first deploy, check from two
+different networks that each gets its own limit. The customer origin only
+proxies the API the public site uses; staff login and staff APIs exist only
+on the staff origin. HSTS is sent on every response — serve both origins
+over HTTPS only.
+
+## 8. Monitoring
 
 `scripts/safari-ops/health-check.sh` prints `OK/WARN/FAIL` per check and exits
 1 on any `FAIL`: edge `/healthz`, every container running/healthy and not

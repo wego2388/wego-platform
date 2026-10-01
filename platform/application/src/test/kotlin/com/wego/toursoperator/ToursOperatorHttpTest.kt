@@ -1415,6 +1415,27 @@ class ToursOperatorHttpTest {
     }
 
     @Test
+    fun `a departure in the past or an oversized party is refused`() {
+        val (_, pastSlot) = seedTourAndSlot("past-departure", capacity = 10, date = LocalDate.now().minusDays(2))
+        mockMvc
+            .post("/api/v1/tours-operator/bookings") {
+                contentType = MediaType.APPLICATION_JSON
+                content = bookingRequestBody(pastSlot)
+            }.andExpect {
+                status { isConflict() }
+                jsonPath("$.error") { value("slot_in_past") }
+            }
+        assertThat(slotBookedCount(pastSlot)).isZero()
+
+        val (_, slotId) = seedTourAndSlot("oversized-party", capacity = 100)
+        mockMvc
+            .post("/api/v1/tours-operator/bookings") {
+                contentType = MediaType.APPLICATION_JSON
+                content = bookingRequestBody(slotId).replace("\"adultsCount\": 2", "\"adultsCount\": 51")
+            }.andExpect { status { isBadRequest() } }
+    }
+
+    @Test
     fun `sales control switch requires the tour manage permission`() {
         val body = """{"bookingsPaused":true,"paymentsPaused":true}"""
         mockMvc

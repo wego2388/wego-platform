@@ -411,7 +411,14 @@ class ToursOperatorBeanConfiguration {
     fun paymobClient(
         @Qualifier("stoPaymobConfig") config: PaymobConfig,
         @Qualifier("stoObjectMapper") objectMapper: ObjectMapper,
-    ): PaymobClient = PaymobHttpClient(config, objectMapper)
+    ): PaymobClient {
+        // Fail startup rather than run payments on placeholder credentials.
+        val missing = config.missingProductionSettings()
+        check(missing.isEmpty()) {
+            "Paymob is not configured (mock disabled): set ${missing.joinToString()}"
+        }
+        return PaymobHttpClient(config, objectMapper)
+    }
 
     @Bean("stoPaymobClient")
     @ConditionalOnProperty(

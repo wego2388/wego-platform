@@ -7958,7 +7958,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Slot blocked, not enough places left for the party, or tour inactive. */
+            /** @description Slot blocked or already in the past (slot_in_past), not enough places left for the party, or tour inactive. */
             409: {
                 headers: {
                     [name: string]: unknown;

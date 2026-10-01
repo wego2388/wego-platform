@@ -85,6 +85,8 @@ class BookingController(
                 ResponseEntity.notFound().build()
             CreateBookingResult.SlotBlocked ->
                 ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorResponse("slot_blocked"))
+            CreateBookingResult.SlotInPast ->
+                ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorResponse("slot_in_past"))
             CreateBookingResult.SlotFullyBooked ->
                 ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorResponse("slot_fully_booked"))
             CreateBookingResult.TourNotActive ->

@@ -13,6 +13,8 @@ import com.wego.toursoperator.domain.TourSlotId
 import tools.jackson.databind.ObjectMapper
 import java.time.Clock
 import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.UUID
 
@@ -41,6 +43,9 @@ sealed class CreateBookingResult {
     data object SlotNotFound : CreateBookingResult()
 
     data object SlotBlocked : CreateBookingResult()
+
+    /** The departure date has already passed (Sharm El Sheikh local date). */
+    data object SlotInPast : CreateBookingResult()
 
     data object SlotFullyBooked : CreateBookingResult()
 
@@ -89,6 +94,9 @@ class CreateBookingService(
                     ?: return@runInTransaction CreateBookingResult.SlotNotFound
 
             if (slot.isBlocked) return@runInTransaction CreateBookingResult.SlotBlocked
+            if (slot.date.isBefore(LocalDate.now(clock.withZone(SHARM_ZONE)))) {
+                return@runInTransaction CreateBookingResult.SlotInPast
+            }
 
             val tour =
                 tourRepository.findById(slot.tourId)
@@ -227,3 +235,5 @@ class CreateBookingService(
             causationId = null,
         )
 }
+
+private val SHARM_ZONE: ZoneId = ZoneId.of("Africa/Cairo")

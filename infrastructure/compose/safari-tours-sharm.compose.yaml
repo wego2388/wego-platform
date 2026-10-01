@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: ${WEGO_POSTGRES_DB:-wego_safari_tours_sharm}
       POSTGRES_USER: ${WEGO_POSTGRES_USER:-wego_app}
-      POSTGRES_PASSWORD: ${WEGO_POSTGRES_PASSWORD:-wego-local-postgres-only}
+      POSTGRES_PASSWORD: ${WEGO_POSTGRES_PASSWORD:?set WEGO_POSTGRES_PASSWORD in the environment file}
     ports:
       - "127.0.0.1:${WEGO_POSTGRES_PORT:-55432}:5432"
     volumes:
@@ -27,9 +27,20 @@ services:
     environment:
       WEGO_DB_URL: jdbc:postgresql://postgres:5432/${WEGO_POSTGRES_DB:-wego_safari_tours_sharm}
       WEGO_DB_USERNAME: ${WEGO_POSTGRES_USER:-wego_app}
-      WEGO_DB_PASSWORD: ${WEGO_POSTGRES_PASSWORD:-wego-local-postgres-only}
+      WEGO_DB_PASSWORD: ${WEGO_POSTGRES_PASSWORD:?set WEGO_POSTGRES_PASSWORD in the environment file}
       WEGO_DB_POOL_SIZE: 5
       WEGO_FLYWAY_ENABLED: "true"
+      # Paymob (real adapter). The backend refuses to start while any of these
+      # is missing or a placeholder, unless the isolated E2E override enables
+      # the mock adapter.
+      TOURS_OPERATOR_PAYMOB_SECRET_KEY: ${TOURS_OPERATOR_PAYMOB_SECRET_KEY:-}
+      TOURS_OPERATOR_PAYMOB_PUBLIC_KEY: ${TOURS_OPERATOR_PAYMOB_PUBLIC_KEY:-}
+      TOURS_OPERATOR_PAYMOB_API_KEY: ${TOURS_OPERATOR_PAYMOB_API_KEY:-}
+      TOURS_OPERATOR_PAYMOB_INTEGRATION_ID: ${TOURS_OPERATOR_PAYMOB_INTEGRATION_ID:-}
+      TOURS_OPERATOR_PAYMOB_OWNER_ID: ${TOURS_OPERATOR_PAYMOB_OWNER_ID:-}
+      TOURS_OPERATOR_PAYMOB_HMAC_SECRET: ${TOURS_OPERATOR_PAYMOB_HMAC_SECRET:-}
+      TOURS_OPERATOR_PAYMOB_NOTIFICATION_URL: ${TOURS_OPERATOR_PAYMOB_NOTIFICATION_URL:-}
+      TOURS_OPERATOR_PAYMOB_REDIRECTION_URL: ${TOURS_OPERATOR_PAYMOB_REDIRECTION_URL:-}
     depends_on:
       postgres: { condition: service_healthy }
     healthcheck:

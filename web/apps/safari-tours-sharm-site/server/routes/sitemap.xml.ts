@@ -1,7 +1,9 @@
 import { buildSitemap } from "../utils/sitemap";
 
 /** XML sitemap of all public pages in four languages; tours come from the live catalogue. */
-export default defineEventHandler(async (event) => {
+// Cached for an hour, so crawlers or a flood of requests cost at most a few
+// backend calls per hour instead of up to 20 per request.
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig(event);
   const baseUrl = (config.public.i18n as { baseUrl?: string } | undefined)?.baseUrl ?? "http://localhost:3000";
   const slugs: string[] = [];
@@ -18,4 +20,4 @@ export default defineEventHandler(async (event) => {
   setResponseHeader(event, "Content-Type", "application/xml; charset=utf-8");
   setResponseHeader(event, "Cache-Control", "public, max-age=3600");
   return buildSitemap(baseUrl, slugs);
-});
+}, { maxAge: 3600, name: "sitemap", getKey: () => "all" });

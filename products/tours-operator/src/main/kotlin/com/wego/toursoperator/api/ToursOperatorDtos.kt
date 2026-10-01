@@ -183,8 +183,10 @@ data class BookingCustomerRequest(
 data class CreateBookingRequest(
     val slotId: UUID,
     @field:Min(1)
+    @field:Max(50)
     val adultsCount: Int,
     @field:Min(0)
+    @field:Max(50)
     val childrenCount: Int,
     /** Per-unit tours only: the chosen price option. */
     @field:Size(max = 40)

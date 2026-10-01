@@ -263,4 +263,36 @@ data class PaymobConfig(
     val billingCity: String,
     val billingCountryCode: String,
     val checkoutExpirationSeconds: Int,
-)
+) {
+    /**
+     * The real client must never start on placeholder or blank credentials:
+     * with a known HMAC secret anyone could forge a "paid" webhook. Returns
+     * the names of the settings that are missing (empty when ready).
+     */
+    fun missingProductionSettings(): List<String> =
+        buildList {
+            fun secret(
+                name: String,
+                value: String,
+            ) {
+                if (value.isBlank() || value.startsWith("PLACEHOLDER")) add(name)
+            }
+
+            fun httpsUrl(
+                name: String,
+                value: String,
+            ) {
+                if (!value.startsWith("https://") || value.contains("example.invalid")) add(name)
+            }
+            secret("TOURS_OPERATOR_PAYMOB_SECRET_KEY", secretKey)
+            secret("TOURS_OPERATOR_PAYMOB_PUBLIC_KEY", publicKey)
+            secret("TOURS_OPERATOR_PAYMOB_API_KEY", apiKey)
+            secret("TOURS_OPERATOR_PAYMOB_INTEGRATION_ID", integrationId)
+            secret("TOURS_OPERATOR_PAYMOB_OWNER_ID", ownerId)
+            secret("TOURS_OPERATOR_PAYMOB_HMAC_SECRET", hmacSecret)
+            httpsUrl("TOURS_OPERATOR_PAYMOB_BASE_URL", baseUrl)
+            httpsUrl("TOURS_OPERATOR_PAYMOB_CHECKOUT_BASE_URL", checkoutBaseUrl)
+            httpsUrl("TOURS_OPERATOR_PAYMOB_NOTIFICATION_URL", notificationUrl)
+            httpsUrl("TOURS_OPERATOR_PAYMOB_REDIRECTION_URL", redirectionUrl)
+        }
+}

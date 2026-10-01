@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.get
     properties = [
         "spring.flyway.enabled=false",
         "management.health.db.enabled=false",
+        "tours-operator.paymob.mock-enabled=true",
     ],
 )
 @AutoConfigureMockMvc

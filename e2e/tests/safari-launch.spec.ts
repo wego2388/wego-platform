@@ -17,6 +17,12 @@ import { E2E_STAFF_EMAIL, E2E_STAFF_PASSWORD } from "../seed.mjs";
 const API_BASE = process.env.WEGO_E2E_BASE_URL ?? "http://127.0.0.1:58080";
 const SITE = (process.env.WEGO_STS_SITE_BASE_URL ?? API_BASE).replace(/\/+$/, "");
 const VALID_MOCK_HMAC = "valid-hmac";
+// Staff and identity APIs exist only on the staff origin (same edge, Host header).
+const STAFF_HOST = new URL(process.env.WEGO_STS_STAFF_BASE_URL ?? (() => {
+  const url = new URL(API_BASE);
+  url.hostname = "staff.localhost";
+  return url.origin;
+})()).host;
 const E2E_TOUR_SLUG = "e2e-desert-quad-safari";
 
 let tourId: string;
@@ -46,6 +52,7 @@ function bookingBody(adults: number, phone: string) {
 
 async function staffToken(request: APIRequestContext): Promise<string> {
   const res = await request.post(`${API_BASE}/api/v1/identity/login`, {
+    headers: { Host: STAFF_HOST },
     data: { email: E2E_STAFF_EMAIL, password: E2E_STAFF_PASSWORD },
   });
   expect(res.ok()).toBeTruthy();
@@ -54,7 +61,7 @@ async function staffToken(request: APIRequestContext): Promise<string> {
 
 async function setSales(request: APIRequestContext, token: string, paused: boolean) {
   const res = await request.put(`${API_BASE}/api/v1/tours-operator/staff/sales-control`, {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${token}`, Host: STAFF_HOST },
     data: { bookingsPaused: paused, paymentsPaused: paused, reason: paused ? "E2E launch drill" : null },
   });
   expect(res.status()).toBe(200);
@@ -174,7 +181,7 @@ test.describe("Safari launch matrix", () => {
 
     const token = await staffToken(request);
     const cancelled = await request.post(`${API_BASE}/api/v1/tours-operator/bookings/${booking.id}/cancel`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}`, Host: STAFF_HOST },
       data: { reason: "E2E launch drill" },
     });
     expect(cancelled.ok()).toBeTruthy();

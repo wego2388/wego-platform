@@ -216,6 +216,15 @@ jobs:
             --data '{"reference":"STR-2026-1","phone":"+201000000000"}' \
             http://staff.localhost:58080/api/v1/tours-operator/bookings/lookup)"
           test "$staff_lookup_status" = "404"
+          # The customer origin exposes only the public site's API: no login,
+          # no staff routes.
+          public_login_status="$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            -X POST -H 'Content-Type: application/json' --data '{}' \
+            http://127.0.0.1:58080/api/v1/identity/login)"
+          test "$public_login_status" = "404"
+          public_staff_status="$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            http://127.0.0.1:58080/api/v1/tours-operator/staff/sales-control)"
+          test "$public_staff_status" = "404"
       - name: Run the Safari checkout and staff-visibility lifecycle (Playwright)
         env:
           WEGO_E2E_BASE_URL: http://127.0.0.1:58080
@@ -278,7 +287,7 @@ jobs:
           app_rate_limited=0
           for _ in $(seq 1 5); do
             response="$(curl --silent --dump-header /tmp/app-rate-limit-headers.txt \
-              -X POST http://127.0.0.1:58080/api/v1/identity/login \
+              -X POST --resolve staff.localhost:58080:127.0.0.1 http://staff.localhost:58080/api/v1/identity/login \
               -H 'Content-Type: application/json' \
               -d '{"email":"app-throttle-target@example.com","password":"wrong"}')"
             if grep -q '^HTTP/[0-9.]* 429' /tmp/app-rate-limit-headers.txt; then
@@ -297,7 +306,7 @@ jobs:
           edge_rate_limited=0
           for i in $(seq 1 10); do
             response="$(curl --silent --dump-header /tmp/edge-rate-limit-headers.txt \
-              -X POST http://127.0.0.1:58080/api/v1/identity/login \
+              -X POST --resolve staff.localhost:58080:127.0.0.1 http://staff.localhost:58080/api/v1/identity/login \
               -H 'Content-Type: application/json' \
               -d "{\"email\":\"edge-throttle-target-$i@example.com\",\"password\":\"wrong\"}")"
             if grep -q '^HTTP/[0-9.]* 429' /tmp/edge-rate-limit-headers.txt; then
