@@ -1966,6 +1966,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tours-operator/sales-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Whether online booking and payment are open
+         * @description Public. Only the two flags — never the staff note or who changed it.
+         */
+        get: operations["getToursOperatorSalesStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/sales-control": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Emergency sales control for managers */
+        get: operations["getToursOperatorSalesControl"];
+        /**
+         * Pause or resume new online bookings and payment checkouts
+         * @description Requires tours-operator.tour:manage. Webhooks, booking expiry and staff operations keep running while paused.
+         */
+        put: operations["updateToursOperatorSalesControl"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tours-operator/staff/notifications": {
         parameters: {
             query?: never;
@@ -2441,6 +2482,24 @@ export interface components {
         };
         CancelToursOperatorBookingRequest: {
             reason: string;
+        };
+        ToursOperatorPublicSalesStatus: {
+            bookingsOpen: boolean;
+            paymentsOpen: boolean;
+        };
+        ToursOperatorSalesControl: {
+            bookingsPaused: boolean;
+            paymentsPaused: boolean;
+            reason?: string | null;
+            /** Format: uuid */
+            updatedByUserId?: string | null;
+            /** Format: date-time */
+            updatedAt?: string | null;
+        };
+        UpdateToursOperatorSalesControlRequest: {
+            bookingsPaused: boolean;
+            paymentsPaused: boolean;
+            reason?: string | null;
         };
         ToursOperatorErrorResponse: {
             error: string;
@@ -7917,6 +7976,15 @@ export interface operations {
                     "application/json": components["schemas"]["ToursOperatorErrorResponse"];
                 };
             };
+            /** @description Online bookings or payments are paused by a manager (bookings_paused). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
         };
     };
     lookupToursOperatorBooking: {
@@ -8155,6 +8223,15 @@ export interface operations {
                     "application/json": components["schemas"]["ToursOperatorErrorResponse"];
                 };
             };
+            /** @description Payment checkouts are paused by a manager (payments_paused). Nothing was created. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
         };
     };
     getToursOperatorPaymentStatus: {
@@ -8204,6 +8281,75 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ToursOperatorPaymentHistoryEntry"][];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    getToursOperatorSalesStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current public sales status. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorPublicSalesStatus"];
+                };
+            };
+        };
+    };
+    getToursOperatorSalesControl: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current switch. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorSalesControl"];
+                };
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    updateToursOperatorSalesControl: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateToursOperatorSalesControlRequest"];
+            };
+        };
+        responses: {
+            /** @description Switch saved. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorSalesControl"];
                 };
             };
             400: components["responses"]["ToursOperatorValidationResponse"];

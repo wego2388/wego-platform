@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { hasPermission, logoutAuthSession, readAuthSession, type AuthSession } from "../composables/useAuthSession";
+import { getPublicSalesStatus } from "../composables/useToursApi";
 
 /**
  * One staff shell for every page: brand, permission-aware navigation and the
@@ -13,10 +14,29 @@ const session = ref<AuthSession | null>(null);
 const menuOpen = ref(false);
 const signOutError = ref("");
 
-onMounted(() => (session.value = readAuthSession()));
+// Every staff member sees when online sales are paused, so nobody wonders
+// why the website stopped taking bookings.
+const salesPaused = ref(false);
+async function refreshSalesStatus() {
+  try {
+    const status = await getPublicSalesStatus();
+    salesPaused.value = !status.bookingsOpen || !status.paymentsOpen;
+  } catch {
+    // Unknown is not "paused": keep the last known state.
+  }
+}
+
+const onSalesChanged = () => void refreshSalesStatus();
+onMounted(() => {
+  session.value = readAuthSession();
+  void refreshSalesStatus();
+  window.addEventListener("sts:sales-control-changed", onSalesChanged);
+});
+onBeforeUnmount(() => window.removeEventListener("sts:sales-control-changed", onSalesChanged));
 watch(() => route.fullPath, () => {
   session.value = readAuthSession();
   menuOpen.value = false;
+  void refreshSalesStatus();
 });
 
 const links = computed(() =>
@@ -30,6 +50,7 @@ const links = computed(() =>
     { to: "/reviews", label: "Reviews", show: hasPermission(session.value, "tours-operator.booking:view") },
     { to: "/notifications", label: "Messages", show: hasPermission(session.value, "tours-operator.notification:manage") },
     { to: "/staff", label: "Staff", show: hasPermission(session.value, "identity:user-view") || hasPermission(session.value, "identity:role-view") },
+    { to: "/sales", label: "Online sales", show: hasPermission(session.value, "tours-operator.tour:manage") },
     { to: "/settings", label: "Settings", show: hasPermission(session.value, "tours-operator.settings:manage") },
   ].filter((link) => link.show),
 );
@@ -100,6 +121,10 @@ async function signOut() {
         </NuxtLink>
       </nav>
     </header>
+    <p v-if="session && salesPaused" role="alert" class="bg-sts-danger px-4 py-2 text-center text-sm font-semibold text-white print:hidden">
+      Online sales are paused.
+      <NuxtLink to="/sales" class="underline">Open the switch</NuxtLink>
+    </p>
     <p v-if="signOutError" role="alert" class="bg-sts-danger-soft px-4 py-2 text-center text-sm font-semibold text-sts-danger">{{ signOutError }}</p>
     <div id="main" tabindex="-1">
       <slot />

@@ -46,6 +46,9 @@ sealed class CreateBookingResult {
 
     data object TourNotActive : CreateBookingResult()
 
+    /** A manager paused online bookings or payments (emergency sales control). */
+    data object BookingsPaused : CreateBookingResult()
+
     /** The request's pricing does not fit the tour (wrong option, guests don't fit the units, no child price…). */
     data class InvalidPricing(
         val code: String,
@@ -64,6 +67,7 @@ class CreateBookingService(
     private val slotRepository: TourSlotRepository,
     private val bookingRepository: BookingRepository,
     private val bookingAuditRecorder: BookingAuditRecorder,
+    private val salesControlRepository: SalesControlRepository,
     private val outboxWriter: OutboxWriter,
     private val transactionRunner: TransactionRunner,
     private val objectMapper: ObjectMapper,
@@ -71,6 +75,14 @@ class CreateBookingService(
 ) {
     fun create(command: CreateBookingCommand): CreateBookingResult =
         transactionRunner.runInTransaction {
+            // A public booking can only be paid online, so paused payments
+            // also stop new bookings — otherwise they would hold places for
+            // 30 minutes with no way to pay.
+            val sales = salesControlRepository.current()
+            if (sales.bookingsPaused || sales.paymentsPaused) {
+                return@runInTransaction CreateBookingResult.BookingsPaused
+            }
+
             // Lock the slot first — serialization point for capacity.
             val slot =
                 slotRepository.findByIdForUpdate(command.slotId)

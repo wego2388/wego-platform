@@ -10,6 +10,7 @@ import {
   createBooking,
   initiatePayment,
   storeBookingConfirmation,
+  getSalesStatus,
 } from "../../composables/usePublicToursApi";
 import { ALL_NATIONALITIES, COMMON_NATIONALITIES, checkoutCopy, isPlausibleEmail, isPlausiblePhone, normalizePhone } from "../../content/checkout";
 import { whatsappUrl } from "../../content/locales";
@@ -175,6 +176,9 @@ function messageFor(error: unknown): string {
       return e.slotBlocked;
     case "tour_not_active":
       return e.tourInactive;
+    case "bookings_paused":
+    case "payments_paused":
+      return e.salesPaused;
     case "payment_provider_error":
       return e.payment;
     case "guests_exceed_units":
@@ -202,6 +206,18 @@ function onPageShow(event: PageTransitionEvent) {
   if (event.persisted) submitting.value = false;
 }
 onMounted(() => window.addEventListener("pageshow", onPageShow));
+
+// Tell the visitor before they type their details if online sales are
+// paused; the server still refuses on its own, so this is only a courtesy.
+const salesPaused = ref(false);
+onMounted(async () => {
+  try {
+    const status = await getSalesStatus();
+    salesPaused.value = !status.bookingsOpen || !status.paymentsOpen;
+  } catch {
+    // Unknown status: let the normal flow decide.
+  }
+});
 onBeforeUnmount(() => window.removeEventListener("pageshow", onPageShow));
 
 async function pay() {
@@ -270,6 +286,13 @@ async function pay() {
       <UiEmptyState icon="lucide:calendar-x" :title="copy.errors.missingSlot">
         <UiButton to="/tours" variant="secondary">{{ discovery.category.all }}</UiButton>
       </UiEmptyState>
+    </div>
+
+    <div v-else-if="salesPaused" class="mt-8 grid gap-3 rounded-[var(--sts-radius-card)] border border-sts-danger/40 bg-sts-danger-soft p-4 text-sm text-sts-danger" role="alert">
+      <p>{{ copy.errors.salesPaused }}</p>
+      <div class="flex flex-wrap gap-2">
+        <UiButton :href="whatsappUrl" variant="secondary" size="sm" icon="lucide:message-circle">{{ copy.errors.whatsapp }}</UiButton>
+      </div>
     </div>
 
     <div v-else class="mt-8 grid gap-8 lg:grid-cols-[1fr_20rem]">

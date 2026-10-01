@@ -146,6 +146,11 @@ export interface PaymentStatusResponse {
   failedAt: string | null;
 }
 
+/** Whether a manager paused online booking or payment (emergency switch). */
+export function getSalesStatus(): Promise<{ bookingsOpen: boolean; paymentsOpen: boolean }> {
+  return get("/api/v1/tours-operator/sales-status");
+}
+
 /**
  * Initiate Paymob payment for a NEW booking.
  * Returns a checkout URL to redirect the customer to.

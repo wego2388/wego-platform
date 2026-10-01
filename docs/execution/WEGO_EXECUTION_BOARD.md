@@ -3398,6 +3398,37 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   real restore rehearsal on a local copy, a written rollback plan
   (stop-then-start for V24/V25), and a fast switch that pauses new bookings
   and payments. No deploy, DNS, real credentials or external sends.
+- **Delivered:**
+  - **Emergency sales control (V26):** singleton `tours_operator_sales_control`;
+    `GET /api/v1/tours-operator/sales-status` (public, two booleans only) and
+    `GET/PUT /staff/sales-control` (`tours-operator.tour:manage`). Bookings
+    paused → public create `503 bookings_paused`; payments paused → no
+    checkout opened or resumed (`503 payments_paused`) and also no new public
+    booking (it could not be paid). Paymob webhooks, expiry and staff work are
+    untouched. ERP page «Online sales» with "Pause everything now" and a red
+    banner on every staff page while paused; the site warns visitors in four
+    languages and points them to WhatsApp.
+  - **Backups:** `scripts/safari-ops/backup.sh` — verified `pg_dump` custom
+    archive, optional GPG encryption to an off-server key, SHA-256, Flyway
+    version and per-table row counts, retention.
+  - **Restore drill:** `scripts/safari-ops/restore-drill.sh` — restores into a
+    throw-away container (no network, no volume) and checks checksum, Flyway,
+    failed migrations and row counts; timed JSON report.
+  - **Monitoring:** `scripts/safari-ops/health-check.sh` — edge, containers,
+    paused sales, backup age, last drill, disk, TLS expiry; optional alert hook.
+  - **Runbook:** `docs/operations/SAFARI_TOURS_SHARM_OPERATIONS.md` (pause,
+    backup, drill, real restore, stop-then-start upgrade, rollback per
+    migration, smoke checks, Arabic summary for the owner).
+- **Review:** independent Opus Tier 1 review — no blocking findings; the
+  MEDIUM item (paused payments still let bookings hold places) and LOW items
+  (pause after the booking-status check, required flags, ERP banner refresh,
+  doc placement, extra tests) fixed.
+- **Evidence:** backend 202 tests (4 new sales-control tests incl. a webhook
+  confirming while paused), web check, foundry validate, Safari gate. Local
+  drill: backup 1 s, restore drill 6 s, damaged file refused, missing rows
+  fail the drill, GPG round trip passes.
+- **Owner decisions still open:** where the off-server backup copy goes;
+  which channel receives alerts.
 ---
 
 ## WEGO-017 — Foundry executable isolated client releases

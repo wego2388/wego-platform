@@ -25,6 +25,7 @@ import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.put
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
@@ -207,6 +208,7 @@ class ToursOperatorHttpTest {
     private fun payAndConfirm(
         bookingId: String,
         amountCents: Long = 8750L,
+        beforeWebhook: () -> Unit = {},
     ) {
         mockMvc
             .post("/api/v1/tours-operator/bookings/$bookingId/pay") {
@@ -221,6 +223,7 @@ class ToursOperatorHttpTest {
                 .where(TOURS_OPERATOR_PAYMENT.BOOKING_ID.eq(UUID.fromString(bookingId)))
                 .fetchOne(TOURS_OPERATOR_PAYMENT.PAYMOB_ORDER_ID)
                 ?: error("Payment order was not persisted")
+        beforeWebhook()
 
         mockMvc
             .post("/api/v1/tours-operator/payments/paymob-callback") {
@@ -1259,5 +1262,179 @@ class ToursOperatorHttpTest {
             .get("/api/v1/tours-operator/bookings/$unknown/history") {
                 header("Authorization", "Bearer $adminToken")
             }.andExpect { status { isNotFound() } }
+    }
+
+    // ── emergency sales control ──────────────────────────────────────────────
+
+    private fun setSalesControl(
+        token: String,
+        bookingsPaused: Boolean,
+        paymentsPaused: Boolean,
+        reason: String? = null,
+    ) {
+        mockMvc
+            .put("/api/v1/tours-operator/staff/sales-control") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    """{"bookingsPaused":$bookingsPaused,"paymentsPaused":$paymentsPaused""" +
+                    (reason?.let { ""","reason":"$it"}""" } ?: "}")
+            }.andExpect { status { isOk() } }
+    }
+
+    @Test
+    fun `sales control pauses public bookings and payments without leaking the staff note`() {
+        val adminToken = login(adminEmail, adminPassword)
+        val (_, slotId) = seedTourAndSlot("sales-control", capacity = 10)
+        val bookingId =
+            jsonField(
+                mockMvc
+                    .post("/api/v1/tours-operator/bookings") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = bookingRequestBody(slotId)
+                    }.andExpect { status { isCreated() } }
+                    .andReturn()
+                    .response.contentAsString,
+                "id",
+            )
+        try {
+            setSalesControl(adminToken, bookingsPaused = true, paymentsPaused = true, reason = "Provider outage")
+
+            mockMvc.get("/api/v1/tours-operator/sales-status").andExpect {
+                status { isOk() }
+                jsonPath("$.bookingsOpen") { value(false) }
+                jsonPath("$.paymentsOpen") { value(false) }
+                jsonPath("$.reason") { doesNotExist() }
+                jsonPath("$.updatedByUserId") { doesNotExist() }
+            }
+            mockMvc
+                .post("/api/v1/tours-operator/bookings") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = bookingRequestBody(slotId)
+                }.andExpect {
+                    status { isServiceUnavailable() }
+                    jsonPath("$.error") { value("bookings_paused") }
+                }
+            mockMvc
+                .post("/api/v1/tours-operator/bookings/$bookingId/pay") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = "{}"
+                }.andExpect {
+                    status { isServiceUnavailable() }
+                    jsonPath("$.error") { value("payments_paused") }
+                }
+            // Paused bookings never took a place, and no payment row was opened.
+            assertThat(slotBookedCount(slotId)).isEqualTo(3)
+            assertThat(
+                dsl.fetchCount(TOURS_OPERATOR_PAYMENT, TOURS_OPERATOR_PAYMENT.BOOKING_ID.eq(UUID.fromString(bookingId))),
+            ).isZero()
+
+            mockMvc
+                .get("/api/v1/tours-operator/staff/sales-control") {
+                    header("Authorization", "Bearer $adminToken")
+                }.andExpect {
+                    status { isOk() }
+                    jsonPath("$.bookingsPaused") { value(true) }
+                    jsonPath("$.reason") { value("Provider outage") }
+                    jsonPath("$.updatedByUserId") { isNotEmpty() }
+                }
+
+            // Bookings paused alone still lets an existing booking pay.
+            setSalesControl(adminToken, bookingsPaused = true, paymentsPaused = false)
+            payAndConfirm(bookingId)
+        } finally {
+            setSalesControl(adminToken, bookingsPaused = false, paymentsPaused = false)
+        }
+        mockMvc
+            .post("/api/v1/tours-operator/bookings") {
+                contentType = MediaType.APPLICATION_JSON
+                content = bookingRequestBody(slotId)
+            }.andExpect { status { isCreated() } }
+    }
+
+    @Test
+    fun `paused payments stop new bookings but never block a payment already made`() {
+        val adminToken = login(adminEmail, adminPassword)
+        val (_, slotId) = seedTourAndSlot("sales-control-webhook", capacity = 10)
+        val bookingId =
+            jsonField(
+                mockMvc
+                    .post("/api/v1/tours-operator/bookings") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = bookingRequestBody(slotId)
+                    }.andExpect { status { isCreated() } }
+                    .andReturn()
+                    .response.contentAsString,
+                "id",
+            )
+        try {
+            // The customer is already at the card page when the manager pauses
+            // everything: Paymob's webhook must still confirm the booking.
+            payAndConfirm(bookingId) {
+                setSalesControl(adminToken, bookingsPaused = false, paymentsPaused = true)
+            }
+            // Payments paused alone also refuses new public bookings (no way to pay).
+            mockMvc
+                .post("/api/v1/tours-operator/bookings") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = bookingRequestBody(slotId)
+                }.andExpect {
+                    status { isServiceUnavailable() }
+                    jsonPath("$.error") { value("bookings_paused") }
+                }
+            // A confirmed booking still answers with its real state, not the pause.
+            mockMvc
+                .post("/api/v1/tours-operator/bookings/$bookingId/pay") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = "{}"
+                }.andExpect { status { isConflict() } }
+            assertThat(slotBookedCount(slotId)).isEqualTo(3)
+        } finally {
+            setSalesControl(adminToken, bookingsPaused = false, paymentsPaused = false)
+        }
+    }
+
+    @Test
+    fun `sales control rejects a missing flag or an oversized note`() {
+        val adminToken = login(adminEmail, adminPassword)
+        listOf(
+            """{"paymentsPaused":true}""",
+            """{"bookingsPaused":true,"paymentsPaused":true,"reason":"${"x".repeat(301)}"}""",
+        ).forEach { body ->
+            mockMvc
+                .put("/api/v1/tours-operator/staff/sales-control") {
+                    header("Authorization", "Bearer $adminToken")
+                    contentType = MediaType.APPLICATION_JSON
+                    content = body
+                }.andExpect { status { isBadRequest() } }
+        }
+        mockMvc.get("/api/v1/tours-operator/sales-status").andExpect {
+            jsonPath("$.bookingsOpen") { value(true) }
+            jsonPath("$.paymentsOpen") { value(true) }
+        }
+    }
+
+    @Test
+    fun `sales control switch requires the tour manage permission`() {
+        val body = """{"bookingsPaused":true,"paymentsPaused":true}"""
+        mockMvc
+            .put("/api/v1/tours-operator/staff/sales-control") {
+                contentType = MediaType.APPLICATION_JSON
+                content = body
+            }.andExpect { status { isUnauthorized() } }
+        val plainToken = login(plainEmail, plainPassword)
+        mockMvc
+            .put("/api/v1/tours-operator/staff/sales-control") {
+                header("Authorization", "Bearer $plainToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = body
+            }.andExpect { status { isForbidden() } }
+        mockMvc
+            .get("/api/v1/tours-operator/staff/sales-control") {
+                header("Authorization", "Bearer $plainToken")
+            }.andExpect { status { isForbidden() } }
+        mockMvc.get("/api/v1/tours-operator/sales-status").andExpect {
+            jsonPath("$.bookingsOpen") { value(true) }
+        }
     }
 }

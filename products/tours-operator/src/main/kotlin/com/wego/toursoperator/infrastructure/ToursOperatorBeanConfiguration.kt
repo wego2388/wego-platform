@@ -26,6 +26,8 @@ import com.wego.toursoperator.application.PaymentRepository
 import com.wego.toursoperator.application.PaymobClient
 import com.wego.toursoperator.application.PublicTourContentQuery
 import com.wego.toursoperator.application.ResendNotificationService
+import com.wego.toursoperator.application.SalesControlRepository
+import com.wego.toursoperator.application.SalesControlService
 import com.wego.toursoperator.application.SetSlotBlockedService
 import com.wego.toursoperator.application.SetTourActiveService
 import com.wego.toursoperator.application.TourContentRepository
@@ -112,6 +114,16 @@ class ToursOperatorBeanConfiguration {
     @Bean("stoPublicPaymobCallbackPrefix")
     fun toursOperatorPublicPaymobCallbackPrefix(): PublicApiPrefix = PublicApiPrefix("/api/v1/tours-operator/payments/paymob-callback")
 
+    @Bean("stoPublicSalesStatusPrefix")
+    fun toursOperatorPublicSalesStatusPrefix(): PublicApiPrefix = PublicApiPrefix("/api/v1/tours-operator/sales-status")
+
+    @Bean("stoSalesControlService")
+    fun salesControlService(
+        @Qualifier("stoSalesControlRepositoryImpl") repository: SalesControlRepository,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): SalesControlService = SalesControlService(repository, transactionRunner, clock)
+
     @Bean("stoObjectMapper")
     fun toursOperatorObjectMapper(): ObjectMapper = ObjectMapper()
 
@@ -187,6 +199,7 @@ class ToursOperatorBeanConfiguration {
         @Qualifier("stoTourSlotRepositoryImpl") slotRepository: TourSlotRepository,
         @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
         bookingAuditRecorder: BookingAuditRecorder,
+        @Qualifier("stoSalesControlRepositoryImpl") salesControlRepository: SalesControlRepository,
         outboxWriter: OutboxWriter,
         transactionRunner: TransactionRunner,
         @Qualifier("stoObjectMapper") toursOperatorObjectMapper: ObjectMapper,
@@ -197,6 +210,7 @@ class ToursOperatorBeanConfiguration {
             slotRepository,
             bookingRepository,
             bookingAuditRecorder,
+            salesControlRepository,
             outboxWriter,
             transactionRunner,
             toursOperatorObjectMapper,
@@ -416,6 +430,7 @@ class ToursOperatorBeanConfiguration {
         @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
         @Qualifier("stoPaymentRepositoryImpl") paymentRepository: PaymentRepository,
         @Qualifier("stoPaymobClient") paymobClient: PaymobClient,
+        @Qualifier("stoSalesControlRepositoryImpl") salesControlRepository: SalesControlRepository,
         transactionRunner: TransactionRunner,
         clock: Clock,
     ): InitiatePaymentService =
@@ -423,6 +438,7 @@ class ToursOperatorBeanConfiguration {
             bookingRepository,
             paymentRepository,
             paymobClient,
+            salesControlRepository,
             transactionRunner,
             clock,
         )

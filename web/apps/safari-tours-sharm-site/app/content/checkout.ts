@@ -25,7 +25,7 @@ export interface CheckoutCopy {
   };
   errors: {
     summary: string; required: string; phone: string; email: string; terms: string;
-    slotFull: string; slotBlocked: string; tourInactive: string; pricing: string; tooMany: string; payment: string; network: string; generic: string;
+    slotFull: string; slotBlocked: string; tourInactive: string; salesPaused: string; pricing: string; tooMany: string; payment: string; network: string; generic: string;
     missingSlot: string; whatsapp: string;
   };
 }
@@ -55,6 +55,7 @@ const en: CheckoutCopy = {
     slotFull: "Sorry — this departure just filled up. Please go back and choose another time.",
     slotBlocked: "This departure is no longer available. Please choose another date.",
     tourInactive: "This tour is not available right now. Please contact us on WhatsApp.",
+    salesPaused: "Online booking is paused for a short time. Please contact us on WhatsApp and we will book it for you.",
     pricing: "Your selection no longer matches this tour. Please go back to the tour page and choose again.",
     tooMany: "Too many attempts. Please wait a minute and try again.",
     payment: "The payment service is temporarily unavailable. Please try again, or book on WhatsApp.",
@@ -90,6 +91,7 @@ const ar: CheckoutCopy = {
     slotFull: "عذرًا — اكتمل هذا الموعد للتو. ارجع واختر موعدًا آخر.",
     slotBlocked: "هذا الموعد لم يعد متاحًا. اختر تاريخًا آخر.",
     tourInactive: "هذه الرحلة غير متاحة الآن. تواصل معنا على واتساب.",
+    salesPaused: "الحجز عبر الموقع متوقف مؤقتًا. تواصل معنا على واتساب وسنحجز لك بأنفسنا.",
     pricing: "اختيارك لم يعد مطابقًا لهذه الرحلة. ارجع لصفحة الرحلة واختر من جديد.",
     tooMany: "محاولات كثيرة. انتظر دقيقة ثم حاول مرة أخرى.",
     payment: "خدمة الدفع غير متاحة مؤقتًا. حاول مرة أخرى أو احجز عبر واتساب.",
@@ -125,6 +127,7 @@ const ru: CheckoutCopy = {
     slotFull: "Извините — места на это время только что закончились. Выберите другое время.",
     slotBlocked: "Это время больше недоступно. Выберите другую дату.",
     tourInactive: "Этот тур сейчас недоступен. Напишите нам в WhatsApp.",
+    salesPaused: "Онлайн-бронирование временно приостановлено. Напишите нам в WhatsApp — мы забронируем для вас.",
     pricing: "Ваш выбор больше не подходит к туру. Вернитесь на страницу тура и выберите заново.",
     tooMany: "Слишком много попыток. Подождите минуту и попробуйте снова.",
     payment: "Платёжный сервис временно недоступен. Попробуйте снова или забронируйте в WhatsApp.",
@@ -160,6 +163,7 @@ const it: CheckoutCopy = {
     slotFull: "Spiacenti — questa partenza si è appena riempita. Scegli un altro orario.",
     slotBlocked: "Questa partenza non è più disponibile. Scegli un'altra data.",
     tourInactive: "Questa escursione non è disponibile al momento. Scrivici su WhatsApp.",
+    salesPaused: "La prenotazione online è sospesa per poco tempo. Scrivici su WhatsApp e prenotiamo noi per te.",
     pricing: "La tua scelta non corrisponde più a questa escursione. Torna alla pagina e scegli di nuovo.",
     tooMany: "Troppi tentativi. Attendi un minuto e riprova.",
     payment: "Il servizio di pagamento non è disponibile al momento. Riprova o prenota su WhatsApp.",

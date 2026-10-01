@@ -69,6 +69,11 @@ class PaymentController(
             InitiatePaymentResult.BookingNotFound ->
                 ResponseEntity.notFound().build()
 
+            InitiatePaymentResult.PaymentsPaused ->
+                ResponseEntity
+                    .status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body(ErrorResponse("payments_paused"))
+
             is InitiatePaymentResult.BookingNotPayable ->
                 ResponseEntity
                     .status(HttpStatus.CONFLICT)

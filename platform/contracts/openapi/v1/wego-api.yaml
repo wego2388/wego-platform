@@ -4829,6 +4829,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ToursOperatorErrorResponse"
+        "503":
+          description: Online bookings or payments are paused by a manager (bookings_paused).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorErrorResponse"
     get:
       operationId: listToursOperatorBookings
       summary: List bookings for staff
@@ -5097,6 +5103,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ToursOperatorErrorResponse"
+        "503":
+          description: Payment checkouts are paused by a manager (payments_paused). Nothing was created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorErrorResponse"
   /api/v1/tours-operator/bookings/{id}/payment-status:
     get:
       operationId: getToursOperatorPaymentStatus
@@ -5147,6 +5159,70 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ToursOperatorPaymentHistoryEntry"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/tours-operator/sales-status:
+    get:
+      operationId: getToursOperatorSalesStatus
+      summary: Whether online booking and payment are open
+      description: >-
+        Public. Only the two flags — never the staff note or who changed it.
+      tags:
+        - ToursOperator
+      security: []
+      responses:
+        "200":
+          description: Current public sales status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorPublicSalesStatus"
+  /api/v1/tours-operator/staff/sales-control:
+    get:
+      operationId: getToursOperatorSalesControl
+      summary: Emergency sales control for managers
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current switch.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorSalesControl"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+    put:
+      operationId: updateToursOperatorSalesControl
+      summary: Pause or resume new online bookings and payment checkouts
+      description: >-
+        Requires tours-operator.tour:manage. Webhooks, booking expiry and
+        staff operations keep running while paused.
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateToursOperatorSalesControlRequest"
+      responses:
+        "200":
+          description: Switch saved.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorSalesControl"
         "400":
           $ref: "#/components/responses/ToursOperatorValidationResponse"
         "401":
@@ -6663,6 +6739,51 @@ components:
           type: string
           minLength: 1
           maxLength: 1000
+    ToursOperatorPublicSalesStatus:
+      type: object
+      additionalProperties: false
+      required:
+        - bookingsOpen
+        - paymentsOpen
+      properties:
+        bookingsOpen:
+          type: boolean
+        paymentsOpen:
+          type: boolean
+    ToursOperatorSalesControl:
+      type: object
+      additionalProperties: false
+      required:
+        - bookingsPaused
+        - paymentsPaused
+      properties:
+        bookingsPaused:
+          type: boolean
+        paymentsPaused:
+          type: boolean
+        reason:
+          type: [string, "null"]
+          maxLength: 300
+        updatedByUserId:
+          type: [string, "null"]
+          format: uuid
+        updatedAt:
+          type: [string, "null"]
+          format: date-time
+    UpdateToursOperatorSalesControlRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - bookingsPaused
+        - paymentsPaused
+      properties:
+        bookingsPaused:
+          type: boolean
+        paymentsPaused:
+          type: boolean
+        reason:
+          type: [string, "null"]
+          maxLength: 300
     ToursOperatorErrorResponse:
       type: object
       additionalProperties: false

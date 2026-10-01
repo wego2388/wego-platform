@@ -27,6 +27,9 @@ sealed class InitiatePaymentResult {
     /** Booking not found. */
     data object BookingNotFound : InitiatePaymentResult()
 
+    /** A manager paused payment checkouts (emergency sales control). Nothing was created. */
+    data object PaymentsPaused : InitiatePaymentResult()
+
     /**
      * Booking is not in NEW state — e.g. already confirmed, cancelled, or expired.
      * Returns the existing payment if one exists so the caller can redirect.
@@ -75,6 +78,7 @@ class InitiatePaymentService(
     private val bookingRepository: BookingRepository,
     private val paymentRepository: PaymentRepository,
     private val paymobClient: PaymobClient,
+    private val salesControlRepository: SalesControlRepository,
     private val transactionRunner: TransactionRunner,
     private val clock: Clock,
 ) {
@@ -89,6 +93,12 @@ class InitiatePaymentService(
                     return@runInTransaction PaymentPreparation.Completed(
                         InitiatePaymentResult.BookingNotPayable(booking.status),
                     )
+                }
+
+                // Checked before any payment row is written and before resuming
+                // an existing checkout: while paused, nobody is sent to the provider.
+                if (salesControlRepository.current().paymentsPaused) {
+                    return@runInTransaction PaymentPreparation.Completed(InitiatePaymentResult.PaymentsPaused)
                 }
 
                 val existing = paymentRepository.findByBookingIdForUpdate(command.bookingId)

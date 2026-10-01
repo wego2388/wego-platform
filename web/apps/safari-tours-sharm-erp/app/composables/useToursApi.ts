@@ -12,6 +12,7 @@ import type {
   PaymentHistoryEntry,
   CustomerNotification,
   NotificationStatus,
+  SalesControl,
 } from "@wego/api-contract";
 
 export type {
@@ -29,6 +30,7 @@ export type {
   PaymentHistoryEntry,
   CustomerNotification,
   NotificationStatus,
+  SalesControl,
 } from "@wego/api-contract";
 export { addMoney, divideMoney, formatMoney, minorUnitsToMoney, moneyToMinorUnits } from "@wego/api-contract";
 
@@ -163,6 +165,30 @@ export function listNotifications(
 
 export function resendNotification(token: string, id: string): Promise<undefined> {
   return request<undefined>(`/api/v1/tours-operator/staff/notifications/${id}/resend`, token, { method: "POST" });
+}
+
+// ── Emergency sales control ────────────────────────────────────────────────
+
+export function getSalesControl(token: string): Promise<SalesControl> {
+  return request<SalesControl>("/api/v1/tours-operator/staff/sales-control", token);
+}
+
+export function updateSalesControl(
+  token: string,
+  payload: { bookingsPaused: boolean; paymentsPaused: boolean; reason: string | null },
+): Promise<SalesControl> {
+  return request<SalesControl>("/api/v1/tours-operator/staff/sales-control", token, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+/** Public flags, readable by any staff member (no permission needed). */
+export async function getPublicSalesStatus(): Promise<{ bookingsOpen: boolean; paymentsOpen: boolean }> {
+  const response = await fetch("/api/v1/tours-operator/sales-status");
+  if (!response.ok) throw new ToursApiError(response.status, `http_${response.status}`);
+  return response.json();
 }
 
 export function listPaymentLedger(
