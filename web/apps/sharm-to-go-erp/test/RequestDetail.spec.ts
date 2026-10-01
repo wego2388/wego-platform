@@ -145,6 +145,49 @@ describe("request detail page", () => {
     expect(wrapper.text()).toContain("CONFIRMED");
   });
 
+  it("shows an honest status in the customer-safe summary for cancelled and expired requests, not 'Awaiting confirmation'", async () => {
+    seedSession(["travel-request:view"]);
+    vi.stubGlobal(
+      "fetch",
+      fetchRoutedBy(
+        {
+          [`GET /api/v1/travel-marketplace/requests/${requestId}`]: () =>
+            new Response(JSON.stringify(sampleRequest({ status: "CANCELLED" })), { status: 200 }),
+          [`GET /api/v1/travel-marketplace/requests/${requestId}/audit`]: () => new Response(JSON.stringify([]), { status: 200 }),
+        },
+        () => new Response(JSON.stringify(null), { status: 404 }),
+      ),
+    );
+
+    const wrapper = mountDetail();
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Status: Cancelled");
+    expect(wrapper.text()).not.toContain("Awaiting confirmation");
+  });
+
+  it("writes the customer-safe summary in the customer's own recorded locale, not always English", async () => {
+    seedSession(["travel-request:view"]);
+    vi.stubGlobal(
+      "fetch",
+      fetchRoutedBy(
+        {
+          [`GET /api/v1/travel-marketplace/requests/${requestId}`]: () =>
+            new Response(JSON.stringify(sampleRequest({ status: "EXPIRED", locale: "ar" })), { status: 200 }),
+          [`GET /api/v1/travel-marketplace/requests/${requestId}/audit`]: () => new Response(JSON.stringify([]), { status: 200 }),
+        },
+        () => new Response(JSON.stringify(null), { status: 404 }),
+      ),
+    );
+
+    const wrapper = mountDetail();
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("منتهي الصلاحية");
+    expect(wrapper.text()).toContain("استلام");
+    expect(wrapper.text()).not.toContain("Status: Expired");
+  });
+
   it("a confirm attempt the backend rejects shows the mapped error, not a raw one", async () => {
     seedSession(["travel-request:view", "travel-request:confirm"]);
     vi.stubGlobal(

@@ -129,13 +129,29 @@ function confirmCancel() {
   runAction(() => cancelTravelRequest(token, requestId, { reason, detail }));
 }
 
+// Exhaustive (not a CONFIRMED/COMPLETED-vs-everything-else binary, which
+// previously showed "Awaiting confirmation" even for a cancelled or expired
+// request) and localized to the customer's own recorded locale, not always
+// English.
+const customerStatusLabels: Record<TravelRequestStatus, { en: string; ar: string }> = {
+  NEW: { en: "Received, awaiting review", ar: "تم الاستلام، في انتظار المراجعة" },
+  IN_REVIEW: { en: "Under review", ar: "قيد المراجعة" },
+  CONFIRMED: { en: "Confirmed", ar: "مؤكد" },
+  COMPLETED: { en: "Completed", ar: "تم الإنجاز" },
+  CANCELLED: { en: "Cancelled", ar: "ملغى" },
+  EXPIRED: { en: "Expired", ar: "منتهي الصلاحية" },
+};
+
 const summaryText = computed(() => {
   if (!request.value) return "";
   const r = request.value;
-  const stateLabel = r.status === "CONFIRMED" || r.status === "COMPLETED" ? "Confirmed" : "Awaiting confirmation";
+  const isArabic = r.locale === "ar";
+  const stateLabel = customerStatusLabels[r.status][isArabic ? "ar" : "en"];
+  const serviceName = isArabic ? r.serviceName.ar : r.serviceName.en;
+  const optionLabel = isArabic ? r.optionLabel.ar : r.optionLabel.en;
   return [
     `Sharm To Go — ${r.reference}`,
-    `${r.serviceName.en} (${r.optionLabel.en})`,
+    `${serviceName} (${optionLabel})`,
     `Date: ${r.requestedDate}${r.requestedTime ? " " + r.requestedTime : ""}`,
     `Party: ${r.adults} adult(s)${r.children ? `, ${r.children} child(ren)` : ""}`,
     r.hotelOrPickup ? `Pickup: ${r.hotelOrPickup}` : null,

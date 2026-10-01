@@ -60,15 +60,24 @@ export class TravelRequestError extends Error {
   }
 }
 
-function idempotencyKey(): string {
+/**
+ * One of these must be generated per *logical submission attempt* — by the
+ * caller, once, held across retries of that same attempt — never freshly
+ * inside `createTravelRequest` itself. A key minted fresh on every call
+ * defeats the backend's idempotency protection on exactly the case it
+ * exists for: the response to a successful write gets lost (a network
+ * blip, a timeout) and the visitor's retry would otherwise create a
+ * second, possibly instantly-confirmed, request.
+ */
+export function newIdempotencyKey(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-export async function createTravelRequest(body: CreateTravelRequestBody): Promise<TravelRequestPublicResponse> {
+export async function createTravelRequest(body: CreateTravelRequestBody, idempotencyKey: string): Promise<TravelRequestPublicResponse> {
   const response = await fetch("/api/requests", {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Idempotency-Key": idempotencyKey() },
+    headers: { "Content-Type": "application/json", "Idempotency-Key": idempotencyKey },
     body: JSON.stringify(body),
   });
   const payload = await response.json().catch(() => null);

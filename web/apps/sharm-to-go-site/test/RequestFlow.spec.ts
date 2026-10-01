@@ -223,6 +223,80 @@ describe("real request flow", () => {
     expect(wrapper.text()).toContain("Your party is larger than this option allows");
   });
 
+  it("reuses the same Idempotency-Key on a plain retry after a failed submit", async () => {
+    withRoute(serviceId);
+    const idempotencyKeysSeen: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = new URL(String(input), "http://localhost");
+        if (url.pathname === `/api/catalog/services/${serviceId}`) {
+          return new Response(JSON.stringify(sampleService()), { status: 200 });
+        }
+        if (url.pathname === "/api/requests" && init?.method === "POST") {
+          idempotencyKeysSeen.push((init.headers as Record<string, string>)["Idempotency-Key"]);
+          // Simulates a lost response / transient failure — a plain retry should follow.
+          return new Response(JSON.stringify({ error: "transient" }), { status: 500 });
+        }
+        throw new Error(`Unexpected fetch: ${url.pathname}`);
+      }),
+    );
+
+    const wrapper = mountPage();
+    await flushPromises();
+    await fillPartyStep(wrapper);
+    await fillContactStep(wrapper);
+
+    await wrapper.get('button[type="button"].flex-1').trigger("click");
+    await flushPromises();
+    await wrapper.get('button[type="button"].flex-1').trigger("click");
+    await flushPromises();
+
+    expect(idempotencyKeysSeen).toHaveLength(2);
+    expect(idempotencyKeysSeen[0]).toBe(idempotencyKeysSeen[1]);
+  });
+
+  it("mints a new Idempotency-Key after going back to change details and returning to review", async () => {
+    withRoute(serviceId);
+    const idempotencyKeysSeen: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = new URL(String(input), "http://localhost");
+        if (url.pathname === `/api/catalog/services/${serviceId}`) {
+          return new Response(JSON.stringify(sampleService()), { status: 200 });
+        }
+        if (url.pathname === "/api/requests" && init?.method === "POST") {
+          idempotencyKeysSeen.push((init.headers as Record<string, string>)["Idempotency-Key"]);
+          return new Response(JSON.stringify({ error: "transient" }), { status: 500 });
+        }
+        throw new Error(`Unexpected fetch: ${url.pathname}`);
+      }),
+    );
+
+    const wrapper = mountPage();
+    await flushPromises();
+    await fillPartyStep(wrapper);
+    await fillContactStep(wrapper);
+
+    await wrapper.get('button[type="button"].flex-1').trigger("click");
+    await flushPromises();
+
+    // Back to the contact step, then forward to review again — a materially
+    // new attempt, even if the visitor changes nothing, must not reuse the
+    // first attempt's key.
+    const backButtons = wrapper.findAll('button[type="button"]').filter((button) => button.text() === "Back");
+    await backButtons[backButtons.length - 1]!.trigger("click");
+    await flushPromises();
+    await wrapper.get("form").trigger("submit");
+    await flushPromises();
+    await wrapper.get('button[type="button"].flex-1').trigger("click");
+    await flushPromises();
+
+    expect(idempotencyKeysSeen).toHaveLength(2);
+    expect(idempotencyKeysSeen[0]).not.toBe(idempotencyKeysSeen[1]);
+  });
+
   it("pre-fills the party step from a date/adults/children carried over from the homepage search box", async () => {
     withRoute(serviceId, { date: "2099-06-15", adults: "3", children: "1" });
     vi.stubGlobal(

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import MockPhoto from "../../components/MockPhoto.vue";
-import SiteSubHeader from "../../components/SiteSubHeader.vue";
-import SiteFooter from "../../components/SiteFooter.vue";
-import { contact, emailLink, whatsappLink } from "../../content/contact";
-import { toneForIndex } from "../../content/categoryAccents";
-import { useSiteLocale } from "../../composables/useSiteLocale";
-import { getPublicService, listPublicCategories, type PublicCategory, type PublicService } from "../../composables/usePublicCatalog";
+import MockPhoto from "../../../components/MockPhoto.vue";
+import SiteSubHeader from "../../../components/SiteSubHeader.vue";
+import SiteFooter from "../../../components/SiteFooter.vue";
+import { contact, emailLink, whatsappLink } from "../../../content/contact";
+import { toneForIndex } from "../../../content/categoryAccents";
+import { useSiteLocale } from "../../../composables/useSiteLocale";
+import { getPublicService, listPublicCategories, type PublicCategory, type PublicService } from "../../../composables/usePublicCatalog";
 
 const route = useRoute();
 const serviceId = String(route.params.id);

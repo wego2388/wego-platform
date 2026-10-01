@@ -1078,6 +1078,104 @@ provider constraints are revalidated against the implemented repository.
   authorized. PR #46 stays unmerged pending the owner's own fresh
   "اعمل merge" instruction.
 
+### 2026-10-01 — Codex professional review and fix round (owner-requested, Tier 1 for the fixed items)
+
+- **Status:** `ACTIVE`, under the owner's standing broad authorization for
+  this packet. The owner explicitly asked for an advisory Codex review of
+  the ERP and website's current state ("يشوف المشروع بعين التحسينات و
+  التطوير الاحترافي") and said Claude has the final independent opinion
+  after Codex, not Codex itself.
+- **What was done:** Claude wrote a full context brief
+  (`clients/sharm-to-go/handoff/2026-10-01_CODEX_PROFESSIONAL_REVIEW_BRIEF.md`,
+  committed before the review ran) scoping a read-only professional-
+  improvement review of the ERP and public website's current
+  implementation, explicitly marking the owner's future "Sharm visitor's
+  guide" direction as context only, not something to scope or build.
+  `codex exec` (model `gpt-6.1-sol`, reasoning effort `xhigh`) ran against
+  it. **Two environment failures before it worked:** the first attempt's
+  own sandbox (`bubblewrap`) could not initialize inside this already-
+  sandboxed worktree session (`bwrap: loopback: Failed RTM_NEWADDR:
+  Operation not permitted`) and produced no review at all; the retry used
+  `--dangerously-bypass-approvals-and-sandbox` (its documented use case is
+  exactly this — an already-externally-sandboxed environment) with an
+  explicit read-only instruction in the prompt itself, and succeeded.
+- **Claude did not forward the review blindly.** Before accepting any
+  finding, the three most severe were independently re-verified against
+  the real code and a real running build — not just read and trusted:
+  - Finding 1 (request page unreachable): confirmed by grepping for
+    `<NuxtPage />` in `experiences/[id].vue` (absent), reading the
+    generated route manifest (`request` nested under `id`, confirming the
+    Nuxt implicit-parent-route mechanism Codex described), then booting
+    the actual built site and diffing the real server-rendered HTML at
+    `/experiences/:id/request` before and after the fix.
+  - Finding 2 (idempotency key regenerated per call): confirmed by
+    reading `useTravelRequests.ts:63-71` directly — a fresh
+    `crypto.randomUUID()` inside every `createTravelRequest()` call.
+  - Finding 17 (ERP status mislabel): confirmed by reading
+    `requests/[id].vue:135` — a binary CONFIRMED/COMPLETED check labels
+    every other status, including CANCELLED and EXPIRED, "Awaiting
+    confirmation."
+  All three were real, exactly as reported. This is the standard this
+  session has applied to every Codex-sourced claim all along (see the
+  WEGO-011 review-round entries) — spot-check before trusting, not after.
+- **What was fixed, this same round:**
+  1. **Request page unreachable** — `experiences/[id].vue` moved to
+     `experiences/[id]/index.vue` (sibling of `request.vue`, not its
+     implicit parent). New `test/RouteStructure.spec.ts` scans every page
+     file in the app for the same antipattern (a `foo.vue` next to a
+     `foo/` directory) so it cannot silently reappear — a bug class no
+     component-mount test can catch, since Nuxt's route nesting is
+     resolved at build time, not by `@vue/test-utils`.
+  2. **Idempotency key regenerated per submit** — `useTravelRequests.ts`'s
+     `createTravelRequest` now takes the key as a caller-supplied
+     parameter instead of generating one internally; `request.vue`
+     generates one key per arrival at the review step (not per mount —
+     the review step has a genuine "back to contact" path the first
+     design missed, so going back to change details and returning to
+     review correctly mints a new key, while a plain retry from review
+     reuses the same one). Two new tests capture the real
+     `Idempotency-Key` header sent on each call and assert both halves.
+  3. **ERP customer-summary status mislabel** — replaced the CONFIRMED/
+     COMPLETED-vs-everything-else binary with an exhaustive, bilingual
+     (English/Arabic, selected by the request's own recorded `locale`
+     field) status-label map. Two new tests cover a cancelled request
+     (English) and an expired one (Arabic).
+  4. **The Phase 3A completion record** — corrected in place in
+     `ROADMAP_AR.md` with a dated note explaining what was wrong and why
+     the original test suite did not catch it, rather than silently
+     editing the earlier claim away.
+- **The remaining ~20 findings were not fixed this round** — recorded,
+  with Codex's own severity ratings preserved, in
+  `clients/sharm-to-go/handoff/2026-10-01_CODEX_REVIEW_FINDINGS_BACKLOG.md`,
+  explicitly marked as not independently re-verified (unlike the three
+  above). Highest-priority unfixed items: price/policy can drift between
+  review and confirmation on a concurrent catalog edit; phone "validation"
+  only checks non-blank presence; privacy/terms copy still describes a
+  pre-request-flow product; tracking-reference privacy (unrestricted
+  pickup text, logging, caching); and the 8-thread concurrency test's own
+  assertions are weaker than the "safe and auditable" claim they back
+  (discards futures, never asserts 8 successful shared-row outcomes).
+- **Verified:** 60/60 site tests pass (4 new), 52/52 ERP tests pass (2
+  new). Root `pnpm run check` (lint across every app in the monorepo) and
+  `nuxt typecheck` both clean for both apps. Real production `nuxt build`
+  of the site succeeds; the request-page fix was confirmed against that
+  real build's actual served HTML, not just against the dev/test
+  environment.
+- **Rollback considerations:** one file move
+  (`experiences/[id].vue` → `experiences/[id]/index.vue`, imports
+  adjusted for the new depth, no content change beyond that); one
+  composable signature change (`createTravelRequest` now takes an
+  explicit key parameter — its one call site was updated in the same
+  commit); one ERP page's summary-generation logic replaced (additive —
+  every previously-correct CONFIRMED/COMPLETED case is unchanged). No
+  backend, migration, or permission change.
+- **Next:** commit, push, update board/roadmap evidence (done in this
+  same pass). Work through the findings backlog by its own stated
+  priority in a future round, starting with the price/policy-drift and
+  concurrency-test-integrity items; not started, not automatically
+  authorized beyond this round. PR #46 stays unmerged pending the owner's
+  own fresh "اعمل merge" instruction.
+
 ## WEGO-003 — Reliable integration delivery and replay
 
 - **Status:** NOT AUTHORIZED — roadmap only; WEGO-002 must close first and owner activation is still required.

@@ -98,10 +98,28 @@
 
 ## Real request flow
 
+- **Correction, 2026-10-01 (found by an owner-requested Codex professional
+  review, independently re-verified by Claude before accepting it):** the
+  "done" claims below were true of the Vue component in isolation but not
+  of the real website — `/experiences/:id/request` was unreachable through
+  actual navigation. `experiences/[id].vue` had no `<NuxtPage />` outlet,
+  so Nuxt treated `[id]/request.vue` as that page's child route with
+  nowhere to render; visiting the request URL silently rendered the detail
+  page instead. Every passing `RequestFlow.spec.ts` test mounted
+  `request.vue` directly, bypassing Nuxt's router entirely, so this was
+  never caught. Fixed by moving the detail page to `experiences/
+  [id]/index.vue` (a sibling of `request.vue`, not its implicit parent);
+  confirmed via `entry.mjs`'s generated route manifest and by booting the
+  rebuilt site and diffing the real HTML at the request URL before and
+  after. A new `RouteStructure.spec.ts` scans every page file for this
+  exact antipattern (a `foo.vue` next to a `foo/` directory) so it cannot
+  silently return. See the WEGO-010-A board entry dated 2026-10-01 ("Codex
+  review fix round") for the full account.
 - [x] Replace `/booking-preview` as the customer CTA with service-bound steps.
   Removed the misleading primary-styled "Preview booking" link from the
   experiences index; the service detail page now has a real "Request this
-  experience" primary CTA linking to `/experiences/:id/request`.
+  experience" primary CTA linking to `/experiences/:id/request` — now
+  genuinely reachable, see the correction above.
 - [x] Option/date/party step.
 - [x] Hotel/pickup and special-request step. Collected on the contact step
   (not a separate step) — same two fields (`hotelOrPickup`, `notes`), one
@@ -122,6 +140,17 @@
   duplicate/idempotency conflict or an unreachable backend) falls back to
   one generic honest message rather than a raw error — deliberate, not
   per-case messaging for every possible backend error code.
+- **Correction, 2026-10-01 (same Codex review):** a retry after a failed
+  submit was silently *not* protected by the backend's idempotency
+  mechanism — `useTravelRequests.ts` minted a brand-new `Idempotency-Key`
+  inside every call, so "the backend wrote the request but the response
+  was lost, the visitor retries" could create a second request. Fixed:
+  the key is now generated once per arrival at the review step (`request.vue`)
+  and reused across retries of that same attempt; going back to change
+  party/contact details and returning to review mints a new key, correctly
+  treating that as a new attempt. Two new tests
+  (`RequestFlow.spec.ts`) prove both halves of this directly by capturing
+  the real header sent on each submit.
 
 ## Analytics and SEO
 
@@ -134,14 +163,16 @@
 ## Required evidence
 
 - [x] Current marketing-site tests, lint, typecheck and production build pass.
-  56/56 site tests pass (16 new from 3A, 6 new from 3B covering the real
+  60/60 site tests pass (16 new from 3A, 6 new from 3B covering the real
   search box and query forwarding through catalog → detail → request, 7
   new from 3C covering `SiteFooter` in both locales, `useSiteLocale`'s
   SSR-safe-then-persisted locale behavior including a storage-failure
   fallback, and a footer-presence assertion added to every page spec
-  that previously had none), 50/50 ERP tests pass. Root `pnpm run check`
-  (lint across every app) and `nuxt typecheck` both clean; a real
-  production `nuxt build` of the site succeeds.
+  that previously had none; 4 new from the 2026-10-01 Codex-review fix
+  round — a route-structure regression test and two idempotency-key
+  retry tests), 52/52 ERP tests pass (2 new from the same fix round).
+  Root `pnpm run check` (lint across every app) and `nuxt typecheck`
+  both clean; a real production `nuxt build` of the site succeeds.
 - [x] Component/page tests for the real request flow. `RequestFlow.spec.ts`
   covers instant confirm, staff-review outcome, capacity block, contact
   validation, 409 error mapping, unknown-service 404, and (from 3B) a

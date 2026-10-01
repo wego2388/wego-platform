@@ -7,6 +7,7 @@ import { useSiteLocale } from "../../../composables/useSiteLocale";
 import { getPublicService, type PublicService, type PublicServiceOption } from "../../../composables/usePublicCatalog";
 import {
   createTravelRequest,
+  newIdempotencyKey,
   TravelRequestError,
   type TravelRequestPublicResponse,
 } from "../../../composables/useTravelRequests";
@@ -70,6 +71,15 @@ const submitErrorCode = ref("");
 const result = ref<TravelRequestPublicResponse | null>(null);
 const copyState = ref<"idle" | "copied">("idle");
 
+// Regenerated each time the review step is (re-)entered — not on every
+// submit() call — so a plain retry from review (the only action available
+// after a failed submit) reuses the same key as the real backend's
+// idempotency protection expects, while going back to change party/contact
+// details and returning to review correctly starts a new logical attempt.
+// See newIdempotencyKey's own doc comment for why a fresh key per call
+// would silently defeat that protection.
+const idempotencyKey = ref(newIdempotencyKey());
+
 onMounted(async () => {
   try {
     const found = await getPublicService(serviceId);
@@ -100,6 +110,7 @@ function goToReview() {
     return;
   }
   contactError.value = false;
+  idempotencyKey.value = newIdempotencyKey();
   step.value = "review";
 }
 
@@ -108,22 +119,25 @@ async function submit() {
   submitState.value = "submitting";
   submitErrorCode.value = "";
   try {
-    const response = await createTravelRequest({
-      serviceId: service.value.id,
-      serviceOptionId: selectedOption.value.id,
-      requestedDate: requestedDate.value,
-      adults: adults.value,
-      children: children.value,
-      hotelOrPickup: hotelOrPickup.value.trim() || undefined,
-      locale: locale.value,
-      notes: notes.value.trim() || undefined,
-      sourceChannel: "WEBSITE",
-      customer: {
-        name: fullName.value.trim(),
-        phone: phone.value.trim() || undefined,
-        email: email.value.trim() || undefined,
+    const response = await createTravelRequest(
+      {
+        serviceId: service.value.id,
+        serviceOptionId: selectedOption.value.id,
+        requestedDate: requestedDate.value,
+        adults: adults.value,
+        children: children.value,
+        hotelOrPickup: hotelOrPickup.value.trim() || undefined,
+        locale: locale.value,
+        notes: notes.value.trim() || undefined,
+        sourceChannel: "WEBSITE",
+        customer: {
+          name: fullName.value.trim(),
+          phone: phone.value.trim() || undefined,
+          email: email.value.trim() || undefined,
+        },
       },
-    });
+      idempotencyKey.value,
+    );
     result.value = response;
     step.value = "success";
     submitState.value = "idle";

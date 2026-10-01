@@ -1,7 +1,7 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import ExperienceDetailPage from "../app/pages/experiences/[id].vue";
+import ExperienceDetailPage from "../app/pages/experiences/[id]/index.vue";
 
 afterEach(() => {
   vi.unstubAllGlobals();
