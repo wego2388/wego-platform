@@ -34,11 +34,9 @@ const paragraphs = computed(() => (content.value?.description ?? "").split(/\n{2
 const categoryName = computed(() => siteCopy[locale.value].categories[tour.value.category].name);
 const visual = computed(() => CATEGORY_VISUAL[tour.value.category]);
 const duration = computed(() => formatDuration(tour.value.durationText, locale.value));
-const isTransfer = computed(() => tour.value.tourType === "TRANSFER");
-// Transfers are priced per vehicle (sedan/SUV/minibus) but checkout still
-// charges per person, so they are requested on WhatsApp until per-vehicle
-// pricing lands in checkout (UX-4).
-const onRequest = computed(() => tour.value.tourType === "REQUEST_ONLY" || tour.value.tourType === "TRANSFER");
+const onRequest = computed(() => tour.value.tourType === "REQUEST_ONLY");
+const perUnit = computed(() => tour.value.priceBasis === "PER_UNIT");
+const firstOption = computed(() => tour.value.priceOptions[0]);
 
 const media = computed(() => content.value?.media ?? []);
 const cover = computed(() => media.value.find((m) => m.isCover) ?? media.value[0] ?? null);
@@ -283,11 +281,6 @@ function jsonLd(value: unknown): string {
         <div class="sticky top-24 rounded-[var(--sts-radius-card)] border border-sts-border bg-sts-surface p-6 shadow-sts-raised">
           <div v-if="onRequest" class="grid gap-3">
             <h2 class="text-lg font-semibold">{{ copy.requestOnly.heading }}</h2>
-            <p v-if="isTransfer">
-              <span class="text-xs text-sts-muted">{{ copy.booking.from }}</span>
-              <span class="ms-1 text-2xl font-bold tabular-nums text-sts-ocean-bright">{{ formatMoney(tour.priceAdult) }}</span>
-              <span class="ms-1 text-xs text-sts-muted">{{ copy.booking.perVehicle }}</span>
-            </p>
             <p class="text-sm text-sts-muted">{{ copy.requestOnly.body }}</p>
             <p v-if="tour.pricingNote" class="rounded-[var(--sts-radius-control)] bg-sts-sand-soft p-3 text-sm" lang="en">{{ tour.pricingNote }}</p>
             <UiButton :href="whatsappRequest" icon="lucide:message-circle" block>{{ copy.requestOnly.cta }}</UiButton>
@@ -316,7 +309,7 @@ function jsonLd(value: unknown): string {
         <p v-if="!onRequest">
           <span class="block text-xs text-sts-muted">{{ copy.booking.from }}</span>
           <span class="text-xl font-bold tabular-nums text-sts-ocean-bright">{{ formatMoney(tour.priceAdult) }}</span>
-          <span class="ms-1 text-xs text-sts-muted">{{ isTransfer ? copy.booking.perVehicle : copy.booking.perPerson }}</span>
+          <span class="ms-1 text-xs text-sts-muted">{{ perUnit ? (copy.booking.perUnit[firstOption?.code ?? ""] ?? copy.booking.perUnitDefault) : copy.booking.perPerson }}</span>
         </p>
         <UiButton v-if="onRequest" :href="whatsappRequest" icon="lucide:message-circle" block>{{ copy.requestOnly.cta }}</UiButton>
         <UiButton v-else icon="lucide:calendar" @click="bookingOpen = true">{{ copy.booking.mobileBar }}</UiButton>

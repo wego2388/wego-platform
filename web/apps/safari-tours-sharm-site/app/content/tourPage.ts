@@ -35,6 +35,9 @@ export interface TourPageCopy {
     adultLine: (n: number) => string; childLine: (n: number) => string;
     total: string; continue: string; askWhatsapp: string; mobileBar: string; close: string;
     whatsappMessage: (tour: string, date: string | null, adults: number, children: number) => string;
+    option: string; units: string; seats: (n: number) => string;
+    unitNames: Record<string, string>; perUnit: Record<string, string>; perUnitDefault: string;
+    unitLine: (n: number, name: string) => string;
   };
   requestOnly: { heading: string; body: string; cta: string };
   notFound: { title: string; body: string; back: string };
@@ -75,6 +78,10 @@ const en: TourPageCopy = {
     noDatesTitle: "No online dates in the next 60 days", noDatesBody: "Message us on WhatsApp — we can often still arrange it.",
     pickDate: "Pick a highlighted day to see departure times.", pickTime: "Choose a departure time.",
     adultLine: (n) => (n === 1 ? "1 adult" : `${n} adults`), childLine: (n) => (n === 1 ? "1 child" : `${n} children`),
+    option: "Choose your option", units: "How many", seats: (n) => (n === 1 ? "1 seat" : `Up to ${n} guests`),
+    unitNames: { buggy: "Two-seat buggy", boat: "Private speedboat", sedan: "Sedan car", suv: "SUV", minibus: "Hiace minibus" },
+    perUnit: { buggy: "per buggy", boat: "per boat", sedan: "per car", suv: "per car", minibus: "per minibus" }, perUnitDefault: "per unit",
+    unitLine: (n, name) => `${n} × ${name}`,
     total: "Total", continue: "Continue to booking", askWhatsapp: "Ask on WhatsApp", mobileBar: "Check dates", close: "Close",
     whatsappMessage: (tour, date, adults, children) =>
       `Hello! I'd like to book "${tour}"${date ? ` on ${date}` : ""} for ${adults} adult(s)${children ? ` and ${children} child(ren)` : ""}.`,
@@ -118,6 +125,10 @@ const ar: TourPageCopy = {
     noDatesTitle: "لا توجد مواعيد متاحة أونلاين خلال 60 يومًا", noDatesBody: "راسلنا على واتساب — غالبًا يمكننا ترتيبها لك.",
     pickDate: "اختر يومًا من الأيام المميّزة لتظهر المواعيد.", pickTime: "اختر موعد الانطلاق.",
     adultLine: (n) => (n === 1 ? "بالغ واحد" : n === 2 ? "بالغان" : `${n} بالغين`), childLine: (n) => (n === 1 ? "طفل واحد" : n === 2 ? "طفلان" : `${n} أطفال`),
+    option: "اختر ما يناسبك", units: "العدد", seats: (n) => (n === 1 ? "مقعد واحد" : `حتى ${n} أفراد`),
+    unitNames: { buggy: "باجي بمقعدين", boat: "مركب سريع خاص", sedan: "سيارة سيدان", suv: "سيارة SUV", minibus: "ميني باص هاي إس" },
+    perUnit: { buggy: "للباجي", boat: "للمركب", sedan: "للسيارة", suv: "للسيارة", minibus: "للميني باص" }, perUnitDefault: "للوحدة",
+    unitLine: (n, name) => `${n} × ${name}`,
     total: "الإجمالي", continue: "متابعة الحجز", askWhatsapp: "اسألنا على واتساب", mobileBar: "اعرض المواعيد", close: "إغلاق",
     whatsappMessage: (tour, date, adults, children) =>
       `مرحبًا! أريد حجز «${tour}»${date ? ` يوم ${date}` : ""} لعدد ${adults} بالغ${children ? ` و${children} طفل` : ""}.`,
@@ -167,6 +178,10 @@ const ru: TourPageCopy = {
     noDatesTitle: "Нет онлайн-дат на ближайшие 60 дней", noDatesBody: "Напишите нам в WhatsApp — часто это можно организовать.",
     pickDate: "Выберите отмеченный день, чтобы увидеть время.", pickTime: "Выберите время отправления.",
     adultLine: (n) => `${n} ${ruPlural(n, "взрослый", "взрослых", "взрослых")}`, childLine: (n) => `${n} ${ruPlural(n, "ребёнок", "ребёнка", "детей")}`,
+    option: "Выберите вариант", units: "Количество", seats: (n) => `До ${n} ${ruPlural(n, "человека", "человек", "человек")}`,
+    unitNames: { buggy: "Двухместный багги", boat: "Частный скоростной катер", sedan: "Седан", suv: "Внедорожник (SUV)", minibus: "Микроавтобус Hiace" },
+    perUnit: { buggy: "за багги", boat: "за катер", sedan: "за машину", suv: "за машину", minibus: "за микроавтобус" }, perUnitDefault: "за единицу",
+    unitLine: (n, name) => `${n} × ${name}`,
     total: "Итого", continue: "Перейти к бронированию", askWhatsapp: "Спросить в WhatsApp", mobileBar: "Выбрать дату", close: "Закрыть",
     whatsappMessage: (tour, date, adults, children) =>
       `Здравствуйте! Хочу забронировать «${tour}»${date ? ` на ${date}` : ""}: взрослых — ${adults}${children ? `, детей — ${children}` : ""}.`,
@@ -210,6 +225,10 @@ const it: TourPageCopy = {
     noDatesTitle: "Nessuna data online nei prossimi 60 giorni", noDatesBody: "Scrivici su WhatsApp — spesso possiamo organizzarla comunque.",
     pickDate: "Scegli un giorno evidenziato per vedere gli orari.", pickTime: "Scegli l'orario di partenza.",
     adultLine: (n) => (n === 1 ? "1 adulto" : `${n} adulti`), childLine: (n) => (n === 1 ? "1 bambino" : `${n} bambini`),
+    option: "Scegli l'opzione", units: "Quanti", seats: (n) => (n === 1 ? "1 posto" : `Fino a ${n} persone`),
+    unitNames: { buggy: "Buggy biposto", boat: "Motoscafo privato", sedan: "Berlina", suv: "SUV", minibus: "Minibus Hiace" },
+    perUnit: { buggy: "a buggy", boat: "a barca", sedan: "ad auto", suv: "ad auto", minibus: "a minibus" }, perUnitDefault: "a unità",
+    unitLine: (n, name) => `${n} × ${name}`,
     total: "Totale", continue: "Continua la prenotazione", askWhatsapp: "Chiedi su WhatsApp", mobileBar: "Vedi le date", close: "Chiudi",
     whatsappMessage: (tour, date, adults, children) =>
       `Ciao! Vorrei prenotare "${tour}"${date ? ` il ${date}` : ""} per ${adults === 1 ? "1 adulto" : `${adults} adulti`}${children ? ` e ${children === 1 ? "1 bambino" : `${children} bambini`}` : ""}.`,

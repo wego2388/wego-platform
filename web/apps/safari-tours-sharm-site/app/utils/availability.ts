@@ -47,11 +47,14 @@ export function monthGrid(month: string, firstDayOfWeek: number): (string | null
   return weeks;
 }
 
-/** Bookable slots grouped by day: not blocked, seats left, and not in the past. */
-export function bookableByDay(slots: TourSlot[], today: string): Map<string, TourSlot[]> {
+/**
+ * Bookable slots grouped by day: not blocked, not in the past, and with at
+ * least [minPlaces] places left (one guest, or one whole unit for per-unit tours).
+ */
+export function bookableByDay(slots: TourSlot[], today: string, minPlaces = 1): Map<string, TourSlot[]> {
   const byDay = new Map<string, TourSlot[]>();
   for (const slot of slots) {
-    if (slot.isBlocked || slot.available <= 0 || slot.date < today) continue;
+    if (slot.isBlocked || slot.available < minPlaces || slot.date < today) continue;
     const list = byDay.get(slot.date) ?? [];
     list.push(slot);
     byDay.set(slot.date, list);

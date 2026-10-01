@@ -51,6 +51,27 @@ data class TourSummaryResponse(
     val pricingNote: String? = null,
     /** Published localized name/summary, present only when `locale` was requested and content is published. */
     val localized: LocalizedTourSummaryResponse? = null,
+    /** PER_PERSON or PER_UNIT. Per-unit tours are booked by choosing one of [priceOptions] and a unit count. */
+    val priceBasis: String = "PER_PERSON",
+    val priceOptions: List<TourPriceOptionResponse> = emptyList(),
+)
+
+data class TourPriceOptionResponse(
+    val code: String,
+    /** Catalogue label in English; sites translate known codes. */
+    val label: String,
+    val seatsPerUnit: Int,
+    /** Price per unit. */
+    val price: MoneyResponse,
+)
+
+/** What a per-unit booking bought (snapshot at booking time). */
+data class BookingUnitResponse(
+    val optionCode: String,
+    val optionLabel: String,
+    val seatsPerUnit: Int,
+    val unitCount: Int,
+    val unitPrice: MoneyResponse,
 )
 
 data class LocalizedTourSummaryResponse(
@@ -165,6 +186,14 @@ data class CreateBookingRequest(
     val adultsCount: Int,
     @field:Min(0)
     val childrenCount: Int,
+    /** Per-unit tours only: the chosen price option. */
+    @field:Size(max = 40)
+    @field:Pattern(regexp = "^[a-z0-9][a-z0-9-]{0,39}$")
+    val priceOptionCode: String? = null,
+    /** Per-unit tours only: how many units of the option. */
+    @field:Min(1)
+    @field:Max(50)
+    val unitCount: Int? = null,
     @field:Valid
     val customer: BookingCustomerRequest,
     @field:NotBlank
@@ -215,6 +244,8 @@ data class BookingResponse(
     val priceAdult: MoneyResponse,
     val priceChild: MoneyResponse?,
     val totalPrice: MoneyResponse,
+    /** Present for per-unit bookings (then priceAdult is 0 and priceChild null). */
+    val unit: BookingUnitResponse? = null,
     val customer: BookingCustomerResponse,
     val hotelName: String,
     val hotelRoom: String?,
@@ -237,6 +268,7 @@ data class PublicBookingLookupResponse(
     val adultsCount: Int,
     val childrenCount: Int,
     val totalPrice: MoneyResponse,
+    val unit: BookingUnitResponse? = null,
     val hotelName: String,
     val status: BookingStatus,
     val cancellationReason: String?,

@@ -96,10 +96,11 @@ class ToursOperatorMigrationIntegrationTest(
                 .withFailMessage("private-boat must not appear in the active-only list")
                 .doesNotContain("private-boat")
 
-            // Active list must have exactly 29 tours (30 - 1 REQUEST_ONLY)
+            // 30 seeded − private-boat (V17) − intro-diving and crocodile-show
+            // (owner revision applied by V25) = 27 active tours.
             assertThat(activeTours.size)
-                .withFailMessage("Expected 29 active tours (30 total minus private-boat), got ${activeTours.size}")
-                .isEqualTo(29)
+                .withFailMessage("Expected 27 active tours after the V25 owner revision, got ${activeTours.size}")
+                .isEqualTo(27)
         }
     }
 
@@ -444,6 +445,153 @@ class ToursOperatorMigrationIntegrationTest(
                         Boolean::class.java,
                     )
                 assertThat(refundedAt).isEqualTo(true)
+            }
+        } finally {
+            upgradePostgres.stop()
+        }
+    }
+
+    @Test
+    fun `V24 and V25 count guests not bookings, apply the owner revision and price unit tours`() {
+        val upgradePostgres =
+            PostgreSQLContainer("postgres:18.4-alpine")
+                .withDatabaseName("wego_v23_upgrade")
+                .withUsername("wego_upgrade")
+                .withPassword("wego_upgrade")
+        upgradePostgres.start()
+        try {
+            val migrationLocations = arrayOf("classpath:db/migration", "classpath:db/migration/data")
+            Flyway
+                .configure()
+                .dataSource(upgradePostgres.jdbcUrl, upgradePostgres.username, upgradePostgres.password)
+                .locations(*migrationLocations)
+                .target("23")
+                .load()
+                .migrate()
+
+            val slotFits = UUID.randomUUID()
+            val slotOver = UUID.randomUUID()
+            upgradePostgres.createConnection("").use { connection ->
+                val dsl = DSL.using(connection, SQLDialect.POSTGRES)
+                val tourId =
+                    dsl.fetchValue(
+                        "SELECT id FROM wego.tours_operator_tour WHERE slug = 'super-safari-adventure'",
+                        UUID::class.java,
+                    ) ?: error("V17 seeded tour missing")
+                // Before V24 each booking counted as one place, whatever its size.
+                listOf(slotFits to 10, slotOver to 4).forEachIndexed { index, (slotId, capacity) ->
+                    dsl.execute(
+                        """
+                        INSERT INTO wego.tours_operator_tour_slot
+                          (id, tour_id, date, time_slot, capacity, booked_count, is_blocked, created_at)
+                        VALUES (?, ?, DATE '2027-03-10' + ?, 'MORNING', ?, 2, false, now())
+                        """.trimIndent(),
+                        slotId,
+                        tourId,
+                        index,
+                        capacity,
+                    )
+                }
+                // slotFits: a NEW party of 3 and a CONFIRMED party of 2 hold places; a CANCELLED party of 4 does not.
+                // slotOver: two NEW parties of 3 — 6 guests on a 4-place slot.
+                val bookings =
+                    listOf(
+                        Triple(slotFits, 3, "NEW"),
+                        Triple(slotFits, 2, "CONFIRMED"),
+                        Triple(slotFits, 4, "CANCELLED"),
+                        Triple(slotOver, 3, "NEW"),
+                        Triple(slotOver, 3, "NEW"),
+                    )
+                bookings.forEachIndexed { index, (slotId, guests, status) ->
+                    dsl.execute(
+                        """
+                        INSERT INTO wego.tours_operator_booking
+                          (id, reference, tour_id, slot_id, tour_date, time_slot,
+                           adults_count, children_count, price_adult_eur, price_child_eur, total_eur,
+                           customer_full_name, customer_phone, customer_nationality,
+                           hotel_name, locale, status, created_at, confirmed_at, cancelled_at, cancellation_reason)
+                        VALUES (?, ?, ?, ?, DATE '2027-03-10', 'MORNING',
+                                ?, 0, 10.00, NULL, ? * 10.00,
+                                'Migration Test', '+20100000000', 'EG',
+                                'Migration Hotel', 'en', ?, now(),
+                                CASE WHEN ? = 'CONFIRMED' THEN now() END,
+                                CASE WHEN ? = 'CANCELLED' THEN now() END,
+                                CASE WHEN ? = 'CANCELLED' THEN 'test' END)
+                        """.trimIndent(),
+                        UUID.randomUUID(),
+                        "STR-2027-3${index + 1}",
+                        tourId,
+                        slotId,
+                        guests,
+                        guests,
+                        status,
+                        status,
+                        status,
+                        status,
+                    )
+                }
+            }
+
+            val upgraded =
+                Flyway
+                    .configure()
+                    .dataSource(upgradePostgres.jdbcUrl, upgradePostgres.username, upgradePostgres.password)
+                    .locations(*migrationLocations)
+                    .load()
+            upgraded.migrate()
+            assertThat(upgraded.info().applied().map { it.version.toString() }).contains("24", "25")
+
+            upgradePostgres.createConnection("").use { connection ->
+                val dsl = DSL.using(connection, SQLDialect.POSTGRES)
+                fun slot(id: UUID) =
+                    dsl.fetchOne("SELECT capacity, booked_count FROM wego.tours_operator_tour_slot WHERE id = ?", id)!!.let {
+                        it.get(0, Int::class.java) to it.get(1, Int::class.java)
+                    }
+                assertThat(slot(slotFits)).isEqualTo(10 to 5)
+                // Nobody's booking is dropped: the slot grows to fit and shows as full.
+                assertThat(slot(slotOver)).isEqualTo(6 to 6)
+
+                fun tour(slug: String) =
+                    dsl.fetchOne(
+                        "SELECT price_adult_cents, price_basis, is_active, capacity, duration_text FROM wego.tours_operator_tour WHERE slug = ?",
+                        slug,
+                    )!!
+                assertThat(tour("sunset-quad-bike").get(0, Long::class.java)).isEqualTo(3500L)
+                assertThat(tour("crocodile-show").get(2, Boolean::class.java)).isFalse()
+                assertThat(tour("evening-cruise").get(4, String::class.java)).isEqualTo("About 4 hours (18:00–22:00)")
+                assertThat(tour("double-buggy-camel-ride").get(1, String::class.java)).isEqualTo("PER_UNIT")
+                assertThat(tour("speed-boat-adventure").get(3, Int::class.java)).isEqualTo(5)
+                assertThat(tour("super-safari-adventure").get(1, String::class.java)).isEqualTo("PER_PERSON")
+
+                val options =
+                    dsl
+                        .fetch(
+                            """
+                            SELECT t.slug, o.code, o.seats_per_unit, o.price_cents
+                            FROM wego.tours_operator_tour_price_option o
+                            JOIN wego.tours_operator_tour t ON t.id = o.tour_id
+                            ORDER BY t.slug, o.sort_order
+                            """.trimIndent(),
+                        ).map { "${it.get(0)}:${it.get(1)}:${it.get(2)}:${it.get(3)}" }
+                assertThat(options).containsExactly(
+                    "double-buggy-camel-ride:buggy:2:3000",
+                    "sharm-airport-transfer:sedan:4:1500",
+                    "sharm-airport-transfer:suv:4:2000",
+                    "sharm-airport-transfer:minibus:8:3500",
+                    "speed-boat-adventure:boat:5:15000",
+                )
+
+                // The total must follow the unit snapshot; a per-unit row with a per-person price is refused.
+                assertThatThrownBy {
+                    dsl.execute(
+                        """
+                        UPDATE wego.tours_operator_booking
+                        SET price_option_code = 'buggy', price_option_label = 'Two-seat buggy', seats_per_unit = 2,
+                            unit_count = 2, unit_price_eur = 30.00
+                        WHERE reference = 'STR-2027-31'
+                        """.trimIndent(),
+                    )
+                }.isInstanceOf(DataAccessException::class.java)
             }
         } finally {
             upgradePostgres.stop()

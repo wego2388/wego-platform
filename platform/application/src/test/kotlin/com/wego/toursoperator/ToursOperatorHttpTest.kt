@@ -433,8 +433,8 @@ class ToursOperatorHttpTest {
     // ── test 6: concurrent booking — the FOR UPDATE proof ────────────────────
 
     @Test
-    fun `concurrent booking on capacity-1 slot -- exactly one succeeds and two get 409 slot fully booked`() {
-        val (_, slotId) = seedTourAndSlot("concurrent-6", capacity = 1)
+    fun `concurrent parties of 3 on a 3-place slot -- exactly one succeeds and two get 409 slot fully booked`() {
+        val (_, slotId) = seedTourAndSlot("concurrent-6", capacity = 3)
         val request = bookingRequestBody(slotId)
         val executor = Executors.newFixedThreadPool(3)
 
@@ -463,6 +463,183 @@ class ToursOperatorHttpTest {
         assert(conflict == 2) {
             "Expected exactly 2 conflicts (409), got $conflict. All statuses: $statuses"
         }
+    }
+
+    // ── places are guests; per-unit pricing ─────────────────────────────────
+
+    private fun bookingBody(
+        slotId: UUID,
+        adults: Int,
+        children: Int = 0,
+        unit: String = "",
+    ): String =
+        """
+        {
+          "slotId": "$slotId", "adultsCount": $adults, "childrenCount": $children,$unit
+          "customer": { "fullName": "Group Guest", "phone": "+201234567891", "nationality": "EG" },
+          "hotelName": "Hilton Sharm Dreams", "locale": "en"
+        }
+        """.trimIndent()
+
+    private fun slotBookedCount(slotId: UUID): Int =
+        dsl
+            .select(TOURS_OPERATOR_TOUR_SLOT.BOOKED_COUNT)
+            .from(TOURS_OPERATOR_TOUR_SLOT)
+            .where(TOURS_OPERATOR_TOUR_SLOT.ID.eq(slotId))
+            .fetchOne(TOURS_OPERATOR_TOUR_SLOT.BOOKED_COUNT)!!
+
+    @Test
+    fun `a booking takes one place per guest and cancelling returns them`() {
+        val (_, slotId) = seedTourAndSlot("guests-places", capacity = 5)
+        val adminToken = login(adminEmail, adminPassword)
+
+        val first =
+            jsonField(
+                mockMvc
+                    .post("/api/v1/tours-operator/bookings") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = bookingBody(slotId, adults = 2, children = 1)
+                    }.andExpect { status { isCreated() } }
+                    .andReturn()
+                    .response.contentAsString,
+                "id",
+            )
+        assertThat(slotBookedCount(slotId)).isEqualTo(3)
+
+        // 3 more guests do not fit in the 2 places left.
+        mockMvc
+            .post("/api/v1/tours-operator/bookings") {
+                contentType = MediaType.APPLICATION_JSON
+                content = bookingBody(slotId, adults = 3)
+            }.andExpect {
+                status { isConflict() }
+                jsonPath("$.error") { value("slot_fully_booked") }
+            }
+        assertThat(slotBookedCount(slotId)).isEqualTo(3)
+
+        mockMvc
+            .post("/api/v1/tours-operator/bookings/$first/cancel") {
+                header("Authorization", "Bearer $adminToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"reason":"Guest changed plans"}"""
+            }.andExpect { status { isOk() } }
+        assertThat(slotBookedCount(slotId)).isEqualTo(0)
+
+        mockMvc
+            .post("/api/v1/tours-operator/bookings") {
+                contentType = MediaType.APPLICATION_JSON
+                content = bookingBody(slotId, adults = 5)
+            }.andExpect { status { isCreated() } }
+        assertThat(slotBookedCount(slotId)).isEqualTo(5)
+    }
+
+    @Test
+    fun `per-unit tours charge per unit and guests must fit in the units`() {
+        val (tourId, slotId) = seedTourAndSlot("per-unit", capacity = 10)
+        dsl.execute("UPDATE wego.tours_operator_tour SET price_basis = 'PER_UNIT', price_child_cents = NULL WHERE id = ?", tourId)
+        dsl.execute(
+            """
+            INSERT INTO wego.tours_operator_tour_price_option (tour_id, code, label_en, seats_per_unit, price_cents, sort_order)
+            VALUES (?, 'buggy', 'Two-seat buggy', 2, 3000, 0)
+            """.trimIndent(),
+            tourId,
+        )
+
+        mockMvc.get("/api/v1/tours-operator/tours/$tourId").andExpect {
+            status { isOk() }
+            jsonPath("$.priceBasis") { value("PER_UNIT") }
+            jsonPath("$.priceOptions[0].code") { value("buggy") }
+            jsonPath("$.priceOptions[0].seatsPerUnit") { value(2) }
+            jsonPath("$.priceOptions[0].price.amount") { value("30.00") }
+        }
+
+        // 3 guests in one two-seat buggy do not fit.
+        mockMvc
+            .post("/api/v1/tours-operator/bookings") {
+                contentType = MediaType.APPLICATION_JSON
+                content = bookingBody(slotId, adults = 3, unit = """ "priceOptionCode": "buggy", "unitCount": 1,""")
+            }.andExpect {
+                status { isUnprocessableEntity() }
+                jsonPath("$.error") { value("guests_exceed_units") }
+            }
+        // A unit is required, and it must exist.
+        mockMvc
+            .post("/api/v1/tours-operator/bookings") {
+                contentType = MediaType.APPLICATION_JSON
+                content = bookingBody(slotId, adults = 2)
+            }.andExpect {
+                status { isUnprocessableEntity() }
+                jsonPath("$.error") { value("price_option_required") }
+            }
+        mockMvc
+            .post("/api/v1/tours-operator/bookings") {
+                contentType = MediaType.APPLICATION_JSON
+                content = bookingBody(slotId, adults = 2, unit = """ "priceOptionCode": "yacht", "unitCount": 1,""")
+            }.andExpect { status { isUnprocessableEntity() } }
+        // More units than guests is refused.
+        mockMvc
+            .post("/api/v1/tours-operator/bookings") {
+                contentType = MediaType.APPLICATION_JSON
+                content = bookingBody(slotId, adults = 1, unit = """ "priceOptionCode": "buggy", "unitCount": 2,""")
+            }.andExpect {
+                status { isUnprocessableEntity() }
+                jsonPath("$.error") { value("units_exceed_guests") }
+            }
+        assertThat(slotBookedCount(slotId)).isEqualTo(0)
+
+        // 2 adults + 1 child in two buggies: 2 × €30, and both buggies (4 places) are taken.
+        mockMvc
+            .post("/api/v1/tours-operator/bookings") {
+                contentType = MediaType.APPLICATION_JSON
+                content = bookingBody(slotId, adults = 2, children = 1, unit = """ "priceOptionCode": "buggy", "unitCount": 2,""")
+            }.andExpect {
+                status { isCreated() }
+                jsonPath("$.totalPrice.amount") { value("60.00") }
+                jsonPath("$.priceAdult.amount") { value("0.00") }
+                jsonPath("$.unit.optionCode") { value("buggy") }
+                jsonPath("$.unit.unitCount") { value(2) }
+                jsonPath("$.unit.unitPrice.amount") { value("30.00") }
+            }
+        assertThat(slotBookedCount(slotId)).isEqualTo(4)
+
+        // A solo rider holds a whole buggy; 6 places left fit 3 more buggies, not 4.
+        mockMvc
+            .post("/api/v1/tours-operator/bookings") {
+                contentType = MediaType.APPLICATION_JSON
+                content = bookingBody(slotId, adults = 1, unit = """ "priceOptionCode": "buggy", "unitCount": 1,""")
+            }.andExpect { status { isCreated() } }
+        assertThat(slotBookedCount(slotId)).isEqualTo(6)
+        mockMvc
+            .post("/api/v1/tours-operator/bookings") {
+                contentType = MediaType.APPLICATION_JSON
+                content = bookingBody(slotId, adults = 3, unit = """ "priceOptionCode": "buggy", "unitCount": 3,""")
+            }.andExpect {
+                status { isConflict() }
+                jsonPath("$.error") { value("slot_fully_booked") }
+            }
+    }
+
+    @Test
+    fun `per-person tours refuse unit fields and children without a child price`() {
+        val (tourId, slotId) = seedTourAndSlot("per-person-guards", capacity = 10)
+        mockMvc
+            .post("/api/v1/tours-operator/bookings") {
+                contentType = MediaType.APPLICATION_JSON
+                content = bookingBody(slotId, adults = 2, unit = """ "priceOptionCode": "buggy", "unitCount": 1,""")
+            }.andExpect {
+                status { isUnprocessableEntity() }
+                jsonPath("$.error") { value("price_option_not_applicable") }
+            }
+        dsl.execute("UPDATE wego.tours_operator_tour SET price_child_cents = NULL WHERE id = ?", tourId)
+        mockMvc
+            .post("/api/v1/tours-operator/bookings") {
+                contentType = MediaType.APPLICATION_JSON
+                content = bookingBody(slotId, adults = 1, children = 1)
+            }.andExpect {
+                status { isUnprocessableEntity() }
+                jsonPath("$.error") { value("child_price_not_available") }
+            }
+        assertThat(slotBookedCount(slotId)).isEqualTo(0)
     }
 
     // ── test 7: manual confirmation remains unavailable ──────────────────────

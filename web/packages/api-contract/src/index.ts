@@ -23,6 +23,8 @@ export type TourFactsDocument = components["schemas"]["ToursOperatorTourFactsDoc
 export type TourMediaInput = components["schemas"]["ToursOperatorTourMediaInput"];
 export type ContentErrorResponse = components["schemas"]["ToursOperatorContentErrorResponse"];
 export type PublishRequest = components["schemas"]["ToursOperatorPublishRequest"];
+export type TourPriceOption = components["schemas"]["ToursOperatorPriceOption"];
+export type BookingUnit = components["schemas"]["ToursOperatorBookingUnit"];
 
 const DECIMAL_AMOUNT = /^(0|[1-9]\d{0,16})\.\d{2}$/;
 const ISO_CURRENCY_CODE = /^[A-Z]{3}$/;
@@ -92,6 +94,13 @@ export function calculateBookingTotal(
     multiplyMoney(adultPrice, adultsCount),
     ...(childPrice ? [multiplyMoney(childPrice, childrenCount)] : []),
   ]);
+}
+
+/** Smallest number of units that seats every guest (e.g. 3 guests → 2 two-seat buggies). */
+export function unitsNeeded(guests: number, seatsPerUnit: number): number {
+  if (!Number.isSafeInteger(guests) || guests < 1) throw new Error("At least one guest is required");
+  if (!Number.isSafeInteger(seatsPerUnit) || seatsPerUnit < 1) throw new Error("A unit seats at least one guest");
+  return Math.ceil(guests / seatsPerUnit);
 }
 
 export function formatMoney(money: Money): string {

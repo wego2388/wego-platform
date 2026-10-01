@@ -3193,6 +3193,35 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   submit/network/429 states, payment-result polling + confirmation ticket
   (.ics, WhatsApp), `/my-booking` redesign; owner-approved catalog revisions
   applied by data migration; per-vehicle transfer pricing.
+- **UX4-A delivered (2026-10-01, Tier 1, Opus-reviewed):**
+  - **Defect fixed — capacity counted bookings, not guests:** `TourSlot.book()`
+    took one place per booking whatever the party size. Now `reserve(seats)` /
+    `release(seats)`; a per-person booking takes one place per guest, a
+    per-unit booking every seat of the units it buys (a solo rider holds a
+    whole buggy; the private boat is one unit per departure).
+  - **Per-unit pricing:** `price_basis` PER_PERSON|PER_UNIT + price options
+    (V24); checkout charges unit price × units, computed server-side from the
+    stored tour; booking snapshots option/label/seats/units/unit price; DB
+    constraints keep the total consistent with the snapshot. API/OpenAPI:
+    `priceBasis`, `priceOptions`, request `priceOptionCode`/`unitCount`,
+    booking `unit`, 422 codes for invalid pricing.
+  - **Data (V25):** booked_count recomputed as guests from held bookings
+    (over-capacity slots are kept, raised and blocked for staff review);
+    owner catalog revision of 2026-09-30 applied with old-value guards;
+    buggy €30/2 seats, speedboat €150/5 seats (existing slots shrunk to one
+    boat), airport transfer sedan €15/4 · SUV €20/4 · minibus €35/8 with
+    8-place departures — seat counts confirmed by the owner 2026-10-01.
+  - **Site/ERP:** booking card option + unit selection bounded by places
+    left, departures shown only when a whole unit fits, transfers bookable
+    online again; checkout forwards the unit choice; ERP booking shows
+    "Booked as".
+  - **Evidence:** Safari backend tests green (incl. new HTTP tests for
+    places-per-guest, per-unit pricing/validation, solo-buggy capacity, and a
+    V23→V25 upgrade test), `pnpm run check` exit 0, OpenAPI valid, release
+    plans regenerated. Opus review: 1 High (units must hold every seat) and
+    findings M1/M2/L1/L2/L4/L5 fixed; L3 noted — **deploy V24/V25 with a
+    stop-then-start, never a rolling restart** (an old instance would miscount
+    places); L6 (party of 9+ for transfers) is an owner decision.
 
 ---
 

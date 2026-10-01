@@ -5,6 +5,7 @@ import type { CatalogTour } from "../composables/useCatalog";
 import { useDiscoveryCopy } from "../composables/useDiscoveryCopy";
 import { useSiteLocale } from "../composables/useSiteLocale";
 import { siteCopy } from "../content/locales";
+import { tourPageCopy } from "../content/tourPage";
 import { CATEGORY_VISUAL } from "../utils/categoryVisual";
 import { formatDuration } from "../utils/tourDuration";
 
@@ -24,7 +25,13 @@ const tour = computed(() => props.entry.tour);
 const visual = computed(() => CATEGORY_VISUAL[tour.value.category]);
 const categoryName = computed(() => siteCopy[locale.value].categories[tour.value.category].name);
 const duration = computed(() => formatDuration(tour.value.durationText, locale.value));
-const isTransfer = computed(() => tour.value.tourType === "TRANSFER");
+const unitCopy = computed(() => tourPageCopy[locale.value].booking);
+/** "per person", or the unit a per-unit tour is sold by ("per buggy", "per car"…). */
+const priceUnit = computed(() => {
+  if (tour.value.priceBasis !== "PER_UNIT") return copy.value.card.perPerson;
+  const code = tour.value.priceOptions[0]?.code ?? "";
+  return unitCopy.value.perUnit[code] ?? unitCopy.value.perUnitDefault;
+});
 const onRequest = computed(() => tour.value.tourType === "REQUEST_ONLY");
 </script>
 
@@ -63,7 +70,7 @@ const onRequest = computed(() => tour.value.tourType === "REQUEST_ONLY");
           <span class="text-xs text-sts-muted">{{ copy.card.from }}</span>
           <span class="text-2xl font-bold tabular-nums text-sts-ocean-bright">
             {{ formatMoney(tour.priceAdult) }}
-            <span v-if="!isTransfer" class="text-xs font-medium text-sts-muted">{{ copy.card.perPerson }}</span>
+            <span class="text-xs font-medium text-sts-muted">{{ priceUnit }}</span>
           </span>
         </p>
         <span class="inline-flex items-center gap-1 text-sm font-semibold text-sts-ocean-bright" aria-hidden="true">

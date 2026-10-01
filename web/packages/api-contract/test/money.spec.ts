@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   addMoney,
   calculateBookingTotal,
+  unitsNeeded,
   divideMoney,
   formatMoney,
   minorUnitsToMoney,
@@ -55,5 +56,18 @@ describe("OpenAPI money helpers", () => {
       amount: "5.01",
       currencyCode: "EUR",
     });
+  });
+});
+
+describe("unitsNeeded", () => {
+  it("rounds guests up to whole units", () => {
+    expect(unitsNeeded(1, 2)).toBe(1);
+    expect(unitsNeeded(3, 2)).toBe(2);
+    expect(unitsNeeded(8, 8)).toBe(1);
+    expect(unitsNeeded(9, 8)).toBe(2);
+  });
+  it("rejects impossible inputs", () => {
+    expect(() => unitsNeeded(0, 2)).toThrow();
+    expect(() => unitsNeeded(2, 0)).toThrow();
   });
 });

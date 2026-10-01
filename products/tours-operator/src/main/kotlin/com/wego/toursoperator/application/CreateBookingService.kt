@@ -7,9 +7,10 @@ import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.BookingPricing
 import com.wego.toursoperator.domain.CustomerContact
 import com.wego.toursoperator.domain.Money
+import com.wego.toursoperator.domain.PriceBasis
+import com.wego.toursoperator.domain.Tour
 import com.wego.toursoperator.domain.TourSlotId
 import tools.jackson.databind.ObjectMapper
-import java.math.RoundingMode
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
@@ -19,6 +20,9 @@ data class CreateBookingCommand(
     val slotId: TourSlotId,
     val adultsCount: Int,
     val childrenCount: Int,
+    /** Per-unit tours only: which option (e.g. "buggy", "sedan") and how many units. */
+    val priceOptionCode: String? = null,
+    val unitCount: Int? = null,
     val customer: CustomerContact,
     val hotelName: String,
     val hotelRoom: String?,
@@ -41,6 +45,11 @@ sealed class CreateBookingResult {
     data object SlotFullyBooked : CreateBookingResult()
 
     data object TourNotActive : CreateBookingResult()
+
+    /** The request's pricing does not fit the tour (wrong option, guests don't fit the units, no child price…). */
+    data class InvalidPricing(
+        val code: String,
+    ) : CreateBookingResult()
 }
 
 /**
@@ -75,28 +84,15 @@ class CreateBookingService(
 
             if (!tour.isActive) return@runInTransaction CreateBookingResult.TourNotActive
 
-            // book() atomically checks capacity and increments bookedCount.
-            if (!slot.book()) return@runInTransaction CreateBookingResult.SlotFullyBooked
-
-            val priceAdult =
-                Money(
-                    tour.priceAdultCents
-                        .toBigDecimal()
-                        .movePointLeft(2)
-                        .setScale(Money.REQUIRED_SCALE, RoundingMode.HALF_UP),
-                )
-            val priceChild =
-                tour.priceChildCents?.let {
-                    Money(it.toBigDecimal().movePointLeft(2).setScale(Money.REQUIRED_SCALE, RoundingMode.HALF_UP))
+            val pricing =
+                when (val priced = price(tour, command)) {
+                    is Priced.Ok -> priced.pricing
+                    is Priced.Invalid -> return@runInTransaction CreateBookingResult.InvalidPricing(priced.code)
                 }
 
-            val pricing =
-                BookingPricing.compute(
-                    adultsCount = command.adultsCount,
-                    childrenCount = command.childrenCount,
-                    priceAdult = priceAdult,
-                    priceChild = priceChild,
-                )
+            // reserve() checks the places left and takes one per guest, under
+            // the slot row lock taken above.
+            if (!slot.reserve(pricing.seats)) return@runInTransaction CreateBookingResult.SlotFullyBooked
 
             val now = Instant.now(clock)
             val year = now.atOffset(ZoneOffset.UTC).year
@@ -128,6 +124,60 @@ class CreateBookingService(
             CreateBookingResult.Created(booking)
         }
 
+    private sealed interface Priced {
+        data class Ok(
+            val pricing: BookingPricing,
+        ) : Priced
+
+        data class Invalid(
+            val code: String,
+        ) : Priced
+    }
+
+    /** The server alone decides the price, from the tour as stored now. */
+    private fun price(
+        tour: Tour,
+        command: CreateBookingCommand,
+    ): Priced =
+        when (tour.priceBasis) {
+            PriceBasis.PER_PERSON -> {
+                if (command.priceOptionCode != null || command.unitCount != null) {
+                    Priced.Invalid("price_option_not_applicable")
+                } else if (command.childrenCount > 0 && tour.priceChildCents == null) {
+                    Priced.Invalid("child_price_not_available")
+                } else {
+                    Priced.Ok(
+                        BookingPricing.compute(
+                            adultsCount = command.adultsCount,
+                            childrenCount = command.childrenCount,
+                            priceAdult = Money.fromCents(tour.priceAdultCents),
+                            priceChild = tour.priceChildCents?.let(Money::fromCents),
+                        ),
+                    )
+                }
+            }
+            PriceBasis.PER_UNIT -> {
+                val option = command.priceOptionCode?.let(tour::priceOption)
+                val units = command.unitCount
+                val guests = command.adultsCount + command.childrenCount
+                when {
+                    option == null -> Priced.Invalid("price_option_required")
+                    units == null || units < 1 -> Priced.Invalid("unit_count_required")
+                    guests > units * option.seatsPerUnit -> Priced.Invalid("guests_exceed_units")
+                    units > guests -> Priced.Invalid("units_exceed_guests")
+                    else ->
+                        Priced.Ok(
+                            BookingPricing.computePerUnit(
+                                adultsCount = command.adultsCount,
+                                childrenCount = command.childrenCount,
+                                option = option,
+                                unitCount = units,
+                            ),
+                        )
+                }
+            }
+        }
+
     private fun createdEnvelope(
         booking: Booking,
         now: Instant,
@@ -150,6 +200,8 @@ class CreateBookingService(
                         "timeSlot" to booking.timeSlot.name,
                         "adultsCount" to booking.pricing.adultsCount,
                         "childrenCount" to booking.pricing.childrenCount,
+                        "priceOptionCode" to booking.pricing.unit?.optionCode,
+                        "unitCount" to booking.pricing.unit?.unitCount,
                         "totalEur" to
                             booking.pricing.totalEur.amount
                                 .toPlainString(),

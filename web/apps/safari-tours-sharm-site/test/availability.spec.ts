@@ -44,6 +44,11 @@ describe("availability calendar helpers", () => {
     expect([...byDay.keys()]).toEqual(["2026-10-02"]);
     expect(byDay.get("2026-10-02")!.map((s) => s.timeSlot)).toEqual(["MORNING", "SUNSET"]);
   });
+
+  it("hides departures without room for a whole unit", () => {
+    const slots = [slot("2026-10-02", "MORNING", 4), slot("2026-10-03", "MORNING", 5)];
+    expect([...bookableByDay(slots, "2026-10-01", 5).keys()]).toEqual(["2026-10-03"]);
+  });
 });
 
 describe("tour page copy", () => {

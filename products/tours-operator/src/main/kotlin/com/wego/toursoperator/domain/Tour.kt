@@ -48,6 +48,13 @@ class Tour(
      * of tours in approved-catalog.json.
      */
     val pricingNote: String? = null,
+    /**
+     * PER_PERSON (default) or PER_UNIT. Per-unit tours sell [priceOptions]
+     * (a buggy, a boat, a car); priceAdultCents is then the "from" price
+     * shown in listings. Options are catalogue data maintained by migration.
+     */
+    val priceBasis: PriceBasis = PriceBasis.PER_PERSON,
+    val priceOptions: List<TourPriceOption> = emptyList(),
 ) {
     var isActive: Boolean = isActive
         private set
@@ -62,11 +69,17 @@ class Tour(
         require(capacity >= 1) { "Capacity must be at least 1" }
         require(availableTimeSlots.isNotEmpty()) { "At least one time slot must be available" }
         require(sortOrder >= 0) { "Sort order must not be negative" }
+        require((priceBasis == PriceBasis.PER_UNIT) == priceOptions.isNotEmpty()) {
+            "Per-unit tours need price options and per-person tours must not have any"
+        }
+        require(priceOptions.map { it.code }.toSet().size == priceOptions.size) { "Price option codes must be unique" }
         // REQUEST_ONLY tours must stay inactive — they never enter the paid booking flow
         require(tourType != TourType.REQUEST_ONLY || !isActive) {
             "A REQUEST_ONLY tour must not be active"
         }
     }
+
+    fun priceOption(code: String): TourPriceOption? = priceOptions.firstOrNull { it.code == code }
 
     fun activate() {
         require(tourType != TourType.REQUEST_ONLY) {

@@ -71,7 +71,7 @@ class ExpireBookingService(
 
             val slot = slotRepository.findByIdForUpdate(booking.slotId)
             if (slot != null) {
-                slot.releaseOne()
+                slot.release(booking.pricing.seats)
                 slotRepository.save(slot)
             }
 

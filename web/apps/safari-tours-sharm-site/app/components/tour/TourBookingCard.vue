@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
-import type { Tour, TourSlot } from "@wego/api-contract";
+import { unitsNeeded, type Tour, type TourSlot } from "@wego/api-contract";
 import { calculateBookingTotal, formatMoney, getAvailableSlots, multiplyMoney } from "../../composables/usePublicToursApi";
 import { useDiscoveryCopy } from "../../composables/useDiscoveryCopy";
 import { useSiteLocale } from "../../composables/useSiteLocale";
@@ -42,31 +42,61 @@ async function load() {
 }
 onMounted(load);
 
-const byDay = computed(() => bookableByDay(slots.value, today));
+const perUnit = computed(() => props.tour.priceBasis === "PER_UNIT" && props.tour.priceOptions.length > 0);
+const optionCode = ref<string | null>(props.tour.priceOptions[0]?.code ?? null);
+const option = computed(() => props.tour.priceOptions.find((o) => o.code === optionCode.value) ?? null);
+/** A departure is bookable when it has room for at least one unit (per unit) or one guest. */
+const minPlaces = computed(() => (perUnit.value ? Math.min(...props.tour.priceOptions.map((o) => o.seatsPerUnit)) : 1));
+
+const byDay = computed(() => bookableByDay(slots.value, today, minPlaces.value));
 const daySlots = computed(() => (selectedDate.value ? byDay.value.get(selectedDate.value) ?? [] : []));
 const selectedSlot = computed(() => daySlots.value.find((slot) => slot.id === selectedSlotId.value) ?? null);
 watch(selectedDate, () => {
   selectedSlotId.value = daySlots.value.length === 1 ? daySlots.value[0]!.id : null;
 });
 
-const isTransfer = computed(() => props.tour.tourType === "TRANSFER");
-const childrenBookable = computed(() => props.childrenAllowed !== false && props.tour.priceChild !== null && !isTransfer.value);
-const seats = computed(() => selectedSlot.value?.available ?? props.tour.capacity);
-const adultsMax = computed(() => Math.max(1, seats.value - children.value));
-const childrenMax = computed(() => Math.max(0, seats.value - adults.value));
-watch(seats, (max) => {
+const units = ref(1);
+// Per-unit: children ride in the units like adults (no separate child price).
+const childrenBookable = computed(() =>
+  perUnit.value ? props.childrenAllowed !== false : props.childrenAllowed !== false && props.tour.priceChild !== null,
+);
+const guests = computed(() => adults.value + (childrenBookable.value ? children.value : 0));
+/** Places left in the chosen departure (before one is chosen: the tour's capacity). */
+const placesLeft = computed(() => selectedSlot.value?.available ?? props.tour.capacity);
+// Per person every guest takes a place; per unit every seat of every unit
+// bought does, so a solo rider still takes a whole buggy.
+const unitsByPlaces = computed(() => (option.value ? Math.floor(placesLeft.value / option.value.seatsPerUnit) : 0));
+const guestCap = computed(() => (perUnit.value && option.value ? unitsByPlaces.value * option.value.seatsPerUnit : placesLeft.value));
+const unitsMin = computed(() => (option.value ? unitsNeeded(guests.value, option.value.seatsPerUnit) : 1));
+const unitsMax = computed(() => Math.max(unitsMin.value, Math.min(guests.value, unitsByPlaces.value)));
+// Always enough units for everyone, never more units than guests or room.
+watch([unitsMin, unitsMax], ([min, max]) => {
+  units.value = Math.min(Math.max(units.value, min), max);
+}, { immediate: true });
+function unitName(code: string, fallback: string) {
+  return copy.value.unitNames[code] ?? fallback;
+}
+function perUnitLabel(code: string | undefined) {
+  return (code && copy.value.perUnit[code]) || copy.value.perUnitDefault;
+}
+const adultsMax = computed(() => Math.max(1, guestCap.value - children.value));
+const childrenMax = computed(() => Math.max(0, guestCap.value - adults.value));
+watch(guestCap, (max) => {
   if (adults.value > max) adults.value = Math.max(1, max);
   if (adults.value + children.value > max) children.value = Math.max(0, max - adults.value);
 });
+/** Per unit: the chosen units must fit in the places left. */
+const fits = computed(() => !perUnit.value || !option.value || units.value * option.value.seatsPerUnit <= placesLeft.value);
 
 const total = computed(() => {
+  if (perUnit.value) return option.value ? multiplyMoney(option.value.price, units.value) : null;
   try {
     return calculateBookingTotal(props.tour.priceAdult, adults.value, props.tour.priceChild, childrenBookable.value ? children.value : 0);
   } catch {
     return null;
   }
 });
-const canContinue = computed(() => selectedSlot.value !== null && total.value !== null);
+const canContinue = computed(() => selectedSlot.value !== null && total.value !== null && fits.value);
 
 function proceed() {
   const slot = selectedSlot.value;
@@ -76,6 +106,7 @@ function proceed() {
     query: {
       adults: String(adults.value),
       children: String(childrenBookable.value ? children.value : 0),
+      ...(perUnit.value && option.value ? { option: option.value.code, units: String(units.value) } : {}),
       tourId: slot.tourId,
       date: slot.date,
       timeSlot: slot.timeSlot,
@@ -96,7 +127,7 @@ const whatsappLink = computed(() => {
       <p class="text-end">
         <span class="text-xs text-sts-muted">{{ copy.from }}</span>
         <span class="ms-1 text-2xl font-bold tabular-nums text-sts-ocean-bright">{{ formatMoney(tour.priceAdult) }}</span>
-        <span class="ms-1 text-xs text-sts-muted">{{ isTransfer ? copy.perVehicle : copy.perPerson }}</span>
+        <span class="ms-1 text-xs text-sts-muted">{{ perUnit ? perUnitLabel(tour.priceOptions[0]?.code) : copy.perPerson }}</span>
       </p>
     </div>
 
@@ -138,19 +169,45 @@ const whatsappLink = computed(() => {
     </section>
     <p v-else-if="state === 'ready' && byDay.size" class="text-sm text-sts-muted">{{ copy.pickDate }}</p>
 
+    <fieldset v-if="perUnit && tour.priceOptions.length > 1" class="grid gap-2 border-t border-sts-border pt-4">
+      <legend class="mb-2 text-sm font-bold">{{ copy.option }}</legend>
+      <label
+        v-for="o in tour.priceOptions"
+        :key="o.code"
+        class="flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-[var(--sts-radius-control)] border px-4 py-2 text-sm transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-sts-ocean-bright"
+        :class="o.code === optionCode ? 'border-sts-ocean bg-sts-ocean text-white' : 'border-sts-border bg-sts-surface hover:border-sts-ocean-bright'"
+      >
+        <input v-model="optionCode" type="radio" class="sr-only" :name="`option-${tour.id}`" :value="o.code">
+        <span>
+          <span class="block font-semibold">{{ unitName(o.code, o.label) }}</span>
+          <span class="text-xs opacity-80">{{ copy.seats(o.seatsPerUnit) }}</span>
+        </span>
+        <span class="font-bold tabular-nums">{{ formatMoney(o.price) }}</span>
+      </label>
+    </fieldset>
+    <p v-else-if="perUnit && option" class="border-t border-sts-border pt-4 text-sm">
+      <span class="font-semibold">{{ unitName(option.code, option.label) }}</span>
+      <span class="text-sts-muted"> · {{ copy.seats(option.seatsPerUnit) }}</span>
+    </p>
+
     <section :aria-label="copy.guests" class="grid gap-3 border-t border-sts-border pt-4">
       <UiStepper v-model="adults" :label="copy.adults" :min="1" :max="adultsMax" />
       <UiStepper v-if="childrenBookable" v-model="children" :label="copy.children" :min="0" :max="childrenMax" />
       <p v-else-if="childrenAllowed === false" class="text-xs text-sts-muted">{{ copy.childrenNotAllowed }}</p>
-      <p v-else-if="!isTransfer" class="text-xs text-sts-muted">{{ copy.childPriceOnRequest }}</p>
+      <p v-else class="text-xs text-sts-muted">{{ copy.childPriceOnRequest }}</p>
+      <UiStepper v-if="perUnit && option" v-model="units" :label="copy.units" :hint="perUnitLabel(option.code)" :min="unitsMin" :max="unitsMax" />
     </section>
 
     <div v-if="selectedSlot && total" class="rounded-[var(--sts-radius-control)] bg-sts-sand-soft p-4 text-sm">
-      <p class="flex justify-between text-sts-muted">
+      <p v-if="perUnit && option" class="flex justify-between text-sts-muted">
+        <span>{{ copy.unitLine(units, unitName(option.code, option.label)) }} × {{ formatMoney(option.price) }}</span>
+        <span class="tabular-nums">{{ formatMoney(total) }}</span>
+      </p>
+      <p v-if="!perUnit" class="flex justify-between text-sts-muted">
         <span>{{ copy.adultLine(adults) }} × {{ formatMoney(tour.priceAdult) }}</span>
         <span class="tabular-nums">{{ formatMoney(multiplyMoney(tour.priceAdult, adults)) }}</span>
       </p>
-      <p v-if="childrenBookable && children > 0 && tour.priceChild" class="flex justify-between text-sts-muted">
+      <p v-if="!perUnit && childrenBookable && children > 0 && tour.priceChild" class="flex justify-between text-sts-muted">
         <span>{{ copy.childLine(children) }} × {{ formatMoney(tour.priceChild) }}</span>
         <span class="tabular-nums">{{ formatMoney(multiplyMoney(tour.priceChild, children)) }}</span>
       </p>

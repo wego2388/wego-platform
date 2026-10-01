@@ -1,13 +1,16 @@
 package com.wego.toursoperator.infrastructure
 
 import com.wego.generated.jooq.tables.ToursOperatorTour.TOURS_OPERATOR_TOUR
+import com.wego.generated.jooq.tables.ToursOperatorTourPriceOption.TOURS_OPERATOR_TOUR_PRICE_OPTION
 import com.wego.generated.jooq.tables.records.ToursOperatorTourRecord
 import com.wego.toursoperator.application.TourRepository
 import com.wego.toursoperator.domain.CancellationPolicy
+import com.wego.toursoperator.domain.PriceBasis
 import com.wego.toursoperator.domain.TimeSlot
 import com.wego.toursoperator.domain.Tour
 import com.wego.toursoperator.domain.TourCategory
 import com.wego.toursoperator.domain.TourId
+import com.wego.toursoperator.domain.TourPriceOption
 import com.wego.toursoperator.domain.TourType
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import java.util.UUID
 
 @Repository("stoTourRepositoryImpl")
 class JooqTourRepository(
@@ -28,7 +32,7 @@ class JooqTourRepository(
                 .selectFrom(TOURS_OPERATOR_TOUR)
                 .where(TOURS_OPERATOR_TOUR.ID.eq(id.value))
                 .fetchOne() ?: return null
-        return toDomain(record)
+        return toDomain(record, priceOptionsFor(listOf(record.id)))
     }
 
     @Transactional
@@ -39,7 +43,7 @@ class JooqTourRepository(
                 .where(TOURS_OPERATOR_TOUR.ID.eq(id.value))
                 .forUpdate()
                 .fetchOne() ?: return null
-        return toDomain(record)
+        return toDomain(record, priceOptionsFor(listOf(record.id)))
     }
 
     @Transactional(readOnly = true)
@@ -49,7 +53,7 @@ class JooqTourRepository(
                 .selectFrom(TOURS_OPERATOR_TOUR)
                 .where(TOURS_OPERATOR_TOUR.SLUG.eq(slug))
                 .fetchOne() ?: return null
-        return toDomain(record)
+        return toDomain(record, priceOptionsFor(listOf(record.id)))
     }
 
     @Transactional(readOnly = true)
@@ -74,15 +78,18 @@ class JooqTourRepository(
         if (activeOnly) {
             condition = condition.and(TOURS_OPERATOR_TOUR.IS_ACTIVE.isTrue)
         }
-        return dsl
-            .selectFrom(TOURS_OPERATOR_TOUR)
-            .where(condition)
-            // sort_order for display order, ID as tie-breaker for stable pagination
-            .orderBy(TOURS_OPERATOR_TOUR.SORT_ORDER.asc(), TOURS_OPERATOR_TOUR.ID.asc())
-            .limit(limit)
-            .offset(offset)
-            .fetch()
-            .map(::toDomain)
+        val records =
+            dsl
+                .selectFrom(TOURS_OPERATOR_TOUR)
+                .where(condition)
+                // sort_order for display order, ID as tie-breaker for stable pagination
+                .orderBy(TOURS_OPERATOR_TOUR.SORT_ORDER.asc(), TOURS_OPERATOR_TOUR.ID.asc())
+                .limit(limit)
+                .offset(offset)
+                .fetch()
+        // One batched query for all price options of the page.
+        val options = priceOptionsFor(records.map { it.id })
+        return records.map { toDomain(it, options) }
     }
 
     @Transactional
@@ -106,6 +113,9 @@ class JooqTourRepository(
             .set(TOURS_OPERATOR_TOUR.IMAGE_URL, tour.imageUrl)
             .set(TOURS_OPERATOR_TOUR.CANCELLATION_POLICY, tour.cancellationPolicy.name)
             .set(TOURS_OPERATOR_TOUR.PRICING_NOTE, tour.pricingNote)
+            // Price basis and options are catalogue data maintained by
+            // migration; saving a tour never changes them.
+            .set(TOURS_OPERATOR_TOUR.PRICE_BASIS, tour.priceBasis.name)
             .onConflict(TOURS_OPERATOR_TOUR.ID)
             .doUpdate()
             .set(TOURS_OPERATOR_TOUR.DURATION_TEXT, tour.durationText)
@@ -123,7 +133,28 @@ class JooqTourRepository(
             .execute()
     }
 
-    private fun toDomain(record: ToursOperatorTourRecord): Tour =
+    private fun priceOptionsFor(tourIds: List<UUID>): Map<UUID, List<TourPriceOption>> {
+        if (tourIds.isEmpty()) return emptyMap()
+        return dsl
+            .selectFrom(TOURS_OPERATOR_TOUR_PRICE_OPTION)
+            .where(TOURS_OPERATOR_TOUR_PRICE_OPTION.TOUR_ID.`in`(tourIds))
+            .orderBy(TOURS_OPERATOR_TOUR_PRICE_OPTION.SORT_ORDER.asc(), TOURS_OPERATOR_TOUR_PRICE_OPTION.CODE.asc())
+            .fetch()
+            .groupBy({ it.tourId }) {
+                TourPriceOption(
+                    code = it.code,
+                    labelEn = it.labelEn,
+                    seatsPerUnit = it.seatsPerUnit,
+                    priceCents = it.priceCents,
+                    sortOrder = it.sortOrder,
+                )
+            }
+    }
+
+    private fun toDomain(
+        record: ToursOperatorTourRecord,
+        options: Map<UUID, List<TourPriceOption>>,
+    ): Tour =
         Tour(
             id = TourId(record.id),
             slug = record.slug,
@@ -144,6 +175,8 @@ class JooqTourRepository(
                 record.cancellationPolicy?.let { runCatching { CancellationPolicy.valueOf(it) }.getOrDefault(CancellationPolicy.STANDARD) }
                     ?: CancellationPolicy.STANDARD,
             pricingNote = record.pricingNote,
+            priceBasis = PriceBasis.valueOf(record.priceBasis),
+            priceOptions = options[record.id].orEmpty(),
         )
 
     /**

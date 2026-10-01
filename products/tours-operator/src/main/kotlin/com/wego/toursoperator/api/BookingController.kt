@@ -17,6 +17,7 @@ import com.wego.toursoperator.domain.BookingStatus
 import com.wego.toursoperator.domain.CustomerContact
 import com.wego.toursoperator.domain.TourId
 import com.wego.toursoperator.domain.TourSlotId
+import com.wego.toursoperator.domain.UnitPurchase
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
@@ -46,7 +47,8 @@ class BookingController(
     private val bookingQueryService: BookingQueryService,
 ) {
     /**
-     * Public — no authentication. Creates a NEW booking and reserves one slot.
+     * Public — no authentication. Creates a NEW booking and reserves one place
+     * per guest in the slot; the price is computed here, never taken from the client.
      * Payment must complete within 30 minutes or the booking expires.
      */
     @PostMapping
@@ -59,6 +61,8 @@ class BookingController(
                     slotId = TourSlotId(request.slotId),
                     adultsCount = request.adultsCount,
                     childrenCount = request.childrenCount,
+                    priceOptionCode = request.priceOptionCode,
+                    unitCount = request.unitCount,
                     customer =
                         CustomerContact(
                             fullName = request.customer.fullName,
@@ -85,6 +89,8 @@ class BookingController(
                 ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorResponse("slot_fully_booked"))
             CreateBookingResult.TourNotActive ->
                 ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorResponse("tour_not_active"))
+            is CreateBookingResult.InvalidPricing ->
+                ResponseEntity.unprocessableEntity().body(ErrorResponse(result.code))
         }
     }
 
@@ -204,6 +210,7 @@ internal fun Booking.toResponse() =
         priceAdult = MoneyResponse(pricing.priceAdult.amount.toPlainString()),
         priceChild = pricing.priceChild?.let { MoneyResponse(it.amount.toPlainString()) },
         totalPrice = MoneyResponse(pricing.totalEur.amount.toPlainString()),
+        unit = pricing.unit?.toResponse(),
         customer =
             BookingCustomerResponse(
                 fullName = customer.fullName,
@@ -232,9 +239,19 @@ private fun Booking.toPublicLookupResponse() =
         adultsCount = pricing.adultsCount,
         childrenCount = pricing.childrenCount,
         totalPrice = MoneyResponse(pricing.totalEur.amount.toPlainString()),
+        unit = pricing.unit?.toResponse(),
         hotelName = hotelName,
         status = status,
         cancellationReason = cancellationReason,
+    )
+
+internal fun UnitPurchase.toResponse() =
+    BookingUnitResponse(
+        optionCode = optionCode,
+        optionLabel = optionLabel,
+        seatsPerUnit = seatsPerUnit,
+        unitCount = unitCount,
+        unitPrice = MoneyResponse(unitPrice.amount.toPlainString()),
     )
 
 data class BookingHistoryEntryResponse(

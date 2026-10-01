@@ -1809,7 +1809,7 @@ export interface paths {
         put?: never;
         /**
          * Create a temporary public booking
-         * @description Creates a NEW booking and reserves capacity. It is not payment confirmation and must never be presented as CONFIRMED.
+         * @description Creates a NEW booking and reserves one place per guest. The price is computed by the server. It is not payment confirmation and must never be presented as CONFIRMED.
          */
         post: operations["createToursOperatorBooking"];
         delete?: never;
@@ -2284,6 +2284,27 @@ export interface components {
             cancellationPolicy: components["schemas"]["ToursOperatorCancellationPolicy"];
             pricingNote: string | null;
             localized?: components["schemas"]["ToursOperatorLocalizedTourSummary"] | null;
+            /**
+             * @description PER_PERSON (adults × priceAdult + children × priceChild) or PER_UNIT (book one of priceOptions × a unit count; priceAdult is then the lowest unit price, shown as "from").
+             * @enum {string}
+             */
+            priceBasis: "PER_PERSON" | "PER_UNIT";
+            priceOptions: components["schemas"]["ToursOperatorPriceOption"][];
+        };
+        ToursOperatorPriceOption: {
+            code: string;
+            /** @description Catalogue label in English; sites translate known codes. */
+            label: string;
+            seatsPerUnit: number;
+            price: components["schemas"]["Money"];
+        };
+        /** @description What a per-unit booking bought, snapshotted at booking time. */
+        ToursOperatorBookingUnit: {
+            optionCode: string;
+            optionLabel: string;
+            seatsPerUnit: number;
+            unitCount: number;
+            unitPrice: components["schemas"]["Money"];
         };
         ToursOperatorSlotResponse: {
             /** Format: uuid */
@@ -2355,6 +2376,10 @@ export interface components {
             slotId: string;
             adultsCount: number;
             childrenCount: number;
+            /** @description Per-unit tours only — the chosen price option. */
+            priceOptionCode?: string;
+            /** @description Per-unit tours only — how many units; guests must fit in them. */
+            unitCount?: number;
             customer: components["schemas"]["ToursOperatorCustomerRequest"];
             hotelName: string;
             hotelRoom?: string;
@@ -2382,6 +2407,7 @@ export interface components {
             priceAdult: components["schemas"]["Money"];
             priceChild: components["schemas"]["Money"] | null;
             totalPrice: components["schemas"]["Money"];
+            unit: components["schemas"]["ToursOperatorBookingUnit"] | null;
             customer: components["schemas"]["ToursOperatorCustomerResponse"];
             hotelName: string;
             hotelRoom: string | null;
@@ -2408,6 +2434,7 @@ export interface components {
             adultsCount: number;
             childrenCount: number;
             totalPrice: components["schemas"]["Money"];
+            unit: components["schemas"]["ToursOperatorBookingUnit"] | null;
             hotelName: string;
             status: components["schemas"]["ToursOperatorBookingStatus"];
             cancellationReason: string | null;
@@ -7872,8 +7899,17 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Slot blocked/full or tour inactive. */
+            /** @description Slot blocked, not enough places left for the party, or tour inactive. */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+            /** @description Pricing does not fit the tour — price_option_required, unit_count_required, guests_exceed_units, units_exceed_guests, price_option_not_applicable or child_price_not_available. */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

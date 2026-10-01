@@ -222,12 +222,15 @@ for (const profile of inputs.releaseProfiles.profiles) {
     const migrationListName = profile.productId === "wego-divers" ? "diversReleaseMigrations" : "selectedDdlMigrations";
     const listBlock = backendBuild.match(new RegExp(`val\\s+${migrationListName}\\s*=\\s*listOf\\(([^)]*)\\)`, "s"))?.[1] ?? "";
     stagedMigrationNames = new Set(listBlock.match(/V[0-9]+__[^"/]+\.sql/gi) ?? []);
-    // Safari stages the catalog seed through a separate Sync source.
+    // Safari stages its data (DML) migrations through separate Sync sources
+    // from the shared db/migration/data directory.
     if (profile.productId === "wego-tours-operator") {
       const sharedBlock = backendBuild.match(/val\s+selectedSharedDdlMigrations\s*=\s*listOf\((.*?)\)\s*val\s+selectedDdlMigrations/s)?.[1] ?? "";
       stagedMigrationNames = new Set(sharedBlock.match(/V[0-9]+__[^"/]+\.sql/gi) ?? []);
       stagedMigrationNames.add("V3__identity_administration.sql");
-      stagedMigrationNames.add("V17__tours_operator_catalog_seed.sql");
+      for (const dataMigration of backendBuild.match(/data\/V[0-9]+__[^"/]+\.sql/gi) ?? []) {
+        stagedMigrationNames.add(dataMigration.slice("data/".length));
+      }
     }
   }
   assert.deepEqual(

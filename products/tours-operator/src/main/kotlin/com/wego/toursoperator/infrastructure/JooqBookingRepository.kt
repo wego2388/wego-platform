@@ -13,6 +13,7 @@ import com.wego.toursoperator.domain.Money
 import com.wego.toursoperator.domain.TimeSlot
 import com.wego.toursoperator.domain.TourId
 import com.wego.toursoperator.domain.TourSlotId
+import com.wego.toursoperator.domain.UnitPurchase
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
@@ -184,6 +185,11 @@ class JooqBookingRepository(
             .set(TOURS_OPERATOR_BOOKING.PRICE_ADULT_EUR, centsToEur(booking.pricing.priceAdult.amount))
             .set(TOURS_OPERATOR_BOOKING.PRICE_CHILD_EUR, booking.pricing.priceChild?.let { centsToEur(it.amount) })
             .set(TOURS_OPERATOR_BOOKING.TOTAL_EUR, booking.pricing.totalEur.amount)
+            .set(TOURS_OPERATOR_BOOKING.PRICE_OPTION_CODE, booking.pricing.unit?.optionCode)
+            .set(TOURS_OPERATOR_BOOKING.PRICE_OPTION_LABEL, booking.pricing.unit?.optionLabel)
+            .set(TOURS_OPERATOR_BOOKING.SEATS_PER_UNIT, booking.pricing.unit?.seatsPerUnit)
+            .set(TOURS_OPERATOR_BOOKING.UNIT_COUNT, booking.pricing.unit?.unitCount)
+            .set(TOURS_OPERATOR_BOOKING.UNIT_PRICE_EUR, booking.pricing.unit?.unitPrice?.amount)
             .set(TOURS_OPERATOR_BOOKING.CUSTOMER_FULL_NAME, booking.customer.fullName)
             .set(TOURS_OPERATOR_BOOKING.CUSTOMER_PHONE, booking.customer.phone)
             .set(TOURS_OPERATOR_BOOKING.CUSTOMER_NATIONALITY, booking.customer.nationality)
@@ -225,6 +231,16 @@ class JooqBookingRepository(
                     priceAdult = Money(record.priceAdultEur.setScale(Money.REQUIRED_SCALE)),
                     priceChild = record.priceChildEur?.let { Money(it.setScale(Money.REQUIRED_SCALE)) },
                     totalEur = Money(record.totalEur.setScale(Money.REQUIRED_SCALE)),
+                    unit =
+                        record.unitCount?.let { unitCount ->
+                            UnitPurchase(
+                                optionCode = record.priceOptionCode,
+                                optionLabel = record.priceOptionLabel,
+                                seatsPerUnit = record.seatsPerUnit,
+                                unitCount = unitCount,
+                                unitPrice = Money(record.unitPriceEur.setScale(Money.REQUIRED_SCALE)),
+                            )
+                        },
                 ),
             customer =
                 CustomerContact(

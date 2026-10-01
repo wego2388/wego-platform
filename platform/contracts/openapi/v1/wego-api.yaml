@@ -4791,7 +4791,8 @@ paths:
       operationId: createToursOperatorBooking
       summary: Create a temporary public booking
       description: >-
-        Creates a NEW booking and reserves capacity. It is not payment
+        Creates a NEW booking and reserves one place per guest. The price is
+        computed by the server. It is not payment
         confirmation and must never be presented as CONFIRMED.
       tags:
         - ToursOperator
@@ -4814,7 +4815,16 @@ paths:
         "404":
           description: Slot not found.
         "409":
-          description: Slot blocked/full or tour inactive.
+          description: Slot blocked, not enough places left for the party, or tour inactive.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorErrorResponse"
+        "422":
+          description: >-
+            Pricing does not fit the tour — price_option_required,
+            unit_count_required, guests_exceed_units, units_exceed_guests,
+            price_option_not_applicable or child_price_not_available.
           content:
             application/json:
               schema:
@@ -6103,6 +6113,8 @@ components:
         - imageUrl
         - cancellationPolicy
         - pricingNote
+        - priceBasis
+        - priceOptions
       properties:
         id:
           type: string
@@ -6152,6 +6164,62 @@ components:
           oneOf:
             - $ref: "#/components/schemas/ToursOperatorLocalizedTourSummary"
             - type: "null"
+        priceBasis:
+          description: >-
+            PER_PERSON (adults × priceAdult + children × priceChild) or PER_UNIT
+            (book one of priceOptions × a unit count; priceAdult is then the
+            lowest unit price, shown as "from").
+          type: string
+          enum:
+            - PER_PERSON
+            - PER_UNIT
+        priceOptions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ToursOperatorPriceOption"
+    ToursOperatorPriceOption:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - label
+        - seatsPerUnit
+        - price
+      properties:
+        code:
+          type: string
+          pattern: "^[a-z0-9][a-z0-9-]{0,39}$"
+        label:
+          description: Catalogue label in English; sites translate known codes.
+          type: string
+        seatsPerUnit:
+          type: integer
+          minimum: 1
+        price:
+          $ref: "#/components/schemas/Money"
+    ToursOperatorBookingUnit:
+      description: What a per-unit booking bought, snapshotted at booking time.
+      type: object
+      additionalProperties: false
+      required:
+        - optionCode
+        - optionLabel
+        - seatsPerUnit
+        - unitCount
+        - unitPrice
+      properties:
+        optionCode:
+          type: string
+        optionLabel:
+          type: string
+        seatsPerUnit:
+          type: integer
+          minimum: 1
+        unitCount:
+          type: integer
+          minimum: 1
+        unitPrice:
+          $ref: "#/components/schemas/Money"
     ToursOperatorSlotResponse:
       type: object
       additionalProperties: false
@@ -6390,6 +6458,16 @@ components:
         childrenCount:
           type: integer
           minimum: 0
+        priceOptionCode:
+          description: Per-unit tours only — the chosen price option.
+          type: string
+          maxLength: 40
+          pattern: "^[a-z0-9][a-z0-9-]{0,39}$"
+        unitCount:
+          description: Per-unit tours only — how many units; guests must fit in them.
+          type: integer
+          minimum: 1
+          maximum: 50
         customer:
           $ref: "#/components/schemas/ToursOperatorCustomerRequest"
         hotelName:
@@ -6440,6 +6518,7 @@ components:
         - priceAdult
         - priceChild
         - totalPrice
+        - unit
         - customer
         - hotelName
         - hotelRoom
@@ -6484,6 +6563,10 @@ components:
             - type: "null"
         totalPrice:
           $ref: "#/components/schemas/Money"
+        unit:
+          anyOf:
+            - $ref: "#/components/schemas/ToursOperatorBookingUnit"
+            - type: "null"
         customer:
           $ref: "#/components/schemas/ToursOperatorCustomerResponse"
         hotelName:
@@ -6537,6 +6620,7 @@ components:
         - adultsCount
         - childrenCount
         - totalPrice
+        - unit
         - hotelName
         - status
         - cancellationReason
@@ -6557,6 +6641,10 @@ components:
           minimum: 0
         totalPrice:
           $ref: "#/components/schemas/Money"
+        unit:
+          anyOf:
+            - $ref: "#/components/schemas/ToursOperatorBookingUnit"
+            - type: "null"
         hotelName:
           type: string
         status:

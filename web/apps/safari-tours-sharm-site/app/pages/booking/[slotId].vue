@@ -7,6 +7,7 @@ import {
   createBooking,
   initiatePayment,
   calculateBookingTotal,
+  multiplyMoney,
   formatPrice,
   formatTimeSlot,
   moneyToMinorUnits,
@@ -76,10 +77,20 @@ const fieldErrors = ref<Partial<Record<keyof typeof form.value, string>>>({});
 
 const adultsCount   = ref(adultsParam.value);
 const childrenCount = ref(childParam.value);
+// Per-unit tours (buggy, boat, car): the chosen option and unit count.
+const optionCode = computed(() => (typeof route.query.option === "string" ? route.query.option : null));
+const unitCount  = computed(() => parseInt(String(route.query.units ?? "0")) || null);
+const priceOption = computed(() =>
+  tour.value?.priceBasis === "PER_UNIT" ? tour.value.priceOptions.find((o) => o.code === optionCode.value) ?? null : null,
+);
 
 // ── Pricing ────────────────────────────────────────────────────────────────
 const totalPrice = computed(() => {
   if (!tour.value) return null;
+  // Preview only — the server computes the charged price.
+  if (tour.value.priceBasis === "PER_UNIT") {
+    return priceOption.value && unitCount.value ? multiplyMoney(priceOption.value.price, unitCount.value) : null;
+  }
   try {
     return calculateBookingTotal(
       tour.value.priceAdult,
@@ -147,6 +158,7 @@ async function submitBooking() {
       slotId:              slotId.value,
       adultsCount:         adultsCount.value,
       childrenCount:       childrenCount.value,
+      ...(priceOption.value && unitCount.value ? { priceOptionCode: priceOption.value.code, unitCount: unitCount.value } : {}),
       customer: {
         fullName:    form.value.fullName,
         phone:       form.value.phone,
@@ -177,6 +189,8 @@ async function submitBooking() {
         submitError.value = "Sorry, this slot just became fully booked. Please go back and choose another date.";
       } else if (err.errorCode === "slot_blocked") {
         submitError.value = "This slot is no longer available. Please choose another date.";
+      } else if (["guests_exceed_units", "units_exceed_guests", "price_option_required", "unit_count_required", "price_option_not_applicable", "child_price_not_available"].includes(err.errorCode)) {
+        submitError.value = "The selection no longer matches this tour. Please go back to the tour page and choose again.";
       } else if (err.errorCode === "tour_not_active") {
         submitError.value = "This tour is currently unavailable. Please contact us on WhatsApp.";
       } else if (err.errorCode === "payment_provider_error") {
@@ -246,6 +260,7 @@ v-if="i < 2" class="mx-2 h-0.5 flex-1 rounded-full"
         <p class="mt-1 text-sts-muted">
           {{ adultsCount }} adult<span v-if="adultsCount > 1">s</span>
           <span v-if="childrenCount > 0"> · {{ childrenCount }} child<span v-if="childrenCount > 1">ren</span></span>
+          <span v-if="priceOption && unitCount"> · {{ unitCount }} × {{ priceOption.label }}</span>
         </p>
         <p v-if="hasPositiveTotal && totalPrice" class="mt-2 font-bold text-sts-ocean">
           Total: {{ formatPrice(totalPrice) }}

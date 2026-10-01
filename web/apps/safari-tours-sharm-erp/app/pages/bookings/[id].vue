@@ -259,6 +259,10 @@ onMounted(() => {
                 <dt class="text-sts-muted shrink-0">Children</dt>
                 <dd class="tabular-nums">{{ booking.childrenCount }}</dd>
               </div>
+              <div v-if="booking.unit" class="flex justify-between gap-4">
+                <dt class="text-sts-muted shrink-0">Booked as</dt>
+                <dd class="tabular-nums">{{ booking.unit.unitCount }} × {{ booking.unit.optionLabel }} ({{ formatMoney(booking.unit.unitPrice) }} each)</dd>
+              </div>
               <div class="flex justify-between gap-4 border-t border-sts-border pt-2">
                 <dt class="text-sts-muted shrink-0">Total</dt>
                 <dd class="money font-bold text-base">{{ formatMoney(booking.totalPrice) }}</dd>

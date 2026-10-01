@@ -61,6 +61,9 @@ class UpdateTourService(
                     imageUrl = command.imageUrl,
                     cancellationPolicy = command.cancellationPolicy,
                     pricingNote = command.pricingNote,
+                    // Catalogue data maintained by migration, not by this edit.
+                    priceBasis = tour.priceBasis,
+                    priceOptions = tour.priceOptions,
                 )
             tourRepository.save(updated)
             UpdateTourResult.Success

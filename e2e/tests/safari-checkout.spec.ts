@@ -155,7 +155,7 @@ test.describe("Safari Tours checkout flow — mock Paymob", () => {
       const slots: Array<{ id: string; timeSlot: string; bookedCount: number; capacity: number }> =
         await slotsRes.json();
       const morning = slots.find(
-        (s) => s.timeSlot === "MORNING" && s.bookedCount < s.capacity,
+        (s) => s.timeSlot === "MORNING" && s.capacity - s.bookedCount >= 2,
       );
       if (!morning) {
         throw new Error(

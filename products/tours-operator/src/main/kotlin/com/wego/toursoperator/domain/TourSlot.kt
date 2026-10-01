@@ -10,7 +10,9 @@ import java.time.LocalDate
  * the operator can reduce capacity for a slot (e.g. one guide is away) or
  * increase it. bookedCount is a running total incremented on CONFIRMED bookings
  * and decremented on CANCELLED bookings; it is the authoritative count for the
- * capacity check and must only be mutated through [book] and [releaseOne].
+ * capacity check and must only be mutated through [reserve] and [release].
+ * Capacity and bookedCount are counted in guests (adults + children), not
+ * bookings: one booking for five people takes five places.
  *
  * isBlocked allows the operator to close a slot without touching the tour's
  * active status. A blocked slot does not accept new bookings but existing
@@ -41,22 +43,25 @@ class TourSlot(
     }
 
     /**
-     * Reserves one seat. Returns false (without mutating) when the slot is
-     * blocked or fully booked so the caller can surface a domain-level result
-     * rather than relying on a database constraint violation.
+     * Reserves [seats] places for one booking. Returns false (without
+     * mutating) when the slot is blocked or has fewer places left, so the
+     * caller can surface a domain-level result rather than relying on a
+     * database constraint violation.
      */
-    fun book(): Boolean {
-        if (isBlocked || bookedCount >= capacity) return false
-        bookedCount++
+    fun reserve(seats: Int): Boolean {
+        require(seats >= 1) { "A booking reserves at least one place" }
+        if (isBlocked || seats > capacity - bookedCount) return false
+        bookedCount += seats
         return true
     }
 
     /**
-     * Releases one seat — called when a booking is cancelled.
-     * Clamps at zero defensively; a negative count is never meaningful.
+     * Returns a cancelled or expired booking's places to the slot. Clamps at
+     * zero defensively; a negative count is never meaningful.
      */
-    fun releaseOne() {
-        if (bookedCount > 0) bookedCount--
+    fun release(seats: Int) {
+        require(seats >= 1) { "A booking releases at least one place" }
+        bookedCount = (bookedCount - seats).coerceAtLeast(0)
     }
 
     fun block() {

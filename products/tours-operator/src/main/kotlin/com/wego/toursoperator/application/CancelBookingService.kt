@@ -56,10 +56,10 @@ class CancelBookingService(
             val fromStatus = booking.status
             booking.cancel(now, reason)
 
-            // Release the seat back to the slot.
+            // Return the booking's places to the slot.
             val slot = slotRepository.findByIdForUpdate(booking.slotId)
             if (slot != null) {
-                slot.releaseOne()
+                slot.release(booking.pricing.seats)
                 slotRepository.save(slot)
             }
 

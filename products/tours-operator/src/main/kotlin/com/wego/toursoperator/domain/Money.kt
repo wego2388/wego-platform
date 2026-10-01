@@ -25,5 +25,8 @@ data class Money(
         const val REQUIRED_SCALE = 2
         val MAX_AMOUNT: BigDecimal = BigDecimal("99999999.99")
         val ZERO: Money = Money(BigDecimal.ZERO.setScale(REQUIRED_SCALE))
+
+        /** Exact conversion from stored EUR cents. */
+        fun fromCents(cents: Long): Money = Money(BigDecimal.valueOf(cents, REQUIRED_SCALE))
     }
 }

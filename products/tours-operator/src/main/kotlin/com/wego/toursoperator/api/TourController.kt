@@ -221,6 +221,16 @@ internal fun Tour.toSummaryResponse() =
         imageUrl = imageUrl,
         cancellationPolicy = cancellationPolicy.name,
         pricingNote = pricingNote,
+        priceBasis = priceBasis.name,
+        priceOptions =
+            priceOptions.map {
+                TourPriceOptionResponse(
+                    code = it.code,
+                    label = it.labelEn,
+                    seatsPerUnit = it.seatsPerUnit,
+                    price = it.priceCents.toMoneyResponse(),
+                )
+            },
     )
 
 internal fun Long.toMoneyResponse(): MoneyResponse = MoneyResponse(amount = toBigDecimal().movePointLeft(2).setScale(2).toPlainString())
