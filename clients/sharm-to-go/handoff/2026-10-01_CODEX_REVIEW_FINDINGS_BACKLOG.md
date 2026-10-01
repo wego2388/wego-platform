@@ -6,14 +6,14 @@ state. Full report: `codex exec` session `01a0f732-b104-73e1-a0d7-ab5ab4e65596`
 (not archived in-repo; this file is the durable record of its findings).
 
 **How this file was built:** Claude read the full review, independently
-re-verified the most severe findings against the real code and a real
-running build before accepting any of them (see each entry's "Verified"
-note), fixed the three that were both confirmed and clearly the most
-severe, and recorded the rest here rather than fixing all 24 in one pass.
+re-verified severe findings against the real code and a real running
+build/live database before accepting any of them (see each entry's
+"Verified" note), fixed what that verification confirmed across two
+rounds, and recorded the rest here rather than fixing all 24 at once.
 Severity labels are Codex's own; prioritization and verification notes are
 Claude's.
 
-## Fixed in the 2026-10-01 review-fix round
+## Fixed in the 2026-10-01 review-fix round (first pass)
 
 1. **[High] Request page unreachable via real navigation.** `experiences/
    [id].vue` had no `<NuxtPage />`, so `/experiences/:id/request` silently
@@ -37,64 +37,148 @@ Claude's.
    finding 1 and correcting `ROADMAP_AR.md`'s Phase 3A entry in place
    (dated correction, not a silent edit).
 
+## Fixed in the 2026-10-01 review-fix round (second pass)
+
+5. **[High] Phone "validation" was presence-only.** `"abc"` passed as a
+   sole contact method. Fixed with a real E.164-shaped plausibility check
+   — `TravelRequestCustomer.isPlausiblePhoneNumber` (domain), a matching
+   `@Pattern` on the DTO, a mirrored client-side check on the request
+   form before it ever calls the backend, and a defensive fix in the
+   ERP's WhatsApp link builder so an older, pre-validation row with no
+   real digits doesn't render a broken `wa.me` link with no destination.
+   New tests at all three layers.
+6. **[High] Privacy/terms copy described an earlier, pre-request-flow
+   product.** Rewrote both English and Arabic privacy-page sections to
+   describe what the real request form actually collects and who sees
+   it; rewrote the terms page's "how a request works" section to
+   distinguish instant confirmation from the few services that need
+   staff review (it previously implied every request needs manual
+   verification); replaced the homepage's "24/7 continuous support"
+   stat (which directly contradicted the contact page's own honest "no
+   published support-hours commitment yet") with a claim the product
+   actually keeps. New tests assert the corrected copy and the absence
+   of the old claims.
+7. **[High] Tracking references needed stronger privacy handling.**
+   Both Nitro proxy routes (`/api/requests`, `/api/requests/[reference]`)
+   now set `Cache-Control: no-store`; the `/track/[reference]` page now
+   sets `noindex,nofollow`. The nginx edge config now masks the
+   reference out of both the access log's request line and any logged
+   referrer via a `map` block — **verified live** by running the real
+   nginx image and confirming a request to `/track/STG-SECRET12` logs
+   `/track/[redacted]`, not the real reference. **Honestly recorded
+   residual gap:** nginx's own built-in `error_log` (upstream failures)
+   uses a fixed format this repo cannot rewrite and still logs the raw
+   reference on an actual backend error — verified live too, lower
+   probability (only on real failures) but real.
+8. **[High] The 8-thread concurrency test's own evidence was weaker than
+   its claim.** Rewrote it to capture every worker's `Future` and call
+   `.get()` on each (a worker exception now fails the test loudly
+   instead of vanishing), assert all 8 completed, and independently
+   verify via `findByIdempotencyKey` that exactly one row exists in the
+   real database — not just infer it from an in-memory collection. **This
+   stricter test immediately caught a real bug** (see next item) that the
+   original weak test had been masking.
+9. **[High] Concurrent requests with the same idempotency key did not
+   reliably replay the original response** — a losing concurrent INSERT
+   hit the real unique constraint and the exception propagated as an
+   unhandled 500 instead of the contract's promised replay. Fixed:
+   `CreateTravelRequestService.create()` now catches
+   `DataIntegrityViolationException`, re-queries `findByIdempotencyKey`
+   in a fresh transaction (the failed one is already aborted), and
+   returns `AlreadyExists` with the real winning row. **Verified**
+   against real PostgreSQL via Testcontainers, re-run 3 times to rule
+   out a lucky pass.
+10. **[High] Price/policy could differ between what the customer
+    reviewed and what got confirmed.** Added a required `expectedPrice`
+    to request creation (frontend sends what the review screen actually
+    displayed); the backend now rejects a mismatch with `409
+    price_changed` and the real current price, instead of silently
+    confirming at a price the customer never saw. The frontend refetches
+    the service on this error so the review screen shows the corrected
+    price before the visitor retries. OpenAPI contract, backend, and
+    frontend all updated with tests at each layer.
+11. **[Medium, found opportunistically] API/contract BigDecimal
+    serialization drift** — `TravelRequestDtos.kt`'s price fields were
+    unannotated, defaulting to JSON numbers while OpenAPI and both
+    frontends expect strings. Fixed by adding
+    `@JsonFormat(shape = JsonFormat.Shape.STRING)` to every `BigDecimal`
+    field in that file (matching the convention `ServiceDtos.kt` already
+    used) while adding the new price-check fields anyway. Also closed
+    part of the companion gap: the error schema now documents
+    `validation_failed` (with its real `message` field) and
+    `price_changed` alongside the existing domain error codes, instead
+    of omitting response shapes the API actually returns.
+
+## Fixed in the 2026-10-01 review-fix round (third pass — medium-priority sweep)
+
+12. **Integer overflow in `adults + children` bypassed the party-capacity
+    check.** Fixed at both layers: a `@Max(100)` on the API DTO fields
+    (rejects before the domain is ever touched) and a matching
+    `require(... <= MAX_PARTY_COMPONENT)` in `TravelRequest`'s own `init`
+    block, so the domain object enforces its own invariant regardless of
+    which caller constructs it. New tests at both layers, including one
+    that reproduces the exact overflow (`Int.MAX_VALUE` adults + 1 child).
+13. **`FLAT` price basis was mislabeled "per person"** in the catalog
+    list, detail and request pages (three copy-pasted, identical, all
+    stale implementations); **the tracking page dropped price basis
+    entirely.** Fixed by deleting all three duplicates in favor of one
+    shared `priceBasisLabel()` (`usePublicCatalog.ts`) used everywhere,
+    including the tracking page, which never had it.
+14. **The tracking page showed raw internal status strings** (e.g.
+    `IN_REVIEW`) even on the Arabic page, and **the request flow's own
+    shareable WhatsApp/copy summary had the identical bug.** Fixed with
+    one shared, bilingual `travelRequestStatusText()` used by both.
+15. **The tracking page's date could show the wrong calendar day** —
+    `new Date("2026-10-15")` parses a date-only string as UTC midnight,
+    then `toLocaleDateString()` rendered it in the visitor's own
+    timezone, which rolls back a day for anyone west of UTC. Fixed by
+    forcing `timeZone: "UTC"` on the display formatting (the value is a
+    calendar date, not an instant, so it has no real timezone of its
+    own). **Verified** by computing the actual formatted string under
+    `America/Los_Angeles` before and after the fix (`31 Dec 2098` →
+    `1 Jan 2099`) and asserting both in a dedicated test.
+16. **The ERP dashboard's request counts (a first-50-rows sample) looked
+    exhaustive** — the limitation was only in a code comment, never on
+    screen. Fixed with a visible caveat shown exactly when the page cap
+    is actually hit (`travelRequests.length >= 50`), not shown otherwise
+    (confirmed real counts need no caveat).
+17. **`SiteFooter.vue` still linked `/booking-preview`** — a prototype
+    with sample prices and payment options — from every real customer
+    page. Removed from real navigation; the prototype page itself still
+    exists as an internal design reference, per Codex's own suggested
+    fix.
+18. **The `GuestStepper` guest-count controls had misleading accessible
+    names** ("Back Adults" / "Continue Adults" instead of "Decrease/
+    Increase Adults") on both the homepage search box and the request
+    form. Fixed with two new `decreaseGuestLabel`/`increaseGuestLabel`
+    copy keys, used in both places (the already-correct prototype page
+    was left as the reference for what the fix should look like).
+19. **A successful ERP action followed by a failed audit-timeline
+    refresh was shown to staff as if the action itself had failed**, and
+    **a rejected action left the stale pre-action record on screen**
+    instead of showing what actually happened (e.g. another staff
+    member having already cancelled the request first). Fixed by
+    separating the two failure modes: a failed mutation now reloads the
+    real current record (best-effort) instead of leaving it stale; a
+    successful mutation whose *subsequent* audit-refresh fails shows a
+    distinct, narrower warning instead of the action-failed message.
+    Three new tests cover the rejection-reloads-real-state path, the
+    success-with-failed-refresh path, and the already-passing rejection
+    path.
+
 ## Not yet fixed — not independently re-verified, reported here as Codex found them
-
-### High priority (money/trust/legal-adjacent — do next)
-
-- **Price/policy can differ between what the customer reviewed and what
-  gets confirmed.** The review screen shows a previously-fetched price;
-  `CreateTravelRequestService.kt:83-105` re-reads current commercial
-  facts at creation and can confirm them immediately. A catalog edit
-  between review and submit changes what the customer actually gets.
-  Suggested fix: submit a server-issued quote/version; if it changed,
-  show the new terms and require fresh acceptance.
-- **Phone "validation" is presence-only.** `TravelRequestCustomer.kt:17-21`
-  accepts any non-blank string — `"abc"` passes as a sole contact method,
-  and the ERP's WhatsApp link-builder then strips it to an empty
-  destination. Suggested fix: parse/normalize plausible international
-  phone numbers; stop describing presence-only validation as "reachable
-  contact" in `delivery/01_REQUEST_AND_BOOKING.md`.
-- **Privacy/terms copy describes an earlier, pre-request-flow product.**
-  Both English and Arabic privacy pages still say booking is a future
-  feature and WhatsApp/email are the only contact channels — inaccurate
-  now that the real request form collects personal data. The homepage's
-  "24/7 continuous support" claim also contradicts the contact page's own
-  "no published support hours" line. This is separate from the already-
-  documented missing consent checkbox.
-- **Tracking references need stronger privacy handling.** The public
-  response includes unrestricted pickup text (can contain an address or
-  room number) behind an anonymously-guessable-enough reference; Nginx
-  logs full paths/referrers; the lookup proxy doesn't set `no-store`; the
-  track page has no `noindex`. Suggested fix: treat the reference as a
-  bearer secret end to end.
-- **The 8-thread concurrency test's own evidence is weaker than the
-  "safe and auditable" claim it backs.**
-  `TravelRequestServiceTest.kt:263-291` discards submitted futures, never
-  retrieves worker exceptions, and doesn't assert 8 successful outcomes
-  sharing one row — a pass does not actually prove what
-  `delivery/01_REQUEST_AND_BOOKING.md:132` claims it proves. Fix the test
-  itself before trusting the claim further.
 
 ### Medium priority
 
-- Concurrent requests using the *same* idempotency key don't reliably
-  replay the original success response (the unique-constraint conflict
-  path doesn't resolve into the OpenAPI contract's promised replay body).
 - The catalog snapshot (`JooqServiceRepository.kt:76-83`) reads
   publication/options/media across separate unlocked queries — a
   concurrent catalog edit can produce a mixed-generation snapshot.
-- Integer overflow in `adults + children` (`CreateTravelRequestService.kt:89`)
-  bypasses the party-capacity check — needs realistic upper bounds.
 - The expiry sweep throws and stops early if a request is confirmed
   between candidate-selection and per-row locking (`ExpireTravelRequestsService.kt:26-35`).
-- A successful ERP action followed by a failed audit-timeline refresh is
-  shown to staff as if the action itself failed
-  (`erp/requests/[id].vue:81-91`); the booking proxy also lets connection
-  failures escape uncontrolled.
-- `TravelRequestDtos.kt`'s unannotated `BigDecimal` fields serialize as
-  JSON numbers; OpenAPI and both frontends expect strings — a real wire-
-  format mismatch, not just a lint gap. The error schema is also missing
-  real response shapes the API actually returns.
+- The booking proxy (`server/api/requests/index.post.ts`) lets a backend
+  connection failure escape without a controlled service response —
+  separate from the ERP-side failure-handling fix above, this is the
+  public site's own proxy route.
 - The ERP service editor can silently overwrite another staff member's
   concurrent edit (no optimistic version check) and can silently delete
   an option/media row that was merely left incomplete in the form.
@@ -106,21 +190,6 @@ Claude's.
   `null`).
 - Anonymous request-creation traffic shares the edge's general
   20 req/s browsing rate limit rather than a tighter, purpose-specific one.
-- `FLAT` price basis is mislabeled "per person" in the detail/list/request
-  formatters; the tracking page drops price-basis display entirely.
-- The tracking page shows raw internal status strings (e.g. `IN_REVIEW`)
-  even in the Arabic UI, and parses a date-only value as UTC-midnight
-  then displays it in the visitor's local timezone — can show the wrong
-  calendar day.
-- The ERP dashboard's request counts are a first-50-rows sample
-  (acknowledged in a code comment) but presented on screen with no such
-  qualification, reading as an exhaustive total.
-- `SiteFooter.vue` still links `/booking-preview` from real customer
-  pages — a prototype with sample prices and payment options, confusing
-  next to the real request flow.
-- The party-size `GuestStepper` controls pass "Back"/"Continue" as their
-  decrease/increase accessible-name labels, so a screen reader announces
-  "Back Adults" / "Continue Adults" instead of "Decrease/Increase Adults."
 
 ## Not findings — explicitly already-acknowledged gaps Codex confirmed, not new
 

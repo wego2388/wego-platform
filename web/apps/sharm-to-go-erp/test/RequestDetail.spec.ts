@@ -88,6 +88,26 @@ describe("request detail page", () => {
     expect(wrapper.text()).toContain("No payment has been collected");
   });
 
+  it("does not render a broken WhatsApp link for a pre-validation row whose phone has no real digits", async () => {
+    seedSession(["travel-request:view"]);
+    vi.stubGlobal(
+      "fetch",
+      fetchRoutedBy(
+        {
+          [`GET /api/v1/travel-marketplace/requests/${requestId}`]: () =>
+            new Response(JSON.stringify(sampleRequest({ customer: { name: "Nour", phone: "abc" } })), { status: 200 }),
+          [`GET /api/v1/travel-marketplace/requests/${requestId}/audit`]: () => new Response(JSON.stringify([]), { status: 200 }),
+        },
+        () => new Response(JSON.stringify(null), { status: 404 }),
+      ),
+    );
+
+    const wrapper = mountDetail();
+    await flushPromises();
+
+    expect(wrapper.text()).not.toContain("Message on WhatsApp");
+  });
+
   it("a 404 from the backend shows a clean not-found state, not a stack trace", async () => {
     seedSession(["travel-request:view"]);
     vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ error: "not_found" }), { status: 404 })));
@@ -211,5 +231,73 @@ describe("request detail page", () => {
     await flushPromises();
 
     expect(wrapper.text()).toContain("no longer in a state that allows that action");
+  });
+
+  it("does not report an action as failed when it actually succeeded but only the audit-timeline refresh failed", async () => {
+    seedSession(["travel-request:view", "travel-request:confirm"]);
+    let auditCallCount = 0;
+    vi.stubGlobal(
+      "fetch",
+      fetchRoutedBy(
+        {
+          [`GET /api/v1/travel-marketplace/requests/${requestId}`]: () => new Response(JSON.stringify(sampleRequest()), { status: 200 }),
+          [`GET /api/v1/travel-marketplace/requests/${requestId}/audit`]: () => {
+            auditCallCount += 1;
+            // The initial page-load fetch (call 1) succeeds; only the
+            // post-confirm refresh (call 2) fails.
+            if (auditCallCount === 1) return new Response(JSON.stringify([]), { status: 200 });
+            return new Response("boom", { status: 500 });
+          },
+          [`POST /api/v1/travel-marketplace/requests/${requestId}/confirm`]: () =>
+            new Response(JSON.stringify(sampleRequest({ status: "CONFIRMED" })), { status: 200 }),
+        },
+        () => new Response(JSON.stringify(null), { status: 404 }),
+      ),
+    );
+
+    const wrapper = mountDetail();
+    await flushPromises();
+
+    const confirmButton = wrapper.findAll("button").find((button) => button.text() === "Confirm");
+    await confirmButton?.trigger("click");
+    await flushPromises();
+
+    // The real outcome — confirmed — is shown; the failure is reported as a
+    // narrower warning about the timeline, not as the action itself failing.
+    expect(wrapper.text()).toContain("CONFIRMED");
+    expect(wrapper.text()).not.toContain("no longer in a state that allows that action");
+    expect(wrapper.text()).toContain("timeline below could not be refreshed");
+  });
+
+  it("reloads the real current state after a rejected action, instead of leaving the stale pre-action record displayed", async () => {
+    seedSession(["travel-request:view", "travel-request:confirm"]);
+    let getCallCount = 0;
+    vi.stubGlobal(
+      "fetch",
+      fetchRoutedBy(
+        {
+          [`GET /api/v1/travel-marketplace/requests/${requestId}`]: () => {
+            getCallCount += 1;
+            // Simulates another staff member having already cancelled it first.
+            const status = getCallCount === 1 ? "NEW" : "CANCELLED";
+            return new Response(JSON.stringify(sampleRequest({ status })), { status: 200 });
+          },
+          [`GET /api/v1/travel-marketplace/requests/${requestId}/audit`]: () => new Response(JSON.stringify([]), { status: 200 }),
+          [`POST /api/v1/travel-marketplace/requests/${requestId}/confirm`]: () =>
+            new Response(JSON.stringify({ error: "invalid_transition" }), { status: 409 }),
+        },
+        () => new Response(JSON.stringify(null), { status: 404 }),
+      ),
+    );
+
+    const wrapper = mountDetail();
+    await flushPromises();
+
+    const confirmButton = wrapper.findAll("button").find((button) => button.text() === "Confirm");
+    await confirmButton?.trigger("click");
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("no longer in a state that allows that action");
+    expect(wrapper.text()).toContain("CANCELLED");
   });
 });

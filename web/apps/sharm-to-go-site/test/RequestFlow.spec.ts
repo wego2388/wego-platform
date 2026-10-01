@@ -54,6 +54,22 @@ async function fillContactStep(wrapper: ReturnType<typeof mountPage>) {
 }
 
 describe("real request flow", () => {
+  it("gives the guest-count controls real Decrease/Increase accessible names, not 'Back'/'Continue'", async () => {
+    withRoute(serviceId);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify(sampleService()), { status: 200 })),
+    );
+
+    const wrapper = mountPage();
+    await flushPromises();
+
+    expect(wrapper.find('button[aria-label="Decrease Adults"]').exists()).toBe(true);
+    expect(wrapper.find('button[aria-label="Increase Adults"]').exists()).toBe(true);
+    expect(wrapper.find('button[aria-label="Back Adults"]').exists()).toBe(false);
+    expect(wrapper.find('button[aria-label="Continue Adults"]').exists()).toBe(false);
+  });
+
   it("loads the service and walks through party -> contact -> review -> instant success", async () => {
     withRoute(serviceId);
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -108,6 +124,45 @@ describe("real request flow", () => {
     expect(body.serviceOptionId).toBe(optionId);
     expect(body.customer).toEqual({ name: "Nour", phone: "+201001413469", email: undefined });
     expect((submitCall?.[1] as RequestInit).headers).toHaveProperty("Idempotency-Key");
+    expect(body.expectedPriceAmount).toBe("500.00");
+    expect(body.expectedPriceCurrency).toBe("EGP");
+  });
+
+  it("on a price_changed rejection, shows the honest message and updates the displayed price from a fresh fetch", async () => {
+    withRoute(serviceId);
+    let serviceFetchCount = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = new URL(String(input), "http://localhost");
+        if (url.pathname === `/api/catalog/services/${serviceId}`) {
+          serviceFetchCount += 1;
+          // Second fetch (the post-rejection refresh) returns the real new price.
+          const price = serviceFetchCount === 1 ? "500.00" : "650.00";
+          return new Response(JSON.stringify(sampleService({ options: [{ ...sampleService().options[0], priceAmount: price }] })), { status: 200 });
+        }
+        if (url.pathname === "/api/requests" && init?.method === "POST") {
+          return new Response(
+            JSON.stringify({ error: "price_changed", currentPriceAmount: "650.00", currentPriceCurrency: "EGP" }),
+            { status: 409 },
+          );
+        }
+        throw new Error(`Unexpected fetch: ${url.pathname}`);
+      }),
+    );
+
+    const wrapper = mountPage();
+    await flushPromises();
+    await fillPartyStep(wrapper);
+    await fillContactStep(wrapper);
+    expect(wrapper.text()).toContain("EGP 500.00");
+
+    await wrapper.get('button[type="button"].flex-1').trigger("click");
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("The price for this experience just changed");
+    expect(wrapper.text()).toContain("EGP 650.00");
+    expect(serviceFetchCount).toBe(2);
   });
 
   it("shows the awaiting-review heading, not a false instant-confirmed one, for a STAFF_REVIEW result", async () => {
@@ -165,9 +220,9 @@ describe("real request flow", () => {
     await flushPromises();
 
     // The sample option's maxParticipants is 3; push adults to 3 then try to add one more guest via children.
-    const adultsIncrease = wrapper.get('button[aria-label="Continue Adults"]');
+    const adultsIncrease = wrapper.get('button[aria-label="Increase Adults"]');
     await adultsIncrease.trigger("click");
-    const childrenIncrease = wrapper.get('button[aria-label="Continue Children"]');
+    const childrenIncrease = wrapper.get('button[aria-label="Increase Children"]');
     await childrenIncrease.trigger("click");
     await childrenIncrease.trigger("click");
 
@@ -195,6 +250,29 @@ describe("real request flow", () => {
 
     expect(wrapper.text()).toContain("Please add your name and at least one way to reach you");
     expect(wrapper.text()).not.toContain("Review your request");
+  });
+
+  it("blocks continuing with an implausible phone number, before ever calling the backend", async () => {
+    withRoute(serviceId);
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = new URL(String(input), "http://localhost");
+      if (url.pathname === `/api/catalog/services/${serviceId}`) return new Response(JSON.stringify(sampleService()), { status: 200 });
+      throw new Error(`Unexpected fetch: ${url.pathname}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const wrapper = mountPage();
+    await flushPromises();
+    await fillPartyStep(wrapper);
+
+    await wrapper.get("#name").setValue("Nour");
+    await wrapper.get("#phone").setValue("abc");
+    await wrapper.get("form").trigger("submit");
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("doesn't look like a valid phone number");
+    expect(wrapper.text()).not.toContain("Review your request");
+    expect(fetchMock).toHaveBeenCalledTimes(1); // only the service load, never a request POST
   });
 
   it("maps a backend 409 (party size exceeds capacity) to the honest error message, not a raw one", async () => {

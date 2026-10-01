@@ -107,6 +107,28 @@ describe("index page", () => {
     expect(wrapper.text()).toContain("1 Confirmed");
     expect(wrapper.text()).toContain("1 Cancelled/expired");
     expect(wrapper.text()).toContain("1 confirmed, today or upcoming");
+    // Below the 50-row page cap — the real, complete count, no caveat needed.
+    expect(wrapper.text()).not.toContain("Not an exhaustive total");
+  });
+
+  it("labels the request counts as a sample, not an exhaustive total, when the 50-row page cap is hit", async () => {
+    seedSession(["travel-request:view"]);
+    const fiftyRequests = Array.from({ length: 50 }, (_, index) => ({
+      id: `r${index}`,
+      status: "NEW",
+      requestedDate: "2026-12-01",
+    }));
+    vi.stubGlobal(
+      "fetch",
+      fetchRoutedBy({
+        "/api/v1/travel-marketplace/requests": () => new Response(JSON.stringify(fiftyRequests), { status: 200 }),
+      }),
+    );
+
+    const wrapper = mount(IndexPage);
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Not an exhaustive total");
   });
 
   it("only requests the widgets the account actually has permission for", async () => {

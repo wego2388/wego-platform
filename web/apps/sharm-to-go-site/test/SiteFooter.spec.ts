@@ -19,6 +19,9 @@ describe("SiteFooter", () => {
     expect(hrefs.some((href) => href?.startsWith("https://wa.me/201001413469"))).toBe(true);
     expect(hrefs.some((href) => href?.startsWith("mailto:info@sharmtogo.com"))).toBe(true);
     expect(wrapper.text()).toContain("© 2026 Sharm To Go. All rights reserved.");
+    // The prototype page still exists as an internal design reference, but
+    // real customer navigation must not link to it next to the real flow.
+    expect(hrefs).not.toContain("/booking-preview");
   });
 
   it("renders the Arabic copy, not a mix of languages, when locale is ar", () => {

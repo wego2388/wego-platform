@@ -3,7 +3,8 @@ import { onMounted, ref } from "vue";
 import SiteSubHeader from "../../components/SiteSubHeader.vue";
 import SiteFooter from "../../components/SiteFooter.vue";
 import { useSiteLocale } from "../../composables/useSiteLocale";
-import { getTravelRequestByReference, type TravelRequestPublicResponse } from "../../composables/useTravelRequests";
+import { priceBasisLabel } from "../../composables/usePublicCatalog";
+import { getTravelRequestByReference, travelRequestStatusText, type TravelRequestPublicResponse } from "../../composables/useTravelRequests";
 
 const route = useRoute();
 const reference = String(route.params.reference);
@@ -13,6 +14,9 @@ const { locale, copy, direction, toggleLocale } = useSiteLocale();
 useHead(() => ({
   title: locale.value === "ar" ? "تابع طلبك · Sharm To Go" : "Track your request · Sharm To Go",
   htmlAttrs: { dir: direction.value, lang: locale.value },
+  // The reference in this URL is a bearer secret (see the proxy routes'
+  // own comments) — never let a search engine index or cache this page.
+  meta: [{ name: "robots", content: "noindex,nofollow" }],
 }));
 
 const result = ref<TravelRequestPublicResponse | null>(null);
@@ -35,8 +39,18 @@ async function load() {
 
 onMounted(load);
 
+// requestedDate is a calendar date (e.g. "2026-10-15"), not an instant — the
+// native Date constructor parses that as UTC midnight, and formatting it in
+// the viewer's own local timezone can then show the day before for anyone
+// west of UTC. Force UTC on the display too, so it always reads back the
+// same calendar date the string names, regardless of the viewer's timezone.
 function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString(locale.value === "ar" ? "ar-EG" : "en-GB", { year: "numeric", month: "short", day: "numeric" });
+  return new Date(value).toLocaleDateString(locale.value === "ar" ? "ar-EG" : "en-GB", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
 }
 </script>
 
@@ -64,13 +78,16 @@ function formatDate(value: string): string {
         <h2 class="mt-2 text-xl font-semibold">{{ result.serviceName[locale] }} — {{ result.optionLabel[locale] }}</h2>
 
         <dl class="mt-6 grid gap-3 text-sm">
-          <div class="flex justify-between gap-3"><dt class="text-sharm-muted">{{ copy.track.statusLabel }}</dt><dd class="font-semibold">{{ result.status }}</dd></div>
+          <div class="flex justify-between gap-3"><dt class="text-sharm-muted">{{ copy.track.statusLabel }}</dt><dd class="font-semibold">{{ travelRequestStatusText(result.status, locale) }}</dd></div>
           <div class="flex justify-between gap-3"><dt class="text-sharm-muted">{{ copy.request.reviewDate }}</dt><dd class="font-semibold">{{ formatDate(result.requestedDate) }}</dd></div>
           <div class="flex justify-between gap-3"><dt class="text-sharm-muted">{{ copy.request.reviewParty }}</dt><dd class="font-semibold">{{ result.adults + result.children }}</dd></div>
           <div v-if="result.hotelOrPickup" class="flex justify-between gap-3"><dt class="text-sharm-muted">{{ copy.request.reviewPickup }}</dt><dd class="font-semibold">{{ result.hotelOrPickup }}</dd></div>
           <div class="flex justify-between gap-3">
             <dt class="text-sharm-muted">{{ copy.request.reviewPrice }}</dt>
-            <dd class="font-semibold text-sharm-sea">{{ result.priceCurrency }} {{ result.priceAmount }}</dd>
+            <dd class="font-semibold text-sharm-sea">
+              {{ result.priceCurrency }} {{ result.priceAmount }}
+              <span class="text-xs font-normal text-sharm-muted">{{ priceBasisLabel(result.priceBasis, copy.browse) }}</span>
+            </dd>
           </div>
         </dl>
 

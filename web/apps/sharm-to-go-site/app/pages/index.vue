@@ -151,15 +151,15 @@ function submitSearch() {
                 v-model:count="searchAdults"
                 :label="copy.request.adultsLabel"
                 :minimum="1"
-                :decrease-label="copy.detail.back"
-                :increase-label="copy.request.continueButton"
+                :decrease-label="copy.request.decreaseGuestLabel"
+                :increase-label="copy.request.increaseGuestLabel"
               />
               <GuestStepper
                 v-model:count="searchChildren"
                 :label="copy.request.childrenLabel"
                 :minimum="0"
-                :decrease-label="copy.detail.back"
-                :increase-label="copy.request.continueButton"
+                :decrease-label="copy.request.decreaseGuestLabel"
+                :increase-label="copy.request.increaseGuestLabel"
               />
             </div>
           </div>

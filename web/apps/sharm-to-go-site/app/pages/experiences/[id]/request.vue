@@ -4,10 +4,11 @@ import GuestStepper from "../../../components/GuestStepper.vue";
 import SiteSubHeader from "../../../components/SiteSubHeader.vue";
 import { whatsappLink } from "../../../content/contact";
 import { useSiteLocale } from "../../../composables/useSiteLocale";
-import { getPublicService, type PublicService, type PublicServiceOption } from "../../../composables/usePublicCatalog";
+import { getPublicService, priceBasisLabel, type PublicService, type PublicServiceOption } from "../../../composables/usePublicCatalog";
 import {
   createTravelRequest,
   newIdempotencyKey,
+  travelRequestStatusText,
   TravelRequestError,
   type TravelRequestPublicResponse,
 } from "../../../composables/useTravelRequests";
@@ -22,12 +23,6 @@ useHead(() => ({
   htmlAttrs: { dir: direction.value, lang: locale.value },
   meta: [{ name: "robots", content: "noindex,nofollow" }],
 }));
-
-function priceBasisLabel(basis: string): string {
-  if (basis === "PER_GROUP") return copy.value.browse.perGroup;
-  if (basis === "PER_VEHICLE") return copy.value.browse.perVehicle;
-  return copy.value.browse.perPerson;
-}
 
 const service = ref<PublicService | null>(null);
 const loadState = ref<"loading" | "loaded" | "not-found" | "error">("loading");
@@ -64,7 +59,16 @@ const partyError = ref(false);
 const fullName = ref("");
 const phone = ref("");
 const email = ref("");
-const contactError = ref(false);
+const contactError = ref<"" | "required" | "invalidPhone">("");
+
+// Same E.164-shaped plausibility check as the backend's
+// TravelRequestCustomer.isPlausiblePhoneNumber — mirrored here so an
+// obviously-wrong phone is caught before submit, not only after a round
+// trip to the server. Still just a format check, not reachability proof.
+function isPlausiblePhoneNumber(raw: string): boolean {
+  const stripped = raw.replace(/[ ()\-.]/g, "");
+  return /^\+?[1-9]\d{6,14}$/.test(stripped);
+}
 
 const submitState = ref<"idle" | "submitting" | "error">("idle");
 const submitErrorCode = ref("");
@@ -106,10 +110,14 @@ function goToContact() {
 
 function goToReview() {
   if (!fullName.value.trim() || (!phone.value.trim() && !email.value.trim())) {
-    contactError.value = true;
+    contactError.value = "required";
     return;
   }
-  contactError.value = false;
+  if (phone.value.trim() && !isPlausiblePhoneNumber(phone.value)) {
+    contactError.value = "invalidPhone";
+    return;
+  }
+  contactError.value = "";
   idempotencyKey.value = newIdempotencyKey();
   step.value = "review";
 }
@@ -135,6 +143,8 @@ async function submit() {
           phone: phone.value.trim() || undefined,
           email: email.value.trim() || undefined,
         },
+        expectedPriceAmount: selectedOption.value.priceAmount,
+        expectedPriceCurrency: selectedOption.value.priceCurrency,
       },
       idempotencyKey.value,
     );
@@ -144,6 +154,13 @@ async function submit() {
   } catch (error) {
     submitState.value = "error";
     submitErrorCode.value = error instanceof TravelRequestError ? error.errorCode : "generic";
+    if (submitErrorCode.value === "price_changed") {
+      // Refetch so the review screen (bound to `selectedOption`, derived
+      // from `service`) shows the real current price before the visitor
+      // tries again — never resubmit the stale price silently.
+      const refreshed = await getPublicService(serviceId).catch(() => null);
+      if (refreshed) service.value = refreshed;
+    }
   }
 }
 
@@ -151,6 +168,7 @@ function errorMessage(code: string): string {
   if (code === "service_not_found") return copy.value.request.errorServiceNotFound;
   if (code === "option_not_found") return copy.value.request.errorOptionNotFound;
   if (code === "party_size_exceeds_capacity") return copy.value.request.errorPartyTooLarge;
+  if (code === "price_changed") return copy.value.request.errorPriceChanged;
   return copy.value.request.errorGeneric;
 }
 
@@ -162,7 +180,7 @@ const summaryText = computed(() => {
     `${r.serviceName[locale.value]} (${r.optionLabel[locale.value]})`,
     `${copy.value.request.reviewDate}: ${r.requestedDate}`,
     `${copy.value.request.reviewParty}: ${r.adults + r.children}`,
-    `${copy.value.track.statusLabel}: ${r.status}`,
+    `${copy.value.track.statusLabel}: ${travelRequestStatusText(r.status, locale.value)}`,
   ].join("\n");
 });
 
@@ -253,16 +271,16 @@ async function copySummary() {
               :label="copy.request.adultsLabel"
               :minimum="1"
               :maximum="selectedOption?.maxParticipants ?? 12"
-              :decrease-label="copy.detail.back"
-              :increase-label="copy.request.continueButton"
+              :decrease-label="copy.request.decreaseGuestLabel"
+              :increase-label="copy.request.increaseGuestLabel"
             />
             <GuestStepper
               v-model:count="children"
               :label="copy.request.childrenLabel"
               :minimum="0"
               :maximum="selectedOption?.maxParticipants ?? 12"
-              :decrease-label="copy.detail.back"
-              :increase-label="copy.request.continueButton"
+              :decrease-label="copy.request.decreaseGuestLabel"
+              :increase-label="copy.request.increaseGuestLabel"
             />
           </div>
 
@@ -310,7 +328,7 @@ async function copySummary() {
           <p class="text-xs text-sharm-muted">{{ copy.request.contactHelp }}</p>
 
           <p v-if="contactError" role="alert" class="rounded-xl bg-sharm-danger-soft p-3 text-sm text-sharm-danger">
-            {{ copy.request.contactRequiredError }}
+            {{ contactError === "invalidPhone" ? copy.request.contactPhoneInvalidError : copy.request.contactRequiredError }}
           </p>
 
           <div class="flex gap-3">
@@ -337,7 +355,7 @@ async function copySummary() {
               <dt class="text-sharm-muted">{{ copy.request.reviewPrice }}</dt>
               <dd class="font-semibold text-sharm-sea">
                 {{ selectedOption.priceCurrency }} {{ selectedOption.priceAmount }}
-                <span class="text-xs font-normal text-sharm-muted">{{ priceBasisLabel(selectedOption.priceBasis) }}</span>
+                <span class="text-xs font-normal text-sharm-muted">{{ priceBasisLabel(selectedOption.priceBasis, copy.browse) }}</span>
               </dd>
             </div>
           </dl>

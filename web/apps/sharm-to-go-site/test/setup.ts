@@ -15,6 +15,7 @@ beforeEach(() => {
   vi.stubGlobal("getQuery", (event: { query?: Record<string, unknown> }) => event.query ?? {});
   vi.stubGlobal("getRouterParam", (event: { params?: Record<string, string> }, name: string) => event.params?.[name]);
   vi.stubGlobal("setResponseStatus", () => {});
+  vi.stubGlobal("setResponseHeader", () => {});
   vi.stubGlobal("getHeader", (event: { headers?: Record<string, string> }, name: string) => event.headers?.[name]);
   vi.stubGlobal("readBody", async (event: { body?: unknown }) => event.body);
   vi.stubGlobal("createError", (input: { statusCode?: number; statusMessage?: string }) => {

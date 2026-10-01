@@ -22,7 +22,6 @@ const copy = computed(() => siteCopy[props.locale]);
         <ul class="mt-4 space-y-3">
           <li><NuxtLink to="/experiences" class="hover:text-sharm-sea">{{ copy.footerFull.exploreLinks.experiences }}</NuxtLink></li>
           <li><NuxtLink to="/track" class="hover:text-sharm-sea">{{ copy.footerFull.exploreLinks.trackRequest }}</NuxtLink></li>
-          <li><NuxtLink to="/booking-preview" class="hover:text-sharm-sea">{{ copy.footerFull.exploreLinks.bookingPreview }}</NuxtLink></li>
         </ul>
       </div>
       <div>

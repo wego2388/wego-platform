@@ -38,6 +38,7 @@ const state = ref<"loading" | "loaded" | "not-found" | "error">("loading");
 const stateError = ref("");
 const actionState = ref<"idle" | "submitting">("idle");
 const actionError = ref("");
+const auditRefreshWarning = ref("");
 
 const canView = () => hasPermission(session.value, "travel-request:view");
 const canReview = () => hasPermission(session.value, "travel-request:review");
@@ -82,14 +83,33 @@ async function runAction(action: () => Promise<TravelRequest>) {
   if (!session.value || actionState.value === "submitting") return;
   actionState.value = "submitting";
   actionError.value = "";
+  auditRefreshWarning.value = "";
   try {
+    // The mutation itself is the only thing that can make this a real
+    // failure. Reload the timeline afterward in its own try/catch — a
+    // failure there must never be presented as "the action failed" when it
+    // actually succeeded and `request.value` already reflects that.
     request.value = await action();
-    auditEvents.value = await getTravelRequestAudit(session.value.token, requestId);
   } catch (error) {
     actionError.value = errorText(error);
-  } finally {
+    // The mutation failed, possibly because another staff member changed
+    // this request first (a state conflict) — reload so the screen shows
+    // the real current state instead of the stale pre-action one. Best
+    // effort: a failure here does not overwrite the real actionError above.
+    try {
+      request.value = await getTravelRequest(session.value.token, requestId);
+    } catch {
+      // Keep the stale record rather than hide it — still better than a blank screen.
+    }
     actionState.value = "idle";
+    return;
   }
+  try {
+    auditEvents.value = await getTravelRequestAudit(session.value.token, requestId);
+  } catch {
+    auditRefreshWarning.value = "The action succeeded, but the timeline below could not be refreshed. Reload the page to see it.";
+  }
+  actionState.value = "idle";
 }
 
 function startReview() {
@@ -164,6 +184,11 @@ const summaryText = computed(() => {
 const whatsappLink = computed(() => {
   if (!request.value?.customer.phone) return null;
   const digits = request.value.customer.phone.replace(/[^0-9]/g, "");
+  // Backend validation now rejects an implausible phone on new requests, but
+  // an older row written before that validation existed could still have
+  // one — stripped to nothing, that would otherwise silently produce
+  // https://wa.me/ with no destination number at all.
+  if (digits.length < 7) return null;
   return `https://wa.me/${digits}?text=${encodeURIComponent(summaryText.value)}`;
 });
 
@@ -209,6 +234,7 @@ onMounted(() => {
         <WegoBadge :tone="statusTone(request.status)" class="mt-3">{{ request.status }}</WegoBadge>
 
         <WegoAlert v-if="actionError" variant="danger" class="mt-6">{{ actionError }}</WegoAlert>
+        <WegoAlert v-if="auditRefreshWarning" variant="warning" class="mt-6">{{ auditRefreshWarning }}</WegoAlert>
 
         <div class="mt-8 grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div class="space-y-6">

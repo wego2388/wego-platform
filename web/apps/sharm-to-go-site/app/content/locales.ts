@@ -31,6 +31,7 @@ interface SiteCopy {
     perPerson: string;
     perGroup: string;
     perVehicle: string;
+    flatRate: string;
     viewDetails: string;
     operatedBy: string;
     photoCount: (count: number) => string;
@@ -61,6 +62,8 @@ interface SiteCopy {
     dateHelp: string;
     adultsLabel: string;
     childrenLabel: string;
+    decreaseGuestLabel: string;
+    increaseGuestLabel: string;
     partyExceedsCapacity: (max: number) => string;
     pickupLabel: string;
     pickupPlaceholder: string;
@@ -72,6 +75,7 @@ interface SiteCopy {
     emailLabel: string;
     contactHelp: string;
     contactRequiredError: string;
+    contactPhoneInvalidError: string;
     backButton: string;
     reviewHeading: string;
     reviewNote: string;
@@ -85,6 +89,7 @@ interface SiteCopy {
     errorServiceNotFound: string;
     errorOptionNotFound: string;
     errorPartyTooLarge: string;
+    errorPriceChanged: string;
     errorGeneric: string;
     successHeadingConfirmed: string;
     successHeadingAwaiting: string;
@@ -110,7 +115,7 @@ interface SiteCopy {
   footerFull: {
     tagline: string;
     exploreHeading: string;
-    exploreLinks: { experiences: string; trackRequest: string; bookingPreview: string; designSystem: string };
+    exploreLinks: { experiences: string; trackRequest: string; designSystem: string };
     companyHeading: string;
     companyLinks: { faq: string; contact: string };
     contactHeading: string;
@@ -179,7 +184,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
         { value: "25+", label: "years of tourism experience" },
         { value: "3M+", label: "customers who placed their trust in us" },
         { value: "5M+", label: "successful trips we helped organise" },
-        { value: "24/7", label: "continuous support" },
+        { value: "1", label: "point of contact, from request to return" },
       ],
     },
     search: {
@@ -233,6 +238,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       perPerson: "per person",
       perGroup: "per group",
       perVehicle: "per vehicle",
+      flatRate: "flat rate",
       viewDetails: "View details",
       operatedBy: "Operated by",
       photoCount: (count: number) => (count === 1 ? "1 photo" : `${count} photos`),
@@ -263,6 +269,8 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       dateHelp: "Pick a date in the future — we'll confirm availability.",
       adultsLabel: "Adults",
       childrenLabel: "Children",
+      decreaseGuestLabel: "Decrease",
+      increaseGuestLabel: "Increase",
       partyExceedsCapacity: (max: number) => `This option fits up to ${max} people. Please reduce your party or message us on WhatsApp for a larger group.`,
       pickupLabel: "Hotel / pickup point (optional)",
       pickupPlaceholder: "e.g. Four Seasons Sharm El Sheikh",
@@ -274,6 +282,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       emailLabel: "Email (optional if you gave a phone)",
       contactHelp: "We'll only use this to confirm your request — never shared, never sold.",
       contactRequiredError: "Please add your name and at least one way to reach you (phone or email).",
+      contactPhoneInvalidError: "That doesn't look like a valid phone number. Include your country code, e.g. +20 10 0141 3469.",
       backButton: "Back",
       reviewHeading: "Review your request",
       reviewNote: "This is a request, not a confirmed booking yet. Depending on the experience, you'll either be confirmed instantly or after a quick check by our team.",
@@ -287,6 +296,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       errorServiceNotFound: "This experience is no longer available. Please go back and choose another.",
       errorOptionNotFound: "This option is no longer available. Please go back and choose another.",
       errorPartyTooLarge: "Your party is larger than this option allows. Please go back and reduce it.",
+      errorPriceChanged: "The price for this experience just changed. We've updated this screen with the real current price — please review it and try again.",
       errorGeneric: "Something went wrong sending your request. Please try again, or message us on WhatsApp.",
       successHeadingConfirmed: "Confirmed!",
       successHeadingAwaiting: "Request received",
@@ -312,7 +322,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
     footerFull: {
       tagline: "One clear starting point for Sharm El Sheikh — Sharm To Go operates and confirms every experience directly.",
       exploreHeading: "Explore",
-      exploreLinks: { experiences: "Experiences", trackRequest: "Track a request", bookingPreview: "Booking prototype", designSystem: "Design system" },
+      exploreLinks: { experiences: "Experiences", trackRequest: "Track a request", designSystem: "Design system" },
       companyHeading: "Company",
       companyLinks: { faq: "FAQ", contact: "Contact" },
       contactHeading: "Contact",
@@ -381,15 +391,15 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
         sections: [
           {
             title: "What this site collects",
-            body: "This website does not use cookies, does not run analytics, and has no accounts or contact form. Browsing it does not collect any personal data from you on its own.",
+            body: "Browsing this website does not collect any personal data from you on its own — no cookies, no analytics. Submitting a real experience request is different: it collects your name and at least one way to reach you (phone and/or email), plus the date, party size and any pickup or note details you choose to add. We use this only to review, confirm and deliver that request.",
           },
           {
-            title: "WhatsApp and email",
-            body: "The only ways to contact us from this site are WhatsApp and email. Anything you send through them is handled under WhatsApp's or your email provider's own privacy policy, not ours — we only see what you choose to send us in that conversation.",
+            title: "How we contact you",
+            body: "We reach you the way you asked to be reached — by the phone or email you gave us — to confirm or follow up on your request. You can also message us on WhatsApp or email directly at any time; anything you send that way is handled under WhatsApp's or your email provider's own privacy policy, not ours — we only see what you choose to send us in that conversation.",
           },
           {
-            title: "When online booking goes live",
-            body: "Once real booking exists, confirming a request will need your name and one reachable contact. This page will say exactly what is collected and why before that feature ships.",
+            title: "Who sees your request",
+            body: "Your name and contact details are visible to our staff operating your request, never published publicly. A request's own tracking page and public status never show your name, phone or email — only the service, date, party size and status.",
           },
         ],
       },
@@ -402,7 +412,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
           },
           {
             title: "How a request works",
-            body: "No account is needed. A request becomes confirmed only after Sharm To Go verifies the service, date, party, pickup and price and sends a clear confirmation.",
+            body: "No account is needed. Most experiences confirm instantly once you send your request. A few need Sharm To Go to verify the service, date, party, pickup and price first — those show as awaiting confirmation until we send you a clear confirmation.",
           },
           {
             title: "Prices",
@@ -448,7 +458,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
         { value: "+25", label: "سنة خبرة في السياحة" },
         { value: "+3 مليون", label: "عميل وثقوا فينا" },
         { value: "+5 مليون", label: "رحلة ناجحة شاركنا في تنظيمها" },
-        { value: "24/7", label: "دعم مستمر" },
+        { value: "1", label: "نقطة تواصل واحدة من الطلب لحد الرجوع" },
       ],
     },
     search: {
@@ -502,6 +512,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       perPerson: "للفرد",
       perGroup: "للمجموعة",
       perVehicle: "للسيارة",
+      flatRate: "سعر ثابت",
       viewDetails: "عرض التفاصيل",
       operatedBy: "مقدَّمة من",
       photoCount: (count: number) => (count === 1 ? "صورة واحدة" : `${count} صور`),
@@ -532,6 +543,8 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       dateHelp: "اختر تاريخ في المستقبل — هنأكد التوفر.",
       adultsLabel: "البالغين",
       childrenLabel: "الأطفال",
+      decreaseGuestLabel: "تقليل",
+      increaseGuestLabel: "زيادة",
       partyExceedsCapacity: (max: number) => `الخيار ده بيستوعب حتى ${max} فرد. قلّل عدد الأفراد أو راسلنا على واتساب لمجموعة أكبر.`,
       pickupLabel: "الفندق / نقطة الاستلام (اختياري)",
       pickupPlaceholder: "مثال: فندق Four Seasons شرم الشيخ",
@@ -543,6 +556,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       emailLabel: "الإيميل (اختياري لو كتبت رقم هاتف)",
       contactHelp: "هنستخدم البيانات دي بس عشان نأكد طلبك — من غير مشاركة أو بيع أبدًا.",
       contactRequiredError: "اكتب اسمك ووسيلة تواصل واحدة على الأقل (هاتف أو إيميل).",
+      contactPhoneInvalidError: "رقم التليفون ده مش شكله صح. اكتب كود الدولة كمان، زي +20 10 0141 3469.",
       backButton: "رجوع",
       reviewHeading: "راجع طلبك",
       reviewNote: "ده طلب، لسه مش حجز مؤكد. حسب التجربة، هيتأكد فورًا أو بعد مراجعة سريعة من فريقنا.",
@@ -556,6 +570,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       errorServiceNotFound: "التجربة دي مش متاحة دلوقتي. ارجع واختار تجربة تانية.",
       errorOptionNotFound: "الخيار ده مش متاح دلوقتي. ارجع واختار خيار تاني.",
       errorPartyTooLarge: "عدد الأفراد أكبر من المسموح للخيار ده. ارجع وقلل العدد.",
+      errorPriceChanged: "سعر التجربة دي اتغيّر لتوه. حدّثنا الصفحة بالسعر الحقيقي الحالي — راجعه وحاول تاني.",
       errorGeneric: "حصلت مشكلة في إرسال طلبك. حاول تاني، أو راسلنا على واتساب.",
       successHeadingConfirmed: "تم التأكيد!",
       successHeadingAwaiting: "استلمنا طلبك",
@@ -581,7 +596,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
     footerFull: {
       tagline: "نقطة بداية واحدة وواضحة لشرم الشيخ — Sharm To Go تشغّل وتؤكد كل تجربة مباشرةً.",
       exploreHeading: "استكشف",
-      exploreLinks: { experiences: "التجارب", trackRequest: "تابع طلبك", bookingPreview: "نموذج الحجز", designSystem: "نظام التصميم" },
+      exploreLinks: { experiences: "التجارب", trackRequest: "تابع طلبك", designSystem: "نظام التصميم" },
       companyHeading: "الشركة",
       companyLinks: { faq: "الأسئلة الشائعة", contact: "تواصل" },
       contactHeading: "تواصل",
@@ -650,15 +665,15 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
         sections: [
           {
             title: "اللي الموقع ده بيجمعه",
-            body: "الموقع ده مش بيستخدم كوكيز، ومفيش تحليلات بيانات، ومفيش حسابات أو نموذج تواصل. تصفحك للموقع لوحده مش بيجمع أي بيانات شخصية عنك.",
+            body: "تصفحك للموقع لوحده مش بيجمع أي بيانات شخصية عنك — مفيش كوكيز، ومفيش تحليلات بيانات. إرسال طلب تجربة حقيقي حاجة تانية: بيجمع اسمك ووسيلة تواصل واحدة على الأقل (تليفون و/أو إيميل)، زائد التاريخ وعدد الأفراد وأي تفاصيل استلام أو ملاحظات تختار تضيفها. بنستخدم ده بس عشان نراجع ونأكد ونوصّل الطلب ده.",
           },
           {
-            title: "واتساب والإيميل",
-            body: "الوسيلتين الوحيدتين للتواصل معنا من الموقع هما واتساب والإيميل. أي حاجة تبعتها من خلالهم بتتعامل حسب سياسة الخصوصية بتاعة واتساب أو مزود الإيميل بتاعك، مش سياستنا — إحنا بس بنشوف اللي بتختار تبعته في المحادثة.",
+            title: "إزاي بنتواصل معاك",
+            body: "بنتواصل معاك بالطريقة اللي طلبتها — على التليفون أو الإيميل اللي بعتهولنا — عشان نأكد أو نتابع طلبك. تقدر كمان تراسلنا على واتساب أو الإيميل مباشرة في أي وقت؛ أي حاجة تبعتها كده بتتعامل حسب سياسة الخصوصية بتاعة واتساب أو مزود الإيميل بتاعك، مش سياستنا — إحنا بس بنشوف اللي بتختار تبعته في المحادثة.",
           },
           {
-            title: "لما الحجز الإلكتروني يشتغل",
-            body: "لما نظام الحجز الحقيقي يبقى موجود، تأكيد الطلب هيحتاج اسمك ووسيلة تواصل واحدة. الصفحة دي هتوضح بالظبط اللي بيتجمع وليه قبل ما الميزة دي تشتغل.",
+            title: "مين بيشوف طلبك",
+            body: "اسمك وبيانات التواصل بتاعتك ظاهرة بس لفريقنا اللي بيشتغل على طلبك، ومتنشرش علنًا أبدًا. صفحة متابعة الطلب وحالته العامة مبيظهرش فيهم اسمك أو تليفونك أو إيميلك خالص — بس الخدمة والتاريخ وعدد الأفراد والحالة.",
           },
         ],
       },
@@ -671,7 +686,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
           },
           {
             title: "طلبك بيتنفذ إزاي",
-            body: "مفيش داعي لحساب. الطلب بيتأكد فقط بعد ما Sharm To Go تراجع الخدمة والموعد والعدد والانتقال والسعر وتبعتلك تأكيد واضح.",
+            body: "مفيش داعي لحساب. أغلب التجارب بتتأكد فورًا لحظة ما تبعت طلبك. في تجارب قليلة محتاجة Sharm To Go تراجع الخدمة والموعد والعدد والانتقال والسعر الأول — دي بتظهر «بانتظار التأكيد» لحد ما نبعتلك تأكيد واضح.",
           },
           {
             title: "الأسعار",

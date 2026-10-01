@@ -110,6 +110,9 @@ onMounted(() => {
         </div>
         <p class="mt-2 text-sm text-wego-muted">{{ requestCounts.upcoming }} confirmed, today or upcoming.</p>
         <p v-if="travelRequests.length === 0" class="mt-2 text-sm text-wego-muted">No requests yet.</p>
+        <p v-else-if="travelRequests.length >= 50" class="mt-2 text-xs text-wego-warning">
+          Counts above are from the 50 most recent requests only — there may be more. Not an exhaustive total.
+        </p>
         <NuxtLink to="/requests" class="mt-4 inline-block text-sm font-semibold text-wego-accent underline">View requests</NuxtLink>
       </WegoPanel>
 

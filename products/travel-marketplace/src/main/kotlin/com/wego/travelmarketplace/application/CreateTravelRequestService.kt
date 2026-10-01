@@ -1,6 +1,7 @@
 package com.wego.travelmarketplace.application
 
 import com.wego.travelmarketplace.domain.ConfirmationType
+import com.wego.travelmarketplace.domain.Money
 import com.wego.travelmarketplace.domain.ServiceId
 import com.wego.travelmarketplace.domain.TravelRequest
 import com.wego.travelmarketplace.domain.TravelRequestActorType
@@ -9,6 +10,7 @@ import com.wego.travelmarketplace.domain.TravelRequestId
 import com.wego.travelmarketplace.domain.TravelRequestReference
 import com.wego.travelmarketplace.domain.TravelRequestSourceChannel
 import com.wego.travelmarketplace.domain.TravelRequestStatus
+import org.springframework.dao.DataIntegrityViolationException
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
@@ -29,6 +31,13 @@ data class CreateTravelRequestCommand(
     val customer: TravelRequestCustomer,
     val idempotencyKey: String,
     val correlationId: UUID?,
+    /**
+     * The price the customer actually saw and accepted on the review
+     * screen — not necessarily what the option costs right now. Required,
+     * not optional: every real caller fetched the catalog to build its own
+     * review screen, so it always has this. See [CreateTravelRequestResult.PriceChanged].
+     */
+    val expectedPrice: Money,
 )
 
 sealed interface CreateTravelRequestResult {
@@ -54,6 +63,18 @@ sealed interface CreateTravelRequestResult {
     data class PartySizeExceedsCapacity(
         val maxParticipants: Int,
     ) : CreateTravelRequestResult
+
+    /**
+     * The option's current price no longer matches what the caller's
+     * [CreateTravelRequestCommand.expectedPrice] said the customer saw on
+     * the review screen — the owner (or another staff member) changed it
+     * between the customer loading that screen and submitting. Rejected
+     * rather than silently confirmed at the new price: the customer must
+     * see and accept the real current price before a request is created.
+     */
+    data class PriceChanged(
+        val currentPrice: Money,
+    ) : CreateTravelRequestResult
 }
 
 /**
@@ -75,6 +96,25 @@ class CreateTravelRequestService(
     private val clock: Clock,
 ) {
     fun create(command: CreateTravelRequestCommand): CreateTravelRequestResult =
+        try {
+            createInNewTransaction(command)
+        } catch (exception: DataIntegrityViolationException) {
+            // Two concurrent calls can both pass the findByIdempotencyKey
+            // pre-check below (no row exists yet for either) and both
+            // attempt to insert; exactly one wins, the other hits the real
+            // safety net — the unique constraint on idempotency_key — and
+            // this transaction rolls back. The OpenAPI contract promises
+            // the losing caller the same replay response a sequential
+            // retry would get, not an error, so look the winning row up in
+            // a fresh transaction (this one is already aborted) and return
+            // that instead of letting the exception surface as a 500.
+            val winner =
+                transactionRunner.runInTransaction { requestRepository.findByIdempotencyKey(command.idempotencyKey) }
+                    ?: throw exception // the constraint fired for some other reason — do not swallow it
+            CreateTravelRequestResult.AlreadyExists(winner)
+        }
+
+    private fun createInNewTransaction(command: CreateTravelRequestCommand): CreateTravelRequestResult =
         transactionRunner.runInTransaction {
             requestRepository.findByIdempotencyKey(command.idempotencyKey)?.let {
                 return@runInTransaction CreateTravelRequestResult.AlreadyExists(it)
@@ -89,6 +129,9 @@ class CreateTravelRequestService(
             val partySize = command.adults + command.children
             if (partySize > option.maxParticipants) {
                 return@runInTransaction CreateTravelRequestResult.PartySizeExceedsCapacity(option.maxParticipants)
+            }
+            if (option.price != command.expectedPrice) {
+                return@runInTransaction CreateTravelRequestResult.PriceChanged(option.price)
             }
 
             val now = Instant.now(clock)

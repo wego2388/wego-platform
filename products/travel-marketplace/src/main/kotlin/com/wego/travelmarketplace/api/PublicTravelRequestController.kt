@@ -4,6 +4,7 @@ import com.wego.travelmarketplace.application.CreateTravelRequestCommand
 import com.wego.travelmarketplace.application.CreateTravelRequestResult
 import com.wego.travelmarketplace.application.CreateTravelRequestService
 import com.wego.travelmarketplace.application.TravelRequestQueryService
+import com.wego.travelmarketplace.domain.Money
 import com.wego.travelmarketplace.domain.ServiceId
 import com.wego.travelmarketplace.domain.TravelRequest
 import com.wego.travelmarketplace.domain.TravelRequestCustomer
@@ -58,6 +59,7 @@ class PublicTravelRequestController(
                 customer = TravelRequestCustomer(request.customer.name, request.customer.phone, request.customer.email),
                 idempotencyKey = idempotencyKey,
                 correlationId = UUID.randomUUID(),
+                expectedPrice = Money(request.expectedPriceAmount.setScale(2), request.expectedPriceCurrency),
             )
         return when (val result = createTravelRequestService.create(command)) {
             is CreateTravelRequestResult.Created -> ResponseEntity.status(HttpStatus.CREATED).body(result.request.toPublicResponse())
@@ -68,6 +70,14 @@ class PublicTravelRequestController(
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body(TravelRequestErrorResponse("option_not_found"))
             is CreateTravelRequestResult.PartySizeExceedsCapacity ->
                 ResponseEntity.status(HttpStatus.CONFLICT).body(TravelRequestErrorResponse("party_size_exceeds_capacity"))
+            is CreateTravelRequestResult.PriceChanged ->
+                ResponseEntity.status(HttpStatus.CONFLICT).body(
+                    TravelRequestErrorResponse(
+                        error = "price_changed",
+                        currentPriceAmount = result.currentPrice.amount,
+                        currentPriceCurrency = result.currentPrice.currencyCode,
+                    ),
+                )
         }
     }
 

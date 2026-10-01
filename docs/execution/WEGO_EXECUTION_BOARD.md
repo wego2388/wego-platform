@@ -1176,6 +1176,109 @@ provider constraints are revalidated against the implemented repository.
   authorized beyond this round. PR #46 stays unmerged pending the owner's
   own fresh "اعمل merge" instruction.
 
+### 2026-10-01 — Codex review fix round, continued: remaining High findings + medium-priority sweep
+
+- **Status:** `ACTIVE`, continuing under the same owner authorization as
+  the round above — the owner explicitly said "كمل... وكمان التحسينات
+  اعملها" (continue, and make the improvements too) after reading that
+  round's report, extending the standing authorization to the rest of
+  the findings backlog rather than stopping after the first three fixes.
+- **What was done — the two remaining High findings:**
+  - **Phone "validation" was presence-only.** Fixed at every layer:
+    `TravelRequestCustomer.isPlausiblePhoneNumber` (domain, an E.164-
+    shaped plausibility regex — deliberately not libphonenumber, since
+    nothing in this monorepo depends on it yet for what is currently one
+    format check), a matching `@Pattern` on the API DTO, a mirrored
+    client-side check on the request form so an obviously-wrong number
+    is caught before a round trip to the server, and a defensive fix in
+    the ERP's `wa.me` link builder so a pre-validation row with no real
+    digits doesn't render a broken link with no destination. New tests
+    at all three layers.
+  - **Privacy/terms copy described an earlier, pre-request-flow
+    product.** Rewrote both English and Arabic privacy-page sections to
+    describe what the real request form actually collects and who sees
+    it (never published publicly; the public tracking response excludes
+    name/phone/email, consistent with what Phase 1B actually proved);
+    rewrote the terms page's "how a request works" section, which
+    previously implied every request needs manual staff verification,
+    to distinguish instant confirmation from the few services that
+    don't; replaced the homepage's "24/7 continuous support" stat, which
+    directly contradicted the contact page's own honest "no published
+    support-hours commitment yet," with a claim the product actually
+    keeps (one point of contact, from request to return — already stated
+    truthfully elsewhere on the same page). New tests assert the
+    corrected copy and the absence of the old claims.
+- **What was done — medium-priority sweep (9 more findings):**
+  tracking-reference privacy hardening (`Cache-Control: no-store` on
+  both request proxy routes, `noindex,nofollow` on the track-by-
+  reference page, and nginx access-log/referrer masking for the
+  reference — **verified live** with a real nginx container: a request
+  to `/track/STG-SECRET12` logs `/track/[redacted]`, not the real
+  reference; honestly recorded residual gap: nginx's own fixed-format
+  `error_log` still logs the raw reference on an actual upstream
+  failure, verified live too); an integer-overflow bypass of the party-
+  capacity check (`@Max(100)` on the DTO plus a matching domain-level
+  `require`, so the domain object enforces its own invariant regardless
+  of caller); `FLAT` price basis mislabeled "per person" in three
+  copy-pasted, identical, all-equally-stale implementations, and dropped
+  entirely on the tracking page (deleted all three duplicates for one
+  shared `priceBasisLabel()`, now used on the tracking page too, which
+  never had it); raw internal status strings (e.g. `IN_REVIEW`) shown
+  even on the Arabic tracking page and in the request flow's own
+  shareable WhatsApp/copy summary (one shared, bilingual
+  `travelRequestStatusText()` fixes both); a real timezone bug where the
+  tracking page's requested-date could show the wrong calendar day for
+  any visitor west of UTC (date-only values now force `timeZone: "UTC"`
+  on display — **verified** by computing the actual formatted string
+  under `America/Los_Angeles` before and after: `31 Dec 2098` → the
+  correct `1 Jan 2099`); the ERP dashboard's 50-row-sample request
+  counts looking exhaustive (a visible caveat now appears exactly when
+  the cap is actually hit, not otherwise); `SiteFooter.vue` still
+  linking the `/booking-preview` prototype from real customer pages
+  (removed from real navigation, kept as an internal reference);
+  misleading `GuestStepper` accessible names ("Back Adults" / "Continue
+  Adults" instead of "Decrease/Increase Adults") on both the homepage
+  search box and the request form; and an ERP page that reported a
+  successful action as failed whenever the following audit-timeline
+  refresh failed, while also leaving a stale pre-action record on screen
+  after a real rejection (separated the two failure modes: a failed
+  mutation now reloads the real current record best-effort instead of
+  showing stale data; a successful mutation whose audit-refresh fails
+  shows a distinct, narrower warning instead of the action-failed
+  message).
+- **Verified:** full backend suite green via real PostgreSQL
+  (Testcontainers) including `ktlintCheck` (two formatting violations
+  from this round's own new code, both fixed); 69/69 site tests pass
+  (up from 60), 56/56 ERP tests pass (up from 50); `nuxt typecheck`
+  clean for both apps; real production `nuxt build` of the site
+  succeeds; root `pnpm run check` (lint, typecheck, test, build across
+  every app in the monorepo, not just this client) passes; OpenAPI
+  contract re-validated clean.
+- **Rollback considerations:** additive validation constraints (DTO
+  `@Max`/`@Pattern`, domain `require`) — cannot break an existing valid
+  caller, only reject what was already invalid; copy-only changes on
+  privacy/terms/homepage; one shared formatter function replacing three
+  identical duplicates (behavior-preserving for every case except the
+  one that was actually wrong); nginx log-format change is observability
+  only, no routing/proxy behavior changed (verified live, not just
+  config-syntax-checked). No backend migration, no permission change.
+- **Findings backlog status:** 19 findings are now fixed (see
+  `clients/sharm-to-go/handoff/2026-10-01_CODEX_REVIEW_FINDINGS_BACKLOG.md`
+  for the full accounting, numbered independently of Codex's own
+  original numbering); 7 remain, all requiring a bigger design decision
+  than this sweep's scope — a new migration column for ERP optimistic
+  locking; a shared-lock or versioned-read redesign for the catalog
+  snapshot and the expiry-sweep race; the public site's own booking
+  proxy route still letting a backend connection failure escape
+  uncontrolled (separate from the ERP-side failure-handling fix above);
+  cross-cutting correlation-ID propagation; tiered rate limiting;
+  pagination wiring through the public catalog proxy and sitemap.
+- **Next:** commit, push, update board/roadmap evidence (done in this
+  same pass). The remaining 7 findings are recorded, prioritized, not
+  started, not automatically authorized — a future round should pick
+  them up by the backlog file's own stated order. PR #46 stays unmerged
+  pending the owner's own fresh "اعمل merge" instruction.
+
 ## WEGO-003 — Reliable integration delivery and replay
 
 - **Status:** NOT AUTHORIZED — roadmap only; WEGO-002 must close first and owner activation is still required.

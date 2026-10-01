@@ -6,7 +6,7 @@ import SiteFooter from "../../../components/SiteFooter.vue";
 import { contact, emailLink, whatsappLink } from "../../../content/contact";
 import { toneForIndex } from "../../../content/categoryAccents";
 import { useSiteLocale } from "../../../composables/useSiteLocale";
-import { getPublicService, listPublicCategories, type PublicCategory, type PublicService } from "../../../composables/usePublicCatalog";
+import { getPublicService, listPublicCategories, priceBasisLabel, type PublicCategory, type PublicService } from "../../../composables/usePublicCatalog";
 
 const route = useRoute();
 const serviceId = String(route.params.id);
@@ -48,11 +48,6 @@ useHead(() => ({
   },
 }));
 
-function priceBasisLabel(basis: string): string {
-  if (basis === "PER_GROUP") return copy.value.browse.perGroup;
-  if (basis === "PER_VEHICLE") return copy.value.browse.perVehicle;
-  return copy.value.browse.perPerson;
-}
 
 onMounted(async () => {
   try {
@@ -112,7 +107,7 @@ onMounted(async () => {
               <span class="font-medium">{{ option.label[locale] }}</span>
               <span class="text-sharm-sea">
                 {{ option.priceCurrency }} {{ option.priceAmount }}
-                <span class="text-xs text-sharm-muted">{{ priceBasisLabel(option.priceBasis) }}</span>
+                <span class="text-xs text-sharm-muted">{{ priceBasisLabel(option.priceBasis, copy.browse) }}</span>
               </span>
             </li>
           </ul>

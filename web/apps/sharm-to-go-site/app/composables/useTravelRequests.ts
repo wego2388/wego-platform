@@ -10,6 +10,25 @@ import type { LocalizedText, PriceBasis } from "./usePublicCatalog";
 export type TravelRequestStatus = "NEW" | "IN_REVIEW" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "EXPIRED";
 export type TravelRequestSourceChannel = "WEBSITE" | "MOBILE";
 
+/**
+ * Translated, customer-facing status text — never the raw status string.
+ * Used by both the tracking page and the request flow's own shareable
+ * summary, which previously embedded `result.status` directly, showing
+ * "IN_REVIEW" etc. even on the Arabic page.
+ */
+const STATUS_TEXT: Record<TravelRequestStatus, { en: string; ar: string }> = {
+  NEW: { en: "Received, awaiting review", ar: "تم الاستلام، في انتظار المراجعة" },
+  IN_REVIEW: { en: "Under review", ar: "قيد المراجعة" },
+  CONFIRMED: { en: "Confirmed", ar: "مؤكد" },
+  COMPLETED: { en: "Completed", ar: "تم الإنجاز" },
+  CANCELLED: { en: "Cancelled", ar: "ملغى" },
+  EXPIRED: { en: "Expired", ar: "منتهي الصلاحية" },
+};
+
+export function travelRequestStatusText(status: TravelRequestStatus, locale: "en" | "ar"): string {
+  return STATUS_TEXT[status][locale];
+}
+
 export interface TravelRequestCustomer {
   name: string;
   phone?: string;
@@ -28,6 +47,9 @@ export interface CreateTravelRequestBody {
   notes?: string;
   sourceChannel: TravelRequestSourceChannel;
   customer: TravelRequestCustomer;
+  /** The price the review screen actually showed — see the backend's own doc comment on this field for why. */
+  expectedPriceAmount: string;
+  expectedPriceCurrency: string;
 }
 
 export interface TravelRequestPublicResponse {

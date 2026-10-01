@@ -1707,6 +1707,8 @@ components:
         - locale
         - sourceChannel
         - customer
+        - expectedPriceAmount
+        - expectedPriceCurrency
       properties:
         serviceId:
           type: string
@@ -1749,6 +1751,16 @@ components:
           $ref: "#/components/schemas/TravelRequestSourceChannel"
         customer:
           $ref: "#/components/schemas/TravelRequestCustomer"
+        expectedPriceAmount:
+          type: string
+          description: >-
+            The price the caller's own review screen displayed for this
+            option. Decimal string, 2 places. Compared against the option's
+            real current price; a mismatch (the owner edited the catalog
+            between review and submit) is rejected with 409 price_changed
+            rather than silently confirmed at the new price.
+        expectedPriceCurrency:
+          type: string
     CancelTravelRequestRequest:
       type: object
       additionalProperties: false
@@ -1774,8 +1786,29 @@ components:
             - service_not_found
             - option_not_found
             - party_size_exceeds_capacity
+            - price_changed
             - invalid_transition
             - already_terminal
+            - validation_failed
+        message:
+          type:
+            - string
+            - "null"
+          description: >-
+            Populated for error == validation_failed (a Bean Validation
+            failure, e.g. a malformed phone or a past date) — the real
+            exception handler's own message. Absent for the structured
+            domain errors above, whose error code alone is the message.
+        currentPriceAmount:
+          type:
+            - string
+            - "null"
+          description: Populated only for error == price_changed. Decimal string, 2 places.
+        currentPriceCurrency:
+          type:
+            - string
+            - "null"
+          description: Populated only for error == price_changed.
     TravelRequestPublicResponse:
       type: object
       additionalProperties: false

@@ -33,6 +33,19 @@ describe("POST /api/requests (proxy)", () => {
     expect(init?.headers).toMatchObject({ "Idempotency-Key": "abc-123" });
   });
 
+  it("marks its response no-store — the body carries a fresh bearer-secret reference", async () => {
+    await loadHandlers();
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ reference: "STG-ABCDEFGH", status: "NEW" }), { status: 201 })));
+    let capturedHeader: [string, string] | undefined;
+    vi.stubGlobal("setResponseHeader", (_event: unknown, name: string, value: string) => {
+      capturedHeader = [name, value];
+    });
+
+    await createHandler({ headers: { "idempotency-key": "k" }, body: {} } as never);
+
+    expect(capturedHeader).toEqual(["cache-control", "no-store"]);
+  });
+
   it("rejects with a clean 400 when the Idempotency-Key header is missing, before ever calling the backend", async () => {
     await loadHandlers();
     const fetchMock = vi.fn();
@@ -85,5 +98,18 @@ describe("GET /api/requests/[reference] (proxy)", () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response("boom", { status: 500 })));
 
     await expect(lookupHandler({ params: { reference: "STG-ABCDEFGH" } } as never)).rejects.toMatchObject({ statusCode: 502 });
+  });
+
+  it("marks its response no-store — a reference is a bearer secret, see the nginx config's own logging hardening", async () => {
+    await loadHandlers();
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ reference: "STG-ABCDEFGH" }), { status: 200 })));
+    let capturedHeader: [string, string] | undefined;
+    vi.stubGlobal("setResponseHeader", (_event: unknown, name: string, value: string) => {
+      capturedHeader = [name, value];
+    });
+
+    await lookupHandler({ params: { reference: "STG-ABCDEFGH" } } as never);
+
+    expect(capturedHeader).toEqual(["cache-control", "no-store"]);
   });
 });

@@ -29,7 +29,14 @@
 - [x] Store requested date/time, adults, children, hotel/pickup, locale,
   notes and source channel (`TravelRequest` fields; `V5` schema).
 - [x] Require customer name and at least one valid reachable contact
-  (`TravelRequestCustomer`'s init invariant, mirrored by a DB CHECK).
+  (`TravelRequestCustomer`'s init invariant, mirrored by a DB CHECK,
+  mirrored again by a DTO `@Pattern` and a client-side check on the
+  request form). **Corrected 2026-10-01** (an owner-requested Codex
+  review caught this): "valid" originally meant presence-only —
+  `"abc"` passed as a phone. Now an E.164-shaped plausibility check
+  (optional `+`, 7-15 digits) — still a format check, not carrier-
+  verified reachability; that distinction is deliberate, not an
+  oversight.
 - [~] Consent/retention/redaction policy for customer PII: not yet written as
   a standalone policy document — deferred to the "Privacy, legal and support"
   work already tracked in `06_LAUNCH_AND_OPERATIONS.md`; the schema itself
@@ -56,7 +63,18 @@
   records: 8 parallel threads submitting the same idempotency key against
   real PostgreSQL via Testcontainers — exactly one row created, verified by
   `TravelRequestServiceTest."concurrent creates with the same idempotency
-  key never produce two rows"`.
+  key never produce two rows"`. **Corrected 2026-10-01** (an owner-
+  requested Codex review caught this): the original version of this test
+  discarded its workers' `Future`s and never asserted all 8 actually
+  completed — a worker that threw would vanish silently instead of
+  failing the test. Rewritten to capture and `.get()` every future and
+  independently re-verify the single row via `findByIdempotencyKey`
+  against the real database, not just an in-memory collection. The
+  stricter test immediately caught a real bug it had been masking: a
+  losing concurrent insert hit the unique constraint and propagated as
+  an unhandled 500 instead of the contract's promised replay response.
+  Both are now fixed — `CreateTravelRequestService.create()` catches
+  that constraint violation and returns the real winning row.
 - [x] Capacity: this phase's capacity is the single request's own party size
   against the snapshotted option's `maxParticipants` — a plain validation,
   not a shared cross-request pool (this product has no per-day slot/calendar
@@ -129,6 +147,15 @@
 - [x] A staff-authorized confirmation produces an immutable commercial
   snapshot — price/policy/service/option snapshotted at creation, never
   re-read live; proven by the full staff-lifecycle HTTP test.
+  **Corrected 2026-10-01** (an owner-requested Codex review caught this):
+  this was true of the *stored* snapshot once created, but not of
+  *creation itself* — the price used to confirm a brand-new request was
+  always the option's current price at that moment, which could differ
+  from what the customer actually saw on the review screen seconds
+  earlier if a catalog edit landed in between. Fixed: the frontend now
+  sends `expectedPrice` (what the review screen displayed); a mismatch
+  is rejected with `409 price_changed` and the real current price,
+  instead of silently confirming at a price the customer never saw.
 - [x] Duplicate/concurrent submissions are safe and auditable — 8-thread
   concurrency proof (service layer) + HTTP-level idempotent-resubmission
   proof (200 with the original request, not a second 201), each write

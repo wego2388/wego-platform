@@ -179,6 +179,7 @@ class TravelRequestHttpTest {
         serviceId: String,
         optionId: String,
         adults: Int = 2,
+        expectedPriceAmount: String = "700.00", // matches publishedService()'s own hardcoded option price
     ) = """
         {
           "serviceId": "$serviceId",
@@ -191,7 +192,9 @@ class TravelRequestHttpTest {
           "locale": "en",
           "notes": null,
           "sourceChannel": "WEBSITE",
-          "customer": {"name": "Nour", "phone": "+201001413469", "email": null}
+          "customer": {"name": "Nour", "phone": "+201001413469", "email": null},
+          "expectedPriceAmount": $expectedPriceAmount,
+          "expectedPriceCurrency": "EGP"
         }
         """.trimIndent()
 
@@ -276,6 +279,24 @@ class TravelRequestHttpTest {
             }.andExpect {
                 status { isConflict() }
                 jsonPath("$.error") { value("party_size_exceeds_capacity") }
+            }
+    }
+
+    @Test
+    fun `a stale expected price is rejected with 409 and the real current price, not silently confirmed`() {
+        val token = login(staffEmail, staffPassword)
+        val (serviceId, optionId) = publishedService(token, confirmationType = "INSTANT")
+
+        mockMvc
+            .post("/api/v1/travel-marketplace/public/requests") {
+                header("Idempotency-Key", UUID.randomUUID().toString())
+                contentType = MediaType.APPLICATION_JSON
+                content = createRequestJson(serviceId, optionId, expectedPriceAmount = "650.00") // real price is 700.00
+            }.andExpect {
+                status { isConflict() }
+                jsonPath("$.error") { value("price_changed") }
+                jsonPath("$.currentPriceAmount") { value("700.00") }
+                jsonPath("$.currentPriceCurrency") { value("EGP") }
             }
     }
 

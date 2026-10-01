@@ -17,7 +17,26 @@ data class TravelRequestCustomer(
     init {
         require(name.isNotBlank()) { "Customer name must not be blank" }
         require(phone != null || email != null) { "At least one of phone or email is required" }
-        require(phone == null || phone.isNotBlank()) { "Phone must not be blank when present" }
+        require(phone == null || isPlausiblePhoneNumber(phone)) { "Phone is not a plausible phone number" }
         require(email == null || email.isNotBlank()) { "Email must not be blank when present" }
+    }
+
+    companion object {
+        /**
+         * An E.164-shaped plausibility check (optional leading `+`, 7-15
+         * digits, no leading zero after the country code) — not full
+         * carrier-verified reachability. This deliberately does not pull in
+         * libphonenumber (no existing dependency on it anywhere in this
+         * monorepo) for what is, for now, a single format check; revisit if
+         * country-aware formatting/normalization is ever actually needed.
+         * Rejects what the previous "any non-blank string" check accepted,
+         * such as "abc" or "123".
+         */
+        private val PLAUSIBLE_PHONE = Regex("^\\+?[1-9]\\d{6,14}$")
+
+        fun isPlausiblePhoneNumber(raw: String): Boolean {
+            val stripped = raw.filterNot { it == ' ' || it == '-' || it == '(' || it == ')' || it == '.' }
+            return PLAUSIBLE_PHONE.matches(stripped)
+        }
     }
 }

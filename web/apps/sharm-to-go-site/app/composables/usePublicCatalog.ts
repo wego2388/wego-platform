@@ -88,3 +88,18 @@ export function startingPrice(service: PublicService): PublicServiceOption | nul
   if (service.options.length === 0) return null;
   return service.options.reduce((lowest, option) => (Number(option.priceAmount) < Number(lowest.priceAmount) ? option : lowest));
 }
+
+/**
+ * One shared implementation — this used to be copy-pasted across the
+ * catalog list, detail and request pages, and every copy silently fell
+ * through to "per person" for `FLAT` (a single flat total, not a per-head
+ * price) because `PriceBasis` gained that fourth value after the first
+ * copy was written and the other two were pasted from it, not from the
+ * type.
+ */
+export function priceBasisLabel(basis: PriceBasis, browseCopy: { perPerson: string; perGroup: string; perVehicle: string; flatRate: string }): string {
+  if (basis === "PER_GROUP") return browseCopy.perGroup;
+  if (basis === "PER_VEHICLE") return browseCopy.perVehicle;
+  if (basis === "FLAT") return browseCopy.flatRate;
+  return browseCopy.perPerson;
+}

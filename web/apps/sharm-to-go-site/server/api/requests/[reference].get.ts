@@ -5,6 +5,11 @@
  * indistinguishable to a public caller, by design.
  */
 export default defineEventHandler(async (event) => {
+  // A request reference is effectively a bearer secret — anyone who has it
+  // (not just the customer) can read this record. Never let it sit in a
+  // shared cache, a proxy, or the browser's own disk cache.
+  setResponseHeader(event, "cache-control", "no-store");
+
   const base = useRuntimeConfig().travelMarketplaceApiBase as string;
   const reference = getRouterParam(event, "reference");
 

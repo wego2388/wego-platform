@@ -96,6 +96,12 @@ class TravelRequest(
     init {
         require(adults >= 1) { "At least one adult is required" }
         require(children >= 0) { "Children count must not be negative" }
+        // Not a realistic party size on its own — guards the domain object
+        // itself (not just the API DTO) against adults + children ever
+        // approaching Int overflow, which would wrap negative and silently
+        // defeat a capacity comparison.
+        require(adults <= MAX_PARTY_COMPONENT) { "Adults must not exceed $MAX_PARTY_COMPONENT" }
+        require(children <= MAX_PARTY_COMPONENT) { "Children must not exceed $MAX_PARTY_COMPONENT" }
         require(locale == "en" || locale == "ar") { "Locale must be en or ar" }
         require(idempotencyKey.isNotBlank()) { "Idempotency key must not be blank" }
         // Sticky "first confirmed at" marker, same pattern as Service.publishedAt: a
@@ -170,6 +176,8 @@ class TravelRequest(
     }
 
     companion object {
+        const val MAX_PARTY_COMPONENT = 100
+
         fun create(
             id: TravelRequestId,
             reference: TravelRequestReference,

@@ -6,6 +6,10 @@
  * key must survive the hop intact.
  */
 export default defineEventHandler(async (event) => {
+  // The response carries a fresh request reference — a bearer secret, see
+  // [reference].get.ts's own comment — never cache it.
+  setResponseHeader(event, "cache-control", "no-store");
+
   const base = useRuntimeConfig().travelMarketplaceApiBase as string;
   const idempotencyKey = getHeader(event, "idempotency-key");
   if (!idempotencyKey) {

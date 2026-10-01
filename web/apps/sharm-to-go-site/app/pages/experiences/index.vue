@@ -9,6 +9,7 @@ import { useSiteLocale } from "../../composables/useSiteLocale";
 import {
   listPublicCategories,
   listPublicServices,
+  priceBasisLabel,
   type PublicCategory,
   type PublicService,
   startingPrice,
@@ -74,12 +75,6 @@ async function selectCategory(categoryId: string) {
   if (categoryId) query.category = categoryId;
   router.replace({ path: "/experiences", query });
   await loadServices();
-}
-
-function priceBasisLabel(basis: string): string {
-  if (basis === "PER_GROUP") return copy.value.browse.perGroup;
-  if (basis === "PER_VEHICLE") return copy.value.browse.perVehicle;
-  return copy.value.browse.perPerson;
 }
 
 onMounted(async () => {
@@ -158,7 +153,7 @@ onMounted(async () => {
             <p v-if="service.media.length > 0" class="mt-1 text-xs text-sharm-muted">{{ copy.browse.photoCount(service.media.length) }}</p>
             <p v-if="startingPrice(service)" class="mt-4 text-base font-semibold text-sharm-sea">
               {{ copy.browse.fromPrice }} {{ startingPrice(service)?.priceCurrency }} {{ startingPrice(service)?.priceAmount }}
-              <span class="text-xs font-normal text-sharm-muted">{{ priceBasisLabel(startingPrice(service)?.priceBasis ?? "PER_PERSON") }}</span>
+              <span class="text-xs font-normal text-sharm-muted">{{ priceBasisLabel(startingPrice(service)?.priceBasis ?? "PER_PERSON", copy.browse) }}</span>
             </p>
             <NuxtLink
               :to="{ path: `/experiences/${service.id}`, query: forwardedQuery }"

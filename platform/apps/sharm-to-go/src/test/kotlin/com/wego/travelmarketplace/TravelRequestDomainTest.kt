@@ -53,6 +53,20 @@ class TravelRequestCustomerTest {
         val customer = TravelRequestCustomer(name = "Nour", phone = "+201001413469", email = null)
         assertThat(customer.email).isNull()
     }
+
+    @Test
+    fun `rejects a phone that is not plausibly a phone number`() {
+        assertThatIllegalArgumentException().isThrownBy { TravelRequestCustomer(name = "Nour", phone = "abc", email = null) }
+        assertThatIllegalArgumentException().isThrownBy { TravelRequestCustomer(name = "Nour", phone = "123", email = null) }
+        assertThatIllegalArgumentException().isThrownBy { TravelRequestCustomer(name = "Nour", phone = "0123456789", email = null) }
+    }
+
+    @Test
+    fun `accepts plausible phone numbers in common formats`() {
+        assertThat(TravelRequestCustomer(name = "Nour", phone = "+20 10 0141 3469", email = null).phone).isEqualTo("+20 10 0141 3469")
+        assertThat(TravelRequestCustomer(name = "Nour", phone = "201001413469", email = null).phone).isEqualTo("201001413469")
+        assertThat(TravelRequestCustomer(name = "Nour", phone = "(20) 100-141-3469", email = null).phone).isEqualTo("(20) 100-141-3469")
+    }
 }
 
 class TravelRequestTest {
@@ -104,6 +118,14 @@ class TravelRequestTest {
     @Test
     fun `rejects a negative children count`() {
         assertThatIllegalArgumentException().isThrownBy { create(children = -1) }
+    }
+
+    @Test
+    fun `rejects adults or children past the realistic upper bound, not just negative values`() {
+        assertThatIllegalArgumentException().isThrownBy { create(adults = TravelRequest.MAX_PARTY_COMPONENT + 1) }
+        assertThatIllegalArgumentException().isThrownBy { create(children = TravelRequest.MAX_PARTY_COMPONENT + 1) }
+        // Int.MAX_VALUE adults + 1 child used to wrap negative and silently pass a capacity check — this bound exists specifically to stop that.
+        assertThatIllegalArgumentException().isThrownBy { create(adults = Int.MAX_VALUE, children = 1) }
     }
 
     @Test

@@ -25,6 +25,11 @@ describe("Sharm To Go public foundation", () => {
     expect(wrapper.text()).toContain("3M+");
     expect(wrapper.text()).toContain("5M+");
     expect(wrapper.text()).not.toMatch(/\b[0-9]+ reviews?\b/i);
+    // "24/7 continuous support" contradicted the contact page's own honest
+    // "no published support-hours commitment yet" — fixed to a claim this
+    // product actually keeps (one point of contact, not a staffing promise).
+    expect(wrapper.text()).not.toContain("24/7");
+    expect(wrapper.text()).toContain("point of contact, from request to return");
   });
 
   it("switches the public foundation between English LTR and Arabic RTL", async () => {
@@ -56,7 +61,7 @@ describe("Sharm To Go public foundation", () => {
 
     await wrapper.get("#search-category").setValue(sampleCategory.id);
     await wrapper.get("#search-date").setValue("2099-06-15");
-    const increaseAdults = wrapper.get('button[aria-label="Continue Adults"]');
+    const increaseAdults = wrapper.get('button[aria-label="Increase Adults"]');
     await increaseAdults.trigger("click");
     await wrapper.get("form").trigger("submit");
 

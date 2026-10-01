@@ -199,12 +199,21 @@ class TravelRequestServiceTest {
         )
     }
 
+    /** The real price each seeded test option actually carries — see seedCatalog(). */
+    private fun defaultExpectedPrice(optionId: UUID): Money =
+        when (optionId) {
+            instantOptionId -> Money(BigDecimal("700.00"), "EGP")
+            staffReviewOptionId -> Money(BigDecimal("900.00"), "EGP")
+            else -> error("Unknown option id in test fixture: $optionId")
+        }
+
     private fun createCommand(
         serviceId: ServiceId,
         optionId: UUID,
         adults: Int = 2,
         children: Int = 0,
         idempotencyKey: String = UUID.randomUUID().toString(),
+        expectedPrice: Money = defaultExpectedPrice(optionId),
     ) = CreateTravelRequestCommand(
         serviceId = serviceId,
         serviceOptionId = optionId,
@@ -219,6 +228,7 @@ class TravelRequestServiceTest {
         customer = TravelRequestCustomer(name = "Nour", phone = "+201001413469", email = null),
         idempotencyKey = idempotencyKey,
         correlationId = UUID.randomUUID(),
+        expectedPrice = expectedPrice,
     )
 
     @Test
@@ -240,6 +250,27 @@ class TravelRequestServiceTest {
         check(result is CreateTravelRequestResult.Created)
         assertThat(result.request.status).isEqualTo(TravelRequestStatus.NEW)
         assertThat(result.request.confirmedAt).isNull()
+    }
+
+    @Test
+    fun `a stale expected price is rejected rather than silently confirmed at the new price`() {
+        val staleExpectedPrice = Money(BigDecimal("650.00"), "EGP") // the real option is 700.00
+        val key = UUID.randomUUID().toString()
+        val result =
+            createTravelRequestService.create(
+                createCommand(instantServiceId, instantOptionId, idempotencyKey = key, expectedPrice = staleExpectedPrice),
+            )
+
+        check(result is CreateTravelRequestResult.PriceChanged)
+        assertThat(result.currentPrice).isEqualTo(Money(BigDecimal("700.00"), "EGP"))
+        assertThat(requestRepository.findByIdempotencyKey(key)).isNull() // confirms the rejected attempt created no row at all
+    }
+
+    @Test
+    fun `an expected price matching the real current price is accepted`() {
+        val result = createTravelRequestService.create(createCommand(instantServiceId, instantOptionId))
+        check(result is CreateTravelRequestResult.Created)
+        assertThat(result.request.price).isEqualTo(Money(BigDecimal("700.00"), "EGP"))
     }
 
     @Test
@@ -266,19 +297,31 @@ class TravelRequestServiceTest {
         val executor = Executors.newFixedThreadPool(threadCount)
         val readyLatch = CountDownLatch(threadCount)
         val goLatch = CountDownLatch(1)
-        val results = java.util.concurrent.ConcurrentLinkedQueue<CreateTravelRequestResult>()
 
-        repeat(threadCount) {
-            executor.submit {
-                readyLatch.countDown()
-                goLatch.await()
-                results.add(createTravelRequestService.create(createCommand(instantServiceId, instantOptionId, idempotencyKey = key)))
+        // Futures are kept and .get() below — a worker that throws (a real
+        // concurrency bug, not just the expected AlreadyExists outcome)
+        // must fail this test loudly on the test thread, not vanish
+        // silently inside a discarded Future.
+        val futures =
+            (1..threadCount).map {
+                executor.submit(
+                    java.util.concurrent.Callable {
+                        readyLatch.countDown()
+                        goLatch.await()
+                        createTravelRequestService.create(createCommand(instantServiceId, instantOptionId, idempotencyKey = key))
+                    },
+                )
             }
-        }
         readyLatch.await(10, TimeUnit.SECONDS)
         goLatch.countDown()
+        val results = futures.map { it.get(30, TimeUnit.SECONDS) }
         executor.shutdown()
-        executor.awaitTermination(30, TimeUnit.SECONDS)
+        executor.awaitTermination(10, TimeUnit.SECONDS)
+
+        // All 8 workers must have actually completed and returned a result —
+        // not just "however many happened to add to a queue before one
+        // silently failed."
+        assertThat(results).hasSize(threadCount)
 
         fun CreateTravelRequestResult.requestId() =
             when (this) {
@@ -289,6 +332,14 @@ class TravelRequestServiceTest {
         val distinctIds = results.map { it.requestId() }.toSet()
         assertThat(distinctIds).hasSize(1)
         assertThat(results.count { it is CreateTravelRequestResult.Created }).isEqualTo(1)
+        assertThat(results.count { it is CreateTravelRequestResult.AlreadyExists }).isEqualTo(threadCount - 1)
+
+        // Authoritative check, independent of the in-memory results above:
+        // exactly one row for this idempotency key actually exists in the
+        // real database, and it is the same row every worker agreed on.
+        val persisted = requestRepository.findByIdempotencyKey(key)
+        assertThat(persisted).isNotNull()
+        assertThat(persisted!!.id).isEqualTo(distinctIds.single())
     }
 
     @Test
@@ -440,7 +491,10 @@ class TravelRequestServiceTest {
             )
         serviceRepository.save(draftService)
 
-        val result = createTravelRequestService.create(createCommand(draftService.id, draftService.options.first().id))
+        val result =
+            createTravelRequestService.create(
+                createCommand(draftService.id, draftService.options.first().id, expectedPrice = draftService.options.first().price),
+            )
         assertThat(result).isEqualTo(CreateTravelRequestResult.ServiceNotFound)
     }
 
