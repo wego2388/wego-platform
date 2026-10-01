@@ -86,6 +86,9 @@ export default defineNuxtConfig({
   // page hero). Browsers without support, and visitors who prefer reduced
   // motion, get a normal navigation.
   experimental: { viewTransition: true },
+  // Pre-compressed (gzip/brotli) copies of the client bundle, served by the
+  // Nitro node server to browsers that accept them.
+  nitro: { compressPublicAssets: true },
   typescript: { strict: true, typeCheck: true },
   vite: {
     plugins: [tailwindcss()],

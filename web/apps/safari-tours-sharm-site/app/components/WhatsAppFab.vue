@@ -19,7 +19,7 @@ const hidden = computed(() => /^\/[a-z]{2}\/(tour\/|booking\/[0-9a-f-]{36}$)/.te
     :href="whatsappUrl"
     target="_blank"
     rel="noopener"
-    class="wa-fab fixed bottom-5 end-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 font-semibold text-white shadow-xl"
+    class="wa-fab fixed bottom-5 end-5 z-50 flex items-center gap-2 rounded-full bg-[#0B7A5C] px-5 py-3 font-semibold text-white shadow-xl"
     :aria-label="label"
     @click="analytics.track('whatsapp_click', { placement: 'floating' })"
   >

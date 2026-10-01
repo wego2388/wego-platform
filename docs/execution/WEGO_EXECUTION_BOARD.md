@@ -2380,7 +2380,7 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
 
 ## WEGO-016 — Safari Tours Sharm: tours-operator product foundation
 
-- **Status:** IN PROGRESS — A–G complete; phase 4 UX-0..UX-7 complete, UX-8 ACTIVE (2026-10-01); H–I require explicit owner activation
+- **Status:** IN PROGRESS — A–G complete; phase 4 UX-0..UX-8 complete, CNT (tour content translations) ACTIVE (2026-10-01); H–I require explicit owner activation
 - **Activated:** 2026-09-27
 - **Review intensity:** Tier 1 — this packet adds a new product boundary (`products/tours-operator`), a new Flyway migration (V14), a new client isolation profile (`clients/safari-tours-sharm`), and will later touch payment/PII/auth surfaces. Every sub-packet that adds a migration, modifies auth, or handles customer payment data requires independent Tier 1 review before merge.
 - **Origin:** The owner asked to establish Safari Tours Sharm as a first-class Wego Platform product — on the same standards as Sharm Divers Club and Sharm To Go — with a public booking website, a staff ERP, a real Paymob payment flow, a production tour catalog, and an isolated deployment. The handoff document at `clients/safari-tours-sharm/handoff/SAFARI_TOURS_PRODUCTION_MATURITY_HANDOFF.md` is the authoritative reference for current maturity, open P0 issues, and the phased delivery plan.
@@ -3332,14 +3332,41 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-10-01 — WEGO-016-UX8: polish and final proof (Tier 2)
 
+- **Status:** COMPLETE (2026-10-01) — phase 4 (UX-0…UX-8) complete.
+- **Activation:** owner instruction `كمل` (2026-10-01).
+- **Review intensity:** Tier 2.
+- **Delivered:**
+  - **Accessibility:** axe WCAG 2.1 AA on 12 pages × EN/AR × light/dark
+    (48 runs) → 0 violations after fixes (category badge text, dark status
+    colours, WhatsApp button colour, definition-list structure on the tour
+    facts).
+  - **Performance:** gzip at the edge (HTML/CSS/JS/SVG/XML/text; JSON excluded
+    against BREACH) and pre-compressed client bundles from Nitro; unused
+    `motion-v` removed. Slow-4G mobile measurements: JS 610 KB → ~200 KB,
+    LCP 2.2 s → 0.7–0.8 s, CLS ≈ 0.
+  - **Robustness:** tours from a backend without price options are
+    normalised (a real client-side crash found by the new e2e test).
+  - **E2E:** `e2e/tests/safari-site.spec.ts` (11 tests: catalogue SSR,
+    URL filters, tour calendar → checkout handoff without PII, four-language
+    info pages + 404, sitemap/robots, no analytics without consent, axe on 5
+    pages) added to CI after the checkout lifecycle.
+  - **Owner preview:** 12 screenshots in `~/Downloads/safari-site-preview/`.
+- **Decisions:** no service-worker/offline booking copy — the confirmation
+  e-mail, WhatsApp and the My booking lookup cover it without keeping
+  personal data on devices; the floating WhatsApp button keeps its corner
+  (it is hidden where it would cover booking controls).
+- **Evidence:** site 118 unit tests, `pnpm run check` exit 0, Safari gate
+  passed, new e2e spec 11/11 locally against a production build, axe 0.
+
+### 2026-10-01 — WEGO-016-CNT: tour content in four languages (Tier 2)
+
 - **Status:** ACTIVE
 - **Activation:** owner standing instruction (`ابدا نفذ و سيطر علي المشروع و كمل البناء`, 2026-09-30).
-- **Review intensity:** Tier 2.
-- **Scope (FRONTEND_MASTER_PLAN_AR.md §14 UX-8):** cross-page accessibility
-  and performance pass (Lighthouse/axe on key pages, JS weight), RTL and dark
-  audit, offline copy of the last booking (moved from UX-4), WhatsApp button
-  overlap on narrow screens, e2e coverage for the new flows, final screenshot
-  set for the owner.
+- **Review intensity:** Tier 2 (content only; prices stay in migrations).
+- **Scope:** apply the owner's in-sheet answers to the EN drafts, draft
+  Arabic (and RU/IT for native review) tour content from the approved EN,
+  keep the import script ready for publishing through the revision-checked
+  staff API once a server runs; nothing published without owner sign-off.
 ---
 
 ## WEGO-017 — Foundry executable isolated client releases

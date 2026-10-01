@@ -23,7 +23,6 @@
     "@vueuse/nuxt": "15.0.0",
     "@wego/api-contract": "workspace:*",
     "@wego/design-tokens": "workspace:*",
-    "motion-v": "2.5.1",
     "nuxt": "4.5.2",
     "reka-ui": "2.10.5",
     "vue": "3.5.41"

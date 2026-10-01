@@ -46,7 +46,16 @@ function cachedApiFetch<T>(path: string): Promise<T> {
   return value;
 }
 
-export function toCatalogTour(tour: Tour): CatalogTour {
+/**
+ * Fills fields an older backend may not send yet (price basis/options were
+ * added with per-unit pricing), so pages never crash on a missing array.
+ */
+export function normalizeTour(tour: Tour): Tour {
+  return { ...tour, priceBasis: tour.priceBasis ?? "PER_PERSON", priceOptions: tour.priceOptions ?? [] };
+}
+
+export function toCatalogTour(raw: Tour): CatalogTour {
+  const tour = normalizeTour(raw);
   return {
     tour,
     name: tour.localized?.name ?? tour.nameEn ?? tour.slug,

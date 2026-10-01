@@ -150,3 +150,14 @@ describe("request-only tours", () => {
     expect(filtersToQuery({ ...filtersFromQuery({}), q: "x".repeat(200) }).q).toHaveLength(80);
   });
 });
+
+describe("tours from an older backend", () => {
+  it("get an empty price-option list instead of crashing pages", () => {
+    const legacy = { ...tour({ slug: "legacy" }) } as Record<string, unknown>;
+    delete legacy.priceBasis;
+    delete legacy.priceOptions;
+    const entry = toCatalogTour(legacy as unknown as Tour);
+    expect(entry.tour.priceBasis).toBe("PER_PERSON");
+    expect(entry.tour.priceOptions).toEqual([]);
+  });
+});

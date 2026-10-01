@@ -100,6 +100,10 @@
   --sts-color-success-soft:   #12301F;
   --sts-color-warning-soft:   #33260C;
   --sts-color-danger-soft:    #3A1614;
+  /* Status text must stay readable (WCAG AA) on the dark soft backgrounds. */
+  --sts-color-success:        #5BD18A;
+  --sts-color-warning:        #F2C46D;
+  --sts-color-danger:         #FF8A80;
   --sts-shadow-raised:  0 10px 30px rgb(0 0 0 / 0.35);
   --sts-shadow-overlay: 0 24px 64px rgb(0 0 0 / 0.55);
   color-scheme: dark;
@@ -119,6 +123,10 @@
     --sts-color-success-soft:   #12301F;
     --sts-color-warning-soft:   #33260C;
     --sts-color-danger-soft:    #3A1614;
+    /* Status text must stay readable (WCAG AA) on the dark soft backgrounds. */
+    --sts-color-success:        #5BD18A;
+    --sts-color-warning:        #F2C46D;
+    --sts-color-danger:         #FF8A80;
     --sts-shadow-raised:  0 10px 30px rgb(0 0 0 / 0.35);
     --sts-shadow-overlay: 0 24px 64px rgb(0 0 0 / 0.55);
     color-scheme: dark;

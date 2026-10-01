@@ -222,6 +222,11 @@ jobs:
           WEGO_STS_SITE_BASE_URL: http://127.0.0.1:58080
           WEGO_STS_STAFF_BASE_URL: http://staff.localhost:58080
         run: pnpm --dir e2e exec playwright test tests/safari-checkout.spec.ts
+      - name: Run the Safari public-site journeys, SEO files and accessibility checks (Playwright + axe)
+        env:
+          WEGO_E2E_BASE_URL: http://127.0.0.1:58080
+          WEGO_STS_SITE_BASE_URL: http://127.0.0.1:58080
+        run: pnpm --dir e2e exec playwright test tests/safari-site.spec.ts
       - name: Verify public booking lookup rate limiting
         run: |
           lookup_rate_limited=0

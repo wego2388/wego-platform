@@ -1,5 +1,5 @@
 import type { PublicTourContent, Tour } from "@wego/api-contract";
-import { apiFetch } from "./useCatalog";
+import { apiFetch, normalizeTour } from "./useCatalog";
 import { useSiteLocale } from "./useSiteLocale";
 
 export type { PublicTourContent };
@@ -28,7 +28,7 @@ export function useTourPage(slug: () => string) {
       });
       const contentRequest = apiFetch<PublicTourContent>(`/api/v1/tours-operator/tours/by-slug/content?${query}`).catch(() => null);
       const [tour, content] = await Promise.all([tourRequest, contentRequest]);
-      return { tour, content };
+      return { tour: normalizeTour(tour), content };
     },
     { watch: [locale] },
   );

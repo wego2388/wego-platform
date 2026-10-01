@@ -193,12 +193,11 @@ function jsonLd(value: unknown): string {
         <section v-if="quickFacts.length" class="mt-8" aria-labelledby="facts-heading">
           <h2 id="facts-heading" class="sr-only">{{ copy.facts.heading }}</h2>
           <dl class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            <div v-for="fact in quickFacts" :key="fact.label" class="flex items-start gap-3 rounded-[var(--sts-radius-control)] border border-sts-border bg-sts-surface p-4">
-              <Icon :name="fact.icon" class="mt-0.5 size-5 shrink-0 text-sts-ocean-bright" aria-hidden="true" />
-              <div>
-                <dt class="text-xs font-semibold text-sts-muted">{{ fact.label }}</dt>
-                <dd class="font-semibold">{{ fact.value }}</dd>
-              </div>
+            <div v-for="fact in quickFacts" :key="fact.label" class="relative rounded-[var(--sts-radius-control)] border border-sts-border bg-sts-surface p-4 ps-12">
+              <dt class="text-xs font-semibold text-sts-muted">
+                <Icon :name="fact.icon" class="absolute start-4 top-4.5 size-5 text-sts-ocean-bright" aria-hidden="true" />{{ fact.label }}
+              </dt>
+              <dd class="font-semibold">{{ fact.value }}</dd>
             </div>
           </dl>
         </section>
