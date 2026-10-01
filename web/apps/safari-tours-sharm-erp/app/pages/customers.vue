@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { WegoAlert, WegoButton } from "@wego/ui";
+import { WegoAlert } from "@wego/ui";
 import {
   clearAuthSession,
-  logoutAuthSession,
   hasPermission,
   readAuthSession,
   type AuthSession,
@@ -109,10 +108,6 @@ async function load() {
   }
 }
 
-async function logout() {
-  await logoutAuthSession(session.value);
-  void router.replace("/login");
-}
 
 onMounted(() => {
   session.value = readAuthSession();
@@ -122,27 +117,17 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-sts-canvas px-6 py-8 text-sts-ink sm:px-10 lg:px-16">
+  <main class="px-6 py-8 text-sts-ink sm:px-10 lg:px-16">
     <div class="mx-auto max-w-6xl">
 
       <!-- Header -->
       <header class="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <NuxtLink to="/" class="text-sm text-sts-muted hover:text-sts-ocean">← Overview</NuxtLink>
           <h1 class="mt-1 text-2xl font-semibold tracking-tight">Customers</h1>
         </div>
-        <WegoButton type="button" variant="secondary" size="sm" class="text-sts-muted" @click="logout">
-          Sign out
-        </WegoButton>
       </header>
 
       <!-- Nav -->
-      <nav class="mt-4 flex gap-4 text-sm" aria-label="Section navigation">
-        <NuxtLink to="/"         class="text-sts-muted hover:text-sts-ocean">Overview</NuxtLink>
-        <NuxtLink to="/bookings" class="text-sts-muted hover:text-sts-ocean">Bookings</NuxtLink>
-        <NuxtLink to="/tours"    class="text-sts-muted hover:text-sts-ocean">Tours</NuxtLink>
-        <NuxtLink to="/customers" class="font-semibold text-sts-ocean border-b-2 border-sts-ocean pb-0.5">Customers</NuxtLink>
-      </nav>
 
       <!-- Permission check -->
       <WegoAlert v-if="!canView" variant="danger" class="mt-6">

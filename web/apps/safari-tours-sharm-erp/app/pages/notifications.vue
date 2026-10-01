@@ -4,7 +4,6 @@ import { WegoAlert, WegoBadge, WegoButton, WegoDialog } from "@wego/ui";
 import {
   clearAuthSession,
   hasPermission,
-  logoutAuthSession,
   readAuthSession,
   type AuthSession,
 } from "../composables/useAuthSession";
@@ -117,10 +116,6 @@ async function resend(item: CustomerNotification) {
   }
 }
 
-async function logout() {
-  await logoutAuthSession(session.value);
-  void router.replace("/login");
-}
 
 onMounted(() => {
   session.value = readAuthSession();
@@ -131,17 +126,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-sts-canvas px-6 py-8 text-sts-ink sm:px-10 lg:px-16">
+  <main class="px-6 py-8 text-sts-ink sm:px-10 lg:px-16">
     <div class="mx-auto max-w-4xl">
       <header class="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <NuxtLink to="/" class="text-sm text-sts-muted hover:text-sts-ocean">← Overview</NuxtLink>
           <h1 class="mt-1 text-2xl font-semibold tracking-tight">Customer messages</h1>
           <p class="text-sm text-sts-muted">Booking confirmations, cancellations and review requests sent by email.</p>
         </div>
-        <WegoButton type="button" variant="secondary" size="sm" class="text-sts-muted" @click="logout">
-          Sign out
-        </WegoButton>
       </header>
 
       <div class="mt-6 flex flex-wrap items-end gap-3">

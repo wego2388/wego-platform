@@ -3,7 +3,6 @@ import { computed, onMounted, ref, watch } from "vue";
 import { WegoAlert, WegoButton } from "@wego/ui";
 import {
   clearAuthSession,
-  logoutAuthSession,
   hasPermission,
   readAuthSession,
   type AuthSession,
@@ -130,10 +129,6 @@ async function load() {
   }
 }
 
-async function logout() {
-  await logoutAuthSession(session.value);
-  void router.replace("/login");
-}
 
 watch(weekStart, () => { void load(); });
 
@@ -145,7 +140,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-sts-canvas px-4 py-8 text-sts-ink sm:px-8 lg:px-14">
+  <main class="px-4 py-8 text-sts-ink sm:px-8 lg:px-14">
     <div class="mx-auto max-w-7xl">
 
       <!-- Header -->
@@ -157,17 +152,9 @@ onMounted(() => {
             <span v-if="tour" class="font-mono text-sts-ocean text-lg">{{ tour.slug }}</span>
           </h1>
         </div>
-        <WegoButton type="button" variant="secondary" size="sm" class="text-sts-muted" @click="logout">
-          Sign out
-        </WegoButton>
       </header>
 
       <!-- Nav -->
-      <nav class="mt-4 flex gap-4 text-sm" aria-label="Section navigation">
-        <NuxtLink to="/"         class="text-sts-muted hover:text-sts-ocean">Overview</NuxtLink>
-        <NuxtLink to="/bookings" class="text-sts-muted hover:text-sts-ocean">Bookings</NuxtLink>
-        <NuxtLink to="/tours"    class="font-semibold text-sts-ocean">Tours</NuxtLink>
-      </nav>
 
       <!-- Error -->
       <WegoAlert v-if="loadState === 'error'" variant="danger" class="mt-6">{{ loadError }}</WegoAlert>
@@ -228,7 +215,7 @@ onMounted(() => {
                   <div
                     class="rounded-lg px-2 py-1.5 text-xs font-semibold"
                     :class="availabilityClass(slotFor(day, timeSlot))"
-                    :title="slotFor(day, timeSlot)?.isBlocked ? 'Blocked' : `${slotFor(day, timeSlot)?.available}/${slotFor(day, timeSlot)?.capacity} available`"
+                    :title="slotFor(day, timeSlot)?.isBlocked ? 'Blocked' : `${slotFor(day, timeSlot)?.available} of ${slotFor(day, timeSlot)?.capacity} places free (places = guests)`"
                   >
                     <template v-if="slotFor(day, timeSlot)?.isBlocked">Blocked</template>
                     <template v-else>

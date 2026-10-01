@@ -6,6 +6,9 @@ import {
   writeAuthSession,
 } from "../composables/useAuthSession";
 
+// The sign-in screen is full-page and has no staff navigation.
+definePageMeta({ layout: false });
+
 useHead({ title: "Sign in · Safari Tours Sharm" });
 
 const email = ref("");

@@ -3,7 +3,6 @@ import { computed, onMounted, ref } from "vue";
 import { WegoAlert, WegoButton } from "@wego/ui";
 import {
   clearAuthSession,
-  logoutAuthSession,
   hasPermission,
   readAuthSession,
   type AuthSession,
@@ -119,10 +118,6 @@ async function doComplete() {
   }
 }
 
-async function logout() {
-  await logoutAuthSession(session.value);
-  void router.replace("/login");
-}
 
 onMounted(() => {
   session.value = readAuthSession();
@@ -132,7 +127,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-sts-canvas px-6 py-8 text-sts-ink sm:px-10 lg:px-16">
+  <main class="px-6 py-8 text-sts-ink sm:px-10 lg:px-16">
     <div class="mx-auto max-w-4xl">
 
       <!-- Header -->
@@ -145,9 +140,6 @@ onMounted(() => {
             <span v-else class="text-sts-muted">…</span>
           </h1>
         </div>
-        <WegoButton type="button" variant="secondary" size="sm" class="text-sts-muted" @click="logout">
-          Sign out
-        </WegoButton>
       </header>
 
       <!-- Load error -->

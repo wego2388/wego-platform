@@ -48,7 +48,8 @@ const canComplete = computed(() => hasPermission(session.value, "tours-operator.
 const canViewTours = computed(() => hasPermission(session.value, "tours-operator.tour:view"));
 
 function tourName(tourId: string): string {
-  return toursById.value[tourId]?.slug ?? tourId.slice(0, 8);
+  const tour = toursById.value[tourId];
+  return tour?.nameEn ?? tour?.slug ?? tourId.slice(0, 8);
 }
 
 function handleApiError(err: unknown) {
@@ -147,12 +148,11 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-sts-canvas px-6 py-8 text-sts-ink sm:px-10 lg:px-16">
+  <main class="px-6 py-8 text-sts-ink sm:px-10 lg:px-16">
     <div class="mx-auto max-w-6xl">
 
       <header class="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <NuxtLink to="/" class="text-sm text-sts-muted hover:text-sts-ocean">← Overview</NuxtLink>
           <h1 class="mt-1 text-2xl font-semibold tracking-tight">Bookings</h1>
         </div>
       </header>
@@ -176,7 +176,7 @@ onMounted(async () => {
           @change="page = 0; load()"
         >
           <option value="">All tours</option>
-          <option v-for="t in allTours" :key="t.id" :value="t.id">{{ t.slug }}</option>
+          <option v-for="t in allTours" :key="t.id" :value="t.id">{{ t.nameEn ?? t.slug }}</option>
         </select>
 
         <input
@@ -238,7 +238,10 @@ onMounted(async () => {
                     {{ b.tourDate }}<br>
                     <span class="text-xs">{{ b.timeSlot }}</span>
                   </td>
-                  <td class="px-4 py-3.5">{{ b.adultsCount + b.childrenCount }}</td>
+                  <td class="px-4 py-3.5">
+                    {{ b.adultsCount + b.childrenCount }}
+                    <div v-if="b.unit" class="text-xs text-sts-muted">{{ b.unit.unitCount }} × {{ b.unit.optionLabel }}</div>
+                  </td>
                   <td class="money px-4 py-3.5 text-end font-semibold">{{ formatMoney(b.totalPrice) }}</td>
                   <td class="px-4 py-3.5">
                     <span :class="`badge badge-${b.status}`">{{ b.status }}</span>

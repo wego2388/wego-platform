@@ -3,7 +3,6 @@ import { computed, onMounted, ref } from "vue";
 import { WegoAlert, WegoButton } from "@wego/ui";
 import {
   clearAuthSession,
-  logoutAuthSession,
   hasPermission,
   readAuthSession,
   type AuthSession,
@@ -110,10 +109,6 @@ function resetFilters() {
   void load();
 }
 
-async function logout() {
-  await logoutAuthSession(session.value);
-  void router.replace("/login");
-}
 
 onMounted(() => {
   session.value = readAuthSession();
@@ -124,28 +119,18 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-sts-canvas px-6 py-8 text-sts-ink sm:px-10 lg:px-16">
+  <main class="px-6 py-8 text-sts-ink sm:px-10 lg:px-16">
     <div class="mx-auto max-w-6xl">
 
       <!-- Header -->
       <header class="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <div class="flex items-center gap-3">
-            <NuxtLink to="/" class="text-sm text-sts-muted hover:text-sts-ocean">← Overview</NuxtLink>
-          </div>
+          <div class="flex items-center gap-3"/>
           <h1 class="mt-1 text-2xl font-semibold tracking-tight">Tours</h1>
         </div>
-        <WegoButton type="button" variant="secondary" size="sm" class="text-sts-muted" @click="logout">
-          Sign out
-        </WegoButton>
       </header>
 
       <!-- Nav links -->
-      <nav class="mt-4 flex gap-4 text-sm" aria-label="Section navigation">
-        <NuxtLink to="/"         class="text-sts-muted hover:text-sts-ocean">Overview</NuxtLink>
-        <NuxtLink to="/bookings" class="text-sts-muted hover:text-sts-ocean">Bookings</NuxtLink>
-        <NuxtLink to="/tours"    class="font-semibold text-sts-ocean border-b-2 border-sts-ocean pb-0.5">Tours</NuxtLink>
-      </nav>
 
       <!-- Permission check -->
       <WegoAlert v-if="!canView" variant="danger" class="mt-6">
@@ -199,9 +184,9 @@ onMounted(() => {
                   <th scope="col" class="px-5 py-3 text-start text-xs font-semibold text-sts-muted">Name / Slug</th>
                   <th scope="col" class="px-4 py-3 text-start text-xs font-semibold text-sts-muted">Category</th>
                   <th scope="col" class="px-4 py-3 text-start text-xs font-semibold text-sts-muted">Duration</th>
-                  <th scope="col" class="px-4 py-3 text-end   text-xs font-semibold text-sts-muted">Adult price</th>
+                  <th scope="col" class="px-4 py-3 text-end   text-xs font-semibold text-sts-muted">Price</th>
                   <th scope="col" class="px-4 py-3 text-end   text-xs font-semibold text-sts-muted">Child price</th>
-                  <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-sts-muted">Capacity</th>
+                  <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-sts-muted">Places / departure</th>
                   <th scope="col" class="px-5 py-3 text-start text-xs font-semibold text-sts-muted">Status</th>
                   <th scope="col" class="px-5 py-3 text-start text-xs font-semibold text-sts-muted">Actions</th>
                 </tr>
@@ -220,9 +205,16 @@ onMounted(() => {
                     <span class="badge badge-CONFIRMED">{{ categoryLabel(tour.category) }}</span>
                   </td>
                   <td class="px-4 py-3.5 text-sts-muted">{{ tour.durationText }}</td>
-                  <td class="money px-4 py-3.5 text-end font-semibold">{{ formatMoney(tour.priceAdult) }}</td>
+                  <td class="money px-4 py-3.5 text-end font-semibold">
+                    <template v-if="tour.priceBasis === 'PER_UNIT'">
+                      <div v-for="option in tour.priceOptions" :key="option.code" class="whitespace-nowrap">
+                        {{ formatMoney(option.price) }} <span class="text-xs font-normal text-sts-muted">/ {{ option.label }} ({{ option.seatsPerUnit }})</span>
+                      </div>
+                    </template>
+                    <template v-else>{{ formatMoney(tour.priceAdult) }} <span class="text-xs font-normal text-sts-muted">/ adult</span></template>
+                  </td>
                   <td class="money px-4 py-3.5 text-end text-sts-muted">
-                    {{ tour.priceChild != null ? formatMoney(tour.priceChild) : '—' }}
+                    {{ tour.priceBasis === 'PER_UNIT' ? 'per unit' : tour.priceChild != null ? formatMoney(tour.priceChild) : '—' }}
                   </td>
                   <td class="px-4 py-3.5 text-center tabular-nums">{{ tour.capacity }}</td>
                   <td class="px-5 py-3.5">

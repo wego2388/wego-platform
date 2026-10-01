@@ -4,7 +4,6 @@ import { WegoAlert } from "@wego/ui";
 import {
   clearAuthSession,
   hasPermission,
-  logoutAuthSession,
   readAuthSession,
   type AuthSession,
 } from "../composables/useAuthSession";
@@ -29,8 +28,6 @@ const errorMsg = ref("");
 
 const canViewBookings = computed(() => hasPermission(session.value, "tours-operator.booking:view"));
 const canViewTours    = computed(() => hasPermission(session.value, "tours-operator.tour:view"));
-const canViewStaff    = computed(() =>
-  hasPermission(session.value, "identity:user-view") || hasPermission(session.value, "identity:role-view"));
 
 // Today's date (Africa/Cairo = UTC+3, use offset string for display)
 const todayIso = new Date().toLocaleDateString("sv-SE", { timeZone: "Africa/Cairo" });
@@ -57,7 +54,8 @@ const recentBookings = computed(() =>
 );
 
 function tourName(tourId: string): string {
-  return toursById.value[tourId]?.slug ?? tourId;
+  const tour = toursById.value[tourId];
+  return tour?.nameEn ?? tour?.slug ?? tourId;
 }
 
 function handleApiError(err: unknown) {
@@ -74,11 +72,6 @@ function errorText(err: unknown): string {
     return `Request failed (${err.errorCode}).`;
   }
   return "Could not reach the server.";
-}
-
-async function logout() {
-  await logoutAuthSession(session.value);
-  void router.replace("/login");
 }
 
 async function load() {
@@ -112,86 +105,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-sts-canvas px-6 py-8 text-sts-ink sm:px-10 lg:px-16">
+  <main class="px-6 py-8 text-sts-ink sm:px-10 lg:px-16">
     <div class="mx-auto max-w-6xl">
 
-      <header class="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p class="text-sm font-semibold tracking-widest text-sts-muted uppercase">
-            Safari Tours Sharm
-          </p>
-          <h1 class="mt-2 text-3xl font-semibold tracking-tight">Overview</h1>
-        </div>
-        <div class="flex items-center gap-3">
-          <span class="text-sm text-sts-muted">{{ session?.email }}</span>
-          <button
-            type="button"
-            class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
-            @click="logout"
-          >
-            Sign out
-          </button>
-        </div>
+      <header>
+        <p class="text-sm font-semibold tracking-widest text-sts-muted uppercase">Safari Tours Sharm</p>
+        <h1 class="mt-2 text-3xl font-semibold tracking-tight">Overview</h1>
       </header>
-
-      <!-- Nav -->
-      <nav class="mt-6 flex flex-wrap gap-2" aria-label="Dashboard navigation">
-        <NuxtLink
-          to="/"
-          class="rounded-xl bg-sts-ocean px-4 py-2 text-sm font-semibold text-white"
-        >
-          Overview
-        </NuxtLink>
-        <NuxtLink
-          to="/bookings"
-          class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
-        >
-          Bookings
-        </NuxtLink>
-        <NuxtLink
-          to="/tours"
-          class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
-        >
-          Tours
-        </NuxtLink>
-        <NuxtLink
-          to="/finance"
-          class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
-        >
-          Finance
-        </NuxtLink>
-        <NuxtLink
-          to="/customers"
-          class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
-        >
-          Customers
-        </NuxtLink>
-        <NuxtLink
-          to="/reviews"
-          class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
-        >
-          Reviews
-        </NuxtLink>
-        <NuxtLink
-          to="/notifications"
-          class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
-        >
-          Notifications
-        </NuxtLink>
-        <NuxtLink
-          to="/settings"
-          class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
-        >
-          Settings
-        </NuxtLink>
-        <NuxtLink
-          v-if="canViewStaff"
-          to="/staff"
-          class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2 text-sm font-semibold text-sts-ink hover:bg-sts-canvas"
-        >
-          Staff
-        </NuxtLink>
-      </nav>
 
       <WegoAlert v-if="state === 'error'" variant="danger" class="mt-6">{{ errorMsg }}</WegoAlert>
 

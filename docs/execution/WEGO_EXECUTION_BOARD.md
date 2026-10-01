@@ -2380,7 +2380,7 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
 
 ## WEGO-016 — Safari Tours Sharm: tours-operator product foundation
 
-- **Status:** IN PROGRESS — A–G complete; phase 4 UX-0..UX-5 complete, UX-6 ACTIVE (2026-10-01); H–I require explicit owner activation
+- **Status:** IN PROGRESS — A–G complete; phase 4 UX-0..UX-6 complete, UX-7 ACTIVE (2026-10-01); H–I require explicit owner activation
 - **Activated:** 2026-09-27
 - **Review intensity:** Tier 1 — this packet adds a new product boundary (`products/tours-operator`), a new Flyway migration (V14), a new client isolation profile (`clients/safari-tours-sharm`), and will later touch payment/PII/auth surfaces. Every sub-packet that adds a migration, modifies auth, or handles customer payment data requires independent Tier 1 review before merge.
 - **Origin:** The owner asked to establish Safari Tours Sharm as a first-class Wego Platform product — on the same standards as Sharm Divers Club and Sharm To Go — with a public booking website, a staff ERP, a real Paymob payment flow, a production tour catalog, and an isolated deployment. The handoff document at `clients/safari-tours-sharm/handoff/SAFARI_TOURS_PRODUCTION_MATURITY_HANDOFF.md` is the authoritative reference for current maturity, open P0 issues, and the phased delivery plan.
@@ -3273,13 +3273,41 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-10-01 — WEGO-016-UX6: Safari ERP on the design system (Tier 2)
 
+- **Status:** COMPLETE (2026-10-01)
+- **Activation:** owner instruction `UX-6` (2026-10-01).
+- **Review intensity:** Tier 2 — no money or permission logic changed.
+- **Delivered:** one staff shell for every page (brand, permission-filtered
+  navigation incl. mobile menu, signed-in user, sign-out with a visible error
+  if revocation fails, skip link); duplicated per-page headers, sign-out
+  buttons and section navs removed; sign-in screen without the shell. New
+  **Today run sheet** (`/today`): a day's paid (optionally unpaid) bookings
+  grouped by tour and departure with guests, units sold, places taken /
+  capacity, blocked flag, guest, nationality, hotel/room, party, phone +
+  WhatsApp, special requests and totals; date stepping in Cairo time, stale
+  responses discarded, cleared date ignored, print layout, mobile cards. Tours
+  list shows per-unit price options and "places / departure"; bookings list
+  shows units and tour names; slot tooltip explains places = guests.
+- **Evidence:** ERP 67 tests (3 new run-sheet tests), lint/typecheck clean,
+  `pnpm run check` exit 0, ERP production build against the Safari backend with
+  the synthetic e2e staff user: overview, today (desktop + mobile), tours and
+  bookings screenshots without console errors. Sonnet review: fixed cleared
+  date / all-dates fetch, stale-response race, silent sign-out failure,
+  doubled page height.
+- **Not done here (scoped out):** an Arabic staff interface and dark mode for
+  the ERP — the staff UI stays English on the existing ERP palette; candidate
+  for a later packet if the owner wants it. Editing price options in the ERP
+  (still migration-managed).
+
+### 2026-10-01 — WEGO-016-UX7: SEO, analytics with consent, legacy redirects (Tier 2)
+
 - **Status:** ACTIVE
 - **Activation:** owner standing instruction (`ابدا نفذ و سيطر علي المشروع و كمل البناء`, 2026-09-30).
-- **Review intensity:** Tier 2 (Tier 1 for any change to money or permissions).
-- **Scope (FRONTEND_MASTER_PLAN_AR.md §8, §14 UX-6):** staff ERP moved onto
-  the shared design tokens and components (light/dark, Arabic RTL), per-unit
-  bookings and seat-based capacity visible to staff, today's departures view,
-  tour content and price-option visibility.
+- **Review intensity:** Tier 2 (consent and tracking reviewed carefully).
+- **Scope (FRONTEND_MASTER_PLAN_AR.md §14 UX-7):** sitemap and robots,
+  canonical/hreflang audit, per-page metadata and share images, structured
+  data, 301 redirects from the old WordPress URLs to the new pages, consent
+  banner that gates GA4/Meta tags (IDs from config only, nothing loads before
+  consent), analytics events from the owner hub list.
 ---
 
 ## WEGO-017 — Foundry executable isolated client releases
