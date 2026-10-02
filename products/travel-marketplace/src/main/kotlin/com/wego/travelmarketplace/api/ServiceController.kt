@@ -104,8 +104,13 @@ class ServiceController(
         @Valid @RequestBody request: UpsertServiceRequest,
         authentication: Authentication,
     ): ResponseEntity<Any> {
+        val expectedVersion =
+            request.expectedVersion
+                ?: return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ServiceErrorResponse("expected_version_required"))
         val actorUserId = (authentication.principal as AuthenticatedUser).userId
-        return when (val result = updateServiceService.update(request.toUpdateCommand(ServiceId(id), actorUserId))) {
+        return when (
+            val result = updateServiceService.update(request.toUpdateCommand(ServiceId(id), actorUserId, expectedVersion))
+        ) {
             is UpdateServiceResult.Updated -> ResponseEntity.ok(result.service.toResponse())
             UpdateServiceResult.NotFound -> ResponseEntity.notFound().build()
             UpdateServiceResult.Archived -> ResponseEntity.status(HttpStatus.CONFLICT).body(ServiceErrorResponse("archived"))
@@ -123,6 +128,10 @@ class ServiceController(
                 ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .body(ServiceErrorResponse("would_invalidate_published_content"))
+            is UpdateServiceResult.VersionConflict ->
+                ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(ServiceErrorResponse("version_conflict", currentVersion = result.currentVersion))
         }
     }
 
@@ -238,6 +247,7 @@ private fun UpsertServiceRequest.toCommand(actorUserId: UUID?) =
 private fun UpsertServiceRequest.toUpdateCommand(
     serviceId: ServiceId,
     actorUserId: UUID?,
+    expectedVersion: Int,
 ) = UpdateServiceCommand(
     serviceId = serviceId,
     categoryId = CategoryId(categoryId),
@@ -253,6 +263,7 @@ private fun UpsertServiceRequest.toUpdateCommand(
     options = options.map { it.toDomain() },
     media = media.map { it.toDomain() },
     actorUserId = actorUserId,
+    expectedVersion = expectedVersion,
 )
 
 private fun ServiceOptionDto.toDomain(): ServiceOption =
@@ -299,4 +310,5 @@ private fun Service.toResponse() =
         createdAt = createdAt,
         publishedAt = publishedAt,
         archivedAt = archivedAt,
+        version = version,
     )

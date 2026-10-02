@@ -46,9 +46,25 @@ function stubFetch(routes: Record<string, () => Response>) {
   );
 }
 
+// `to` can be a plain string or a `{ path, query }` route object (used to
+// forward a date/party carried over from the homepage search box into each
+// service link) — resolve both the way Nuxt's real NuxtLink would.
+const NuxtLinkStub = {
+  props: ["to"],
+  computed: {
+    href(): string {
+      if (typeof this.to === "string") return this.to;
+      const query = this.to?.query ?? {};
+      const search = new URLSearchParams(query).toString();
+      return search ? `${this.to.path}?${search}` : this.to.path;
+    },
+  },
+  template: "<a :href=\"href\"><slot /></a>",
+};
+
 function mountPage() {
   return mount(ExperiencesPage, {
-    global: { stubs: { NuxtLink: { template: "<a><slot /></a>" } } },
+    global: { stubs: { NuxtLink: NuxtLinkStub } },
   });
 }
 
@@ -64,6 +80,9 @@ describe("experiences page", () => {
 
     expect(wrapper.text()).toContain("No live experiences yet");
     expect(wrapper.text()).not.toContain("Desert Safari");
+    // Every page now carries the real shared footer (privacy/terms/contact) —
+    // this page previously had none at all.
+    expect(wrapper.text()).toContain("All rights reserved");
   });
 
   it("renders real published services with category, price and operator", async () => {
@@ -117,5 +136,61 @@ describe("experiences page", () => {
     await flushPromises();
 
     expect(wrapper.get('[role="alert"]').text()).toContain("We could not reach the live catalog");
+  });
+
+  it("pre-selects the category carried over from the homepage search box, via the URL", async () => {
+    vi.stubGlobal("useRoute", () => ({ params: {}, query: { category: sampleCategory.id } }));
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = new URL(String(input), "http://localhost");
+      if (url.pathname === "/api/catalog/categories") {
+        return new Response(JSON.stringify([sampleCategory]), { status: 200 });
+      }
+      if (url.pathname === "/api/catalog/services") {
+        return new Response(JSON.stringify(url.searchParams.get("categoryId") === sampleCategory.id ? [sampleService] : []), { status: 200 });
+      }
+      return new Response("not found", { status: 404 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const wrapper = mountPage();
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Desert Safari");
+    const categoryButton = wrapper.findAll("button").find((button) => button.text() === "Sea adventures");
+    expect(categoryButton?.classes()).toContain("text-white");
+  });
+
+  it("forwards a date/party carried over from the homepage search box into each service's link, not just the category filter", async () => {
+    vi.stubGlobal("useRoute", () => ({ params: {}, query: { date: "2099-06-15", adults: "3", children: "1" } }));
+    stubFetch({
+      "/api/catalog/categories": () => new Response(JSON.stringify([sampleCategory]), { status: 200 }),
+      "/api/catalog/services": () => new Response(JSON.stringify([sampleService]), { status: 200 }),
+    });
+
+    const wrapper = mountPage();
+    await flushPromises();
+
+    const viewDetails = wrapper.findAll("a").find((link) => link.text() === "View details");
+    expect(viewDetails?.attributes("href")).toBe(`/experiences/${sampleService.id}?date=2099-06-15&adults=3&children=1`);
+  });
+
+  it("sets a real catalog-specific meta description, not the homepage's generic one", async () => {
+    stubFetch({
+      "/api/catalog/categories": () => new Response(JSON.stringify([]), { status: 200 }),
+      "/api/catalog/services": () => new Response(JSON.stringify([]), { status: 200 }),
+    });
+    let headFactory: (() => { meta: Array<{ name?: string; property?: string; content: string }> }) | undefined;
+    vi.stubGlobal("useHead", (input: typeof headFactory) => {
+      headFactory = input;
+    });
+
+    mountPage();
+    await flushPromises();
+
+    const meta = headFactory!().meta;
+    const description = meta.find((tag) => tag.name === "description");
+    const ogDescription = meta.find((tag) => tag.property === "og:description");
+    expect(description?.content).toContain("Browse real Sharm El Sheikh experiences");
+    expect(ogDescription?.content).toBe(description?.content);
   });
 });

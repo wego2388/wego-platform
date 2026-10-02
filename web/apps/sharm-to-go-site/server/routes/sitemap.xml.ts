@@ -4,13 +4,21 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const siteUrl = String(config.public.siteUrl).replace(/\/$/, "");
-  const paths = ["/", "/experiences"];
+  const paths = ["/", "/experiences", "/about", "/faq", "/contact", "/privacy", "/terms"];
 
+  // The backend paginates (default/max page size differ — 200 is the real
+  // max) — walk every page so a catalog beyond the first page is not
+  // silently missing from search indexing.
   try {
-    const response = await fetch(`${config.travelMarketplaceApiBase}/api/v1/travel-marketplace/public/services`);
-    if (response.ok) {
+    const pageSize = 200;
+    for (let page = 0; ; page += 1) {
+      const response = await fetch(
+        `${config.travelMarketplaceApiBase}/api/v1/travel-marketplace/public/services?page=${page}&size=${pageSize}`,
+      );
+      if (!response.ok) break; // static pages only for this and any later page
       const services = (await response.json()) as Array<{ id: string }>;
       for (const service of services) paths.push(`/experiences/${encodeURIComponent(service.id)}`);
+      if (services.length < pageSize) break; // last page
     }
   } catch {
     // static pages only

@@ -9,6 +9,9 @@ data class UpsertProviderRequest(
     @field:NotBlank val name: String,
     val contactEmail: String?,
     val contactPhone: String?,
+    // Null on create; required on update — see ServiceDtos.kt's
+    // UpsertServiceRequest.expectedVersion for the full reasoning.
+    val expectedVersion: Int?,
 )
 
 data class ProviderResponse(
@@ -19,8 +22,10 @@ data class ProviderResponse(
     val status: ProviderStatus,
     val createdAt: Instant,
     val archivedAt: Instant?,
+    val version: Int,
 )
 
 data class ProviderErrorResponse(
     val error: String,
+    val currentVersion: Int? = null,
 )

@@ -70,6 +70,7 @@ class JooqProviderRepository(
             .set(TRAVEL_PROVIDER.STATUS, provider.status.name)
             .set(TRAVEL_PROVIDER.CREATED_AT, toOffset(provider.createdAt))
             .set(TRAVEL_PROVIDER.ARCHIVED_AT, provider.archivedAt?.let(::toOffset))
+            .set(TRAVEL_PROVIDER.VERSION, provider.version)
             .onConflict(TRAVEL_PROVIDER.ID)
             .doUpdate()
             .set(TRAVEL_PROVIDER.NAME, provider.name)
@@ -77,6 +78,7 @@ class JooqProviderRepository(
             .set(TRAVEL_PROVIDER.CONTACT_PHONE, provider.contactPhone)
             .set(TRAVEL_PROVIDER.STATUS, provider.status.name)
             .set(TRAVEL_PROVIDER.ARCHIVED_AT, provider.archivedAt?.let(::toOffset))
+            .set(TRAVEL_PROVIDER.VERSION, provider.version)
             .execute()
     }
 
@@ -89,6 +91,7 @@ class JooqProviderRepository(
             status = ProviderStatus.valueOf(record.status),
             createdAt = record.createdAt.toInstant(),
             archivedAt = record.archivedAt?.toInstant(),
+            version = record.version,
         )
 
     private fun toOffset(instant: Instant): OffsetDateTime = OffsetDateTime.ofInstant(instant, ZoneOffset.UTC)

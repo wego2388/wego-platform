@@ -32,6 +32,7 @@ class Service(
     val createdAt: Instant,
     publishedAt: Instant?,
     archivedAt: Instant?,
+    val version: Int,
 ) {
     var status: ServiceStatus = status
         private set
@@ -110,6 +111,14 @@ class Service(
         archivedAt = now
     }
 
+    /**
+     * [version] is bumped here, not by the repository — the caller
+     * (`UpdateServiceService`) already compared [version] against the
+     * version the editor loaded, inside the same `findByIdForUpdate`-locked
+     * transaction that produced this aggregate, so by the time this method
+     * runs the bump is safe and unconditional; the repository just persists
+     * whatever value it's given, the same way it persists [status].
+     */
     fun withUpdatedDetails(
         categoryId: CategoryId,
         name: LocalizedText,
@@ -142,6 +151,7 @@ class Service(
             createdAt = createdAt,
             publishedAt = publishedAt,
             archivedAt = archivedAt,
+            version = version + 1,
         )
 
     companion object {
@@ -179,6 +189,7 @@ class Service(
                 createdAt = now,
                 publishedAt = null,
                 archivedAt = null,
+                version = 1,
             )
     }
 }

@@ -22,6 +22,7 @@ import com.wego.travelmarketplace.domain.ServiceStatus
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -32,7 +33,18 @@ import java.util.UUID
 class JooqServiceRepository(
     private val dsl: DSLContext,
 ) : ServiceRepository {
-    @Transactional(readOnly = true)
+    // REPEATABLE_READ, not the default READ COMMITTED: toDomain() below
+    // makes 3 separate SELECTs (service row, then options, then media).
+    // Under READ COMMITTED, each one gets its own fresh snapshot, so a
+    // save() that lands between them (it deletes+reinserts options/media)
+    // can produce a mixed-generation read — old service fields with new
+    // options, or vice versa. REPEATABLE_READ gives every statement in
+    // this one transaction a single consistent snapshot from its start
+    // instead, which is what a public-facing catalog read actually needs.
+    // Safe to apply broadly here: these are read-only transactions, so
+    // none of Postgres's REPEATABLE_READ write-write serialization-failure
+    // behavior applies.
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     override fun findById(id: ServiceId): Service? =
         dsl
             .selectFrom(TRAVEL_SERVICE)
@@ -49,7 +61,9 @@ class JooqServiceRepository(
             .fetchOne()
             ?.let { toDomain(it) }
 
-    @Transactional(readOnly = true)
+    // See findById's own comment on REPEATABLE_READ — same reasoning applies
+    // here: fetchMany() below calls toDomain() once per row.
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     override fun findAll(
         status: ServiceStatus?,
         categoryId: CategoryId?,
@@ -62,7 +76,7 @@ class JooqServiceRepository(
         return fetchMany(condition, limit, offset)
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     override fun findAllPublished(
         categoryId: CategoryId?,
         limit: Int,
@@ -73,7 +87,7 @@ class JooqServiceRepository(
         return fetchMany(condition, limit, offset)
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     override fun findPublishedById(id: ServiceId): Service? =
         dsl
             .selectFrom(TRAVEL_SERVICE)
@@ -128,6 +142,7 @@ class JooqServiceRepository(
             .set(TRAVEL_SERVICE.CREATED_AT, toOffset(service.createdAt))
             .set(TRAVEL_SERVICE.PUBLISHED_AT, service.publishedAt?.let(::toOffset))
             .set(TRAVEL_SERVICE.ARCHIVED_AT, service.archivedAt?.let(::toOffset))
+            .set(TRAVEL_SERVICE.VERSION, service.version)
             .onConflict(TRAVEL_SERVICE.ID)
             .doUpdate()
             .set(TRAVEL_SERVICE.CATEGORY_ID, service.categoryId.value)
@@ -149,6 +164,7 @@ class JooqServiceRepository(
             .set(TRAVEL_SERVICE.STATUS, service.status.name)
             .set(TRAVEL_SERVICE.PUBLISHED_AT, service.publishedAt?.let(::toOffset))
             .set(TRAVEL_SERVICE.ARCHIVED_AT, service.archivedAt?.let(::toOffset))
+            .set(TRAVEL_SERVICE.VERSION, service.version)
             .execute()
 
         // Small, fully-owned child collections: replace-in-place, same
@@ -274,6 +290,7 @@ class JooqServiceRepository(
             createdAt = record.createdAt.toInstant(),
             publishedAt = record.publishedAt?.toInstant(),
             archivedAt = record.archivedAt?.toInstant(),
+            version = record.version,
         )
 
     private fun toOffset(instant: Instant): OffsetDateTime = OffsetDateTime.ofInstant(instant, ZoneOffset.UTC)

@@ -9,13 +9,21 @@ vi.stubGlobal("defineEventHandler", <T>(handler: T) => handler);
 
 beforeEach(() => {
   vi.stubGlobal("useHead", () => {});
-  vi.stubGlobal("useRoute", () => ({ params: {} }));
+  vi.stubGlobal("useRoute", () => ({ params: {}, query: {} }));
+  vi.stubGlobal("useRouter", () => ({ push: () => {}, replace: () => {} }));
   vi.stubGlobal("useRuntimeConfig", () => ({ travelMarketplaceApiBase: "http://localhost:8081" }));
   vi.stubGlobal("getQuery", (event: { query?: Record<string, unknown> }) => event.query ?? {});
   vi.stubGlobal("getRouterParam", (event: { params?: Record<string, string> }, name: string) => event.params?.[name]);
   vi.stubGlobal("setResponseStatus", () => {});
+  vi.stubGlobal("setResponseHeader", () => {});
+  vi.stubGlobal("getHeader", (event: { headers?: Record<string, string> }, name: string) => event.headers?.[name]);
+  vi.stubGlobal("readBody", async (event: { body?: unknown }) => event.body);
   vi.stubGlobal("createError", (input: { statusCode?: number; statusMessage?: string }) => {
     const error = new Error(input.statusMessage ?? "Error");
     return Object.assign(error, input);
   });
+  // useSiteLocale persists the chosen locale to localStorage by design — real
+  // behavior across page loads for a real visitor, but it must not leak from
+  // one test to the next.
+  localStorage.clear();
 });

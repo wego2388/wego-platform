@@ -85,6 +85,9 @@ class CategoryController(
         @Valid @RequestBody request: UpsertCategoryRequest,
         authentication: Authentication,
     ): ResponseEntity<Any> {
+        val expectedVersion =
+            request.expectedVersion
+                ?: return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CategoryErrorResponse("expected_version_required"))
         val actorUserId = (authentication.principal as AuthenticatedUser).userId
         return when (
             val result =
@@ -96,6 +99,7 @@ class CategoryController(
                         request.description?.toDomain(),
                         request.displayOrder,
                         actorUserId,
+                        expectedVersion,
                     ),
                 )
         ) {
@@ -103,6 +107,10 @@ class CategoryController(
             UpdateCategoryResult.NotFound -> ResponseEntity.notFound().build()
             UpdateCategoryResult.Archived -> ResponseEntity.status(HttpStatus.CONFLICT).body(CategoryErrorResponse("archived"))
             UpdateCategoryResult.CodeImmutable -> ResponseEntity.status(HttpStatus.CONFLICT).body(CategoryErrorResponse("code_immutable"))
+            is UpdateCategoryResult.VersionConflict ->
+                ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(CategoryErrorResponse("version_conflict", currentVersion = result.currentVersion))
         }
     }
 
@@ -135,4 +143,5 @@ private fun Category.toResponse() =
         status = status,
         createdAt = createdAt,
         archivedAt = archivedAt,
+        version = version,
     )

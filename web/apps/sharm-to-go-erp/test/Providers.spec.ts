@@ -19,6 +19,7 @@ const sampleProvider = {
   contactEmail: "ops@example.com",
   status: "ACTIVE",
   createdAt: "2026-09-02T00:00:00Z",
+  version: 3,
 };
 
 describe("providers page", () => {
@@ -132,5 +133,58 @@ describe("providers page", () => {
     await flushPromises();
 
     expect(wrapper.get('[role="alert"]').text()).toBe("That provider is already archived.");
+  });
+
+  it("editing a provider sends back the version it loaded as expectedVersion", async () => {
+    seedSession(["provider:view", "provider:manage"]);
+    const putBodies: Array<{ expectedVersion?: number }> = [];
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === "PUT") {
+        putBodies.push(JSON.parse(String(init.body)));
+        return new Response(JSON.stringify({ ...sampleProvider, name: "Renamed Diving Co", version: 4 }), { status: 200 });
+      }
+      return new Response(JSON.stringify([sampleProvider]), { status: 200 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const wrapper = mount(ProvidersPage);
+    await flushPromises();
+
+    const editButton = wrapper.findAll("button").find((button) => button.text() === "Edit");
+    await editButton?.trigger("click");
+    await flushPromises();
+    await wrapper.get("#name").setValue("Renamed Diving Co");
+    await wrapper.get("form").trigger("submit.prevent");
+    await flushPromises();
+
+    expect(putBodies).toHaveLength(1);
+    expect(putBodies[0]?.expectedVersion).toBe(3);
+    expect(wrapper.text()).toContain("Renamed Diving Co");
+  });
+
+  it("shows a real conflict error, not a silent overwrite, when someone else saved a provider first", async () => {
+    seedSession(["provider:view", "provider:manage"]);
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === "PUT") {
+        return new Response(JSON.stringify({ error: "version_conflict", currentVersion: 4 }), { status: 409 });
+      }
+      return new Response(JSON.stringify([sampleProvider]), { status: 200 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const wrapper = mount(ProvidersPage);
+    await flushPromises();
+
+    const editButton = wrapper.findAll("button").find((button) => button.text() === "Edit");
+    await editButton?.trigger("click");
+    await flushPromises();
+    await wrapper.get("#name").setValue("Renamed Diving Co");
+    await wrapper.get("form").trigger("submit.prevent");
+    await flushPromises();
+
+    expect(wrapper.get('[role="alert"]').text()).toBe(
+      "Someone else saved changes to this provider while you were editing. Reload it and redo your changes.",
+    );
+    expect(wrapper.text()).not.toContain("Renamed Diving Co");
   });
 });

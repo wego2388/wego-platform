@@ -7,9 +7,11 @@ import {
   listCategories,
   listProviders,
   listServices,
+  listTravelRequests,
   type Provider,
   type Service,
   type ServiceStatus,
+  type TravelRequest,
 } from "../composables/useTravelMarketplaceApi";
 
 definePageMeta({ layout: "app-shell" });
@@ -23,12 +25,35 @@ const session = ref<AuthSession | null>(null);
 const services = ref<Service[] | null>(null);
 const categories = ref<Category[] | null>(null);
 const providers = ref<Provider[] | null>(null);
+const travelRequests = ref<TravelRequest[] | null>(null);
 const dashboardError = ref("");
 
 const statusCounts = computed(() => {
   const counts: Record<ServiceStatus, number> = { DRAFT: 0, REVIEW: 0, APPROVED: 0, PUBLISHED: 0, SUSPENDED: 0, ARCHIVED: 0 };
   for (const service of services.value ?? []) counts[service.status] += 1;
   return counts;
+});
+
+// Computed from the 50 most-recently-created requests, same accepted
+// limitation as statusCounts above for services — an exhaustive count would
+// need a dedicated aggregate endpoint, not yet built.
+const requestCounts = computed(() => {
+  const today = new Date().toISOString().slice(0, 10);
+  let newCount = 0;
+  let inReview = 0;
+  let confirmed = 0;
+  let upcoming = 0;
+  let exceptions = 0;
+  for (const request of travelRequests.value ?? []) {
+    if (request.status === "NEW") newCount += 1;
+    if (request.status === "IN_REVIEW") inReview += 1;
+    if (request.status === "CONFIRMED") {
+      confirmed += 1;
+      if (request.requestedDate >= today) upcoming += 1;
+    }
+    if (request.status === "CANCELLED" || request.status === "EXPIRED") exceptions += 1;
+  }
+  return { newCount, inReview, confirmed, upcoming, exceptions };
 });
 
 async function loadDashboard() {
@@ -48,6 +73,9 @@ async function loadDashboard() {
     // ServiceQueryService's own real authorization.
     if (hasPermission(session.value, "service:view")) {
       tasks.push(listCategories(token, { status: "ACTIVE" }).then((data) => void (categories.value = data)));
+    }
+    if (hasPermission(session.value, "travel-request:view")) {
+      tasks.push(listTravelRequests(token, { size: 50 }).then((data) => void (travelRequests.value = data)));
     }
     await Promise.all(tasks);
   } catch {
@@ -73,6 +101,21 @@ onMounted(() => {
     <WegoAlert v-if="dashboardError" variant="danger" class="mt-4">{{ dashboardError }}</WegoAlert>
 
     <div class="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <WegoPanel v-if="travelRequests" title="Requests">
+        <div class="flex flex-wrap gap-2">
+          <WegoBadge v-if="requestCounts.newCount > 0" tone="warning">{{ requestCounts.newCount }} New</WegoBadge>
+          <WegoBadge v-if="requestCounts.inReview > 0" tone="accent">{{ requestCounts.inReview }} In review</WegoBadge>
+          <WegoBadge v-if="requestCounts.confirmed > 0" tone="success">{{ requestCounts.confirmed }} Confirmed</WegoBadge>
+          <WegoBadge v-if="requestCounts.exceptions > 0" tone="danger">{{ requestCounts.exceptions }} Cancelled/expired</WegoBadge>
+        </div>
+        <p class="mt-2 text-sm text-wego-muted">{{ requestCounts.upcoming }} confirmed, today or upcoming.</p>
+        <p v-if="travelRequests.length === 0" class="mt-2 text-sm text-wego-muted">No requests yet.</p>
+        <p v-else-if="travelRequests.length >= 50" class="mt-2 text-xs text-wego-warning">
+          Counts above are from the 50 most recent requests only — there may be more. Not an exhaustive total.
+        </p>
+        <NuxtLink to="/requests" class="mt-4 inline-block text-sm font-semibold text-wego-accent underline">View requests</NuxtLink>
+      </WegoPanel>
+
       <WegoPanel v-if="services" title="Services by status">
         <div class="flex flex-wrap gap-2">
           <WegoBadge v-if="statusCounts.PUBLISHED > 0" tone="success">{{ statusCounts.PUBLISHED }} Published</WegoBadge>
@@ -99,7 +142,7 @@ onMounted(() => {
       </WegoPanel>
     </div>
 
-    <p v-if="!services && !categories && !providers && !dashboardError" class="mt-4 text-sm text-wego-muted">
+    <p v-if="!services && !categories && !providers && !travelRequests && !dashboardError" class="mt-4 text-sm text-wego-muted">
       Your account doesn't hold permission to view any catalog summary widget yet.
     </p>
 

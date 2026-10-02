@@ -33,6 +33,11 @@ function blankForm() {
 
 const form = ref(blankForm());
 const editingProviderId = ref<string | null>(null);
+// The version the edit form was loaded against — sent back as
+// expectedVersion so a save against a provider someone else already
+// changed is rejected (409 version_conflict) instead of silently
+// overwriting it.
+const editingProviderVersion = ref<number | null>(null);
 const formState = ref<"idle" | "submitting" | "error">("idle");
 const formError = ref("");
 
@@ -54,6 +59,10 @@ function errorText(error: unknown): string {
     if (error.status === 401) return "Your session has expired. Please sign in again.";
     if (error.status === 403) return "You don't have permission for this.";
     if (error.errorCode === "already_archived") return "That provider is already archived.";
+    if (error.errorCode === "version_conflict") {
+      return "Someone else saved changes to this provider while you were editing. Reload it and redo your changes.";
+    }
+    if (error.errorCode === "expected_version_required") return "Reload this provider and try again.";
     if (error.status === 404) return "Not found.";
     if (error.status === 400) return "Check the form — a provider needs a name and an email or a phone number.";
     return `Request failed (${error.errorCode}).`;
@@ -105,6 +114,7 @@ function runSearch() {
 
 function startEdit(provider: Provider) {
   editingProviderId.value = provider.id;
+  editingProviderVersion.value = provider.version;
   form.value = { name: provider.name, contactEmail: provider.contactEmail ?? "", contactPhone: provider.contactPhone ?? "" };
   formState.value = "idle";
   formError.value = "";
@@ -112,6 +122,7 @@ function startEdit(provider: Provider) {
 
 function cancelEdit() {
   editingProviderId.value = null;
+  editingProviderVersion.value = null;
   form.value = blankForm();
   formState.value = "idle";
   formError.value = "";
@@ -122,6 +133,7 @@ function buildRequestBody(): UpsertProviderBody {
     name: form.value.name,
     contactEmail: form.value.contactEmail || undefined,
     contactPhone: form.value.contactPhone || undefined,
+    expectedVersion: editingProviderId.value ? (editingProviderVersion.value ?? undefined) : undefined,
   };
 }
 

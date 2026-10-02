@@ -2,20 +2,29 @@
 import { computed, onMounted, ref } from "vue";
 import MockPhoto from "../../components/MockPhoto.vue";
 import SiteSubHeader from "../../components/SiteSubHeader.vue";
+import SiteFooter from "../../components/SiteFooter.vue";
 import { accentForIndex, toneForIndex } from "../../content/categoryAccents";
-import { directionFor, type SharmLocale, siteCopy } from "../../content/locales";
 import { vReveal } from "../../composables/useScrollReveal";
+import { useSiteLocale } from "../../composables/useSiteLocale";
 import {
   listPublicCategories,
   listPublicServices,
+  priceBasisLabel,
   type PublicCategory,
   type PublicService,
   startingPrice,
 } from "../../composables/usePublicCatalog";
 
-const locale = ref<SharmLocale>("en");
-const copy = computed(() => siteCopy[locale.value]);
-const direction = computed(() => directionFor(locale.value));
+const { locale, copy, direction, toggleLocale } = useSiteLocale();
+
+// No per-page description existed before this — every page silently
+// inherited app.vue's one fixed og:description, so a shared catalog link
+// and a shared homepage link looked identical in search/social previews.
+const pageDescription = computed(() =>
+  locale.value === "ar"
+    ? "تصفّح تجارب شرم الشيخ الحقيقية اللي شرم تو جو بتشغّلها وتنسّقها مباشرة — غطس، رحلات صحراوية، جولات بحرية، وأكتر."
+    : "Browse real Sharm El Sheikh experiences that Sharm To Go operates and coordinates directly — diving, desert trips, boat tours, and more.",
+);
 
 useHead(() => ({
   title: locale.value === "ar" ? "التجارب · Sharm To Go" : "Experiences · Sharm To Go",
@@ -23,15 +32,34 @@ useHead(() => ({
     dir: direction.value,
     lang: locale.value,
   },
+  meta: [
+    { name: "description", content: pageDescription.value },
+    { property: "og:description", content: pageDescription.value },
+  ],
 }));
 
-function toggleLocale() {
-  locale.value = locale.value === "en" ? "ar" : "en";
-}
+const route = useRoute();
+const router = useRouter();
+
+// Carried over from the homepage search box (or a previous visit to this
+// page) — not catalog filters themselves (the backend only filters by
+// category), but forwarded into each service link so a date/party already
+// given once does not have to be re-entered on the request form.
+const searchDate = ref(typeof route.query.date === "string" ? route.query.date : "");
+const searchAdults = ref(typeof route.query.adults === "string" ? route.query.adults : "");
+const searchChildren = ref(typeof route.query.children === "string" ? route.query.children : "");
+
+const forwardedQuery = computed<Record<string, string>>(() => {
+  const query: Record<string, string> = {};
+  if (searchDate.value) query.date = searchDate.value;
+  if (searchAdults.value) query.adults = searchAdults.value;
+  if (searchChildren.value) query.children = searchChildren.value;
+  return query;
+});
 
 const categories = ref<PublicCategory[]>([]);
 const services = ref<PublicService[]>([]);
-const selectedCategoryId = ref<string>("");
+const selectedCategoryId = ref<string>(typeof route.query.category === "string" ? route.query.category : "");
 const state = ref<"loading" | "loaded" | "error">("loading");
 
 function categoryName(categoryId: string): string {
@@ -56,13 +84,10 @@ async function loadServices() {
 async function selectCategory(categoryId: string) {
   selectedCategoryId.value = categoryId;
   state.value = "loading";
+  const query = { ...forwardedQuery.value };
+  if (categoryId) query.category = categoryId;
+  router.replace({ path: "/experiences", query });
   await loadServices();
-}
-
-function priceBasisLabel(basis: string): string {
-  if (basis === "PER_GROUP") return copy.value.browse.perGroup;
-  if (basis === "PER_VEHICLE") return copy.value.browse.perVehicle;
-  return copy.value.browse.perPerson;
 }
 
 onMounted(async () => {
@@ -76,7 +101,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas text-sharm-ink">
+  <main id="main-content" :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas text-sharm-ink">
     <div class="sharm-hero border-b border-black/5 px-6 py-8 lg:px-10">
       <div class="mx-auto max-w-6xl">
         <SiteSubHeader back-label="Sharm To Go" back-to="/" :direction="direction" :locale-label="copy.languageName" @toggle-locale="toggleLocale" />
@@ -141,10 +166,10 @@ onMounted(async () => {
             <p v-if="service.media.length > 0" class="mt-1 text-xs text-sharm-muted">{{ copy.browse.photoCount(service.media.length) }}</p>
             <p v-if="startingPrice(service)" class="mt-4 text-base font-semibold text-sharm-sea">
               {{ copy.browse.fromPrice }} {{ startingPrice(service)?.priceCurrency }} {{ startingPrice(service)?.priceAmount }}
-              <span class="text-xs font-normal text-sharm-muted">{{ priceBasisLabel(startingPrice(service)?.priceBasis ?? "PER_PERSON") }}</span>
+              <span class="text-xs font-normal text-sharm-muted">{{ priceBasisLabel(startingPrice(service)?.priceBasis ?? "PER_PERSON", copy.browse) }}</span>
             </p>
             <NuxtLink
-              :to="`/experiences/${service.id}`"
+              :to="{ path: `/experiences/${service.id}`, query: forwardedQuery }"
               class="mt-4 inline-flex justify-center rounded-full border border-sharm-sea bg-sharm-surface px-5 py-2.5 text-sm font-semibold text-sharm-sea"
             >
               {{ copy.browse.viewDetails }}
@@ -154,16 +179,11 @@ onMounted(async () => {
       </div>
 
       <div class="mt-10 flex flex-wrap gap-3">
-        <NuxtLink to="/booking-preview" class="inline-flex rounded-full bg-sharm-sea px-6 py-3 font-semibold text-white">
-          {{ copy.catalog.previewBooking }}
-        </NuxtLink>
-        <NuxtLink to="/design-system" class="inline-flex rounded-full border border-sharm-border bg-sharm-surface px-6 py-3 font-semibold text-sharm-sea">
-          {{ copy.catalog.viewSystem }}
-        </NuxtLink>
-        <NuxtLink to="/" class="inline-flex rounded-full border border-sharm-border bg-sharm-surface px-6 py-3 font-semibold text-sharm-sea">
+        <NuxtLink to="/" class="inline-flex rounded-full bg-sharm-sea px-6 py-3 font-semibold text-white">
           {{ copy.catalog.back }}
         </NuxtLink>
       </div>
     </section>
+    <SiteFooter :locale="locale" />
   </main>
 </template>

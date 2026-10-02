@@ -60,8 +60,56 @@ git pull && docker compose ... up --build --wait -d      # migrations apply on s
 Flyway migrations are forward-only: roll back application code by checking out
 the previous release and rebuilding; do not edit an applied migration.
 
+## Backup and restore drill
+
+```bash
+scripts/sharm-to-go-backup.sh
+```
+
+Dumps the real `postgres` service (via `docker compose exec`) to a local,
+timestamped, `pg_dump --format=custom` file under `backups/sharm-to-go/`
+(override with `STG_BACKUP_DIR`), keeping the most recent 14 by default
+(`STG_BACKUP_RETENTION`). **Local only** — this VPS has nowhere else to put
+it yet; see "Not covered here" below. A backup nobody has ever restored is
+not a real backup, so rehearse it against a throwaway container, never the
+live database:
+
+```bash
+scripts/sharm-to-go-restore-drill.sh backups/sharm-to-go/sharm-to-go-<timestamp>.pgdump
+```
+
+Boots a throwaway `postgres:18.4-alpine` container, restores the file into
+it, confirms the `wego` schema actually has tables, then tears the
+container down. **Verified for real** (not just read): run end to end
+against a real Postgres container with a seeded table and rows, confirming
+both the table and the exact row contents survive the dump/restore
+round-trip, and that the throwaway container is removed afterward either
+way (success or failure).
+
+Neither script is wired to a schedule (cron/systemd timer) yet — see below.
+
+## Health check
+
+```bash
+scripts/sharm-to-go-health.sh <site-domain> <admin-domain>
+```
+
+Runs the same four checks this runbook's own "Verify" section above curls
+by hand, as one repeatable, scriptable command: the public site's
+`robots.txt` and `sitemap.xml`, the backend (reached indirectly through the
+site's own catalog proxy — a 502 there means the backend is unreachable,
+not just that the site itself is up), and the staff ERP's login page.
+Prints `OK`/`FAIL` per check and exits non-zero if anything failed, so it
+can be wired into cron or any alerting channel later — it sends no alert
+itself; see "Not covered here" below. **Verified for real**: run against a
+real local HTTP server for all three failure modes (unreachable host, wrong
+response content, and a mixed pass/fail run), plus the full success path.
+
 ## Not covered here (owner/ops decisions still open)
 
-Automated Postgres backups and restore drills, monitoring/alerting, log
-shipping, off-box secret storage, and payment-provider secrets (no payment
-integration exists yet — see `clients/sharm-to-go/design/PAYMENT_FOUNDATION.md`).
+Off-box backup storage (S3, rsync to a second box, etc. — the backup
+script above produces a local file only), a backup/health-check schedule
+(cron/systemd timer), an actual alerting channel for the health check to
+notify (Slack/email/etc.), log shipping, off-box secret storage, and
+payment-provider secrets (no payment integration exists yet — see
+`clients/sharm-to-go/design/PAYMENT_FOUNDATION.md`).

@@ -16,7 +16,7 @@ Rule: exactly one implementation packet may be `ACTIVE` in a worktree. Parent mi
 | WEGO-007 | Proven automation recipes and operations surface (Wego Flow) | NOT AUTHORIZED — roadmap only |
 | WEGO-008 | Wego Growth Command Center and first end-to-end channel | NOT AUTHORIZED — roadmap only |
 | WEGO-009 | Safe omnichannel auto-response and Growth Copilot | NOT AUTHORIZED — roadmap only |
-| WEGO-010 | Travel Marketplace product and Sharm To Go client foundation | IN PROGRESS |
+| WEGO-010 | Travel Marketplace product and Sharm To Go client foundation | NOT AUTHORIZED — paused for WEGO-016 |
 | WEGO-011 | DiveOS Phase 1: real diver profiles (certifications, dive log summary, medical/emergency contact, equipment sizing) | COMPLETE |
 | WEGO-012 | Platform administration: staff accounts/RBAC, a real super-admin dashboard, HR (employees, attendance, leave, payroll), and a full double-entry accounting module | COMPLETE |
 | WEGO-013 | Platform hardening: fix CI's first real run against `main`, mobile CI build coverage, client onboarding runbook | COMPLETE |
@@ -214,7 +214,20 @@ provider constraints are revalidated against the implemented repository.
 
 ## WEGO-010-A — Travel Marketplace composition and Sharm To Go client foundation
 
-- **Status:** ACTIVE
+- **Status:** ACTIVE (reactivated 2026-09-30, scoped to this worktree)
+- **Paused (2026-09-27 → 2026-09-30):** This isolated continuation worktree
+  was aligned with the repository's coordination state while WEGO-016 (Safari
+  Tours Sharm) was the active mission in the separate `wego-foundry-isolation`
+  checkout. The branch and its two local-only continuation commits were
+  preserved unchanged during the pause.
+- **Reactivated (2026-09-30):** The owner explicitly authorized resuming work
+  here ("انا بعطي لك تريح مني و موافقه و موكلك انت تعمل الصح و المظبوط...
+  ابداء هندل و ظبط شرم تو جو"). Per `AGENTS.md`, the single-active-packet
+  invariant is scoped per implementation worktree — WEGO-016 remains
+  independently active in its own separate worktree, so both are active at
+  once without conflict. See the dated 2026-09-30 entry below and
+  `clients/sharm-to-go/ROADMAP_AR.md` for the reorganization this reactivation
+  started with.
 - **Pause note (2026-08-29):** The owner redirected active priority to WEGO-011 (DiveOS diver profiles) while this packet's own implementing session was idle, so this and WEGO-011 are never both `ACTIVE` at once — the repository's own single-active-packet invariant still holds. Nothing in this packet's scope, code, or documentation was touched; its independent Tier 1 review is still outstanding and its Phase 1 business content is still blocked on real service data. Resume by flipping this line back to `ACTIVE` and pausing/completing whatever else is active at that time.
 - **Resumed (2026-09-02):** The owner explicitly asked to resume this packet ("عايز اعمل المشروع ده بدون ما ياثر علي مشروع شرم دايفرز كلوب") and confirmed closing WEGO-011 `COMPLETE` (see that packet's own 2026-09-02 entry) specifically to free the board's single-`ACTIVE` slot back to this one. Work resumed with Packet 0R — see the dated entry below — in an isolated worktree (`.claude/worktrees/wego-010a-0r-isolation`) per the owner's own explicit choice, matching the WEGO-012 precedent for genuinely parallel packets.
 - **Review intensity:** Tier 1 — this packet establishes a second product/client composition and therefore changes an explicit client-isolation boundary. It does not add booking, payment, or PII persistence, but the composition resolver itself must still receive independent adversarial review before completion.
@@ -508,6 +521,871 @@ provider constraints are revalidated against the implemented repository.
 - **Verified for real:** site 24/24 tests (including the updated identity test), typecheck, lint; ERP 37/37 tests, typecheck (a separate, confirmed pre-existing `vue/no-multiple-template-root` lint failure surfaced when linting the ERP app in isolation, on three page files this round never touched — the authoritative root `pnpm run check` / `pnpm run lint` that CI actually runs reports zero errors on the exact same tree, so this is a latent per-package-vs-root config quirk, not a regression, and out of scope to fix here); full `pnpm run check` across all 6 web packages clean. Mobile: real Android debug APK built, `lintDebug` clean, full workspace re-run (`shared`/`ops`/`customer`/`customer-android`/`sharm-to-go`/`sharm-to-go-android`) clean. Real production builds of both web apps were served and screenshotted live (header mark on the site, sidebar/top-bar mark on the ERP at both mobile and desktop widths) — not just asserted by tests.
 - **Rollback considerations:** binary asset + small template/config changes across `sharm-to-go-site`, `sharm-to-go-erp`, `sharm-to-go-android`, and the design register; no backend, schema or shared-package change.
 - **Next:** nothing blocking — this closes the "logo" gap the owner raised. Real service photography remains the one deferred visual-asset item.
+
+### 2026-09-30 — Reactivation and Phase 0 reorganization (self-verified, Tier 2 — documentation and Git hygiene only)
+
+- **Status:** `ACTIVE`. The owner explicitly authorized resuming Sharm To Go
+  in this worktree, in the session's own judgment ("انا بعطي لك تريح مني و
+  موافقه و موكلك انت تعمل الصح و المظبوط... ابداء هندل و ظبط شرم تو جو"),
+  after a side-by-side review of this packet against Safari Tours Sharm's
+  now-cleaner `ROADMAP_AR.md`-based organization.
+- **What was found:** `worktree-wego-010a-0r-isolation` had two real commits
+  (`4be891e` brand/marketing-and-booking alignment, `aff1a27` the 7-phase
+  delivery workbook) that existed only on local disk — no upstream configured,
+  not present on `origin/wego-010a-sharm-to-go` or `origin/main`. Separately,
+  the client's planning documentation had sprawled across 10+ files with no
+  single canonical source (`CLAUDE_HANDOFF.md`, `EXECUTION_PLAN.md`,
+  `PRODUCT_BLUEPRINT.md`, `MARKETPLACE_EXPANSION_PLAN.md`,
+  `CONVERSION_DELIVERY_PLAN.md`, `BRAND_AND_GROWTH_STRATEGY.md`, the 8-file
+  `delivery/` workbook, the 3-file `handoff/` directory), several still
+  asserting the 2026-09-29 `PAUSED` state as current.
+- **What was done:**
+  - Verified `origin/main`'s two merge commits ahead of this branch's base
+    (`3a9a297`) are empty diffs (PR #39/#40 merged content already identical
+    to that base) — zero file-level conflict risk confirmed before touching
+    anything.
+  - Pushed the branch to `origin/wego-010a-sharm-to-go` (fast-forward,
+    non-destructive) so the two previously-local-only commits are backed up.
+  - Added `clients/sharm-to-go/ROADMAP_AR.md` as the single canonical
+    phase-order/status source, mirroring `clients/safari-tours-sharm/ROADMAP_AR.md`'s
+    format exactly: a work-location table (including the intentionally-empty
+    future client-delivery repo `github.com/wego2388/sharm-to-go`, same
+    pattern as `safari-tours-sharm`), `[x]/[~]/[ ]/[!]` evidence markers, the
+    existing 7-phase delivery workbook condensed and re-ordered under it
+    (Phase 1 = real request/booking persistence is now explicitly the first
+    implementation packet — the single biggest gap versus Safari, which has a
+    real end-to-end payment/booking flow and Sharm To Go currently has none),
+    and one consolidated "مطلوب من محمد" section collecting every owner-only
+    input (domain/hosting, WhatsApp/email ownership confirmation, real
+    photography, legal entity, payment-provider choice, app-store accounts)
+    in parallel instead of deferred to the last phase.
+  - Updated every stale `PAUSED`/"start here" pointer (`README.md`,
+    `CLAUDE_HANDOFF.md`, `delivery/README.md`, `delivery/00_CURRENT_STATE.md`,
+    `handoff/README.md`, `handoff/CHATGPT_AND_CLAUDE_MULTI_ACCOUNT_WORKFLOW.md`)
+    to point at `ROADMAP_AR.md` as canonical, without deleting their
+    historical/technical content. The preserved 2026-09-29 checkpoint file
+    (`handoff/2026-09-29_NEW-AGENTS_START-HERE.md`) is left as-is — it is a
+    dated snapshot of the pause moment, not a live status file.
+- **Verified:** `git fetch` + `git log --oneline` confirm the branch/remote
+  relationship before any push; `git diff --name-only` confirmed the
+  zero-overlap claim before reconciling with `origin/main`.
+- **Quality-gate baseline (2026-09-30), captured before any feature code:**
+  `bash scripts/sharm-to-go-check.sh` — Gradle `:platform:apps:sharm-to-go:check`
+  and `:platform:application:check` `BUILD SUCCESSFUL`; mobile
+  (`:mobile:shared/customer/customer-android/sharm-to-go/sharm-to-go-android:check`)
+  `BUILD SUCCESSFUL`; `sharm-to-go-site` lint/typecheck/test/build all green;
+  `sharm-to-go-erp` lint fails on the same pre-existing
+  `vue/no-multiple-template-root` finding on `categories.vue`/`index.vue`/
+  `providers.vue`/`services.vue` documented in the 2026-09-23 entry above
+  (confirmed non-blocking again: root `pnpm run check` in `web/` exits 0 on
+  the identical tree). This means the gate script itself stops early and
+  never reaches `foundry run validate` or `repository-check.sh` in one pass —
+  a real latent gap in the script (it should lint at the root like CI does,
+  not per-package), not fixed here since it is outside this reorganization's
+  scope. Both of those steps were run independently instead: `foundry run
+  validate` (OpenAPI + repository YAML) exit 0; `bash
+  scripts/repository-check.sh` exit 0, confirming this board edit did not
+  break the canonical-status invariant.
+- **Next:** commit this reorganization, push, and open a PR (not merged
+  without a fresh explicit owner instruction, per this packet's own standing
+  pattern). After that, the first scoped implementation packet is
+  `delivery/01_REQUEST_AND_BOOKING.md` (real request/booking persistence).
+
+### 2026-09-30 — Phase 1A: TravelRequest domain, persistence and concurrency proof (self-verified, Tier 1)
+
+- **Status:** `ACTIVE`. The owner explicitly authorized implementation
+  ("ابدأ و ابدأ سيطرة على المشروع") after the Phase 0 reorganization above.
+- **Objective:** Close this client's single biggest gap versus Safari Tours
+  Sharm — a real, durable customer request, not just a catalog the website
+  displays. Scoped to `delivery/01_REQUEST_AND_BOOKING.md`'s "Contract and
+  domain" + "Persistence and concurrency" sections only; the API/controller
+  layer (public create-request endpoint, staff endpoints, OpenAPI) is the
+  next sub-packet (1B), deliberately not started in this pass.
+- **What was built:**
+  - Domain: `TravelRequest` aggregate (`NEW -> IN_REVIEW -> CONFIRMED ->
+    COMPLETED`, with `CANCELLED`/`EXPIRED` as terminal exits), snapshotting
+    service/option/price/policy at creation so a later catalog edit never
+    retroactively changes what a customer was shown. `TravelRequestReference`
+    — an 8-character `SecureRandom` code from a 32-symbol unambiguous
+    alphabet (~40 bits entropy), deliberately not sequential so it cannot be
+    enumerated, unlike a `STR-2026-NNNN`-style booking number. Typed actor
+    (`CUSTOMER`/`STAFF`/`SYSTEM`) and typed cancel reason, not free text.
+  - Migration `V5__travel_request_foundation.sql`: `travel_request` +
+    `travel_request_audit_event`, with CHECK constraints mirroring every
+    Kotlin invariant, plus the 5 new `travel-request:*` permission codes
+    (registered in both `identity_permission` and `identity_role_permission`
+    — a real FK a V3-era insert-only pattern would have missed, caught by
+    reading V4's own migration first).
+  - `JooqTravelRequestRepository`/`JooqTravelRequestAuditRecorder`,
+    `findByIdForUpdate` row-locking on every mutating transition (same
+    pattern as the existing `ServiceRepository`).
+  - `CreateTravelRequestService` (idempotency-key fast-path pre-check, a
+    unique DB constraint as the real concurrency safety net, party-size
+    validated against the snapshotted option's `maxParticipants`, automatic
+    `confirm()` as a separate action immediately after creation for an
+    `INSTANT` service — request receipt is never itself confirmation, even
+    then), `StartTravelRequestReviewService`, `ConfirmTravelRequestService`,
+    `CancelTravelRequestService`, `CompleteTravelRequestService`,
+    `ExpireTravelRequestsService` (date-based sweep: a `NEW`/`IN_REVIEW`
+    request expires once its own `requestedDate` has passed, not an
+    arbitrary "N hours since creation" cutoff that would have been an
+    invented business rule).
+  - Capacity scope note: "capacity" here is the single request's own party
+    size against the snapshotted option's `maxParticipants` — a plain
+    validation, not a shared cross-request availability pool. This product
+    has no per-day slot/calendar concept yet (unlike Safari's `TourSlot`);
+    building one is out of this sub-packet's scope and is not claimed.
+- **Verified:**
+  - `TravelRequestDomainTest.kt` — 20 unit tests covering every transition,
+    every invariant, and the reference/customer value objects.
+  - `TravelRequestServiceTest.kt` — 10 tests against real PostgreSQL via
+    Testcontainers: INSTANT auto-confirm with snapshot proof, STAFF_REVIEW
+    staying NEW, party-size rejection, idempotent resubmission, **8 parallel
+    threads submitting the same idempotency key — exactly 1 row created,
+    proven, not asserted**, the full staff lifecycle (review → confirm →
+    complete) persisting and reloading correctly at every step, cancel
+    leaving `confirmedAt` as a sticky historical marker, the staff-actor
+    invariant enforced at the command boundary, the date-based expiry sweep
+    expiring an overdue unconfirmed request while leaving a confirmed one
+    untouched, and an unpublished service correctly rejected.
+  - `ProductIsolationIntegrationTest` updated and green: V5 migrates
+    cleanly, the new tables are present, zero Divers tables, same as before.
+  - `:platform:apps:sharm-to-go:check` (ktlint + all 71 tests) — green.
+  - `:platform:application:check` (Divers regression gate) — green,
+    unaffected.
+- **Rollback considerations:** one new forward-only migration in an isolated
+  app-local Flyway location; no shared-schema change; no existing table
+  altered. Reverting means a new down-migration or dropping the two new
+  tables — no data exists yet to lose.
+- **Next:** sub-packet 1B — public create-request + status-lookup endpoints,
+  staff roster/detail/action endpoints with the 5 new permissions actually
+  enforced, OpenAPI contract, HTTP + public-projection-privacy tests. Not
+  started; will only proceed under the same standing authorization, with a
+  commit/push per packet and no merge without a fresh explicit "اعمل merge".
+
+### 2026-09-30 — Phase 1B: public + staff API layer, OpenAPI, HTTP privacy proof (self-verified, Tier 1)
+
+- **Status:** `ACTIVE`, continuing under the same standing authorization as
+  1A ("ابدأ و ابدأ سيطرة على المشروع"). This closes Phase 1's exit gate.
+- **What was built:**
+  - `PublicTravelRequestController` (`POST /api/v1/travel-marketplace/public/requests`,
+    `GET .../{reference}`) — unauthenticated, registered under the same
+    `PublicApiPrefix` wildcard `PublicCatalogController` already
+    contributes. Idempotency key taken from a required `Idempotency-Key`
+    header (standard REST convention), not the request body.
+  - `TravelRequestController` — staff roster/detail plus
+    `start-review`/`confirm`/`cancel`/`complete` actions, each
+    `@PreAuthorize`'d on its own `travel-request:*` permission (the 5
+    permissions V5's migration already registered but nothing enforced
+    until now).
+  - Two response shapes, not one: `TravelRequestPublicResponse` (reference,
+    status, service/option/price/policy, date, party, pickup,
+    confirmed/awaiting state — **no customer name, phone or email**) vs
+    `TravelRequestStaffResponse` (same plus full customer contact, internal
+    id, locale, notes, source channel, cancel reason/detail). This is the
+    actual mechanism behind delivery/01's "does not expose another
+    customer's PII" requirement, not just a filtering convention.
+  - `sharm-to-go-api.yaml`: 7 new paths, 9 new schemas
+    (`TravelRequestStatus`/`SourceChannel`/`CancelReason`/`Customer`,
+    `CreateTravelRequestRequest`, `CancelTravelRequestRequest`,
+    `TravelRequestErrorResponse`, `TravelRequestPublicResponse`,
+    `TravelRequestStaffResponse`).
+- **Verified:**
+  - `TravelRequestHttpTest.kt` — 7 real HTTP tests (Testcontainers
+    PostgreSQL, real login, real published service through the full staff
+    workflow): public create auto-confirms an INSTANT service and the
+    reference lookup returns it; **the response body is asserted to not
+    contain the customer's name or phone, at both create and lookup**;
+    idempotent resubmission returns HTTP 200 with the original reference,
+    not a second 201; party size over capacity is a clean 409; a missing
+    `Idempotency-Key` header is a clean 400, not a 500; an unknown reference
+    is 404; the full staff lifecycle (start-review → confirm → complete)
+    works end to end, and a no-permission account gets 403 on the roster;
+    cancel requires a typed reason and a second cancel on an already-
+    terminal request is a clean 409.
+  - `redocly lint` on both OpenAPI files — exit 0.
+  - `:platform:apps:sharm-to-go:check` (ktlint + all tests, 78 total) — green.
+  - `:platform:application:check` (Divers regression gate) — green,
+    unaffected.
+- **Rollback considerations:** additive-only — two new controllers, two new
+  DTO files, an OpenAPI extension. No schema change in this sub-packet (V5
+  from 1A already covers persistence); no existing endpoint's behavior
+  changed.
+- **Phase 1 exit gate:** now fully met — a synthetic published service can
+  receive a request and return a public reference without claiming
+  confirmation (proven for both `INSTANT` and `STAFF_REVIEW`); a
+  staff-authorized confirmation produces an immutable commercial snapshot;
+  duplicate/concurrent submissions are safe and auditable at both the
+  service layer (8-thread proof) and the HTTP layer (idempotent resubmission
+  proof). What remains in `delivery/01_REQUEST_AND_BOOKING.md` is the
+  "Summary and WhatsApp" section — a website/ERP frontend concern that
+  belongs with Phase 3 (`03_MARKETING_WEBSITE.md`), not more backend work —
+  and a standalone PII consent/retention policy document, deferred to the
+  Phase 6 "Privacy, legal and support" work already tracked.
+- **Next:** commit, push, update `ROADMAP_AR.md`/`delivery/01_REQUEST_AND_BOOKING.md`
+  evidence (done in this same pass). Phase 2 (`02_OPERATIONS_ERP.md` — ERP
+  screens consuming this API) is the next candidate packet; not started, not
+  automatically authorized.
+
+### 2026-09-30 — Phase 2A: ERP requests queue, detail and dashboard (self-verified, Tier 2)
+
+- **Status:** `ACTIVE`, continuing under the same standing authorization
+  ("ابدأ و ابدأ سيطرة على المشروع"). Closes Phase 2's core exit gate.
+- **Review intensity:** Tier 2 — pure frontend consumption of an already
+  Tier-1-reviewed API; no new migration, no new permission semantics (one
+  new read-only endpoint added first, see below).
+- **A small backend gap found first, closed before the frontend:** the
+  ERP's own "audit timeline" requirement had no backing endpoint —
+  `TravelRequestAuditRecorder` was write-only. Added
+  `findByRequestId`, a `TravelRequestAuditQueryService`, a
+  `GET /requests/{id}/audit` endpoint behind `travel-request:view`, and the
+  matching OpenAPI schema/path. One new HTTP test proves all 4 transitions
+  of a full lifecycle appear newest-first with the right actor type, and
+  that the endpoint is itself permission-gated.
+- **What was built:**
+  - `useTravelMarketplaceApi.ts` extended with the full `TravelRequest`
+    client (list/get/audit/start-review/confirm/cancel/complete).
+  - `requests.vue` — staff queue: status filter (server-side), reference/
+    customer-name search (client-side, current page only — documented
+    limitation), empty/loading/error/no-permission states, an unclaimed
+    `NEW` request marked with both a border color and a text label (not
+    color alone).
+  - `requests/[id].vue` — full detail: customer contact, service/price
+    snapshot, audit timeline, an explicit "no payment collected" note,
+    review/confirm/complete actions and a typed-reason cancel behind a real
+    `WegoDialog` (not `window.confirm`), a copyable customer-safe summary,
+    and a `wa.me` link pre-filled with that summary addressed to the
+    *customer's* own phone.
+  - `index.vue` dashboard: a new "Requests" panel (new/in-review/confirmed/
+    upcoming/cancelled-or-expired counts, same accepted 50-row-sample
+    limitation the existing services widget already has).
+  - `app-shell.vue`: new "Operations" nav group with "Requests".
+- **Two deliberate non-gaps, documented so they are not mistaken for
+  oversights:** "Confirm... with capacity and price revalidation" was not
+  built because re-validating either would contradict the Phase 1 snapshot
+  design (the price is frozen on purpose; there is no shared capacity pool
+  to revalidate against). An "Expire" button was not added because
+  `TravelRequest.expire()` is system-only by domain design — a staff-
+  triggered expire would violate that invariant.
+- **Two real, honestly-recorded gaps:** date/service/source filters on the
+  queue were not built (status filter + client-side search only); deep
+  links do not preserve filter state (consistent with every existing
+  catalog page, not a regression). Both recorded in
+  `delivery/02_OPERATIONS_ERP.md`, not silently dropped.
+- **Verified:**
+  - 13 new Vitest tests (`Requests.spec.ts` ×6, `RequestDetail.spec.ts` ×6,
+    one `Index.spec.ts` addition) — permission gating, the status filter,
+    client-side search, a full confirm action round-trip, and a rejected
+    action showing the mapped error, not a raw one. All 37 pre-existing
+    ERP tests still pass — 50 total.
+  - `nuxt typecheck`, root `eslint apps packages --max-warnings=0`, and a
+    real production `nuxt build` — all green.
+  - **Manual, real-infrastructure verification:** a real Spring Boot
+    backend run against a throwaway PostgreSQL (migrations 0→5 applied
+    fresh, not Testcontainers this time — an actually running local
+    server), a real category and `STAFF_REVIEW` service created and
+    published over real HTTP, a real customer request created via the
+    public endpoint, then reviewed → confirmed → completed entirely over
+    real HTTP — the exact same calls the ERP pages themselves make — with
+    the resulting `/audit` timeline showing all 4 events correctly. The
+    Nuxt ERP was served through a real same-origin reverse proxy (this
+    client's dev setup has no built-in one) and both new routes' SSR shells
+    were confirmed rendering (200, not a crash).
+  - **Honestly recorded gap:** the Claude-in-Chrome browser extension was
+    not connected in this session, so the fully-authenticated,
+    data-populated UI was not visually confirmed by eye in a real graphical
+    browser. The 13 component tests above are real (they execute actual
+    Vue component logic — mount, fetch, permission checks, action
+    dispatch), just not inside a browser engine. Recorded as a real gap in
+    `delivery/02_OPERATIONS_ERP.md`'s evidence section, not claimed as done.
+  - No dedicated accessibility pass (no axe scan, no keyboard-only
+    walkthrough) — recorded as a real gap, not claimed.
+  - All throwaway verification infrastructure (a uniquely-named Postgres
+    container, the backend process, the Nuxt dev server, the proxy script)
+    was torn down after verification. Other sessions' running stacks
+    (Safari, Divers, wego-foundation) were not touched.
+- **Rollback considerations:** one new read-only backend endpoint (additive,
+  no schema change); four new/changed frontend files plus one nav-shell
+  edit. No existing page's behavior changed.
+- **Phase 2 exit gate:** met for its core claim — staff can take a new
+  request from receipt to confirmation/completion using only the ERP, with
+  every transition visible in audit history — proven both in the manual
+  real-HTTP walkthrough and in `RequestDetail.spec.ts`. The "Catalog
+  support for conversion" section is deliberately deferred as a separate,
+  lower-priority catalog feature, not part of this exit gate.
+- **Next:** commit, push, update board/roadmap evidence (done in this same
+  pass). Phase 3 (`03_MARKETING_WEBSITE.md` — connecting the real public
+  site to this request API, plus the still-outstanding "Summary and
+  WhatsApp" section from Phase 1) is the next candidate packet; not
+  started, not automatically authorized.
+
+### 2026-10-01 — Phase 3A: connect the real public site to the real request API (self-verified, Tier 2)
+
+- **Status:** `ACTIVE`, continuing under the same standing authorization.
+  Closes Phase 3's core sub-packet — the site can now create and look up
+  real requests against the real backend; homepage conversion wiring,
+  the shared header/footer extraction, and analytics/SEO remain separate,
+  not-started, not-authorized future sub-packets (3B/3C).
+- **Review intensity:** Tier 2 — pure frontend consumption of an
+  already Tier-1-reviewed API, plus one small additive backend DTO field
+  (no new migration, no new permission).
+- **A real backend gap found first, closed before the frontend needed
+  it:** `PublicServiceOptionResponse` had no `id` — the public catalog was
+  built purely for display before the request-creation flow existed, so
+  there was no technical way for a client to reference a specific option
+  when creating a request. Added `id: UUID` to the DTO, the controller
+  construction, and the OpenAPI schema (`redocly lint` clean). Verified
+  end-to-end against a real running backend that the public catalog now
+  returns the option's real UUID.
+- **Two dormant frontend type bugs found and fixed while building the
+  request form:** `usePublicCatalog.ts`'s `ConfirmationType` union was
+  `"INSTANT" | "REQUEST"` — the real backend value is `"STAFF_REVIEW"`,
+  never `"REQUEST"`; its `PriceBasis` union was missing `"FLAT"`. Neither
+  was exercised by any existing code path before this phase.
+- **What was built:**
+  - `useTravelRequests.ts` — typed client (`createTravelRequest`,
+    `getTravelRequestByReference`, `TravelRequestError`), an
+    `Idempotency-Key` generated per submit attempt.
+  - `server/api/requests/index.post.ts` and `[reference].get.ts` — the
+    site's own same-origin Nitro proxy routes (the browser cannot call the
+    backend directly — CORS), forwarding the `Idempotency-Key` header and
+    passing the backend's status/body straight through, with a clean 400
+    if the header is missing and a clean 502 if the backend is unreachable.
+  - `experiences/[id]/request.vue` — the real 4-step request flow
+    (party/date → contact incl. hotel/pickup/notes → review → result),
+    using the existing `GuestStepper` unmodified, capacity-checked against
+    the selected option's `maxParticipants`, per-error-code messages for
+    `service_not_found`/`option_not_found`/`party_size_exceeds_capacity`
+    with an honest generic fallback for everything else, and an honest
+    "Request received" vs "Confirmed!" heading depending on the real
+    returned status.
+  - `track/index.vue` and `track/[reference].vue` — a standalone lookup
+    page so a customer who left mid-flow can still find their request by
+    reference, with an honest not-found state (not a crash) for an unknown
+    reference.
+  - `experiences/[id].vue` — added the real "Request this experience"
+    primary CTA; `experiences/index.vue` — removed the misleading
+    primary-styled "Preview booking" link that looked like a real booking
+    action but went to `/booking-preview`.
+  - Two copy-accuracy fixes (not new content, corrections to existing
+    inaccurate claims): `experiences/[id].vue`'s contact section no
+    longer claims booking "isn't live yet"; the FAQ's confirmation-timing
+    answer no longer implies every request needs manual review when
+    `INSTANT` services confirm immediately.
+- **Real, honestly-recorded gap, not fixed this round:** no consent
+  checkbox or inline privacy-policy link on the contact step of the
+  request form. Recorded in `delivery/03_MARKETING_WEBSITE.md`, not
+  silently dropped.
+- **Verified:**
+  - 16 new Vitest tests (`RequestFlow.spec.ts` ×6, `RequestsProxy.spec.ts`
+    ×6, `Track.spec.ts` ×4) plus 2 existing tests rewritten because they
+    encoded the old, now-inaccurate copy as correct (not reverted, not
+    bypassed — rewritten to assert the corrected behavior). 43/43 site
+    tests and 50/50 ERP tests pass (93 total).
+  - `nuxt typecheck`, root `eslint apps packages --max-warnings=0`, and a
+    real production `nuxt build` of the site — all green.
+  - **Manual, real-infrastructure verification (no mocks):** a fresh
+    throwaway PostgreSQL, a real Spring Boot backend on a scratch port
+    with migrations 1→5 applying clean, a real category and `INSTANT`
+    service created and published over real authenticated HTTP, then the
+    site's own actual built Nitro server (`node .output/server/index.mjs`)
+    started against that real backend. Confirmed the public catalog proxy
+    route returns the option's real id (proving the backend fix works
+    through the full stack, not just in isolation). Submitted a real
+    request through the site's own `POST /api/requests` proxy with a real
+    `Idempotency-Key` — got back reference `STG-Y2PCLJKX`, status
+    `CONFIRMED` (correct for an `INSTANT` service). `GET
+    /api/requests/STG-Y2PCLJKX` returned the same record with no
+    customer name/phone/email anywhere in the body — the public/staff
+    response-shape privacy contract holds through the real proxy, not
+    just in the backend's own tests. An unknown reference correctly
+    proxied through as a 404.
+  - **Honestly recorded gap:** the new request was not separately
+    re-confirmed visible in the ERP UI this round (that endpoint was
+    already proven against real requests in the Phase 2A verification);
+    no real-browser (Claude-in-Chrome) visual confirmation across mobile/
+    desktop/Arabic/English this round — not connected this session.
+  - All throwaway verification infrastructure (the uniquely-named Postgres
+    container, the backend process, the site process) was torn down after
+    verification, confirmed via port checks and `docker ps`. One stale
+    backend process left running on a different port from an earlier,
+    already-interrupted verification round in this same worktree was
+    found not responding to health checks and cleaned up in the same
+    pass; every other session's running container (Safari, Divers,
+    wego-foundation, resort-os, etc.) was left untouched.
+- **Rollback considerations:** one additive backend DTO field (no schema
+  change); two dormant frontend type-union bugs fixed (widen, not
+  narrow — cannot break an existing caller); new site pages and two new
+  Nitro proxy routes; two pre-existing pages edited (CTA swap, copy
+  correction); no existing page's request/response contract changed.
+- **Next:** commit, push, update board/roadmap evidence (done in this same
+  pass). 3B (homepage conversion wiring), 3C (shared header/footer/locale
+  extraction), and analytics/SEO remain candidate future sub-packets —
+  not started, not authorized. PR #46 stays unmerged pending the owner's
+  own fresh "اعمل merge" instruction for it.
+
+### 2026-10-01 — Phase 3B: homepage search box wiring (self-verified, Tier 2)
+
+- **Status:** `ACTIVE`, continuing under the owner's standing broad
+  authorization for this packet ("انا بعطي لك تريح مني و موافقه ... ابداء
+  هندل و ظبط شرم تو جو") and the explicit "كمل" that followed the 3A
+  report — the owner was shown 3B/3C/analytics as candidate next
+  sub-packets and chose to continue rather than stop, so 3B proceeded
+  under that same delegated judgment, not a fresh separate approval.
+- **Review intensity:** Tier 2 — pure client-side routing/state wiring
+  against an already-proven backend surface (the public catalog
+  category list, proven live in the 3A verification round); no new
+  backend endpoint, no new permission, no state-changing behavior.
+- **What was built:** the homepage's category/date/guest box — previously
+  three static text blocks — replaced with a real category `<select>`
+  (populated from the live catalog), a real date input, and two real
+  `GuestStepper` controls (the same component the request form already
+  used), submitting to `/experiences?category=…&date=…&adults=…
+  &children=…`. The catalog page now reads `category` from the URL to
+  pre-select its own filter on load, and selecting a category there now
+  also updates the URL (closing a real gap recorded in the Phase 2A
+  entry — catalog deep links did not preserve filter state; they now do
+  for category, the only real server-side filter). `date`/`adults`/
+  `children` are not real catalog filters — the backend only filters by
+  category — so they are carried forward unchanged through the catalog
+  page's own service links, into the detail page's request CTA, into the
+  request form, which pre-fills its party/date step from them. The
+  request form's existing capacity check still runs unchanged on top of
+  a carried-over value exactly as it would on a typed one.
+- **Verified:** 6 new Vitest tests (`Home.spec.ts` — real search box
+  submits the right query; `Experiences.spec.ts` ×2 — category
+  pre-selection from the URL, date/party forwarded into each service
+  link; `ExperienceDetail.spec.ts` — forwarded into the request CTA and
+  back link; `RequestFlow.spec.ts` ×2 — party step pre-filled from the
+  query and still capacity-checked, a past date in the query is not
+  silently accepted). 49/49 site tests pass (up from 43), 50/50 ERP
+  unaffected. Root `pnpm run check` (lint across every app in the
+  monorepo) and `nuxt typecheck` both clean; a real production
+  `nuxt build` of the site succeeds. Two pre-existing `Home.spec.ts`
+  tests were updated to stub `fetch` (the homepage now makes a real
+  catalog-category request on mount; without a stub those two tests hit
+  an unmocked network call and failed with `ECONNREFUSED`, caught by the
+  page's own error handling but noisy and non-deterministic in a test —
+  fixed by stubbing, not by removing the new network call).
+- **Honestly recorded, not done this round:** no real-backend manual
+  walkthrough of this specific packet — the only backend touchpoint this
+  packet added (fetching the category list on the homepage) reuses a
+  call already proven live in the 3A verification round, and everything
+  new in 3B is pure in-browser routing with no backend behavior of its
+  own, so a fresh throwaway-infrastructure round was judged unnecessary
+  rather than skipped for convenience. No real-browser (Claude-in-Chrome)
+  visual check this round either — not connected this session, same
+  standing gap as 3A.
+- **Rollback considerations:** no backend change at all; homepage,
+  catalog, detail, and request pages each got additive query-handling
+  code (none of their existing non-query behavior changed); two test
+  files' shared `useRoute` stub gained a `query` field (the previous
+  stub was already an incomplete mirror of Nuxt's real `useRoute()`,
+  which always returns one).
+- **Next:** commit, push, update board/roadmap evidence (done in this
+  same pass). 3C (shared header/footer/locale extraction) and
+  analytics/SEO remain candidate future sub-packets — not started, not
+  automatically authorized; homepage "featured/popular" and "offer"
+  placements remain explicitly blocked on their own stated dependencies
+  (an ERP-side popularity model; owner-approved offer terms). PR #46
+  stays unmerged pending the owner's own fresh "اعمل merge" instruction.
+
+### 2026-10-01 — Phase 3C: shared header/footer/locale foundation (self-verified, Tier 2)
+
+- **Status:** `ACTIVE`, continuing under the owner's standing broad
+  authorization for this packet plus the "كمل" that followed each of
+  3A and 3B's reports (with one interruption: the owner sent "توقف لحد
+  ما اقولك كمل تاني" mid-packet, work stopped immediately with nothing
+  committed, and resumed only after a later explicit "كمل باقي المهام" —
+  recorded here because it is the kind of mid-task stop/resume this
+  board is meant to make traceable, not because anything about the
+  packet's scope changed).
+- **Review intensity:** Tier 2 — pure frontend refactor (new shared
+  component + composable, used by existing pages) and one additive
+  UX gap closed (a missing footer); no backend change, no new
+  permission, no change to any page's business behavior.
+- **What was actually wrong, found by auditing every page rather than
+  assuming the roadmap's own wording was precise:** the roadmap item
+  read "extract one shared responsive header/footer/locale state across
+  every route," which reads as if headers were duplicated. A page-by-page
+  audit (`grep` over every file in `app/pages/`) found the opposite: the
+  header was already ~92% shared — every page but the homepage already
+  used `SiteSubHeader`, and the homepage's own distinct full-nav header
+  is a deliberate, different thing (a landing page's primary nav is not
+  the same component as a sub-page's "back" header, so collapsing them
+  would not be a real simplification). The real, previously-undocumented
+  gap was the **footer**: only the homepage had one. Every other real
+  page — about, contact, faq, privacy, terms, the catalog list, the
+  service detail page, the request flow, both track pages — had no
+  footer at all, meaning a visitor anywhere except the homepage had no
+  way to reach the privacy policy, terms, or contact info without first
+  navigating back home.
+- **What was built:** new `SiteFooter.vue` (the homepage's own footer
+  markup, extracted, taking `locale` as a prop) now included on every
+  real page except the request flow (see below). New `useSiteLocale()`
+  composable replaces the locale-ref/copy/direction/toggle block that 12
+  pages each duplicated inline, and adds persisted locale choice —
+  closing the "persistent locale choice" item from the same roadmap
+  line — via `localStorage`, read only `onMounted` (never in the
+  synchronous initial ref) so the first client render always matches
+  the server-rendered "en" markup before switching, avoiding a
+  hydration mismatch; a storage failure (private browsing, blocked site
+  data) falls back to "en" silently, exactly like every page already
+  did before this existed.
+- **One deliberate exception:** the request flow
+  (`/experiences/:id/request`) adopts `useSiteLocale()` for its own
+  locale state but does not get `SiteFooter` — a footer full of exit
+  links at the bottom of an in-progress request form works against the
+  exact conversion this whole phase exists to protect.
+- **Two pages deliberately left out of the refactor entirely:**
+  `booking-preview.vue` and `design-system.vue` — both self-contained
+  internal/prototype pages with their own separate inline copy objects
+  (not `siteCopy`), explicitly marked non-production (the design-system
+  page's own copy says "contains no live business data"). Forcing them
+  onto the shared composable/footer would mean either restructuring
+  their copy model for no real benefit or giving a prototype page the
+  same trust-building footer as a real one — neither is the right call.
+- **Verified:** 7 new Vitest tests — `SiteFooter.spec.ts` (every real
+  trust/legal link and the real contact channels present in English;
+  the Arabic render contains no English leftovers), `useSiteLocale.spec.ts`
+  (first render is always English even with a stored Arabic choice;
+  the stored choice is adopted post-mount; a toggle in one component
+  instance persists and is picked up by a fresh mount simulating page
+  navigation; a thrown `localStorage` access does not crash the page) —
+  plus one footer-presence assertion added to each of the existing specs
+  for pages that previously had none (`Experiences.spec.ts`,
+  `ExperienceDetail.spec.ts`, `Track.spec.ts` ×2, `MarketingPages.spec.ts`).
+  56/56 site tests pass (up from 49), 50/50 ERP unaffected. Root
+  `pnpm run check` (lint across every app in the monorepo) and
+  `nuxt typecheck` both clean; a real production `nuxt build` of the
+  site succeeds.
+- **Honestly recorded, not done this round:** mobile navigation
+  (hamburger/drawer) for the homepage's fuller nav — not built, real
+  gap. A skip-to-content link — not built; every page already has
+  exactly one `<main>` landmark (true before and after this packet, not
+  a 3C contribution). No real-browser (Claude-in-Chrome) visual check
+  this round — not connected this session, same standing gap as 3A/3B.
+- **Rollback considerations:** two new files (`SiteFooter.vue`,
+  `useSiteLocale.ts`), additive to every page that adopts them; each
+  adopting page's own non-locale, non-footer behavior is unchanged;
+  `test/setup.ts` gained a global `localStorage.clear()` in its
+  `beforeEach` (required once any page under test can read/write it via
+  `useSiteLocale`, otherwise a locale toggled in one test leaks into the
+  next test in the same file via real browser storage).
+- **Next:** commit, push, update board/roadmap evidence (done in this
+  same pass). Mobile navigation, the skip link, and analytics/SEO remain
+  candidate future sub-packets — not started, not automatically
+  authorized. PR #46 stays unmerged pending the owner's own fresh
+  "اعمل merge" instruction.
+
+### 2026-10-01 — Codex professional review and fix round (owner-requested, Tier 1 for the fixed items)
+
+- **Status:** `ACTIVE`, under the owner's standing broad authorization for
+  this packet. The owner explicitly asked for an advisory Codex review of
+  the ERP and website's current state ("يشوف المشروع بعين التحسينات و
+  التطوير الاحترافي") and said Claude has the final independent opinion
+  after Codex, not Codex itself.
+- **What was done:** Claude wrote a full context brief
+  (`clients/sharm-to-go/handoff/2026-10-01_CODEX_PROFESSIONAL_REVIEW_BRIEF.md`,
+  committed before the review ran) scoping a read-only professional-
+  improvement review of the ERP and public website's current
+  implementation, explicitly marking the owner's future "Sharm visitor's
+  guide" direction as context only, not something to scope or build.
+  `codex exec` (model `gpt-6.1-sol`, reasoning effort `xhigh`) ran against
+  it. **Two environment failures before it worked:** the first attempt's
+  own sandbox (`bubblewrap`) could not initialize inside this already-
+  sandboxed worktree session (`bwrap: loopback: Failed RTM_NEWADDR:
+  Operation not permitted`) and produced no review at all; the retry used
+  `--dangerously-bypass-approvals-and-sandbox` (its documented use case is
+  exactly this — an already-externally-sandboxed environment) with an
+  explicit read-only instruction in the prompt itself, and succeeded.
+- **Claude did not forward the review blindly.** Before accepting any
+  finding, the three most severe were independently re-verified against
+  the real code and a real running build — not just read and trusted:
+  - Finding 1 (request page unreachable): confirmed by grepping for
+    `<NuxtPage />` in `experiences/[id].vue` (absent), reading the
+    generated route manifest (`request` nested under `id`, confirming the
+    Nuxt implicit-parent-route mechanism Codex described), then booting
+    the actual built site and diffing the real server-rendered HTML at
+    `/experiences/:id/request` before and after the fix.
+  - Finding 2 (idempotency key regenerated per call): confirmed by
+    reading `useTravelRequests.ts:63-71` directly — a fresh
+    `crypto.randomUUID()` inside every `createTravelRequest()` call.
+  - Finding 17 (ERP status mislabel): confirmed by reading
+    `requests/[id].vue:135` — a binary CONFIRMED/COMPLETED check labels
+    every other status, including CANCELLED and EXPIRED, "Awaiting
+    confirmation."
+  All three were real, exactly as reported. This is the standard this
+  session has applied to every Codex-sourced claim all along (see the
+  WEGO-011 review-round entries) — spot-check before trusting, not after.
+- **What was fixed, this same round:**
+  1. **Request page unreachable** — `experiences/[id].vue` moved to
+     `experiences/[id]/index.vue` (sibling of `request.vue`, not its
+     implicit parent). New `test/RouteStructure.spec.ts` scans every page
+     file in the app for the same antipattern (a `foo.vue` next to a
+     `foo/` directory) so it cannot silently reappear — a bug class no
+     component-mount test can catch, since Nuxt's route nesting is
+     resolved at build time, not by `@vue/test-utils`.
+  2. **Idempotency key regenerated per submit** — `useTravelRequests.ts`'s
+     `createTravelRequest` now takes the key as a caller-supplied
+     parameter instead of generating one internally; `request.vue`
+     generates one key per arrival at the review step (not per mount —
+     the review step has a genuine "back to contact" path the first
+     design missed, so going back to change details and returning to
+     review correctly mints a new key, while a plain retry from review
+     reuses the same one). Two new tests capture the real
+     `Idempotency-Key` header sent on each call and assert both halves.
+  3. **ERP customer-summary status mislabel** — replaced the CONFIRMED/
+     COMPLETED-vs-everything-else binary with an exhaustive, bilingual
+     (English/Arabic, selected by the request's own recorded `locale`
+     field) status-label map. Two new tests cover a cancelled request
+     (English) and an expired one (Arabic).
+  4. **The Phase 3A completion record** — corrected in place in
+     `ROADMAP_AR.md` with a dated note explaining what was wrong and why
+     the original test suite did not catch it, rather than silently
+     editing the earlier claim away.
+- **The remaining ~20 findings were not fixed this round** — recorded,
+  with Codex's own severity ratings preserved, in
+  `clients/sharm-to-go/handoff/2026-10-01_CODEX_REVIEW_FINDINGS_BACKLOG.md`,
+  explicitly marked as not independently re-verified (unlike the three
+  above). Highest-priority unfixed items: price/policy can drift between
+  review and confirmation on a concurrent catalog edit; phone "validation"
+  only checks non-blank presence; privacy/terms copy still describes a
+  pre-request-flow product; tracking-reference privacy (unrestricted
+  pickup text, logging, caching); and the 8-thread concurrency test's own
+  assertions are weaker than the "safe and auditable" claim they back
+  (discards futures, never asserts 8 successful shared-row outcomes).
+- **Verified:** 60/60 site tests pass (4 new), 52/52 ERP tests pass (2
+  new). Root `pnpm run check` (lint across every app in the monorepo) and
+  `nuxt typecheck` both clean for both apps. Real production `nuxt build`
+  of the site succeeds; the request-page fix was confirmed against that
+  real build's actual served HTML, not just against the dev/test
+  environment.
+- **Rollback considerations:** one file move
+  (`experiences/[id].vue` → `experiences/[id]/index.vue`, imports
+  adjusted for the new depth, no content change beyond that); one
+  composable signature change (`createTravelRequest` now takes an
+  explicit key parameter — its one call site was updated in the same
+  commit); one ERP page's summary-generation logic replaced (additive —
+  every previously-correct CONFIRMED/COMPLETED case is unchanged). No
+  backend, migration, or permission change.
+- **Next:** commit, push, update board/roadmap evidence (done in this
+  same pass). Work through the findings backlog by its own stated
+  priority in a future round, starting with the price/policy-drift and
+  concurrency-test-integrity items; not started, not automatically
+  authorized beyond this round. PR #46 stays unmerged pending the owner's
+  own fresh "اعمل merge" instruction.
+
+### 2026-10-01 — Codex review fix round, continued: remaining High findings + medium-priority sweep
+
+- **Status:** `ACTIVE`, continuing under the same owner authorization as
+  the round above — the owner explicitly said "كمل... وكمان التحسينات
+  اعملها" (continue, and make the improvements too) after reading that
+  round's report, extending the standing authorization to the rest of
+  the findings backlog rather than stopping after the first three fixes.
+- **What was done — the two remaining High findings:**
+  - **Phone "validation" was presence-only.** Fixed at every layer:
+    `TravelRequestCustomer.isPlausiblePhoneNumber` (domain, an E.164-
+    shaped plausibility regex — deliberately not libphonenumber, since
+    nothing in this monorepo depends on it yet for what is currently one
+    format check), a matching `@Pattern` on the API DTO, a mirrored
+    client-side check on the request form so an obviously-wrong number
+    is caught before a round trip to the server, and a defensive fix in
+    the ERP's `wa.me` link builder so a pre-validation row with no real
+    digits doesn't render a broken link with no destination. New tests
+    at all three layers.
+  - **Privacy/terms copy described an earlier, pre-request-flow
+    product.** Rewrote both English and Arabic privacy-page sections to
+    describe what the real request form actually collects and who sees
+    it (never published publicly; the public tracking response excludes
+    name/phone/email, consistent with what Phase 1B actually proved);
+    rewrote the terms page's "how a request works" section, which
+    previously implied every request needs manual staff verification,
+    to distinguish instant confirmation from the few services that
+    don't; replaced the homepage's "24/7 continuous support" stat, which
+    directly contradicted the contact page's own honest "no published
+    support-hours commitment yet," with a claim the product actually
+    keeps (one point of contact, from request to return — already stated
+    truthfully elsewhere on the same page). New tests assert the
+    corrected copy and the absence of the old claims.
+- **What was done — medium-priority sweep (9 more findings):**
+  tracking-reference privacy hardening (`Cache-Control: no-store` on
+  both request proxy routes, `noindex,nofollow` on the track-by-
+  reference page, and nginx access-log/referrer masking for the
+  reference — **verified live** with a real nginx container: a request
+  to `/track/STG-SECRET12` logs `/track/[redacted]`, not the real
+  reference; honestly recorded residual gap: nginx's own fixed-format
+  `error_log` still logs the raw reference on an actual upstream
+  failure, verified live too); an integer-overflow bypass of the party-
+  capacity check (`@Max(100)` on the DTO plus a matching domain-level
+  `require`, so the domain object enforces its own invariant regardless
+  of caller); `FLAT` price basis mislabeled "per person" in three
+  copy-pasted, identical, all-equally-stale implementations, and dropped
+  entirely on the tracking page (deleted all three duplicates for one
+  shared `priceBasisLabel()`, now used on the tracking page too, which
+  never had it); raw internal status strings (e.g. `IN_REVIEW`) shown
+  even on the Arabic tracking page and in the request flow's own
+  shareable WhatsApp/copy summary (one shared, bilingual
+  `travelRequestStatusText()` fixes both); a real timezone bug where the
+  tracking page's requested-date could show the wrong calendar day for
+  any visitor west of UTC (date-only values now force `timeZone: "UTC"`
+  on display — **verified** by computing the actual formatted string
+  under `America/Los_Angeles` before and after: `31 Dec 2098` → the
+  correct `1 Jan 2099`); the ERP dashboard's 50-row-sample request
+  counts looking exhaustive (a visible caveat now appears exactly when
+  the cap is actually hit, not otherwise); `SiteFooter.vue` still
+  linking the `/booking-preview` prototype from real customer pages
+  (removed from real navigation, kept as an internal reference);
+  misleading `GuestStepper` accessible names ("Back Adults" / "Continue
+  Adults" instead of "Decrease/Increase Adults") on both the homepage
+  search box and the request form; and an ERP page that reported a
+  successful action as failed whenever the following audit-timeline
+  refresh failed, while also leaving a stale pre-action record on screen
+  after a real rejection (separated the two failure modes: a failed
+  mutation now reloads the real current record best-effort instead of
+  showing stale data; a successful mutation whose audit-refresh fails
+  shows a distinct, narrower warning instead of the action-failed
+  message).
+- **Verified:** full backend suite green via real PostgreSQL
+  (Testcontainers) including `ktlintCheck` (two formatting violations
+  from this round's own new code, both fixed); 69/69 site tests pass
+  (up from 60), 56/56 ERP tests pass (up from 50); `nuxt typecheck`
+  clean for both apps; real production `nuxt build` of the site
+  succeeds; root `pnpm run check` (lint, typecheck, test, build across
+  every app in the monorepo, not just this client) passes; OpenAPI
+  contract re-validated clean.
+- **Rollback considerations:** additive validation constraints (DTO
+  `@Max`/`@Pattern`, domain `require`) — cannot break an existing valid
+  caller, only reject what was already invalid; copy-only changes on
+  privacy/terms/homepage; one shared formatter function replacing three
+  identical duplicates (behavior-preserving for every case except the
+  one that was actually wrong); nginx log-format change is observability
+  only, no routing/proxy behavior changed (verified live, not just
+  config-syntax-checked). No backend migration, no permission change.
+- **Findings backlog status:** 19 findings are now fixed (see
+  `clients/sharm-to-go/handoff/2026-10-01_CODEX_REVIEW_FINDINGS_BACKLOG.md`
+  for the full accounting, numbered independently of Codex's own
+  original numbering); 7 remain, all requiring a bigger design decision
+  than this sweep's scope — a new migration column for ERP optimistic
+  locking; a shared-lock or versioned-read redesign for the catalog
+  snapshot and the expiry-sweep race; the public site's own booking
+  proxy route still letting a backend connection failure escape
+  uncontrolled (separate from the ERP-side failure-handling fix above);
+  cross-cutting correlation-ID propagation; tiered rate limiting;
+  pagination wiring through the public catalog proxy and sitemap.
+- **Next:** commit, push, update board/roadmap evidence (done in this
+  same pass). The remaining 7 findings are recorded, prioritized, not
+  started, not automatically authorized — a future round should pick
+  them up by the backlog file's own stated order. PR #46 stays unmerged
+  pending the owner's own fresh "اعمل merge" instruction.
+
+### 2026-10-02 — Codex review fix round, fourth pass: the remaining 7 findings closed
+
+- **Status:** `ACTIVE`, continuing under the same owner authorization —
+  the owner explicitly said "اعملهم مهام كلهم و انت ايضا و انت شغال ممكن
+  تلاقي مشاكل او فجوات اعملها مهام و اشتغل عليها" (make them all tasks,
+  and if you find problems or gaps while working, make those tasks too;
+  the project should be complete). Each of the 7 remaining findings was
+  tracked as an individual task and worked through to a verified fix
+  rather than left as a backlog list.
+- **Catalog snapshot mixed-generation read:** `JooqServiceRepository`'s
+  four read paths (`findById`, `findAll`, `findAllPublished`,
+  `findPublishedById`) each made 3 separate SELECTs that could straddle a
+  concurrent `save()`'s delete+reinsert of options/media under the
+  default READ COMMITTED isolation. Fixed by running these specific
+  read-only transactions at `REPEATABLE_READ` instead (the write path,
+  `findByIdForUpdate`, is unaffected — different semantics, already
+  pessimistically locked). Verified: full backend suite green against
+  real PostgreSQL.
+- **Expiry sweep crash on a confirmed-during-sweep request:**
+  `ExpireTravelRequestsService`'s guard checked `status.isTerminal`, but
+  `CONFIRMED` is not terminal, so a request confirmed in the narrow
+  window between candidate-selection and per-row locking reached
+  `expire()`'s own precondition and threw, aborting the rest of that
+  sweep batch. Fixed by matching `expire()`'s actual precondition
+  exactly. Deliberately not given a new timing-based test — reproducing
+  the exact race would need flaky thread-interleaving or production
+  instrumentation this code has no other reason to carry; relied on the
+  guard provably matching `expire()`'s own precondition, plus the full
+  regression suite passing.
+- **Site's own request-creation/lookup proxies uncontrolled on a true
+  connection failure:** `fetch()` itself throws on a real connection
+  failure, distinct from the backend returning a real HTTP error status
+  (which must still pass through, e.g. `409 price_changed`). Fixed by
+  wrapping the `fetch()` call specifically (not the whole handler) in
+  both `server/api/requests/index.post.ts` and `[reference].get.ts`.
+  New tests mock a throwing `fetch` and assert a clean 502.
+- **ERP catalog editor had no optimistic-concurrency check and silently
+  dropped incomplete rows:** new `version` column
+  (`V6__travel_service_optimistic_locking.sql`), bumped on every content
+  edit; `UpdateServiceService.update()` compares the editor's
+  `expectedVersion` against the real current version inside the same
+  `findByIdForUpdate`-locked transaction that reads it (race-free) and
+  rejects a stale save with `409 version_conflict` instead of
+  overwriting it; the ERP form now blocks submission with a clear
+  validation error on a half-filled option/media row instead of silently
+  dropping it, while a genuinely untouched blank row (both fields empty)
+  is still dropped as before. OpenAPI, backend, and ERP frontend all
+  updated. New tests at every layer, including an HTTP-level test
+  against real PostgreSQL that reproduces the exact scenario (staff A
+  saves, staff B's stale save is rejected with the real current version,
+  staff B reloads and retries successfully).
+- **Public catalog proxy and sitemap stopped at the backend's first page
+  (50 services):** both now walk every backend page (200/page, the
+  backend's own max) until a short page signals the end, preserving the
+  `categoryId` filter across pages. New tests cover the multi-page walk,
+  the common single-page case, filter preservation, and a connection
+  failure mid-walk.
+- **No correlation ID connected a customer-visible failure to its
+  backend audit trail:** travel-marketplace was the one product not
+  using the existing, already-proven `CorrelationContext`/
+  `CorrelationIdFilter` convention (`divers`, `accounting`, `hr`,
+  `payroll` all already did) — its public controller generated a
+  throwaway `UUID.randomUUID()` and its staff controller passed `null`
+  on all four actions. Fixed by switching both to
+  `CorrelationContext.currentCorrelationId()`. Since Nitro's own
+  `fetch()` to the backend bypasses nginx entirely, the site's two
+  public proxy routes now forward an incoming `X-Correlation-Id` (or
+  generate one), pass it to the backend, and echo it back to the
+  browser — nginx's existing log format already referenced
+  `$sent_http_x_correlation_id`, it was just always empty before this.
+  New tests cover generate-when-absent and forward-when-present for both
+  routes.
+- **Anonymous request-creation shared the general browsing rate limit:**
+  fixed with a dedicated `request_create_rate` zone (10 req/min, burst
+  10) on `/api/requests` only. **Verified live** against a real
+  `nginx:1.30.4-alpine` container: `/api/requests` hit `429` after 11
+  requests in the test window while `/` kept passing through under the
+  general limit.
+- **Verified:** full backend suite green against real PostgreSQL
+  (Testcontainers), including `ktlintCheck`; site suite 81/81 (up from
+  69), `nuxt typecheck` clean, real production `nuxt build` succeeds,
+  lint clean; ERP suite 59/59 (up from 56), `nuxt typecheck` clean, real
+  production `nuxt build` succeeds (ERP lint has the same 6
+  pre-existing, unrelated `vue/no-multiple-template-root` failures
+  present before this round — confirmed via `git stash`, not introduced
+  here); OpenAPI contract re-validated as well-formed YAML.
+- **Rollback considerations:** one additive Flyway migration (new
+  `version` column, `DEFAULT 1`, backward-compatible with every existing
+  row); `UpsertServiceRequest.expectedVersion` is nullable (create is
+  unaffected; update now requires it, rejected with a clean 400 rather
+  than silently accepted if omitted); isolation-level change is
+  read-only, no write-path behavior changed; nginx changes are
+  rate-limiting and header plumbing only, verified live against a real
+  container before being treated as done. No production deploy occurred.
+- **Findings backlog status:** all 24 of Codex's original findings are
+  now fixed — see
+  `clients/sharm-to-go/handoff/2026-10-01_CODEX_REVIEW_FINDINGS_BACKLOG.md`
+  for the full accounting. Not yet addressed, not part of this review:
+  ERP's broader optimistic-locking pattern beyond services (if any other
+  editors share the same silent-overwrite shape), and the previously
+  acknowledged non-findings (payments, shared availability pooling,
+  mobile API integration, scheduler for the expiry sweep, consent
+  checkbox, real-browser visual verification) remain exactly as
+  documented elsewhere.
+- **Next:** commit, push, update board/roadmap evidence (done in this
+  same pass). PR #46 stays unmerged pending the owner's own fresh "اعمل
+  merge" instruction.
 
 ## WEGO-003 — Reliable integration delivery and replay
 
@@ -2369,3 +3247,53 @@ All 6 phases complete. Unlike WEGO-014 (which built an ERP redesign from near-ze
 - **Current phase:** none — packet complete.
 - **NEXT PACKET:** none queued; `mobile/apps/ops` (the unbranded staff app) and any further design-system unification across Wego Platform products remain real future work, not yet authorized as their own packet.
 - **NEXT PACKET:** none beyond this one.
+
+### 2026-09-27 — Sharm To Go repositioned as a marketing-and-booking travel companion
+
+- **Owner direction:** the seven supplied mockups communicate product breadth
+  and flow only; none is a production asset. The approved product combines
+  marketing, services, booking/request and professional WhatsApp enquiry across
+  website, mobile and ERP. Owner-approved brand facts: 25+ years' accumulated
+  tourism experience, 3M+ customers, participation in organising 5M+ successful
+  trips and continuous support.
+- **Decision correction:** customer-facing “multi-provider marketplace” wording
+  was superseded by one accountable Sharm To Go relationship. Provider and
+  fulfilment records stay as internal operational truth and a future disclosure
+  mechanism when legally significant; they are no longer the brand proposition.
+  Canonical name remains `Sharm To Go`; canonical line is “Sharm To Go. Where
+  you must go.” `Charm To Go` is campaign wordplay only, not a second identity.
+- **Durable strategy:** added `BRAND_AND_GROWTH_STRATEGY.md` and
+  `CONVERSION_DELIVERY_PLAN.md`; aligned the product blueprint, ownership model,
+  execution/expansion plans and information architecture. The next real packet
+  is one shared request contract: web acquires/converts, mobile consumes the
+  same catalog/request/status, ERP receives and operates the same reference.
+- **Public-site preparation:** replaced foundation copy with the approved
+  customer promise and carefully worded historical proof; added About, FAQ,
+  Contact, Privacy and Terms routes, fuller navigation/footer, a global
+  contextual WhatsApp action, sitemap coverage and explicit request-is-not-
+  confirmation language. The source mockups' sample prices, ratings, hotels and
+  contacts were not copied.
+- **Evidence:** Sharm To Go site Vitest 27/27; Nuxt typecheck and ESLint clean;
+  production build clean; repository invariants and `git diff --check` clean.
+  No backend booking mutation, payment, production deployment or change to
+  Sharm Divers Club was made in this preparation round.
+
+### 2026-09-27 — Complete agent delivery workbook added
+
+- Added `clients/sharm-to-go/delivery/` as the operational handoff authority:
+  current-state baseline, request/booking, ERP, marketing website, mobile,
+  vertical expansion, launch/operations and append-only acceptance/evidence
+  checklists.
+- Checkboxes have explicit semantics: `[x]` requires implementation, automated
+  verification and recorded evidence; created code or an untested expectation
+  stays `[ ]`. Every phase has dependency and exit gates so a future agent cannot
+  mark a surface complete while its backend/system-of-record dependency is not.
+- Corrected the stale 2026-09-03 `CLAUDE_HANDOFF.md`: Packet 1E/content decisions
+  and subsequent pricing/operating work are acknowledged, the old “1E is next”
+  claim is removed, and the next implementation points to the request/booking
+  checklist shared by website, ERP and mobile.
+- Verification: all nine workbook files exist; checklist inventory reports 37
+  already-proven permanent items and 207 open items/gates (session-safety boxes
+  intentionally reset for every agent); repository invariants and whitespace
+  checks pass. Documentation only — no runtime behavior or client isolation was
+  changed by this handoff packet.

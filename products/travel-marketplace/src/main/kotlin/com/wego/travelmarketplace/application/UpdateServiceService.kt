@@ -30,6 +30,7 @@ data class UpdateServiceCommand(
     val options: List<ServiceOption>,
     val media: List<ServiceMedia>,
     val actorUserId: UUID?,
+    val expectedVersion: Int,
 )
 
 sealed interface UpdateServiceResult {
@@ -46,6 +47,10 @@ sealed interface UpdateServiceResult {
     data object ProviderNotFound : UpdateServiceResult
 
     data object WouldInvalidatePublishedContent : UpdateServiceResult
+
+    data class VersionConflict(
+        val currentVersion: Int,
+    ) : UpdateServiceResult
 }
 
 /**
@@ -63,6 +68,16 @@ sealed interface UpdateServiceResult {
  * and left the service `PUBLISHED` with genuinely empty content, still
  * visible on the public catalog — a listing with nothing left to book,
  * still marketed as bookable.
+ *
+ * [UpdateServiceCommand.expectedVersion] must match [existing]'s loaded
+ * [com.wego.travelmarketplace.domain.Service.version] or this call fails
+ * with [UpdateServiceResult.VersionConflict] instead of saving — a second
+ * Codex-caught gap: two staff editing the same service concurrently, with
+ * no version check, meant the second save silently discarded the first's
+ * changes with no error to either of them. The compare happens inside the
+ * same `findByIdForUpdate`-locked transaction that reads [existing], so it
+ * is race-free; see [com.wego.travelmarketplace.domain.Service.withUpdatedDetails]
+ * for why the save itself can then bump the version unconditionally.
  */
 class UpdateServiceService(
     private val serviceRepository: ServiceRepository,
@@ -77,6 +92,9 @@ class UpdateServiceService(
             val existing = serviceRepository.findByIdForUpdate(command.serviceId) ?: return@runInTransaction UpdateServiceResult.NotFound
             if (existing.status == ServiceStatus.ARCHIVED) {
                 return@runInTransaction UpdateServiceResult.Archived
+            }
+            if (existing.version != command.expectedVersion) {
+                return@runInTransaction UpdateServiceResult.VersionConflict(existing.version)
             }
             if (categoryRepository.findById(command.categoryId) == null) return@runInTransaction UpdateServiceResult.CategoryNotFound
             if (command.providerId != null && providerRepository.findById(command.providerId) == null) {

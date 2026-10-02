@@ -1,7 +1,7 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import ExperienceDetailPage from "../app/pages/experiences/[id].vue";
+import ExperienceDetailPage from "../app/pages/experiences/[id]/index.vue";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -33,8 +33,8 @@ const sampleCategory = {
   description: null,
 };
 
-function withRoute(id: string) {
-  vi.stubGlobal("useRoute", () => ({ params: { id } }));
+function withRoute(id: string, query: Record<string, string> = {}) {
+  vi.stubGlobal("useRoute", () => ({ params: { id }, query }));
 }
 
 function stubFetch(serviceResponse: () => Response) {
@@ -50,9 +50,25 @@ function stubFetch(serviceResponse: () => Response) {
   );
 }
 
+// `to` can be a plain string or a `{ path, query }` route object (used by
+// the request/back links so a forwarded search date/party survives
+// navigation) — resolve both the same way Nuxt's real NuxtLink would.
+const NuxtLinkStub = {
+  props: ["to"],
+  computed: {
+    href(): string {
+      if (typeof this.to === "string") return this.to;
+      const query = this.to?.query ?? {};
+      const search = new URLSearchParams(query).toString();
+      return search ? `${this.to.path}?${search}` : this.to.path;
+    },
+  },
+  template: "<a :href=\"href\"><slot /></a>",
+};
+
 function mountPage() {
   return mount(ExperienceDetailPage, {
-    global: { stubs: { NuxtLink: { template: "<a><slot /></a>" } } },
+    global: { stubs: { NuxtLink: NuxtLinkStub } },
   });
 }
 
@@ -73,9 +89,11 @@ describe("experience detail page", () => {
     expect(wrapper.text()).toContain("Dinner and water.");
     expect(wrapper.text()).toContain("Personal expenses.");
     expect(wrapper.text()).toContain("1 photo");
+    // This page previously had no footer at all — proves the real shared one is wired in.
+    expect(wrapper.text()).toContain("All rights reserved");
   });
 
-  it("never shows a fake booking action, only an honest contact placeholder", async () => {
+  it("shows a real request action that links to the real request flow, not a fake instant-book button", async () => {
     withRoute(serviceId);
     stubFetch(() => new Response(JSON.stringify(sampleService), { status: 200 }));
 
@@ -83,7 +101,23 @@ describe("experience detail page", () => {
     await flushPromises();
 
     expect(wrapper.text()).not.toMatch(/book now/i);
-    expect(wrapper.text()).toContain("Online booking for this experience isn't live yet.");
+    const requestLink = wrapper.findAll("a").find((link) => link.text() === "Request this experience");
+    expect(requestLink?.attributes("href")).toBe(`/experiences/${serviceId}/request`);
+    // The contact block is now explicitly secondary ("ask first"), not the only option.
+    expect(wrapper.text()).toContain("Prefer to ask first?");
+  });
+
+  it("forwards a date/party carried over from the homepage search box into the request CTA and the back link", async () => {
+    withRoute(serviceId, { date: "2099-06-15", adults: "2" });
+    stubFetch(() => new Response(JSON.stringify(sampleService), { status: 200 }));
+
+    const wrapper = mountPage();
+    await flushPromises();
+
+    const requestLink = wrapper.findAll("a").find((link) => link.text() === "Request this experience");
+    expect(requestLink?.attributes("href")).toBe(`/experiences/${serviceId}/request?date=2099-06-15&adults=2`);
+    const backLink = wrapper.findAll("a").find((link) => link.text() === "Back to experiences");
+    expect(backLink?.attributes("href")).toBe("/experiences?date=2099-06-15&adults=2");
   });
 
   it("shows an honest not-found state for an unknown or unpublished id, not a crash", async () => {
@@ -105,5 +139,49 @@ describe("experience detail page", () => {
     await flushPromises();
 
     expect(wrapper.get('[role="alert"]').text()).toContain("We could not reach the live catalog");
+  });
+
+  it("sets a real per-service meta description and og:title, not the generic site-wide default", async () => {
+    withRoute(serviceId);
+    stubFetch(() => new Response(JSON.stringify(sampleService), { status: 200 }));
+    let headFactory: (() => { meta: Array<{ name?: string; property?: string; content: string }> }) | undefined;
+    vi.stubGlobal("useHead", (input: typeof headFactory) => {
+      headFactory = input;
+    });
+
+    mountPage();
+    await flushPromises();
+
+    const meta = headFactory!().meta;
+    const description = meta.find((tag) => tag.name === "description");
+    const ogTitle = meta.find((tag) => tag.property === "og:title");
+    const ogDescription = meta.find((tag) => tag.property === "og:description");
+    expect(description?.content).toBe("An evening safari.");
+    expect(ogTitle?.content).toBe("Desert Safari · Sharm To Go");
+    expect(ogDescription?.content).toBe("An evening safari.");
+  });
+
+  it("truncates a long service description at a word boundary for the meta description, not mid-word", async () => {
+    withRoute(serviceId);
+    const longDescription =
+      "A full-day desert safari with dune bashing, a Bedouin camp dinner, stargazing through a real telescope, camel riding, and a guided tour of the surrounding mountains with a certified local guide who shares real history.";
+    stubFetch(() => new Response(JSON.stringify({ ...sampleService, description: { en: longDescription, ar: longDescription } }), { status: 200 }));
+    let headFactory: (() => { meta: Array<{ name?: string; content: string }> }) | undefined;
+    vi.stubGlobal("useHead", (input: typeof headFactory) => {
+      headFactory = input;
+    });
+
+    mountPage();
+    await flushPromises();
+
+    const description = headFactory!().meta.find((tag) => tag.name === "description")?.content ?? "";
+    expect(description.length).toBeLessThanOrEqual(156);
+    expect(description.endsWith("…")).toBe(true);
+    // The truncated text (minus the ellipsis) must be a real prefix of the
+    // original, and the original character right after it must be a space
+    // — proving the cut landed exactly on a word boundary, not mid-word.
+    const truncated = description.slice(0, -1);
+    expect(longDescription.startsWith(truncated)).toBe(true);
+    expect(longDescription[truncated.length]).toBe(" ");
   });
 });

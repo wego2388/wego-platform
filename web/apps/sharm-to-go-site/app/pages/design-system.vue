@@ -59,7 +59,7 @@ useHead(() => ({
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas px-5 py-6 text-sharm-ink lg:px-10">
+  <main id="main-content" :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas px-5 py-6 text-sharm-ink lg:px-10">
     <div class="mx-auto max-w-7xl">
       <SiteSubHeader :back-label="copy.back" back-to="/experiences" :direction="direction" :locale-label="copy.switchLanguage" @toggle-locale="locale = locale === 'en' ? 'ar' : 'en'" />
     </div>

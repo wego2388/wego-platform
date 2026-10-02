@@ -235,7 +235,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProviderResponse"
         "400":
-          $ref: "#/components/responses/ValidationErrorResponse"
+          description: Validation failure, or a missing `expectedVersion`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogErrorResponse"
         "401":
           $ref: "#/components/responses/UnauthenticatedResponse"
         "403":
@@ -243,7 +247,7 @@ paths:
         "404":
           description: No provider with this id.
         "409":
-          description: The provider is archived.
+          description: The provider is archived, or `expectedVersion` no longer matches (`currentVersion` names the real one).
           content:
             application/json:
               schema:
@@ -378,7 +382,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/CategoryResponse"
         "400":
-          $ref: "#/components/responses/ValidationErrorResponse"
+          description: Validation failure, or a missing `expectedVersion`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogErrorResponse"
         "401":
           $ref: "#/components/responses/UnauthenticatedResponse"
         "403":
@@ -386,7 +394,7 @@ paths:
         "404":
           description: No category with this id.
         "409":
-          description: The category is archived.
+          description: The category is archived, `code` was changed (it is immutable after creation), or `expectedVersion` no longer matches (`currentVersion` names the real one).
           content:
             application/json:
               schema:
@@ -540,7 +548,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ServiceResponse"
         "400":
-          description: Validation failure, an unknown category, or an unknown provider.
+          description: Validation failure, an unknown category, an unknown provider, or a missing `expectedVersion`.
           content:
             application/json:
               schema:
@@ -552,7 +560,7 @@ paths:
         "404":
           description: No service with this id.
         "409":
-          description: The service is archived.
+          description: The service is archived, the edit would leave a published/suspended service with no options or media, or `expectedVersion` no longer matches (`currentVersion` names the real one).
           content:
             application/json:
               schema:
@@ -779,6 +787,289 @@ paths:
                 $ref: "#/components/schemas/PublicServiceResponse"
         "404":
           description: No published service with this id.
+  /api/v1/travel-marketplace/public/requests:
+    post:
+      operationId: createTravelRequest
+      summary: Create a travel request (unauthenticated)
+      description: >-
+        Never itself a confirmation. For an INSTANT service the response may
+        already be CONFIRMED (the system auto-confirms as a separate action
+        immediately after creation); for a STAFF_REVIEW service it stays NEW.
+      tags:
+        - TravelRequests
+      security: []
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          description: Client-supplied key. Resubmitting the same key returns the original request instead of creating a duplicate.
+          schema:
+            type: string
+            maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTravelRequestRequest"
+      responses:
+        "201":
+          description: A new request was created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelRequestPublicResponse"
+        "200":
+          description: The idempotency key was already used — returns the original request, not a duplicate.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelRequestPublicResponse"
+        "400":
+          description: Validation failure, an unknown service, or an unknown option.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelRequestErrorResponse"
+        "409":
+          description: Party size exceeds the option's maxParticipants.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelRequestErrorResponse"
+  /api/v1/travel-marketplace/public/requests/{reference}:
+    get:
+      operationId: getTravelRequestByReference
+      summary: Look up a request by its public reference (unauthenticated)
+      description: The only way a customer sees their own request again. Never exposes customer name, phone or email.
+      tags:
+        - TravelRequests
+      security: []
+      parameters:
+        - name: reference
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The request's public status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelRequestPublicResponse"
+        "404":
+          description: No request with this reference.
+  /api/v1/travel-marketplace/requests:
+    get:
+      operationId: listTravelRequests
+      summary: List travel requests (staff roster)
+      tags:
+        - TravelRequests
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/TravelRequestStatus"
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: A page of requests, full staff record.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TravelRequestStaffResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/travel-marketplace/requests/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdPathParameter"
+    get:
+      operationId: getTravelRequest
+      summary: Read one request (staff-facing, full record)
+      tags:
+        - TravelRequests
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: The request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelRequestStaffResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No request with this id.
+  /api/v1/travel-marketplace/requests/{id}/audit:
+    get:
+      operationId: getTravelRequestAuditHistory
+      summary: Read one request's audit timeline, newest first
+      tags:
+        - TravelRequests
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPathParameter"
+      responses:
+        "200":
+          description: The audit timeline (possibly empty).
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TravelRequestAuditEventResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/travel-marketplace/requests/{id}/start-review:
+    post:
+      operationId: startTravelRequestReview
+      summary: "NEW -> IN_REVIEW"
+      tags:
+        - TravelRequests
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPathParameter"
+      responses:
+        "200":
+          description: Now under review.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelRequestStaffResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No request with this id.
+        "409":
+          description: Not currently NEW.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelRequestErrorResponse"
+  /api/v1/travel-marketplace/requests/{id}/confirm:
+    post:
+      operationId: confirmTravelRequest
+      summary: "NEW|IN_REVIEW -> CONFIRMED (staff-initiated)"
+      tags:
+        - TravelRequests
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPathParameter"
+      responses:
+        "200":
+          description: Confirmed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelRequestStaffResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No request with this id.
+        "409":
+          description: Not currently NEW or IN_REVIEW.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelRequestErrorResponse"
+  /api/v1/travel-marketplace/requests/{id}/cancel:
+    post:
+      operationId: cancelTravelRequest
+      summary: "NEW|IN_REVIEW|CONFIRMED -> CANCELLED (staff-initiated)"
+      tags:
+        - TravelRequests
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPathParameter"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelTravelRequestRequest"
+      responses:
+        "200":
+          description: Cancelled.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelRequestStaffResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No request with this id.
+        "409":
+          description: The request is already terminal (COMPLETED, CANCELLED, or EXPIRED).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelRequestErrorResponse"
+  /api/v1/travel-marketplace/requests/{id}/complete:
+    post:
+      operationId: completeTravelRequest
+      summary: "CONFIRMED -> COMPLETED"
+      tags:
+        - TravelRequests
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPathParameter"
+      responses:
+        "200":
+          description: Completed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelRequestStaffResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No request with this id.
+        "409":
+          description: Not currently CONFIRMED.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelRequestErrorResponse"
 components:
   securitySchemes:
     bearerAuth:
@@ -931,6 +1222,14 @@ components:
             - invalid_transition
             - missing_publishable_option
             - missing_rights_cleared_media
+            - would_invalidate_published_content
+            - expected_version_required
+            - version_conflict
+        currentVersion:
+          description: Only present for a `version_conflict` — the service's real current version, for the editor to reload against.
+          type:
+            - integer
+            - "null"
     LocalizedText:
       type: object
       additionalProperties: false
@@ -997,6 +1296,11 @@ components:
           type:
             - string
             - "null"
+        expectedVersion:
+          description: Null on create — nothing to be stale against yet. Required on update, or the request is rejected with `expected_version_required`; see ProviderResponse.version.
+          type:
+            - integer
+            - "null"
     ProviderResponse:
       type: object
       additionalProperties: false
@@ -1005,6 +1309,7 @@ components:
         - name
         - status
         - createdAt
+        - version
       properties:
         id:
           type: string
@@ -1029,6 +1334,9 @@ components:
             - string
             - "null"
           format: date-time
+        version:
+          description: Send back as `expectedVersion` on the next update — a mismatch means someone else saved first; see UpsertProviderRequest.expectedVersion.
+          type: integer
     UpsertCategoryRequest:
       type: object
       additionalProperties: false
@@ -1049,6 +1357,11 @@ components:
         displayOrder:
           type: integer
           minimum: 0
+        expectedVersion:
+          description: Null on create — nothing to be stale against yet. Required on update, or the request is rejected with `expected_version_required`; see CategoryResponse.version.
+          type:
+            - integer
+            - "null"
     CategoryResponse:
       type: object
       additionalProperties: false
@@ -1059,6 +1372,7 @@ components:
         - displayOrder
         - status
         - createdAt
+        - version
       properties:
         id:
           type: string
@@ -1083,6 +1397,9 @@ components:
             - string
             - "null"
           format: date-time
+        version:
+          description: Send back as `expectedVersion` on the next update — a mismatch means someone else saved first; see UpsertCategoryRequest.expectedVersion.
+          type: integer
     ServiceOption:
       type: object
       additionalProperties: false
@@ -1141,12 +1458,17 @@ components:
       type: object
       additionalProperties: false
       required:
+        - id
         - label
         - maxParticipants
         - priceAmount
         - priceCurrency
         - priceBasis
       properties:
+        id:
+          type: string
+          format: uuid
+          description: Required so a public caller creating a travel request can say which option they chose.
         label:
           $ref: "#/components/schemas/LocalizedText"
         durationMinutes:
@@ -1223,6 +1545,11 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ServiceMedia"
+        expectedVersion:
+          description: Null on create — nothing to be stale against yet. Required on update, or the request is rejected with `expected_version_required`; see ServiceResponse.version.
+          type:
+            - integer
+            - "null"
     ServiceResponse:
       type: object
       additionalProperties: false
@@ -1238,6 +1565,7 @@ components:
         - media
         - status
         - createdAt
+        - version
       properties:
         id:
           type: string
@@ -1295,6 +1623,9 @@ components:
             - string
             - "null"
           format: date-time
+        version:
+          description: Send back as `expectedVersion` on the next update — a mismatch means someone else saved first; see UpsertServiceRequest.expectedVersion.
+          type: integer
     PublicCategoryResponse:
       type: object
       additionalProperties: false
@@ -1366,3 +1697,377 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/PublicServiceMedia"
+    TravelRequestStatus:
+      type: string
+      enum:
+        - NEW
+        - IN_REVIEW
+        - CONFIRMED
+        - COMPLETED
+        - CANCELLED
+        - EXPIRED
+    TravelRequestSourceChannel:
+      type: string
+      enum:
+        - WEBSITE
+        - MOBILE
+    TravelRequestCancelReason:
+      type: string
+      enum:
+        - CUSTOMER_REQUESTED
+        - STAFF_REJECTED
+        - SERVICE_UNAVAILABLE
+        - DUPLICATE_REQUEST
+        - OTHER
+    TravelRequestCustomer:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        phone:
+          type:
+            - string
+            - "null"
+          maxLength: 32
+        email:
+          type:
+            - string
+            - "null"
+          maxLength: 320
+    CreateTravelRequestRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - serviceId
+        - serviceOptionId
+        - requestedDate
+        - adults
+        - locale
+        - sourceChannel
+        - customer
+        - expectedPriceAmount
+        - expectedPriceCurrency
+      properties:
+        serviceId:
+          type: string
+          format: uuid
+        serviceOptionId:
+          type: string
+          format: uuid
+        requestedDate:
+          type: string
+          format: date
+          description: Must be in the future.
+        requestedTime:
+          type:
+            - string
+            - "null"
+          format: time
+        adults:
+          type: integer
+          minimum: 1
+        children:
+          type: integer
+          minimum: 0
+          default: 0
+        hotelOrPickup:
+          type:
+            - string
+            - "null"
+          maxLength: 500
+        locale:
+          type: string
+          enum:
+            - en
+            - ar
+        notes:
+          type:
+            - string
+            - "null"
+          maxLength: 2000
+        sourceChannel:
+          $ref: "#/components/schemas/TravelRequestSourceChannel"
+        customer:
+          $ref: "#/components/schemas/TravelRequestCustomer"
+        expectedPriceAmount:
+          type: string
+          description: >-
+            The price the caller's own review screen displayed for this
+            option. Decimal string, 2 places. Compared against the option's
+            real current price; a mismatch (the owner edited the catalog
+            between review and submit) is rejected with 409 price_changed
+            rather than silently confirmed at the new price.
+        expectedPriceCurrency:
+          type: string
+    CancelTravelRequestRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - reason
+      properties:
+        reason:
+          $ref: "#/components/schemas/TravelRequestCancelReason"
+        detail:
+          type:
+            - string
+            - "null"
+          maxLength: 1000
+    TravelRequestErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - service_not_found
+            - option_not_found
+            - party_size_exceeds_capacity
+            - price_changed
+            - invalid_transition
+            - already_terminal
+            - validation_failed
+        message:
+          type:
+            - string
+            - "null"
+          description: >-
+            Populated for error == validation_failed (a Bean Validation
+            failure, e.g. a malformed phone or a past date) — the real
+            exception handler's own message. Absent for the structured
+            domain errors above, whose error code alone is the message.
+        currentPriceAmount:
+          type:
+            - string
+            - "null"
+          description: Populated only for error == price_changed. Decimal string, 2 places.
+        currentPriceCurrency:
+          type:
+            - string
+            - "null"
+          description: Populated only for error == price_changed.
+    TravelRequestPublicResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - reference
+        - status
+        - serviceName
+        - optionLabel
+        - priceAmount
+        - priceCurrency
+        - priceBasis
+        - cancellationPolicy
+        - requestedDate
+        - adults
+        - children
+        - createdAt
+      properties:
+        reference:
+          type: string
+        status:
+          $ref: "#/components/schemas/TravelRequestStatus"
+        serviceName:
+          $ref: "#/components/schemas/LocalizedText"
+        optionLabel:
+          $ref: "#/components/schemas/LocalizedText"
+        priceAmount:
+          type: string
+        priceCurrency:
+          type: string
+        priceBasis:
+          $ref: "#/components/schemas/PriceBasis"
+        cancellationPolicy:
+          $ref: "#/components/schemas/LocalizedText"
+        requestedDate:
+          type: string
+          format: date
+        requestedTime:
+          type:
+            - string
+            - "null"
+          format: time
+        adults:
+          type: integer
+        children:
+          type: integer
+        hotelOrPickup:
+          type:
+            - string
+            - "null"
+        createdAt:
+          type: string
+          format: date-time
+        confirmedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        completedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        cancelledAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        expiredAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+    TravelRequestStaffResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - reference
+        - status
+        - serviceId
+        - serviceOptionId
+        - serviceName
+        - optionLabel
+        - priceAmount
+        - priceCurrency
+        - priceBasis
+        - cancellationPolicy
+        - requestedDate
+        - adults
+        - children
+        - locale
+        - sourceChannel
+        - customer
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        reference:
+          type: string
+        status:
+          $ref: "#/components/schemas/TravelRequestStatus"
+        serviceId:
+          type: string
+          format: uuid
+        serviceOptionId:
+          type: string
+          format: uuid
+        serviceName:
+          $ref: "#/components/schemas/LocalizedText"
+        optionLabel:
+          $ref: "#/components/schemas/LocalizedText"
+        priceAmount:
+          type: string
+        priceCurrency:
+          type: string
+        priceBasis:
+          $ref: "#/components/schemas/PriceBasis"
+        cancellationPolicy:
+          $ref: "#/components/schemas/LocalizedText"
+        requestedDate:
+          type: string
+          format: date
+        requestedTime:
+          type:
+            - string
+            - "null"
+          format: time
+        adults:
+          type: integer
+        children:
+          type: integer
+        hotelOrPickup:
+          type:
+            - string
+            - "null"
+        locale:
+          type: string
+        notes:
+          type:
+            - string
+            - "null"
+        sourceChannel:
+          $ref: "#/components/schemas/TravelRequestSourceChannel"
+        customer:
+          $ref: "#/components/schemas/TravelRequestCustomer"
+        createdAt:
+          type: string
+          format: date-time
+        confirmedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        completedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        cancelledAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        cancelReason:
+          oneOf:
+            - $ref: "#/components/schemas/TravelRequestCancelReason"
+            - type: "null"
+        cancelDetail:
+          type:
+            - string
+            - "null"
+        expiredAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+    TravelRequestActorType:
+      type: string
+      enum:
+        - CUSTOMER
+        - STAFF
+        - SYSTEM
+    TravelRequestAuditEventResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - occurredAt
+        - toStatus
+        - actorType
+      properties:
+        id:
+          type: string
+          format: uuid
+        occurredAt:
+          type: string
+          format: date-time
+        fromStatus:
+          oneOf:
+            - $ref: "#/components/schemas/TravelRequestStatus"
+            - type: "null"
+        toStatus:
+          $ref: "#/components/schemas/TravelRequestStatus"
+        actorType:
+          $ref: "#/components/schemas/TravelRequestActorType"
+        actorUserId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        reason:
+          oneOf:
+            - $ref: "#/components/schemas/TravelRequestCancelReason"
+            - type: "null"
+        detail:
+          type:
+            - string
+            - "null"

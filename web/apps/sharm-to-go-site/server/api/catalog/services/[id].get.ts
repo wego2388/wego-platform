@@ -8,7 +8,12 @@ export default defineEventHandler(async (event) => {
   const base = useRuntimeConfig().travelMarketplaceApiBase as string;
   const id = getRouterParam(event, "id");
 
-  const response = await fetch(`${base}/api/v1/travel-marketplace/public/services/${encodeURIComponent(String(id))}`);
+  let response: Response;
+  try {
+    response = await fetch(`${base}/api/v1/travel-marketplace/public/services/${encodeURIComponent(String(id))}`);
+  } catch {
+    throw createError({ statusCode: 502, statusMessage: "Could not reach the catalog." });
+  }
   if (response.status === 404) {
     setResponseStatus(event, 404);
     return null;

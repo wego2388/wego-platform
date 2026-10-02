@@ -59,6 +59,13 @@ data class UpsertServiceRequest(
     @field:Valid val exclusions: LocalizedTextDto?,
     @field:Valid val options: List<ServiceOptionDto>,
     @field:Valid val media: List<ServiceMediaDto>,
+    // Null on create (there is nothing to be stale against yet). Required
+    // on update — the controller rejects a null here before it ever reaches
+    // UpdateServiceService, since a missing value can't be checked for
+    // staleness at all; see ServiceController.update and
+    // UpdateServiceService's own class doc for the concurrent-edit bug this
+    // closes.
+    val expectedVersion: Int?,
 )
 
 data class ServiceResponse(
@@ -79,13 +86,24 @@ data class ServiceResponse(
     val createdAt: Instant,
     val publishedAt: Instant?,
     val archivedAt: Instant?,
+    val version: Int,
 )
 
 data class ServiceErrorResponse(
     val error: String,
+    val currentVersion: Int? = null,
 )
 
+/**
+ * [id] is required — not just descriptive — so a public caller creating a
+ * travel request (`CreateTravelRequestApiRequest.serviceOptionId`) has a
+ * real, stable way to say which option they chose. This response was
+ * originally id-less (a pure catalog-display DTO, WEGO-010-A Packet 1C);
+ * the request-creation flow added in Phase 1B needs it, so it was added
+ * here rather than inventing a parallel lookup.
+ */
 data class PublicServiceOptionResponse(
+    val id: UUID,
     val label: LocalizedTextDto,
     val durationMinutes: Int?,
     val maxParticipants: Int,

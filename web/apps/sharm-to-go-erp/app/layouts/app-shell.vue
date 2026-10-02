@@ -20,6 +20,7 @@ interface NavGroup {
 
 const navGroups: NavGroup[] = [
   { label: "Overview", links: [{ to: "/", label: "Dashboard" }] },
+  { label: "Operations", links: [{ to: "/requests", label: "Requests" }] },
   {
     label: "Travel Marketplace",
     links: [

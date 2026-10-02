@@ -31,6 +31,11 @@ const form = ref(blankForm());
 // null while creating (code is editable); the category's id while editing
 // (code becomes read-only — see UpdateCategoryService's own code-immutable rule).
 const editingCategoryId = ref<string | null>(null);
+// The version the edit form was loaded against — sent back as
+// expectedVersion so a save against a category someone else already
+// changed is rejected (409 version_conflict) instead of silently
+// overwriting it.
+const editingCategoryVersion = ref<number | null>(null);
 const formState = ref<"idle" | "submitting" | "error">("idle");
 const formError = ref("");
 
@@ -53,6 +58,10 @@ function errorText(error: unknown): string {
     if (error.status === 403) return "You don't have permission for this.";
     if (error.errorCode === "already_archived") return "That category is already archived.";
     if (error.errorCode === "duplicate_code") return "A category with this code already exists.";
+    if (error.errorCode === "version_conflict") {
+      return "Someone else saved changes to this category while you were editing. Reload it and redo your changes.";
+    }
+    if (error.errorCode === "expected_version_required") return "Reload this category and try again.";
     if (error.status === 404) return "Not found.";
     if (error.status === 400) return "Check the form — the code must be lowercase-kebab-case, and both English and Arabic names are required.";
     return `Request failed (${error.errorCode}).`;
@@ -85,6 +94,7 @@ function runFilter() {
 
 function startEdit(category: Category) {
   editingCategoryId.value = category.id;
+  editingCategoryVersion.value = category.version;
   form.value = {
     code: category.code,
     nameEn: category.name.en,
@@ -99,6 +109,7 @@ function startEdit(category: Category) {
 
 function cancelEdit() {
   editingCategoryId.value = null;
+  editingCategoryVersion.value = null;
   form.value = blankForm();
   formState.value = "idle";
   formError.value = "";
@@ -111,6 +122,7 @@ function buildRequestBody(): UpsertCategoryBody {
     name: { en: form.value.nameEn, ar: form.value.nameAr },
     description: hasDescription ? { en: form.value.descriptionEn, ar: form.value.descriptionAr } : undefined,
     displayOrder: Number(form.value.displayOrder || 0),
+    expectedVersion: editingCategoryId.value ? (editingCategoryVersion.value ?? undefined) : undefined,
   };
 }
 

@@ -2,10 +2,17 @@
 
 ## Product shape
 
-Sharm To Go is a curated multi-provider marketplace for Sharm El Sheikh. Some
-services may be operated directly; others are fulfilled by approved local
-providers. The public experience must identify that responsibility before the
-customer confirms.
+Sharm To Go is a customer-facing travel companion and marketing-and-booking
+brand for Sharm El Sheikh. It helps a traveller choose the right experience for
+their interests and budget, ask a real team for help, and move through one
+clear request and confirmation journey. The public story is one accountable
+Sharm To Go relationship — not a directory of anonymous providers.
+
+The underlying reusable product retains provider, fulfilment and capacity
+facts where operations require them. Those facts protect commercial truth;
+they do not turn the public brand into a multi-provider marketplace message.
+See `BRAND_AND_GROWTH_STRATEGY.md` for the approved positioning and conversion
+model.
 
 The repository boundary is:
 
@@ -20,17 +27,20 @@ cannot read, mutate, or silently become a diving booking.
 
 ## Intended experiences
 
-- Public site: discovery, categories, filters, service detail, saved items,
-  trip planning, request/quote/confirmation, booking management, locale and
-  permitted currency display.
+- Public site: marketing landing pages, discovery, categories, filters,
+  persuasive service detail, WhatsApp enquiry, request/quote/confirmation,
+  booking management, saved items, trip planning, locale and permitted
+  currency display.
 - Operations dashboard: catalog approval, provider onboarding, request queue,
   booking exceptions, content/locales, payments/refunds, commissions and
   settlements, audit and reports.
-- Provider workspace: only the provider's assigned products, availability,
-  requests, confirmations, documents and settlement statements.
+- Provider workspace (future only): assigned products, availability, requests,
+  confirmations, documents and settlement statements when a real partner
+  operating model requires it.
 
-The provider workspace is deferred until provider identity and resource scopes
-are designed and reviewed. It must not reuse a broad staff dashboard role.
+The provider workspace is not part of the launch proposition and stays deferred
+until provider identity and resource scopes are designed and reviewed. It must
+not reuse a broad staff dashboard role.
 
 ## Future bounded domains
 

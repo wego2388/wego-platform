@@ -6,21 +6,31 @@ import com.wego.travelmarketplace.application.ApproveServiceService
 import com.wego.travelmarketplace.application.ArchiveCategoryService
 import com.wego.travelmarketplace.application.ArchiveProviderService
 import com.wego.travelmarketplace.application.ArchiveServiceService
+import com.wego.travelmarketplace.application.CancelTravelRequestService
 import com.wego.travelmarketplace.application.CategoryQueryService
 import com.wego.travelmarketplace.application.CategoryRepository
+import com.wego.travelmarketplace.application.CompleteTravelRequestService
+import com.wego.travelmarketplace.application.ConfirmTravelRequestService
 import com.wego.travelmarketplace.application.CreateCategoryService
 import com.wego.travelmarketplace.application.CreateProviderService
 import com.wego.travelmarketplace.application.CreateServiceService
+import com.wego.travelmarketplace.application.CreateTravelRequestService
+import com.wego.travelmarketplace.application.ExpireTravelRequestsService
 import com.wego.travelmarketplace.application.ProviderQueryService
 import com.wego.travelmarketplace.application.ProviderRepository
 import com.wego.travelmarketplace.application.PublicCatalogQueryService
 import com.wego.travelmarketplace.application.PublishServiceService
 import com.wego.travelmarketplace.application.ServiceQueryService
 import com.wego.travelmarketplace.application.ServiceRepository
+import com.wego.travelmarketplace.application.StartTravelRequestReviewService
 import com.wego.travelmarketplace.application.SubmitServiceForReviewService
 import com.wego.travelmarketplace.application.SuspendServiceService
 import com.wego.travelmarketplace.application.TransactionRunner
 import com.wego.travelmarketplace.application.TravelMarketplaceAuditRecorder
+import com.wego.travelmarketplace.application.TravelRequestAuditQueryService
+import com.wego.travelmarketplace.application.TravelRequestAuditRecorder
+import com.wego.travelmarketplace.application.TravelRequestQueryService
+import com.wego.travelmarketplace.application.TravelRequestRepository
 import com.wego.travelmarketplace.application.UpdateCategoryService
 import com.wego.travelmarketplace.application.UpdateProviderService
 import com.wego.travelmarketplace.application.UpdateServiceService
@@ -164,4 +174,62 @@ class TravelMarketplaceBeanConfiguration {
         serviceRepository: ServiceRepository,
         categoryRepository: CategoryRepository,
     ): PublicCatalogQueryService = PublicCatalogQueryService(serviceRepository, categoryRepository)
+
+    @Bean
+    fun createTravelRequestService(
+        serviceRepository: ServiceRepository,
+        requestRepository: TravelRequestRepository,
+        auditRecorder: TravelRequestAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): CreateTravelRequestService =
+        CreateTravelRequestService(serviceRepository, requestRepository, auditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun startTravelRequestReviewService(
+        requestRepository: TravelRequestRepository,
+        auditRecorder: TravelRequestAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): StartTravelRequestReviewService = StartTravelRequestReviewService(requestRepository, auditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun confirmTravelRequestService(
+        requestRepository: TravelRequestRepository,
+        auditRecorder: TravelRequestAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): ConfirmTravelRequestService = ConfirmTravelRequestService(requestRepository, auditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun cancelTravelRequestService(
+        requestRepository: TravelRequestRepository,
+        auditRecorder: TravelRequestAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): CancelTravelRequestService = CancelTravelRequestService(requestRepository, auditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun completeTravelRequestService(
+        requestRepository: TravelRequestRepository,
+        auditRecorder: TravelRequestAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): CompleteTravelRequestService = CompleteTravelRequestService(requestRepository, auditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun expireTravelRequestsService(
+        requestRepository: TravelRequestRepository,
+        auditRecorder: TravelRequestAuditRecorder,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): ExpireTravelRequestsService = ExpireTravelRequestsService(requestRepository, auditRecorder, transactionRunner, clock)
+
+    @Bean
+    fun travelRequestQueryService(requestRepository: TravelRequestRepository): TravelRequestQueryService =
+        TravelRequestQueryService(requestRepository)
+
+    @Bean
+    fun travelRequestAuditQueryService(auditRecorder: TravelRequestAuditRecorder): TravelRequestAuditQueryService =
+        TravelRequestAuditQueryService(auditRecorder)
 }

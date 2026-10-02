@@ -20,6 +20,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
@@ -133,6 +134,14 @@ class TravelMarketplaceHttpTest {
         return requireNotNull(match) { "No $field field in response body: $body" }.groupValues[1]
     }
 
+    private fun jsonIntField(
+        body: String,
+        field: String,
+    ): Int {
+        val match = Regex(""""$field"\s*:\s*(\d+)""").find(body)
+        return requireNotNull(match) { "No $field field in response body: $body" }.groupValues[1].toInt()
+    }
+
     private fun createCategory(
         token: String,
         code: String = "sea-adventures-${UUID.randomUUID().toString().take(8)}",
@@ -177,6 +186,7 @@ class TravelMarketplaceHttpTest {
         providerId: String? = null,
         withOptions: Boolean = true,
         withMedia: Boolean = true,
+        expectedVersion: Int? = null,
     ): String {
         val providerJson = if (providerId != null) "\"$providerId\"" else "null"
         val optionsJson =
@@ -204,7 +214,8 @@ class TravelMarketplaceHttpTest {
               "inclusions": null,
               "exclusions": null,
               "options": $optionsJson,
-              "media": $mediaJson
+              "media": $mediaJson,
+              "expectedVersion": ${expectedVersion ?: "null"}
             }
             """.trimIndent()
     }
@@ -444,6 +455,7 @@ class TravelMarketplaceHttpTest {
             }.andExpect {
                 status { isOk() }
                 jsonPath("$.code") { value("family-activities") }
+                jsonPath("$.version") { value(1) }
             }
 
         // A duplicate code is a clean 409, never a raw 500 from the unique constraint.
@@ -458,6 +470,45 @@ class TravelMarketplaceHttpTest {
                 jsonPath("$.error") { value("duplicate_code") }
             }
 
+        mockMvc
+            .put("/api/v1/travel-marketplace/categories/$categoryId") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    """
+                    {"code": "family-activities", "name": {"en": "Family Fun", "ar": "عائلي ممتع"},
+                     "description": null, "displayOrder": 1, "expectedVersion": 1}
+                    """.trimIndent()
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.name.en") { value("Family Fun") }
+                jsonPath("$.version") { value(2) }
+            }
+
+        // A stale expectedVersion is a clean 409, never a silent overwrite of the update above.
+        mockMvc
+            .put("/api/v1/travel-marketplace/categories/$categoryId") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    """
+                    {"code": "family-activities", "name": {"en": "Stale Edit", "ar": "تعديل قديم"},
+                     "description": null, "displayOrder": 1, "expectedVersion": 1}
+                    """.trimIndent()
+            }.andExpect {
+                status { isConflict() }
+                jsonPath("$.error") { value("version_conflict") }
+                jsonPath("$.currentVersion") { value(2) }
+            }
+
+        mockMvc
+            .delete("/api/v1/travel-marketplace/categories/$categoryId") {
+                header("Authorization", "Bearer $token")
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.status") { value("ARCHIVED") }
+            }
+
         val providerId = createProvider(token)
         mockMvc
             .get("/api/v1/travel-marketplace/providers/$providerId") {
@@ -465,6 +516,67 @@ class TravelMarketplaceHttpTest {
             }.andExpect {
                 status { isOk() }
                 jsonPath("$.name") { value("Blue Horizon Diving") }
+                jsonPath("$.version") { value(1) }
+            }
+
+        mockMvc
+            .put("/api/v1/travel-marketplace/providers/$providerId") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    """{"name": "Blue Horizon Diving Co", "contactEmail": "ops@example.com", "contactPhone": null, "expectedVersion": 1}"""
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.name") { value("Blue Horizon Diving Co") }
+                jsonPath("$.version") { value(2) }
+            }
+
+        // A stale expectedVersion is a clean 409, never a silent overwrite of the update above.
+        mockMvc
+            .put("/api/v1/travel-marketplace/providers/$providerId") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"name": "Stale Edit", "contactEmail": "ops@example.com", "contactPhone": null, "expectedVersion": 1}"""
+            }.andExpect {
+                status { isConflict() }
+                jsonPath("$.error") { value("version_conflict") }
+                jsonPath("$.currentVersion") { value(2) }
+            }
+
+        mockMvc
+            .delete("/api/v1/travel-marketplace/providers/$providerId") {
+                header("Authorization", "Bearer $token")
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.status") { value("ARCHIVED") }
+            }
+    }
+
+    @Test
+    fun `updating a category or provider without sending expectedVersion is a clean 400, never an unconditional overwrite`() {
+        val token = login(staffEmail, staffPassword)
+        val categoryId = createCategory(token, code = "no-version-category")
+        val providerId = createProvider(token)
+
+        mockMvc
+            .put("/api/v1/travel-marketplace/categories/$categoryId") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    """{"code": "no-version-category", "name": {"en": "X", "ar": "س"}, "description": null, "displayOrder": 0}"""
+            }.andExpect {
+                status { isBadRequest() }
+                jsonPath("$.error") { value("expected_version_required") }
+            }
+
+        mockMvc
+            .put("/api/v1/travel-marketplace/providers/$providerId") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"name": "X", "contactEmail": "ops@example.com", "contactPhone": null}"""
+            }.andExpect {
+                status { isBadRequest() }
+                jsonPath("$.error") { value("expected_version_required") }
             }
     }
 
@@ -552,7 +664,10 @@ class TravelMarketplaceHttpTest {
                 header("Authorization", "Bearer $token")
                 contentType = MediaType.APPLICATION_JSON
                 content =
-                    """{"code": "a-different-code", "name": {"en": "Renamed", "ar": "معاد تسميته"}, "description": null, "displayOrder": 0}"""
+                    """
+                    {"code": "a-different-code", "name": {"en": "Renamed", "ar": "معاد تسميته"},
+                     "description": null, "displayOrder": 0, "expectedVersion": 1}
+                    """.trimIndent()
             }.andExpect {
                 status { isConflict() }
                 jsonPath("$.error") { value("code_immutable") }
@@ -581,6 +696,7 @@ class TravelMarketplaceHttpTest {
                 .andReturn()
                 .response.contentAsString
         val serviceId = jsonField(createBody, "id")
+        val version = jsonIntField(createBody, "version")
         mockMvc.post("/api/v1/travel-marketplace/services/$serviceId/submit-for-review") { header("Authorization", "Bearer $token") }
         mockMvc.post("/api/v1/travel-marketplace/services/$serviceId/approve") { header("Authorization", "Bearer $token") }
         mockMvc.post("/api/v1/travel-marketplace/services/$serviceId/publish") { header("Authorization", "Bearer $token") }
@@ -589,7 +705,14 @@ class TravelMarketplaceHttpTest {
             .put("/api/v1/travel-marketplace/services/$serviceId") {
                 header("Authorization", "Bearer $token")
                 contentType = MediaType.APPLICATION_JSON
-                content = createServiceRequest(categoryId, name = "Still Live Service", withOptions = false, withMedia = false)
+                content =
+                    createServiceRequest(
+                        categoryId,
+                        name = "Still Live Service",
+                        withOptions = false,
+                        withMedia = false,
+                        expectedVersion = version,
+                    )
             }.andExpect {
                 status { isConflict() }
                 jsonPath("$.error") { value("would_invalidate_published_content") }
@@ -603,6 +726,100 @@ class TravelMarketplaceHttpTest {
                 status { isOk() }
                 jsonPath("$.options.length()") { value(1) }
                 jsonPath("$.media.length()") { value(1) }
+            }
+    }
+
+    @Test
+    fun `updating a service without sending expectedVersion is a clean 400, never an unconditional overwrite`() {
+        val token = login(staffEmail, staffPassword)
+        val categoryId = createCategory(token)
+        val createBody =
+            mockMvc
+                .post("/api/v1/travel-marketplace/services") {
+                    header("Authorization", "Bearer $token")
+                    contentType = MediaType.APPLICATION_JSON
+                    content = createServiceRequest(categoryId)
+                }.andExpect { status { isCreated() } }
+                .andReturn()
+                .response.contentAsString
+        val serviceId = jsonField(createBody, "id")
+
+        mockMvc
+            .put("/api/v1/travel-marketplace/services/$serviceId") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content = createServiceRequest(categoryId, name = "Updated Without Version")
+            }.andExpect {
+                status { isBadRequest() }
+                jsonPath("$.error") { value("expected_version_required") }
+            }
+    }
+
+    @Test
+    fun `a stale expectedVersion is a clean 409, not a silent overwrite of a concurrent edit`() {
+        val token = login(staffEmail, staffPassword)
+        val categoryId = createCategory(token)
+        val createBody =
+            mockMvc
+                .post("/api/v1/travel-marketplace/services") {
+                    header("Authorization", "Bearer $token")
+                    contentType = MediaType.APPLICATION_JSON
+                    content = createServiceRequest(categoryId)
+                }.andExpect { status { isCreated() } }
+                .andReturn()
+                .response.contentAsString
+        val serviceId = jsonField(createBody, "id")
+        val originalVersion = jsonIntField(createBody, "version")
+
+        // Simulates staff member A's successful save — the one B's stale
+        // edit form never saw.
+        val firstUpdateBody =
+            mockMvc
+                .put("/api/v1/travel-marketplace/services/$serviceId") {
+                    header("Authorization", "Bearer $token")
+                    contentType = MediaType.APPLICATION_JSON
+                    content = createServiceRequest(categoryId, name = "Edited By Staff A", expectedVersion = originalVersion)
+                }.andExpect { status { isOk() } }
+                .andReturn()
+                .response.contentAsString
+        val bumpedVersion = jsonIntField(firstUpdateBody, "version")
+        assertThat(bumpedVersion).isEqualTo(originalVersion + 1)
+
+        // Staff member B's edit form was loaded before A saved — it still
+        // carries the original (now stale) version. This must be rejected,
+        // not silently applied over A's change.
+        mockMvc
+            .put("/api/v1/travel-marketplace/services/$serviceId") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content = createServiceRequest(categoryId, name = "Edited By Staff B (stale)", expectedVersion = originalVersion)
+            }.andExpect {
+                status { isConflict() }
+                jsonPath("$.error") { value("version_conflict") }
+                jsonPath("$.currentVersion") { value(bumpedVersion) }
+            }
+
+        // A's change survived; B's never applied.
+        mockMvc
+            .get("/api/v1/travel-marketplace/services/$serviceId") {
+                header("Authorization", "Bearer $token")
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.name.en") { value("Edited By Staff A") }
+                jsonPath("$.version") { value(bumpedVersion) }
+            }
+
+        // B reloads the now-current version and retries — the real recovery
+        // path a stale edit is expected to take.
+        mockMvc
+            .put("/api/v1/travel-marketplace/services/$serviceId") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content = createServiceRequest(categoryId, name = "Edited By Staff B (retried)", expectedVersion = bumpedVersion)
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.name.en") { value("Edited By Staff B (retried)") }
+                jsonPath("$.version") { value(bumpedVersion + 1) }
             }
     }
 

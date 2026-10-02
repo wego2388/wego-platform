@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import MockPhoto from "../components/MockPhoto.vue";
+import GuestStepper from "../components/GuestStepper.vue";
+import SiteFooter from "../components/SiteFooter.vue";
 import { accentForIndex, toneForIndex } from "../content/categoryAccents";
-import { directionFor, type SharmLocale, siteCopy } from "../content/locales";
-import { contact, emailLink, whatsappLink } from "../content/contact";
 import { vReveal } from "../composables/useScrollReveal";
+import { useSiteLocale } from "../composables/useSiteLocale";
+import { listPublicCategories, type PublicCategory } from "../composables/usePublicCatalog";
 
-const locale = ref<SharmLocale>("en");
-const copy = computed(() => siteCopy[locale.value]);
-const direction = computed(() => directionFor(locale.value));
+const { locale, copy, direction, toggleLocale } = useSiteLocale();
 
 useHead(() => ({
   title: locale.value === "ar" ? "اكتشف شرم بوضوح · Sharm To Go" : "Sharm To Go · Discover Sharm clearly",
@@ -18,15 +18,49 @@ useHead(() => ({
   },
 }));
 
-function toggleLocale() {
-  locale.value = locale.value === "en" ? "ar" : "en";
-}
-
 const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "bg-sharm-sun text-sharm-ink"];
+
+// The nav below md was simply `hidden`, with no mobile equivalent at all —
+// a real gap, not a deliberate simplification (the desktop nav has 5 real
+// links: Experiences, How it works, About, FAQ, Contact).
+const mobileMenuOpen = ref(false);
+
+// Real search state, routed into the catalog page's own query params (and
+// from there forward into the request flow's date/party pre-fill) — see
+// experiences/index.vue and experiences/[id]/request.vue.
+const router = useRouter();
+const categories = ref<PublicCategory[]>([]);
+const searchCategoryId = ref("");
+const searchDate = ref("");
+const searchAdults = ref(2);
+const searchChildren = ref(0);
+
+const minSearchDate = computed(() => {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return tomorrow.toISOString().slice(0, 10);
+});
+
+onMounted(async () => {
+  try {
+    categories.value = await listPublicCategories();
+  } catch {
+    categories.value = [];
+  }
+});
+
+function submitSearch() {
+  const query: Record<string, string> = {};
+  if (searchCategoryId.value) query.category = searchCategoryId.value;
+  if (searchDate.value) query.date = searchDate.value;
+  query.adults = String(searchAdults.value);
+  if (searchChildren.value > 0) query.children = String(searchChildren.value);
+  router.push({ path: "/experiences", query });
+}
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas text-sharm-ink">
+  <main id="main-content" :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas text-sharm-ink">
     <div class="sharm-hero relative overflow-hidden border-b border-black/5">
       <div
         class="sharm-hero-orb pointer-events-none absolute -top-16 -right-10 size-72 rounded-full bg-sharm-sun/20 blur-3xl"
@@ -38,23 +72,55 @@ const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "
       />
 
       <header class="relative mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-6 lg:px-10">
-        <NuxtLink to="/" class="flex items-center gap-3 font-semibold" aria-label="Sharm To Go home">
+        <NuxtLink to="/" class="flex items-center gap-3 font-semibold" :aria-label="copy.nav.home">
           <img src="/icon-192.png" alt="" width="44" height="44" class="size-11" aria-hidden="true">
           <span class="font-display text-lg">Sharm To Go</span>
         </NuxtLink>
         <nav class="hidden items-center gap-7 text-sm font-semibold md:flex" aria-label="Primary navigation">
           <NuxtLink to="/experiences" class="transition-colors hover:text-sharm-sea-bright">{{ copy.nav.experiences }}</NuxtLink>
           <a href="#how" class="transition-colors hover:text-sharm-sea-bright">{{ copy.nav.howItWorks }}</a>
-          <a href="#trust" class="transition-colors hover:text-sharm-sea-bright">{{ copy.nav.trust }}</a>
+          <NuxtLink to="/about" class="transition-colors hover:text-sharm-sea-bright">{{ copy.nav.about }}</NuxtLink>
+          <NuxtLink to="/faq" class="transition-colors hover:text-sharm-sea-bright">{{ copy.nav.faq }}</NuxtLink>
+          <NuxtLink to="/contact" class="transition-colors hover:text-sharm-sea-bright">{{ copy.nav.contact }}</NuxtLink>
         </nav>
-        <button
-          type="button"
-          class="rounded-full border border-sharm-sea/20 bg-sharm-surface/80 px-4 py-2 text-sm font-semibold text-sharm-sea transition-transform hover:scale-105"
-          @click="toggleLocale"
-        >
-          {{ copy.languageName }}
-        </button>
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            class="rounded-full border border-sharm-sea/20 bg-sharm-surface/80 px-4 py-2 text-sm font-semibold text-sharm-sea transition-transform hover:scale-105"
+            @click="toggleLocale"
+          >
+            {{ copy.languageName }}
+          </button>
+          <button
+            type="button"
+            class="grid size-11 shrink-0 place-items-center rounded-full border border-sharm-sea/20 bg-sharm-surface/80 text-sharm-sea md:hidden"
+            :aria-expanded="mobileMenuOpen"
+            aria-controls="mobile-nav"
+            :aria-label="copy.nav.menu"
+            @click="mobileMenuOpen = !mobileMenuOpen"
+          >
+            <svg v-if="!mobileMenuOpen" viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+            <svg v-else viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        </div>
       </header>
+
+      <nav
+        v-if="mobileMenuOpen"
+        id="mobile-nav"
+        class="relative mx-6 mb-6 flex flex-col gap-1 rounded-2xl border border-black/5 bg-sharm-surface p-3 text-sm font-semibold shadow-lg md:hidden"
+        aria-label="Primary navigation"
+      >
+        <NuxtLink to="/experiences" class="rounded-xl px-4 py-3 transition-colors hover:bg-sharm-lagoon" @click="mobileMenuOpen = false">{{ copy.nav.experiences }}</NuxtLink>
+        <a href="#how" class="rounded-xl px-4 py-3 transition-colors hover:bg-sharm-lagoon" @click="mobileMenuOpen = false">{{ copy.nav.howItWorks }}</a>
+        <NuxtLink to="/about" class="rounded-xl px-4 py-3 transition-colors hover:bg-sharm-lagoon" @click="mobileMenuOpen = false">{{ copy.nav.about }}</NuxtLink>
+        <NuxtLink to="/faq" class="rounded-xl px-4 py-3 transition-colors hover:bg-sharm-lagoon" @click="mobileMenuOpen = false">{{ copy.nav.faq }}</NuxtLink>
+        <NuxtLink to="/contact" class="rounded-xl px-4 py-3 transition-colors hover:bg-sharm-lagoon" @click="mobileMenuOpen = false">{{ copy.nav.contact }}</NuxtLink>
+      </nav>
 
       <section class="relative mx-auto grid max-w-7xl gap-12 px-6 pt-16 pb-20 lg:grid-cols-[1.15fr_0.85fr] lg:px-10 lg:pt-24">
         <div>
@@ -85,29 +151,83 @@ const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "
           </div>
         </div>
 
-        <div class="self-end rounded-[2rem] border border-sharm-surface/80 bg-sharm-surface/90 p-5 shadow-2xl shadow-sharm-sea/10 backdrop-blur">
+        <form class="self-end rounded-[2rem] border border-sharm-surface/80 bg-sharm-surface/90 p-5 shadow-2xl shadow-sharm-sea/10 backdrop-blur" @submit.prevent="submitSearch">
           <div class="grid gap-3">
             <div class="rounded-2xl border border-black/5 p-4">
-              <p class="text-xs font-bold tracking-[0.12em] text-sharm-muted uppercase">{{ copy.search.category }}</p>
-              <p class="mt-2 font-semibold">{{ copy.search.anyCategory }}</p>
+              <label for="search-category" class="block text-xs font-bold tracking-[0.12em] text-sharm-muted uppercase">{{ copy.search.category }}</label>
+              <select
+                id="search-category"
+                v-model="searchCategoryId"
+                class="mt-2 w-full min-h-10 rounded-lg border-0 bg-transparent p-0 font-semibold focus:outline-none"
+              >
+                <option value="">{{ copy.search.anyCategory }}</option>
+                <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name[locale] }}</option>
+              </select>
             </div>
             <div class="grid gap-3 sm:grid-cols-2">
               <div class="rounded-2xl border border-black/5 p-4">
-                <p class="text-xs font-bold tracking-[0.12em] text-sharm-muted uppercase">{{ copy.search.date }}</p>
-                <p class="mt-2 font-semibold">{{ copy.search.flexible }}</p>
+                <label for="search-date" class="block text-xs font-bold tracking-[0.12em] text-sharm-muted uppercase">{{ copy.search.date }}</label>
+                <input
+                  id="search-date"
+                  v-model="searchDate"
+                  type="date"
+                  :min="minSearchDate"
+                  :placeholder="copy.search.flexible"
+                  class="mt-2 w-full min-h-10 rounded-lg border-0 bg-transparent p-0 font-semibold focus:outline-none"
+                >
               </div>
               <div class="rounded-2xl border border-black/5 p-4">
                 <p class="text-xs font-bold tracking-[0.12em] text-sharm-muted uppercase">{{ copy.search.guests }}</p>
-                <p class="mt-2 font-semibold">{{ copy.search.people }}</p>
+                <p class="mt-2 font-semibold">{{ searchAdults + searchChildren }} {{ copy.search.people }}</p>
               </div>
             </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <GuestStepper
+                v-model:count="searchAdults"
+                :label="copy.request.adultsLabel"
+                :minimum="1"
+                :decrease-label="copy.request.decreaseGuestLabel"
+                :increase-label="copy.request.increaseGuestLabel"
+              />
+              <GuestStepper
+                v-model:count="searchChildren"
+                :label="copy.request.childrenLabel"
+                :minimum="0"
+                :decrease-label="copy.request.decreaseGuestLabel"
+                :increase-label="copy.request.increaseGuestLabel"
+              />
+            </div>
           </div>
-          <div class="mt-5 rounded-2xl bg-sharm-lagoon p-4 text-sm leading-6 text-sharm-sea">
+          <button
+            type="submit"
+            class="mt-4 w-full rounded-full bg-sharm-sea px-6 py-3 font-semibold text-white shadow-lg shadow-sharm-sea/20 transition-transform hover:-translate-y-0.5 hover:shadow-xl"
+          >
+            {{ copy.search.searchButton }}
+          </button>
+          <div class="mt-4 rounded-2xl bg-sharm-lagoon p-4 text-sm leading-6 text-sharm-sea">
             {{ copy.marketplaceNotice }}
           </div>
-        </div>
+        </form>
       </section>
     </div>
+
+    <section class="border-b border-black/5 bg-sharm-surface px-6 py-14 lg:px-10">
+      <div class="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+        <div v-reveal class="sharm-reveal">
+          <h2 class="font-display text-3xl font-semibold tracking-tight">{{ copy.proof.heading }}</h2>
+          <p class="mt-4 leading-7 text-sharm-muted">{{ copy.proof.body }}</p>
+          <NuxtLink to="/about" class="mt-6 inline-flex font-bold text-sharm-sea underline decoration-sharm-sun decoration-2 underline-offset-4">
+            {{ copy.nav.about }}
+          </NuxtLink>
+        </div>
+        <dl class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div v-for="fact in copy.proof.facts" :key="fact.value" class="rounded-2xl bg-sharm-lagoon p-5 text-center text-sharm-sea">
+            <dt class="font-display text-2xl font-bold sm:text-3xl">{{ fact.value }}</dt>
+            <dd class="mt-2 text-xs font-semibold leading-5">{{ fact.label }}</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
 
     <section class="mx-auto max-w-7xl px-6 py-20 lg:px-10">
       <div v-reveal class="sharm-reveal max-w-2xl">
@@ -172,12 +292,6 @@ const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "
       </ul>
     </section>
 
-    <footer class="border-t border-black/5 px-6 py-8 text-center text-sm text-sharm-muted lg:px-10">
-      <p>{{ copy.footer }}</p>
-      <p class="money mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
-        <a :href="whatsappLink(locale === 'ar' ? 'مرحبًا Sharm To Go' : 'Hello Sharm To Go')" target="_blank" rel="noopener" class="font-semibold text-sharm-sea hover:underline">WhatsApp {{ contact.whatsappDisplay }}</a>
-        <a :href="emailLink('Sharm To Go')" class="font-semibold text-sharm-sea hover:underline">{{ contact.email }}</a>
-      </p>
-    </footer>
+    <SiteFooter :locale="locale" />
   </main>
 </template>

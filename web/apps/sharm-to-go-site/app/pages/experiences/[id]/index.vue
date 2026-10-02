@@ -1,18 +1,27 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import MockPhoto from "../../components/MockPhoto.vue";
-import SiteSubHeader from "../../components/SiteSubHeader.vue";
-import { contact, emailLink, whatsappLink } from "../../content/contact";
-import { toneForIndex } from "../../content/categoryAccents";
-import { directionFor, type SharmLocale, siteCopy } from "../../content/locales";
-import { getPublicService, listPublicCategories, type PublicCategory, type PublicService } from "../../composables/usePublicCatalog";
+import MockPhoto from "../../../components/MockPhoto.vue";
+import SiteSubHeader from "../../../components/SiteSubHeader.vue";
+import SiteFooter from "../../../components/SiteFooter.vue";
+import { contact, emailLink, whatsappLink } from "../../../content/contact";
+import { toneForIndex } from "../../../content/categoryAccents";
+import { useSiteLocale } from "../../../composables/useSiteLocale";
+import { getPublicService, listPublicCategories, priceBasisLabel, type PublicCategory, type PublicService } from "../../../composables/usePublicCatalog";
 
 const route = useRoute();
 const serviceId = String(route.params.id);
 
-const locale = ref<SharmLocale>("en");
-const copy = computed(() => siteCopy[locale.value]);
-const direction = computed(() => directionFor(locale.value));
+// Forwarded straight through from the catalog page (itself forwarded from
+// the homepage search box, if the visitor used it) — see experiences/index.vue.
+const forwardedQuery = computed<Record<string, string>>(() => {
+  const query: Record<string, string> = {};
+  if (typeof route.query.date === "string") query.date = route.query.date;
+  if (typeof route.query.adults === "string") query.adults = route.query.adults;
+  if (typeof route.query.children === "string") query.children = route.query.children;
+  return query;
+});
+
+const { locale, copy, direction, toggleLocale } = useSiteLocale();
 
 const service = ref<PublicService | null>(null);
 const categories = ref<PublicCategory[]>([]);
@@ -26,28 +35,45 @@ const state = ref<"loading" | "loaded" | "not-found" | "error">("loading");
 // real screenshots of both pages side by side.
 const categoryIndex = computed(() => categories.value.findIndex((item) => item.id === service.value?.categoryId));
 
+// No per-service description existed before this — every service's
+// shared link looked identical in search/social previews, inheriting
+// app.vue's one fixed, generic og:description regardless of which
+// experience was actually being shared.
+const pageTitle = computed(() =>
+  state.value === "loaded" && service.value
+    ? `${service.value.name[locale.value]} · Sharm To Go`
+    : locale.value === "ar"
+      ? "التجربة · Sharm To Go"
+      : "Experience · Sharm To Go",
+);
+
+const pageDescription = computed(() => {
+  if (state.value !== "loaded" || !service.value) {
+    return locale.value === "ar"
+      ? "تجارب شرم الشيخ الحقيقية اللي شرم تو جو بتشغّلها وتنسّقها مباشرة."
+      : "Real Sharm El Sheikh experiences that Sharm To Go operates and coordinates directly.";
+  }
+  // A search snippet/social preview truncates anyway — cut at a word
+  // boundary near the conventional ~155-character description length
+  // rather than mid-word.
+  const full = service.value.description[locale.value];
+  if (full.length <= 155) return full;
+  return `${full.slice(0, 155).replace(/\s+\S*$/, "")}…`;
+});
+
 useHead(() => ({
-  title:
-    state.value === "loaded" && service.value
-      ? `${service.value.name[locale.value]} · Sharm To Go`
-      : locale.value === "ar"
-        ? "التجربة · Sharm To Go"
-        : "Experience · Sharm To Go",
+  title: pageTitle.value,
   htmlAttrs: {
     dir: direction.value,
     lang: locale.value,
   },
+  meta: [
+    { name: "description", content: pageDescription.value },
+    { property: "og:title", content: pageTitle.value },
+    { property: "og:description", content: pageDescription.value },
+  ],
 }));
 
-function toggleLocale() {
-  locale.value = locale.value === "en" ? "ar" : "en";
-}
-
-function priceBasisLabel(basis: string): string {
-  if (basis === "PER_GROUP") return copy.value.browse.perGroup;
-  if (basis === "PER_VEHICLE") return copy.value.browse.perVehicle;
-  return copy.value.browse.perPerson;
-}
 
 onMounted(async () => {
   try {
@@ -70,7 +96,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas px-6 py-8 text-sharm-ink lg:px-10">
+  <main id="main-content" :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas px-6 py-8 text-sharm-ink lg:px-10">
     <div class="mx-auto max-w-4xl">
       <SiteSubHeader back-label="Sharm To Go" back-to="/" :direction="direction" :locale-label="copy.languageName" @toggle-locale="toggleLocale" />
     </div>
@@ -107,10 +133,16 @@ onMounted(async () => {
               <span class="font-medium">{{ option.label[locale] }}</span>
               <span class="text-sharm-sea">
                 {{ option.priceCurrency }} {{ option.priceAmount }}
-                <span class="text-xs text-sharm-muted">{{ priceBasisLabel(option.priceBasis) }}</span>
+                <span class="text-xs text-sharm-muted">{{ priceBasisLabel(option.priceBasis, copy.browse) }}</span>
               </span>
             </li>
           </ul>
+          <NuxtLink
+            :to="{ path: `/experiences/${service.id}/request`, query: forwardedQuery }"
+            class="mt-5 inline-flex w-full items-center justify-center rounded-full bg-sharm-sea px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-sharm-sea/20 transition-transform hover:-translate-y-0.5 hover:shadow-xl sm:w-auto"
+          >
+            {{ copy.detail.requestCta }}
+          </NuxtLink>
         </section>
 
         <section class="mt-8">
@@ -157,10 +189,14 @@ onMounted(async () => {
           <p class="money mt-3 text-xs text-sharm-muted">{{ contact.whatsappDisplay }} · {{ contact.email }}</p>
         </section>
 
-        <NuxtLink to="/experiences" class="mt-8 inline-flex rounded-full border border-sharm-border bg-sharm-surface px-6 py-3 font-semibold text-sharm-sea">
+        <NuxtLink
+          :to="{ path: '/experiences', query: forwardedQuery }"
+          class="mt-8 inline-flex rounded-full border border-sharm-border bg-sharm-surface px-6 py-3 font-semibold text-sharm-sea"
+        >
           {{ copy.detail.back }}
         </NuxtLink>
       </article>
     </section>
+    <SiteFooter :locale="locale" />
   </main>
 </template>
