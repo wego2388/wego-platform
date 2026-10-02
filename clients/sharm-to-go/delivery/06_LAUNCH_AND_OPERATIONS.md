@@ -1,5 +1,9 @@
 # Phase 6 — launch and operations
 
+See `08_FINAL_TEST_PLAN.md` for the detailed language × device × request-
+status manual test matrix and staged-rollout sequence behind the "End-to-end
+staging journey passes" release-gate line below.
+
 ## Owner/external inputs
 
 - [ ] Production domain and DNS authority supplied.
@@ -10,6 +14,13 @@
 - [ ] App-store owner accounts and final release identity supplied when needed.
 
 ## Production infrastructure
+
+Checkboxes below stay unchecked until done against a real production
+deploy; see `infrastructure/SHARM_TO_GO_VPS.md` for what already exists
+(migration rollback via git checkout + rebuild is documented there; a
+restore rehearsal script, a health-check script, and correlation-ID
+propagation are built and verified — a cron schedule and an alert channel
+are not).
 
 - [ ] Isolated Sharm To Go database, credentials and least-privilege role.
 - [ ] TLS, secure headers and production reverse-proxy routing.
