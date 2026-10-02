@@ -1,0 +1,496 @@
+{
+  "schemaVersion": 1,
+  "source": "Safari Tours Sharm owner-approved catalog (wego-017-foundry-isolated-releases @ 8948315)",
+  "approval": {
+    "by": "Mohamed Wagdy (owner of both brands)",
+    "date": "2026-10-02",
+    "instruction": "عايزك تعطي له رحلات من عندك مش عنده بنفس الاعتماد",
+    "scope": "Same approval status as in Safari: EN content OWNER_APPROVED; AR/RU/IT APPROVED under the owner's delegation after independent review; prices = Safari owner-approved EUR prices."
+  },
+  "tours": [
+    {
+      "slug": "super-safari-adventure",
+      "facts": {
+        "forSale": true,
+        "category": "صحرا",
+        "type": "رحلة",
+        "durationEn": "5–6 hours",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 35,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا، غروب",
+        "operatingDays": null,
+        "capacityPerDeparture": 20
+      }
+    },
+    {
+      "slug": "sunset-quad-bike",
+      "facts": {
+        "forSale": true,
+        "category": "صحرا",
+        "type": "رحلة",
+        "durationEn": "2–3 hours",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 35,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "غروب",
+        "operatingDays": null,
+        "capacityPerDeparture": 15
+      }
+    },
+    {
+      "slug": "double-buggy-camel-ride",
+      "facts": {
+        "forSale": true,
+        "category": "صحرا",
+        "type": "رحلة",
+        "durationEn": "2–3 hours",
+        "pricingBasis": "بالوحدة (شوف شيت خيارات الوحدات)",
+        "adultPriceEur": 30,
+        "childPriceEur": null,
+        "priceNoteEn": "Price per buggy (seats 2 adults)",
+        "timeSlots": "صباحًا، بعد الظهر",
+        "operatingDays": null,
+        "capacityPerDeparture": 10
+      }
+    },
+    {
+      "slug": "bedouin-dinner-camel-ride",
+      "facts": {
+        "forSale": true,
+        "category": "صحرا",
+        "type": "رحلة",
+        "durationEn": "3–4 hours",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 35,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "غروب",
+        "operatingDays": null,
+        "capacityPerDeparture": 25
+      }
+    },
+    {
+      "slug": "dahab-colored-canyon",
+      "facts": {
+        "forSale": true,
+        "category": "ثقافة",
+        "type": "رحلة",
+        "durationEn": "8–10 hours",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 35,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا",
+        "operatingDays": null,
+        "capacityPerDeparture": 20
+      }
+    },
+    {
+      "slug": "camel-horse-ride",
+      "facts": {
+        "forSale": true,
+        "category": "صحرا",
+        "type": "رحلة",
+        "durationEn": "1 hour",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 25,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا، بعد الظهر، غروب",
+        "operatingDays": null,
+        "capacityPerDeparture": 20
+      }
+    },
+    {
+      "slug": "ras-mohamed-white-island-boat",
+      "facts": {
+        "forSale": true,
+        "category": "بحر",
+        "type": "رحلة",
+        "durationEn": "8–9 hours",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 40,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا",
+        "operatingDays": null,
+        "capacityPerDeparture": 30
+      }
+    },
+    {
+      "slug": "evening-cruise",
+      "facts": {
+        "forSale": true,
+        "category": "بحر",
+        "type": "رحلة",
+        "durationEn": "About 4 hours (18:00–22:00)",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 35,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "غروب",
+        "operatingDays": null,
+        "capacityPerDeparture": 40
+      }
+    },
+    {
+      "slug": "glass-bottom-boat",
+      "facts": {
+        "forSale": true,
+        "category": "بحر",
+        "type": "رحلة",
+        "durationEn": "1.5 hours",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 15,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا، بعد الظهر",
+        "operatingDays": null,
+        "capacityPerDeparture": 30
+      }
+    },
+    {
+      "slug": "diving-course",
+      "facts": {
+        "forSale": true,
+        "category": "بحر",
+        "type": "رحلة",
+        "durationEn": "2–3 days",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 400,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا",
+        "operatingDays": null,
+        "capacityPerDeparture": 8
+      }
+    },
+    {
+      "slug": "sinai-dream-sailboat",
+      "facts": {
+        "forSale": true,
+        "category": "بحر",
+        "type": "رحلة",
+        "durationEn": "5–8 hours",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 65,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا",
+        "operatingDays": null,
+        "capacityPerDeparture": 25
+      }
+    },
+    {
+      "slug": "ras-mohamed-by-bus",
+      "facts": {
+        "forSale": true,
+        "category": "بحر",
+        "type": "رحلة",
+        "durationEn": "4–6 hours",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 30,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا",
+        "operatingDays": null,
+        "capacityPerDeparture": 30
+      }
+    },
+    {
+      "slug": "banana-boat",
+      "facts": {
+        "forSale": true,
+        "category": "بحر",
+        "type": "رحلة",
+        "durationEn": "10–15 minutes",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 25,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا، بعد الظهر",
+        "operatingDays": null,
+        "capacityPerDeparture": 8
+      }
+    },
+    {
+      "slug": "parasailing-adventure",
+      "facts": {
+        "forSale": true,
+        "category": "بحر",
+        "type": "رحلة",
+        "durationEn": "6–10 minutes flight",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 25,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا، بعد الظهر",
+        "operatingDays": null,
+        "capacityPerDeparture": 2
+      }
+    },
+    {
+      "slug": "speed-boat-adventure",
+      "facts": {
+        "forSale": true,
+        "category": "بحر",
+        "type": "رحلة",
+        "durationEn": "3 hours (private boat)",
+        "pricingBasis": "بالوحدة (شوف شيت خيارات الوحدات)",
+        "adultPriceEur": 150,
+        "childPriceEur": null,
+        "priceNoteEn": "Price per boat",
+        "timeSlots": "صباحًا، بعد الظهر",
+        "operatingDays": null,
+        "capacityPerDeparture": 5
+      }
+    },
+    {
+      "slug": "submarine",
+      "facts": {
+        "forSale": true,
+        "category": "بحر",
+        "type": "رحلة",
+        "durationEn": "1.5–2 hours",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 35,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا، بعد الظهر",
+        "operatingDays": null,
+        "capacityPerDeparture": 30
+      }
+    },
+    {
+      "slug": "tiran-island-boat-trip",
+      "facts": {
+        "forSale": true,
+        "category": "بحر",
+        "type": "رحلة",
+        "durationEn": "8–9 hours",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 45,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا",
+        "operatingDays": null,
+        "capacityPerDeparture": 30
+      }
+    },
+    {
+      "slug": "tube-boat",
+      "facts": {
+        "forSale": true,
+        "category": "بحر",
+        "type": "رحلة",
+        "durationEn": "10–15 minutes",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 25,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا، بعد الظهر",
+        "operatingDays": null,
+        "capacityPerDeparture": 4
+      }
+    },
+    {
+      "slug": "cairo-by-bus",
+      "facts": {
+        "forSale": true,
+        "category": "ثقافة",
+        "type": "رحلة",
+        "durationEn": "20–24 hours",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 75,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا",
+        "operatingDays": null,
+        "capacityPerDeparture": 30
+      }
+    },
+    {
+      "slug": "cairo-by-plane",
+      "facts": {
+        "forSale": true,
+        "category": "ثقافة",
+        "type": "رحلة",
+        "durationEn": "20–24 hours",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 280,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا",
+        "operatingDays": null,
+        "capacityPerDeparture": 20
+      }
+    },
+    {
+      "slug": "mount-sinai-st-catherine",
+      "facts": {
+        "forSale": true,
+        "category": "ثقافة",
+        "type": "رحلة",
+        "durationEn": "15–16 hours",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 40,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا",
+        "operatingDays": null,
+        "capacityPerDeparture": 25
+      }
+    },
+    {
+      "slug": "luxor-by-plane",
+      "facts": {
+        "forSale": true,
+        "category": "ثقافة",
+        "type": "رحلة",
+        "durationEn": "20–24 hours",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 280,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا",
+        "operatingDays": null,
+        "capacityPerDeparture": 20
+      }
+    },
+    {
+      "slug": "st-catherine-dahab",
+      "facts": {
+        "forSale": true,
+        "category": "ثقافة",
+        "type": "رحلة",
+        "durationEn": "11–12 hours",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 45,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا",
+        "operatingDays": null,
+        "capacityPerDeparture": 25
+      }
+    },
+    {
+      "slug": "turkish-bath",
+      "facts": {
+        "forSale": true,
+        "category": "عروض",
+        "type": "رحلة",
+        "durationEn": "1–2 hours",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 45,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا، بعد الظهر",
+        "operatingDays": null,
+        "capacityPerDeparture": 20
+      }
+    },
+    {
+      "slug": "dolphin-show",
+      "facts": {
+        "forSale": true,
+        "category": "عروض",
+        "type": "رحلة",
+        "durationEn": "1 hour",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 20,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا، بعد الظهر",
+        "operatingDays": null,
+        "capacityPerDeparture": 50
+      }
+    },
+    {
+      "slug": "swimming-with-dolphins",
+      "facts": {
+        "forSale": true,
+        "category": "عروض",
+        "type": "رحلة",
+        "durationEn": "15 minutes",
+        "pricingBasis": "بالفرد",
+        "adultPriceEur": 70,
+        "childPriceEur": null,
+        "priceNoteEn": null,
+        "timeSlots": "صباحًا، بعد الظهر",
+        "operatingDays": null,
+        "capacityPerDeparture": 10
+      }
+    },
+    {
+      "slug": "sharm-airport-transfer",
+      "facts": {
+        "forSale": true,
+        "category": "انتقالات",
+        "type": "انتقال",
+        "durationEn": "30–60 minutes",
+        "pricingBasis": "بالوحدة (شوف شيت خيارات الوحدات)",
+        "adultPriceEur": 15,
+        "childPriceEur": null,
+        "priceNoteEn": "Per vehicle: sedan €15 · SUV €20 · Hiace minibus €35",
+        "timeSlots": "شروق، صباحًا، بعد الظهر، غروب",
+        "operatingDays": null,
+        "capacityPerDeparture": 8
+      }
+    }
+  ],
+  "unitOptions": [
+    {
+      "كود الرحلة": "double-buggy-camel-ride",
+      "كود الوحدة": "buggy",
+      "الاسم بالعربي": "باجي بمقعدين",
+      "الاسم بالإنجليزي": "Two-seat buggy",
+      "عدد الأفراد في الوحدة": 2,
+      "السعر € للوحدة": 30,
+      "الحالة": "اتملى",
+      "ملاحظات": "سعة الميعاد 10 = 5 باجي"
+    },
+    {
+      "كود الرحلة": "speed-boat-adventure",
+      "كود الوحدة": "boat",
+      "الاسم بالعربي": "مركب سريع خاص",
+      "الاسم بالإنجليزي": "Private speedboat",
+      "عدد الأفراد في الوحدة": 5,
+      "السعر € للوحدة": 150,
+      "الحالة": "اتملى",
+      "ملاحظات": "مركب واحد في الميعاد"
+    },
+    {
+      "كود الرحلة": "sharm-airport-transfer",
+      "كود الوحدة": "sedan",
+      "الاسم بالعربي": "سيارة سيدان",
+      "الاسم بالإنجليزي": "Sedan car",
+      "عدد الأفراد في الوحدة": 4,
+      "السعر € للوحدة": 15,
+      "الحالة": "اتملى",
+      "ملاحظات": null
+    },
+    {
+      "كود الرحلة": "sharm-airport-transfer",
+      "كود الوحدة": "suv",
+      "الاسم بالعربي": "سيارة SUV",
+      "الاسم بالإنجليزي": "SUV",
+      "عدد الأفراد في الوحدة": 4,
+      "السعر € للوحدة": 20,
+      "الحالة": "اتملى",
+      "ملاحظات": null
+    },
+    {
+      "كود الرحلة": "sharm-airport-transfer",
+      "كود الوحدة": "minibus",
+      "الاسم بالعربي": "ميني باص هاي إس",
+      "الاسم بالإنجليزي": "Hiace minibus",
+      "عدد الأفراد في الوحدة": 8,
+      "السعر € للوحدة": 35,
+      "الحالة": "اتملى",
+      "ملاحظات": "سعة الميعاد 8"
+    }
+  ]
+}

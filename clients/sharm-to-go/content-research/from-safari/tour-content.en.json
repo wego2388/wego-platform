@@ -1,0 +1,833 @@
+{
+  "schemaVersion": 1,
+  "status": "OWNER_APPROVED",
+  "approval": "Owner reviewed owner-edited-2026-09-30.xlsx and delegated the remaining decisions to Claude in writing on 2026-09-30 ('كمل شغلك ومعاك إذن صريح … التفكير والاقتراح والإضافة'). Claude's decisions are recorded as 'قراري' notes per tour.",
+  "locale": "en",
+  "source": "legacy-wordpress-export.json (editor-cleaned; prices/durations come from approved-catalog.json)",
+  "tours": [
+    {
+      "slug": "super-safari-adventure",
+      "content": {
+        "name": "Super Safari Adventure",
+        "shortDescription": "Quad bike through the Sinai dunes to the Valley of Echo, Bedouin tea in a tent and a camel ride.",
+        "description": "After a short drive of about 20 minutes to the quad center, our guides give you a safety briefing before you ride across the dunes towards the Echo Mountains. At the Valley of Echo you can call out and hear your voice return from the rock walls. At a Bedouin tent you relax with traditional tea, then take a camel ride across the desert before riding back to the start. On the sunset departure the evening continues with a VIP Bedouin dinner and a Tanoura and fire show before the transfer back to your hotel.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Air-conditioned transport",
+          "Quad bike ride",
+          "Camel ride",
+          "Stops at the Valley of Echo and a Bedouin tent",
+          "Bedouin tea",
+          "Sunset departure: VIP Bedouin dinner with Tanoura and fire show",
+          "Tour guide",
+          "Entrance fees"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "Headscarf",
+          "Sunglasses",
+          "Comfortable closed shoes",
+          "Not suitable for pregnant women or people with back or heart problems.",
+          "Children under 10 ride only as passengers with an accompanying adult."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "childrenAllowed": true
+      },
+      "reviewFlags": []
+    },
+    {
+      "slug": "sunset-quad-bike",
+      "content": {
+        "name": "Sunset Quad Bike",
+        "shortDescription": "Ride a quad bike across the dunes as the desert turns gold, with the Valley of Echo, Bedouin tea and a camel ride at sunset.",
+        "description": "A short drive takes you to the quad center, where guides brief you on safe riding. You ride through the dunes towards the Echo Mountains as the light turns golden, stop at the Valley of Echo, relax with Bedouin tea in a tent and take a camel ride at sunset before heading back to your hotel.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Air-conditioned transport",
+          "Quad bike ride",
+          "Camel ride",
+          "Helmet and safety briefing",
+          "Stops at the Valley of Echo and a Bedouin tent",
+          "Bedouin tea",
+          "Tour guide",
+          "Entrance fees"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "Headscarf",
+          "Sunglasses",
+          "Comfortable closed shoes",
+          "Not suitable for pregnant women or people with back or heart problems.",
+          "Children under 10 ride only as passengers with an accompanying adult."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "childrenAllowed": true
+      },
+      "reviewFlags": []
+    },
+    {
+      "slug": "double-buggy-camel-ride",
+      "content": {
+        "name": "Double Buggy & Camel Ride",
+        "shortDescription": "Drive a two-seat sand buggy through the dunes, stop at the Valley of Echo and a Bedouin tent, then ride a camel.",
+        "description": "After a short drive to the buggy center and a safety briefing, you and your partner drive a sand buggy across the dunes towards the Echo Mountains. You stop at the Valley of Echo and a Bedouin tent for tea, take a camel ride across the sand, and drive back to the start before your transfer to the hotel.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Air-conditioned transport",
+          "Two-seat sand buggy",
+          "Camel ride",
+          "Stops at the Valley of Echo and a Bedouin tent",
+          "Bedouin tea",
+          "Safety equipment",
+          "Tour guide",
+          "Entrance fees"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "Headscarf",
+          "Sunglasses",
+          "Comfortable closed shoes",
+          "Not suitable for pregnant women or people with back or heart problems.",
+          "Children under 10 ride only as passengers with an accompanying adult.",
+          "The price is per buggy, which seats two."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "childrenAllowed": true
+      },
+      "reviewFlags": []
+    },
+    {
+      "slug": "bedouin-dinner-camel-ride",
+      "content": {
+        "name": "Bedouin Dinner & Camel Ride",
+        "shortDescription": "Ride a camel through the dunes at sunset, then enjoy a Bedouin barbecue dinner with fire and Tanoura shows.",
+        "description": "A short drive of about 20 minutes brings you to a Bedouin village. You ride a camel through the dunes as the sun sets, then sit down to a barbecue dinner prepared by the Bedouins with fresh-baked bread and Bedouin tea. The evening ends with a fire show and a Tanoura performance before the transfer back to your hotel.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Air-conditioned transport",
+          "Camel ride",
+          "Barbecue Bedouin dinner (open buffet) in a private VIP tent",
+          "Bedouin tea",
+          "Fire show and Tanoura show",
+          "Tour guide",
+          "Entrance fees"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "Comfortable clothes and shoes",
+          "A light jacket for the evening"
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "childrenAllowed": true
+      },
+      "reviewFlags": [
+        "محمد 2026-10-01: «العشاء البدوي في الخاص في اي بي انكلوديت» — الخيمة الخاصة VIP مشمولة."
+      ]
+    },
+    {
+      "slug": "dahab-colored-canyon",
+      "content": {
+        "name": "Dahab 5×1 / Colored Canyon",
+        "shortDescription": "A full day from Sharm: the Colored Canyon by jeep, lunch by the sea, a coastal camel ride, snorkeling and Dahab's bazaar.",
+        "description": "After a drive of about an hour to the Dahab area, a jeep takes you to the Colored Canyon (Salama Red Canyon), where you walk about 800 meters between sandstone walls in shades from yellow and purple to red and gold. You have lunch by the sea, ride a camel along the coast, and relax, swim and snorkel at the Three Pools. The day ends with free time in the Dahab bazaar before the drive back to Sharm.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Jeep to the Colored Canyon",
+          "Guided canyon walk",
+          "Lunch by the sea",
+          "Camel ride along the coast",
+          "Stop at the Three Pools",
+          "Free time in Dahab",
+          "Local guide"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "Passport",
+          "Snorkeling gear",
+          "Drinking water",
+          "Comfortable shoes",
+          "Towel and swimwear"
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED"
+      },
+      "reviewFlags": []
+    },
+    {
+      "slug": "camel-horse-ride",
+      "content": {
+        "name": "Camel & Horse Ride",
+        "shortDescription": "Ride a camel across the golden Sinai sands, or take the horse trail into the mountains — simple, authentic and family-friendly.",
+        "description": "Move slowly across golden sand on a traditional camel ride and take in panoramic views of the mountains and open desert. Prefer a horse? Horse rides follow the mountain trail. Either way it is a simple, authentic way to experience the Sinai landscape and Bedouin culture, and a perfect first desert experience for families and couples.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Camel ride in the desert or horse ride on the mountain trail",
+          "Photo stop",
+          "Local guide"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "Comfortable clothes",
+          "Sun protection",
+          "Help is available to get on and off the camel."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "childrenAllowed": true
+      },
+      "reviewFlags": []
+    },
+    {
+      "slug": "ras-mohamed-white-island-boat",
+      "content": {
+        "name": "Ras Mohamed & White Island Boat Trip",
+        "shortDescription": "A full-day boat trip along the Sinai coast with two snorkeling stops in Ras Mohammed National Park and time on White Island.",
+        "description": "The day starts with hotel pickup at around 8:00 and a transfer to the marina. You cruise along the Sinai coastline to Ras Mohammed National Park and snorkel at two different spots in its clear water, with an optional introductory dive. Lunch is served as a buffet on deck, then you relax on the soft sand of White Island before returning to the marina and your hotel.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Air-conditioned transport",
+          "Ras Mohammed National Park entrance fees",
+          "Boat trip with two snorkeling stops",
+          "Snorkeling guide",
+          "Visit to White Island",
+          "Buffet lunch on board",
+          "Unlimited soft and hot drinks"
+        ],
+        "excludes": [
+          "Snorkeling equipment (available to rent for an extra fee)",
+          "Introductory dive (optional, extra charge)"
+        ],
+        "knowBeforeYouGo": [
+          "Sunglasses, sunscreen and a towel",
+          "Passport or ID (a copy is accepted)",
+          "Scuba diving is not suitable for children under 10 or pregnant women.",
+          "Plans may change with sea and weather conditions."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "minimumAge": null
+      },
+      "reviewFlags": [
+        "محمد 2026-10-01: إيجار معدات السنوركل بفلوس إضافية."
+      ]
+    },
+    {
+      "slug": "evening-cruise",
+      "content": {
+        "name": "Evening Cruise",
+        "shortDescription": "An evening on the water with dinner on board, music and a Tanoura and oriental show.",
+        "description": "From 18:00 to 22:00 you sail off Sharm El Sheikh as the city lights come on. Dinner is served on board — seafood, meat, chicken, vegetables and fruit — followed by live entertainment with jugglers, a Tanoura dance and an oriental dance show. A romantic evening for couples and a lively one for friends. Celebrating a birthday? Tell us when you book and we will make the evening a little sweeter.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Evening boat cruise",
+          "Dinner on board",
+          "Soft drinks",
+          "Music and show"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "Warm clothes in winter",
+          "Passport",
+          "Smart casual clothing is recommended.",
+          "Subject to weather conditions."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED"
+      },
+      "reviewFlags": []
+    },
+    {
+      "slug": "glass-bottom-boat",
+      "content": {
+        "name": "Glass Bottom Boat",
+        "shortDescription": "See the Red Sea's coral reefs and fish through a glass floor — no swimming needed and ideal for all ages.",
+        "description": "Watch coral formations and marine life through the boat's glass-bottomed viewing area without getting wet. The boat sails close to well-known reef spots; the lower level is for viewing and the upper deck for sun and sea breeze. The cruise itself lasts about an hour, and you are returned to where you started.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Air-conditioned transport",
+          "Glass-bottom boat trip",
+          "Entrance fees"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "Sunglasses and water",
+          "Passport or ID (a copy is accepted)",
+          "Not wheelchair accessible; strollers are fine and infants sit on laps.",
+          "Subject to sea conditions."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "childrenAllowed": true
+      },
+      "reviewFlags": [
+        "قراري: ماكتبتش المشروبات والمرشد في المشمول (مش مؤكدين) — لو مشمولين قولي نضيفهم."
+      ]
+    },
+    {
+      "slug": "diving-course",
+      "content": {
+        "name": "Diving Course",
+        "shortDescription": "Take your diving further with an advanced course in the Red Sea, guided by professional instructors.",
+        "description": "Explore deeper dive sites, refine your technique and enjoy the Red Sea's world-famous reefs and marine life on a multi-day course with professional instructors at one of Sharm El Sheikh's leading dive centers. Designed for certified divers who want more challenge.",
+        "includes": [
+          "Professional instructor at a leading Sharm El Sheikh dive center",
+          "Diving equipment",
+          "Multiple dives"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "An Open Water certification is required.",
+          "A medical declaration may be required.",
+          "Not suitable for beginners."
+        ],
+        "meetingPoint": "Pickup from your hotel or meeting at the dive center — confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {},
+      "reviewFlags": []
+    },
+    {
+      "slug": "sinai-dream-sailboat",
+      "content": {
+        "name": "Sinai Dream Sailboat",
+        "shortDescription": "A day on a comfortable sailboat with three snorkeling stops and a seafood buffet lunch.",
+        "description": "Sail along the coast with three stops for snorkeling over colourful coral. The sailboat has an upper deck with seating, sun loungers, indoor lounges and swings over the sea. A seafood buffet lunch and drinks are served on board.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Sailboat trip",
+          "Three snorkeling stops",
+          "Snorkeling equipment",
+          "Seafood buffet lunch",
+          "Soft drinks",
+          "Professional crew"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "Swimwear",
+          "Towel",
+          "Sunscreen",
+          "Sunglasses",
+          "Limited number of guests on board.",
+          "Subject to weather and sea conditions."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "childrenAllowed": true
+      },
+      "reviewFlags": []
+    },
+    {
+      "slug": "ras-mohamed-by-bus",
+      "content": {
+        "name": "Ras Mohamed by Bus",
+        "shortDescription": "A half day in Ras Mohammed National Park by road: snorkeling, mangroves, the Magic Lake and the Earth Crack.",
+        "description": "About 30 minutes from Sharm, Ras Mohammed National Park welcomes you at the Allah Gate. You snorkel over coral in the park's clear water, walk among the mangroves, swim in the salty Magic Lake, see the Earth Crack and climb a cliff for a panoramic photo before returning to your hotel. The trip runs from about 8:00 to 14:00.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Air-conditioned bus",
+          "Snorkeling guide",
+          "Ras Mohammed National Park entrance fees"
+        ],
+        "excludes": [
+          "Food and drinks"
+        ],
+        "knowBeforeYouGo": [
+          "Snorkeling gear, swimwear and a towel",
+          "Snacks and water",
+          "Sunglasses, sunscreen and comfortable shoes"
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "childrenAllowed": true
+      },
+      "reviewFlags": []
+    },
+    {
+      "slug": "banana-boat",
+      "content": {
+        "name": "Banana Boat",
+        "shortDescription": "Hold on tight as a speedboat pulls your banana boat across the waves — a quick, fun water ride.",
+        "description": "You are picked up from your hotel and taken to the beach, where the crew gives a safety briefing and life jackets. Then it's a fast ride across the waves on the banana boat as you try to stay on.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Air-conditioned transport",
+          "Banana boat ride",
+          "Life jacket and safety briefing"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "Sun hat, sunglasses and a towel",
+          "Basic swimming skills are recommended.",
+          "Not suitable for pregnant women or people with back or heart problems.",
+          "Not suitable for children under 10."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "minimumAge": 10
+      },
+      "reviewFlags": []
+    },
+    {
+      "slug": "parasailing-adventure",
+      "content": {
+        "name": "Parasailing Adventure",
+        "shortDescription": "Fly high above the Red Sea for a bird's-eye view of the coast — solo or with a partner.",
+        "description": "After hotel pickup and a safety briefing, a boat takes you out and you rise above the sea on a parachute for around 7 minutes, taking in the coastline from above, alone or with your partner. No experience is needed.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Air-conditioned transport",
+          "Parasailing flight",
+          "Boat ride",
+          "Safety equipment",
+          "Professional crew"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "Sun hat, sunglasses and a towel",
+          "Not suitable for pregnant women or people with back or heart problems.",
+          "Not suitable for children under 10.",
+          "Weather dependent."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "minimumAge": 10
+      },
+      "reviewFlags": []
+    },
+    {
+      "slug": "speed-boat-adventure",
+      "content": {
+        "name": "Speed Boat Adventure",
+        "shortDescription": "A private speedboat for your group to Tiran Island: snorkel the reefs, pass the shipwreck and look out for dolphins.",
+        "description": "Three hours on your own private RIB speedboat for up to 5 people, with an experienced captain. Snorkel at Tiran Island's reefs, pass the historic shipwreck and keep an eye out for dolphins in the wild. Life jackets, snorkel masks and a cooler with drinks are on board. Book at least 2 days in advance.",
+        "includes": [
+          "Hotel pickup and drop-off by air-conditioned minibus",
+          "Private speedboat with captain",
+          "Snorkel mask",
+          "Cooler with drinks",
+          "Life jackets"
+        ],
+        "excludes": [
+          "Tips for the captain",
+          "Personal expenses"
+        ],
+        "knowBeforeYouGo": [
+          "Book at least 2 days in advance.",
+          "Up to 5 people per boat; the price is per boat.",
+          "Not suitable for pregnant women or people with back or neck problems.",
+          "Subject to sea and weather conditions."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED"
+      },
+      "reviewFlags": [
+        "قراري: المدة «3 ساعات مركب خاص» (تناسب سعر 150€ للمركب) — لو غلط قولي."
+      ]
+    },
+    {
+      "slug": "submarine",
+      "content": {
+        "name": "Submarine",
+        "shortDescription": "Watch fish and coral through large windows from an underwater viewing cabin — no swimming needed.",
+        "description": "A short drive takes you to the jetty and a 15-minute sail along the coast. You then descend to the underwater cabin for about 45 minutes of reef and fish viewing through large panoramic windows — you may even wave to divers outside — before sailing back.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Air-conditioned transport",
+          "Submarine trip",
+          "Tour guide",
+          "Entrance fees"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "Passport or ID (a copy is accepted)",
+          "A bottle of water",
+          "Not suitable for wheelchair users.",
+          "Subject to sea and weather conditions."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "childrenAllowed": true
+      },
+      "reviewFlags": []
+    },
+    {
+      "slug": "tiran-island-boat-trip",
+      "content": {
+        "name": "Tiran Island Boat Trip",
+        "shortDescription": "A full-day boat trip to Tiran Island with two snorkeling stops, buffet lunch on board and a chance to spot dolphins.",
+        "description": "Pickup at around 8:00 takes you to the marina for a cruise along the Sharm coast towards Tiran Island — with luck you may see dolphins on the way. You snorkel at two different spots, with an optional introductory dive, and enjoy a buffet lunch on deck before returning to the marina and your hotel.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Air-conditioned transport",
+          "Entrance fees",
+          "Boat trip with two snorkeling stops",
+          "Buffet lunch on board",
+          "Unlimited soft and hot drinks"
+        ],
+        "excludes": [
+          "Snorkeling equipment (available to rent for an extra fee)",
+          "Introductory dive (optional, extra charge)"
+        ],
+        "knowBeforeYouGo": [
+          "Sunglasses, sunscreen and a towel",
+          "Passport or ID (a copy is accepted)",
+          "Scuba diving is not suitable for children under 10 or pregnant women."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "childrenAllowed": true
+      },
+      "reviewFlags": []
+    },
+    {
+      "slug": "tube-boat",
+      "content": {
+        "name": "Tube Boat",
+        "shortDescription": "Glide over the water on an inflatable tube pulled by a speedboat — a short, splashy thrill.",
+        "description": "After hotel pickup and a safety briefing on the beach, you ride an inflatable tube pulled by a speedboat across the water.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Air-conditioned transport",
+          "Tube ride",
+          "Life jacket and safety briefing"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "Sun hat, sunglasses and a towel",
+          "Basic swimming skills are recommended.",
+          "Not suitable for pregnant women or people with back or heart problems.",
+          "Not suitable for children under 10."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "minimumAge": 10
+      },
+      "reviewFlags": []
+    },
+    {
+      "slug": "cairo-by-bus",
+      "content": {
+        "name": "Cairo by Bus",
+        "shortDescription": "A long day trip by road to Cairo: the Egyptian Museum with an Egyptologist, lunch by the Nile and the Pyramids of Giza.",
+        "description": "Travel by bus to Cairo and start at the Egyptian Museum, where an Egyptologist guides you through highlights including the treasures of Tutankhamun. After lunch at a restaurant on the Nile, you visit papyrus and perfume workshops and then the Giza Plateau with the Pyramids of Khufu, Khafre and Menkaure and the Great Sphinx, before the long ride back to Sharm.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Air-conditioned bus",
+          "Egyptologist guide",
+          "Entrance fees to the sites in the program",
+          "Lunch and drinks"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "Passport",
+          "Comfortable clothing, a hat and sunscreen",
+          "It is a very long day with many hours on the road."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED"
+      },
+      "reviewFlags": [
+        "قراري: المدة 20–24 ساعة زي الكتالوج (الطريق من شرم طويل). وصلّحت عمر الأهرامات الغلط."
+      ]
+    },
+    {
+      "slug": "cairo-by-plane",
+      "content": {
+        "name": "Cairo by Plane",
+        "shortDescription": "Fly to Cairo for the day: the Egyptian Museum, lunch by the Nile, the Pyramids and the Sphinx, then fly back.",
+        "description": "An early pickup (around 4–5 am) takes you to Sharm airport for your flight to Cairo, where your English-speaking guide meets you. Visit the Egyptian Museum, have lunch with a view of the Nile, stop at a perfume workshop, explore the Giza Plateau with the Pyramids and the Sphinx, and visit a papyrus institute before your flight back. Runs on Sundays and Thursdays.",
+        "includes": [
+          "Hotel–airport transfers in Sharm and all transfers in Cairo",
+          "Return flights Sharm–Cairo",
+          "English-speaking guide",
+          "Entrance fees to the sites in the program",
+          "Lunch in Cairo"
+        ],
+        "excludes": [
+          "Drinks at the restaurant",
+          "Optional felucca ride on the Nile",
+          "Entry inside the two larger pyramids"
+        ],
+        "knowBeforeYouGo": [
+          "Passport (required for the flight)",
+          "You may take a breakfast box from your hotel.",
+          "Pickup around 5:00, return around 22:00."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "guideLanguages": [
+          "en"
+        ]
+      },
+      "reviewFlags": [
+        "قراري: الأحد والخميس بس — المواعيد في النظام هتتفتح الأيام دي بس."
+      ]
+    },
+    {
+      "slug": "mount-sinai-st-catherine",
+      "content": {
+        "name": "Mount Sinai & St. Catherine",
+        "shortDescription": "Climb Mount Sinai overnight to watch the sunrise from the summit, then visit St. Catherine's Monastery.",
+        "description": "Pickup is around 20:00 for a drive of about 4 hours. You climb Mount Sinai (2,285 m), finishing with some 750 steps, in 2–3 hours to watch the sunrise from the top. After descending you visit St. Catherine's Monastery and the Chapel of the Burning Bush before returning to Sharm around 13:30. Camels can carry you only for the first part of the path.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Air-conditioned transport",
+          "Guided climb",
+          "Visit to St. Catherine's Monastery"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "Passport or ID",
+          "Hiking shoes and a warm jacket (it is cold at the top, especially in winter)",
+          "Water, snacks and a power bank",
+          "Not suitable for pregnant women, children, older guests or people with back, heart or breathing problems.",
+          "Runs on Sundays, Wednesdays and Fridays."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "childrenAllowed": false
+      },
+      "reviewFlags": [
+        "قراري: الأحد والأربع والجمعة — المواعيد في النظام هتتفتح الأيام دي بس."
+      ]
+    },
+    {
+      "slug": "luxor-by-plane",
+      "content": {
+        "name": "Luxor by Plane",
+        "shortDescription": "Fly to Luxor for the day: the Valley of the Kings, Hatshepsut's temple, the Colossi of Memnon and Karnak.",
+        "description": "An early transfer takes you to Sharm airport for the short flight to Luxor. With an Egyptologist you visit the Valley of the Kings, the Temple of Hatshepsut at Deir el-Bahari and the Colossi of Memnon, have lunch at a local restaurant, and explore Karnak Temple and its Hypostyle Hall before flying back in the evening.",
+        "includes": [
+          "Hotel–airport transfers",
+          "Return flights Sharm–Luxor",
+          "Egyptologist guide",
+          "Entrance fees to the sites in the program",
+          "Lunch at a local restaurant"
+        ],
+        "excludes": [
+          "Special tombs such as Tutankhamun's",
+          "Personal expenses and tips"
+        ],
+        "knowBeforeYouGo": [
+          "Passport (required for the flight)",
+          "Comfortable walking shoes",
+          "Hat, sunglasses and sunscreen"
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED"
+      },
+      "reviewFlags": [
+        "قراري: السعر المعروض €280 زي الكتالوج."
+      ]
+    },
+    {
+      "slug": "st-catherine-dahab",
+      "content": {
+        "name": "St. Catherine & Dahab",
+        "shortDescription": "Visit St. Catherine's Monastery, then lunch and free time in Dahab — a relaxed cultural day.",
+        "description": "Visit the famous St. Catherine's Monastery with its historic church, icon gallery, the Burning Bush and library. Afterwards you have lunch at a restaurant in Dahab and free time to stroll the town before returning to Sharm. A comfortable day for history lovers and travellers seeking a spiritual experience.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Air-conditioned transport",
+          "Visit to St. Catherine's Monastery",
+          "Lunch in Dahab",
+          "Free time in Dahab",
+          "Local guide"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "Passport",
+          "Comfortable walking shoes",
+          "Runs on Mondays, Thursdays and Saturdays."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED"
+      },
+      "reviewFlags": [
+        "قراري: الأيام الاتنين والخميس والسبت. شِلت «مطعم 4 نجوم» لحد ما تتأكد."
+      ]
+    },
+    {
+      "slug": "turkish-bath",
+      "content": {
+        "name": "Turkish Bath",
+        "shortDescription": "A traditional hammam ritual: sauna, jacuzzi and steam, peeling, soap massage and a relaxing massage.",
+        "description": "Step into a traditional Turkish bath and enjoy the sauna, jacuzzi and steam room, followed by peeling, a foam soap massage, a face mask, sea-salt treatment for hands and feet and a relaxing body massage.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Sauna, jacuzzi and steam room",
+          "Peeling and soap massage",
+          "Face mask",
+          "Body massage",
+          "Towels"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "For adults.",
+          "Book ahead in high season."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "childrenAllowed": false
+      },
+      "reviewFlags": [
+        "قراري: ماكتبتش مدة المساج (30 ولا 50 متعارضين) — لو عايز نكتبها قولي."
+      ]
+    },
+    {
+      "slug": "dolphin-show",
+      "content": {
+        "name": "Dolphin Show",
+        "shortDescription": "An hour-long dolphin show in Sharm with jumps, spins and a look at how dolphins communicate.",
+        "description": "A pickup of about 20 minutes takes you to the venue for a one-hour show in which dolphins jump, spin and swim, with explanations about how they communicate and behave.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Air-conditioned transport",
+          "Show entrance ticket"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "Photography only in designated areas.",
+          "Show times may vary by season."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "childrenAllowed": true
+      },
+      "reviewFlags": [
+        "قراري: العرض مستمر. شِلت ادعاء «جهود الحماية» لأنه محتاج دليل."
+      ]
+    },
+    {
+      "slug": "swimming-with-dolphins",
+      "content": {
+        "name": "Swimming with Dolphins",
+        "shortDescription": "Fifteen minutes in the water with dolphins, supervised by trainers, with a life jacket provided.",
+        "description": "After a 20-minute drive to the venue you spend 15 minutes in the water with dolphins under the supervision of trainers, with a life jacket provided. Phones are not allowed in the water; professional photos and videos can be bought.",
+        "includes": [
+          "Hotel pickup and drop-off",
+          "Air-conditioned transport",
+          "Entrance ticket",
+          "15 minutes swimming with dolphins",
+          "Life jacket"
+        ],
+        "excludes": [
+          "Professional photos and videos (available to buy)"
+        ],
+        "knowBeforeYouGo": [
+          "Swimwear, towel, sunglasses and sunscreen",
+          "Phones are not allowed while swimming.",
+          "Non-swimmers may need assistance."
+        ],
+        "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "stops": []
+      },
+      "facts": {
+        "hotelPickup": "INCLUDED",
+        "childrenAllowed": true
+      },
+      "reviewFlags": []
+    },
+    {
+      "slug": "sharm-airport-transfer",
+      "content": {
+        "name": "Sharm Airport Transfer",
+        "shortDescription": "Private transfer between your hotel and Sharm El Sheikh airport by car or minibus.",
+        "description": "Our driver collects you from your hotel reception and takes you directly to Sharm El Sheikh International Airport, or meets you on arrival. Choose the vehicle that fits your group: a sedan (€15), a higher SUV (€20) or a Hiace minibus (€35) — the price is per vehicle, not per person.",
+        "includes": [
+          "Private vehicle for your group",
+          "Professional driver",
+          "Luggage assistance"
+        ],
+        "excludes": [],
+        "knowBeforeYouGo": [
+          "Please send your flight details when booking.",
+          "Sedan: up to 4 people and 3 suitcases. Hiace minibus: up to 8 guests."
+        ],
+        "meetingPoint": "Your hotel reception, or the arrivals hall at Sharm El Sheikh airport.",
+        "stops": []
+      },
+      "facts": {},
+      "reviewFlags": [
+        "ملاحظة تقنية: الحجز حاليًا بسعر واحد للفرد. اختيار نوع العربية (15/20/35) محتاج إضافة في نظام الحجز — هعملها في UX-4."
+      ]
+    }
+  ],
+  "copiedFrom": "clients/safari-tours-sharm/content-research/drafts/tour-content-drafts.en.json"
+}
