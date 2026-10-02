@@ -6,7 +6,7 @@ const { locale, copy, direction, toggleLocale } = useSiteLocale();
 useHead(() => ({ title: locale.value === "ar" ? "سياسة الخصوصية · Sharm To Go" : "Privacy · Sharm To Go", htmlAttrs: { dir: direction.value, lang: locale.value } }));
 </script>
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas px-6 py-8 text-sharm-ink lg:px-10">
+  <main id="main-content" :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas px-6 py-8 text-sharm-ink lg:px-10">
     <article class="mx-auto max-w-4xl">
       <SiteSubHeader back-label="Sharm To Go" back-to="/" :direction="direction" :locale-label="copy.languageName" @toggle-locale="toggleLocale" />
       <h1 class="font-display mt-14 text-4xl font-semibold">{{ copy.legalPages.privacy.heading }}</h1>

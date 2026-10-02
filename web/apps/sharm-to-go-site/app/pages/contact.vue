@@ -9,7 +9,7 @@ useHead(() => ({ title: locale.value === "ar" ? "تواصل معنا · Sharm To
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas px-6 py-8 text-sharm-ink lg:px-10">
+  <main id="main-content" :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas px-6 py-8 text-sharm-ink lg:px-10">
     <div class="mx-auto max-w-4xl">
       <SiteSubHeader back-label="Sharm To Go" back-to="/" :direction="direction" :locale-label="copy.languageName" @toggle-locale="toggleLocale" />
       <section class="mt-12 rounded-[2rem] bg-sharm-surface p-8 shadow-sm sm:p-12">

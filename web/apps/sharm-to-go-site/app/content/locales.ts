@@ -8,6 +8,7 @@ interface CategoryCopy {
 
 interface SiteCopy {
   languageName: string;
+  skipToContent: string;
   preview: string;
   whatsappFab: string;
   nav: { experiences: string; howItWorks: string; trust: string; about: string; faq: string; contact: string; home: string; menu: string };
@@ -161,6 +162,7 @@ interface SiteCopy {
 export const siteCopy: Record<SharmLocale, SiteCopy> = {
   en: {
     languageName: "العربية",
+    skipToContent: "Skip to content",
     preview: "25+ years of local tourism experience",
     whatsappFab: "WhatsApp",
     nav: {
@@ -438,6 +440,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
   },
   ar: {
     languageName: "English",
+    skipToContent: "انتقل إلى المحتوى",
     preview: "أكثر من 25 سنة خبرة في السياحة",
     whatsappFab: "واتساب",
     nav: {

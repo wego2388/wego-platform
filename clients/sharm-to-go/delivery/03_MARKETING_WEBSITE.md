@@ -39,14 +39,20 @@
   switching post-mount if a stored choice exists. A storage failure
   (private browsing, blocked site data) falls back to "en" silently,
   exactly like every page already did before this existed.
-- [ ] Add mobile navigation. Not done this round — `SiteSubHeader`'s nav
-  links are already responsive-safe (there are few enough to fit), but a
-  true hamburger/mobile-drawer pattern for the homepage's fuller nav was
-  not built.
-- [ ] Add a consistent skip link and one main landmark per page. Not done
-  this round — every page already has exactly one `<main>` landmark (true
-  before and after 3C), but no skip-to-content link exists anywhere. Real
-  gap, not claimed.
+- [x] Add mobile navigation. **2026-10-02:** `SiteSubHeader`'s nav links
+  were already responsive-safe (few enough to fit), but the homepage's
+  fuller 5-link nav was simply `hidden` below `md` with no mobile
+  equivalent at all. Added a real hamburger toggle (`aria-expanded`,
+  `aria-controls`) opening a panel with the same 5 links, closing itself
+  on link click. New tests in `Home.spec.ts`.
+- [x] Add a consistent skip link and one main landmark per page.
+  **2026-10-02:** every page already had exactly one `<main>` landmark;
+  added `id="main-content"` to all 13 and one shared "Skip to
+  content"/"انتقل إلى المحتوى" link in `app.vue` (covers every page, not
+  duplicated per page). **Verified live**, not just via a passing build:
+  booted the real production build and curled the homepage, `/about`,
+  and `/privacy`, confirming the real served HTML contains the skip
+  link text and `id="main-content"` on each.
 - **Deliberately excluded from this refactor:** `booking-preview.vue` and
   `design-system.vue`. Both are self-contained internal/prototype tooling
   pages with their own separate inline copy objects (not `siteCopy`), not

@@ -90,7 +90,7 @@ function restart() {
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas text-sharm-ink">
+  <main id="main-content" :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas text-sharm-ink">
     <div class="border-b border-sharm-border bg-sharm-surface px-5 py-5 lg:px-10">
       <div class="mx-auto max-w-7xl">
         <SiteSubHeader :back-label="copy.back" back-to="/experiences" :direction="direction" :locale-label="copy.switchLanguage" @toggle-locale="toggleLocale" />

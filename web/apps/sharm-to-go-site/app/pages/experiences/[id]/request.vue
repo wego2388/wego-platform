@@ -197,7 +197,7 @@ async function copySummary() {
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas px-6 py-8 text-sharm-ink lg:px-10">
+  <main id="main-content" :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas px-6 py-8 text-sharm-ink lg:px-10">
     <div class="mx-auto max-w-2xl">
       <SiteSubHeader
         :back-label="copy.request.backToService"

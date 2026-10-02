@@ -88,7 +88,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas text-sharm-ink">
+  <main id="main-content" :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas text-sharm-ink">
     <div class="sharm-hero border-b border-black/5 px-6 py-8 lg:px-10">
       <div class="mx-auto max-w-6xl">
         <SiteSubHeader back-label="Sharm To Go" back-to="/" :direction="direction" :locale-label="copy.languageName" @toggle-locale="toggleLocale" />

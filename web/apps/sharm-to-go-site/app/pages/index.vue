@@ -20,6 +20,11 @@ useHead(() => ({
 
 const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "bg-sharm-sun text-sharm-ink"];
 
+// The nav below md was simply `hidden`, with no mobile equivalent at all —
+// a real gap, not a deliberate simplification (the desktop nav has 5 real
+// links: Experiences, How it works, About, FAQ, Contact).
+const mobileMenuOpen = ref(false);
+
 // Real search state, routed into the catalog page's own query params (and
 // from there forward into the request flow's date/party pre-fill) — see
 // experiences/index.vue and experiences/[id]/request.vue.
@@ -55,7 +60,7 @@ function submitSearch() {
 </script>
 
 <template>
-  <main :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas text-sharm-ink">
+  <main id="main-content" :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas text-sharm-ink">
     <div class="sharm-hero relative overflow-hidden border-b border-black/5">
       <div
         class="sharm-hero-orb pointer-events-none absolute -top-16 -right-10 size-72 rounded-full bg-sharm-sun/20 blur-3xl"
@@ -67,7 +72,7 @@ function submitSearch() {
       />
 
       <header class="relative mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-6 lg:px-10">
-        <NuxtLink to="/" class="flex items-center gap-3 font-semibold" aria-label="Sharm To Go home">
+        <NuxtLink to="/" class="flex items-center gap-3 font-semibold" :aria-label="copy.nav.home">
           <img src="/icon-192.png" alt="" width="44" height="44" class="size-11" aria-hidden="true">
           <span class="font-display text-lg">Sharm To Go</span>
         </NuxtLink>
@@ -78,14 +83,44 @@ function submitSearch() {
           <NuxtLink to="/faq" class="transition-colors hover:text-sharm-sea-bright">{{ copy.nav.faq }}</NuxtLink>
           <NuxtLink to="/contact" class="transition-colors hover:text-sharm-sea-bright">{{ copy.nav.contact }}</NuxtLink>
         </nav>
-        <button
-          type="button"
-          class="rounded-full border border-sharm-sea/20 bg-sharm-surface/80 px-4 py-2 text-sm font-semibold text-sharm-sea transition-transform hover:scale-105"
-          @click="toggleLocale"
-        >
-          {{ copy.languageName }}
-        </button>
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            class="rounded-full border border-sharm-sea/20 bg-sharm-surface/80 px-4 py-2 text-sm font-semibold text-sharm-sea transition-transform hover:scale-105"
+            @click="toggleLocale"
+          >
+            {{ copy.languageName }}
+          </button>
+          <button
+            type="button"
+            class="grid size-11 shrink-0 place-items-center rounded-full border border-sharm-sea/20 bg-sharm-surface/80 text-sharm-sea md:hidden"
+            :aria-expanded="mobileMenuOpen"
+            aria-controls="mobile-nav"
+            :aria-label="copy.nav.menu"
+            @click="mobileMenuOpen = !mobileMenuOpen"
+          >
+            <svg v-if="!mobileMenuOpen" viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+            <svg v-else viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        </div>
       </header>
+
+      <nav
+        v-if="mobileMenuOpen"
+        id="mobile-nav"
+        class="relative mx-6 mb-6 flex flex-col gap-1 rounded-2xl border border-black/5 bg-sharm-surface p-3 text-sm font-semibold shadow-lg md:hidden"
+        aria-label="Primary navigation"
+      >
+        <NuxtLink to="/experiences" class="rounded-xl px-4 py-3 transition-colors hover:bg-sharm-lagoon" @click="mobileMenuOpen = false">{{ copy.nav.experiences }}</NuxtLink>
+        <a href="#how" class="rounded-xl px-4 py-3 transition-colors hover:bg-sharm-lagoon" @click="mobileMenuOpen = false">{{ copy.nav.howItWorks }}</a>
+        <NuxtLink to="/about" class="rounded-xl px-4 py-3 transition-colors hover:bg-sharm-lagoon" @click="mobileMenuOpen = false">{{ copy.nav.about }}</NuxtLink>
+        <NuxtLink to="/faq" class="rounded-xl px-4 py-3 transition-colors hover:bg-sharm-lagoon" @click="mobileMenuOpen = false">{{ copy.nav.faq }}</NuxtLink>
+        <NuxtLink to="/contact" class="rounded-xl px-4 py-3 transition-colors hover:bg-sharm-lagoon" @click="mobileMenuOpen = false">{{ copy.nav.contact }}</NuxtLink>
+      </nav>
 
       <section class="relative mx-auto grid max-w-7xl gap-12 px-6 pt-16 pb-20 lg:grid-cols-[1.15fr_0.85fr] lg:px-10 lg:pt-24">
         <div>

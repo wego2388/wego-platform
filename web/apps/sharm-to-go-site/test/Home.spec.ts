@@ -70,4 +70,27 @@ describe("Sharm To Go public foundation", () => {
       query: { category: sampleCategory.id, date: "2099-06-15", adults: "3" },
     });
   });
+
+  it("gives mobile visitors a real menu, not just a hidden desktop nav", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify([]), { status: 200 })));
+    const wrapper = mount(HomePage, { global: { stubs: { NuxtLink: { template: "<a><slot /></a>" } } } });
+    await flushPromises();
+
+    // Closed by default — the real nav's own 5 links aren't duplicated into the DOM until opened.
+    expect(wrapper.find("#mobile-nav").exists()).toBe(false);
+
+    const menuButton = wrapper.get('button[aria-label="Menu"]');
+    expect(menuButton.attributes("aria-expanded")).toBe("false");
+
+    await menuButton.trigger("click");
+
+    expect(menuButton.attributes("aria-expanded")).toBe("true");
+    const mobileNav = wrapper.get("#mobile-nav");
+    expect(mobileNav.text()).toContain("Experiences");
+    expect(mobileNav.text()).toContain("Contact");
+
+    // Picking a link closes the menu rather than leaving it open over the next page.
+    await mobileNav.get("a").trigger("click");
+    expect(wrapper.find("#mobile-nav").exists()).toBe(false);
+  });
 });
