@@ -173,4 +173,24 @@ describe("experiences page", () => {
     const viewDetails = wrapper.findAll("a").find((link) => link.text() === "View details");
     expect(viewDetails?.attributes("href")).toBe(`/experiences/${sampleService.id}?date=2099-06-15&adults=3&children=1`);
   });
+
+  it("sets a real catalog-specific meta description, not the homepage's generic one", async () => {
+    stubFetch({
+      "/api/catalog/categories": () => new Response(JSON.stringify([]), { status: 200 }),
+      "/api/catalog/services": () => new Response(JSON.stringify([]), { status: 200 }),
+    });
+    let headFactory: (() => { meta: Array<{ name?: string; property?: string; content: string }> }) | undefined;
+    vi.stubGlobal("useHead", (input: typeof headFactory) => {
+      headFactory = input;
+    });
+
+    mountPage();
+    await flushPromises();
+
+    const meta = headFactory!().meta;
+    const description = meta.find((tag) => tag.name === "description");
+    const ogDescription = meta.find((tag) => tag.property === "og:description");
+    expect(description?.content).toContain("Browse real Sharm El Sheikh experiences");
+    expect(ogDescription?.content).toBe(description?.content);
+  });
 });

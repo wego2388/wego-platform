@@ -35,17 +35,43 @@ const state = ref<"loading" | "loaded" | "not-found" | "error">("loading");
 // real screenshots of both pages side by side.
 const categoryIndex = computed(() => categories.value.findIndex((item) => item.id === service.value?.categoryId));
 
+// No per-service description existed before this — every service's
+// shared link looked identical in search/social previews, inheriting
+// app.vue's one fixed, generic og:description regardless of which
+// experience was actually being shared.
+const pageTitle = computed(() =>
+  state.value === "loaded" && service.value
+    ? `${service.value.name[locale.value]} · Sharm To Go`
+    : locale.value === "ar"
+      ? "التجربة · Sharm To Go"
+      : "Experience · Sharm To Go",
+);
+
+const pageDescription = computed(() => {
+  if (state.value !== "loaded" || !service.value) {
+    return locale.value === "ar"
+      ? "تجارب شرم الشيخ الحقيقية اللي شرم تو جو بتشغّلها وتنسّقها مباشرة."
+      : "Real Sharm El Sheikh experiences that Sharm To Go operates and coordinates directly.";
+  }
+  // A search snippet/social preview truncates anyway — cut at a word
+  // boundary near the conventional ~155-character description length
+  // rather than mid-word.
+  const full = service.value.description[locale.value];
+  if (full.length <= 155) return full;
+  return `${full.slice(0, 155).replace(/\s+\S*$/, "")}…`;
+});
+
 useHead(() => ({
-  title:
-    state.value === "loaded" && service.value
-      ? `${service.value.name[locale.value]} · Sharm To Go`
-      : locale.value === "ar"
-        ? "التجربة · Sharm To Go"
-        : "Experience · Sharm To Go",
+  title: pageTitle.value,
   htmlAttrs: {
     dir: direction.value,
     lang: locale.value,
   },
+  meta: [
+    { name: "description", content: pageDescription.value },
+    { property: "og:title", content: pageTitle.value },
+    { property: "og:description", content: pageDescription.value },
+  ],
 }));
 
 

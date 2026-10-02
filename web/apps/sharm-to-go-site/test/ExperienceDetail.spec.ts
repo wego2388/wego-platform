@@ -140,4 +140,48 @@ describe("experience detail page", () => {
 
     expect(wrapper.get('[role="alert"]').text()).toContain("We could not reach the live catalog");
   });
+
+  it("sets a real per-service meta description and og:title, not the generic site-wide default", async () => {
+    withRoute(serviceId);
+    stubFetch(() => new Response(JSON.stringify(sampleService), { status: 200 }));
+    let headFactory: (() => { meta: Array<{ name?: string; property?: string; content: string }> }) | undefined;
+    vi.stubGlobal("useHead", (input: typeof headFactory) => {
+      headFactory = input;
+    });
+
+    mountPage();
+    await flushPromises();
+
+    const meta = headFactory!().meta;
+    const description = meta.find((tag) => tag.name === "description");
+    const ogTitle = meta.find((tag) => tag.property === "og:title");
+    const ogDescription = meta.find((tag) => tag.property === "og:description");
+    expect(description?.content).toBe("An evening safari.");
+    expect(ogTitle?.content).toBe("Desert Safari · Sharm To Go");
+    expect(ogDescription?.content).toBe("An evening safari.");
+  });
+
+  it("truncates a long service description at a word boundary for the meta description, not mid-word", async () => {
+    withRoute(serviceId);
+    const longDescription =
+      "A full-day desert safari with dune bashing, a Bedouin camp dinner, stargazing through a real telescope, camel riding, and a guided tour of the surrounding mountains with a certified local guide who shares real history.";
+    stubFetch(() => new Response(JSON.stringify({ ...sampleService, description: { en: longDescription, ar: longDescription } }), { status: 200 }));
+    let headFactory: (() => { meta: Array<{ name?: string; content: string }> }) | undefined;
+    vi.stubGlobal("useHead", (input: typeof headFactory) => {
+      headFactory = input;
+    });
+
+    mountPage();
+    await flushPromises();
+
+    const description = headFactory!().meta.find((tag) => tag.name === "description")?.content ?? "";
+    expect(description.length).toBeLessThanOrEqual(156);
+    expect(description.endsWith("…")).toBe(true);
+    // The truncated text (minus the ellipsis) must be a real prefix of the
+    // original, and the original character right after it must be a space
+    // — proving the cut landed exactly on a word boundary, not mid-word.
+    const truncated = description.slice(0, -1);
+    expect(longDescription.startsWith(truncated)).toBe(true);
+    expect(longDescription[truncated.length]).toBe(" ");
+  });
 });

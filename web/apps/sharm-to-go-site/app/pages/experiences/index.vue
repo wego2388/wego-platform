@@ -17,12 +17,25 @@ import {
 
 const { locale, copy, direction, toggleLocale } = useSiteLocale();
 
+// No per-page description existed before this — every page silently
+// inherited app.vue's one fixed og:description, so a shared catalog link
+// and a shared homepage link looked identical in search/social previews.
+const pageDescription = computed(() =>
+  locale.value === "ar"
+    ? "تصفّح تجارب شرم الشيخ الحقيقية اللي شرم تو جو بتشغّلها وتنسّقها مباشرة — غطس، رحلات صحراوية، جولات بحرية، وأكتر."
+    : "Browse real Sharm El Sheikh experiences that Sharm To Go operates and coordinates directly — diving, desert trips, boat tours, and more.",
+);
+
 useHead(() => ({
   title: locale.value === "ar" ? "التجارب · Sharm To Go" : "Experiences · Sharm To Go",
   htmlAttrs: {
     dir: direction.value,
     lang: locale.value,
   },
+  meta: [
+    { name: "description", content: pageDescription.value },
+    { property: "og:description", content: pageDescription.value },
+  ],
 }));
 
 const route = useRoute();
