@@ -124,9 +124,13 @@
 - [x] Hotel/pickup and special-request step. Collected on the contact step
   (not a separate step) — same two fields (`hotelOrPickup`, `notes`), one
   fewer screen. Deliberate simplification, not a missing field.
-- [~] Name/contact/consent step. Name + at least one of phone/email are
-  collected and validated. **Real gap, not done:** there is no explicit
-  consent checkbox or inline link to the privacy policy on this step.
+- [x] Name/contact/consent step. Name + at least one of phone/email are
+  collected and validated. **2026-10-02:** added a required consent
+  checkbox linking to the Privacy Policy — `goToReview()` blocks with a
+  clear error if unchecked, before the request ever reaches the backend.
+  Closes the gap this line used to flag as not done. New test:
+  `RequestFlow.spec.ts` — "blocks continuing past the contact step
+  without checking the consent box, before ever calling the backend."
 - [x] Review step that distinguishes request from confirmation. Shows the
   snapshotted price/date/party and, for `STAFF_REVIEW` services, the
   honest "Request received" (not "Confirmed!") heading — proven by a

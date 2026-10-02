@@ -76,6 +76,9 @@ interface SiteCopy {
     contactHelp: string;
     contactRequiredError: string;
     contactPhoneInvalidError: string;
+    consentLabelPrefix: string;
+    consentLabelSuffix: string;
+    consentRequiredError: string;
     backButton: string;
     reviewHeading: string;
     reviewNote: string;
@@ -283,6 +286,9 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       contactHelp: "We'll only use this to confirm your request — never shared, never sold.",
       contactRequiredError: "Please add your name and at least one way to reach you (phone or email).",
       contactPhoneInvalidError: "That doesn't look like a valid phone number. Include your country code, e.g. +20 10 0141 3469.",
+      consentLabelPrefix: "I agree that Sharm To Go can use this information to confirm my request, per the",
+      consentLabelSuffix: ".",
+      consentRequiredError: "Please confirm you agree to the Privacy Policy before continuing.",
       backButton: "Back",
       reviewHeading: "Review your request",
       reviewNote: "This is a request, not a confirmed booking yet. Depending on the experience, you'll either be confirmed instantly or after a quick check by our team.",
@@ -557,6 +563,9 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       contactHelp: "هنستخدم البيانات دي بس عشان نأكد طلبك — من غير مشاركة أو بيع أبدًا.",
       contactRequiredError: "اكتب اسمك ووسيلة تواصل واحدة على الأقل (هاتف أو إيميل).",
       contactPhoneInvalidError: "رقم التليفون ده مش شكله صح. اكتب كود الدولة كمان، زي +20 10 0141 3469.",
+      consentLabelPrefix: "أوافق على إن شرم تو جو تستخدم البيانات دي عشان تأكد طلبي، حسب",
+      consentLabelSuffix: ".",
+      consentRequiredError: "من فضلك أكّد موافقتك على سياسة الخصوصية قبل ما تكمل.",
       backButton: "رجوع",
       reviewHeading: "راجع طلبك",
       reviewNote: "ده طلب، لسه مش حجز مؤكد. حسب التجربة، هيتأكد فورًا أو بعد مراجعة سريعة من فريقنا.",

@@ -49,6 +49,7 @@ async function fillPartyStep(wrapper: ReturnType<typeof mountPage>, date = "2099
 async function fillContactStep(wrapper: ReturnType<typeof mountPage>) {
   await wrapper.get("#name").setValue("Nour");
   await wrapper.get("#phone").setValue("+201001413469");
+  await wrapper.get("#consent").setValue(true);
   await wrapper.get("form").trigger("submit");
   await flushPromises();
 }
@@ -271,6 +272,30 @@ describe("real request flow", () => {
     await flushPromises();
 
     expect(wrapper.text()).toContain("doesn't look like a valid phone number");
+    expect(wrapper.text()).not.toContain("Review your request");
+    expect(fetchMock).toHaveBeenCalledTimes(1); // only the service load, never a request POST
+  });
+
+  it("blocks continuing past the contact step without checking the consent box, before ever calling the backend", async () => {
+    withRoute(serviceId);
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = new URL(String(input), "http://localhost");
+      if (url.pathname === `/api/catalog/services/${serviceId}`) return new Response(JSON.stringify(sampleService()), { status: 200 });
+      throw new Error(`Unexpected fetch: ${url.pathname}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const wrapper = mountPage();
+    await flushPromises();
+    await fillPartyStep(wrapper);
+
+    await wrapper.get("#name").setValue("Nour");
+    await wrapper.get("#phone").setValue("+201001413469");
+    // Deliberately not checking #consent.
+    await wrapper.get("form").trigger("submit");
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Please confirm you agree to the Privacy Policy");
     expect(wrapper.text()).not.toContain("Review your request");
     expect(fetchMock).toHaveBeenCalledTimes(1); // only the service load, never a request POST
   });

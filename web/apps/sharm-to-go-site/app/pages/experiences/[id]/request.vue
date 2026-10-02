@@ -59,7 +59,8 @@ const partyError = ref(false);
 const fullName = ref("");
 const phone = ref("");
 const email = ref("");
-const contactError = ref<"" | "required" | "invalidPhone">("");
+const consentGiven = ref(false);
+const contactError = ref<"" | "required" | "invalidPhone" | "consentRequired">("");
 
 // Same E.164-shaped plausibility check as the backend's
 // TravelRequestCustomer.isPlausiblePhoneNumber — mirrored here so an
@@ -115,6 +116,10 @@ function goToReview() {
   }
   if (phone.value.trim() && !isPlausiblePhoneNumber(phone.value)) {
     contactError.value = "invalidPhone";
+    return;
+  }
+  if (!consentGiven.value) {
+    contactError.value = "consentRequired";
     return;
   }
   contactError.value = "";
@@ -327,8 +332,23 @@ async function copySummary() {
           </div>
           <p class="text-xs text-sharm-muted">{{ copy.request.contactHelp }}</p>
 
+          <label class="flex items-start gap-3 text-sm leading-6">
+            <input id="consent" v-model="consentGiven" type="checkbox" required class="mt-1 size-4 shrink-0">
+            <span>
+              {{ copy.request.consentLabelPrefix }}
+              <NuxtLink to="/privacy" target="_blank" class="font-semibold text-sharm-sea underline">{{ copy.footerFull.legal.privacy }}</NuxtLink
+              >{{ copy.request.consentLabelSuffix }}
+            </span>
+          </label>
+
           <p v-if="contactError" role="alert" class="rounded-xl bg-sharm-danger-soft p-3 text-sm text-sharm-danger">
-            {{ contactError === "invalidPhone" ? copy.request.contactPhoneInvalidError : copy.request.contactRequiredError }}
+            {{
+              contactError === "invalidPhone"
+                ? copy.request.contactPhoneInvalidError
+                : contactError === "consentRequired"
+                  ? copy.request.consentRequiredError
+                  : copy.request.contactRequiredError
+            }}
           </p>
 
           <div class="flex gap-3">
