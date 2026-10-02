@@ -88,9 +88,28 @@ way (success or failure).
 
 Neither script is wired to a schedule (cron/systemd timer) yet — see below.
 
+## Health check
+
+```bash
+scripts/sharm-to-go-health.sh <site-domain> <admin-domain>
+```
+
+Runs the same four checks this runbook's own "Verify" section above curls
+by hand, as one repeatable, scriptable command: the public site's
+`robots.txt` and `sitemap.xml`, the backend (reached indirectly through the
+site's own catalog proxy — a 502 there means the backend is unreachable,
+not just that the site itself is up), and the staff ERP's login page.
+Prints `OK`/`FAIL` per check and exits non-zero if anything failed, so it
+can be wired into cron or any alerting channel later — it sends no alert
+itself; see "Not covered here" below. **Verified for real**: run against a
+real local HTTP server for all three failure modes (unreachable host, wrong
+response content, and a mixed pass/fail run), plus the full success path.
+
 ## Not covered here (owner/ops decisions still open)
 
-Off-box backup storage (S3, rsync to a second box, etc. — the scripts above
-produce a local file only), a backup schedule, monitoring/alerting, log
-shipping, off-box secret storage, and payment-provider secrets (no payment
-integration exists yet — see `clients/sharm-to-go/design/PAYMENT_FOUNDATION.md`).
+Off-box backup storage (S3, rsync to a second box, etc. — the backup
+script above produces a local file only), a backup/health-check schedule
+(cron/systemd timer), an actual alerting channel for the health check to
+notify (Slack/email/etc.), log shipping, off-box secret storage, and
+payment-provider secrets (no payment integration exists yet — see
+`clients/sharm-to-go/design/PAYMENT_FOUNDATION.md`).
