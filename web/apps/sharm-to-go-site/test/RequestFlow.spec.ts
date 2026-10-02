@@ -113,6 +113,7 @@ describe("real request flow", () => {
     await fillContactStep(wrapper);
     expect(wrapper.text()).toContain("Review your request");
     expect(wrapper.text()).toContain("EGP 500.00");
+    expect(wrapper.text()).toContain("(approx. $9)"); // display-only approximation; the stored price stays EGP
 
     await wrapper.get('button[type="button"].flex-1').trigger("click");
     await flushPromises();

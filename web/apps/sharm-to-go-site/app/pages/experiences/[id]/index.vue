@@ -6,7 +6,14 @@ import SiteFooter from "../../../components/SiteFooter.vue";
 import { contact, emailLink, whatsappLink } from "../../../content/contact";
 import { toneForIndex } from "../../../content/categoryAccents";
 import { useSiteLocale } from "../../../composables/useSiteLocale";
-import { getPublicService, listPublicCategories, priceBasisLabel, type PublicCategory, type PublicService } from "../../../composables/usePublicCatalog";
+import {
+  approximateUsdPrice,
+  getPublicService,
+  listPublicCategories,
+  priceBasisLabel,
+  type PublicCategory,
+  type PublicService,
+} from "../../../composables/usePublicCatalog";
 
 const route = useRoute();
 const serviceId = String(route.params.id);
@@ -133,7 +140,10 @@ onMounted(async () => {
               <span class="font-medium">{{ option.label[locale] }}</span>
               <span class="text-sharm-sea">
                 {{ option.priceCurrency }} {{ option.priceAmount }}
-                <span class="text-xs text-sharm-muted">{{ priceBasisLabel(option.priceBasis, copy.browse) }}</span>
+                <span class="text-xs text-sharm-muted">
+                  {{ copy.browse.approxUsd(approximateUsdPrice(option.priceAmount)) }}
+                  {{ priceBasisLabel(option.priceBasis, copy.browse) }}
+                </span>
               </span>
             </li>
           </ul>

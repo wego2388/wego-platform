@@ -97,6 +97,9 @@ describe("experiences page", () => {
     expect(wrapper.text()).toContain("Desert Safari");
     expect(wrapper.text()).toContain("Sea adventures");
     expect(wrapper.text()).toContain("EGP 500.00");
+    // The real stored/contractual price stays EGP; this is a display-only
+    // approximation for a USD-thinking visitor (500 / 49 ≈ 10.2 → 10).
+    expect(wrapper.text()).toContain("(approx. $9)");
     expect(wrapper.text()).toContain("Red Sea Adventures");
     expect(wrapper.text()).toContain("1 photo");
     expect(wrapper.findAll("a").some((link) => link.text() === "View details")).toBe(true);

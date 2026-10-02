@@ -68,6 +68,7 @@ describe("track reference page", () => {
     expect(wrapper.text()).toContain("Confirmed");
     expect(wrapper.text()).not.toContain("CONFIRMED");
     expect(wrapper.text()).toContain("EGP 500.00");
+    expect(wrapper.text()).toContain("(approx. $9)"); // display-only approximation; the stored price stays EGP
     expect(wrapper.text()).toContain("per person");
     expect(wrapper.text()).toContain("All rights reserved");
   });

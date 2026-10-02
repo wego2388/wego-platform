@@ -103,3 +103,20 @@ export function priceBasisLabel(basis: PriceBasis, browseCopy: { perPerson: stri
   if (basis === "FLAT") return browseCopy.flatRate;
   return browseCopy.perPerson;
 }
+
+// The real, contractual, stored price is always EGP (ServiceOptionDto's own
+// backend validation locks the currency code to "EGP" — Sharm To Go has one
+// real operating currency; see LOCALES_AND_CONTENT.md). This is a display-
+// only approximation for a USD-thinking visitor, never a second real price.
+// THIS IS THE ONLY PLACE the rate needs correcting — a real-world rate
+// change is a one-line edit here, not a hunt through every price on the
+// site. Derived from the owner's own 2026-09-20 EUR/EGP launch-pricing
+// decision (59.80 EGP/EUR, see content-research/SHARM_TO_GO_SERVICE_INTAKE_SHEETS.md)
+// divided by a representative EUR/USD rate, not an independent guess —
+// still a placeholder, not a live feed: verify/update periodically.
+const APPROXIMATE_EGP_PER_USD = 55;
+
+/** Rounded to the nearest whole dollar — precision here would misleadingly imply this is a real, quoted price rather than a rough approximation. */
+export function approximateUsdPrice(egpAmount: string): string {
+  return Math.round(Number(egpAmount) / APPROXIMATE_EGP_PER_USD).toString();
+}

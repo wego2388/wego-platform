@@ -33,6 +33,7 @@ interface SiteCopy {
     perGroup: string;
     perVehicle: string;
     flatRate: string;
+    approxUsd: (amount: string) => string;
     viewDetails: string;
     operatedBy: string;
     photoCount: (count: number) => string;
@@ -244,6 +245,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       perGroup: "per group",
       perVehicle: "per vehicle",
       flatRate: "flat rate",
+      approxUsd: (amount: string) => `(approx. $${amount})`,
       viewDetails: "View details",
       operatedBy: "Operated by",
       photoCount: (count: number) => (count === 1 ? "1 photo" : `${count} photos`),
@@ -522,6 +524,7 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       perGroup: "للمجموعة",
       perVehicle: "للسيارة",
       flatRate: "سعر ثابت",
+      approxUsd: (amount: string) => `(≈ ${amount}$ تقريبي)`,
       viewDetails: "عرض التفاصيل",
       operatedBy: "مقدَّمة من",
       photoCount: (count: number) => (count === 1 ? "صورة واحدة" : `${count} صور`),

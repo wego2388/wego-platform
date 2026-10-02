@@ -4,7 +4,13 @@ import GuestStepper from "../../../components/GuestStepper.vue";
 import SiteSubHeader from "../../../components/SiteSubHeader.vue";
 import { whatsappLink } from "../../../content/contact";
 import { useSiteLocale } from "../../../composables/useSiteLocale";
-import { getPublicService, priceBasisLabel, type PublicService, type PublicServiceOption } from "../../../composables/usePublicCatalog";
+import {
+  approximateUsdPrice,
+  getPublicService,
+  priceBasisLabel,
+  type PublicService,
+  type PublicServiceOption,
+} from "../../../composables/usePublicCatalog";
 import {
   createTravelRequest,
   newIdempotencyKey,
@@ -375,7 +381,10 @@ async function copySummary() {
               <dt class="text-sharm-muted">{{ copy.request.reviewPrice }}</dt>
               <dd class="font-semibold text-sharm-sea">
                 {{ selectedOption.priceCurrency }} {{ selectedOption.priceAmount }}
-                <span class="text-xs font-normal text-sharm-muted">{{ priceBasisLabel(selectedOption.priceBasis, copy.browse) }}</span>
+                <span class="text-xs font-normal text-sharm-muted">
+                  {{ copy.browse.approxUsd(approximateUsdPrice(selectedOption.priceAmount)) }}
+                  {{ priceBasisLabel(selectedOption.priceBasis, copy.browse) }}
+                </span>
               </dd>
             </div>
           </dl>

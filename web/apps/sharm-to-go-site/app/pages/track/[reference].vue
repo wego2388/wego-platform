@@ -3,7 +3,7 @@ import { onMounted, ref } from "vue";
 import SiteSubHeader from "../../components/SiteSubHeader.vue";
 import SiteFooter from "../../components/SiteFooter.vue";
 import { useSiteLocale } from "../../composables/useSiteLocale";
-import { priceBasisLabel } from "../../composables/usePublicCatalog";
+import { approximateUsdPrice, priceBasisLabel } from "../../composables/usePublicCatalog";
 import { getTravelRequestByReference, travelRequestStatusText, type TravelRequestPublicResponse } from "../../composables/useTravelRequests";
 
 const route = useRoute();
@@ -86,7 +86,10 @@ function formatDate(value: string): string {
             <dt class="text-sharm-muted">{{ copy.request.reviewPrice }}</dt>
             <dd class="font-semibold text-sharm-sea">
               {{ result.priceCurrency }} {{ result.priceAmount }}
-              <span class="text-xs font-normal text-sharm-muted">{{ priceBasisLabel(result.priceBasis, copy.browse) }}</span>
+              <span class="text-xs font-normal text-sharm-muted">
+                {{ copy.browse.approxUsd(approximateUsdPrice(result.priceAmount)) }}
+                {{ priceBasisLabel(result.priceBasis, copy.browse) }}
+              </span>
             </dd>
           </div>
         </dl>

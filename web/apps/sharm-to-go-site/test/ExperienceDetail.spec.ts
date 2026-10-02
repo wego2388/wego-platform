@@ -84,6 +84,7 @@ describe("experience detail page", () => {
     expect(wrapper.text()).toContain("Red Sea Adventures");
     expect(wrapper.text()).toContain("Evening trip");
     expect(wrapper.text()).toContain("EGP 500.00");
+    expect(wrapper.text()).toContain("(approx. $9)"); // display-only approximation; the stored price stays EGP
     expect(wrapper.text()).toContain("Free cancellation up to 24h before.");
     expect(wrapper.text()).toContain("Hotel pickup included.");
     expect(wrapper.text()).toContain("Dinner and water.");
