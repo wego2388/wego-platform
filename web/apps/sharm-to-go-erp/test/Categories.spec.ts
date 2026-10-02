@@ -20,6 +20,7 @@ const sampleCategory = {
   displayOrder: 0,
   status: "ACTIVE",
   createdAt: "2026-09-02T00:00:00Z",
+  version: 3,
 };
 
 describe("categories page", () => {
@@ -117,5 +118,60 @@ describe("categories page", () => {
     await flushPromises();
 
     expect(wrapper.get('[role="alert"]').text()).toBe("A category with this code already exists.");
+  });
+
+  it("editing a category sends back the version it loaded as expectedVersion", async () => {
+    seedSession(["service:view", "service:manage"]);
+    const putBodies: Array<{ expectedVersion?: number }> = [];
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === "PUT") {
+        putBodies.push(JSON.parse(String(init.body)));
+        return new Response(JSON.stringify({ ...sampleCategory, name: { en: "Sea Fun", ar: "بحري ممتع" }, version: 4 }), {
+          status: 200,
+        });
+      }
+      return new Response(JSON.stringify([sampleCategory]), { status: 200 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const wrapper = mount(CategoriesPage);
+    await flushPromises();
+
+    const editButton = wrapper.findAll("button").find((button) => button.text() === "Edit");
+    await editButton?.trigger("click");
+    await flushPromises();
+    await wrapper.get("#nameEn").setValue("Sea Fun");
+    await wrapper.get("form").trigger("submit.prevent");
+    await flushPromises();
+
+    expect(putBodies).toHaveLength(1);
+    expect(putBodies[0]?.expectedVersion).toBe(3);
+    expect(wrapper.text()).toContain("Sea Fun");
+  });
+
+  it("shows a real conflict error, not a silent overwrite, when someone else saved a category first", async () => {
+    seedSession(["service:view", "service:manage"]);
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === "PUT") {
+        return new Response(JSON.stringify({ error: "version_conflict", currentVersion: 4 }), { status: 409 });
+      }
+      return new Response(JSON.stringify([sampleCategory]), { status: 200 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const wrapper = mount(CategoriesPage);
+    await flushPromises();
+
+    const editButton = wrapper.findAll("button").find((button) => button.text() === "Edit");
+    await editButton?.trigger("click");
+    await flushPromises();
+    await wrapper.get("#nameEn").setValue("Sea Fun");
+    await wrapper.get("form").trigger("submit.prevent");
+    await flushPromises();
+
+    expect(wrapper.get('[role="alert"]').text()).toBe(
+      "Someone else saved changes to this category while you were editing. Reload it and redo your changes.",
+    );
+    expect(wrapper.text()).not.toContain("Sea Fun");
   });
 });

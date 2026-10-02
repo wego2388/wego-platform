@@ -40,11 +40,13 @@ import com.wego.travelmarketplace.domain.TravelRequestCancelReason
 import com.wego.travelmarketplace.domain.TravelRequestCustomer
 import com.wego.travelmarketplace.domain.TravelRequestSourceChannel
 import com.wego.travelmarketplace.domain.TravelRequestStatus
+import com.wego.travelmarketplace.infrastructure.ExpireTravelRequestsScheduler
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.junit.jupiter.Container
@@ -53,6 +55,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneOffset
 import java.util.UUID
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
@@ -96,6 +99,9 @@ class TravelRequestServiceTest {
 
     @Autowired
     private lateinit var expireTravelRequestsService: ExpireTravelRequestsService
+
+    @Autowired
+    private lateinit var expireTravelRequestsScheduler: ExpireTravelRequestsScheduler
 
     @Autowired
     private lateinit var userRepository: UserRepository
@@ -448,6 +454,39 @@ class TravelRequestServiceTest {
 
         val reloadedConfirmed = requestRepository.findById(confirmedOverdue.request.id)
         assertThat(reloadedConfirmed?.status).isEqualTo(TravelRequestStatus.CONFIRMED)
+    }
+
+    @Test
+    fun `the real production scheduler bean actually expires an overdue request, not just the service it wraps`() {
+        // ExpireTravelRequestsService has its own direct unit-level proof
+        // above — this proves the real wiring a deployed app depends on:
+        // a Spring bean exists, is actually annotated @Scheduled (not just
+        // present), and its run() method really calls through to the
+        // service against a real database. The service used to have no
+        // real caller in the application at all; this is the regression
+        // guard for that gap.
+        val method = ExpireTravelRequestsScheduler::class.java.getDeclaredMethod("run")
+        val scheduled = method.getAnnotation(Scheduled::class.java)
+        assertThat(scheduled).isNotNull()
+        assertThat(scheduled.fixedDelay).isEqualTo(15 * 60 * 1000L)
+
+        // The service computes "today" from Instant.now(clock) in UTC (see
+        // ExpireTravelRequestsService) — using the JVM's default-zone
+        // LocalDate.now() here instead would be off by a day near midnight
+        // in any zone ahead of UTC (this box runs in Africa/Cairo, UTC+3),
+        // which is exactly the kind of day-boundary bug this test exists
+        // to catch elsewhere, not fall into itself.
+        val overdue =
+            createTravelRequestService.create(
+                createCommand(staffReviewServiceId, staffReviewOptionId)
+                    .copy(requestedDate = LocalDate.now(ZoneOffset.UTC).minusDays(1)),
+            )
+        check(overdue is CreateTravelRequestResult.Created)
+
+        expireTravelRequestsScheduler.run()
+
+        val reloaded = requestRepository.findById(overdue.request.id)
+        assertThat(reloaded?.status).isEqualTo(TravelRequestStatus.EXPIRED)
     }
 
     @Test

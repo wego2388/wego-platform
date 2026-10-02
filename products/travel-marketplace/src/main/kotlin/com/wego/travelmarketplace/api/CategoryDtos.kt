@@ -15,6 +15,9 @@ data class UpsertCategoryRequest(
     @field:Valid val name: LocalizedTextDto,
     @field:Valid val description: LocalizedTextDto?,
     @field:Min(0) val displayOrder: Int,
+    // Null on create; required on update — see ServiceDtos.kt's
+    // UpsertServiceRequest.expectedVersion for the full reasoning.
+    val expectedVersion: Int?,
 )
 
 data class CategoryResponse(
@@ -26,8 +29,10 @@ data class CategoryResponse(
     val status: CategoryStatus,
     val createdAt: Instant,
     val archivedAt: Instant?,
+    val version: Int,
 )
 
 data class CategoryErrorResponse(
     val error: String,
+    val currentVersion: Int? = null,
 )

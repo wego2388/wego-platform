@@ -79,16 +79,30 @@ class ProviderController(
         @Valid @RequestBody request: UpsertProviderRequest,
         authentication: Authentication,
     ): ResponseEntity<Any> {
+        val expectedVersion =
+            request.expectedVersion
+                ?: return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ProviderErrorResponse("expected_version_required"))
         val actorUserId = (authentication.principal as AuthenticatedUser).userId
         return when (
             val result =
                 updateProviderService.update(
-                    UpdateProviderCommand(ProviderId(id), request.name, request.contactEmail, request.contactPhone, actorUserId),
+                    UpdateProviderCommand(
+                        ProviderId(id),
+                        request.name,
+                        request.contactEmail,
+                        request.contactPhone,
+                        actorUserId,
+                        expectedVersion,
+                    ),
                 )
         ) {
             is UpdateProviderResult.Updated -> ResponseEntity.ok(result.provider.toResponse())
             UpdateProviderResult.NotFound -> ResponseEntity.notFound().build()
             UpdateProviderResult.Archived -> ResponseEntity.status(HttpStatus.CONFLICT).body(ProviderErrorResponse("archived"))
+            is UpdateProviderResult.VersionConflict ->
+                ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(ProviderErrorResponse("version_conflict", currentVersion = result.currentVersion))
         }
     }
 
@@ -120,4 +134,5 @@ private fun Provider.toResponse() =
         status = status,
         createdAt = createdAt,
         archivedAt = archivedAt,
+        version = version,
     )

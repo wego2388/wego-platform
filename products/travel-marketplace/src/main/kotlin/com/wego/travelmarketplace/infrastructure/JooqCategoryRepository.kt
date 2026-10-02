@@ -69,6 +69,7 @@ class JooqCategoryRepository(
             .set(TRAVEL_CATEGORY.STATUS, category.status.name)
             .set(TRAVEL_CATEGORY.CREATED_AT, toOffset(category.createdAt))
             .set(TRAVEL_CATEGORY.ARCHIVED_AT, category.archivedAt?.let(::toOffset))
+            .set(TRAVEL_CATEGORY.VERSION, category.version)
             .onConflict(TRAVEL_CATEGORY.ID)
             .doUpdate()
             .set(TRAVEL_CATEGORY.NAME_EN, category.name.en)
@@ -78,6 +79,7 @@ class JooqCategoryRepository(
             .set(TRAVEL_CATEGORY.DISPLAY_ORDER, category.displayOrder)
             .set(TRAVEL_CATEGORY.STATUS, category.status.name)
             .set(TRAVEL_CATEGORY.ARCHIVED_AT, category.archivedAt?.let(::toOffset))
+            .set(TRAVEL_CATEGORY.VERSION, category.version)
             .execute()
     }
 
@@ -96,6 +98,7 @@ class JooqCategoryRepository(
             status = CategoryStatus.valueOf(record.status),
             createdAt = record.createdAt.toInstant(),
             archivedAt = record.archivedAt?.toInstant(),
+            version = record.version,
         )
 
     private fun toOffset(instant: Instant): OffsetDateTime = OffsetDateTime.ofInstant(instant, ZoneOffset.UTC)

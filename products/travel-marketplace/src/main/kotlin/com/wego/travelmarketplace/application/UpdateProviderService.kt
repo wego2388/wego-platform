@@ -13,6 +13,7 @@ data class UpdateProviderCommand(
     val contactEmail: String?,
     val contactPhone: String?,
     val actorUserId: UUID?,
+    val expectedVersion: Int,
 )
 
 sealed interface UpdateProviderResult {
@@ -23,8 +24,13 @@ sealed interface UpdateProviderResult {
     data object NotFound : UpdateProviderResult
 
     data object Archived : UpdateProviderResult
+
+    data class VersionConflict(
+        val currentVersion: Int,
+    ) : UpdateProviderResult
 }
 
+/** See [com.wego.travelmarketplace.application.UpdateServiceService]'s own class doc for why [UpdateProviderCommand.expectedVersion] exists and why the check here is race-free. */
 class UpdateProviderService(
     private val providerRepository: ProviderRepository,
     private val auditRecorder: TravelMarketplaceAuditRecorder,
@@ -36,6 +42,9 @@ class UpdateProviderService(
             val existing =
                 providerRepository.findByIdForUpdate(command.providerId) ?: return@runInTransaction UpdateProviderResult.NotFound
             if (!existing.isActive) return@runInTransaction UpdateProviderResult.Archived
+            if (existing.version != command.expectedVersion) {
+                return@runInTransaction UpdateProviderResult.VersionConflict(existing.version)
+            }
 
             val updated = existing.withUpdatedDetails(command.name, command.contactEmail, command.contactPhone)
             providerRepository.save(updated)

@@ -52,12 +52,16 @@ export interface Provider {
   status: ProviderStatus;
   createdAt: string;
   archivedAt?: string;
+  version: number;
 }
 
 export interface UpsertProviderBody {
   name: string;
   contactEmail?: string;
   contactPhone?: string;
+  // Required on an update (the version the editor loaded); omitted on
+  // create. See useTravelMarketplaceApi.ts's UpsertServiceBody.expectedVersion.
+  expectedVersion?: number;
 }
 
 export function listProviders(
@@ -103,6 +107,7 @@ export interface Category {
   status: CategoryStatus;
   createdAt: string;
   archivedAt?: string;
+  version: number;
 }
 
 export interface UpsertCategoryBody {
@@ -110,6 +115,9 @@ export interface UpsertCategoryBody {
   name: LocalizedText;
   description?: LocalizedText;
   displayOrder: number;
+  // Required on an update (the version the editor loaded); omitted on
+  // create. See useTravelMarketplaceApi.ts's UpsertServiceBody.expectedVersion.
+  expectedVersion?: number;
 }
 
 export function listCategories(token: string, params: { status?: CategoryStatus } = {}): Promise<Category[]> {

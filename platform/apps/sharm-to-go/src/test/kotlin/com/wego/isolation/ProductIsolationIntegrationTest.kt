@@ -21,8 +21,9 @@ import org.testcontainers.postgresql.PostgreSQLContainer
  * module's own V3 (Packet 1A travel marketplace catalog), V4 (identity
  * administration, ported — not shared — from origin/main's WEGO-012 with
  * this app's own real permission set, not Divers' ones), V5 (Phase 1
- * travel request/booking foundation), and V6 (the service catalog's
- * optimistic-locking `version` column) — the Divers product's own migration
+ * travel request/booking foundation), V6 (the service catalog's
+ * optimistic-locking `version` column), and V7 (the same `version` column
+ * for providers and categories) — the Divers product's own migration
  * files (a disjoint numbering sequence in a different application) do not
  * exist under this module at all. This test proves the *database*
  * consequence of that: a real, freshly migrated Sharm To Go database
@@ -36,7 +37,7 @@ class ProductIsolationIntegrationTest(
 ) {
     @Test
     fun `boots and migrates only the shared platform, identity, and travel marketplace catalog foundation, never any Divers table`() {
-        assertThat(flyway.info().applied().map { it.version.toString() }).containsExactly("1", "2", "3", "4", "5", "6")
+        assertThat(flyway.info().applied().map { it.version.toString() }).containsExactly("1", "2", "3", "4", "5", "6", "7")
 
         postgres.createConnection("").use { connection ->
             val tableNames =

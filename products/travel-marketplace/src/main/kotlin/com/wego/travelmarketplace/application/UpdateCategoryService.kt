@@ -23,6 +23,7 @@ data class UpdateCategoryCommand(
     val description: LocalizedText?,
     val displayOrder: Int,
     val actorUserId: UUID?,
+    val expectedVersion: Int,
 )
 
 sealed interface UpdateCategoryResult {
@@ -35,8 +36,13 @@ sealed interface UpdateCategoryResult {
     data object Archived : UpdateCategoryResult
 
     data object CodeImmutable : UpdateCategoryResult
+
+    data class VersionConflict(
+        val currentVersion: Int,
+    ) : UpdateCategoryResult
 }
 
+/** See [com.wego.travelmarketplace.application.UpdateServiceService]'s own class doc for why [UpdateCategoryCommand.expectedVersion] exists and why the check here is race-free. */
 class UpdateCategoryService(
     private val categoryRepository: CategoryRepository,
     private val auditRecorder: TravelMarketplaceAuditRecorder,
@@ -48,6 +54,9 @@ class UpdateCategoryService(
             val existing =
                 categoryRepository.findByIdForUpdate(command.categoryId) ?: return@runInTransaction UpdateCategoryResult.NotFound
             if (!existing.isActive) return@runInTransaction UpdateCategoryResult.Archived
+            if (existing.version != command.expectedVersion) {
+                return@runInTransaction UpdateCategoryResult.VersionConflict(existing.version)
+            }
             if (command.requestedCode != existing.code) return@runInTransaction UpdateCategoryResult.CodeImmutable
 
             val updated = existing.withUpdatedDetails(command.name, command.description, command.displayOrder)

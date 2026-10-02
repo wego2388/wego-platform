@@ -235,7 +235,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProviderResponse"
         "400":
-          $ref: "#/components/responses/ValidationErrorResponse"
+          description: Validation failure, or a missing `expectedVersion`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogErrorResponse"
         "401":
           $ref: "#/components/responses/UnauthenticatedResponse"
         "403":
@@ -243,7 +247,7 @@ paths:
         "404":
           description: No provider with this id.
         "409":
-          description: The provider is archived.
+          description: The provider is archived, or `expectedVersion` no longer matches (`currentVersion` names the real one).
           content:
             application/json:
               schema:
@@ -378,7 +382,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/CategoryResponse"
         "400":
-          $ref: "#/components/responses/ValidationErrorResponse"
+          description: Validation failure, or a missing `expectedVersion`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogErrorResponse"
         "401":
           $ref: "#/components/responses/UnauthenticatedResponse"
         "403":
@@ -386,7 +394,7 @@ paths:
         "404":
           description: No category with this id.
         "409":
-          description: The category is archived.
+          description: The category is archived, `code` was changed (it is immutable after creation), or `expectedVersion` no longer matches (`currentVersion` names the real one).
           content:
             application/json:
               schema:
@@ -540,7 +548,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ServiceResponse"
         "400":
-          description: Validation failure, an unknown category, or an unknown provider.
+          description: Validation failure, an unknown category, an unknown provider, or a missing `expectedVersion`.
           content:
             application/json:
               schema:
@@ -552,7 +560,7 @@ paths:
         "404":
           description: No service with this id.
         "409":
-          description: The service is archived.
+          description: The service is archived, the edit would leave a published/suspended service with no options or media, or `expectedVersion` no longer matches (`currentVersion` names the real one).
           content:
             application/json:
               schema:
@@ -1288,6 +1296,11 @@ components:
           type:
             - string
             - "null"
+        expectedVersion:
+          description: Null on create — nothing to be stale against yet. Required on update, or the request is rejected with `expected_version_required`; see ProviderResponse.version.
+          type:
+            - integer
+            - "null"
     ProviderResponse:
       type: object
       additionalProperties: false
@@ -1296,6 +1309,7 @@ components:
         - name
         - status
         - createdAt
+        - version
       properties:
         id:
           type: string
@@ -1320,6 +1334,9 @@ components:
             - string
             - "null"
           format: date-time
+        version:
+          description: Send back as `expectedVersion` on the next update — a mismatch means someone else saved first; see UpsertProviderRequest.expectedVersion.
+          type: integer
     UpsertCategoryRequest:
       type: object
       additionalProperties: false
@@ -1340,6 +1357,11 @@ components:
         displayOrder:
           type: integer
           minimum: 0
+        expectedVersion:
+          description: Null on create — nothing to be stale against yet. Required on update, or the request is rejected with `expected_version_required`; see CategoryResponse.version.
+          type:
+            - integer
+            - "null"
     CategoryResponse:
       type: object
       additionalProperties: false
@@ -1350,6 +1372,7 @@ components:
         - displayOrder
         - status
         - createdAt
+        - version
       properties:
         id:
           type: string
@@ -1374,6 +1397,9 @@ components:
             - string
             - "null"
           format: date-time
+        version:
+          description: Send back as `expectedVersion` on the next update — a mismatch means someone else saved first; see UpsertCategoryRequest.expectedVersion.
+          type: integer
     ServiceOption:
       type: object
       additionalProperties: false

@@ -68,6 +68,15 @@ class ProviderTest {
 
         assertThatIllegalArgumentException().isThrownBy { provider.archive(NOW.plusSeconds(1)) }
     }
+
+    @Test
+    fun `a newly created provider starts at version 1, and updating details bumps it by one`() {
+        val provider = create()
+        assertThat(provider.version).isEqualTo(1)
+
+        val updated = provider.withUpdatedDetails(provider.name, provider.contactEmail, provider.contactPhone)
+        assertThat(updated.version).isEqualTo(2)
+    }
 }
 
 class CategoryTest {
@@ -99,6 +108,15 @@ class CategoryTest {
         category.archive(NOW)
 
         assertThatIllegalArgumentException().isThrownBy { category.archive(NOW.plusSeconds(1)) }
+    }
+
+    @Test
+    fun `a newly created category starts at version 1, and updating details bumps it by one`() {
+        val category = create()
+        assertThat(category.version).isEqualTo(1)
+
+        val updated = category.withUpdatedDetails(category.name, category.description, category.displayOrder)
+        assertThat(updated.version).isEqualTo(2)
     }
 }
 

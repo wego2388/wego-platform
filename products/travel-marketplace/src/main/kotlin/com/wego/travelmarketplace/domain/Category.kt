@@ -19,6 +19,7 @@ class Category(
     status: CategoryStatus,
     val createdAt: Instant,
     archivedAt: Instant?,
+    val version: Int,
 ) {
     var status: CategoryStatus = status
         private set
@@ -43,6 +44,7 @@ class Category(
         archivedAt = now
     }
 
+    /** [version] is bumped here — see [com.wego.travelmarketplace.domain.Service.withUpdatedDetails]'s own doc for why this is safe and where the staleness check actually lives. */
     fun withUpdatedDetails(
         name: LocalizedText,
         description: LocalizedText?,
@@ -57,6 +59,7 @@ class Category(
             status = status,
             createdAt = createdAt,
             archivedAt = archivedAt,
+            version = version + 1,
         )
 
     companion object {
@@ -79,6 +82,7 @@ class Category(
                 status = CategoryStatus.ACTIVE,
                 createdAt = now,
                 archivedAt = null,
+                version = 1,
             )
     }
 }

@@ -10,11 +10,10 @@ import java.time.ZoneOffset
 /**
  * The expiry sweep: every `NEW`/`IN_REVIEW` request whose
  * [com.wego.travelmarketplace.domain.TravelRequest.requestedDate] has
- * already passed without confirmation moves to `EXPIRED`. Scheduling this
- * (a `@Scheduled` bean, mirroring `com.wego.toursoperator.infrastructure.BookingExpiryScheduler`'s
- * pattern) is deliberately not wired in this sub-packet — this service is
- * the pure, independently-testable unit the scheduler will call once it is
- * added alongside the rest of the API layer.
+ * already passed without confirmation moves to `EXPIRED`. Kept as a pure,
+ * independently-testable unit with no scheduling concern of its own —
+ * [com.wego.travelmarketplace.infrastructure.ExpireTravelRequestsScheduler]
+ * is the real production caller, on a 15-minute `@Scheduled` cadence.
  */
 class ExpireTravelRequestsService(
     private val requestRepository: TravelRequestRepository,
