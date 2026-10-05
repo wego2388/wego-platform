@@ -205,8 +205,11 @@ test.describe("ERP HR attendance and leave lifecycle", () => {
       await page.locator("#attendanceDate").fill("2026-08-30");
       await page.locator("#status").selectOption("PRESENT");
       await page.locator("#notes").fill("Actually on time");
-      await page.getByRole("button", { name: "Record attendance" }).click();
-
+      // Reload only after the write committed; reloading mid-request aborts it.
+      await Promise.all([
+        page.waitForResponse((r) => r.request().method() !== "GET" && r.url().includes("/api/") && r.ok()),
+        page.getByRole("button", { name: "Record attendance" }).click(),
+      ]);
       await page.reload();
       await expect(page.getByText("Actually on time")).toBeVisible();
       await expect(page.getByText("Traffic")).not.toBeVisible();
@@ -293,8 +296,10 @@ test.describe("ERP accounting lifecycle", () => {
     await test.step("reverse the entry, flipping every line", async () => {
       const entryRow = page.locator("li", { hasText: "E2E test booking revenue" }).first();
       await entryRow.locator('[id^="reverse-reason-"]').fill("E2E test reversal");
-      await entryRow.getByRole("button", { name: "Reverse" }).click();
-
+      await Promise.all([
+        page.waitForResponse((r) => r.request().method() !== "GET" && r.url().includes("/api/") && r.ok()),
+        entryRow.getByRole("button", { name: "Reverse" }).click(),
+      ]);
       await page.reload();
       await expect(page.getByText("reverses another entry")).toBeVisible();
     });
@@ -350,7 +355,10 @@ test.describe("ERP payroll lifecycle", () => {
     });
 
     await test.step("post the draft, creating a real journal entry", async () => {
-      await runRow.getByRole("button", { name: "Post" }).click();
+      await Promise.all([
+        page.waitForResponse((r) => r.request().method() !== "GET" && r.url().includes("/api/") && r.ok()),
+        runRow.getByRole("button", { name: "Post" }).click(),
+      ]);
       await page.reload();
       runRow = page.locator("li", { hasText: "2026-08-01 – 2026-08-31" });
       await expect(runRow.getByText("POSTED")).toBeVisible();
