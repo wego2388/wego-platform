@@ -62,13 +62,13 @@ describe("payment methods, references and amounts", () => {
 describe("unpaid / balance badges", () => {
   it("is absent for online bookings", () => expect(officeBadge({ channel: "ONLINE", status: "NEW", officePayment: null })).toBeNull());
   it("shows unpaid awaiting collection with the balance", () => {
-    const b = officeBadge(office("NEW", "UNPAID"))!;
+    const b = officeBadge(office("CONFIRMED", "UNPAID"))!;
     expect(b.labelKey).toBe("office.badge.UNPAID");
     expect(b.outstanding).toEqual(eur("67.50"));
   });
   it("shows deposit with the balance, and paid in full without one", () => {
-    expect(officeBadge(office("NEW", "PARTIALLY_PAID"))!.labelKey).toBe("office.badge.PARTIALLY_PAID");
-    const paid = officeBadge(office("NEW", "PAID"))!;
+    expect(officeBadge(office("CONFIRMED", "PARTIALLY_PAID"))!.labelKey).toBe("office.badge.PARTIALLY_PAID");
+    const paid = officeBadge(office("CONFIRMED", "PAID"))!;
     expect(paid.labelKey).toBe("office.badge.PAID");
     expect(paid.outstanding).toBeNull();
   });
@@ -78,12 +78,17 @@ describe("unpaid / balance badges", () => {
     expect(b.cashToReturn).toEqual(eur("20.00"));
     expect(officeBadge(office("CANCELLED", "UNPAID"))!.labelKey).toBe("office.badge.cancelled");
   });
-  it("run sheet: part- or fully-paid office bookings are live, unpaid ones need the toggle", () => {
-    expect(isLive(office("NEW", "UNPAID"), false)).toBe(false);
-    expect(isLive(office("NEW", "UNPAID"), true)).toBe(true);
-    expect(isLive(office("NEW", "PARTIALLY_PAID"), false)).toBe(true);
-    expect(isUnpaid(office("NEW", "PARTIALLY_PAID"))).toBe(true);
-    expect(isUnpaid(office("NEW", "PAID"))).toBe(false);
+  it("shows completed with unpaid balance", () => {
+    const b = officeBadge(office("COMPLETED", "PARTIALLY_PAID"))!;
+    expect(b.labelKey).toBe("office.badge.completedUnpaid");
+    expect(b.outstanding).toEqual(eur("67.50"));
+    expect(officeBadge(office("COMPLETED", "PAID"))!.labelKey).toBe("office.badge.PAID");
+  });
+  it("run sheet: confirmed office bookings are live and keep their balance; unpaid count excludes paid ones", () => {
+    expect(isLive(office("CONFIRMED", "UNPAID"), false)).toBe(true);
+    expect(isUnpaid(office("CONFIRMED", "UNPAID"))).toBe(true);
+    expect(isUnpaid(office("CONFIRMED", "PARTIALLY_PAID"))).toBe(true);
+    expect(isUnpaid(office("CONFIRMED", "PAID"))).toBe(false);
   });
 });
 

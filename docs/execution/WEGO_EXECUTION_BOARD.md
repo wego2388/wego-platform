@@ -4327,8 +4327,17 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   ONLINE|OFFICE (default ONLINE), staff creator and idempotency key
   (`clientRequestId`, unique per actor; replay returns 200, different payload
   409) are stored; audit event `BOOKING_CREATED_OFFICE` carries the actor.
-- **No auto-expiry:** an office booking stays NEW (unpaid/awaiting collection)
-  and is excluded from the 30-minute sweeper query, refused by
+- **Confirmed at creation (owner-directed follow-up):** a booking made in
+  person is operationally CONFIRMED at once through its own domain path
+  (`Booking.createOffice`, confirmedAt set; not the Paymob confirm). Payment is
+  tracked separately by the office-payment state, so it flows to COMPLETED and
+  staff cancel as normal. No online customer email is sent for office bookings
+  (no BOOKING_CONFIRMED, no cancellation or review-request email; documents
+  come with OPS2-D) — tested. Completing with a balance is allowed and the API
+  returns `completedWithUnpaidBalance` (ERP: "completed with unpaid balance").
+  Payments can be recorded on CONFIRMED or COMPLETED office bookings.
+- **No auto-expiry:** an office booking is never NEW online-pending, is
+  excluded from the 30-minute sweeper query, refused by
   `ExpireBookingService`, `Booking.expire`, and a DB CHECK; online payment
   initiation for it returns 409 `office_booking_not_payable_online`. Staff
   cancel with the existing endpoint (places released).
@@ -4363,7 +4372,7 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   incl. race, EGP/rate, concurrent collections, reversal, cancel-keeps-history)
   and the enquiry-mode interaction; domain unit tests (rounding edge cases);
   ERP Vitest 243.
-- **Open items:** EGP-heavy cash is recorded in EUR equivalent only through
+- **Open items:** (the earlier NEW-forever question is resolved above) EGP-heavy cash is recorded in EUR equivalent only through
   the manager rate; the ERP form estimates the price client-side from tour
   data (server price is final); finance totals do not yet include office
   collections (when added they must be labelled office payments); refund /

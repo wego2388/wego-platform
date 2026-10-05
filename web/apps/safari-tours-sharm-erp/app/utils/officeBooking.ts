@@ -50,7 +50,7 @@ export interface OfficeBadge {
 }
 
 /** Null for online bookings: their badge is the ordinary booking status. */
-export function officeBadge(booking: Pick<Booking, "channel" | "status" | "officePayment">): OfficeBadge | null {
+export function officeBadge(booking: Pick<Booking, "channel" | "status" | "officePayment"> & { completedWithUnpaidBalance?: boolean }): OfficeBadge | null {
   if (booking.channel !== "OFFICE") return null;
   const pay: OfficePayment | null = booking.officePayment;
   if (!pay) return null;
@@ -61,6 +61,9 @@ export function officeBadge(booking: Pick<Booking, "channel" | "status" | "offic
       outstanding: null, collected: pay.collected, cashToReturn: pay.cashToReturn,
     };
   }
+  if (booking.status === "COMPLETED" && pay.state !== "PAID") {
+    return { tone: "danger", labelKey: "office.badge.completedUnpaid", outstanding: pay.outstanding, collected: pay.collected, cashToReturn: null };
+  }
   if (pay.state === "PAID") {
     return { tone: "success", labelKey: "office.badge.PAID", outstanding: null, collected: pay.collected, cashToReturn: null };
   }
@@ -69,11 +72,6 @@ export function officeBadge(booking: Pick<Booking, "channel" | "status" | "offic
     labelKey: pay.state === "PARTIALLY_PAID" ? "office.badge.PARTIALLY_PAID" : "office.badge.UNPAID",
     outstanding: pay.outstanding, collected: pay.collected, cashToReturn: null,
   };
-}
-
-/** True when the office still has money to collect on a live booking (used by the run sheet count). */
-export function awaitingCollection(booking: Pick<Booking, "channel" | "status" | "officePayment">): boolean {
-  return booking.channel === "OFFICE" && booking.status === "NEW" && booking.officePayment?.state !== "PAID";
 }
 
 export interface PartyInput {

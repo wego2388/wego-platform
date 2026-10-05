@@ -343,8 +343,10 @@ data class BookingResponse(
     val expiredAt: Instant?,
     /** ONLINE (public checkout) or OFFICE (created by staff). */
     val channel: com.wego.toursoperator.domain.BookingChannel = com.wego.toursoperator.domain.BookingChannel.ONLINE,
-    /** True for a NEW office booking: unpaid or part-paid, awaiting cash collection, never auto-expired. */
+    /** True for a live office booking that is not paid in full: awaiting collection. Never auto-expired. */
     val awaitingCollection: Boolean = false,
+    /** True for a COMPLETED office booking that still has a balance: "completed with unpaid balance". */
+    val completedWithUnpaidBalance: Boolean = false,
     /** Cash state of an OFFICE booking, derived from its office ledger; null for ONLINE bookings. */
     val officePayment: OfficePaymentResponse? = null,
 )

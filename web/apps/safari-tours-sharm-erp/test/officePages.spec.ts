@@ -90,7 +90,7 @@ describe("new office booking form", () => {
 });
 
 const booking = (state: string, extra: Record<string, unknown> = {}) => ({
-  id: "b1", status: "NEW", channel: "OFFICE", totalPrice: eur("87.50"),
+  id: "b1", status: "CONFIRMED", channel: "OFFICE", totalPrice: eur("87.50"),
   officePayment: { state, collected: eur(state === "UNPAID" ? "0.00" : "20.00"), outstanding: eur(state === "UNPAID" ? "87.50" : "67.50"), cashToReturn: null }, ...extra,
 }) as unknown as Booking;
 

@@ -3,6 +3,7 @@ package com.wego.toursoperator.application
 import com.wego.events.IntegrationEventEnvelope
 import com.wego.events.OutboxWriter
 import com.wego.toursoperator.domain.Booking
+import com.wego.toursoperator.domain.BookingChannel
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.BookingStatus
 import com.wego.toursoperator.domain.NotificationKind
@@ -67,7 +68,8 @@ class CancelBookingService(
             bookingAuditRecorder.recordCancelled(booking.id, fromStatus, reason, actorUserId, now, correlationId)
             // Only a confirmed (paid) booking was ever announced to the customer;
             // an unpaid NEW booking cancelled by staff gets no email.
-            if (fromStatus == BookingStatus.CONFIRMED) {
+            // Office bookings never had an online confirmation; their documents come with OPS2-D.
+            if (fromStatus == BookingStatus.CONFIRMED && booking.channel == BookingChannel.ONLINE) {
                 notificationRepository.enqueueOnce(booking.id, NotificationKind.BOOKING_CANCELLED, now, now)
             }
             outboxWriter.write(cancelledEnvelope(booking, now, correlationId))

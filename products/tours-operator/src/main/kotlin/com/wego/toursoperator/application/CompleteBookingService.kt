@@ -3,6 +3,7 @@ package com.wego.toursoperator.application
 import com.wego.events.IntegrationEventEnvelope
 import com.wego.events.OutboxWriter
 import com.wego.toursoperator.domain.Booking
+import com.wego.toursoperator.domain.BookingChannel
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.BookingStatus
 import com.wego.toursoperator.domain.NotificationKind
@@ -51,7 +52,10 @@ class CompleteBookingService(
             booking.complete(now)
             bookingRepository.save(booking)
             bookingAuditRecorder.recordCompleted(booking.id, actorUserId, now, correlationId)
-            notificationRepository.enqueueOnce(booking.id, NotificationKind.REVIEW_REQUEST, now.plus(reviewRequestDelay), now)
+            // The review request is an online-customer email; office customers get documents in OPS2-D.
+            if (booking.channel == BookingChannel.ONLINE) {
+                notificationRepository.enqueueOnce(booking.id, NotificationKind.REVIEW_REQUEST, now.plus(reviewRequestDelay), now)
+            }
             outboxWriter.write(completedEnvelope(booking, now, correlationId))
 
             CompleteBookingResult.Completed(booking)

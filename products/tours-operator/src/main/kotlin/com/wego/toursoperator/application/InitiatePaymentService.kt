@@ -98,16 +98,15 @@ class InitiatePaymentService(
                     bookingRepository.findByIdForUpdate(command.bookingId)
                         ?: return@runInTransaction PaymentPreparation.Completed(InitiatePaymentResult.BookingNotFound)
 
+                // Office bookings are paid through the office ledger, never through the online provider.
+                if (booking.channel != com.wego.toursoperator.domain.BookingChannel.ONLINE) {
+                    return@runInTransaction PaymentPreparation.Completed(InitiatePaymentResult.OfficeBookingNotPayableOnline)
+                }
+
                 if (booking.status != BookingStatus.NEW) {
                     return@runInTransaction PaymentPreparation.Completed(
                         InitiatePaymentResult.BookingNotPayable(booking.status),
                     )
-                }
-
-                // Office bookings are settled in cash through the office ledger,
-                // never through the online provider.
-                if (booking.channel != com.wego.toursoperator.domain.BookingChannel.ONLINE) {
-                    return@runInTransaction PaymentPreparation.Completed(InitiatePaymentResult.OfficeBookingNotPayableOnline)
                 }
 
                 // Checked before any payment row is written and before resuming

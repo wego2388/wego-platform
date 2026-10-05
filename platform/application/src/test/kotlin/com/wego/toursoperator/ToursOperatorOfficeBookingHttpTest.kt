@@ -359,7 +359,7 @@ class ToursOperatorOfficeBookingHttpTest {
             createOffice(adminToken(), officeBody(slotId))
                 .andExpect {
                     status { isCreated() }
-                    jsonPath("$.status") { value("NEW") }
+                    jsonPath("$.status") { value("CONFIRMED") }
                     jsonPath("$.channel") { value("OFFICE") }
                     jsonPath("$.awaitingCollection") { value(true) }
                     jsonPath("$.officePayment.state") { value("UNPAID") }
@@ -586,13 +586,13 @@ class ToursOperatorOfficeBookingHttpTest {
 
         expireOverdue.expireOverdue()
 
-        assertThat(statusOf(officeId)).isEqualTo("NEW")
+        assertThat(statusOf(officeId)).isEqualTo("CONFIRMED")
         assertThat(statusOf(onlineId)).isEqualTo("EXPIRED")
         // Only the online booking's three places came back.
         assertThat(booked(slotId)).isEqualTo(3)
         // Even a direct expire call refuses an office booking.
         assertThat(expireBooking.expire(BookingId(UUID.fromString(officeId)), null)).isEqualTo(ExpireBookingResult.CannotExpire)
-        assertThat(statusOf(officeId)).isEqualTo("NEW")
+        assertThat(statusOf(officeId)).isEqualTo("CONFIRMED")
     }
 
     private fun statusOf(id: String): String =
@@ -609,7 +609,7 @@ class ToursOperatorOfficeBookingHttpTest {
         org.assertj.core.api.Assertions
             .assertThatThrownBy {
                 dsl.execute(
-                    "UPDATE wego.tours_operator_booking SET status = 'EXPIRED', expired_at = now() WHERE id = ?",
+                    "UPDATE wego.tours_operator_booking SET status = 'EXPIRED', expired_at = now(), confirmed_at = NULL WHERE id = ?",
                     UUID.fromString(id),
                 )
             }.hasMessageContaining("tours_operator_booking_office_never_expires")
@@ -674,12 +674,12 @@ class ToursOperatorOfficeBookingHttpTest {
             jsonPath("$.officePayment.state") { value("PAID") }
             jsonPath("$.officePayment.outstanding.amount") { value("0.00") }
         }
-        // Fully collected: nothing more can be taken. The booking is still a live NEW booking.
+        // Fully collected: nothing more can be taken. The booking stays CONFIRMED; payment is tracked separately.
         collect(admin, id, "0.01").andExpect {
             status { isConflict() }
             jsonPath("$.error") { value("amount_exceeds_outstanding") }
         }
-        assertThat(statusOf(id)).isEqualTo("NEW")
+        assertThat(statusOf(id)).isEqualTo("CONFIRMED")
         assertThat(dsl.fetchCount(TOURS_OPERATOR_PAYMENT, TOURS_OPERATOR_PAYMENT.BOOKING_ID.eq(UUID.fromString(id)))).isZero()
         assertThat(dsl.fetchCount(TOURS_OPERATOR_OFFICE_COLLECTION, TOURS_OPERATOR_OFFICE_COLLECTION.BOOKING_ID.eq(UUID.fromString(id))))
             .isEqualTo(2)
@@ -1144,5 +1144,85 @@ class ToursOperatorOfficeBookingHttpTest {
             registry.add("spring.flyway.enabled") { true }
             registry.add("tours-operator.paymob.mock-enabled") { true }
         }
+    }
+
+    // ── confirmed at creation: lifecycle and customer emails ─────────────────
+
+    private fun notificationCount(id: String): Int =
+        dsl.fetchCount(
+            org.jooq.impl.DSL
+                .table(
+                    org.jooq.impl.DSL
+                        .name("wego", "tours_operator_notification"),
+                ),
+            org.jooq.impl.DSL
+                .field(
+                    org.jooq.impl.DSL
+                        .name("booking_id"),
+                    UUID::class.java,
+                ).eq(UUID.fromString(id)),
+        )
+
+    @Test
+    fun `an office booking is confirmed at creation and sends no online confirmation email`() {
+        val (_, slotId) = seedTourAndSlot("no-email", capacity = 20)
+        val id = newOffice(slotId)
+        assertThat(statusOf(id)).isEqualTo("CONFIRMED")
+        assertThat(
+            dsl
+                .select(
+                    TOURS_OPERATOR_BOOKING.CONFIRMED_AT,
+                ).from(TOURS_OPERATOR_BOOKING)
+                .where(TOURS_OPERATOR_BOOKING.ID.eq(UUID.fromString(id)))
+                .fetchOne(0),
+        ).isNotNull()
+        assertThat(notificationCount(id)).isZero()
+        // Cancelling does not send the online cancellation email either.
+        mockMvc
+            .post("/api/v1/tours-operator/bookings/$id/cancel") {
+                header("Authorization", "Bearer ${adminToken()}")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"reason":"Customer called"}"""
+            }.andExpect { status { isOk() } }
+        assertThat(notificationCount(id)).isZero()
+        assertThat(booked(slotId)).isZero()
+    }
+
+    @Test
+    fun `completing an office booking with a balance succeeds and flags the unpaid balance without a review email`() {
+        val (_, slotId) = seedTourAndSlot("complete-unpaid", capacity = 20)
+        val id = newOffice(slotId)
+        val admin = adminToken()
+        collect(admin, id, "20.00").andExpect { status { isCreated() } }
+        mockMvc
+            .post("/api/v1/tours-operator/bookings/$id/complete") { header("Authorization", "Bearer $admin") }
+            .andExpect {
+                status { isOk() }
+                jsonPath("$.status") { value("COMPLETED") }
+                jsonPath("$.completedWithUnpaidBalance") { value(true) }
+                jsonPath("$.awaitingCollection") { value(false) }
+                jsonPath("$.officePayment.state") { value("PARTIALLY_PAID") }
+                jsonPath("$.officePayment.outstanding.amount") { value("67.50") }
+            }
+        assertThat(notificationCount(id)).isZero()
+        // The balance can still be collected after the trip, which clears the flag.
+        collect(admin, id, "67.50").andExpect { status { isCreated() } }
+        mockMvc
+            .get("/api/v1/tours-operator/bookings/$id") { header("Authorization", "Bearer $admin") }
+            .andExpect { jsonPath("$.completedWithUnpaidBalance") { value(false) } }
+    }
+
+    @Test
+    fun `a confirmed unpaid office booking is awaiting collection until paid in full`() {
+        val (_, slotId) = seedTourAndSlot("awaiting", capacity = 20)
+        val id = newOffice(slotId)
+        val admin = adminToken()
+        mockMvc
+            .get("/api/v1/tours-operator/bookings/$id") { header("Authorization", "Bearer $admin") }
+            .andExpect { jsonPath("$.awaitingCollection") { value(true) } }
+        collect(admin, id, "87.50").andExpect { status { isCreated() } }
+        mockMvc
+            .get("/api/v1/tours-operator/bookings/$id") { header("Authorization", "Bearer $admin") }
+            .andExpect { jsonPath("$.awaitingCollection") { value(false) } }
     }
 }

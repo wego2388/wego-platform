@@ -6,7 +6,9 @@
 -- online booking, so the default keeps all history valid without a backfill.
 --
 -- An OFFICE booking is created by staff, takes places under the same slot row
--- lock as an online booking and stays NEW (unpaid, awaiting collection). The
+-- lock as an online booking. Made in person, it is CONFIRMED at creation (no
+-- online confirm, which needs a captured payment); what was paid is tracked by
+-- the office ledger below (UNPAID until staff record money). The
 -- owner allows office cash only; it is recorded in its own ledger below and
 -- never as a Paymob payment. Because the 30-minute payment window is an
 -- online-checkout rule, an OFFICE booking can never be EXPIRED

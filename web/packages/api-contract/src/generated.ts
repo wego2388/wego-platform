@@ -2113,7 +2113,7 @@ export interface paths {
         put?: never;
         /**
          * Create an office booking (staff)
-         * @description Requires tours-operator.booking:create-office. Uses the same pricing and the same capacity reservation (slot row lock) as the public path. Online sales pause and enquiry-only mode do not block staff office bookings; a past, blocked or full slot is refused. The booking is NEW, unpaid and awaiting collection; it is never expired by the 30-minute online payment window and staff cancel it with the normal cancel endpoint. Re-sending the same clientRequestId returns the booking already created (200).
+         * @description Requires tours-operator.booking:create-office. Uses the same pricing and the same capacity reservation (slot row lock) as the public path. Online sales pause and enquiry-only mode do not block staff office bookings; a past, blocked or full slot is refused. The booking is CONFIRMED at creation (payment is tracked separately, starting UNPAID); it is never expired by the 30-minute online payment window and staff cancel it with the normal cancel endpoint. Re-sending the same clientRequestId returns the booking already created (200).
          */
         post: operations["createToursOperatorOfficeBooking"];
         delete?: never;
@@ -2946,8 +2946,10 @@ export interface components {
             /** Format: date-time */
             expiredAt: string | null;
             channel: components["schemas"]["ToursOperatorBookingChannel"];
-            /** @description True for a NEW office booking, awaiting payment recorded by staff; never auto-expired. */
+            /** @description True for a live (CONFIRMED) office booking not yet paid in full; never auto-expired. */
             awaitingCollection: boolean;
+            /** @description True for a COMPLETED office booking that still has an outstanding balance. */
+            completedWithUnpaidBalance: boolean;
             /** @description Office payment state derived from the office ledger; null for online bookings. */
             officePayment: components["schemas"]["ToursOperatorOfficePayment"] | null;
         };

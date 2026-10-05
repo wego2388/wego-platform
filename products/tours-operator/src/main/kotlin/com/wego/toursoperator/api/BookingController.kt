@@ -17,6 +17,7 @@ import com.wego.toursoperator.domain.BookingChannel
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.BookingStatus
 import com.wego.toursoperator.domain.CustomerContact
+import com.wego.toursoperator.domain.OfficePaymentState
 import com.wego.toursoperator.domain.OfficePaymentSummary
 import com.wego.toursoperator.domain.TourId
 import com.wego.toursoperator.domain.TourSlotId
@@ -223,8 +224,9 @@ internal fun List<Booking>.toResponses(officeCollectionService: OfficeCollection
     return map { it.toResponse(nets[it.id]) }
 }
 
-internal fun Booking.toResponse(officeNetCollected: java.math.BigDecimal? = null): BookingResponse =
-    BookingResponse(
+internal fun Booking.toResponse(officeNetCollected: java.math.BigDecimal? = null): BookingResponse {
+    val officePay = officePaymentResponse(officeNetCollected)
+    return BookingResponse(
         id = id.value,
         reference = reference,
         tourId = tourId.value,
@@ -256,9 +258,11 @@ internal fun Booking.toResponse(officeNetCollected: java.math.BigDecimal? = null
         completedAt = completedAt,
         expiredAt = expiredAt,
         channel = channel,
-        awaitingCollection = isAwaitingCollection,
-        officePayment = officePaymentResponse(officeNetCollected),
+        awaitingCollection = officePay != null && status == BookingStatus.CONFIRMED && officePay.state != OfficePaymentState.PAID,
+        completedWithUnpaidBalance = officePay != null && status == BookingStatus.COMPLETED && officePay.state != OfficePaymentState.PAID,
+        officePayment = officePay,
     )
+}
 
 internal fun Booking.officePaymentResponse(net: java.math.BigDecimal?): OfficePaymentResponse? {
     if (channel != BookingChannel.OFFICE) return null

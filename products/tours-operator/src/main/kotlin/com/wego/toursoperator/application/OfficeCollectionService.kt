@@ -65,7 +65,7 @@ sealed class CollectionResult {
     /** Online bookings are paid through the provider and never take office cash. */
     data object NotAnOfficeBooking : CollectionResult()
 
-    /** Cash can only be collected against a live (NEW) office booking. */
+    /** Payments can only be recorded on a live (confirmed or completed) office booking. */
     data class BookingNotOpen(
         val status: BookingStatus,
     ) : CollectionResult()
@@ -132,7 +132,7 @@ class OfficeCollectionService(
                 }
             }
 
-            if (booking.booking.status != BookingStatus.NEW) {
+            if (booking.booking.status != BookingStatus.CONFIRMED && booking.booking.status != BookingStatus.COMPLETED) {
                 return@runInTransaction CollectionResult.BookingNotOpen(booking.booking.status)
             }
 

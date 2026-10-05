@@ -83,9 +83,6 @@ class Booking(
         validateStatusConsistency()
     }
 
-    /** NEW office bookings are unpaid and awaiting cash collection (not awaiting online payment). */
-    val isAwaitingCollection: Boolean get() = channel == BookingChannel.OFFICE && status == BookingStatus.NEW
-
     private fun validateStatusConsistency() {
         // confirmedAt is a historical timestamp: it must be set once the booking
         // has ever been CONFIRMED and is never cleared on subsequent transitions
@@ -152,7 +149,11 @@ class Booking(
     }
 
     companion object {
-        /** A staff-created booking: NEW, unpaid, with no online payment window. */
+        /**
+         * A staff-created booking. Made in person, it is operationally CONFIRMED at once (its own path;
+         * it does not use the online confirm, which needs a captured payment). What has been paid is
+         * tracked separately by the office ledger. There is no online payment window.
+         */
         fun createOffice(
             id: BookingId,
             reference: String,
@@ -183,9 +184,9 @@ class Booking(
                 hotelRoom = hotelRoom,
                 specialRequests = specialRequests,
                 locale = locale,
-                status = BookingStatus.NEW,
+                status = BookingStatus.CONFIRMED,
                 createdAt = now,
-                confirmedAt = null,
+                confirmedAt = now,
                 cancelledAt = null,
                 cancellationReason = null,
                 completedAt = null,

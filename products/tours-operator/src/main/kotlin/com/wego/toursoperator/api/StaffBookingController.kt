@@ -85,9 +85,9 @@ class StaffBookingController(
             )
         return when (result) {
             is CreateBookingResult.Created ->
-                ResponseEntity.status(HttpStatus.CREATED).body(result.booking.toResponse())
+                ResponseEntity.status(HttpStatus.CREATED).body(listOf(result.booking).toResponses(officeCollectionService).single())
             is CreateBookingResult.Replayed ->
-                ResponseEntity.ok(result.booking.toResponse())
+                ResponseEntity.ok(listOf(result.booking).toResponses(officeCollectionService).single())
             CreateBookingResult.IdempotencyKeyReused -> conflict("idempotency_key_reused")
             CreateBookingResult.SlotNotFound -> ResponseEntity.notFound().build()
             CreateBookingResult.SlotBlocked -> conflict("slot_blocked")

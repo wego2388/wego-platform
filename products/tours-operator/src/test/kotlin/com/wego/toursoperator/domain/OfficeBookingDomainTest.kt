@@ -2,7 +2,6 @@ package com.wego.toursoperator.domain
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
@@ -35,26 +34,32 @@ class OfficeBookingDomainTest {
         )
 
     @Test
-    fun `an office booking starts NEW and awaiting collection`() {
+    fun `an office booking is CONFIRMED at creation with confirmedAt set`() {
         val b = office()
         assertEquals(BookingChannel.OFFICE, b.channel)
-        assertEquals(BookingStatus.NEW, b.status)
-        assertTrue(b.isAwaitingCollection)
+        assertEquals(BookingStatus.CONFIRMED, b.status)
+        assertEquals(now, b.confirmedAt)
     }
 
     @Test
     fun `an office booking never expires because the payment window is online-only`() {
         val b = office()
         assertThrows<IllegalArgumentException> { b.expire(now.plusSeconds(7200)) }
-        assertEquals(BookingStatus.NEW, b.status)
+        assertEquals(BookingStatus.CONFIRMED, b.status)
     }
 
     @Test
-    fun `staff can cancel an office booking and it stops awaiting collection`() {
+    fun `a confirmed office booking can be completed`() {
+        val b = office()
+        b.complete(now.plusSeconds(60))
+        assertEquals(BookingStatus.COMPLETED, b.status)
+    }
+
+    @Test
+    fun `staff can cancel a confirmed office booking`() {
         val b = office()
         b.cancel(now, "Customer called")
         assertEquals(BookingStatus.CANCELLED, b.status)
-        assertFalse(b.isAwaitingCollection)
     }
 
     @Test

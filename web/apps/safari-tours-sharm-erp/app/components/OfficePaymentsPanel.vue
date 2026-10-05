@@ -17,7 +17,7 @@ const { t, money } = useErpLocale();
 
 const canCollect = computed(() => hasPermission(props.session, "tours-operator.booking:collect-cash"));
 const canManageFx = computed(() => hasPermission(props.session, "tours-operator.fx-rate:manage"));
-const open = computed(() => props.booking.status === "NEW");
+const open = computed(() => props.booking.status === "CONFIRMED" || props.booking.status === "COMPLETED");
 const pay = computed(() => props.booking.officePayment);
 
 const entries = ref<OfficeCollection[]>([]);

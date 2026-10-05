@@ -244,8 +244,8 @@ onMounted(async () => {
                   </td>
                   <td class="money px-4 py-3.5 text-end font-semibold">{{ money(b.totalPrice) }}</td>
                   <td class="px-4 py-3.5">
-                    <OfficePaymentBadge v-if="b.channel === 'OFFICE'" :booking="b" />
-                    <span v-else :class="`badge badge-${b.status}`">{{ t(`status.${b.status}`) }}</span>
+                    <span :class="`badge badge-${b.status}`">{{ t(`status.${b.status}`) }}</span>
+                    <OfficePaymentBadge v-if="b.channel === 'OFFICE'" :booking="b" class="mt-1 block" />
                   </td>
                   <td class="px-5 py-3.5" @click.stop>
                     <div class="flex flex-wrap gap-2">
