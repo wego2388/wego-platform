@@ -140,7 +140,9 @@ class OfficeCollectionService(
                         existing.method == command.method &&
                         existing.currencyPaid == command.currency &&
                         existing.amountPaid == command.amountPaid &&
-                        existing.reference == command.reference?.let(CollectionReference::of)
+                        existing.reference == command.reference?.let(CollectionReference::of) &&
+                        existing.correctsCollectionId == command.correctsCollectionId &&
+                        (command.currency != PaidCurrency.EGP || existing.fxRate?.id == command.fxRateId)
                 return@runInTransaction if (same) {
                     CollectionResult.Replayed(existing, summary(booking.booking, entries))
                 } else {
@@ -160,7 +162,8 @@ class OfficeCollectionService(
                 // of this booking with the same method and reference, once.
                 val corrected = entries.firstOrNull { it.id == command.correctsCollectionId }
                 val valid =
-                    corrected != null &&
+                    reference != null &&
+                        corrected != null &&
                         corrected.kind == OfficeCollectionKind.COLLECTION &&
                         corrected.method == command.method &&
                         corrected.reference == reference &&

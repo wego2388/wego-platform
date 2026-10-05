@@ -1392,6 +1392,32 @@ class ToursOperatorOfficeBookingHttpTest {
     }
 
     @Test
+    fun `a cash correction is a clean refusal and a replay must match the correction link`() {
+        val (_, slotId) = seedTourAndSlot("correction-cash", capacity = 20)
+        val id = newOffice(slotId)
+        val admin = adminToken()
+        val manager2 = admin2()
+        val cash = entryId(collect(admin, id, "10.00").andReturn().response.contentAsString)
+        reverse(manager2, id, cash).andExpect { status { isCreated() } }
+        // Cash has no receipt to re-use, so it can never be a correction.
+        collect(admin, id, "10.00", corrects = cash).andExpect {
+            status { isConflict() }
+            jsonPath("$.error") { value("invalid_correction") }
+        }
+
+        val ref = "RPL-${UUID.randomUUID()}".take(40)
+        val card = entryId(collect(admin, id, "20.00", "CARD_TERMINAL", reference = ref).andReturn().response.contentAsString)
+        reverse(manager2, id, card).andExpect { status { isCreated() } }
+        val key = UUID.randomUUID()
+        collect(admin, id, "20.00", "CARD_TERMINAL", key = key, reference = ref, corrects = card).andExpect { status { isCreated() } }
+        // Same request key without the correction link is a different request.
+        collect(admin, id, "20.00", "CARD_TERMINAL", key = key, reference = ref).andExpect {
+            status { isConflict() }
+            jsonPath("$.error") { value("idempotency_key_reused") }
+        }
+    }
+
+    @Test
     fun `the database guards corrections, reference reuse and the EGP rate id`() {
         val (_, slotId) = seedTourAndSlot("db-correction", capacity = 40)
         val id = UUID.fromString(newOffice(slotId))

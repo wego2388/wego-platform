@@ -4299,7 +4299,7 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-10-05 — WEGO-016-OPS2-C: office bookings by staff (Tier 1)
 
-- **Status:** ACTIVE
+- **Status:** COMPLETE (2026-10-06) — two Opus Tier 1 reviews, ACCEPT-WITH-FOLLOWUPS; all follow-ups fixed
 - **Activation:** owner instruction «كمل المهام كلها بالتوازي للاخر» (2026-10-05) after MEDIA acceptance.
 - **Review intensity:** Tier 1 (capacity, money, booking state).
 - **Scope:** staff create a booking from the real slot capacity and tour
@@ -4406,6 +4406,37 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 - **Open by owner decision («طريقة رجوع الفلوس هنحددها بعدين»), for OPS2-D/F:**
   (L7a) refund / money-returned entries for cancelled office bookings;
   (L7b) office payments in finance totals (label them office payments).
+
+#### 2026-10-06 — OPS2-C closure
+
+- Opus Tier 1 review #1: ACCEPT-WITH-FOLLOWUPS (M1 self-reversal/any-cashier
+  reversal; L1–L7). Fixed in `7cc9499`: reverse-collection permission for
+  managers and no self-reversal; EGP minimum 1.00 EUR (exact balance exempt);
+  quoted fxRateId checked under the booking lock; single linked correction for
+  a reversed receipt (DB guarded); saved total shown in the ERP; EGP rows
+  require the rate; OpenAPI pay 409 code.
+- Opus re-check: ACCEPT-WITH-FOLLOWUPS; no way found to double-count via
+  corrections. Its two lows fixed: a cash "correction" is a clean
+  `invalid_correction`; an idempotent replay must also match the correction
+  link and (for EGP) the rate id. Office booking tests 35 + domain 15 green.
+- V30 was edited in place while unreleased; once any shared database applies
+  it, changes must go to a new migration.
+- **Owner decisions recorded (2026-10-05):** office methods cash at office,
+  cash on pickup, mobile wallet, card terminal, InstaPay, Fawry machine;
+  deposits allowed; online payment deferred (enquiry mode + office);
+  manager-set daily EUR→EGP rate approved.
+- **Open for OPS2-D/F:** refund/“cash to return” entries and office payments
+  in finance totals; reversals report.
+
+### 2026-10-06 — WEGO-016-OPS2-D: office documents (Tier 1 where PII widens)
+
+- **Status:** ACTIVE
+- **Activation:** owner roadmap order after OPS2-C; owner instruction «استنى قبل ما تعمل المستندات حعطي لك الملف» — implementation waits for the owner's document file/templates.
+- **Scope (from SAFARI_OPERATIONS_EXPANSION_PLAN_AR.md §3):** booking voucher,
+  payment receipt, daily run sheet, pickup manifest, cancellation / money-to-
+  return form; document number + version, printed-by/at, reprint marked,
+  EN/AR from the same data, A4 print, real logo; no stored PDFs with PII.
+  Driver sheet, supplier order and settlement statement follow OPS2-E/F.
 
 ## WEGO-017 — Foundry executable isolated client releases
 
