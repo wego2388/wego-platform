@@ -31,7 +31,8 @@ data class RenderedEmail(
  * alert is English only.
  *
  * Every request-supplied value passes through [clean]: control characters
- * (so no value can add a header or a line) and bidi overrides (so no value
+ * (ASCII and C1, plus the Unicode line and paragraph separators, so no value
+ * can add a header or a line) and bidi controls incl. the Arabic letter mark (so no value
  * can reorder the text around it) are stripped. Output is plain text, never
  * HTML. Subjects carry only the reference, never a customer value.
  *
@@ -41,7 +42,7 @@ data class RenderedEmail(
 object NotificationTemplates {
     const val MAX_VALUE_LENGTH = 120
 
-    private val DISALLOWED = Regex("[\\p{Cntrl}\\u200E\\u200F\\u202A-\\u202E\\u2066-\\u2069]")
+    private val DISALLOWED = Regex("[\\p{Cntrl}\\u0080-\\u009F\\u2028\\u2029\\u061C\\u200E\\u200F\\u202A-\\u202E\\u2066-\\u2069]")
 
     fun clean(value: String): String =
         value
@@ -96,7 +97,9 @@ object NotificationTemplates {
             subject = "New travel request ${c.reference}",
             body =
                 listOf(
-                    "A new travel request arrived${if (c.confirmed) " (auto-confirmed)" else ""}.",
+                    // No "auto-confirmed" label: the notification row does not record how
+                    // the request was confirmed, and status at send time is not that fact.
+                    "A new travel request arrived.",
                     "",
                     "Reference: ${c.reference}",
                     "Service: ${c.serviceName} - ${c.optionLabel}",

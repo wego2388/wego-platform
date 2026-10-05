@@ -143,6 +143,7 @@ describe("notifications page", () => {
     const wrapper = mountPage();
     await flushPromises();
     await wrapper.get("button.resend").trigger("click");
+    await wrapper.get("button.confirm-resend").trigger("click"); // the row was SENT, so it needs confirming
     await flushPromises();
 
     expect(wrapper.text()).toContain("no longer true for the request's current state");
@@ -156,5 +157,76 @@ describe("notifications page", () => {
     await flushPromises();
 
     expect(wrapper.text()).toContain("don't have permission to manage notifications");
+  });
+
+  it("does not resend an already sent customer email until it is confirmed, and Cancel sends nothing", async () => {
+    seedSession(["travel-notification:manage"]);
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input).endsWith("/resend") && init?.method === "POST") return new Response(null, { status: 202 });
+      return new Response(JSON.stringify([sampleNotification()]), { status: 200 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const resendCalls = () => fetchMock.mock.calls.filter((call) => String(call[0]).endsWith("/resend"));
+
+    const wrapper = mountPage();
+    await flushPromises();
+    await wrapper.get("button.resend").trigger("click");
+    await flushPromises();
+
+    expect(resendCalls()).toHaveLength(0);
+    expect(wrapper.text()).toContain("already sent to the customer");
+
+    await wrapper.get("button.cancel-resend").trigger("click");
+    expect(wrapper.find(".confirm").exists()).toBe(false);
+    expect(resendCalls()).toHaveLength(0);
+
+    await wrapper.get("button.resend").trigger("click");
+    await wrapper.get("button.confirm-resend").trigger("click");
+    await flushPromises();
+    expect(resendCalls()).toHaveLength(1);
+    expect(wrapper.text()).toContain("Queued again for STG-ABCDEFGH");
+  });
+
+  it("resends a staff alert without asking, since no customer receives it", async () => {
+    seedSession(["travel-notification:manage"]);
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input).endsWith("/resend") && init?.method === "POST") return new Response(null, { status: 202 });
+      return new Response(JSON.stringify([sampleNotification({ kind: "STAFF_NEW_REQUEST" })]), { status: 200 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const wrapper = mountPage();
+    await flushPromises();
+    await wrapper.get("button.resend").trigger("click");
+    await flushPromises();
+
+    expect(wrapper.find(".confirm").exists()).toBe(false);
+    expect(fetchMock.mock.calls.filter((call) => String(call[0]).endsWith("/resend"))).toHaveLength(1);
+  });
+
+  it("gives each Resend button an accessible name with the kind and reference", async () => {
+    seedSession(["travel-notification:manage"]);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify([
+              sampleNotification({ status: "FAILED", sentAt: null }),
+              sampleNotification({ id: "b", kind: "STAFF_NEW_REQUEST", requestReference: "STG-ZZZZZZZZ" }),
+            ]),
+            { status: 200 },
+          ),
+      ),
+    );
+
+    const wrapper = mountPage();
+    await flushPromises();
+
+    const labels = wrapper.findAll("button.resend").map((button) => button.attributes("aria-label"));
+    expect(labels).toEqual([
+      "Resend Customer: request received for STG-ABCDEFGH",
+      "Resend Staff alert: new request for STG-ZZZZZZZZ",
+    ]);
   });
 });

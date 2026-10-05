@@ -372,6 +372,68 @@ class RequestNotificationIntegrationTest {
         ).isEqualTo(pending)
     }
 
+    private fun attemptAndAvailable(id: TravelRequestId): List<Pair<Int, Instant>> =
+        dsl
+            .select(
+                DSL.field(DSL.name("attempt_count"), Int::class.java),
+                DSL.field(DSL.name("available_at"), java.time.OffsetDateTime::class.java),
+            ).from(DSL.table(DSL.name("wego", "travel_request_notification")))
+            .where(DSL.field(DSL.name("request_id"), UUID::class.java).eq(id.value))
+            .fetch { it.value1() to it.value2().toInstant() }
+
+    @Test
+    fun `two dispatchers never send the same row at once, the claim is committed before the send, and no transaction is open during it`() {
+        val id = createReview(email = null) // staff alert only: exactly one row
+        val sends = AtomicInteger()
+        val insideSend = CountDownLatch(1)
+        val releaseSend = CountDownLatch(1)
+        var committedDuringSend: List<Pair<Int, Instant>> = emptyList()
+        var otherProcessed = -1
+        lateinit var second: DispatchNotificationsService
+        val sender =
+            EmailSender {
+                sends.incrementAndGet()
+                insideSend.countDown()
+                // The claim is already visible to other connections, i.e. committed.
+                committedDuringSend = attemptAndAvailable(id)
+                // A second dispatcher polling right now finds nothing due.
+                otherProcessed = second.dispatchDue(10)
+                releaseSend.await(10, TimeUnit.SECONDS)
+            }
+        val first =
+            DispatchNotificationsService(notificationRepository, requestRepository, sender, transactionRunner, settings, Clock.systemUTC())
+        second =
+            DispatchNotificationsService(notificationRepository, requestRepository, sender, transactionRunner, settings, Clock.systemUTC())
+
+        val pool = Executors.newSingleThreadExecutor()
+        val run = pool.submit(Callable { first.dispatchDue(10) })
+        assertThat(insideSend.await(10, TimeUnit.SECONDS)).isTrue()
+        releaseSend.countDown()
+        assertThat(run.get(10, TimeUnit.SECONDS)).isEqualTo(1)
+        pool.shutdown()
+
+        assertThat(otherProcessed).isZero()
+        assertThat(sends.get()).isEqualTo(1)
+        assertThat(committedDuringSend.single().first).isEqualTo(1)
+        assertThat(committedDuringSend.single().second).isAfter(Instant.now().plusSeconds(60)) // leased
+        assertThat(attemptAndAvailable(id).single().first).isEqualTo(1)
+    }
+
+    @Test
+    fun `an outcome is only recorded while the row is still at the claimed attempt`() {
+        val id = createReview(email = null)
+        val row =
+            transactionRunner.runInTransaction { notificationRepository.claimNextDue(Instant.now().plusSeconds(1)) }!!
+        assertThat(row.attemptCount).isZero()
+        row.claim(Instant.now().plusSeconds(300))
+        transactionRunner.runInTransaction { notificationRepository.save(row) }
+        row.markSent(Instant.now())
+        assertThat(transactionRunner.runInTransaction { notificationRepository.recordOutcome(row, 0) }).isFalse() // wrong attempt
+        assertThat(transactionRunner.runInTransaction { notificationRepository.recordOutcome(row, 1) }).isTrue()
+        assertThat(transactionRunner.runInTransaction { notificationRepository.recordOutcome(row, 1) }).isFalse() // no longer PENDING
+        assertThat(kinds(id)).isNotEmpty()
+    }
+
     @Test
     fun `neither the table nor the logs hold an address, a phone number or a message body`(output: CapturedOutput) {
         val email = uniqueEmail()

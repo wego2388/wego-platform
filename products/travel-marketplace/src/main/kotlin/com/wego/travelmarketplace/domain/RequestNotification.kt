@@ -97,9 +97,28 @@ class RequestNotification(
         }
     }
 
-    fun markSent(now: Instant) {
+    /**
+     * Dispatcher lease: counts the attempt and hides the row until [leaseUntil]
+     * BEFORE anything is sent, and the claim is committed before the send. If
+     * the process dies, or the outcome cannot be saved, after the provider
+     * accepted the message, the attempt is already on record, so duplicates
+     * are bounded by the maximum attempts.
+     */
+    fun claim(leaseUntil: Instant) {
         requirePending()
         attemptCount += 1
+        availableAt = leaseUntil
+    }
+
+    /** The attempt budget is spent (an attempt that never recorded its outcome was the last one). */
+    fun markExhausted() {
+        requirePending()
+        status = NotificationStatus.FAILED
+        lastError = "attempts_exhausted"
+    }
+
+    fun markSent(now: Instant) {
+        requirePending()
         status = NotificationStatus.SENT
         sentAt = now
         lastError = null
@@ -113,8 +132,9 @@ class RequestNotification(
     }
 
     /**
-     * A delivery attempt failed. Retries with exponential backoff until
-     * [maxAttempts], then stays FAILED for a staff resend.
+     * The claimed attempt failed. Retries with exponential backoff until
+     * [maxAttempts], then stays FAILED for a staff resend. The attempt itself
+     * was already counted by [claim].
      */
     fun markAttemptFailed(
         reason: String,
@@ -123,7 +143,6 @@ class RequestNotification(
     ) {
         requirePending()
         require(maxAttempts > 0) { "maxAttempts must be positive" }
-        attemptCount += 1
         lastError = toReasonCode(reason)
         if (attemptCount >= maxAttempts) {
             status = NotificationStatus.FAILED

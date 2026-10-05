@@ -26,9 +26,11 @@ spring:
     runtime:
       verification-enabled: true
 
-# Request emails (STG-NOTIFY). SMTP itself is configured only through the
-# standard SPRING_MAIL_HOST / _PORT / _USERNAME / _PASSWORD environment
-# variables; enabling the dispatcher without them fails startup on purpose.
+# Request emails (STG-NOTIFY). SMTP is configured through
+# TRAVEL_NOTIFICATIONS_SMTP_HOST / _PORT / _USERNAME / _PASSWORD, not through
+# spring.mail.*: an empty spring.mail.host still makes Spring Boot build a
+# mail sender and a failing mail health check. Enabling the dispatcher
+# without a host fails startup on purpose.
 # Disabled by default: rows stay PENDING (visible to staff) until enabled.
 travel-marketplace:
   notifications:
@@ -40,6 +42,11 @@ travel-marketplace:
     whatsapp: ${TRAVEL_NOTIFICATIONS_WHATSAPP:+20 10 0141 3469}
     contact-email: ${TRAVEL_NOTIFICATIONS_CONTACT_EMAIL:info@sharmtogo.com}
     max-attempts: ${TRAVEL_NOTIFICATIONS_MAX_ATTEMPTS:5}
+    smtp:
+      host: ${TRAVEL_NOTIFICATIONS_SMTP_HOST:}
+      port: ${TRAVEL_NOTIFICATIONS_SMTP_PORT:587}
+      username: ${TRAVEL_NOTIFICATIONS_SMTP_USERNAME:}
+      password: ${TRAVEL_NOTIFICATIONS_SMTP_PASSWORD:}
 
 server:
   shutdown: graceful
@@ -58,3 +65,8 @@ management:
   health:
     defaults:
       enabled: true
+    # An SMTP outage must never make the whole API unhealthy (the compose
+    # healthcheck would stop the edge); email failures show in the
+    # Notifications page instead.
+    mail:
+      enabled: false

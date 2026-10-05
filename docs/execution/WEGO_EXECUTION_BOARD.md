@@ -1426,6 +1426,34 @@ provider constraints are revalidated against the implemented repository.
   decision); no email on request expiry (not requested); a real-inbox delivery
   test happens only at deploy time.
 
+#### 2026-10-05 (later) — STG-NOTIFY Tier 1 review of 8a25e04 and fixes (uncommitted)
+
+- **Review findings fixed:** H1 `spring-boot-starter-mail` registered a mail
+  health indicator and compose passed an empty `SPRING_MAIL_HOST`, so
+  `/actuator/health` went DOWN even with notifications off (compose healthcheck
+  then kept the edge from starting; an SMTP outage would have marked the whole
+  API unhealthy). Now `management.health.mail.enabled=false`, SMTP is read from
+  `travel-marketplace.notifications.smtp.*` (`TRAVEL_NOTIFICATIONS_SMTP_*` in
+  compose) and built by our own bean only for a non-blank host, not from
+  `spring.mail.*`; this supersedes the `spring.mail.host` wording above.
+  M1 the send ran inside the claim transaction, so a failed commit after SMTP
+  accepted re-sent every tick past max-attempts. Now claim = own transaction
+  that counts the attempt and leases the row (`available_at` = now + 5 min, at
+  least twice the 15 s SMTP timeout), send happens outside any transaction, and
+  the outcome is a guarded update (only while still PENDING at the claimed
+  attempt). A lease expiry with the attempts spent ends FAILED
+  (`attempts_exhausted`) without another send; duplicates are bounded by
+  max-attempts. M2 request lookups run in their own transaction, so a database
+  error is a counted failed attempt. L1 sanitizer also strips C1 controls,
+  U+2028/U+2029 and U+061C. L2 ERP resend of an already SENT customer email now
+  asks for confirmation and each Resend has an aria-label with kind and
+  reference. L4 the staff alert no longer says "(auto-confirmed)" (the row does
+  not record how a request was confirmed; status at send time is not that fact).
+- **Evidence:** `:platform:apps:sharm-to-go:check` 142 tests green (13 new
+  or reworked for this review, incl. real-PostgreSQL lease/concurrency tests and
+  a health test with an empty mail host), ERP 74 Vitest. No commit, push or
+  deploy.
+
 ## WEGO-003 — Reliable integration delivery and replay
 
 - **Status:** NOT AUTHORIZED — roadmap only; WEGO-002 must close first and owner activation is still required.

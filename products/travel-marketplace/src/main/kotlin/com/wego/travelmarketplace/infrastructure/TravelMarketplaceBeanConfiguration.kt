@@ -25,6 +25,7 @@ import com.wego.travelmarketplace.application.ProviderRepository
 import com.wego.travelmarketplace.application.PublicCatalogQueryService
 import com.wego.travelmarketplace.application.PublishServiceService
 import com.wego.travelmarketplace.application.ResendNotificationService
+import com.wego.travelmarketplace.application.SMTP_TIMEOUT
 import com.wego.travelmarketplace.application.ServiceQueryService
 import com.wego.travelmarketplace.application.ServiceRepository
 import com.wego.travelmarketplace.application.StartTravelRequestReviewService
@@ -39,14 +40,11 @@ import com.wego.travelmarketplace.application.TravelRequestRepository
 import com.wego.travelmarketplace.application.UpdateCategoryService
 import com.wego.travelmarketplace.application.UpdateProviderService
 import com.wego.travelmarketplace.application.UpdateServiceService
-import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.JavaMailSenderImpl
 import java.time.Clock
-import java.time.Duration
 
 @Configuration(proxyBeanMethods = false)
 class TravelMarketplaceBeanConfiguration {
@@ -251,27 +249,53 @@ class TravelMarketplaceBeanConfiguration {
     // ── Notifications ────────────────────────────────────────────────────────
 
     /**
-     * SMTP when spring.mail.host is configured. Without it, enabling the
-     * dispatcher is a configuration error and fails startup instead of
-     * silently failing every email.
+     * SMTP when travel-marketplace.notifications.smtp.host is set. The sender
+     * is built here from our own settings, deliberately NOT from spring.mail.*:
+     * Spring Boot creates a JavaMailSender (and its health indicator) as soon
+     * as spring.mail.host exists, even as an empty string, and an empty
+     * environment variable from compose counts as existing. A blank host here
+     * simply means "not configured", and enabling the dispatcher without one
+     * is a configuration error that fails startup instead of silently failing
+     * every email.
      */
     @Bean
     fun travelNotificationEmailSender(
-        mailSender: ObjectProvider<JavaMailSender>,
+        @Value("\${travel-marketplace.notifications.smtp.host:}") host: String,
+        @Value("\${travel-marketplace.notifications.smtp.port:587}") port: Int,
+        @Value("\${travel-marketplace.notifications.smtp.username:}") username: String,
+        @Value("\${travel-marketplace.notifications.smtp.password:}") password: String,
         @Value("\${travel-marketplace.notifications.enabled:false}") enabled: Boolean,
         @Value("\${travel-marketplace.notifications.from:}") from: String,
         @Value("\${travel-marketplace.notifications.reply-to:}") replyTo: String,
     ): EmailSender {
-        // An empty SPRING_MAIL_HOST (compose passes one through) still creates a
-        // sender, so a blank host counts as "not configured" too.
-        val smtp = mailSender.ifAvailable?.takeUnless { (it as? JavaMailSenderImpl)?.host.isNullOrBlank() }
-        (smtp as? JavaMailSenderImpl)?.let { SmtpEmailSender.applyDefaultTimeouts(it, Duration.ofSeconds(15)) }
+        val smtp = buildMailSender(host, port, username, password)
         if (smtp == null) {
-            require(!enabled) { "travel-marketplace.notifications.enabled=true requires spring.mail.host" }
+            require(!enabled) { "travel-marketplace.notifications.enabled=true requires travel-marketplace.notifications.smtp.host" }
             return EmailSender { throw IllegalStateException("email_not_configured") }
         }
         require(!enabled || from.isNotBlank()) { "travel-marketplace.notifications.from is required when notifications are enabled" }
         return SmtpEmailSender(smtp, from, replyTo.ifBlank { null })
+    }
+
+    /** Null for a blank host: no sender is ever created for "not configured". */
+    internal fun buildMailSender(
+        host: String,
+        port: Int,
+        username: String,
+        password: String,
+    ): JavaMailSenderImpl? {
+        if (host.isBlank()) return null
+        val sender = JavaMailSenderImpl()
+        sender.host = host.trim()
+        sender.port = port
+        if (username.isNotBlank()) {
+            sender.username = username
+            sender.password = password
+            sender.javaMailProperties["mail.smtp.auth"] = "true"
+            sender.javaMailProperties["mail.smtp.starttls.enable"] = "true"
+        }
+        SmtpEmailSender.applyDefaultTimeouts(sender, SMTP_TIMEOUT)
+        return sender
     }
 
     @Bean

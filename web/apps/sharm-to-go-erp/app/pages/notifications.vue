@@ -49,6 +49,30 @@ const page = ref(0);
 const hasNextPage = ref(false);
 const statusFilter = ref<NotificationStatus | "">("");
 const resendingId = ref<string | null>(null);
+// A customer email that was already sent needs a second click to resend: the
+// customer would receive it twice.
+const confirmingId = ref<string | null>(null);
+
+function needsConfirmation(notification: TravelNotification): boolean {
+  return notification.status === "SENT" && notification.kind !== "STAFF_NEW_REQUEST";
+}
+
+function requestResend(notification: TravelNotification) {
+  if (resendingId.value) return;
+  if (needsConfirmation(notification)) {
+    confirmingId.value = notification.id;
+    return;
+  }
+  resend(notification);
+}
+
+function cancelResend() {
+  confirmingId.value = null;
+}
+
+function resendLabel(notification: TravelNotification): string {
+  return `Resend ${KIND_LABEL[notification.kind]} for ${notification.requestReference}`;
+}
 
 const canManage = () => hasPermission(session.value, "travel-notification:manage");
 
@@ -86,6 +110,7 @@ async function loadNotifications() {
 
 async function resend(notification: TravelNotification) {
   if (!session.value || resendingId.value) return;
+  confirmingId.value = null;
   resendingId.value = notification.id;
   actionMessage.value = "";
   listError.value = "";
@@ -199,10 +224,41 @@ onMounted(() => {
                 <button
                   type="button"
                   class="resend rounded-wego-control border border-wego-border px-3 py-1.5 text-sm font-medium disabled:opacity-50"
+                  :aria-label="resendLabel(notification)"
+                  :disabled="resendingId !== null"
+                  @click="requestResend(notification)"
+                >
+                  Resend
+                </button>
+              </div>
+            </div>
+            <div
+              v-if="confirmingId === notification.id"
+              role="alertdialog"
+              :aria-label="`Confirm resend for ${notification.requestReference}`"
+              class="confirm mt-3 rounded-wego-control border border-wego-border bg-wego-surface p-3 text-sm"
+            >
+              <p>
+                This email was already sent to the customer. Sending it again means they receive it twice. Resend
+                {{ KIND_LABEL[notification.kind] }} for {{ notification.requestReference }}?
+              </p>
+              <div class="mt-2 flex gap-3">
+                <button
+                  type="button"
+                  class="confirm-resend rounded-wego-control border border-wego-border px-3 py-1.5 font-medium"
+                  :aria-label="`Confirm: send again ${KIND_LABEL[notification.kind]} for ${notification.requestReference}`"
                   :disabled="resendingId !== null"
                   @click="resend(notification)"
                 >
-                  Resend
+                  Yes, send again
+                </button>
+                <button
+                  type="button"
+                  class="cancel-resend rounded-wego-control border border-wego-border px-3 py-1.5 font-medium"
+                  :aria-label="`Do not resend ${KIND_LABEL[notification.kind]} for ${notification.requestReference}`"
+                  @click="cancelResend"
+                >
+                  Cancel
                 </button>
               </div>
             </div>

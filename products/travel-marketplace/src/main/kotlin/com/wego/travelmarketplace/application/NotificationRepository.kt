@@ -43,4 +43,15 @@ interface NotificationRepository {
     ): List<NotificationListItem>
 
     fun save(notification: RequestNotification)
+
+    /**
+     * Saves a dispatch outcome only if the row is still in the state this
+     * dispatcher claimed: PENDING with [expectedAttemptCount]. Returns false
+     * when a staff resend or a later lease changed it meanwhile, so a late
+     * outcome never overwrites newer state.
+     */
+    fun recordOutcome(
+        notification: RequestNotification,
+        expectedAttemptCount: Int,
+    ): Boolean
 }

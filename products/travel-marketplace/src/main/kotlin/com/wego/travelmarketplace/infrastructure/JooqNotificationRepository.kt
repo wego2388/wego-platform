@@ -11,6 +11,7 @@ import com.wego.travelmarketplace.domain.NotificationStatus
 import com.wego.travelmarketplace.domain.RequestNotification
 import com.wego.travelmarketplace.domain.TravelRequestId
 import org.jooq.DSLContext
+import org.jooq.UpdateConditionStep
 import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
@@ -108,8 +109,24 @@ class JooqNotificationRepository(
 
     @Transactional
     override fun save(notification: RequestNotification) {
+        update(notification).execute()
+    }
+
+    @Transactional
+    override fun recordOutcome(
+        notification: RequestNotification,
+        expectedAttemptCount: Int,
+    ): Boolean {
         val t = TRAVEL_REQUEST_NOTIFICATION
-        dsl
+        return update(notification)
+            .and(t.STATUS.eq(NotificationStatus.PENDING.name))
+            .and(t.ATTEMPT_COUNT.eq(expectedAttemptCount))
+            .execute() == 1
+    }
+
+    private fun update(notification: RequestNotification): UpdateConditionStep<TravelRequestNotificationRecord> {
+        val t = TRAVEL_REQUEST_NOTIFICATION
+        return dsl
             .update(t)
             .set(t.STATUS, notification.status.name)
             .set(t.ATTEMPT_COUNT, notification.attemptCount)
@@ -120,7 +137,6 @@ class JooqNotificationRepository(
             .set(t.LAST_RESENT_BY_USER_ID, notification.lastResentByUserId)
             .set(t.LAST_RESENT_AT, notification.lastResentAt?.let(::toOffset))
             .where(t.ID.eq(notification.id.value))
-            .execute()
     }
 
     private fun toDomain(r: TravelRequestNotificationRecord): RequestNotification =

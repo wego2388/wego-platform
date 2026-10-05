@@ -9,7 +9,7 @@ import java.time.Duration
 
 /**
  * SMTP adapter, provider-agnostic: any SMTP relay (a transactional provider or
- * a mailbox host) is configured through the standard spring.mail.* settings.
+ * a mailbox host) is configured through travel-marketplace.notifications.smtp.* (see the bean configuration).
  * Replies go to [replyTo] so "reply to this email" in the templates is true.
  */
 class SmtpEmailSender(
@@ -35,8 +35,8 @@ class SmtpEmailSender(
 
         /**
          * JavaMail waits forever by default. The dispatcher sends while holding
-         * a row lock and a DB connection, so a stalled relay must fail fast
-         * instead of freezing delivery. Explicitly configured values win.
+         * a row lease, so a stalled relay must fail fast and a send must end
+         * well inside the lease (twice this timeout at least). Explicitly configured values win.
          */
         fun applyDefaultTimeouts(
             sender: JavaMailSenderImpl,
