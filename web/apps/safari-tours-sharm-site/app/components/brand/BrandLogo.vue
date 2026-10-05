@@ -4,6 +4,8 @@
  * light and dark backgrounds, so one image serves both themes; `inverse` is
  * kept for call sites over a dark hero and only adds a soft backdrop.
  * `variant="full"` shows the stacked logo (footer, about, documents).
+ * The wide lockup is capped so the header never scrolls sideways, even on
+ * a 320 px phone.
  */
 const props = withDefaults(defineProps<{ inverse?: boolean; height?: number; variant?: "lockup" | "full" }>(), {
   inverse: false,
@@ -23,7 +25,7 @@ const src = computed(() => (props.variant === "full" ? "/brand/logo-full.webp" :
       :height="height"
       :width="Math.round(height * ratio)"
       class="block"
-      :style="{ height: `${height}px`, width: 'auto' }"
+      :style="{ height: `${height}px`, width: 'auto', maxWidth: variant === 'lockup' ? 'min(42vw, calc(100vw - 212px))' : undefined, objectFit: 'contain' }"
       decoding="async"
     >
   </span>
