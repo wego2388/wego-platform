@@ -121,6 +121,9 @@ class JooqNotificationRepository(
         return update(notification)
             .and(t.STATUS.eq(NotificationStatus.PENDING.name))
             .and(t.ATTEMPT_COUNT.eq(expectedAttemptCount))
+            // A staff resend resets the attempt count; without this a stale
+            // outcome from before the resend could match a later claim.
+            .and(t.RESEND_COUNT.eq(notification.resendCount))
             .execute() == 1
     }
 

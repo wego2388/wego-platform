@@ -29,6 +29,7 @@ import com.wego.travelmarketplace.domain.ConfirmationType
 import com.wego.travelmarketplace.domain.FulfilmentModel
 import com.wego.travelmarketplace.domain.LocalizedText
 import com.wego.travelmarketplace.domain.Money
+import com.wego.travelmarketplace.domain.NotificationId
 import com.wego.travelmarketplace.domain.NotificationKind
 import com.wego.travelmarketplace.domain.NotificationStatus
 import com.wego.travelmarketplace.domain.PriceBasis
@@ -526,6 +527,33 @@ class RequestNotificationIntegrationTest {
             }.andExpect {
                 status { isNotFound() }
             }
+    }
+
+    @Test
+    fun `an outcome from before a staff resend never overwrites the row after it is claimed again`() {
+        val id = createReview()
+        val rowId =
+            dsl
+                .fetchOne(
+                    "select id from wego.travel_request_notification where request_id = ? and kind = ?",
+                    id.value,
+                    NotificationKind.CUSTOMER_REQUEST_RECEIVED.name,
+                )!!
+                .get(0, UUID::class.java)
+        // Dispatcher A has claimed attempt 1 and is sending.
+        dsl.execute("update wego.travel_request_notification set attempt_count = 1 where id = ?", rowId)
+        val staleSnapshot =
+            transactionRunner.runInTransaction { notificationRepository.findByIdForUpdate(NotificationId(rowId))!! }
+        // Meanwhile staff resend (attempt back to 0, resend_count 1) and dispatcher B claims attempt 1 again.
+        dsl.execute("update wego.travel_request_notification set attempt_count = 1, resend_count = 1 where id = ?", rowId)
+
+        staleSnapshot.markSent(Instant.now())
+        val applied = transactionRunner.runInTransaction { notificationRepository.recordOutcome(staleSnapshot, 1) }
+
+        assertThat(applied).isFalse()
+        val row = dsl.fetch("select status, resend_count from wego.travel_request_notification where id = ?", rowId)
+        assertThat(row[0].get("status", String::class.java)).isEqualTo("PENDING")
+        assertThat(row[0].get("resend_count", Int::class.java)).isEqualTo(1)
     }
 
     @Test

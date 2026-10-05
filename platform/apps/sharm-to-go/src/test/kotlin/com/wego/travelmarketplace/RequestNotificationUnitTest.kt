@@ -632,6 +632,11 @@ class SmtpAndStartupTest {
         assertThat(real.port).isEqualTo(2525)
         assertThat(real.javaMailProperties).containsEntry("mail.smtp.timeout", "15000")
         assertThat(real.javaMailProperties).containsEntry("mail.smtp.auth", "true")
+        assertThat(real.javaMailProperties).containsEntry("mail.smtp.starttls.required", "true")
+        val noAuth = config.buildMailSender("smtp.example", 587, "", "")!!
+        assertThat(noAuth.javaMailProperties).containsEntry("mail.smtp.starttls.required", "true")
+        val smtps = config.buildMailSender("smtp.example", 465, "user", "pw")!!
+        assertThat(smtps.protocol).isEqualTo("smtps")
     }
 
     @Test

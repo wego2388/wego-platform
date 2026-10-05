@@ -292,7 +292,16 @@ class TravelMarketplaceBeanConfiguration {
             sender.username = username
             sender.password = password
             sender.javaMailProperties["mail.smtp.auth"] = "true"
+        }
+        if (port == SMTPS_PORT) {
+            // Implicit TLS (SMTPS).
+            sender.protocol = "smtps"
+            sender.javaMailProperties["mail.smtps.auth"] = (username.isNotBlank()).toString()
+        } else {
+            // Never send credentials or customer mail in clear text: refuse a
+            // relay that does not offer STARTTLS (or has it stripped).
             sender.javaMailProperties["mail.smtp.starttls.enable"] = "true"
+            sender.javaMailProperties["mail.smtp.starttls.required"] = "true"
         }
         SmtpEmailSender.applyDefaultTimeouts(sender, SMTP_TIMEOUT)
         return sender
@@ -335,3 +344,5 @@ class TravelMarketplaceBeanConfiguration {
         clock: Clock,
     ): ResendNotificationService = ResendNotificationService(notificationRepository, requestRepository, transactionRunner, clock)
 }
+
+private const val SMTPS_PORT = 465
