@@ -1,5 +1,6 @@
 package com.wego.travelmarketplace.application
 
+import com.wego.travelmarketplace.domain.NotificationKind
 import com.wego.travelmarketplace.domain.TravelRequest
 import com.wego.travelmarketplace.domain.TravelRequestActorType
 import com.wego.travelmarketplace.domain.TravelRequestCancelReason
@@ -31,6 +32,7 @@ sealed interface CancelTravelRequestResult {
 class CancelTravelRequestService(
     private val requestRepository: TravelRequestRepository,
     private val auditRecorder: TravelRequestAuditRecorder,
+    private val notificationRepository: NotificationRepository,
     private val transactionRunner: TransactionRunner,
     private val clock: Clock,
 ) {
@@ -58,6 +60,10 @@ class CancelTravelRequestService(
                 correlationId = command.correlationId,
                 occurredAt = now,
             )
+            // Same transaction as the transition: the email intent exists if and only if it committed.
+            if (!request.customer.email.isNullOrBlank()) {
+                notificationRepository.enqueueOnce(request.id, NotificationKind.CUSTOMER_REQUEST_CANCELLED, now, now)
+            }
             CancelTravelRequestResult.Cancelled(request)
         }
     }

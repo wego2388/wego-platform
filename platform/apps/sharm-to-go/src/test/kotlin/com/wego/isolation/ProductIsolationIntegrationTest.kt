@@ -23,7 +23,8 @@ import org.testcontainers.postgresql.PostgreSQLContainer
  * this app's own real permission set, not Divers' ones), V5 (Phase 1
  * travel request/booking foundation), V6 (the service catalog's
  * optimistic-locking `version` column), and V7 (the same `version` column
- * for providers and categories) — the Divers product's own migration
+ * for providers and categories), and V8 (the request notification
+ * outbox) — the Divers product's own migration
  * files (a disjoint numbering sequence in a different application) do not
  * exist under this module at all. This test proves the *database*
  * consequence of that: a real, freshly migrated Sharm To Go database
@@ -37,7 +38,7 @@ class ProductIsolationIntegrationTest(
 ) {
     @Test
     fun `boots and migrates only the shared platform, identity, and travel marketplace catalog foundation, never any Divers table`() {
-        assertThat(flyway.info().applied().map { it.version.toString() }).containsExactly("1", "2", "3", "4", "5", "6", "7")
+        assertThat(flyway.info().applied().map { it.version.toString() }).containsExactly("1", "2", "3", "4", "5", "6", "7", "8")
 
         postgres.createConnection("").use { connection ->
             val tableNames =
@@ -61,6 +62,7 @@ class ProductIsolationIntegrationTest(
                     "travel_marketplace_audit_event",
                     "travel_request",
                     "travel_request_audit_event",
+                    "travel_request_notification",
                 ).noneMatch { it.startsWith("divers_") }
         }
     }

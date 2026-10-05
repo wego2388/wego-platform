@@ -357,3 +357,42 @@ export function cancelTravelRequest(
 export function completeTravelRequest(token: string, id: string): Promise<TravelRequest> {
   return request<TravelRequest>(`/api/v1/travel-marketplace/requests/${id}/complete`, token, { method: "POST" });
 }
+
+export type NotificationKind =
+  | "STAFF_NEW_REQUEST"
+  | "CUSTOMER_REQUEST_RECEIVED"
+  | "CUSTOMER_REQUEST_CONFIRMED"
+  | "CUSTOMER_REQUEST_CANCELLED";
+export type NotificationStatus = "PENDING" | "SENT" | "FAILED" | "SKIPPED";
+
+// Mirrors NotificationResponse in sharm-to-go-api.yaml. By design there is no
+// recipient address or message body: neither is stored or returned.
+export interface TravelNotification {
+  id: string;
+  requestId: string;
+  requestReference: string;
+  kind: NotificationKind;
+  status: NotificationStatus;
+  attemptCount: number;
+  lastError?: string | null;
+  availableAt: string;
+  createdAt: string;
+  sentAt?: string | null;
+  resendCount: number;
+  lastResentAt?: string | null;
+}
+
+export function listTravelNotifications(
+  token: string,
+  params: { status?: NotificationStatus; page?: number; size?: number } = {},
+): Promise<TravelNotification[]> {
+  const query = new URLSearchParams();
+  if (params.status) query.set("status", params.status);
+  query.set("page", String(params.page ?? 0));
+  query.set("size", String(params.size ?? PAGE_SIZE));
+  return request<TravelNotification[]>(`/api/v1/travel-marketplace/notifications?${query.toString()}`, token);
+}
+
+export async function resendTravelNotification(token: string, id: string): Promise<void> {
+  await request<unknown>(`/api/v1/travel-marketplace/notifications/${id}/resend`, token, { method: "POST" });
+}

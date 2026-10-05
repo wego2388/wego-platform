@@ -1387,6 +1387,45 @@ provider constraints are revalidated against the implemented repository.
   same pass). PR #46 stays unmerged pending the owner's own fresh "اعمل
   merge" instruction.
 
+### 2026-10-05 — STG-NOTIFY: request notification outbox + email delivery (Tier 1, self-verified)
+
+- **Why:** the 2026-10-02 handoff's gap #2 — a customer request produced no
+  notification at all (staff only saw it if they opened the ERP; the customer
+  got nothing). Owner decisions already given: no customer accounts, email is
+  the customer channel, WhatsApp +20 10 0141 3469 and info@sharmtogo.com are
+  the channels. Mirrors Safari's transactional notification outbox (not
+  imported across products).
+- **Built:** `V8__travel_request_notification.sql` (one row per
+  (request, kind); status PENDING/SENT/FAILED/SKIPPED; CHECKs including a
+  bare-token `last_error` so an address or message text cannot be stored;
+  permission `travel-notification:manage` for `platform-admin`). Kinds:
+  `STAFF_NEW_REQUEST`, `CUSTOMER_REQUEST_RECEIVED`,
+  `CUSTOMER_REQUEST_CONFIRMED`, `CUSTOMER_REQUEST_CANCELLED`. Intents are
+  written inside the create/confirm/cancel transaction (`ON CONFLICT DO
+  NOTHING`); customer kinds only when the customer gave an email; an
+  auto-confirmed INSTANT request gets one customer email (the receipt, worded
+  as confirmed). The recipient is read from the request at send time (customer)
+  or from configuration (staff) and is never stored. `DispatchNotificationsService`
+  claims with `FOR UPDATE SKIP LOCKED`, skips messages no longer true for the
+  request state, bounded retries with backoff, logs ids/kinds/error classes
+  only. `NotificationDispatchScheduler` and the SMTP sender exist only when
+  `travel-marketplace.notifications.enabled=true`; enabling without
+  `spring.mail.host`, a `from` address or an https site URL fails startup.
+  Disabled by default (rows stay PENDING and visible). Templates EN + AR by the
+  request locale, plain text, control/bidi characters stripped, subjects carry
+  only the reference. Staff API `GET /api/v1/travel-marketplace/notifications`
+  and `POST .../{id}/resend` (contract + ERP types updated by hand; this repo
+  has no web-contract generator for Sharm To Go) and an ERP Notifications page.
+  Compose/env example pass through the new settings, all off by default.
+- **Evidence:** see the gate results recorded by the implementing session
+  (Gradle `:platform:apps:sharm-to-go:check`, ktlint, ERP Vitest/lint/typecheck,
+  `scripts/repository-check.sh`, foundry validate). No commit, push, deploy,
+  real email or real credential was involved.
+- **Left open:** owner approval of the DRAFT email wording; a real SMTP relay,
+  from/staff addresses and the production https site URL (owner/deploy
+  decision); no email on request expiry (not requested); a real-inbox delivery
+  test happens only at deploy time.
+
 ## WEGO-003 — Reliable integration delivery and replay
 
 - **Status:** NOT AUTHORIZED — roadmap only; WEGO-002 must close first and owner activation is still required.

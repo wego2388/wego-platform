@@ -15,11 +15,16 @@ import com.wego.travelmarketplace.application.CreateCategoryService
 import com.wego.travelmarketplace.application.CreateProviderService
 import com.wego.travelmarketplace.application.CreateServiceService
 import com.wego.travelmarketplace.application.CreateTravelRequestService
+import com.wego.travelmarketplace.application.DispatchNotificationsService
+import com.wego.travelmarketplace.application.EmailSender
 import com.wego.travelmarketplace.application.ExpireTravelRequestsService
+import com.wego.travelmarketplace.application.NotificationRepository
+import com.wego.travelmarketplace.application.NotificationSettings
 import com.wego.travelmarketplace.application.ProviderQueryService
 import com.wego.travelmarketplace.application.ProviderRepository
 import com.wego.travelmarketplace.application.PublicCatalogQueryService
 import com.wego.travelmarketplace.application.PublishServiceService
+import com.wego.travelmarketplace.application.ResendNotificationService
 import com.wego.travelmarketplace.application.ServiceQueryService
 import com.wego.travelmarketplace.application.ServiceRepository
 import com.wego.travelmarketplace.application.StartTravelRequestReviewService
@@ -34,9 +39,14 @@ import com.wego.travelmarketplace.application.TravelRequestRepository
 import com.wego.travelmarketplace.application.UpdateCategoryService
 import com.wego.travelmarketplace.application.UpdateProviderService
 import com.wego.travelmarketplace.application.UpdateServiceService
+import org.springframework.beans.factory.ObjectProvider
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.mail.javamail.JavaMailSender
+import org.springframework.mail.javamail.JavaMailSenderImpl
 import java.time.Clock
+import java.time.Duration
 
 @Configuration(proxyBeanMethods = false)
 class TravelMarketplaceBeanConfiguration {
@@ -180,10 +190,11 @@ class TravelMarketplaceBeanConfiguration {
         serviceRepository: ServiceRepository,
         requestRepository: TravelRequestRepository,
         auditRecorder: TravelRequestAuditRecorder,
+        notificationRepository: NotificationRepository,
         transactionRunner: TransactionRunner,
         clock: Clock,
     ): CreateTravelRequestService =
-        CreateTravelRequestService(serviceRepository, requestRepository, auditRecorder, transactionRunner, clock)
+        CreateTravelRequestService(serviceRepository, requestRepository, auditRecorder, notificationRepository, transactionRunner, clock)
 
     @Bean
     fun startTravelRequestReviewService(
@@ -197,17 +208,21 @@ class TravelMarketplaceBeanConfiguration {
     fun confirmTravelRequestService(
         requestRepository: TravelRequestRepository,
         auditRecorder: TravelRequestAuditRecorder,
+        notificationRepository: NotificationRepository,
         transactionRunner: TransactionRunner,
         clock: Clock,
-    ): ConfirmTravelRequestService = ConfirmTravelRequestService(requestRepository, auditRecorder, transactionRunner, clock)
+    ): ConfirmTravelRequestService =
+        ConfirmTravelRequestService(requestRepository, auditRecorder, notificationRepository, transactionRunner, clock)
 
     @Bean
     fun cancelTravelRequestService(
         requestRepository: TravelRequestRepository,
         auditRecorder: TravelRequestAuditRecorder,
+        notificationRepository: NotificationRepository,
         transactionRunner: TransactionRunner,
         clock: Clock,
-    ): CancelTravelRequestService = CancelTravelRequestService(requestRepository, auditRecorder, transactionRunner, clock)
+    ): CancelTravelRequestService =
+        CancelTravelRequestService(requestRepository, auditRecorder, notificationRepository, transactionRunner, clock)
 
     @Bean
     fun completeTravelRequestService(
@@ -232,4 +247,67 @@ class TravelMarketplaceBeanConfiguration {
     @Bean
     fun travelRequestAuditQueryService(auditRecorder: TravelRequestAuditRecorder): TravelRequestAuditQueryService =
         TravelRequestAuditQueryService(auditRecorder)
+
+    // ── Notifications ────────────────────────────────────────────────────────
+
+    /**
+     * SMTP when spring.mail.host is configured. Without it, enabling the
+     * dispatcher is a configuration error and fails startup instead of
+     * silently failing every email.
+     */
+    @Bean
+    fun travelNotificationEmailSender(
+        mailSender: ObjectProvider<JavaMailSender>,
+        @Value("\${travel-marketplace.notifications.enabled:false}") enabled: Boolean,
+        @Value("\${travel-marketplace.notifications.from:}") from: String,
+        @Value("\${travel-marketplace.notifications.reply-to:}") replyTo: String,
+    ): EmailSender {
+        // An empty SPRING_MAIL_HOST (compose passes one through) still creates a
+        // sender, so a blank host counts as "not configured" too.
+        val smtp = mailSender.ifAvailable?.takeUnless { (it as? JavaMailSenderImpl)?.host.isNullOrBlank() }
+        (smtp as? JavaMailSenderImpl)?.let { SmtpEmailSender.applyDefaultTimeouts(it, Duration.ofSeconds(15)) }
+        if (smtp == null) {
+            require(!enabled) { "travel-marketplace.notifications.enabled=true requires spring.mail.host" }
+            return EmailSender { throw IllegalStateException("email_not_configured") }
+        }
+        require(!enabled || from.isNotBlank()) { "travel-marketplace.notifications.from is required when notifications are enabled" }
+        return SmtpEmailSender(smtp, from, replyTo.ifBlank { null })
+    }
+
+    @Bean
+    fun dispatchNotificationsService(
+        notificationRepository: NotificationRepository,
+        requestRepository: TravelRequestRepository,
+        emailSender: EmailSender,
+        transactionRunner: TransactionRunner,
+        @Value("\${travel-marketplace.notifications.site-base-url:http://localhost:3000}") siteBaseUrl: String,
+        @Value("\${travel-marketplace.notifications.staff-address:}") staffAddress: String,
+        @Value("\${travel-marketplace.notifications.whatsapp:+20 10 0141 3469}") whatsapp: String,
+        @Value("\${travel-marketplace.notifications.contact-email:info@sharmtogo.com}") contactEmail: String,
+        @Value("\${travel-marketplace.notifications.max-attempts:5}") maxAttempts: Int,
+        @Value("\${travel-marketplace.notifications.enabled:false}") enabled: Boolean,
+        clock: Clock,
+    ): DispatchNotificationsService {
+        // Every email links to the public site; never let a live dispatcher
+        // send customers to a localhost or plain-http default.
+        require(!enabled || siteBaseUrl.startsWith("https://")) {
+            "travel-marketplace.notifications.site-base-url must be an https:// URL when notifications are enabled"
+        }
+        return DispatchNotificationsService(
+            notificationRepository,
+            requestRepository,
+            emailSender,
+            transactionRunner,
+            NotificationSettings(siteBaseUrl, staffAddress.ifBlank { null }, whatsapp, contactEmail, maxAttempts),
+            clock,
+        )
+    }
+
+    @Bean
+    fun resendNotificationService(
+        notificationRepository: NotificationRepository,
+        requestRepository: TravelRequestRepository,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): ResendNotificationService = ResendNotificationService(notificationRepository, requestRepository, transactionRunner, clock)
 }

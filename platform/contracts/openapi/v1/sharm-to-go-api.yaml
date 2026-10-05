@@ -43,6 +43,12 @@ tags:
       `ACTIVE` categories are ever visible here, and provider contact/media
       rights details are never included — see `SERVICE_OWNERSHIP.md`'s
       "Simple public model."
+  - name: Notifications
+    description: >-
+      Staff view of the request email outbox (staff alert, customer received,
+      confirmed, cancelled). Requires `travel-notification:manage`. Responses
+      carry the request reference and delivery state only - never a recipient
+      address or a message body, which are not stored.
 paths:
   /actuator/health:
     get:
@@ -1070,6 +1076,75 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TravelRequestErrorResponse"
+  /api/v1/travel-marketplace/notifications:
+    get:
+      operationId: listTravelRequestNotifications
+      summary: List request notifications (staff, newest first)
+      description: Never exposes a recipient address or message body; `lastError` is a short reason code.
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/NotificationStatus"
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 10000
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: A page of notifications.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NotificationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/travel-marketplace/notifications/{id}/resend:
+    post:
+      operationId: resendTravelRequestNotification
+      summary: Queue a notification again (after FAILED, SKIPPED, or a lost email)
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPathParameter"
+      responses:
+        "202":
+          description: Queued; the dispatcher sends it on its next run.
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: No notification with this id.
+        "409":
+          description: The message is no longer true for the request's current state (error `request_state_changed`).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelRequestErrorResponse"
 components:
   securitySchemes:
     bearerAuth:
@@ -1832,6 +1907,7 @@ components:
             - price_changed
             - invalid_transition
             - already_terminal
+            - request_state_changed
             - validation_failed
         message:
           type:
@@ -2071,3 +2147,71 @@ components:
           type:
             - string
             - "null"
+    NotificationKind:
+      type: string
+      enum:
+        - STAFF_NEW_REQUEST
+        - CUSTOMER_REQUEST_RECEIVED
+        - CUSTOMER_REQUEST_CONFIRMED
+        - CUSTOMER_REQUEST_CANCELLED
+    NotificationStatus:
+      type: string
+      enum:
+        - PENDING
+        - SENT
+        - FAILED
+        - SKIPPED
+    NotificationResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - requestId
+        - requestReference
+        - kind
+        - status
+        - attemptCount
+        - availableAt
+        - createdAt
+        - resendCount
+      properties:
+        id:
+          type: string
+          format: uuid
+        requestId:
+          type: string
+          format: uuid
+        requestReference:
+          type: string
+          pattern: "^STG-[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{8}$"
+        kind:
+          $ref: "#/components/schemas/NotificationKind"
+        status:
+          $ref: "#/components/schemas/NotificationStatus"
+        attemptCount:
+          type: integer
+          minimum: 0
+        lastError:
+          type:
+            - string
+            - "null"
+          description: Short reason code (error class or skip reason such as `no_customer_email`); never an address or message text.
+        availableAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        sentAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        resendCount:
+          type: integer
+          minimum: 0
+        lastResentAt:
+          type:
+            - string
+            - "null"
+          format: date-time

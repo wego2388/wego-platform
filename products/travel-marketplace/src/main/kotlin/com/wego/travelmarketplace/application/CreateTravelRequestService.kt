@@ -2,6 +2,7 @@ package com.wego.travelmarketplace.application
 
 import com.wego.travelmarketplace.domain.ConfirmationType
 import com.wego.travelmarketplace.domain.Money
+import com.wego.travelmarketplace.domain.NotificationKind
 import com.wego.travelmarketplace.domain.ServiceId
 import com.wego.travelmarketplace.domain.TravelRequest
 import com.wego.travelmarketplace.domain.TravelRequestActorType
@@ -92,6 +93,7 @@ class CreateTravelRequestService(
     private val serviceRepository: ServiceRepository,
     private val requestRepository: TravelRequestRepository,
     private val auditRecorder: TravelRequestAuditRecorder,
+    private val notificationRepository: NotificationRepository,
     private val transactionRunner: TransactionRunner,
     private val clock: Clock,
 ) {
@@ -189,6 +191,14 @@ class CreateTravelRequestService(
                     correlationId = command.correlationId,
                     occurredAt = confirmedAt,
                 )
+            }
+
+            // Same transaction as the request itself: the intents exist if and
+            // only if the request does. An auto-confirmed INSTANT request gets
+            // one customer email (the receipt, worded as confirmed), not two.
+            notificationRepository.enqueueOnce(request.id, NotificationKind.STAFF_NEW_REQUEST, now, now)
+            if (!command.customer.email.isNullOrBlank()) {
+                notificationRepository.enqueueOnce(request.id, NotificationKind.CUSTOMER_REQUEST_RECEIVED, now, now)
             }
 
             CreateTravelRequestResult.Created(request)

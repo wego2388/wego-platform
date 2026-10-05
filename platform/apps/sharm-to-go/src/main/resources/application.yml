@@ -16,9 +16,30 @@ spring:
     sql-dialect: POSTGRES
   lifecycle:
     timeout-per-shutdown-phase: 20s
+  task:
+    scheduling:
+      # The request-expiry sweep and email delivery must never share one
+      # thread: a slow mail relay may not stop overdue requests from expiring.
+      pool:
+        size: 2
   modulith:
     runtime:
       verification-enabled: true
+
+# Request emails (STG-NOTIFY). SMTP itself is configured only through the
+# standard SPRING_MAIL_HOST / _PORT / _USERNAME / _PASSWORD environment
+# variables; enabling the dispatcher without them fails startup on purpose.
+# Disabled by default: rows stay PENDING (visible to staff) until enabled.
+travel-marketplace:
+  notifications:
+    enabled: ${TRAVEL_NOTIFICATIONS_ENABLED:false}
+    from: ${TRAVEL_NOTIFICATIONS_FROM:}
+    reply-to: ${TRAVEL_NOTIFICATIONS_REPLY_TO:}
+    staff-address: ${TRAVEL_NOTIFICATIONS_STAFF_ADDRESS:}
+    site-base-url: ${TRAVEL_NOTIFICATIONS_SITE_BASE_URL:http://localhost:3000}
+    whatsapp: ${TRAVEL_NOTIFICATIONS_WHATSAPP:+20 10 0141 3469}
+    contact-email: ${TRAVEL_NOTIFICATIONS_CONTACT_EMAIL:info@sharmtogo.com}
+    max-attempts: ${TRAVEL_NOTIFICATIONS_MAX_ATTEMPTS:5}
 
 server:
   shutdown: graceful
