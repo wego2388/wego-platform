@@ -4542,6 +4542,10 @@ paths:
           schema:
             type: string
             format: uuid
+        - name: revision
+          in: query
+          description: Current staff mediaRevision. Required when the old or submitted list contains managed assets, including unlinking all images.
+          schema: { type: string }
       requestBody:
         required: true
         content:
@@ -4568,6 +4572,8 @@ paths:
           $ref: "#/components/responses/ForbiddenResponse"
         "404":
           description: Tour not found.
+        "409":
+          description: draft_changed; the whole media list changed after review.
   /api/v1/tours-operator/staff/tours/{id}/media/{mediaId}/approve:
     post:
       operationId: approveToursOperatorTourMedia
@@ -4618,6 +4624,203 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ToursOperatorContentErrorResponse"
+  /api/v1/tours-operator/staff/tours/{tourId}/media/upload:
+    post:
+      operationId: uploadToursOperatorTourMedia
+      summary: Upload a private draft photo; requires media upload and tour manage
+      description: JPEG/PNG only, at most 10 MiB and 24 million pixels. Server re-encodes without metadata. Appends up to 30 photos or replaces a mediaId only with its current reviewed revision. Never approves rights.
+      tags: [ToursOperator]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tourId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/ToursOperatorMediaUploadRequest"
+      responses:
+        "200": { $ref: "#/components/responses/ToursOperatorMediaUploaded" }
+        "400": { $ref: "#/components/responses/ToursOperatorMediaInvalid" }
+        "401": { $ref: "#/components/responses/UnauthenticatedResponse" }
+        "403": { $ref: "#/components/responses/ForbiddenResponse" }
+        "404": { description: Tour or replacement media not found. }
+        "409": { description: draft_changed; re-read before retrying. }
+        "413": { description: Upload exceeds byte or multipart request limit. }
+        "503": { description: storage_failed or upload_busy (Retry-After 3); do not blindly retry an append. }
+  /api/v1/tours-operator/staff/categories/{category}/media/upload:
+    post:
+      operationId: uploadToursOperatorCategoryMedia
+      summary: Upload a category draft cover with reviewed revision
+      tags: [ToursOperator]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/ToursOperatorMediaCategory"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/ToursOperatorMediaUploadRequest"
+                - type: object
+                  required: [revision]
+      responses:
+        "200": { $ref: "#/components/responses/ToursOperatorMediaUploaded" }
+        "400": { $ref: "#/components/responses/ToursOperatorMediaInvalid" }
+        "401": { $ref: "#/components/responses/UnauthenticatedResponse" }
+        "403": { $ref: "#/components/responses/ForbiddenResponse" }
+        "404": { description: Unknown category. }
+        "409": { description: draft_changed. }
+        "413": { description: Upload exceeds limit. }
+        "503": { description: storage_failed or upload_busy. }
+  /api/v1/tours-operator/categories/media:
+    get:
+      operationId: listToursOperatorPublicCategoryCovers
+      summary: Approved category covers only, with requested alt or English fallback
+      tags: [ToursOperator]
+      security: []
+      parameters:
+        - name: locale
+          in: query
+          schema: { $ref: "#/components/schemas/ToursOperatorContentLocale" }
+      responses:
+        "200":
+          description: No draft metadata or private storage keys.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ToursOperatorPublicCategoryCover" }
+        "400": { description: unsupported_locale. }
+  /api/v1/tours-operator/staff/categories/media:
+    get:
+      operationId: listToursOperatorCategoryMedia
+      summary: List the five existing category covers and review revisions
+      tags: [ToursOperator]
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Staff draft/approved metadata.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ToursOperatorCategoryMedia" }
+        "401": { $ref: "#/components/responses/UnauthenticatedResponse" }
+        "403": { $ref: "#/components/responses/ForbiddenResponse" }
+  /api/v1/tours-operator/staff/categories/{category}/media:
+    get:
+      operationId: getToursOperatorCategoryMedia
+      summary: Read one category cover for editing
+      tags: [ToursOperator]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/ToursOperatorMediaCategory"
+      responses:
+        "200":
+          description: Staff metadata including revision.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ToursOperatorCategoryMedia" }
+        "401": { $ref: "#/components/responses/UnauthenticatedResponse" }
+        "403": { $ref: "#/components/responses/ForbiddenResponse" }
+        "404": { description: Unknown category. }
+  /api/v1/tours-operator/staff/categories/{category}/media/alt:
+    put:
+      operationId: updateToursOperatorCategoryMediaAlt
+      summary: Edit alt texts with revision; changed text resets rights
+      tags: [ToursOperator]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/ToursOperatorMediaCategory"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ToursOperatorCategoryAltRequest" }
+      responses:
+        "204": { description: Updated. }
+        "400": { $ref: "#/components/responses/ToursOperatorMediaInvalid" }
+        "401": { $ref: "#/components/responses/UnauthenticatedResponse" }
+        "403": { $ref: "#/components/responses/ForbiddenResponse" }
+        "404": { description: Unknown category. }
+        "409": { description: draft_changed. }
+  /api/v1/tours-operator/staff/categories/{category}/media/approve:
+    post:
+      operationId: approveToursOperatorCategoryMedia
+      summary: Approve exact reviewed category image and alt; requires content publish
+      tags: [ToursOperator]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/ToursOperatorMediaCategory"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ToursOperatorPublishRequest" }
+      responses:
+        "204": { description: Approved. }
+        "400": { $ref: "#/components/responses/ToursOperatorMediaInvalid" }
+        "401": { $ref: "#/components/responses/UnauthenticatedResponse" }
+        "403": { $ref: "#/components/responses/ForbiddenResponse" }
+        "404": { description: Unknown category. }
+        "409": { description: draft_changed or no_asset. }
+  /api/v1/tours-operator/staff/media/preview/{assetId}:
+    get:
+      operationId: previewToursOperatorMedia
+      summary: Authorized private draft preview; never put bearer token in URL
+      tags: [ToursOperator]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: variant
+          in: query
+          schema: { type: string, enum: [base, w360, w768, w1024, w1440], default: base }
+      responses:
+        "200":
+          description: Re-encoded JPEG/PNG; Cache-Control no-store, private.
+          content:
+            image/jpeg: { schema: { type: string, format: binary } }
+            image/png: { schema: { type: string, format: binary } }
+        "401": { $ref: "#/components/responses/UnauthenticatedResponse" }
+        "403": { $ref: "#/components/responses/ForbiddenResponse" }
+        "404": { description: Asset or requested variant absent. }
+  /media/{type}/{ref}/{filename}:
+    get:
+      operationId: getToursOperatorManagedMediaBytes
+      summary: Rights-gated exact linked image; inactive tours and drafts return 404
+      tags: [ToursOperator]
+      security: []
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema: { type: string, enum: [tours, categories] }
+        - name: ref
+          in: path
+          required: true
+          schema: { type: string }
+        - name: filename
+          in: path
+          required: true
+          schema: { type: string }
+        - name: v
+          in: query
+          schema: { type: string, enum: [base, w360, w768, w1024, w1440], default: base }
+      responses:
+        "200":
+          description: Approved JPEG/PNG; no-store so each request re-checks revocation.
+          content:
+            image/jpeg: { schema: { type: string, format: binary } }
+            image/png: { schema: { type: string, format: binary } }
+        "404": { description: "Missing, draft, unlinked, mismatched owner or inactive tour; identical empty response." }
   /api/v1/tours-operator/tours/{tourId}/slots:
     get:
       operationId: listToursOperatorAvailableSlots
@@ -4830,7 +5033,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ToursOperatorErrorResponse"
         "503":
-          description: Online bookings or payments are paused by a manager (bookings_paused).
+          description: >-
+            Manager pause (bookings_paused) or enquiry-only deployment
+            (online_booking_unavailable). No booking or inventory hold is created.
           content:
             application/json:
               schema:
@@ -5104,7 +5309,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ToursOperatorErrorResponse"
         "503":
-          description: Payment checkouts are paused by a manager (payments_paused). Nothing was created.
+          description: >-
+            Manager pause (payments_paused) or enquiry-only deployment
+            (online_payment_unavailable). No payment is created or checkout resumed.
           content:
             application/json:
               schema:
@@ -5170,7 +5377,9 @@ paths:
       operationId: getToursOperatorSalesStatus
       summary: Whether online booking and payment are open
       description: >-
-        Public. Only the two flags — never the staff note or who changed it.
+        Public. Deployment capability and effective flags only — never the
+        staff note or who changed it. Enquiry mode always closes both flags;
+        paused payments also close new bookings so there are no unpayable holds.
       tags:
         - ToursOperator
       security: []
@@ -5392,6 +5601,12 @@ paths:
           description: Invalid signature or malformed payload.
         "422":
           description: Amount mismatch.
+        "503":
+          description: Provider intentionally unavailable; retryable, not acknowledged as processed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorErrorResponse"
 components:
   securitySchemes:
     bearerAuth:
@@ -5399,6 +5614,16 @@ components:
       scheme: bearer
       description: Opaque session token issued by POST /api/v1/identity/login.
   responses:
+    ToursOperatorMediaUploaded:
+      description: Private asset registered; refresh staff content to read its path, dimensions and revision.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ToursOperatorMediaUploadResponse" }
+    ToursOperatorMediaInvalid:
+      description: Invalid image, alt or media selection.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ToursOperatorMediaError" }
     HealthResponse:
       description: Aggregate health without component details.
       content:
@@ -5441,6 +5666,11 @@ components:
           schema:
             $ref: "#/components/schemas/ValidationErrorResponse"
   parameters:
+    ToursOperatorMediaCategory:
+      name: category
+      in: path
+      required: true
+      schema: { $ref: "#/components/schemas/ToursOperatorCategory" }
     CorrelationIdHeader:
       name: X-Correlation-Id
       in: header
@@ -5466,6 +5696,79 @@ components:
         type: string
         format: uuid
   schemas:
+    ToursOperatorMediaUploadResponse:
+      type: object
+      additionalProperties: false
+      required: [assetId, mediaId]
+      properties:
+        assetId: { type: string, format: uuid }
+        mediaId: { type: [string, "null"], format: uuid }
+    ToursOperatorMediaError:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error: { type: string }
+    ToursOperatorMediaUploadRequest:
+      type: object
+      required: [file, requestId]
+      properties:
+        file: { type: string, format: binary }
+        requestId:
+          type: string
+          format: uuid
+          description: Stable per-attempt UUID. Replay with same owner, bytes and alt returns same linked asset; reuse with changed input is rejected.
+        mediaId: { type: string, format: uuid }
+        revision: { type: string, maxLength: 64 }
+        altEn: { type: string, maxLength: 200 }
+        altAr: { type: string, maxLength: 200 }
+        altRu: { type: string, maxLength: 200 }
+        altIt: { type: string, maxLength: 200 }
+    ToursOperatorCategoryAltRequest:
+      type: object
+      required: [revision]
+      properties:
+        revision: { type: string, maxLength: 64 }
+        altEn: { type: [string, "null"], maxLength: 200 }
+        altAr: { type: [string, "null"], maxLength: 200 }
+        altRu: { type: [string, "null"], maxLength: 200 }
+        altIt: { type: [string, "null"], maxLength: 200 }
+    ToursOperatorPublicMedia:
+      type: object
+      additionalProperties: false
+      required: [path, width, height, isCover, alt]
+      properties:
+        path: { type: string }
+        width: { type: integer, minimum: 1 }
+        height: { type: integer, minimum: 1 }
+        isCover: { type: boolean }
+        alt: { type: string }
+    ToursOperatorPublicCategoryCover:
+      type: object
+      additionalProperties: false
+      required: [category, path, width, height, alt]
+      properties:
+        category: { $ref: "#/components/schemas/ToursOperatorCategory" }
+        path: { type: string }
+        width: { type: integer, minimum: 1 }
+        height: { type: integer, minimum: 1 }
+        alt: { type: string }
+    ToursOperatorCategoryMedia:
+      type: object
+      required: [category, assetId, alt, rightsStatus, approvedAt, updatedAt, revision, path, width, height]
+      properties:
+        category: { $ref: "#/components/schemas/ToursOperatorCategory" }
+        assetId: { type: [string, "null"], format: uuid }
+        alt:
+          type: object
+          additionalProperties: { type: string, maxLength: 200 }
+        rightsStatus: { type: string, enum: [DRAFT, APPROVED] }
+        approvedAt: { type: [string, "null"], format: date-time }
+        updatedAt: { type: string, format: date-time }
+        revision: { type: string }
+        path: { type: [string, "null"] }
+        width: { type: [integer, "null"], minimum: 1 }
+        height: { type: [integer, "null"], minimum: 1 }
     LoginRequest:
       type: object
       additionalProperties: false
@@ -5727,6 +6030,9 @@ components:
             - english_alt_required
             - nothing_to_publish
             - draft_changed
+            - unknown_managed_asset
+            - managed_asset_mismatch
+            - media_revision_required
         detail:
           type:
             - string
@@ -6065,7 +6371,11 @@ components:
         - content
         - facts
         - media
+        - mediaRevision
       properties:
+        mediaRevision:
+          type: string
+          description: Revision of image identity, alt, order, cover, dimensions and approval for concurrent whole-list edits.
         content:
           type: object
           description: Locale code → its DRAFT and/or PUBLISHED documents.
@@ -6236,6 +6546,11 @@ components:
           type:
             - string
             - "null"
+        cover:
+          description: Current approved catalog cover, never legacy imageUrl or draft media.
+          oneOf:
+            - $ref: "#/components/schemas/ToursOperatorPublicMedia"
+            - type: "null"
         localized:
           oneOf:
             - $ref: "#/components/schemas/ToursOperatorLocalizedTourSummary"
@@ -6747,22 +7062,32 @@ components:
       required:
         - bookingsOpen
         - paymentsOpen
+        - bookingMode
       properties:
         bookingsOpen:
           type: boolean
         paymentsOpen:
           type: boolean
+        bookingMode:
+          $ref: "#/components/schemas/ToursOperatorBookingMode"
+    ToursOperatorBookingMode:
+      type: string
+      enum: [ONLINE_PAYMENT, ENQUIRY_ONLY]
+      description: Deployment capability. Enquiries are not bookings and never reserve inventory.
     ToursOperatorSalesControl:
       type: object
       additionalProperties: false
       required:
         - bookingsPaused
         - paymentsPaused
+        - bookingMode
       properties:
         bookingsPaused:
           type: boolean
         paymentsPaused:
           type: boolean
+        bookingMode:
+          $ref: "#/components/schemas/ToursOperatorBookingMode"
         reason:
           type: [string, "null"]
           maxLength: 300

@@ -6,6 +6,12 @@
 - **النطاق:** Backend + Public Website + Staff ERP + Payments + Content + Operations
 - **المالك المقترح:** Wego Digital / Safari Tours Sharm
 
+> **الحالة الحية — 5 أكتوبر 2026:** راجع
+> `2026-10-05_CATALOG_MEDIA_SAFE_CHECKPOINT_AR.md` وBoard أولًا. مراحل
+> SEC/ERP EN/AR/ENQUIRY قبل MEDIA قبلت محليًا. محررا المحتوى والصور والفئات
+> نفذا واختبرا؛ MEDIA وحدها ACTIVE، ولا قبول كامل أو نشر قبل DB+media
+> restore وبوابات الإصدار. ملاحظات النسب والحزم القديمة أدناه تاريخية.
+
 > **تحديث 2026-09-30:** F أُغلق (`28e80f5`، Tier 1 READY)؛ D وE مكتملان رغم
 > أن بعض checkboxes القديمة أدناه لم تُحدّث. ترتيب الشغل المتفق عليه مع المالك
 > في `../ROADMAP_AR.md`.

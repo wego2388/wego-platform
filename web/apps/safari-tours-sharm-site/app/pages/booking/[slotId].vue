@@ -10,11 +10,13 @@ import {
   createBooking,
   initiatePayment,
   storeBookingConfirmation,
-  getSalesStatus,
 } from "../../composables/usePublicToursApi";
 import { ALL_NATIONALITIES, COMMON_NATIONALITIES, checkoutCopy, isPlausibleEmail, isPlausiblePhone, normalizePhone } from "../../content/checkout";
 import { whatsappUrl } from "../../content/locales";
 import { tourPageCopy } from "../../content/tourPage";
+import { useSalesStatus } from "../../composables/useSalesStatus";
+import { enquiryCopy } from "../../content/enquiry";
+import { onlineSalesAvailable, tripEnquiryUrl } from "../../utils/enquiry";
 
 /**
  * Checkout: details → review → pay. Everything shown here is a preview; the
@@ -33,6 +35,9 @@ useSeoMeta({ title: () => `${copy.value.title} — Safari Tours Sharm`, robots: 
 // and browsers' ICU data, so it is rendered after hydration.
 const mounted = useMounted();
 const analytics = useAnalytics();
+const { data: sales } = await useSalesStatus();
+const online = computed(() => onlineSalesAvailable(sales.value));
+const enquiry = computed(() => enquiryCopy[locale.value]);
 
 // ── Trip from the tour page (non-personal query only) ──────────────────────
 const slotId = computed(() => String(route.params.slotId));
@@ -79,6 +84,10 @@ const unitLabel = computed(() =>
     : null,
 );
 const tourLink = computed(() => (tour.value ? `/tour/${tour.value.slug}` : "/tours"));
+const enquiryLink = computed(() => tripEnquiryUrl(locale.value, tour.value, {
+  date: tourDate.value, timeSlot: timeSlot.value, adults: adults.value, children: children.value,
+  optionCode: optionCode.value, units: units.value,
+}));
 
 // ── Form ───────────────────────────────────────────────────────────────────
 type Field = "fullName" | "phone" | "nationality" | "email" | "hotelName";
@@ -180,6 +189,9 @@ function messageFor(error: unknown): string {
     case "bookings_paused":
     case "payments_paused":
       return e.salesPaused;
+    case "online_booking_unavailable":
+    case "online_payment_unavailable":
+      return enquiry.value.notice;
     case "payment_provider_error":
       return e.payment;
     case "guests_exceed_units":
@@ -208,21 +220,11 @@ function onPageShow(event: PageTransitionEvent) {
 }
 onMounted(() => window.addEventListener("pageshow", onPageShow));
 
-// Tell the visitor before they type their details if online sales are
-// paused; the server still refuses on its own, so this is only a courtesy.
-const salesPaused = ref(false);
-onMounted(async () => {
-  try {
-    const status = await getSalesStatus();
-    salesPaused.value = !status.bookingsOpen || !status.paymentsOpen;
-  } catch {
-    // Unknown status: let the normal flow decide.
-  }
-});
 onBeforeUnmount(() => window.removeEventListener("pageshow", onPageShow));
 
 async function pay() {
   if (submitting.value) return; // one submission at a time
+  if (!online.value) { submitError.value = enquiry.value.notice; return; }
   if (!agreed.value) {
     errors.value = { terms: copy.value.errors.terms };
     return;
@@ -269,9 +271,9 @@ async function pay() {
 
 <template>
   <main id="main-content" tabindex="-1" class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:py-12">
-    <h1 class="font-display text-3xl font-semibold">{{ copy.title }}</h1>
+    <h1 class="font-display text-3xl font-semibold">{{ online ? copy.title : enquiry.title }}</h1>
 
-    <ol class="mt-6 flex items-center gap-2 text-sm font-semibold" :aria-label="copy.title">
+    <ol v-if="online" class="mt-6 flex items-center gap-2 text-sm font-semibold" :aria-label="copy.title">
       <li v-for="(label, i) in copy.steps" :key="label" class="flex flex-1 items-center gap-2" :aria-current="step === i + 1 ? 'step' : undefined">
         <span
           class="grid size-8 shrink-0 place-items-center rounded-full"
@@ -291,10 +293,11 @@ async function pay() {
       </UiEmptyState>
     </div>
 
-    <div v-else-if="salesPaused" class="mt-8 grid gap-3 rounded-[var(--sts-radius-card)] border border-sts-danger/40 bg-sts-danger-soft p-4 text-sm text-sts-danger" role="alert">
-      <p>{{ copy.errors.salesPaused }}</p>
+    <div v-else-if="!online" class="mt-8 grid gap-3 rounded-[var(--sts-radius-card)] border border-sts-border bg-sts-sand-soft p-4 text-sm" :role="sales?.bookingMode === 'ONLINE_PAYMENT' ? 'alert' : 'status'" data-enquiry-notice>
+      <p>{{ sales?.bookingMode === 'ENQUIRY_ONLY' ? enquiry.notice : sales ? copy.errors.salesPaused : enquiry.unknown }}</p>
       <div class="flex flex-wrap gap-2">
-        <UiButton :href="whatsappUrl" variant="secondary" size="sm" icon="lucide:message-circle">{{ copy.errors.whatsapp }}</UiButton>
+        <UiButton :href="enquiryLink" variant="secondary" size="sm" icon="lucide:message-circle" data-trip-enquiry @click="analytics.track('whatsapp_click', { placement: 'booking_enquiry', item_id: tour?.slug })">{{ enquiry.cta }}</UiButton>
+        <UiButton :to="tourLink" variant="ghost" size="sm">{{ discovery.category.all }}</UiButton>
       </div>
     </div>
 

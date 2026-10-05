@@ -1,5 +1,5 @@
 /** Pure sitemap builder (tested): every page in every language, with hreflang alternates. */
-export const SITE_LOCALES = ["en", "ar", "ru", "it"] as const;
+const SITE_LOCALES = ["en", "ar", "ru", "it"] as const;
 export const STATIC_PATHS = ["", "/tours", "/trip-finder", "/faq", "/about", "/contact", "/terms", "/privacy"];
 export const CATEGORY_SLUGS = ["desert", "sea", "cultural", "shows", "transfers"];
 

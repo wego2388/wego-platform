@@ -173,6 +173,8 @@ function jsonLd(value: unknown): string {
         <div class="overflow-hidden rounded-[var(--sts-radius-media)]" :style="{ viewTransitionName: `tour-media-${tour.slug}` }">
           <BrandTourMedia
             :src="cover?.path ?? null"
+            :width="cover?.width"
+            :height="cover?.height"
             :alt="cover?.alt ?? ''"
             :category="tour.category"
             ratio="16 / 9"
@@ -316,7 +318,7 @@ function jsonLd(value: unknown): string {
           <span class="ms-1 text-xs text-sts-muted">{{ perUnit ? (copy.booking.perUnit[firstOption?.code ?? ""] ?? copy.booking.perUnitDefault) : copy.booking.perPerson }}</span>
         </p>
         <UiButton v-if="onRequest" :href="whatsappRequest" icon="lucide:message-circle" block>{{ copy.requestOnly.cta }}</UiButton>
-        <UiButton v-else icon="lucide:calendar" @click="bookingOpen = true">{{ copy.booking.mobileBar }}</UiButton>
+        <UiButton v-else data-mobile-booking icon="lucide:calendar" @click="bookingOpen = true">{{ copy.booking.mobileBar }}</UiButton>
       </div>
     </div>
     <UiSheet v-if="!onRequest && isMobile" v-model:open="bookingOpen" :title="name" :close-label="copy.booking.close">

@@ -11,25 +11,29 @@ import {
   listBookings,
   listAllStaffTours,
   addMoney,
-  formatMoney,
   type Booking,
   type Tour,
   ToursApiError,
 } from "../composables/useToursApi";
+import { useErpLocale } from "../composables/useErpLocale";
+import type { ErpMessageKey } from "../utils/erpLocale";
 
-useHead({ title: "Overview · Safari Tours Sharm" });
+const { t, count, money, dateLabel } = useErpLocale();
+useHead(() => ({ title: `${t("nav.overview")} · Safari Tours Sharm` }));
 
 const router = useRouter();
 const session = ref<AuthSession | null>(null);
 const bookings = ref<Booking[]>([]);
 const toursById = ref<Record<string, Tour>>({});
 const state = ref<"idle" | "loading" | "loaded" | "error">("idle");
-const errorMsg = ref("");
+const errorKey = ref<ErpMessageKey | null>(null);
+const errorCode = ref("");
+const errorMsg = computed(() => errorKey.value ? t(errorKey.value, { code: errorCode.value }) : "");
 
 const canViewBookings = computed(() => hasPermission(session.value, "tours-operator.booking:view"));
 const canViewTours    = computed(() => hasPermission(session.value, "tours-operator.tour:view"));
 
-// Today's date (Africa/Cairo = UTC+3, use offset string for display)
+// The operator's calendar day; Cairo's timezone rules include seasonal offsets.
 const todayIso = new Date().toLocaleDateString("sv-SE", { timeZone: "Africa/Cairo" });
 
 const todayBookings = computed(() =>
@@ -65,19 +69,20 @@ function handleApiError(err: unknown) {
   }
 }
 
-function errorText(err: unknown): string {
+function errorText(err: unknown): ErpMessageKey {
   if (err instanceof ToursApiError) {
-    if (err.status === 401) return "Session expired. Redirecting to sign in…";
-    if (err.status === 403) return "You don't have permission to view this.";
-    return `Request failed (${err.errorCode}).`;
+    if (err.status === 401) return "common.sessionExpired";
+    if (err.status === 403) return "common.forbidden";
+    return "common.requestFailed";
   }
-  return "Could not reach the server.";
+  return "common.connectionFailed";
 }
 
 async function load() {
   if (!session.value) return;
   state.value = "loading";
-  errorMsg.value = "";
+  errorKey.value = null;
+  errorCode.value = "";
   const token = session.value.token;
   try {
     const [bookingsResult, toursResult] = await Promise.all([
@@ -90,7 +95,8 @@ async function load() {
   } catch (err) {
     handleApiError(err);
     state.value = "error";
-    errorMsg.value = errorText(err);
+    errorKey.value = errorText(err);
+    errorCode.value = err instanceof ToursApiError ? err.errorCode : "";
   }
 }
 
@@ -105,26 +111,27 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="px-6 py-8 text-sts-ink sm:px-10 lg:px-16">
+  <main class="px-4 py-8 text-sts-ink sm:px-10 lg:px-16">
     <div class="mx-auto max-w-6xl">
 
       <header>
         <p class="text-sm font-semibold tracking-widest text-sts-muted uppercase">Safari Tours Sharm</p>
-        <h1 class="mt-2 text-3xl font-semibold tracking-tight">Overview</h1>
+        <h1 class="mt-2 text-3xl font-semibold tracking-tight">{{ t('nav.overview') }}</h1>
       </header>
 
       <WegoAlert v-if="state === 'error'" variant="danger" class="mt-6">{{ errorMsg }}</WegoAlert>
 
       <!-- KPI cards -->
       <section v-if="state !== 'idle'" aria-labelledby="kpi-heading" class="mt-8">
-        <h2 id="kpi-heading" class="sr-only">Key metrics</h2>
+        <h2 id="kpi-heading" class="sr-only">{{ t('overview.metrics') }}</h2>
+        <p class="mb-3 text-sm text-sts-muted">{{ t('overview.sampleNote') }}</p>
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <article
             v-for="kpi in [
-              { label: 'Today\'s Bookings', value: state === 'loaded' ? String(todayBookings.length) : '…', sub: 'tours today' },
-              { label: 'Today\'s Tour Value', value: state === 'loaded' ? formatMoney(todayRevenue) : '…', sub: 'booked value of today\'s tours — revenue is on Finance' },
-              { label: 'Pending Confirm',   value: state === 'loaded' ? String(pendingConfirm) : '…',      sub: 'awaiting payment confirm' },
-              { label: 'Upcoming',          value: state === 'loaded' ? String(upcomingCount) : '…',       sub: 'confirmed future bookings' },
+              { label: t('overview.todayBookings'), value: state === 'loaded' ? count(todayBookings.length) : '…', sub: t('overview.todayTours') },
+              { label: t('overview.todayValue'), value: state === 'loaded' ? money(todayRevenue) : '…', sub: t('overview.valueNote') },
+              { label: t('overview.pending'), value: state === 'loaded' ? count(pendingConfirm) : '…', sub: t('overview.pendingNote') },
+              { label: t('overview.upcoming'), value: state === 'loaded' ? count(upcomingCount) : '…', sub: t('overview.upcomingNote') },
             ]"
             :key="kpi.label"
             class="rounded-2xl border border-sts-border bg-sts-surface p-5 shadow-sm"
@@ -139,18 +146,18 @@ onMounted(() => {
       <!-- Recent bookings -->
       <section class="mt-10">
         <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold">Recent Bookings</h2>
+          <h2 class="text-xl font-semibold">{{ t('overview.recent') }}</h2>
           <NuxtLink to="/bookings" class="text-sm font-semibold text-sts-ocean hover:underline">
-            View all →
+            {{ t('overview.viewAll') }}
           </NuxtLink>
         </div>
 
-        <p v-if="state === 'loading'" class="mt-4 text-sm text-sts-muted">Loading…</p>
+        <p v-if="state === 'loading'" class="mt-4 text-sm text-sts-muted">{{ t('common.loading') }}</p>
         <p v-else-if="!canViewBookings" class="mt-4 text-sm text-sts-muted">
-          Your account doesn't have permission to view bookings (tours-operator.booking:view).
+          {{ t('overview.noPermission') }}
         </p>
         <p v-else-if="state === 'loaded' && recentBookings.length === 0" class="mt-4 text-sm text-sts-muted">
-          No bookings yet.
+          {{ t('overview.empty') }}
         </p>
 
         <div v-else-if="recentBookings.length > 0" class="mt-4 overflow-hidden rounded-2xl border border-sts-border bg-sts-surface shadow-sm">
@@ -158,30 +165,29 @@ onMounted(() => {
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b border-sts-border bg-sts-canvas/60">
-                  <th class="px-5 py-3 text-start text-xs font-semibold text-sts-muted">Ref</th>
-                  <th class="px-4 py-3 text-start text-xs font-semibold text-sts-muted">Customer</th>
-                  <th class="px-4 py-3 text-start text-xs font-semibold text-sts-muted">Tour</th>
-                  <th class="px-4 py-3 text-start text-xs font-semibold text-sts-muted">Date</th>
-                  <th class="px-4 py-3 text-start text-xs font-semibold text-sts-muted">Pax</th>
-                  <th class="px-4 py-3 text-end   text-xs font-semibold text-sts-muted">Total</th>
-                  <th class="px-5 py-3 text-start text-xs font-semibold text-sts-muted">Status</th>
+                  <th scope="col" class="px-5 py-3 text-start text-xs font-semibold text-sts-muted">{{ t('common.ref') }}</th>
+                  <th scope="col" class="px-4 py-3 text-start text-xs font-semibold text-sts-muted">{{ t('common.customer') }}</th>
+                  <th scope="col" class="px-4 py-3 text-start text-xs font-semibold text-sts-muted">{{ t('common.tour') }}</th>
+                  <th scope="col" class="px-4 py-3 text-start text-xs font-semibold text-sts-muted">{{ t('common.date') }}</th>
+                  <th scope="col" class="px-4 py-3 text-start text-xs font-semibold text-sts-muted">{{ t('common.pax') }}</th>
+                  <th scope="col" class="px-4 py-3 text-end text-xs font-semibold text-sts-muted">{{ t('common.total') }}</th>
+                  <th scope="col" class="px-5 py-3 text-start text-xs font-semibold text-sts-muted">{{ t('common.status') }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr
                   v-for="b in recentBookings"
                   :key="b.id"
-                  class="cursor-pointer border-b border-sts-border/50 last:border-0 hover:bg-sts-canvas/50"
-                  @click="$router.push(`/bookings/${b.id}`)"
+                  class="border-b border-sts-border/50 last:border-0 hover:bg-sts-canvas/50"
                 >
-                  <td class="ref px-5 py-3.5 font-mono text-xs text-sts-muted">{{ b.reference }}</td>
+                  <td class="ref px-5 py-3.5 font-mono text-xs text-sts-muted"><NuxtLink :to="`/bookings/${b.id}`" class="font-semibold text-sts-ocean hover:underline">{{ b.reference }}</NuxtLink></td>
                   <td class="px-4 py-3.5 font-medium">{{ b.customer.fullName }}</td>
                   <td class="px-4 py-3.5 text-sts-muted">{{ tourName(b.tourId) }}</td>
-                  <td class="px-4 py-3.5 text-sts-muted">{{ b.tourDate }}</td>
-                  <td class="px-4 py-3.5">{{ b.adultsCount + b.childrenCount }}</td>
-                  <td class="money px-4 py-3.5 text-end font-semibold">{{ formatMoney(b.totalPrice) }}</td>
+                  <td class="px-4 py-3.5 text-sts-muted">{{ dateLabel(b.tourDate) }}</td>
+                  <td class="px-4 py-3.5">{{ count(b.adultsCount + b.childrenCount) }}</td>
+                  <td class="money px-4 py-3.5 text-end font-semibold">{{ money(b.totalPrice) }}</td>
                   <td class="px-5 py-3.5">
-                    <span :class="`badge badge-${b.status}`">{{ b.status }}</span>
+                    <span :class="`badge badge-${b.status}`">{{ t(`status.${b.status}`) }}</span>
                   </td>
                 </tr>
               </tbody>

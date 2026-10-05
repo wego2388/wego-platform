@@ -1,12 +1,14 @@
 package com.wego.toursoperator.api
 
 import com.wego.identity.AuthenticatedUser
+import com.wego.toursoperator.application.BookingMode
 import com.wego.toursoperator.application.SalesControlService
 import com.wego.toursoperator.application.UpdateSalesControlCommand
 import com.wego.toursoperator.domain.SalesControl
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -29,17 +31,22 @@ import java.util.UUID
 @RequestMapping("/api/v1/tours-operator")
 class SalesControlController(
     private val salesControlService: SalesControlService,
+    @Qualifier("stoBookingMode") private val bookingMode: BookingMode = BookingMode.ONLINE_PAYMENT,
 ) {
-    /** Public — only the two flags; never the staff note or who changed it. */
+    /** Public — capability and effective flags; never staff notes or actors. */
     @GetMapping("/sales-status")
     fun publicStatus(): PublicSalesStatusResponse =
         salesControlService.current().let {
-            PublicSalesStatusResponse(bookingsOpen = !it.bookingsPaused, paymentsOpen = !it.paymentsPaused)
+            PublicSalesStatusResponse(
+                bookingsOpen = bookingMode.onlineEnabled && !it.bookingsPaused && !it.paymentsPaused,
+                paymentsOpen = bookingMode.onlineEnabled && !it.paymentsPaused,
+                bookingMode = bookingMode,
+            )
         }
 
     @GetMapping("/staff/sales-control")
     @PreAuthorize("hasAuthority('tours-operator.tour:manage')")
-    fun current(): SalesControlResponse = salesControlService.current().toResponse()
+    fun current(): SalesControlResponse = salesControlService.current().toResponse(bookingMode)
 
     @PutMapping("/staff/sales-control")
     @PreAuthorize("hasAuthority('tours-operator.tour:manage')")
@@ -59,13 +66,14 @@ class SalesControlController(
                     actorUserId = actor,
                 ),
             )
-        return ResponseEntity.ok(control.toResponse())
+        return ResponseEntity.ok(control.toResponse(bookingMode))
     }
 }
 
 data class PublicSalesStatusResponse(
     val bookingsOpen: Boolean,
     val paymentsOpen: Boolean,
+    val bookingMode: BookingMode,
 )
 
 data class UpdateSalesControlRequest(
@@ -84,13 +92,15 @@ data class SalesControlResponse(
     val reason: String?,
     val updatedByUserId: UUID?,
     val updatedAt: Instant?,
+    val bookingMode: BookingMode,
 )
 
-private fun SalesControl.toResponse() =
+private fun SalesControl.toResponse(mode: BookingMode) =
     SalesControlResponse(
         bookingsPaused = bookingsPaused,
         paymentsPaused = paymentsPaused,
         reason = reason,
         updatedByUserId = updatedByUserId,
         updatedAt = updatedAt,
+        bookingMode = mode,
     )

@@ -1,6 +1,7 @@
 package com.wego.identity
 
 import com.wego.identity.application.LoginService
+import com.wego.identity.application.ResetUserPasswordService
 import com.wego.identity.domain.EmailAddress
 import com.wego.identity.domain.RoleCode
 import com.wego.identity.domain.User
@@ -86,6 +87,19 @@ class LoginServiceTest {
     }
 
     @Test
+    fun `throttle key normalizes surrounding whitespace before applying its length bound`() {
+        seedUser()
+
+        // The padding crosses the old 320-character pre-trim bound. Before
+        // normalization-first, the throttle saw only spaces while
+        // EmailAddress.of still resolved the real account.
+        service.login("${" ".repeat(320)}admin@example.com", "wrong-password", correlationId = null)
+        service.login("admin@example.com", "wrong-password", correlationId = null)
+
+        assertThat(throttle.recordedFailures).containsExactly("admin@example.com", "admin@example.com")
+    }
+
+    @Test
     fun `wrong password fails and is audited with the specific reason`() {
         seedUser()
 
@@ -114,14 +128,14 @@ class LoginServiceTest {
     }
 
     @Test
-    fun `account locks after the configured number of consecutive failures`() {
+    fun `a correct password recovers a targeted account even after failure lockout`() {
         seedUser()
 
         repeat(3) { service.login("admin@example.com", "wrong-password", correlationId = null) }
-        val lockedOutResult = service.login("admin@example.com", "correct-password", correlationId = null)
+        val recovery = service.login("admin@example.com", "correct-password", correlationId = null)
 
-        assertThat(lockedOutResult.success).isFalse()
-        assertThat(auditRecorder.loginFailures.last()).isEqualTo("admin@example.com" to "ACCOUNT_LOCKED_OR_DISABLED")
+        assertThat(recovery.success).isTrue()
+        assertThat(userRepository.findByEmail(EmailAddress.of("admin@example.com"))!!.isLocked(fixedInstant)).isFalse()
     }
 
     @Test
@@ -136,7 +150,34 @@ class LoginServiceTest {
     }
 
     @Test
-    fun `a throttled attempt fails fast without touching the repository or the audit log`() {
+    fun `a throttled invalid attempt returns retry-after without writing another audit failure`() {
+        val throttledService =
+            LoginService(
+                userRepository = userRepository,
+                sessionRepository = sessionRepository,
+                passwordHasher = passwordHasher,
+                sessionTokenGenerator = SequentialTokenGenerator(),
+                auditRecorder = auditRecorder,
+                transactionRunner = NoOpTransactionRunner(),
+                loginAttemptThrottle = AlwaysRejectLoginAttemptThrottle(),
+                clock = clock,
+                maxFailedAttempts = 3,
+                lockoutDuration = Duration.ofMinutes(15),
+            )
+        seedUser()
+
+        val result = throttledService.login("admin@example.com", "wrong-password", correlationId = null)
+
+        assertThat(result.success).isFalse()
+        assertThat(result.failureReason).isEqualTo(LoginService.RATE_LIMITED_REASON)
+        assertThat(result.retryAfterSeconds).isEqualTo(7L)
+        assertThat(auditRecorder.loginFailures).isEmpty()
+        assertThat(auditRecorder.loginSuccesses).isEmpty()
+        assertThat(passwordHasher.matchesCalls).isZero()
+    }
+
+    @Test
+    fun `a throttle rejection is a hard gate even for a correct candidate`() {
         val throttledService =
             LoginService(
                 userRepository = userRepository,
@@ -157,8 +198,32 @@ class LoginServiceTest {
         assertThat(result.success).isFalse()
         assertThat(result.failureReason).isEqualTo(LoginService.RATE_LIMITED_REASON)
         assertThat(result.retryAfterSeconds).isEqualTo(7L)
-        assertThat(auditRecorder.loginFailures).isEmpty()
+        assertThat(result.rawToken).isNull()
         assertThat(auditRecorder.loginSuccesses).isEmpty()
+        assertThat(passwordHasher.matchesCalls).isZero()
+        assertThat(userRepository.findByEmail(EmailAddress.of("admin@example.com"))!!.failedLoginCount).isZero()
+    }
+
+    @Test
+    fun `trusted password reset clears the account throttle after commit`() {
+        val user = seedUser()
+        repeat(1) { service.login("admin@example.com", "wrong-password", correlationId = null) }
+
+        val resetService =
+            ResetUserPasswordService(
+                userRepository = userRepository,
+                sessionRepository = sessionRepository,
+                passwordHasher = passwordHasher,
+                auditRecorder = auditRecorder,
+                transactionRunner = NoOpTransactionRunner(),
+                clock = clock,
+                loginAttemptThrottle = throttle,
+            )
+
+        val result = resetService.reset(user.id, user.id, "a-new-password-123456", correlationId = null)
+
+        assertThat(result).isInstanceOf(com.wego.identity.application.ResetUserPasswordResult.Reset::class.java)
+        assertThat(throttle.recordedSuccesses).contains("admin@example.com")
     }
 
     @Test

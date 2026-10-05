@@ -31,6 +31,9 @@ data class PaymentHistoryEntry(
  * All mutating methods must be called inside a transaction.
  */
 interface PaymentRepository {
+    /** Startup guard: existence only, all statuses, no booking or customer data. */
+    fun hasAnyPayments(): Boolean
+
     fun findById(id: PaymentId): Payment?
 
     fun findByIdForUpdate(id: PaymentId): Payment?
@@ -64,6 +67,21 @@ interface PaymentRepository {
 
     /** Payment status history for a booking, oldest first. */
     fun historyForBooking(bookingId: BookingId): List<PaymentHistoryEntry>
+
+    /**
+     * Claims one provider refund callback identity for a payment.
+     *
+     * The claim is durable and unique per (payment, providerRefundId), so a
+     * replay remains idempotent even after a different refund callback was
+     * received in between. Returns true only for the first observation.
+     * Must be called inside the payment webhook transaction.
+     */
+    fun claimRefundCallback(
+        paymentId: PaymentId,
+        providerRefundId: String,
+        amountMinorUnits: Long,
+        receivedAt: Instant,
+    ): Boolean
 
     /** Persists state and appends every drained [Payment.drainTransitions] entry in one transaction. */
     fun save(payment: Payment)

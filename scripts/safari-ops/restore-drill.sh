@@ -19,6 +19,9 @@ dump="${1:-$(ls -1t "$SAFARI_BACKUP_DIR"/*.dump "$SAFARI_BACKUP_DIR"/*.dump.gpg 
 [ -n "$dump" ] && [ -f "$dump" ] || die "no backup file found in $SAFARI_BACKUP_DIR"
 meta="$dump.json"
 [ -f "$meta" ] || die "missing metadata $meta"
+if python3 -c 'import json,sys;sys.exit(0 if "tours_operator_asset" in json.load(open(sys.argv[1])).get("rowCounts", {}) else 1)' "$meta"; then
+  die "V29 backup requires its verified media bundle; database-only restore cannot prove managed image recovery"
+fi
 
 started=$(date +%s)
 log "restore drill for $(basename "$dump")"
@@ -57,6 +60,9 @@ docker exec -i "$drill" pg_restore -U drill -d drill --no-owner --exit-on-error 
 restore_seconds=$(( $(date +%s) - restore_started ))
 
 inventory="$(inventory_sql | container_psql "$drill")"
+if [[ "$inventory" == *"table:tours_operator_asset="* ]]; then
+  die "Restored schema contains V29 managed media; a database-only drill cannot validate its image volume, even if metadata omitted the asset table"
+fi
 
 report="$SAFARI_BACKUP_DIR/drill-$(date -u +%Y%m%dT%H%M%SZ).json"
 INVENTORY="$inventory" python3 - "$meta" "$report" "$restore_seconds" "$(( $(date +%s) - started ))" <<'PY'

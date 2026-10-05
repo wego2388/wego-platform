@@ -36,6 +36,14 @@ class User(
 
     fun canAuthenticate(asOf: Instant): Boolean = status == UserStatus.ACTIVE && !isLocked(asOf)
 
+    /**
+     * Failed password guesses must not terminate a bearer session that was
+     * already issued after a valid login. Account disablement still revokes
+     * access immediately because session authentication reloads this user on
+     * every request.
+     */
+    fun canUseExistingSession(): Boolean = status == UserStatus.ACTIVE
+
     fun registerSuccessfulLogin() {
         failedLoginCount = 0
         lockedUntil = null

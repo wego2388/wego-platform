@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import type { TourCategory } from "@wego/api-contract";
 import { CATEGORY_ORDER, useCatalog } from "../../composables/useCatalog";
+import { useCategoryCovers } from "../../composables/useCategoryCovers";
 import { useDiscoveryCopy } from "../../composables/useDiscoveryCopy";
 import { useSiteLocale } from "../../composables/useSiteLocale";
 import { categoryMeta, siteCopy, whatsappUrl } from "../../content/locales";
@@ -21,6 +22,7 @@ const category = computed<TourCategory | undefined>(() =>
 );
 
 const { data: catalog, status, refresh, countsByCategory } = useCatalog();
+const { covers } = useCategoryCovers();
 const tours = computed(() => (catalog.value ?? []).filter((entry) => entry.tour.category === category.value));
 const text = computed(() => siteCopy[locale.value].categories[category.value!]);
 const visual = computed(() => CATEGORY_VISUAL[category.value!]);
@@ -79,7 +81,7 @@ useSeoMeta({
       <div class="mx-auto max-w-7xl">
         <h2 id="other-categories" class="font-display text-2xl font-semibold">{{ copy.category.back }}</h2>
         <ul class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          <li v-for="other in others" :key="other"><CategoryTile :category="other" :count="countsByCategory[other]" /></li>
+          <li v-for="other in others" :key="other"><CategoryTile :category="other" :count="countsByCategory[other]" :cover="covers[other]" /></li>
         </ul>
       </div>
     </section>

@@ -65,5 +65,18 @@ class JooqSessionRepository(
             .execute()
     }
 
+    @Transactional
+    override fun revokeAllForUser(
+        userId: UserId,
+        asOf: Instant,
+    ) {
+        dsl
+            .update(IDENTITY_SESSION)
+            .set(IDENTITY_SESSION.REVOKED_AT, toOffset(asOf))
+            .where(IDENTITY_SESSION.USER_ID.eq(userId.value))
+            .and(IDENTITY_SESSION.REVOKED_AT.isNull())
+            .execute()
+    }
+
     private fun toOffset(instant: Instant): OffsetDateTime = OffsetDateTime.ofInstant(instant, ZoneOffset.UTC)
 }

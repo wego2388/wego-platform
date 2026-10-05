@@ -38,6 +38,8 @@ data class PaymobWebhookPayload(
 )
 
 sealed class HandlePaymobWebhookResult {
+    data object ProviderUnavailable : HandlePaymobWebhookResult()
+
     data object PaymentConfirmed : HandlePaymobWebhookResult()
 
     data object PaymentFailed : HandlePaymobWebhookResult()
@@ -73,6 +75,7 @@ class HandlePaymobWebhookService(
     private val paymentRepository: PaymentRepository,
     private val bookingRepository: BookingRepository,
     private val confirmBookingService: ConfirmBookingService,
+    private val cancelBookingService: CancelBookingService,
     private val paymobClient: PaymobClient,
     private val outboxWriter: OutboxWriter,
     private val transactionRunner: TransactionRunner,
@@ -80,6 +83,8 @@ class HandlePaymobWebhookService(
     private val clock: Clock,
 ) {
     fun handle(payload: PaymobWebhookPayload): HandlePaymobWebhookResult {
+        // Retryable, not a successful acknowledgement that would discard evidence.
+        if (paymobClient.unavailable) return HandlePaymobWebhookResult.ProviderUnavailable
         if (!paymobClient.verifyWebhookSignature(buildSignatureFields(payload), payload.hmac)) {
             return HandlePaymobWebhookResult.InvalidSignature
         }
@@ -102,10 +107,6 @@ class HandlePaymobWebhookService(
                 return@runInTransaction HandlePaymobWebhookResult.OrderNotFound
             }
 
-            if (payload.amountCents != payment.amountMinorUnits) {
-                outboxWriter.write(mismatchEnvelope(payment.id, "amount", payload.amountCents.toString()))
-                return@runInTransaction HandlePaymobWebhookResult.AmountMismatch
-            }
             if (payload.currencyCode.uppercase() != payment.currencyCode) {
                 outboxWriter.write(mismatchEnvelope(payment.id, "currency", payload.currencyCode.uppercase()))
                 return@runInTransaction HandlePaymobWebhookResult.CurrencyMismatch
@@ -122,24 +123,91 @@ class HandlePaymobWebhookService(
                     }
             val audit = redactedAudit(payload)
 
-            if (payload.isRefund.isTrue()) {
-                return@runInTransaction when (payment.status) {
-                    PaymentStatus.REFUNDED -> HandlePaymobWebhookResult.AlreadyProcessed
-                    PaymentStatus.PAID, PaymentStatus.REVIEW_REQUIRED -> {
-                        payment.markRefunded(providerStatus, audit, now)
-                        paymentRepository.save(payment)
-                        HandlePaymobWebhookResult.RefundRecorded
+            if (payload.amountCents != payment.amountMinorUnits) {
+                // A partial refund is a real provider-side money movement, not
+                // the same thing as a forged success callback. Acknowledge it
+                // so Paymob does not retry forever, keep the capture visible
+                // as revenue until a human reconciles the exact amount, and
+                // surface a durable review event. Full partial-refund ledger
+                // support belongs in its own money packet.
+                if (payload.isRefund.isTrue() && payload.amountCents > 0) {
+                    // Paymob's transaction id is the provider-side identity of
+                    // this refund. Claim it before mutating the payment so a
+                    // replay of A after a different callback B is still a
+                    // no-op; the mutable last-callback snapshot cannot prove
+                    // that sequence on its own.
+                    val providerRefundId = payload.transactionId.trim().take(MAX_PROVIDER_REFUND_ID_LENGTH)
+                    if (providerRefundId.isBlank()) {
+                        outboxWriter.write(mismatchEnvelope(payment.id, "refund_transaction_id", "blank"))
+                        return@runInTransaction HandlePaymobWebhookResult.AmountMismatch
                     }
-                    PaymentStatus.PENDING,
-                    PaymentStatus.FAILED,
-                    PaymentStatus.RECONCILIATION_REQUIRED,
-                    -> {
-                        payment.markReviewRequired(payload.transactionId, providerStatus, audit, now)
-                        payment.markRefunded(providerStatus, audit, now)
-                        paymentRepository.save(payment)
-                        HandlePaymobWebhookResult.RefundRecorded
+                    if (!paymentRepository.claimRefundCallback(payment.id, providerRefundId, payload.amountCents, now)) {
+                        return@runInTransaction HandlePaymobWebhookResult.AlreadyProcessed
                     }
+                    val changed =
+                        when (payment.status) {
+                            PaymentStatus.PAID, PaymentStatus.REVIEW_REQUIRED ->
+                                payment.markCapturedReviewRequired(PARTIAL_REFUND_REVIEW, audit, now)
+                            PaymentStatus.REFUNDED -> payment.recordRefundAnomaly(PARTIAL_REFUND_AFTER_REFUND, audit)
+                            PaymentStatus.PENDING,
+                            PaymentStatus.FAILED,
+                            PaymentStatus.RECONCILIATION_REQUIRED,
+                            -> {
+                                payment.markReviewRequired(payload.transactionId, PARTIAL_REFUND_REVIEW, audit, now)
+                                true
+                            }
+                        }
+                    if (!changed) return@runInTransaction HandlePaymobWebhookResult.AlreadyProcessed
+                    paymentRepository.save(payment)
+                    outboxWriter.write(
+                        refundReviewEnvelope(
+                            payment.id,
+                            booking.id,
+                            payload.amountCents,
+                            payment.amountMinorUnits,
+                        ),
+                    )
+                    return@runInTransaction HandlePaymobWebhookResult.ReviewRequired
                 }
+                outboxWriter.write(mismatchEnvelope(payment.id, "amount", payload.amountCents.toString()))
+                return@runInTransaction HandlePaymobWebhookResult.AmountMismatch
+            }
+
+            if (payload.isRefund.isTrue()) {
+                val result =
+                    when (payment.status) {
+                        PaymentStatus.REFUNDED -> HandlePaymobWebhookResult.AlreadyProcessed
+                        PaymentStatus.PAID, PaymentStatus.REVIEW_REQUIRED -> {
+                            payment.markRefunded(providerStatus, audit, now)
+                            paymentRepository.save(payment)
+                            HandlePaymobWebhookResult.RefundRecorded
+                        }
+                        PaymentStatus.PENDING,
+                        PaymentStatus.FAILED,
+                        PaymentStatus.RECONCILIATION_REQUIRED,
+                        -> {
+                            payment.markReviewRequired(payload.transactionId, providerStatus, audit, now)
+                            payment.markRefunded(providerStatus, audit, now)
+                            paymentRepository.save(payment)
+                            HandlePaymobWebhookResult.RefundRecorded
+                        }
+                    }
+                if (
+                    result == HandlePaymobWebhookResult.RefundRecorded &&
+                    booking.status in setOf(BookingStatus.NEW, BookingStatus.CONFIRMED)
+                ) {
+                    // A provider-confirmed full refund and a still-live booking
+                    // must never disagree: release capacity and notify the
+                    // customer in the same transaction. Completed/expired
+                    // bookings keep their operational history unchanged.
+                    cancelBookingService.cancel(
+                        booking.id,
+                        FULL_REFUND_CANCELLATION_REASON,
+                        actorUserId = null,
+                        correlationId = null,
+                    )
+                }
+                return@runInTransaction result
             }
 
             if (payload.pending.isTrue()) {
@@ -225,6 +293,7 @@ class HandlePaymobWebhookService(
         objectMapper.writeValueAsString(
             mapOf(
                 "amountCents" to p.amountCents,
+                "transactionId" to p.transactionId.take(80),
                 "currency" to p.currencyCode.uppercase(),
                 "createdAt" to p.createdAt,
                 "integrationId" to p.integrationId,
@@ -272,5 +341,37 @@ class HandlePaymobWebhookService(
             causationId = null,
         )
 
+    private fun refundReviewEnvelope(
+        paymentId: PaymentId,
+        bookingId: BookingId,
+        receivedMinorUnits: Long,
+        expectedMinorUnits: Long,
+    ): IntegrationEventEnvelope =
+        IntegrationEventEnvelope(
+            id = UUID.randomUUID(),
+            aggregateType = "tours-operator.payment",
+            aggregateId = paymentId.value.toString(),
+            eventType = "tours-operator.payment.partial-refund-review-required",
+            eventVersion = 1,
+            payloadJson =
+                objectMapper.writeValueAsString(
+                    mapOf(
+                        "bookingId" to bookingId.value.toString(),
+                        "receivedMinorUnits" to receivedMinorUnits,
+                        "expectedMinorUnits" to expectedMinorUnits,
+                    ),
+                ),
+            occurredAt = Instant.now(clock),
+            correlationId = null,
+            causationId = null,
+        )
+
     private fun String.isTrue(): Boolean = equals("true", ignoreCase = true)
+
+    private companion object {
+        const val PARTIAL_REFUND_REVIEW = "PARTIAL_REFUND_REVIEW"
+        const val PARTIAL_REFUND_AFTER_REFUND = "PARTIAL_REFUND_AFTER_REFUND"
+        const val FULL_REFUND_CANCELLATION_REASON = "Full refund confirmed by payment provider"
+        const val MAX_PROVIDER_REFUND_ID_LENGTH = 80
+    }
 }

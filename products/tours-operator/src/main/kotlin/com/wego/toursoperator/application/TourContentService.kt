@@ -8,6 +8,7 @@ import com.wego.toursoperator.domain.TourContentDocument
 import com.wego.toursoperator.domain.TourFactsDocument
 import com.wego.toursoperator.domain.TourId
 import com.wego.toursoperator.domain.TourMedia
+import com.wego.toursoperator.domain.fingerprint
 import java.time.Clock
 import java.time.Instant
 import java.util.UUID
@@ -17,7 +18,16 @@ data class StaffTourContent(
     val content: Map<ContentLocale, List<StagedDocument<TourContentDocument>>>,
     val facts: List<StagedDocument<TourFactsDocument>>,
     val media: List<TourMedia>,
-)
+) {
+    val mediaRevision: String get() = mediaListRevision(media)
+}
+
+private fun mediaListRevision(media: List<TourMedia>): String =
+    fingerprint(
+        media.sortedBy { it.position }.joinToString("|") {
+            "${it.id}:${it.position}:${it.revision}:${it.width}:${it.height}:${it.isCover}:${it.rightsStatus}:${it.approvedAt}"
+        },
+    )
 
 /** A media item as staff submit it; identity and approval are decided by the service. */
 data class MediaInput(
@@ -57,6 +67,7 @@ class TourContentService(
     private val contentRepository: TourContentRepository,
     private val transactionRunner: TransactionRunner,
     private val clock: Clock,
+    private val assetRepository: AssetRepository,
 ) {
     fun staffView(tourId: TourId): StaffTourContent? =
         // The transaction runner cannot return null, so absence travels in a list.
@@ -156,6 +167,7 @@ class TourContentService(
     fun replaceMedia(
         tourId: TourId,
         items: List<MediaInput>,
+        reviewedMediaRevision: String? = null,
     ): ContentCommandResult =
         inTourTransaction(tourId) {
             if (items.size > MAX_MEDIA) return@inTourTransaction ContentCommandResult.Invalid("too_many_media")
@@ -166,6 +178,32 @@ class TourContentService(
             val ids = items.mapNotNull { it.id }
             if (ids.toSet().size != ids.size) return@inTourTransaction ContentCommandResult.Invalid("duplicate_media_id")
             val existing = contentRepository.findMedia(tourId).associateBy { it.id }
+            val managedList =
+                existing.values.any { MANAGED_ID.containsMatchIn(it.path) } || items.any { MANAGED_ID.containsMatchIn(it.path) }
+            if (managedList && reviewedMediaRevision == null) {
+                return@inTourTransaction ContentCommandResult.Invalid("media_revision_required")
+            }
+            if (reviewedMediaRevision != null && reviewedMediaRevision != mediaListRevision(existing.values.toList())) {
+                return@inTourTransaction ContentCommandResult.DraftChanged
+            }
+            val tour = requireNotNull(tourRepository.findById(tourId))
+            items.forEach { input ->
+                val assetId = MANAGED_ID.find(input.path)?.value?.let(UUID::fromString)
+                if (assetId != null) {
+                    val asset =
+                        assetRepository.findById(assetId)
+                            ?: return@inTourTransaction ContentCommandResult.Invalid("unknown_managed_asset")
+                    val expectedPath = "/media/tours/${tour.slug}/${asset.id}.${asset.mimeType.extension}"
+                    if (asset.ownerType != "tour_media" ||
+                        asset.ownerRef != tourId.value.toString() ||
+                        input.path != expectedPath ||
+                        input.width != asset.originalWidth ||
+                        input.height != asset.originalHeight
+                    ) {
+                        return@inTourTransaction ContentCommandResult.Invalid("managed_asset_mismatch")
+                    }
+                }
+            }
             val now = Instant.now(clock)
             val media =
                 items.mapIndexed { position, input ->
@@ -240,5 +278,6 @@ class TourContentService(
 
     private companion object {
         const val MAX_MEDIA = 30
+        val MANAGED_ID = Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
     }
 }

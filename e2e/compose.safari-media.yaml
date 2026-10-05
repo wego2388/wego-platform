@@ -1,0 +1,15 @@
+# Current-source MEDIA diagnostic. Only use a NEW disposable Compose project.
+# Build these local tags explicitly first; no production credentials or mock payment.
+services:
+  backend:
+    image: wego-safari-media-backend:local
+    environment:
+      TOURS_OPERATOR_BOOKING_MODE: ENQUIRY_ONLY
+      TOURS_OPERATOR_PAYMOB_MOCK_ENABLED: "false"
+  web:
+    image: wego-safari-media-erp:local
+  safari-site:
+    image: wego-safari-media-site:local
+    environment:
+      NUXT_PUBLIC_GA4_ID: ""
+      NUXT_PUBLIC_META_PIXEL_ID: ""

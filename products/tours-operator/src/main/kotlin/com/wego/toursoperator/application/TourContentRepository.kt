@@ -62,6 +62,11 @@ interface TourContentRepository {
     /** Ordered by position. */
     fun findMedia(tourId: TourId): List<TourMedia>
 
+    fun findApprovedCovers(
+        tourIds: Collection<TourId>,
+        locale: ContentLocale,
+    ): Map<TourId, PublicMedia>
+
     /** Replaces the tour's whole media list in one statement set. */
     fun replaceMedia(
         tourId: TourId,

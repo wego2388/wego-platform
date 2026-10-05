@@ -62,7 +62,7 @@ class TourController(
     ): ResponseEntity<TourSummaryResponse> {
         val tour = tourQueryService.findById(TourId(id)) ?: return ResponseEntity.notFound().build()
         if (!tour.isActive) return ResponseEntity.notFound().build()
-        return ResponseEntity.ok(tour.toSummaryResponse())
+        return ResponseEntity.ok(localize(listOf(tour), null).single())
     }
 
     @GetMapping("/tours/by-slug")
@@ -75,15 +75,17 @@ class TourController(
         return ResponseEntity.ok(localize(listOf(tour), locale).single())
     }
 
-    /** One batched query for all cards; an unknown locale simply means "no localization". */
+    /** Batched covers and text; absent/unknown locale preserves the unlocalized text contract. */
     private fun localize(
         tours: List<Tour>,
         locale: String?,
     ): List<TourSummaryResponse> {
-        val contentLocale = locale?.let(ContentLocale::fromCode) ?: return tours.map { it.toSummaryResponse() }
-        val summaries = publicTourContentQuery.publishedSummaries(tours.map { it.id }, contentLocale)
+        val contentLocale = locale?.let(ContentLocale::fromCode)
+        val summaries = contentLocale?.let { publicTourContentQuery.publishedSummaries(tours.map { it.id }, it) }.orEmpty()
+        val covers = publicTourContentQuery.approvedCovers(tours.map { it.id }, contentLocale ?: ContentLocale.EN)
         return tours.map { tour ->
             tour.toSummaryResponse().copy(
+                cover = covers[tour.id]?.let { PublicMediaResponse(it.path, it.width, it.height, it.isCover, it.alt) },
                 localized =
                     summaries[tour.id]?.let {
                         LocalizedTourSummaryResponse(it.locale.code, it.name, it.shortDescription)

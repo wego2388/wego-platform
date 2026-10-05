@@ -8,6 +8,7 @@ import type {
   Tour,
   TourCategory,
   TourSlot,
+  PublicSalesStatus,
 } from "@wego/api-contract";
 
 export type {
@@ -147,7 +148,7 @@ export interface PaymentStatusResponse {
 }
 
 /** Whether a manager paused online booking or payment (emergency switch). */
-export function getSalesStatus(): Promise<{ bookingsOpen: boolean; paymentsOpen: boolean }> {
+export function getSalesStatus(): Promise<PublicSalesStatus> {
   return get("/api/v1/tours-operator/sales-status");
 }
 

@@ -3,6 +3,7 @@ package com.wego.toursoperator
 import com.wego.generated.jooq.tables.ToursOperatorBooking.TOURS_OPERATOR_BOOKING
 import com.wego.generated.jooq.tables.ToursOperatorPayment.TOURS_OPERATOR_PAYMENT
 import com.wego.generated.jooq.tables.ToursOperatorPaymentAuditEvent.TOURS_OPERATOR_PAYMENT_AUDIT_EVENT
+import com.wego.generated.jooq.tables.ToursOperatorPaymentRefundEvent.TOURS_OPERATOR_PAYMENT_REFUND_EVENT
 import com.wego.generated.jooq.tables.ToursOperatorTour.TOURS_OPERATOR_TOUR
 import com.wego.generated.jooq.tables.ToursOperatorTourSlot.TOURS_OPERATOR_TOUR_SLOT
 import com.wego.toursoperator.application.PaymobCheckoutCommand
@@ -545,7 +546,7 @@ class ToursOperatorPaymentTest {
     }
 
     @Test
-    fun `D6e - refund callback transitions captured payment to REFUNDED`() {
+    fun `D6e - full refund cancels a live booking and releases its capacity atomically`() {
         val bookingId = createBooking()
         mockMvc
             .post("/api/v1/tours-operator/bookings/$bookingId/pay") {
@@ -566,6 +567,15 @@ class ToursOperatorPaymentTest {
                 jsonPath("$.status") { value("refunded") }
             }
 
+        mockMvc
+            .post("/api/v1/tours-operator/payments/paymob-callback?hmac=valid-hmac") {
+                contentType = MediaType.APPLICATION_JSON
+                content = webhookBody("ORDER-TEST-123", "TXN-PARTIAL-AFTER-FULL", "false", "false", "true", 1000)
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.status") { value("review_required") }
+            }
+
         val payment =
             dsl
                 .selectFrom(TOURS_OPERATOR_PAYMENT)
@@ -574,6 +584,91 @@ class ToursOperatorPaymentTest {
         assertThat(payment.status).isEqualTo("REFUNDED")
         assertThat(payment.paidAt).isNotNull()
         assertThat(payment.refundedAt).isNotNull()
+        assertThat(payment.providerStatus).isEqualTo("PARTIAL_REFUND_AFTER_REFUND")
+        assertThat(
+            dsl
+                .selectCount()
+                .from(TOURS_OPERATOR_PAYMENT_REFUND_EVENT)
+                .where(TOURS_OPERATOR_PAYMENT_REFUND_EVENT.PAYMENT_ID.eq(payment.id))
+                .fetchOne(0, Int::class.java),
+        ).isEqualTo(1)
+        val booking =
+            dsl
+                .selectFrom(TOURS_OPERATOR_BOOKING)
+                .where(TOURS_OPERATOR_BOOKING.ID.eq(UUID.fromString(bookingId)))
+                .fetchOne()!!
+        assertThat(booking.status).isEqualTo("CANCELLED")
+        assertThat(booking.cancellationReason).isEqualTo("Full refund confirmed by payment provider")
+        assertThat(
+            dsl
+                .select(TOURS_OPERATOR_TOUR_SLOT.BOOKED_COUNT)
+                .from(TOURS_OPERATOR_TOUR_SLOT)
+                .where(TOURS_OPERATOR_TOUR_SLOT.ID.eq(slotId))
+                .fetchOne(TOURS_OPERATOR_TOUR_SLOT.BOOKED_COUNT),
+        ).isZero()
+    }
+
+    @Test
+    fun `D6e2 - partial refund is acknowledged once and moves the captured payment to staff review`() {
+        val bookingId = createBooking()
+        mockMvc
+            .post("/api/v1/tours-operator/bookings/$bookingId/pay") {
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect { status { isCreated() } }
+        mockMvc
+            .post("/api/v1/tours-operator/payments/paymob-callback?hmac=valid-hmac") {
+                contentType = MediaType.APPLICATION_JSON
+                content = webhookBody("ORDER-TEST-123", "TXN-PAID-PARTIAL", "true", "false", "false", 4500)
+            }.andExpect { status { isOk() } }
+
+        val refundCallbacks =
+            listOf(
+                "TXN-PARTIAL-1" to "review_required",
+                "TXN-PARTIAL-2" to "review_required",
+                "TXN-PARTIAL-1" to "already_processed",
+            )
+        refundCallbacks.forEach { (transactionId, expectedStatus) ->
+            mockMvc
+                .post("/api/v1/tours-operator/payments/paymob-callback?hmac=valid-hmac") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = webhookBody("ORDER-TEST-123", transactionId, "false", "false", "true", 1000)
+                }.andExpect {
+                    status { isOk() }
+                    jsonPath("$.status") { value(expectedStatus) }
+                }
+        }
+
+        val payment =
+            dsl
+                .selectFrom(TOURS_OPERATOR_PAYMENT)
+                .where(TOURS_OPERATOR_PAYMENT.BOOKING_ID.eq(UUID.fromString(bookingId)))
+                .fetchOne()!!
+        assertThat(payment.status).isEqualTo("REVIEW_REQUIRED")
+        assertThat(payment.revenueRecognisedAt).isNotNull()
+        assertThat(payment.refundedAt).isNull()
+        assertThat(payment.providerStatus).isEqualTo("PARTIAL_REFUND_REVIEW")
+        assertThat(
+            dsl
+                .selectCount()
+                .from(TOURS_OPERATOR_PAYMENT_REFUND_EVENT)
+                .where(TOURS_OPERATOR_PAYMENT_REFUND_EVENT.PAYMENT_ID.eq(payment.id))
+                .fetchOne(0, Int::class.java),
+        ).isEqualTo(2)
+        assertThat(
+            dsl
+                .selectCount()
+                .from(TOURS_OPERATOR_PAYMENT_AUDIT_EVENT)
+                .where(TOURS_OPERATOR_PAYMENT_AUDIT_EVENT.PAYMENT_ID.eq(payment.id))
+                .and(TOURS_OPERATOR_PAYMENT_AUDIT_EVENT.TO_STATUS.eq("REVIEW_REQUIRED"))
+                .fetchOne(0, Int::class.java),
+        ).isEqualTo(1)
+        assertThat(
+            dsl
+                .select(TOURS_OPERATOR_BOOKING.STATUS)
+                .from(TOURS_OPERATOR_BOOKING)
+                .where(TOURS_OPERATOR_BOOKING.ID.eq(UUID.fromString(bookingId)))
+                .fetchOne(TOURS_OPERATOR_BOOKING.STATUS),
+        ).isEqualTo("CONFIRMED")
     }
 
     @Test

@@ -30,6 +30,8 @@ sealed class InitiatePaymentResult {
     /** A manager paused payment checkouts (emergency sales control). Nothing was created. */
     data object PaymentsPaused : InitiatePaymentResult()
 
+    data object OnlinePaymentUnavailable : InitiatePaymentResult()
+
     /**
      * Booking is not in NEW state — e.g. already confirmed, cancelled, or expired.
      * Returns the existing payment if one exists so the caller can redirect.
@@ -81,8 +83,12 @@ class InitiatePaymentService(
     private val salesControlRepository: SalesControlRepository,
     private val transactionRunner: TransactionRunner,
     private val clock: Clock,
+    private val bookingMode: BookingMode = BookingMode.ONLINE_PAYMENT,
 ) {
     fun initiate(command: InitiatePaymentCommand): InitiatePaymentResult {
+        // Also blocks returning an old checkout token. Historical callbacks and
+        // refunds are independent and remain on the real configured adapter.
+        if (!bookingMode.onlineEnabled) return InitiatePaymentResult.OnlinePaymentUnavailable
         val preparation =
             transactionRunner.runInTransaction {
                 val booking =

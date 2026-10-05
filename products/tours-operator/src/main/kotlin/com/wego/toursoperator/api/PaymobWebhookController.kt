@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController
  * - Protection is entirely via HMAC-SHA512 signature verification in
  *   HandlePaymobWebhookService.
  * - Invalid signature → 400 (do not expose 401/403 to avoid information leakage).
- * - The endpoint path is not guessable (includes a product-specific segment).
+ * - The endpoint path is public; secrecy of its URL is not a security boundary.
  *
  * Paymob delivers the HMAC in the `hmac` query parameter, NOT in the body.
  * The body is the raw JSON transaction object.
@@ -49,6 +49,8 @@ class PaymobWebhookController(
             }
 
         return when (val result = handlePaymobWebhookService.handle(payload)) {
+            HandlePaymobWebhookResult.ProviderUnavailable ->
+                ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(mapOf("error" to "payment_provider_unavailable"))
             HandlePaymobWebhookResult.PaymentConfirmed -> {
                 log.info("PaymobWebhookController: payment confirmed")
                 ResponseEntity.ok(mapOf("status" to "confirmed"))

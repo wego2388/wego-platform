@@ -49,6 +49,11 @@ class PublicTourContentQuery(
         locale: ContentLocale,
     ): Map<com.wego.toursoperator.domain.TourId, PublishedTourSummary> = contentRepository.findPublishedSummaries(tourIds, locale)
 
+    fun approvedCovers(
+        tourIds: Collection<com.wego.toursoperator.domain.TourId>,
+        locale: ContentLocale,
+    ): Map<com.wego.toursoperator.domain.TourId, PublicMedia> = contentRepository.findApprovedCovers(tourIds, locale)
+
     /** Null when the tour does not exist or is not publicly active. */
     fun forSlug(
         slug: String,

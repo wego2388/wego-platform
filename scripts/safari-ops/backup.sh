@@ -36,6 +36,9 @@ log "backup started (project=${SAFARI_COMPOSE_PROJECT})"
 # Inventory first: rows can only be added while the dump runs, never lost,
 # and the drill compares with ">=" for that reason.
 inventory="$(inventory_sql | container_psql "$container")"
+if [[ "$inventory" == *"table:tours_operator_asset="* ]]; then
+  die "V29 managed media is present in this schema; database-only backup is unsafe. Use a verified database+media bundle (MEDIA restore gate is not complete yet)."
+fi
 
 docker exec "$container" sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc --no-owner' > "$tmp"
 [ -s "$tmp" ] || die "pg_dump produced an empty file"

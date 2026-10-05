@@ -51,6 +51,13 @@ later owner answers or authenticated account-audit results.
 
 ## Account audit snapshot — 2026-10-01
 
+New owner-supplied screenshot evidence (not yet applied to the workbook or
+runtime): [Viator/Tripadvisor reconciliation, 2026-10-05](2026-10-05_VIATOR_TRIPADVISOR_RECONCILIATION_AR.md).
+Owner explicitly deferred external profile/product improvement until project
+completion. Resolve the two Tripadvisor listing IDs, inconsistent hours/email
+and existing Viator connectivity before applying changes. A screenshot is not
+approved direct-channel pricing, review provenance or proof of Wego integration.
+
 - Google Business Profile exists and is verified. Its phone, 24/7 hours,
   legacy activities and old/misspelled Instagram link still need owner review.
 - Meta Business portfolio `7845733532195095` is still named

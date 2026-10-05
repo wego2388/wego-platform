@@ -92,9 +92,10 @@ class Payment(
         private set
 
     /**
-     * When the capture was accepted as revenue. Set only by [markPaid], never
-     * for a REVIEW_REQUIRED capture, and kept through a refund so finance can
-     * tell a refunded sale from a refunded unrecognised capture.
+     * When the capture was accepted as revenue. Set only by [markPaid], absent
+     * for a payment initially held for review, and kept through a later review
+     * or refund so finance can distinguish a captured sale from an
+     * unrecognised payment.
      */
     var revenueRecognisedAt: Instant? = revenueRecognisedAt
         private set
@@ -142,8 +143,8 @@ class Payment(
         require(status != PaymentStatus.PAID || revenueRecognisedAt != null) {
             "a PAID payment must be recognised as revenue"
         }
-        require(revenueRecognisedAt == null || status in setOf(PaymentStatus.PAID, PaymentStatus.REFUNDED)) {
-            "only PAID or REFUNDED payments can carry revenue recognition (status: $status)"
+        require(revenueRecognisedAt == null || status in setOf(PaymentStatus.PAID, PaymentStatus.REFUNDED, PaymentStatus.REVIEW_REQUIRED)) {
+            "only captured payments can carry revenue recognition (status: $status)"
         }
     }
 
@@ -250,6 +251,56 @@ class Payment(
         transitionTo(PaymentStatus.REVIEW_REQUIRED, now)
         this.paidAt = now
         this.failedAt = null
+    }
+
+    /**
+     * A callback reported a financial exception after this payment had
+     * already been accepted as revenue (for example a partial refund that
+     * cannot be represented as a full REFUNDED transition). Keep the original
+     * revenue timestamp, make the exception visible to staff, and require a
+     * deliberate reconciliation instead of returning an error forever to the
+     * provider.
+     *
+     * Returns false for an exact callback replay so callers do not emit a
+     * second alert or append a duplicate audit transition.
+     */
+    fun markCapturedReviewRequired(
+        providerStatus: String,
+        callbackAudit: String,
+        now: Instant,
+    ): Boolean {
+        require(status == PaymentStatus.PAID || status == PaymentStatus.REVIEW_REQUIRED) {
+            "Only captured payments can require captured-payment review (current: $status)"
+        }
+        if (status == PaymentStatus.REVIEW_REQUIRED && this.providerStatus == providerStatus && lastCallbackAudit == callbackAudit) {
+            return false
+        }
+        this.providerStatus = providerStatus.take(32)
+        this.lastCallbackAudit = callbackAudit
+        this.providerCheckoutToken = null
+        if (status == PaymentStatus.PAID) {
+            transitionTo(PaymentStatus.REVIEW_REQUIRED, now)
+        }
+        return true
+    }
+
+    /**
+     * A partial refund reported after a full refund is already terminal.
+     * Preserve the truthful REFUNDED lifecycle state, but retain the latest
+     * provider evidence so the webhook handler can emit a durable staff alert.
+     */
+    fun recordRefundAnomaly(
+        providerStatus: String,
+        callbackAudit: String,
+    ): Boolean {
+        require(status == PaymentStatus.REFUNDED) {
+            "Only fully refunded payments can record a refund anomaly (current: $status)"
+        }
+        if (this.providerStatus == providerStatus && lastCallbackAudit == callbackAudit) return false
+        this.providerStatus = providerStatus.take(32)
+        this.lastCallbackAudit = callbackAudit
+        this.providerCheckoutToken = null
+        return true
     }
 
     /** Refund confirmed by Paymob. */

@@ -10,7 +10,6 @@ import {
 import {
   listPaymentLedger,
   listAllStaffTours,
-  formatMoney,
   ToursApiError,
   type PaymentLedgerEntry,
   type Tour,
@@ -23,20 +22,25 @@ import {
   uniqueByPaymentId,
   computeRevenueByTour,
   computePaymentStatusCounts,
-  formatSignedMoney,
   type RevenueSummary,
   type RevenueByTourRow,
   type PaymentStatusCount,
 } from "../composables/useFinanceAggregation";
+import { useErpLocale } from "../composables/useErpLocale";
+import { formatErpDate } from "../utils/erpLocale";
+import { operationsErrorMessage } from "../utils/operationsMessages";
+import type { ErpMessageDescriptor } from "../utils/bookingMessages";
 
-useHead({ title: "Finance · Safari Tours Sharm" });
+const { t, count, money, signedMoney } = useErpLocale();
+useHead(() => ({ title: `${t("finance.title")} · Safari Tours Sharm` }));
 
 const router  = useRouter();
 const session = ref<AuthSession | null>(null);
 const payments = ref<PaymentLedgerEntry[]>([]);
 const tours    = ref<Tour[]>([]);
 const state    = ref<"idle" | "loading" | "loaded" | "error">("idle");
-const error    = ref("");
+const error    = ref<ErpMessageDescriptor | null>(null);
+let loadVersion = 0;
 
 // Date range filter — default: current month
 function currentMonthRange() {
@@ -96,15 +100,16 @@ function handleApiError(err: unknown) {
 
 async function load() {
   if (!session.value) return;
-  if (filterTo.value < filterFrom.value) {
-    error.value = "End date must be on or after start date.";
+  const version = ++loadVersion;
+  if (formatErpDate(filterFrom.value, "en") === "—" || formatErpDate(filterTo.value, "en") === "—" || filterTo.value < filterFrom.value) {
+    error.value = { key: "finance.invalidRange" };
     state.value = "error";
     return;
   }
   const from = filterFrom.value;
   const to = filterTo.value;
   state.value = "loading";
-  error.value = "";
+  error.value = null;
   try {
     const fetched: PaymentLedgerEntry[] = [];
     let after: string | undefined;
@@ -115,6 +120,7 @@ async function load() {
         after,
         size: PAGE_SIZE,
       });
+      if (version !== loadVersion) return;
       fetched.push(...batch);
       if (batch.length < PAGE_SIZE) break;
       after = batch[batch.length - 1]!.paymentId;
@@ -124,6 +130,7 @@ async function load() {
     assertSingleCurrency(paymentLedgerEvents(allPayments, from, to));
     // Tour names are a label only; finance must not depend on catalog access.
     const allTours = canViewTours.value ? await listAllStaffTours(session.value.token) : [];
+    if (version !== loadVersion) return;
     payments.value = allPayments;
     tours.value = allTours;
     appliedFrom.value = from;
@@ -131,9 +138,9 @@ async function load() {
     state.value = "loaded";
   } catch (err) {
     handleApiError(err);
-    error.value = err instanceof ToursApiError
-      ? err.errorCode
-      : err instanceof Error ? err.message : "Failed to load finance data.";
+    if (version !== loadVersion) return;
+    error.value = err instanceof Error && err.message === "Finance report cannot mix currencies"
+      ? { key: "finance.currencyMix" } : operationsErrorMessage(err);
     state.value = "error";
   }
 }
@@ -158,7 +165,7 @@ onMounted(() => {
       <!-- Header -->
       <header class="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 class="mt-1 text-2xl font-semibold tracking-tight">Finance</h1>
+          <h1 class="mt-1 text-2xl font-semibold tracking-tight">{{ t("finance.title") }}</h1>
         </div>
       </header>
 
@@ -166,14 +173,14 @@ onMounted(() => {
 
       <!-- Permission check -->
       <WegoAlert v-if="!canView" variant="danger" class="mt-6">
-        You need payment-view permission to access finance data.
+        {{ t("finance.permission") }}
       </WegoAlert>
 
       <template v-else>
         <!-- Date range filter -->
         <div class="mt-6 flex flex-wrap items-end gap-3">
           <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold text-sts-muted" for="fin-from">From</label>
+            <label class="text-xs font-semibold text-sts-muted" for="fin-from">{{ t("finance.from") }}</label>
             <input
               id="fin-from"
               v-model="filterFrom"
@@ -182,7 +189,7 @@ onMounted(() => {
             >
           </div>
           <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold text-sts-muted" for="fin-to">To</label>
+            <label class="text-xs font-semibold text-sts-muted" for="fin-to">{{ t("finance.to") }}</label>
             <input
               id="fin-to"
               v-model="filterTo"
@@ -191,43 +198,43 @@ onMounted(() => {
             >
           </div>
           <WegoButton type="button" variant="primary" size="sm" @click="applyFilters">
-            Apply
+            {{ t("finance.apply") }}
           </WegoButton>
         </div>
 
-        <WegoAlert v-if="state === 'error'" variant="danger" class="mt-6">{{ error }}</WegoAlert>
-        <p v-else-if="state === 'loading'" class="mt-6 text-sm text-sts-muted">Loading…</p>
+        <WegoAlert v-if="state === 'error' && error" variant="danger" class="mt-6">{{ t(error.key, error.params) }}</WegoAlert>
+        <p v-else-if="state === 'loading'" class="mt-6 text-sm text-sts-muted" role="status">{{ t("common.loading") }}</p>
 
         <template v-else-if="state === 'loaded'">
 
           <!-- KPI cards -->
           <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
-              <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Net revenue</p>
-              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ formatSignedMoney(summary.netRevenue) }}</p>
-              <p class="mt-0.5 text-xs text-sts-muted">paid minus refunds</p>
+              <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">{{ t("finance.net") }}</p>
+              <p class="money mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ signedMoney(summary.netRevenue) }}</p>
+              <p class="mt-0.5 text-xs text-sts-muted">{{ t("finance.netHelp") }}</p>
             </div>
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
-              <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Gross paid</p>
-              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ formatMoney(summary.grossPaid) }}</p>
-              <p class="mt-0.5 text-xs text-sts-muted">{{ summary.paidCount }} captured payments</p>
+              <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">{{ t("finance.gross") }}</p>
+              <p class="money mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ money(summary.grossPaid) }}</p>
+              <p class="mt-0.5 text-xs text-sts-muted">{{ t("finance.capturedCount", { count: count(summary.paidCount) }) }}</p>
             </div>
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
-              <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Refunded</p>
-              <p class="mt-1 text-2xl font-black tabular-nums text-rose-700">{{ formatMoney(summary.refunded) }}</p>
-              <p class="mt-0.5 text-xs text-sts-muted">{{ summary.refundedCount }} refund events</p>
+              <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">{{ t("finance.refunded") }}</p>
+              <p class="money mt-1 text-2xl font-black tabular-nums text-rose-700">{{ money(summary.refunded) }}</p>
+              <p class="mt-0.5 text-xs text-sts-muted">{{ t("finance.refundCount", { count: count(summary.refundedCount) }) }}</p>
             </div>
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
-              <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Avg / booking</p>
-              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">
-                {{ summary.averagePaidBooking ? formatMoney(summary.averagePaidBooking) : '—' }}
+              <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">{{ t("finance.average") }}</p>
+              <p class="money mt-1 text-2xl font-black tabular-nums text-sts-ocean">
+                {{ summary.averagePaidBooking ? money(summary.averagePaidBooking) : '—' }}
               </p>
-              <p class="mt-0.5 text-xs text-sts-muted">captured payments only</p>
+              <p class="mt-0.5 text-xs text-sts-muted">{{ t("finance.averageHelp") }}</p>
             </div>
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
-              <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">Net pax</p>
-              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ summary.paxTotal }}</p>
-              <p class="mt-0.5 text-xs text-sts-muted">adults + children, minus refunds</p>
+              <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">{{ t("finance.netPax") }}</p>
+              <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ count(summary.paxTotal) }}</p>
+              <p class="mt-0.5 text-xs text-sts-muted">{{ t("finance.paxHelp") }}</p>
             </div>
           </div>
 
@@ -235,8 +242,8 @@ onMounted(() => {
           <div class="mt-6 grid gap-4 sm:grid-cols-2">
 
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
-              <h2 class="mb-1 text-sm font-semibold text-sts-muted uppercase tracking-wide">Payment status</h2>
-              <p class="mb-3 text-xs text-sts-muted">Pending and review captures never count as revenue, even after a refund.</p>
+              <h2 class="mb-1 text-sm font-semibold text-sts-muted uppercase tracking-wide">{{ t("finance.status") }}</h2>
+              <p class="mb-3 text-xs text-sts-muted">{{ t("finance.statusHelp") }}</p>
               <dl class="space-y-2">
                 <div
                   v-for="row in statusCounts"
@@ -244,31 +251,31 @@ onMounted(() => {
                   class="flex items-center justify-between text-sm"
                 >
                   <dt>
-                    <span :class="`badge badge-${row.status}`">{{ row.status }}</span>
+                    <span :class="`badge badge-${row.status}`">{{ t(`payment.${row.status}`) }}</span>
                   </dt>
-                  <dd class="tabular-nums font-semibold">{{ row.count }}</dd>
+                  <dd class="tabular-nums font-semibold">{{ count(row.count) }}</dd>
                 </div>
               </dl>
             </div>
 
             <!-- Revenue by tour -->
             <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
-              <h2 class="mb-3 text-sm font-semibold text-sts-muted uppercase tracking-wide">Revenue by tour</h2>
-              <p v-if="revenueByTour.length === 0" class="text-sm text-sts-muted">No data for this period.</p>
+              <h2 class="mb-3 text-sm font-semibold text-sts-muted uppercase tracking-wide">{{ t("finance.byTour") }}</h2>
+              <p v-if="revenueByTour.length === 0" class="text-sm text-sts-muted">{{ t("finance.empty") }}</p>
               <dl v-else class="space-y-2">
                 <div
                   v-for="row in revenueByTour"
                   :key="row.tourId"
-                  class="flex items-center justify-between text-sm gap-4"
+                  class="flex flex-wrap items-center justify-between text-sm gap-4"
                 >
-                  <dt class="font-mono text-xs text-sts-muted truncate">
-                    {{ row.tourSlug ?? 'Unknown tour' }}
+                  <dt class="min-w-0 break-all font-mono text-xs text-sts-muted">
+                    {{ row.tourSlug ?? t('finance.unknownTour') }}
                   </dt>
-                  <dd class="flex items-center gap-3 shrink-0">
-                    <span class="text-xs text-sts-muted">{{ row.paidCount }} paid</span>
-                    <span v-if="row.refundedCount" class="text-xs text-rose-700">{{ row.refundedCount }} refunded</span>
-                    <span class="text-xs text-sts-muted">{{ row.sharePercent }}% of gross</span>
-                    <span class="money font-semibold">{{ formatSignedMoney(row.netRevenue) }}</span>
+                  <dd class="flex flex-wrap items-center gap-3">
+                    <span class="text-xs text-sts-muted">{{ t("finance.paidCount", { count: count(row.paidCount) }) }}</span>
+                    <span v-if="row.refundedCount" class="text-xs text-rose-700">{{ t("finance.refundedCount", { count: count(row.refundedCount) }) }}</span>
+                    <span class="text-xs text-sts-muted">{{ t("finance.grossShare", { percent: count(row.sharePercent) }) }}</span>
+                    <span class="money font-semibold">{{ signedMoney(row.netRevenue) }}</span>
                   </dd>
                 </div>
               </dl>

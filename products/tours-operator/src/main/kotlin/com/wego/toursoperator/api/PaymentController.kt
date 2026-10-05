@@ -74,6 +74,9 @@ class PaymentController(
                     .status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body(ErrorResponse("payments_paused"))
 
+            InitiatePaymentResult.OnlinePaymentUnavailable ->
+                ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ErrorResponse("online_payment_unavailable"))
+
             is InitiatePaymentResult.BookingNotPayable ->
                 ResponseEntity
                     .status(HttpStatus.CONFLICT)

@@ -167,6 +167,42 @@ class PaymentTest {
         assertNull(p.failedAt)
     }
 
+    @Test
+    fun `captured payment review preserves recognised revenue and deduplicates an exact replay`() {
+        val p = pendingPayment()
+        p.markPaid("TXN-PAID", "APPROVED", "{paid}", now)
+        val recognisedAt = p.revenueRecognisedAt
+        val reviewAt = now.plusSeconds(60)
+
+        val changed = p.markCapturedReviewRequired("PARTIAL_REFUND_REVIEW", "{partial}", reviewAt)
+        val replayChanged = p.markCapturedReviewRequired("PARTIAL_REFUND_REVIEW", "{partial}", reviewAt.plusSeconds(1))
+
+        assertEquals(true, changed)
+        assertEquals(false, replayChanged)
+        assertEquals(PaymentStatus.REVIEW_REQUIRED, p.status)
+        assertEquals(recognisedAt, p.revenueRecognisedAt)
+        assertEquals(
+            listOf(
+                null to PaymentStatus.PENDING,
+                PaymentStatus.PENDING to PaymentStatus.PAID,
+                PaymentStatus.PAID to PaymentStatus.REVIEW_REQUIRED,
+            ),
+            p.drainTransitions().map { it.fromStatus to it.toStatus },
+        )
+    }
+
+    @Test
+    fun `partial refund after a full refund records an anomaly without changing terminal truth`() {
+        val p = pendingPayment()
+        p.markPaid("TXN-PAID", "APPROVED", "{paid}", now)
+        p.markRefunded("REFUNDED", "{full-refund}", now.plusSeconds(60))
+
+        assertEquals(true, p.recordRefundAnomaly("PARTIAL_REFUND_AFTER_REFUND", "{partial}"))
+        assertEquals(PaymentStatus.REFUNDED, p.status)
+        assertEquals("PARTIAL_REFUND_AFTER_REFUND", p.providerStatus)
+        assertEquals(true, p.recordRefundAnomaly("PARTIAL_REFUND_AFTER_REFUND", "{partial-2}"))
+    }
+
     // ── markRefunded ───────────────────────────────────────────────────────
 
     @Test

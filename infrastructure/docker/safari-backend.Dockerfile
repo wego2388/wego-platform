@@ -12,7 +12,10 @@ RUN --mount=type=cache,target=/home/gradle/.gradle,uid=1000,gid=1000 \
 FROM public.ecr.aws/docker/library/eclipse-temurin:25-jre-alpine@sha256:28db6fdf60e38945e43d840c0333aeaec66c15943070104f7586fd3c9d1665b0 AS runtime
 
 RUN addgroup -S -g 10001 wego \
-    && adduser -S -D -H -u 10001 -G wego wego
+    && adduser -S -D -H -u 10001 -G wego wego \
+    && mkdir -p /data/safari-media \
+    && chown 10001:10001 /data/safari-media \
+    && chmod 700 /data/safari-media
 WORKDIR /app
 COPY --from=build --chown=wego:wego \
     /workspace/platform/apps/safari-tours-sharm/build/libs/safari-tours-sharm-0.1.0-SNAPSHOT.jar \

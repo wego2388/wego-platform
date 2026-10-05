@@ -108,7 +108,7 @@ class IdentityAdminHttpTest {
         val newUserId = Regex(""""id"\s*:\s*"([^"]+)"""").find(createBody)!!.groupValues[1]
 
         // A real login with the password just set — proves this isn't just a database row.
-        login(newEmail, "a-real-password-123456")
+        val preResetToken = login(newEmail, "a-real-password-123456")
 
         mockMvc
             .get("/api/v1/identity/users") { header("Authorization", "Bearer $adminToken") }
@@ -144,6 +144,12 @@ class IdentityAdminHttpTest {
                 contentType = MediaType.APPLICATION_JSON
                 content = """{"newPassword":"a-brand-new-password-999888"}"""
             }.andExpect { status { isOk() } }
+
+        // A password reset is also an emergency credential rotation: every
+        // token issued before it is revoked in the same transaction.
+        mockMvc
+            .get("/api/v1/identity/me") { header("Authorization", "Bearer $preResetToken") }
+            .andExpect { status { isUnauthorized() } }
 
         // The old password no longer works, the new one does.
         mockMvc

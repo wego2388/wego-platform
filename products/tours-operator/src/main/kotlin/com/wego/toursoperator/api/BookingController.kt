@@ -93,6 +93,8 @@ class BookingController(
                 ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorResponse("tour_not_active"))
             CreateBookingResult.BookingsPaused ->
                 ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ErrorResponse("bookings_paused"))
+            CreateBookingResult.OnlineBookingUnavailable ->
+                ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ErrorResponse("online_booking_unavailable"))
             is CreateBookingResult.InvalidPricing ->
                 ResponseEntity.unprocessableEntity().body(ErrorResponse(result.code))
         }

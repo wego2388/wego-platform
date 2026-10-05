@@ -1,10 +1,15 @@
 # Safari Tours Sharm — Master Delivery & Growth Plan
 
-- **آخر تحديث:** 2026-09-29 — Africa/Cairo
+- **آخر تحديث للحالة الحية:** 2026-10-05 — Africa/Cairo
 - **الحالة التنفيذية:** `SAFE LOCAL CHECKPOINT / NO-GO FOR PRODUCTION`
-- **الحزمة الوحيدة النشطة:** `WEGO-017-A` — Foundry isolated releases
+- **الحزمة الوحيدة النشطة:** `WEGO-016-MEDIA` — محرر الكتالوج ورفع الصور
 - **الإطلاق / Push / Deploy:** غير منفذ وغير مصرح به تلقائيًا
 - **المصدر الرسمي لحالة الحزم:** `docs/execution/WEGO_EXECUTION_BOARD.md`
+
+> **أحدث تسليم:** `2026-10-05_CATALOG_MEDIA_SAFE_CHECKPOINT_AR.md`. نفذ محررا
+> الرحلات/الفئات ورفع الصور واختبرا؛ قبول MEDIA وDB+media restore وبوابات
+> الإصدار لم تكتمل. تفاصيل checkpoints ونِسب سبتمبر أدناه تاريخية؛ لا تعِد
+> فتح E أو WEGO-017 ولا تعتبر الموردين/النماذج منفذة بسبب وجود خطة لهما.
 
 هذه هي خريطة العمل الرئيسية التي يستخدمها أي Agent لاحقًا. هي لا تستبدل
 Execution Board، ولا تفتح حزمة جديدة تلقائيًا، ولا تمنح إذنًا للنشر. هدفها أن

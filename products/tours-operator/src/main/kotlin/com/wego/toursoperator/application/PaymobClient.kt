@@ -8,6 +8,9 @@ package com.wego.toursoperator.application
  * All amounts are in minor units (EUR cents).
  */
 interface PaymobClient {
+    /** True only for an intentionally disabled non-mock provider. */
+    val unavailable: Boolean get() = false
+
     /**
      * Creates a Paymob Intention and returns an opaque client secret for the
      * provider-hosted Unified Checkout.

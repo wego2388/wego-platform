@@ -5,7 +5,8 @@
  * status. A sale is recognised on revenueRecognisedAt and its refund on
  * refundedAt, which keeps cross-period refunds accurate. A capture that was
  * never recognised (held for review) is never revenue, even once refunded, so
- * a later refund cannot restate a closed period.
+ * a later refund cannot restate a closed period. A captured payment moved to
+ * REVIEW_REQUIRED retains its recognition timestamp until reconciliation.
  */
 import {
   divideMoney,
@@ -133,8 +134,9 @@ export function filterByDateRange(bookings: Booking[], from: string, to: string)
 
 /**
  * Converts ledger rows to financial events in the requested Cairo-local range.
- * Only captures with revenueRecognisedAt produce events; REVIEW_REQUIRED,
- * RECONCILIATION_REQUIRED and refunds of never-recognised captures do not.
+ * Only captures with revenueRecognisedAt produce events; an unresolved review
+ * without that timestamp, reconciliation-required rows, and refunds of
+ * never-recognised captures do not.
  */
 export function paymentLedgerEvents(
   payments: PaymentLedgerEntry[],

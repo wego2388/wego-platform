@@ -3,11 +3,14 @@ import { computed, onMounted, ref, watch } from "vue";
 import { WegoAlert, WegoBadge } from "@wego/ui";
 import type { Booking, Tour, TourSlot } from "@wego/api-contract";
 import { clearAuthSession, hasPermission, readAuthSession, type AuthSession } from "../composables/useAuthSession";
-import { ToursApiError, formatMoney, listAllStaffTours, listBookings, listSlotsByDate } from "../composables/useToursApi";
+import { ToursApiError, listAllStaffTours, listBookings, listSlotsByDate } from "../composables/useToursApi";
 import { whatsappLink } from "../composables/useWhatsApp";
 import { buildRunSheet } from "../utils/runSheet";
+import { useErpLocale } from "../composables/useErpLocale";
+import type { ErpMessageKey } from "../utils/erpLocale";
 
-useHead({ title: "Today · Safari Tours Sharm" });
+const { t, count, money, dateLabel: formatDate } = useErpLocale();
+useHead(() => ({ title: `${t("nav.today")} · Safari Tours Sharm` }));
 
 const route = useRoute();
 const router = useRouter();
@@ -19,15 +22,14 @@ const bookings = ref<Booking[]>([]);
 const tours = ref<Record<string, Tour>>({});
 const slots = ref<Record<string, TourSlot[]>>({});
 const state = ref<"loading" | "loaded" | "error">("loading");
-const errorMsg = ref("");
+const errorKey = ref<ErpMessageKey | null>(null);
+const errorMsg = computed(() => errorKey.value ? t(errorKey.value) : "");
 
 const runs = computed(() => buildRunSheet(bookings.value, tours.value, slots.value, includeUnpaid.value));
 const totalGuests = computed(() => runs.value.reduce((sum, run) => sum + run.guests, 0));
 const unpaidCount = computed(() => bookings.value.filter((b) => b.status === "NEW").length);
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
-const dateLabel = computed(() =>
-  !ISO_DAY.test(date.value) ? "" : new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${date.value}T00:00:00Z`)),
-);
+const dateLabel = computed(() => formatDate(date.value, true));
 
 async function fetchAllBookings(token: string, day: string): Promise<Booking[]> {
   const all: Booking[] = [];
@@ -47,7 +49,7 @@ async function load() {
   const seq = ++loadSeq;
   const day = date.value;
   state.value = "loading";
-  errorMsg.value = "";
+  errorKey.value = null;
   const token = session.value.token;
   try {
     const [dayBookings, allTours] = await Promise.all([
@@ -70,7 +72,7 @@ async function load() {
       return;
     }
     state.value = "error";
-    errorMsg.value = err instanceof ToursApiError && err.status === 403 ? "You don't have permission to view bookings." : "Could not load the day's bookings.";
+    errorKey.value = err instanceof ToursApiError && err.status === 403 ? "common.forbidden" : "today.loadFailed";
   }
 }
 
@@ -80,6 +82,7 @@ function printSheet() {
 
 function shiftDay(days: number) {
   const d = new Date(`${date.value}T00:00:00Z`);
+  if (!Number.isFinite(d.getTime())) return;
   d.setUTCDate(d.getUTCDate() + days);
   date.value = d.toISOString().slice(0, 10);
 }
@@ -100,12 +103,11 @@ onMounted(() => {
   void load();
 });
 
-const SLOT_LABEL: Record<string, string> = { SUNRISE: "Sunrise", MORNING: "Morning", AFTERNOON: "Afternoon", SUNSET: "Sunset" };
 const STATUS_TONE: Record<string, "success" | "warning" | "info" | "neutral"> = { CONFIRMED: "success", NEW: "warning", COMPLETED: "info" };
 function unitsLabel(units: Record<string, number>, tourId: string): string {
   const options = tours.value[tourId]?.priceOptions ?? [];
   return Object.entries(units)
-    .map(([code, count]) => `${count} × ${options.find((o) => o.code === code)?.label ?? code}`)
+    .map(([code, quantity]) => `${count(quantity)} × ${options.find((o) => o.code === code)?.label ?? code}`)
     .join(" · ");
 }
 </script>
@@ -115,56 +117,56 @@ function unitsLabel(units: Record<string, number>, tourId: string): string {
     <div class="mx-auto max-w-6xl">
       <header class="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p class="text-sm font-semibold tracking-widest text-sts-muted uppercase">Run sheet</p>
+          <p class="text-sm font-semibold tracking-widest text-sts-muted uppercase">{{ t('today.runSheet') }}</p>
           <h1 class="mt-1 text-3xl font-semibold tracking-tight">{{ dateLabel }}</h1>
           <p v-if="state === 'loaded'" class="mt-1 text-sm text-sts-muted">
-            {{ totalGuests }} {{ totalGuests === 1 ? "guest" : "guests" }} on {{ runs.length }} {{ runs.length === 1 ? "tour" : "tours" }}<span v-if="unpaidCount"> · {{ unpaidCount }} awaiting payment</span>
+            {{ t('today.summary', { guests: count(totalGuests), tours: count(runs.length) }) }}<span v-if="unpaidCount"> · {{ t('common.awaitingCount', { count: count(unpaidCount) }) }}</span>
           </p>
         </div>
         <div class="flex flex-wrap items-center gap-2 print:hidden">
-          <button type="button" class="rounded-lg border border-sts-border bg-sts-surface px-3 py-2 text-sm font-semibold" aria-label="Previous day" @click="shiftDay(-1)">←</button>
-          <label class="sr-only" for="run-date">Date</label>
+          <button type="button" class="rounded-lg border border-sts-border bg-sts-surface px-3 py-2 text-sm font-semibold" :aria-label="t('today.previous')" @click="shiftDay(-1)"><span aria-hidden="true" class="inline-block rtl:rotate-180">←</span></button>
+          <label class="sr-only" for="run-date">{{ t('common.date') }}</label>
           <input id="run-date" v-model="date" type="date" class="rounded-lg border border-sts-border bg-sts-surface px-3 py-2 text-sm">
-          <button type="button" class="rounded-lg border border-sts-border bg-sts-surface px-3 py-2 text-sm font-semibold" aria-label="Next day" @click="shiftDay(1)">→</button>
-          <button v-if="date !== operatorToday" type="button" class="rounded-lg px-3 py-2 text-sm font-semibold text-sts-ocean-mid hover:underline" @click="date = operatorToday">Today</button>
+          <button type="button" class="rounded-lg border border-sts-border bg-sts-surface px-3 py-2 text-sm font-semibold" :aria-label="t('today.next')" @click="shiftDay(1)"><span aria-hidden="true" class="inline-block rtl:rotate-180">→</span></button>
+          <button v-if="date !== operatorToday" type="button" class="rounded-lg px-3 py-2 text-sm font-semibold text-sts-ocean-mid hover:underline" @click="date = operatorToday">{{ t('nav.today') }}</button>
           <label class="ms-2 inline-flex items-center gap-2 text-sm">
-            <input v-model="includeUnpaid" type="checkbox"> Show awaiting payment
+            <input v-model="includeUnpaid" type="checkbox"> {{ t('today.showUnpaid') }}
           </label>
-          <button type="button" class="rounded-lg bg-sts-ocean px-4 py-2 text-sm font-semibold text-white" @click="printSheet">Print</button>
+          <button type="button" class="rounded-lg bg-sts-ocean px-4 py-2 text-sm font-semibold text-white" @click="printSheet">{{ t('today.print') }}</button>
         </div>
       </header>
 
       <WegoAlert v-if="state === 'error'" variant="danger" class="mt-6">{{ errorMsg }}</WegoAlert>
-      <p v-else-if="state === 'loading'" class="mt-8 text-sts-muted" role="status">Loading…</p>
+      <p v-else-if="state === 'loading'" class="mt-8 text-sts-muted" role="status">{{ t('common.loading') }}</p>
       <p v-else-if="runs.length === 0" class="mt-8 rounded-2xl border border-dashed border-sts-border bg-sts-surface p-8 text-center text-sts-muted">
-        No bookings for this day.
+        {{ t('today.empty') }}
       </p>
 
       <section v-for="run in runs" v-else :key="run.tourId" class="mt-8 break-inside-avoid" :aria-labelledby="`run-${run.tourId}`">
         <h2 :id="`run-${run.tourId}`" class="flex flex-wrap items-baseline gap-3 text-xl font-semibold">
-          {{ run.tourName }} <span class="text-sm font-normal text-sts-muted">{{ run.guests }} guests</span>
+          <span lang="en" dir="auto">{{ run.tourName }}</span> <span class="text-sm font-normal text-sts-muted">{{ t('common.guests', { count: count(run.guests) }) }}</span>
         </h2>
         <div v-for="departure in run.departures" :key="departure.timeSlot" class="mt-3 overflow-hidden rounded-2xl border border-sts-border bg-sts-surface">
           <div class="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-sts-border bg-sts-canvas px-4 py-2 text-sm">
-            <strong>{{ SLOT_LABEL[departure.timeSlot] }}</strong>
-            <span>{{ departure.guests }} guests</span>
-            <span v-if="departure.slot" class="text-sts-muted">places taken {{ departure.slot.bookedCount }} / {{ departure.slot.capacity }}</span>
+            <strong>{{ t(`slot.${departure.timeSlot}`) }}</strong>
+            <span>{{ t('common.guests', { count: count(departure.guests) }) }}</span>
+            <span v-if="departure.slot" class="text-sts-muted">{{ t('today.places', { booked: count(departure.slot.bookedCount), capacity: count(departure.slot.capacity) }) }}</span>
             <span v-if="Object.keys(departure.units).length" class="text-sts-muted">{{ unitsLabel(departure.units, run.tourId) }}</span>
-            <WegoBadge v-if="departure.slot?.isBlocked" tone="danger">Blocked</WegoBadge>
-            <WegoBadge v-if="departure.unpaid" tone="warning">{{ departure.unpaid }} awaiting payment</WegoBadge>
+            <WegoBadge v-if="departure.slot?.isBlocked" tone="danger">{{ t('today.blocked') }}</WegoBadge>
+            <WegoBadge v-if="departure.unpaid" tone="warning">{{ t('common.awaitingCount', { count: count(departure.unpaid) }) }}</WegoBadge>
           </div>
           <ul class="divide-y divide-sts-border md:hidden print:hidden">
             <li v-for="b in departure.bookings" :key="b.id" class="grid gap-1 px-4 py-3 text-sm">
               <div class="flex items-start justify-between gap-3">
                 <NuxtLink :to="`/bookings/${b.id}`" class="font-semibold text-sts-ocean-mid hover:underline">{{ b.customer.fullName }}</NuxtLink>
-                <span class="tabular-nums">{{ formatMoney(b.totalPrice) }}</span>
+                <span class="money tabular-nums">{{ money(b.totalPrice) }}</span>
               </div>
-              <div class="font-mono text-xs text-sts-muted">{{ b.reference }} · {{ b.customer.nationality }}</div>
-              <WegoBadge v-if="b.status !== 'CONFIRMED'" :tone="STATUS_TONE[b.status] ?? 'neutral'" class="justify-self-start">{{ b.status === 'NEW' ? 'Awaiting payment' : b.status }}</WegoBadge>
-              <div>{{ b.hotelName }}<span v-if="b.hotelRoom" class="text-sts-muted"> · room {{ b.hotelRoom }}</span></div>
+              <div class="ref font-mono text-xs text-sts-muted">{{ b.reference }} · {{ b.customer.nationality }}</div>
+              <WegoBadge v-if="b.status !== 'CONFIRMED'" :tone="STATUS_TONE[b.status] ?? 'neutral'" class="justify-self-start">{{ t(`status.${b.status}`) }}</WegoBadge>
+              <div>{{ b.hotelName }}<span v-if="b.hotelRoom" class="text-sts-muted"> · {{ t('common.room', { room: b.hotelRoom }) }}</span></div>
               <div>
-                {{ b.adultsCount }} ad<span v-if="b.childrenCount"> + {{ b.childrenCount }} ch</span>
-                <span v-if="b.unit" class="text-sts-muted"> · {{ b.unit.unitCount }} × {{ b.unit.optionLabel }}</span>
+                {{ t('common.party', { adults: count(b.adultsCount), children: count(b.childrenCount) }) }}
+                <span v-if="b.unit" class="text-sts-muted"> · {{ count(b.unit.unitCount) }} × {{ b.unit.optionLabel }}</span>
               </div>
               <div class="flex flex-wrap gap-3">
                 <a :href="`tel:${b.customer.phone}`" dir="ltr" class="font-semibold hover:underline">{{ b.customer.phone }}</a>
@@ -177,32 +179,32 @@ function unitsLabel(units: Record<string, number>, tourId: string): string {
             <table class="w-full text-sm">
               <thead class="text-start text-xs text-sts-muted">
                 <tr>
-                  <th scope="col" class="px-4 py-2 text-start">Guest</th>
-                  <th scope="col" class="px-4 py-2 text-start">Hotel</th>
-                  <th scope="col" class="px-4 py-2 text-start">Party</th>
-                  <th scope="col" class="px-4 py-2 text-start">Contact</th>
-                  <th scope="col" class="px-4 py-2 text-start">Notes</th>
-                  <th scope="col" class="px-4 py-2 text-end">Total</th>
+                  <th scope="col" class="px-4 py-2 text-start">{{ t('today.guest') }}</th>
+                  <th scope="col" class="px-4 py-2 text-start">{{ t('common.hotel') }}</th>
+                  <th scope="col" class="px-4 py-2 text-start">{{ t('today.party') }}</th>
+                  <th scope="col" class="px-4 py-2 text-start">{{ t('common.contact') }}</th>
+                  <th scope="col" class="px-4 py-2 text-start">{{ t('common.notes') }}</th>
+                  <th scope="col" class="px-4 py-2 text-end">{{ t('common.total') }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="b in departure.bookings" :key="b.id" class="border-t border-sts-border align-top">
                   <td class="px-4 py-2">
                     <NuxtLink :to="`/bookings/${b.id}`" class="font-semibold text-sts-ocean-mid hover:underline">{{ b.customer.fullName }}</NuxtLink>
-                    <div class="font-mono text-xs text-sts-muted">{{ b.reference }} · {{ b.customer.nationality }}</div>
-                    <WegoBadge v-if="b.status !== 'CONFIRMED'" :tone="STATUS_TONE[b.status] ?? 'neutral'" class="mt-1">{{ b.status === 'NEW' ? 'Awaiting payment' : b.status }}</WegoBadge>
+                    <div class="ref font-mono text-xs text-sts-muted">{{ b.reference }} · {{ b.customer.nationality }}</div>
+                    <WegoBadge v-if="b.status !== 'CONFIRMED'" :tone="STATUS_TONE[b.status] ?? 'neutral'" class="mt-1">{{ t(`status.${b.status}`) }}</WegoBadge>
                   </td>
-                  <td class="px-4 py-2">{{ b.hotelName }}<span v-if="b.hotelRoom" class="text-sts-muted"> · room {{ b.hotelRoom }}</span></td>
+                  <td class="px-4 py-2">{{ b.hotelName }}<span v-if="b.hotelRoom" class="text-sts-muted"> · {{ t('common.room', { room: b.hotelRoom }) }}</span></td>
                   <td class="px-4 py-2 whitespace-nowrap">
-                    {{ b.adultsCount }} ad<span v-if="b.childrenCount"> + {{ b.childrenCount }} ch</span>
-                    <div v-if="b.unit" class="text-xs text-sts-muted">{{ b.unit.unitCount }} × {{ b.unit.optionLabel }}</div>
+                    {{ t('common.party', { adults: count(b.adultsCount), children: count(b.childrenCount) }) }}
+                    <div v-if="b.unit" class="text-xs text-sts-muted">{{ count(b.unit.unitCount) }} × {{ b.unit.optionLabel }}</div>
                   </td>
                   <td class="px-4 py-2 whitespace-nowrap">
                     <a :href="`tel:${b.customer.phone}`" dir="ltr" class="hover:underline">{{ b.customer.phone }}</a>
                     <a v-if="whatsappLink(b)" :href="whatsappLink(b)!" target="_blank" rel="noopener" class="ms-2 text-xs font-semibold text-sts-success hover:underline print:hidden">WhatsApp</a>
                   </td>
                   <td class="max-w-xs px-4 py-2 text-sts-muted">{{ b.specialRequests }}</td>
-                  <td class="px-4 py-2 text-end tabular-nums">{{ formatMoney(b.totalPrice) }}</td>
+                  <td class="money px-4 py-2 text-end tabular-nums">{{ money(b.totalPrice) }}</td>
                 </tr>
               </tbody>
             </table>

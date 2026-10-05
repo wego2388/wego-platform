@@ -2,12 +2,19 @@
 
 ## Agent start here
 
-> **الحساب الجديد يبدأ من:**
+> **الحالة الحية — 5 أكتوبر 2026:** ابدأ من
+> [تسليم الكتالوج والصور](2026-10-05_CATALOG_MEDIA_SAFE_CHECKPOINT_AR.md)، ثم
+> Board. مكان التنفيذ `/home/wego/wego-safari-hardening`، والحزمة الوحيدة
+> النشطة `WEGO-016-MEDIA`. الكود والمحرران منفذان؛ قبول الحزمة وDB+media
+> restore والإصدار لم يكتملوا. الملاحظات المؤرخة بسبتمبر أدناه سجل تاريخي،
+> وليست تعليمات لفتح WEGO-017 أو إعادة WEGO-016-E.
+
+> **بداية الحسابات السابقة — سجل سبتمبر التاريخي:**
 > `2026-09-29_NEW-CHATGPT-ACCOUNT_START-HERE.md` بعد قراءة
-> `CHATGPT_MULTI_ACCOUNT_WORKFLOW.md`. الملفان يثبتان checkpoint الحالي
+> `CHATGPT_MULTI_ACCOUNT_WORKFLOW.md`. الملفان يوثقان checkpoint سبتمبر
 > وحماية العمل بين حسابَي ChatGPT؛ أي ترتيب قديم أدناه تاريخي عند التعارض.
 >
-> **أحدث snapshot تقني مجمد للمراجعة:**
+> **snapshot سبتمبر المجمد المقبول آنذاك:**
 > `2026-09-29_WEGO-016-E_HARDENED_SAFE_CHECKPOINT.md`.
 
 اقرأ بالترتيب قبل أي تعديل:
@@ -22,7 +29,9 @@
 8. `../mobile/ANDROID_EXECUTION_PLAN.md` لخطة تطبيق Android التنفيذية.
 9. `../content-research/README.md` قبل لمس محتوى الرحلات أو الصور أو الأسعار.
 
-للمراجعة الحالية اقرأ ملف البداية المؤرخ 2026-09-29؛
+للمراجعة الحالية اقرأ تسليم الكتالوج والصور أعلاه، ومواصفة
+`CATALOG_MEDIA_IMPLEMENTATION_SPEC_AR.md` و
+`2026-10-05_MEDIA_TIER1_CHECKPOINT_REVIEW.md`؛ قبول checkpoint لا يغلق MEDIA.
 `WEGO016_B_TIER1_REVIEW_HANDOFF.md` سجل تاريخي لمراجعة B، وليس نطاق العمل
 الحالي ولا تصريحًا بالـcommit أو الـdeploy.
 
@@ -36,7 +45,7 @@
 | `[!]` | ينتظر قرارًا أو تفويضًا من المالك |
 | `[s]` | متخطى بقصد وسبب موثق |
 
-## الحالة الآن — 2026-09-29
+## الحالة التاريخية — 2026-09-29 (ليست الحالة الحية)
 
 - `[x]` `WEGO-016-A`: مكتمل محليًا مع أدلة الجودة.
 - `[x]` `WEGO-016-B`: مكتمل، Tier 1 review بلا blocking findings، ومرفوع في
@@ -57,7 +66,7 @@
 - `[!]` **Paymob credentials:** لم تُعتمد credentials sandbox/production بعد؛
   لا تستخدم production config ولا تعتبر mock دليل Paymob الحقيقي.
 
-## ترتيب الأولويات للـAgent القادم
+## ترتيب الأولويات التاريخي — سبتمبر (لا تنفذه بدل Board الحي)
 
 1. اقرأ `AGENTS.md` و`docs/ENGINEERING_CONSTITUTION.md`.
 2. اقرأ `docs/execution/WEGO_EXECUTION_BOARD.md` — الـpacket الوحيد المصرح به.
@@ -67,7 +76,7 @@
 6. لا تبدأ G، ولا تفترض أن وصول credentials مجرد إضافة `.env`؛ التكامل
    الحقيقي يحتاج sandbox E2E واعتماد provider contract الحالي.
 
-## محتوى الموقع القديم
+## محتوى الموقع القديم — سجل سبتمبر؛ الحالة الحالية في تسليم MEDIA
 
 - `[x]` تم حفظ 13 صفحة، 30 رحلة، 34 booking choices، و437 media metadata
   records في `../content-research/legacy-wordpress-export.json`.

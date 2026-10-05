@@ -25,7 +25,7 @@ watch(() => route.fullPath, () => (menuOpen.value = false));
         <BrandLogo :inverse="!scrolled" :height="36" />
       </NuxtLinkLocale>
 
-      <nav class="hidden items-center gap-1 text-sm font-semibold md:flex" :aria-label="copy.nav.main">
+      <nav class="hidden items-center gap-1 text-sm font-semibold lg:flex" :aria-label="copy.nav.main">
         <NuxtLinkLocale
           v-for="item in [
             { to: '/tours', label: copy.nav.tours },
@@ -48,7 +48,7 @@ watch(() => route.fullPath, () => (menuOpen.value = false));
         <span class="ms-1 hidden sm:block"><UiButton to="/tours" size="sm">{{ copy.nav.book }}</UiButton></span>
         <button
           type="button"
-          class="grid size-10 place-items-center rounded-full md:hidden"
+          class="grid size-10 place-items-center rounded-full lg:hidden"
           :class="scrolled ? 'text-sts-ink hover:bg-sts-sand-soft' : 'text-white hover:bg-white/12'"
           :aria-label="copy.nav.menu"
           :aria-expanded="menuOpen"

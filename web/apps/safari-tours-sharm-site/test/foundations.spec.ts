@@ -115,4 +115,15 @@ describe("TourMedia", () => {
     });
     expect(wrapper.get("img").attributes("alt")).toBe("Quad bikes");
   });
+  it("renders managed photos natively with actual dimensions and safe derivatives", () => {
+    const src = "/media/tours/super-safari/12345678-1234-1234-1234-123456789abc.jpg";
+    const wrapper = mount(TourMedia, {
+      props: { src, alt: "Approved local photo", category: "DESERT", width: 600, height: 400 },
+      global: { stubs },
+    });
+    const image = wrapper.get("img");
+    expect(image.attributes()).toMatchObject({ src, width: "600", height: "400", decoding: "async", loading: "lazy" });
+    expect(image.attributes("srcset")).toBe(`${src}?v=w360 360w, ${src} 600w`);
+    expect(wrapper.findComponent({ name: "NuxtImg" }).exists()).toBe(false);
+  });
 });

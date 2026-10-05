@@ -1,5 +1,16 @@
+<script setup lang="ts">
+import { useErpLocale } from "./composables/useErpLocale";
+import { isLocalizedErpRoute } from "./utils/erpLocale";
+
+const { locale, direction } = useErpLocale();
+const route = useRoute();
+useHead(() => ({ htmlAttrs: { lang: locale.value, dir: direction.value } }));
+</script>
+
 <template>
   <NuxtLayout>
-    <NuxtPage />
+    <div :lang="isLocalizedErpRoute(route.path) ? locale : 'en'" :dir="isLocalizedErpRoute(route.path) ? direction : 'ltr'">
+      <NuxtPage />
+    </div>
   </NuxtLayout>
 </template>

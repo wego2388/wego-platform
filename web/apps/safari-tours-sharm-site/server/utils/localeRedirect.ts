@@ -1,4 +1,4 @@
-export const SITE_LOCALES = ["en", "ar", "ru", "it"] as const;
+const SITE_LOCALES = ["en", "ar", "ru", "it"] as const;
 
 /**
  * Public route roots that existed before locale prefixes. Only these are

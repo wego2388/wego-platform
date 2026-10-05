@@ -43,6 +43,15 @@ SQL
 
 ## 2. Backups
 
+> **V29 / WEGO-016-MEDIA release hold (5 October 2026):** the database-only
+> backup/restore scripts below now refuse schemas/bundles containing
+> `tours_operator_asset`, even when there are no uploaded rows. Restoring
+> PostgreSQL alone cannot recover the private image volume. A matching
+> database+media manifest/checksum bundle and successful clean restore drill
+> are still required before accepting MEDIA or deploying V29. Do not disable
+> these guards or schedule the old cron as if it covers managed images.
+> The earlier evidence below belongs to the pre-MEDIA database-only stack.
+
 `scripts/safari-ops/backup.sh` — `pg_dump` custom format, verified with
 `pg_restore --list` before it is kept, plus a `.json` with SHA-256, Flyway
 version and per-table row counts. Set `SAFARI_BACKUP_GPG_RECIPIENT` to a
@@ -92,7 +101,7 @@ passed. Repeat on the real server after go-live and record its timing here.
 
 ## 5. Upgrade and rollback
 
-Upgrades that add migrations (V24/V25/V26 so far) are **stop-then-start**,
+Upgrades that add migrations (V24/V25/V26/V27/V28 so far) are **stop-then-start**,
 never rolling: an older backend must not run beside a newer schema.
 
 1. Build and test the exact release (`release.plan.json` digest).
@@ -107,9 +116,12 @@ Rollback:
 - **Same schema** (no new migration): start the previous image tag.
 - **New migration already applied**: Flyway is forward-only. An older backend
   is only safe if the new migration is purely additive and ignored by it —
-  true for V26 (new table only). For V24/V25 (changed tour pricing and
-  places), restore the pre-upgrade backup instead (section 4), into a new
-  database first, and reconcile any payments taken since.
+  true for V26 (new table only). V27 changes a payment constraint and V28 adds
+  a refund-identity table used by the matching handler; use the matching
+  backend for both and do not run an older image against them. For V24/V25
+  (changed tour pricing and places), V27, or V28, restore the pre-upgrade
+  backup instead (section 4), into a new database first, and reconcile any
+  payments taken since.
 
 ## 6. Smoke checks after any change
 
@@ -120,7 +132,10 @@ curl -fsS "$SAFARI_HEALTH_URL/api/v1/tours-operator/sales-status"
 ```
 
 Then in a browser: one tour page shows its calendar, the ERP login works, and
-the Online sales page shows "open".
+the Online sales page agrees with the deployment mode. `ONLINE_PAYMENT` with
+unpaused switches reports both effective flags open; `ENQUIRY_ONLY` reports
+both closed and explains that the office confirms the request. A stored open
+switch cannot enable checkout in an enquiry deployment.
 
 ## 7. Edge and TLS terminator
 
@@ -138,11 +153,77 @@ over HTTPS only.
 
 `scripts/safari-ops/health-check.sh` prints `OK/WARN/FAIL` per check and exits
 1 on any `FAIL`: edge `/healthz`, every container running/healthy and not
-restart-looping, online sales paused (WARN), latest backup age (≤ 26 h), last
+restart-looping, online sales closed (WARN), latest backup age (≤ 26 h), last
 drill passed (≤ 8 days), disk use (< 85 %), and TLS expiry (≥ 14 days, once
 `SAFARI_PUBLIC_HOST` is set). `SAFARI_ALERT_COMMAND` receives the WARN/FAIL
 lines on stdin — e.g. a mail or Telegram bot script. **Owner decision still
 needed:** which channel receives alerts.
+
+In `ENQUIRY_ONLY`, the current health script's sales WARN is expected: the
+effective online flags are deliberately closed. Check `bookingMode` in the
+public status response before treating this as an emergency pause. Other
+FAIL/WARN checks (backup, disk, restart loop, TLS) still need attention.
+
+### 8.1 Temporary launch with enquiries
+
+Set `TOURS_OPERATOR_BOOKING_MODE=ENQUIRY_ONLY` in the private deployment env
+file. Keep `TOURS_OPERATOR_PAYMOB_MOCK_ENABLED=false`; the test override is never
+a launch configuration. Entirely absent provider settings are accepted only
+for an installation with zero payment records. Partial credentials or callback
+URLs, unknown modes, failed history reads and any payment history without
+complete real settings refuse startup. Never delete history to make it start.
+
+With complete real Paymob configuration, the real adapter remains active for
+signed historical payment/refund callbacks even in enquiry mode. New booking,
+payment and resume calls return unavailable before writes/provider requests.
+A disabled provider returns retryable callback 503, never a success response.
+
+Verify the four language tour cards and booking page show an office-confirmed
+WhatsApp request, with factual tour/date/slot/party selection and no customer
+name, phone, email, hotel or recovery token in the link or analytics. A request
+does not hold seats or create a confirmed/paid booking. Office confirmation
+must check Wego availability; manual booking/collection has its own follow-up
+packet and must not become a second inventory authority.
+
+To activate online payment later, supply complete reviewed real settings,
+complete the sandbox checkout/callback/refund gate and owner acceptance, then
+change the mode. Old enquiries are never reclassified as paid bookings. A
+rollback to enquiry mode preserves all keys required by historical payments.
+
+## 9. Cancellation and refund procedure
+
+Cancellation and refund are deliberately two distinct money/operations steps:
+
+- **Cancellation only:** staff may cancel a live booking in the ERP with a
+  reason. This releases its places and sends the cancellation notification,
+  but it never claims that money moved. If the payment is `PAID`, the finance
+  owner must still complete the provider step below.
+- **Full refund:** an authorised finance owner issues the refund in Paymob's
+  dashboard using the exact provider transaction and full captured amount.
+  Paymob's signed webhook is the only event that changes the Wego payment to
+  `REFUNDED`. If the booking is still `NEW` or `CONFIRMED`, Wego cancels it,
+  releases its places, records the reason, and queues the customer message in
+  the same database transaction. A repeated webhook does nothing twice.
+- **Partial refund:** do not treat it as a full refund. Wego acknowledges the
+  signed webhook once, keeps the original captured sale visible, changes the
+  payment to `REVIEW_REQUIRED`, and writes a durable reconciliation outbox event
+  with expected/received minor units. There is no dispatcher for this event yet:
+  it does not automatically notify staff by email, Telegram, or a queue. Staff
+  must check review-required payments in Finance and reconcile against Paymob.
+  The finance owner records the case and
+  reconciles it against Paymob; the current ledger does not yet model several
+  partial-refund lines. If a new partial refund arrives after a full refund,
+  the payment remains truthfully `REFUNDED` but Wego records a distinct
+  `PARTIAL_REFUND_AFTER_REFUND` anomaly and writes the same outbox event; it is never
+  silently treated as a replay. Replays are deduplicated by the provider
+  transaction identity.
+
+Before refunding, verify booking reference, customer, provider transaction,
+currency, amount, and the approved cancellation tier. Never copy a card number
+or customer contact into notes, URLs, screenshots, or chat. After Paymob shows
+success, wait for the ERP payment state; do not manually edit PostgreSQL. If no
+webhook arrives, keep the booking/payment under review and reconcile against
+Paymob before retrying, to avoid a double refund.
 
 ---
 
@@ -157,5 +238,10 @@ needed:** which channel receives alerts.
   الجداول والأرقام موجودة، وبنسجّل الوقت. النهارده محليًا: 6 ثواني.
 - **المراقبة:** كل 5 دقايق بيتفحص الموقع والسيرفر والنسخة والمساحة والشهادة.
   لو في مشكلة بيبعت تنبيه.
+- **الإلغاء والاسترداد:** إلغاء الموظف يحرر الأماكن لكنه لا يدّعي أن الفلوس
+  رجعت. مسؤول المالية يعمل الاسترداد من Paymob بالعملية والمبلغ الصحيحين؛
+  الـwebhook الموقّع هو الذي يسجل الاسترداد. الاسترداد الكامل يلغي الحجز الحي
+  أوتوماتيك ويحرر السعة، والجزئي يظهر `REVIEW_REQUIRED` للتسوية ولا يتكرر عند
+  إعادة نفس الإشعار.
 - **محتاجين منك:** (1) فين نحفظ نسخة برّه السيرفر، (2) التنبيهات توصلك
   إزاي (إيميل/تليجرام/واتساب).

@@ -25,6 +25,9 @@ export type TourFactsDocument = components["schemas"]["ToursOperatorTourFactsDoc
 export type TourMediaInput = components["schemas"]["ToursOperatorTourMediaInput"];
 export type ContentErrorResponse = components["schemas"]["ToursOperatorContentErrorResponse"];
 export type PublishRequest = components["schemas"]["ToursOperatorPublishRequest"];
+export type MediaUploadResponse = components["schemas"]["ToursOperatorMediaUploadResponse"];
+export type CategoryMedia = components["schemas"]["ToursOperatorCategoryMedia"];
+export type PublicCategoryCover = components["schemas"]["ToursOperatorPublicCategoryCover"];
 export type TourPriceOption = components["schemas"]["ToursOperatorPriceOption"];
 export type BookingUnit = components["schemas"]["ToursOperatorBookingUnit"];
 

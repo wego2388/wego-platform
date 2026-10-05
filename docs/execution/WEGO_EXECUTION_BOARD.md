@@ -28,7 +28,8 @@ Rule: exactly one implementation packet may be `ACTIVE` in a worktree. Parent mi
 ## Automation and growth roadmap guardrails
 
 WEGO-003 through WEGO-009 are sequenced discovery targets, not authorization to
-implement. WEGO-002 remains the only active packet. The owner must explicitly
+implement. The single current ACTIVE status below determines authorized work;
+these roadmap numbers do not activate a packet. The owner must explicitly
 activate exactly one later packet after its predecessor is complete, at which
 time its scope, review tier, affected modules, data classification, and current
 provider constraints are revalidated against the implemented repository.
@@ -3463,7 +3464,7 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-10-01 — WEGO-016-SEC: independent pre-launch security review (Tier 1)
 
-- **Status:** ACTIVE
+- **Status:** COMPLETE (2026-10-03)
 - **Activation:** owner instruction `اعمل كل اللي تقدر عليه من مهام` (2026-10-01); roadmap 3-6.
 - **Review intensity:** Tier 1.
 - **Scope:** an independent read-and-probe security review of the whole
@@ -3520,6 +3521,739 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   with the new edge rules and staff-host login throttling.
 - **Also fixed:** Paymob HTTP client errors log only the exception type and
   HTTP status, never the provider's response body.
+
+#### 2026-10-03 — WEGO-016-SEC remediation follow-up (self-verified; Tier 1 re-review pending)
+
+- **Status stays `ACTIVE`:** this is a continuation of SEC, not a second
+  implementation packet. Work is isolated in `/home/wego/wego-safari-hardening`
+  on local branch `wego-016-safari-hardening` so it cannot overwrite Claude's
+  unrelated Sharm To Go changes in the source worktree.
+- **MEDIUM fixed — targeted-account login denial:** the per-account throttle is
+  now a hard pre-verification gate. A rejected request does not perform bcrypt,
+  query the account, write an audit row, or let a caller probe whether a
+  candidate password is correct. A legitimate user in the window waits for
+  `Retry-After` or uses password-reset/admin recovery; existing bearer sessions
+  survive a password-guess lock (administrative disablement still invalidates
+  them). Unit/domain/HTTP rate-limit tests cover invalid, locked, throttled,
+  hard-gated-correct-candidate, recovery, and disablement paths.
+- **MEDIUM fixed — full refund/booking divergence:** a valid, signed,
+  full-amount Paymob refund now changes the payment to `REFUNDED` and cancels a
+  still-live `NEW`/`CONFIRMED` booking inside the same transaction, releasing
+  capacity and writing the existing cancellation outbox message. Completed or
+  expired bookings retain their operational history. Duplicate webhooks remain
+  idempotent.
+- **MEDIUM fixed — partial-refund retry loop:** a valid partial-refund webhook
+  is acknowledged as `review_required` instead of returning `amount_mismatch`
+  forever. A previously recognised capture moves to `REVIEW_REQUIRED` while
+  retaining its original revenue timestamp until human reconciliation; one
+  durable event records received and expected minor units, and an exact replay
+  returns `already_processed`. This intentionally does not pretend that the
+  current single-amount ledger is a full partial-refund ledger.
+- **LOW fixed — reset session survival:** staff password reset now revokes every
+  session for the target user atomically with the credential change; HTTP proof
+  checks the old bearer token returns 401 and the new password works.
+- **Schema:** V27 broadens the revenue-recognition invariant to the captured
+  `REVIEW_REQUIRED` state. V28 adds a durable unique provider-refund identity
+  table so an A, B, replay-A callback sequence cannot duplicate review events.
+  Both are selected only by the isolated Safari release; the executable
+  isolation test proves the exact V1..V28 Safari migration set.
+- **Operations decision recorded:** staff cancellation is an operational
+  cancellation and never fabricates a refund. The Paymob-dashboard/full-refund,
+  missing-webhook, duplicate-refund and partial-refund reconciliation procedure
+  is documented in `docs/operations/SAFARI_TOURS_SHARM_OPERATIONS.md`.
+- **Self-verification:** targeted identity/payment tests and the Safari
+  migration/isolation test pass. Full `:platform:application:check` passes
+  (325 tests) and full `:platform:apps:safari-tours-sharm:check` passes (208
+  tests), including compile, ktlint, real PostgreSQL/Testcontainers integration
+  tests and executable product-isolation proof. `git diff --check` passes.
+  Independent Tier 1 review is the remaining closure gate.
+- **Explicitly deferred LOW risks:** method-pinned public security matchers,
+  non-sequential public booking references, and nonce-based CSP remain scoped
+  follow-ups. Public booking recovery still requires reference plus phone;
+  public-origin route isolation and rate limits from the first SEC round remain
+  in place. The independent reviewer must decide whether any deferred item is a
+  blocker before SEC can close.
+- **Proposed next packet (not ACTIVE):** `WEGO-016-OPS2` — bilingual EN/AR ERP,
+  staff-created bookings, print centre, suppliers/drivers/vehicles, operational
+  costs and settlements, sequenced in
+  `clients/safari-tours-sharm/handoff/SAFARI_OPERATIONS_EXPANSION_PLAN_AR.md`.
+
+#### 2026-10-03 — WEGO-016-SEC final independent Tier 1 round: READY
+
+- **Reviewer verdict:** independent reviewer `/root/wego016sec_review` returned
+  **READY — zero blocking findings** against the final auth/payment remediation.
+  This closes the independent-review gate left pending in the preceding round;
+  no claim is made that an Opus-specific review ran.
+- **Verified fixes:** normalization before the email-length bound; hard
+  pre-lookup/pre-bcrypt throttle rejection; trusted reset clears throttle only
+  after commit and atomically revokes sessions; guess-driven locks preserve
+  existing valid sessions, while administrative disablement still revokes
+  access. Full refunds cancel live bookings atomically. Partial-refund A/B/A
+  identities are durable, captured reviews retain recognised revenue, and a
+  distinct partial after full refund preserves `REFUNDED` and records the
+  anomaly. V27/V28 selection remains Safari-only.
+- **Independent executable evidence:** LoginServiceTest 11/11,
+  LoginRateLimitHttpTest 2/2, IdentityAdminHttpTest 8/8;
+  ToursOperatorPaymentTest 31/31, PaymentTest 20/20,
+  ProductIsolationIntegrationTest 1/1; ERP Vitest 68/68; both Safari production
+  builds; only js-yaml 4.3.2 resolved; `git diff --check` clean.
+- **Non-blocking residual:** the refund reconciliation outbox event is atomic
+  and durable but has no staff-notification dispatcher. Finance, V28 evidence,
+  error logging and the Paymob runbook support manual reconciliation. It must
+  not be described as an actively delivered alert. A relay/review queue is a
+  subsequent operations task.
+- **Accepted LOW follow-ups:** method-pinned public matchers, non-sequential
+  public booking references, and nonce CSP. The reviewer found no present
+  exploitable bypass under the current controllers, phone-gated lookup,
+  edge limits and JSON-LD escaping. The account-throttle availability tradeoff
+  also remains explicit: a correct candidate waits during the window; trusted
+  recovery clears it without making password verification an oracle.
+- **Final full-gate evidence so far:** clean, exclusive
+  `:platform:application:cleanTest :platform:application:check` completed in
+  4m13s: **327 tests, zero skipped/failures/errors**. The preceding 325/208 totals
+  describe an earlier revision, not this final tree. A combined concurrent
+  attempt failed on a missing Gradle binary result file; this was a shared
+  test-output collision, and is recorded rather than called a successful gate.
+  The clean Safari-only full gate is running before packet closure.
+- **Device cleanup:** `docker builder prune -af` removed 3.197 GB of rebuildable
+  build cache; containers, images in use and database volumes were preserved.
+  Docker is on the system partition; `/home` remains a separate filesystem
+  with approximately 8.1 GB free. Browser profiles and other agents' worktrees
+  were not cleaned.
+
+#### 2026-10-03 — WEGO-016-SEC closure and release-profile re-review: READY
+
+- **Final evidence:** exclusive clean full checks passed: application
+  **327/327** (4m13s), isolated Safari **209/209** (1m35s), zero skipped,
+  failures or errors. Web full check passed; repository invariants passed.
+- **Final release fix:** Foundry validation found the Safari release profile
+  still stopped at V26. Added V27/V28 to its exact version/file lists and ran
+  the official `generate:plan`. All Foundry/OpenAPI/YAML gates now pass.
+  Non-Safari plans changed only the required whole-catalog digest, independently
+  proven byte-equivalent after removing that digest.
+- **Independent follow-up verdict:** `/root/wego016sec_review` returned
+  **READY — zero blocking findings** again after running Foundry validation,
+  normalized artifact diffs and `git diff --check`.
+- **Closure:** SEC is COMPLETE locally. No commit, push, production deployment,
+  live credentials or DNS operation occurred. Accepted residuals in the
+  preceding READY round remain explicit follow-ups, not delivered features.
+- **Handoff:**
+  `clients/safari-tours-sharm/handoff/2026-10-03_SECURITY_HARDENING_HANDOFF.md`.
+
+### 2026-10-03 — WEGO-016-OPS2-A: bilingual ERP foundation and daily-operation screens (Tier 2)
+
+- **Status:** COMPLETE (2026-10-03; local display acceptance, not release approval)
+- **Activation:** owner's existing EN/AR dashboard request and broad execution
+  delegation, reconfirmed by `كمل` on 2026-10-03 after the SEC remediation.
+  SEC's acceptance evidence and independent READY are recorded above before
+  starting this packet. OPS2-B/C/D/E/F/G remain proposed, not ACTIVE.
+- **Scope:** typed EN/AR dictionary, locally remembered locale without PII,
+  SSR-correct `html lang/dir`, language switch before/after sign-in, navigation,
+  login, overview, today/run sheet and global error presentation. Date/count/
+  currency formatting is display-only; no business amount or conversion changes.
+  Not-yet-translated routes retain English content semantics and explicitly
+  show their translation-readiness state. No API, permission, auth-flow, schema,
+  payment or PII-scope change.
+- **Acceptance:** missing-key/placeholder validation; same authentication
+  requests and permissions in both locales; switching without losing form
+  input; persistence through navigation/reload; SSR Arabic before hydration;
+  no sideways page overflow at 360/768/1024/1440; accessible switch/menu;
+  print direction preserved. ERP lint/typecheck/Vitest/build and contract gate
+  must pass. Browser evidence uses explicit fixtures, not live owner accounts.
+- **Next:** OPS2-B completes all remaining ERP translations before manual-booking
+  and new document/financial workflows; full plan is
+  `clients/safari-tours-sharm/handoff/SAFARI_OPERATIONS_EXPANSION_PLAN_AR.md`.
+
+#### 2026-10-03 — OPS2-A verified display acceptance and dependency-gate triage
+
+- **Verified display scope:** ERP lint (zero warnings), typecheck, production
+  build, contract check and **77/77** Vitest tests passed. Production-preview
+  Playwright fixtures passed **16/16**, including raw SSR Arabic, preference
+  fallback, unchanged login payloads, language persistence, localized HTTP 404,
+  both locales at 360/768/1024/1440, keyboard controls, permission-filtered
+  navigation and Arabic print. axe reported zero WCAG AA violations on
+  login/overview/today after fixing the muted-text contrast. Browser APIs were
+  explicit fixtures, not live owner accounts or a new payment-stack proof.
+- **Independent dependency triage:** `/root/wego016sec_review` returned
+  **local/production runtime READY; CI/release gate BLOCKED**. node-forge 1.4.0
+  is an existing Nuxt CLI/listhen dependency with a HIGH advisory and no
+  published patched release. Neither complete Safari `.output` contains forge
+  or listhen; runtime Docker stages copy only `.output`. Inspected listhen
+  generates/signs development certificates and does not call the vulnerable
+  verification path. Normal and production web audits still exit 1: absence
+  from runtime is not an audit fix or permission to deploy. No audit suppression
+  or weakened threshold is authorized or implemented.
+- **Adjacent validation-tool maintenance:** Foundry fast-uri was minimally
+  pinned to patched 3.1.8; install/validate/OpenAPI/YAML/audit pass, independently
+  confirmed. E2E audit is clean. Within this active packet, apply the available
+  Vitest 4.1.11 patch override for the two moderate development-tool advisories
+  and re-run the web gates before recording local closure. This does not alter
+  runtime contracts, authentication or commercial behavior.
+- **Release limitation:** dependency audit remediation remains a separate
+  release blocker, even when the bilingual presentation acceptance is complete.
+  No commit, push, production access, deployment or DNS change has occurred.
+
+#### 2026-10-03 — OPS2-A closure: verified local foundation, release blocker retained
+
+- **Final verification after the patch:** frozen-lockfile install and full
+  `web pnpm run check` passed: contract, zero-warning lint, all typechecks,
+  **576/576** web tests (Safari ERP **77**, site **118**) and all six production
+  builds. Vitest and mocker resolve only to 4.1.11; both moderate audit findings
+  disappeared. The web audit still exits 1 on exactly one HIGH node-forge
+  finding, with no suppression. Foundry and E2E audits are clean.
+- **Final browser re-run:** **16/16** passed in 20.4s on the freshly built
+  local production preview, no retries. Main-agent single-pass display review
+  found no blocking regression. API fixtures remain explicit. Raw SSR,
+  language/error/form state, permission navigation, four viewport widths,
+  keyboard/axe and Arabic print evidence are recorded in
+  `clients/safari-tours-sharm/handoff/2026-10-03_ERP_BILINGUAL_FOUNDATION_HANDOFF_AR.md`.
+- **Closure boundary:** all OPS2-A presentation acceptance criteria are met.
+  This does not close the release dependency-audit gate, translate the remaining
+  11 ERP pages, prove real Paymob, or authorize production. The private preview
+  was stopped after verification; existing owner/agent services were preserved.
+
+### 2026-10-03 — WEGO-016-OPS2-B: complete the remaining bilingual ERP presentation (Tier 2)
+
+- **Status:** COMPLETE (local, 2026-10-05; no commit/deployment)
+- **Activation:** owner's already-approved EN/AR dashboard scope and continued
+  execution delegation (`كمل`), with OPS2-A acceptance/evidence recorded first.
+  This is the only ACTIVE implementation packet in this isolated worktree.
+  OPS2-C/D/E/F/G and deployment-dependent work are not active.
+- **Scope:** translate display labels, statuses, errors, filters, confirmations
+  and existing forms on 11 page files: bookings/list/detail, tours/list/slots,
+  customers, notifications, finance, reviews, staff, sales and settings. Reuse
+  the current dictionary, cookie and locale formatting. Preserve API payloads,
+  auth/session logic, permission checks, commercial values and fetched PII scope.
+  A new business operation, schema change or security requirement is split into
+  Tier 1 instead of being hidden in a translation packet.
+- **Acceptance:** complete both locales for the named routes and dynamic route
+  readiness; no missing keys or visible translation placeholders; same requests
+  and permissions; switching preserves unsaved forms without issuing mutations;
+  loading/empty/validation/401/403/failure states are verified. Retain existing
+  English behavior tests and add Arabic. Verify four viewport widths,
+  keyboard/axe, exact money/date display, ERP lint/typecheck/Vitest/build and
+  contract/browser gates. Catalog labels are translated only from approved
+  available facts, never invented.
+- **Entry state:** route inventory, ordering, exact files and acceptance are
+  prepared in the OPS2-A handoff; the 11 page translations have not yet been
+  implemented. A completed navigation shell is not full ERP translation.
+- **External release blocker:** GHSA-86w9-cpqp-85rv stays open until a verified
+  upstream fix or reviewed dependency replacement. No deployment, live-account
+  configuration, commit or push is authorized by local display completion.
+
+#### 2026-10-03 — OPS2-B first verified slice: booking list/detail and route repair
+
+- **Status stays ACTIVE:** only 2 of the 11 remaining page files are translated;
+  9 are still pending. No OPS2-C/D/E/F/G work was started. Acceptance/evidence
+  for this slice do not close the larger bilingual packet or the release gate.
+- **Implemented:** bilingual booking filters/list/paging/native confirmations,
+  detail forms/actions, labels, errors, dates/counts/exact money and complete
+  lifecycle timeline. Existing error descriptors follow locale changes without
+  another request; unsaved cancellation reasons survive switching. Free-text
+  reasons, customer/staff identities, catalog labels, provider codes and
+  customer locale retain their original values. Existing timeline English
+  assertions remain intact; Arabic assertions were added.
+- **Confirmed pre-existing presentation bug:** generated routes made
+  `bookings.vue` the parent of `[id].vue` and `tours.vue` the parent of slots,
+  without an outlet in either list page. Browser navigation changed the URL
+  but kept the list visible. Moved lists to `bookings/index.vue` and
+  `tours/index.vue`, keeping route names/URLs and all API/auth/business logic.
+  The tour list is not yet translated. New browser tests prove direct detail,
+  keyboard navigation, slots rendering and returning to the list.
+- **Verified:** ERP lint zero warnings, typecheck, production build, contract
+  check and **91/91** Vitest. Booking-specific Playwright **26/26** (38.9s),
+  final combined foundation+booking fixtures **42/42** (37.8s), no retries.
+  Both locales × 360/768/1024/1440: no document overflow, zero WCAG AA axe
+  violations on list/detail with cancellation form. Browser tests cover
+  payload/query parity, complete-only error feedback, view-only payment-history
+  isolation, 401/403/404/500, loading/empty and secondary-history failures.
+  Fixtures are explicit; no real account, payment or customer data was used.
+  Arabic 360/1440 screenshots were visually inspected by the main agent.
+- **Adjacent findings, open rather than silently absorbed:**
+  - P1 slots date-only bug: local-midnight `toISOString().slice(0,10)` requests
+    a previous day in positive timezones. Reproduced with `TZ=Africa/Cairo`:
+    local Monday 2026-09-28 becomes query 2026-09-27. Route-only proof is not
+    a calendar-correctness proof. Correct this under explicitly recorded
+    calendar/query acceptance before calling slots ready.
+  - P1 Customers source/contract mismatch: its size 500 request exceeds
+    BookingController/OpenAPI maximum 200. The current aggregation also labels
+    all booking values as "Total spent", even though they are not confirmed
+    payments. Design truthful page scope/labels; any expanded PII fetching or
+    financial-source change requires a Tier 1 scoped amendment and independent
+    review, not a silent addition to this display-only slice. No such request
+    or aggregation changes were made here; these findings block calling the
+    affected pages mature even after translating their labels.
+- **Handoff and next:**
+  `clients/safari-tours-sharm/handoff/2026-10-03_ERP_BOOKINGS_BILINGUAL_PROGRESS_AR.md`.
+  Tours/slots are next, then customers/notifications, finance/reviews,
+  staff/sales/settings. Full web check is being rerun on this final UI tree.
+  Previous 576-test evidence is historical; it does not include this slice.
+
+#### 2026-10-03 — OPS2-B booking slice final full-web verification
+
+- Full `web pnpm run check` passed on the final tree: matching contract,
+  zero-warning workspace lint, all typechecks, **590/590** web tests (ERP
+  91/91) and all six production builds. Repository invariants and
+  `git diff --check` pass. The earlier pending rerun is now complete.
+- Tier 2 main-agent single-pass review plus executable display evidence found
+  no blocking regression within the booking slice. Auth/session/permission
+  logic and backend files were unchanged in this slice. There is no new Tier 1
+  payment/security-review claim or live Compose/payment gate here.
+- Combined production-preview browser evidence remains **42/42**. The
+  dedicated preview was stopped after tests; existing owner services were not
+  replaced. The 9 pending page translations and the three P1 next-page
+  findings above remain open. OPS2-B stays ACTIVE; release audit stays a
+  separate blocking gate, with no suppressed advisory or deployment approval.
+
+#### 2026-10-03 — final dependency-audit refresh, release still BLOCKED
+
+- Final `web pnpm audit --audit-level=high` exits 1 with **two HIGH**
+  advisories: the existing node-forge GHSA-86w9-cpqp-85rv and newly surfaced
+  braces GHSA-vfj7-8cjw-p6xm / CVE-2026-93687. This does not invalidate the
+  590-test/build evidence, but that evidence is not a passing dependency audit.
+- Repeated `web pnpm audit --prod --audit-level=high` also exits 1 with the same
+  two advisories. Fresh Foundry and E2E audits each exit 0 with no known
+  vulnerabilities. No blanket "development-only" exemption is asserted.
+- The [official braces advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
+  lists affected versions through 3.0.3 and no patched version. It was published
+  September 18 and reviewed October 2; no claim that it was first published
+  during this work. `npm view braces version` returns 3.0.3 at this check.
+- Dependency tracing identifies micromatch/fast-glob through i18n tooling and
+  globby/Nitro/Nuxt. Current Safari site/ERP `.output` package inventory does
+  not include those package names; this is preliminary build-tool exposure
+  triage, not an independent proof about all bundled runtime code. The earlier
+  independent node-forge review does not cover this newly surfaced finding.
+- No dependency changes, audit exclusions, lowered threshold, packet activation,
+  commit, push or deploy were made in response. OPS2-B remains the sole ACTIVE
+  implementation packet. Release stays BLOCKED pending a separately verified
+  upstream fix or scoped compatible remedy and required review.
+
+#### 2026-10-05 — owner continuation and scoped Tours/calendar acceptance
+
+- Owner requests continued implementation, a VPS-ready handoff before any
+  deployment, a temporary booking path while Paymob is unavailable, and later
+  dashboard uploads for tour/service/category images. These are recorded
+  requirements, not a claim that the existing ERP already supports them.
+- OPS2-B remains the only ACTIVE packet. Add a bounded Tier 2 acceptance
+  amendment for Tours/slots: replace erroneous local-midnight-to-UTC query
+  dates with date-only calendar arithmetic, retaining browser-local "today";
+  prove Monday–Sunday, DST/month/year boundaries in multiple browser timezones.
+  Keep slot enums, endpoints, permissions, capacity/pricing and backend logic.
+  Prevent stale display requests overwriting the currently selected week/filter.
+  Verify EN/AR, exact price cents, REQUEST_ONLY remains non-activatable in UI,
+  loading/error/empty states and keyboard/responsive/axe evidence.
+- Temporary booking and media upload are proposed follow-up scopes only until
+  the active packet is verified. Default proposed pre-Paymob path is a clearly
+  labelled WhatsApp enquiry/request, not an automatic confirmed booking, seat
+  hold, paid receipt or cash-ledger workaround. Manual confirmation/collection
+  and uploads require their own Tier 1-scoped contracts and independent review.
+- Missing credentials/images need not block local implementation; absence does
+  block claims about real payment, media rights, owner UAT or VPS launch.
+  No new packet, deployment, commit, push or live credentials are authorized here.
+
+#### 2026-10-05 — calendar source-readiness findings and display-only correction
+
+- Source inspection found public `getTour` rejects inactive tours, while ERP
+  links them; use the existing staff `getStaffTour` read endpoint instead, with
+  its existing tour:view check and identical catalog fields. This bounded read
+  selector correction is explicitly accepted within Tours presentation; no
+  backend, permissions, PII or mutations change. Add browser evidence for an
+  inactive tour and proof that the public tour-detail endpoint is not requested.
+- Public `listSlotsByRange` filters blocked and fully booked rows in the SQL
+  repository. The ERP calendar therefore is not a full operational schedule.
+  Keep that endpoint unchanged here, but label the scope truthfully: only
+  returned bookable slots; a dash is not proof of no departure. Do not claim
+  full/blocked runtime coverage using fixtures that this endpoint cannot return.
+  Full staff schedule retrieval/editing remains a separately scoped follow-up.
+- Owner asks to stop after current tests and handoff. Finish this verified
+  display slice and stop; OPS2-B remains ACTIVE but work is owner-paused until
+  a new `كمل`. No new packet or subsequent feature implementation begins.
+
+#### 2026-10-05 — verified Tours/calendar slice and owner-requested rest boundary
+
+- Implemented EN/AR Tours list and date-only calendar display, exact money,
+  filters/action errors/paging, keyboard scroll regions and request-version
+  guards. Known commercial labels retain source values. REQUEST_ONLY inactive
+  rows expose no activation button. Existing mutation stays PATCH with no body;
+  `from`/`to` query keys stay unchanged, only the erroneous day values are fixed.
+- Browser-local Cairo midnight reproduction now returns the correct Monday
+  2026-09-28 instead of 2026-09-27. Date-only tests cover every weekday,
+  leap/month/year and DST boundaries; browser contexts cover Cairo, UTC,
+  Los Angeles and Tokyo. Calendar stays a truthful bookable-availability view,
+  not a claimed complete staff schedule. Existing staff detail reader supports
+  inactive tours with unchanged server permissions and catalog field scope.
+- Final full `web pnpm run check` exits 0: contract, zero-warning lint, all
+  typechecks, **617/617** tests (Safari ERP **118/118**) and six production builds.
+  Final Chromium production-preview foundation/bookings/tours fixtures pass
+  **68/68 in 39.1s**, no retries; Tours/calendar contribute 26. EN/AR at
+  360/768/1024/1440 have no page overflow and zero WCAG AA axe violations for
+  list/calendar. Arabic 360/1440 screenshots were visually inspected.
+- Initial failures were not suppressed: fix inactive-badge contrast (4.39:1),
+  correct fixture query keys/method to the existing from/to and PATCH/204
+  contract. Remove impossible full/blocked fixtures from public availability
+  evidence; reading the SQL is not a new live backend test. No real customer,
+  owner session or money was used. CI fixture step was extended, not run on
+  GitHub (no push). Backend/migrations/payment logic unchanged in this slice.
+- Tier 2 main-agent review plus executable display evidence found no blocker
+  within the explicitly scoped presentation. This is not a new Tier 1 payment,
+  upload, auth or full operations readiness verdict. Current B progress is
+  **4 of 11 pages**, with customers/notifications/finance/reviews/staff/sales/
+  settings still pending, plus existing Customer source/label findings and
+  separately scoped complete-staff-calendar retrieval.
+- Release is still BLOCKED: fresh October 5 web dependency audit exits 1 with
+  the same two HIGH advisories. Additionally production currently refuses
+  backend startup without real Paymob settings. A safe non-mock disabled-provider
+  mode and dashboard file upload are planned, not implemented or activated.
+- Current handoffs:
+  `clients/safari-tours-sharm/handoff/2026-10-05_ERP_TOURS_CALENDAR_PROGRESS_AR.md`
+  and `2026-10-05_VPS_READINESS_AND_TEMP_BOOKING_AR.md`. Owner map/roadmap and
+  operations plan updated. Repository invariants and diff whitespace pass.
+- **Owner rest instruction is honored:** work stops after this handoff until
+  a new `كمل`. OPS2-B remains the sole ACTIVE packet, not silently COMPLETE;
+  its execution is owner-paused. Dedicated preview stopped, existing services
+  preserved. No background job, new packet, commit/push/deploy/DNS or live
+  credential/account action occurs during this pause.
+#### 2026-10-05 — owner resume; bounded messages/reviews/sales/settings slice
+
+- Owner resumed local implementation (`كمل`) and explicitly placed deployment
+  last. OPS2-B is still the only ACTIVE packet; no new packet is activated.
+- Tier 2 scope: bilingual presentation for notifications, reviews, sales and
+  settings. Preserve existing request methods/payloads, auth and permissions.
+  Locale changes must retain filter, dialog and unsaved sales note/checkboxes
+  without a new request or mutation. Verify loading/empty/error states,
+  view-only notification actions, sent-message confirmation and exact payloads.
+- Bounded display corrections: suppress obsolete notification-filter responses;
+  describe the current 200-result window instead of claiming all messages;
+  remove keyboard-focusable, aria-hidden placeholder review filters and fake
+  future integration promises; show no ratings without verified data. Settings
+  remains read-only with an honest missing-endpoint state (no implementation
+  of a settings API). Ambiguous failed sales/resend requests must not claim
+  nothing changed; ask staff to refresh/verify before retrying. No automatic
+  retry or new business operation is introduced.
+- Owner also requested more independent local repairs and expanded relevant
+  local authority. Extend the same packet's Tier 2 slice to finance, staff and
+  customers: translate existing controls/errors only; keep financial recognition,
+  permission checks and identity commands intact. Customers request one page of
+  200 (server's existing maximum), not invalid size=500 or extra PII pages. Label
+  scope as a booking-derived window, not a full CRM or lifetime spend; group
+  existing booked values by currency without conversion or claiming payment.
+  This bounded repair adds no fetched fields, endpoint or permission. Complete
+  customer-directory retrieval remains a separate Tier 1 follow-up.
+- Four viewport widths, both locales, keyboard/axe and regression gates are
+  required before recording these four page files complete. Customers, finance,
+  staff and separately scoped data/payment/upload findings remain pending.
+- Owner-provided VPS target is `187.6.167.233`, not live verified. Read-only
+  Resort runbook describes Nginx/immutable releases and host `31.97.193.77`,
+  so it cannot prove the target server is identical. No Resort files/secrets
+  changed or reused. Authoritative Safari DNS currently returns `72.60.93.59`
+  and staff subdomain is absent. Owner expects propagation later; deployment
+  and DNS actions deferred until final readiness and a fresh verification.
+
+#### 2026-10-05 — OPS2-B final acceptance and Tier 2 review
+
+- All **11/11** named page files are localized; readiness only covers exact
+  routes/dynamic equivalents. Messages/reviews/sales/settings/customers/finance/
+  staff complete the remaining seven. Dictionary interpolation parity, exact
+  signed money, independent currency buckets and resource-neutral error
+  descriptors have executable tests. No backend or permission change in B.
+- Final `web pnpm run check` exits 0: matching OpenAPI, zero-warning lint,
+  all typechecks, **646/646 tests**, ERP **147/147 in 13 files**, six production
+  builds. The final staff wrapping correction is in this build/check tree.
+- Final production-preview Chromium foundation/bookings/tours/operations
+  fixtures pass **122/122 in 1.3 minutes**, three workers, retries=0. New suite
+  contributes 54 tests: both locales/four widths, zero axe WCAG AA violations
+  and no page overflow for seven pages, empty states, HTTP 401/403/404/500,
+  original identity/sales/resend payloads, view-only scope, language preservation,
+  password clearing, stale filter/range protection and keyset finance pages.
+- Initial 360px staff overflow was fixed at the wrapping container, not hidden;
+  remaining failed checks were corrected fixture bugs (duplicate synthetic
+  user ID, locale-dependent locator, overly broad `/tours` path matcher). No
+  failing assertions were skipped or retries enabled. Arabic staff/finance
+  360/1440 screenshots were visually inspected. These are fixtures, not live
+  Paymob, customer or external review evidence. CI step extended but not pushed.
+- Self-verification/Tier 2 review found zero remaining blockers within the
+  declared bounded presentation. Customers is explicitly a 200-record contact
+  window, not full CRM/lifetime spend; no extra PII is fetched. Full staff
+  calendar, settings API and connected verified reviews remain honest follow-ups.
+- Repository invariants and diff whitespace pass. Fresh audit still exits 1
+  with two HIGH advisories (node-forge/braces), no patched version reported;
+  release remains blocked. No exemptions or live account/server changes.
+- Handoff: `2026-10-05_ERP_BILINGUAL_COMPLETION_AR.md`; owner map/roadmap and
+  operations plan updated. Owner's repeated continue/all-gaps delegation resumes
+  the ordered local plan; external profiles and deployment explicitly last.
+
+### 2026-10-05 — WEGO-016-ENQUIRY: safe non-mock launch without Paymob
+
+- **Status:** COMPLETE
+- **Authority:** owner-approved temporary booking plan and explicit local
+  continuation/delegation after tests (`كمل كل النواقص`, `كمل بعد الاختبارات`,
+  `زي ما احنا متفقين`). OPS2-B is accepted/COMPLETE first; this is now the only
+  ACTIVE packet. OPS2-C/D/E/F/G, uploads and release are not activated.
+- **Review intensity:** Tier 1 — payment adapter composition, server booking/
+  payment gates, callback preservation and non-PII startup database guard.
+- **Goal:** catalog/prices/availability plus a truthful WhatsApp enquiry flow,
+  without online payment, fabricated PAID/confirmation or temporary seat holds.
+- **Scope:** explicit `ONLINE_PAYMENT` (default, fail-closed real config) vs
+  `ENQUIRY_ONLY` runtime mode; disabled non-mock adapter for a fresh payment-free
+  installation; preserve fully configured real callback/refund adapter for
+  existing payments. Refuse incomplete config when any payment records exist
+  (all statuses), rather than disable reconciliation silently. No migration,
+  manual collection, auth/permission change or new booking authority.
+- **Exact areas:** product CreateBooking/InitiatePayment/SalesControl API and
+  bean wiring; Paymob adapter selection/disabled adapter and payment-presence
+  read; OpenAPI/public status types; Safari site tour/booking CTA and four-language
+  notice; ERP effective-mode explanation; Safari example/Compose configuration;
+  backend startup/domain/HTTP/isolation, site unit/E2E and handbook evidence.
+- **Acceptance:** enquiry mode boots without provider keys/mocks only on fresh
+  payment-free storage; invalid mode/partial config/history without real adapter
+  fails startup; booking/payment/resume entry points return explicit unavailable
+  errors before writes or provider calls. Online mode remains unchanged; real
+  historical signed callbacks/refunds remain processable in enquiry mode.
+  Mode/sales flags agree at the server and staff/public UI. WhatsApp URL includes
+  factual tour/day/time/party selection only, no customer name/email/phone/token;
+  copy states office confirmation and no capacity reservation, all four locales.
+  Analytics remains enquiry, never purchase. Required backend/contracts/web/
+  browser/Compose evidence and independent fresh Tier 1 review with zero
+  blocking findings precede acceptance. No deploy, live credentials or mocks
+  on the VPS; known dependency release blocker remains open.
+- **Rollback:** retain default online gate; switching back requires complete
+  reviewed Paymob configuration and sandbox gate. Do not rewrite old enquiries
+  as paid bookings, drop payment history or remove callback secrets for history.
+
+#### 2026-10-05 — ENQUIRY implementation and first independent review round
+
+- Added explicit mode and pre-transaction booking/payment/resume guards;
+  public/staff effective status includes the mode without exposing staff notes.
+  Complete real provider configuration retains the original callback/refund
+  adapter. A disabled non-mock adapter is allowed only with entirely absent
+  provider configuration and zero payments; database-read failures fail closed.
+  Unknown mode, partial configuration, mock in enquiry mode and payment history
+  without real configuration refuse startup. No migration/auth change.
+- Four-language SSR notices/card/checkout use catalog-based enquiry selection,
+  never customer form data or analytics purchase. Strict client capability
+  parsing rejects missing/unknown/malformed mode and contradictory flags.
+- Fresh independent Tier 1 reviewer corrected contract description drift,
+  identified the online paused-checkout alert-role regression (fixed without
+  weakening the existing test), and required isolated all-status history test
+  setup (fixed with explicit ordering and zero/one-record assertions).
+- Backend final check passes: 223 Safari tests / 23 suites and 327 generic
+  tests / 70 suites, zero skipped/failures/errors. The final check uses the
+  executed test outputs; ktlint formatting/check were separated after an
+  initial parallel formatting/import-order race. Logs are local evidence:
+  `/tmp/safari-enquiry-backend-final.log` and corresponding JUnit XML.
+- Full web check before the final header correction passes 655 tests,
+  contracts/lint/typecheck and six production builds. Actual fresh non-mock
+  Compose runs at loopback 58087 with its own database/port 55439; no owner,
+  Resort OS or other-client containers/data were modified.
+- Initial browser setup exposed the existing 60-second SSR catalog-cache warmup
+  and Node's missing `staff.localhost` resolution; corrected fixture setup waits
+  for the factual catalog and uses loopback plus the actual staff Host header.
+  These do not relax booking assertions or enable test retries.
+- First complete browser matrix is 22/23: independent review reproduced a
+  real RU 768px header overflow (777px document vs 768px viewport). Header nav
+  now switches to the actual accessible menu below 1024px rather than hiding
+  overflow. Final image rebuild, full matrix and original online regression
+  gates remain pending; this packet is still ACTIVE.
+- Four actual container startup probes exit 1 for invalid mode, default online
+  missing config, partial config and enquiry mock. The opted-in disposable
+  history probe also proves built-backend refusal with a PENDING payment, then
+  removes only its two exact synthetic records. No fake acknowledgement of a
+  disabled callback; actual HTTP returns retryable 503.
+- Ordinary backend Docker build was blocked by external Gradle TLS/DNS; the
+  diagnostic offline build compiles source inside the pinned Gradle/JDK image
+  from dependency artifacts only and runs the pinned non-root JRE image. This
+  proves the runtime, not successful ordinary network release construction.
+  Ordinary frontend builds run separately to limit storage pressure.
+- Root storage filled during parallel builds. Only exact newly created,
+  rebuildable Safari Buildx cache entries were removed; no images, database
+  volumes, owner files or unrelated project caches were deleted. Free-space
+  headroom remains an operating concern, not a reason to skip gates.
+
+#### 2026-10-05 — ENQUIRY final acceptance and independent READY
+
+- Final strict parser uses direct enum comparisons; singleton-array modes are
+  rejected in the existing malformed-status test. This closes the reviewer's
+  non-blocking validator finding. Runbook now describes mode-aware smoke,
+  expected closed-sales WARN, fresh-only setup, historical real keys and the
+  sandbox activation/rollback gate; its documentation finding is resolved.
+- Final source web check passes **655/655**, contracts/lint/typecheck and all
+  six production builds: `/tmp/safari-enquiry-web-final-strict.log`, exit 0.
+  Backend evidence remains **223 Safari / 327 generic**, no failures or skips.
+- Final ordinary site image `77bb2ea941ce…` and ERP image `8bf35496b9a7…`
+  build successfully. Actual enquiry Compose is healthy and passes **24/24**
+  Chromium tests, one worker, retries=0, four languages/four widths plus the
+  eight-case tablet menu: `/tmp/safari-enquiry-final-24.log`, exit 0.
+- Final ERP image regression passes **122/122**, three workers, retries=0:
+  `/tmp/safari-enquiry-erp-acceptance.log`. The initial 121/122 result was
+  Node's staff.localhost DNS failure in a raw SSR fixture request. Loopback
+  with the actual Host and actual browser preference cookie preserves all
+  SSR language/direction/fallback assertions; no hosts-file change.
+- Original checkout/site/launch on a separate fresh ONLINE_PAYMENT mock-only
+  test deployment passes **29/29 in 47.7s**, retries=0, no skipped tests:
+  `/tmp/safari-online-final-fresh-browser.log`. Repeating the lifecycle on its
+  previously consumed 10-place fixture first produced 409/full-calendar
+  failures and one serial skip. Independent read-only inspection confirmed
+  10/10 booked and zero available. The final fresh database retains the old
+  records rather than deleting history or relaxing capacity assertions.
+- Built-container historical startup probe passes and removes only its two
+  owned synthetic records: `/tmp/safari-enquiry-history-startup-final.log`.
+  Four negative startup probes each exit 1 with the expected guard. Full real
+  signed historical paid/refund/replay behavior is proven in PostgreSQL tests;
+  no live Paymob account was used. Foundry/OpenAPI/YAML and diff checks pass.
+- Fresh independent Tier 1 reviewer `/root/enquiry_tier1_review` reports
+  **READY, zero open blocking or non-blocking findings**, after independent
+  execution and final-log/image checks. RU768 overflow, paused alert semantics,
+  history isolation, parser, contracts and runbook findings are all resolved.
+- Owner asked again about storage. Exact newly created Safari cache IDs were
+  reclaimed; one superseded unused site image created in this run was removed
+  after inspecting all container image references. It can be rebuilt from
+  source. Current active images/containers, all data volumes and owner files
+  remain intact. Last measurement: **3.6 GiB free on /, 8.3 GiB on /home**.
+  Root remains 94% used. Cleaning the 427 MiB apt cache was not performed:
+  `sudo -n apt-get clean` refused because sudo authentication is required.
+- Fresh web audit still exits 1 with **two HIGH** advisories:
+  `/tmp/safari-enquiry-audit-final.log`. Release remains blocked; no exemption,
+  commit/push/deploy/DNS or external-account mutation. Ordinary backend network
+  construction remains unproven after Gradle TLS/DNS failure; the documented
+  offline source build proves the local runtime, not that release gate.
+- Local packet accepted/COMPLETE. Handoff:
+  `clients/safari-tours-sharm/handoff/2026-10-05_ENQUIRY_MODE_HANDOFF_AR.md`.
+  Owner continuation authorizes the next local catalog/media packet below;
+  office collection/paid confirmation remains behind business-method approval.
+
+### 2026-10-05 — WEGO-016-MEDIA: catalog editor and managed image uploads
+
+- **Status:** ACTIVE
+- **Authority:** owner's approved dashboard upload/catalog request and repeated
+  local continuation/delegation (`كمل`, `بالطريقه المناسبة`, `الصور حعملها
+  اب لودي من الداش بورد للخدمات والكاتوجري`). ENQUIRY is accepted first;
+  this is now the only ACTIVE packet. No deployment/account authorization.
+- **Review intensity:** Tier 1 — authenticated file intake, private/public
+  publication, durable storage and any required Flyway/jOOQ metadata changes.
+- **Current work:** managed storage/upload, tour content/media editor and five
+  category covers implemented and locally tested. Current-source runtime and
+  independent review evidence is recorded below; matching DB+media restore is
+  still required. MEDIA remains ACTIVE, not accepted or production-ready.
+- **Goal:** owner uploads real photos and edits factual tour content in EN/AR
+  ERP, using the existing four-language draft/publish/rights-review contracts.
+  The system stores derived dimensions and durable files; upload itself never
+  grants publication rights or changes prices/availability/booking authority.
+- **Ordering:** catalog/media preparation can progress while office booking/
+  collection methods still need business facts. OPS2-C/D/E/F/G remain separate;
+  do not invent cash/transfer approval, manual PAID or supplier costs.
+- **Scope:** bounded JPEG/PNG intake with decode/size/pixel limits and metadata
+  stripping; immutable server-generated paths and derivative sizes; staff-only
+  draft preview, approved public access and rights/revision controls; catalog
+  editor and existing-category covers; client-isolated durable volume and
+  media-inclusive backup/restore. No remote URL ingestion or new editor/DAM.
+- **Affected areas:** tours-operator content/media application/infrastructure/
+  API and tests; OpenAPI/generated contracts; Safari ERP/site; isolated Compose/
+  edge/storage and operations scripts; migration/release profile if the audited
+  asset model requires one. Resolve that design before any schema mutation.
+- **Acceptance:** unauthorized/spoofed/oversized/truncated/bomb/traversal inputs
+  rejected before durable/public writes; failed uploads leave no published or
+  partial assets; revision/rights changes do not publish unseen files; no draft
+  leakage on guessed paths or image-optimizer routes; referenced assets cannot
+  be deleted; EN/AR editor and four-language presentation are accessible and
+  responsive. Required backend/web/contracts/real-Compose/file-store/restore
+  evidence and fresh independent Tier 1 READY precede acceptance.
+- **Reference:**
+  `clients/safari-tours-sharm/handoff/CATALOG_MEDIA_IMPLEMENTATION_SPEC_AR.md`.
+- **Rollback:** retain current static approved-media behavior; no destructive
+  cleanup or automatic replacement of owner originals. Preserve existing
+  content/media approvals and booking/payment boundaries. Any new migration
+  follows forward-fix rules and reviewed isolated release composition.
+
+#### 2026-10-05 — MEDIA source audit/specification checkpoint
+
+- Read actual content controller/service/domain/public-query, ERP API surface,
+  category component, Nuxt image configuration, Compose/edge and backup script.
+  Reuse existing view/manage/publish permissions and draft/revision/rights
+  rules; no second catalog or duplicated commercial pricing.
+- Recorded P0 file-intake and private/public-byte access gaps; P1 asset registry,
+  editor, dynamic image delivery/category covers and media-inclusive restore;
+  P2 encoder follow-up. Specification has explicit unchecked implementation
+  steps, initial JPEG/PNG byte/pixel limits and adversarial acceptance cases.
+- No upload endpoint, schema, asset file or catalog commercial change in this
+  checkpoint. Next action is settling asset/serving/revision/cache/backup
+  contract before implementing it under this same single ACTIVE Tier 1 packet.
+- Living owner map/roadmap/VPS/operations documents now agree: ENQUIRY COMPLETE,
+  MEDIA ACTIVE (audit/spec only), office collection and uploads still unfinished.
+  Repository/Foundry/OpenAPI/YAML validation and whitespace checks pass after
+  the transition. Logs: `/tmp/safari-enquiry-handoff-validation.log`.
+- Disposable ONLINE regression stacks are stopped/removed after their recorded
+  tests with their data volumes retained. Healthy non-mock enquiry preview
+  stays at loopback 58087 and its staff virtual host. No existing owner or
+  other-client stack is stopped/restarted. Production release remains blocked.
+
+#### 2026-10-05 — MEDIA implementation safe checkpoint (not packet acceptance)
+
+- Implemented V29 immutable asset/variant/category registry and five category
+  seeds using PostgreSQL/jOOQ-compatible plain INSERT, isolated to Safari's
+  migration selection. Generated release plans and OpenAPI/TypeScript agree;
+  Divers isolation asserts no V29 asset tables/permission in its release.
+- Bounded strict JPEG/PNG intake, metadata stripping/orientation/derivatives,
+  private no-clobber durable storage, owner-specific paths, request idempotency,
+  revision-checked links/rights and authorized private previews are implemented.
+  Upload never implies approval; public bytes recheck current rights/active
+  links and cannot be served from the Nuxt optimizer/private volume directly.
+- ERP EN/AR tour-content/media editor and five-category cover editor preserve
+  four-language drafts/alt and unsaved changes. Site cards/detail/gallery and
+  category covers use truthful approved catalog-driven media/dimensions.
+- Fresh review findings corrected: uncertain commit must not delete potentially
+  registered files; small-image preview uses an existing variant; optimizer
+  classification handles encoded URLs/query suffixes. No optimizer byte
+  disclosure was reproduced. Actual oversize browser upload exposed a 401/
+  reset transport error; early multipart 413 advice and bounded Tomcat discard
+  now pass actual HTTP boundary tests without relaxing auth or `/error`.
+- Final backend check/test: Safari 289 and generic application 327 tests,
+  zero failures/errors/skips; actual PostgreSQL/HTTP MEDIA subset 15. Separate
+  independent adversarial executions include storage/image/category/isolation
+  and final 15 HTTP tests. Logs: `/tmp/safari-media-backend-final-full.log`,
+  `/tmp/safari-media-independent-review.log`,
+  `/tmp/safari-media-independent-transport-review.log`.
+- Mandatory Safari quality gate PASS, including full web 730 tests, lint,
+  typecheck and six builds, contracts/legacy/log-privacy/Foundry/repository.
+  ERP unit 217, site 132. Logs: `/tmp/safari-media-quality-gate.log`,
+  `/tmp/safari-media-web-full.log`. Generic gate does not replace Safari's
+  separately executed isolated application check above.
+- Fresh current-source Compose MEDIA browser gate: 12/12, one worker,
+  zero retries/failures/skips/flakes, actual uploads/API/private/public bytes
+  and four-language rendering. EN/AR responsive/keyboard/axe screens cover
+  360/768/1024/1440. Existing ERP regression 122/122 uses explicit UI fixtures;
+  do not describe all 134 as non-mock backend acceptance. Reports:
+  `/tmp/safari-media-e2e-final.json`, `/tmp/safari-erp-regression-final.json`.
+- Durable-volume probe PASS on exact disposable `wego-safari-media-final`:
+  backend and edge recreated, private JPEG 19,517 bytes remains identical to
+  immutable DB metadata/SHA; same private named media volume, read-only root,
+  UID10001. Five healthy services, loopback edge 58088, ENQUIRY_ONLY, no Paymob
+  mock/live credentials/analytics IDs. Existing owner/other-client stacks and
+  ENQUIRY preview 58087 untouched; previous disposable MEDIA containers removed
+  with volumes retained. Log: `/tmp/safari-media-persistence-final.log`.
+- Ordinary site/ERP Docker builds PASS. Ordinary backend Docker build FAILED
+  on Gradle plugin download DNS; test runtime instead uses locally verified
+  bootJar plus pinned JRE. That diagnostic is not the ordinary production
+  image gate. Current in-container jar SHA256:
+  `04c18ee1765d0506fec02d8ef6f3639881430e92023d940cdea540d7ca41c1ad`.
+- DB-only backup/restore fail closed once V29 schema exists, even empty and
+  even if supplied backup metadata omits asset table counts. Negative guard
+  tests PASS; a consistent DB+media bundle and complete restore are still
+  **unimplemented**. No referenced/original file or data volume deleted.
+- Release still blocked by matching DB+media restore, ordinary backend image
+  gate, fresh whole-packet Tier 1 READY/UAT/performance evidence and two HIGH
+  production dependency advisories (`node-forge`, `braces`). Audit/CI remain
+  enabled; no silent exception. No Lighthouse/CWV scores claimed.
+- Comprehensive owner/agent handoff:
+  `clients/safari-tours-sharm/handoff/2026-10-05_CATALOG_MEDIA_SAFE_CHECKPOINT_AR.md`;
+  fresh review:
+  `clients/safari-tours-sharm/handoff/2026-10-05_MEDIA_TIER1_CHECKPOINT_REVIEW.md`.
+  Independent verdict: no open reproduced MEDIA code blocker at this limited
+  checkpoint; whole-packet acceptance remains NOT READY. Reviewer independently
+  compared the approved public JPEG before/after recreation and final JAR hash.
+  Suppliers/documents/office booking/costs/settlements remain separately ordered
+  OPS2-C/D/E/F/G; no later packet activated. MEDIA stays **ACTIVE**. No commit,
+  push, deploy, DNS/account/production operation performed.
+
 ---
 
 ## WEGO-017 — Foundry executable isolated client releases

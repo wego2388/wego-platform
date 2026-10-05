@@ -157,7 +157,7 @@ test.describe("Safari launch matrix", () => {
     try {
       await setSales(request, token, true);
       expect(await (await request.get(`${API_BASE}/api/v1/tours-operator/sales-status`)).json())
-        .toEqual({ bookingsOpen: false, paymentsOpen: false });
+        .toEqual({ bookingsOpen: false, paymentsOpen: false, bookingMode: "ONLINE_PAYMENT" });
 
       await page.goto(bookingPath("en"), { waitUntil: "networkidle" });
       await expect(page.getByRole("alert").filter({ hasText: "Online booking is paused" })).toBeVisible();

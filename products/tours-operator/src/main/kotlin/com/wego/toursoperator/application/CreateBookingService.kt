@@ -54,6 +54,9 @@ sealed class CreateBookingResult {
     /** A manager paused online bookings or payments (emergency sales control). */
     data object BookingsPaused : CreateBookingResult()
 
+    /** Enquiries must not create bookings or hold inventory. */
+    data object OnlineBookingUnavailable : CreateBookingResult()
+
     /** The request's pricing does not fit the tour (wrong option, guests don't fit the units, no child price…). */
     data class InvalidPricing(
         val code: String,
@@ -77,8 +80,16 @@ class CreateBookingService(
     private val transactionRunner: TransactionRunner,
     private val objectMapper: ObjectMapper,
     private val clock: Clock,
+    private val bookingMode: BookingMode = BookingMode.ONLINE_PAYMENT,
 ) {
     fun create(command: CreateBookingCommand): CreateBookingResult =
+        if (!bookingMode.onlineEnabled) {
+            CreateBookingResult.OnlineBookingUnavailable
+        } else {
+            createOnline(command)
+        }
+
+    private fun createOnline(command: CreateBookingCommand): CreateBookingResult =
         transactionRunner.runInTransaction {
             // A public booking can only be paid online, so paused payments
             // also stop new bookings — otherwise they would hold places for

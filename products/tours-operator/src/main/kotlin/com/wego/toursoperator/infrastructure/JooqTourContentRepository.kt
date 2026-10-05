@@ -3,6 +3,7 @@ package com.wego.toursoperator.infrastructure
 import com.wego.generated.jooq.tables.ToursOperatorTourContent.TOURS_OPERATOR_TOUR_CONTENT
 import com.wego.generated.jooq.tables.ToursOperatorTourFacts.TOURS_OPERATOR_TOUR_FACTS
 import com.wego.generated.jooq.tables.ToursOperatorTourMedia.TOURS_OPERATOR_TOUR_MEDIA
+import com.wego.toursoperator.application.PublicMedia
 import com.wego.toursoperator.application.PublishedTourSummary
 import com.wego.toursoperator.application.TourContentRepository
 import com.wego.toursoperator.domain.ContentLocale
@@ -201,6 +202,30 @@ class JooqTourContentRepository(
                     createdAt = r.createdAt.toInstant(),
                 )
             }
+    }
+
+    @Transactional(readOnly = true)
+    override fun findApprovedCovers(
+        tourIds: Collection<TourId>,
+        locale: ContentLocale,
+    ): Map<TourId, PublicMedia> {
+        if (tourIds.isEmpty()) return emptyMap()
+        val m = TOURS_OPERATOR_TOUR_MEDIA
+        return dsl
+            .selectFrom(m)
+            .where(m.TOUR_ID.`in`(tourIds.map { it.value }), m.RIGHTS_STATUS.eq(MediaRightsStatus.APPROVED.name))
+            .orderBy(m.IS_COVER.desc(), m.POSITION.asc())
+            .fetch()
+            .groupBy { TourId(it.tourId) }
+            .mapNotNull { (id, rows) ->
+                val cover =
+                    rows.firstNotNullOfOrNull { row ->
+                        val alt = altFromJson(row.alt)
+                        val text = alt[locale] ?: alt[ContentLocale.EN] ?: return@firstNotNullOfOrNull null
+                        PublicMedia(row.path, row.width, row.height, row.isCover, text)
+                    }
+                cover?.let { id to it }
+            }.toMap()
     }
 
     @Transactional

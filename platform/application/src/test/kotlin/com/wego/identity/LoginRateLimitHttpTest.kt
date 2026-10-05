@@ -15,12 +15,9 @@ import org.testcontainers.postgresql.PostgreSQLContainer
 
 /**
  * Proves the real, wired-by-default [com.wego.identity.infrastructure.InMemoryLoginAttemptThrottle]
- * bean actually rejects a second rapid attempt against the same account over
- * real HTTP — the application-level control that closes the gap an
- * IP-only edge limiter can't: an attacker spreading attempts across many
- * source addresses, or pacing them under the edge limiter's threshold, is
- * still caught here because the key is the target account, not the caller's
- * address. Deliberately does not import `NoThrottleConfiguration` — every
+ * bean actually rejects a second rapid invalid attempt against the same
+ * account over real HTTP, before any credential verification. Deliberately
+ * does not import `NoThrottleConfiguration` — every
  * other `@SpringBootTest` in this module does, specifically so this is the
  * one place the real throttle bean runs.
  */

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { CATEGORY_ORDER, useCatalog, type CatalogTour } from "../composables/useCatalog";
+import { useCategoryCovers } from "../composables/useCategoryCovers";
 import { useDiscoveryCopy } from "../composables/useDiscoveryCopy";
 import { useSiteLocale } from "../composables/useSiteLocale";
 import { siteCopy, siteEmail, siteWebsite, whatsappPhone, whatsappUrl } from "../content/locales";
@@ -9,6 +10,7 @@ import { CATEGORY_VISUAL } from "../utils/categoryVisual";
 const copy = useDiscoveryCopy();
 const locale = useSiteLocale();
 const { data: catalog, countsByCategory } = useCatalog();
+const { covers } = useCategoryCovers();
 
 /** One tour from each experience first, then the rest in catalogue order. */
 const featured = computed<CatalogTour[]>(() => {
@@ -94,7 +96,7 @@ useHead(() => ({
       </div>
       <ul class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <li v-for="category in CATEGORY_ORDER" :key="category">
-          <CategoryTile :category="category" :count="countsByCategory[category]" />
+          <CategoryTile :category="category" :count="countsByCategory[category]" :cover="covers[category]" />
         </li>
       </ul>
     </section>

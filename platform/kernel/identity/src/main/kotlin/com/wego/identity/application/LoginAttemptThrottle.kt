@@ -9,10 +9,12 @@ sealed interface ThrottleDecision {
 }
 
 /**
- * Keyed by the login identifier itself (an email, not an IP address) —
- * this is what closes the gap an IP-based edge limiter structurally can't:
- * an attacker spreading attempts across many source addresses is still
- * throttled here, because the key is the target account.
+ * Keyed by the login identifier itself (an email, not an IP address). A
+ * rejected decision is a hard gate before account lookup and password
+ * verification for every candidate, so callers cannot use the endpoint as a
+ * password oracle during the retry window. The edge limiter separately bounds
+ * work from one source address. Legitimate recovery during a window uses the
+ * advertised retry delay, password reset, or an authenticated admin path.
  *
  * A flat minimum-interval throttle only paces an attacker, it doesn't stop
  * one: someone patient enough to wait exactly that long between attempts

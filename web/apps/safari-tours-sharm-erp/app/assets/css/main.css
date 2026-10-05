@@ -15,7 +15,7 @@
   --color-sts-surface:      #FFFFFF;
   --color-sts-border:       #E4DED6;
   --color-sts-ink:          #1A1A2E;
-  --color-sts-muted:        #6B7280;
+  --color-sts-muted:        #596273;
   /* semantic */
   --color-sts-success:      #0f7a3d;
   --color-sts-success-soft: #dcf5e4;
@@ -105,11 +105,17 @@ html[dir="rtl"] {
 .badge-CONFIRMED { background: var(--color-sts-success-soft); color: var(--color-sts-success); }
 .badge-COMPLETED { background: var(--color-sts-info-soft);    color: var(--color-sts-info); }
 .badge-CANCELLED { background: var(--color-sts-danger-soft);  color: var(--color-sts-danger); }
-.badge-EXPIRED   { background: #f3f4f6; color: #6b7280; }
+.badge-EXPIRED   { background: #f3f4f6; color: var(--color-sts-muted); }
 
 :focus-visible {
   outline: 3px solid var(--color-sts-gold);
   outline-offset: 3px;
+}
+
+@media print {
+  html, body, .bg-sts-canvas {
+    background: #fff !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

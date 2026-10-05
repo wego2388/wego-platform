@@ -6,48 +6,48 @@ import {
   hasPermission,
   readAuthSession,
   type AuthSession,
-} from "../composables/useAuthSession";
+} from "../../composables/useAuthSession";
 import {
   listStaffTours,
   activateTour,
   deactivateTour,
-  formatMoney,
   ToursApiError,
   type Tour,
   type TourCategory,
   PAGE_SIZE,
-} from "../composables/useToursApi";
+} from "../../composables/useToursApi";
+import { useErpLocale } from "../../composables/useErpLocale";
+import type { ErpMessageDescriptor } from "../../utils/bookingMessages";
+import { tourErrorMessage } from "../../utils/tourMessages";
+import { contentMessage } from "../../utils/contentMessages";
+import { categoryMessage } from "../../utils/categoryMessages";
 
-useHead({ title: "Tours · Safari Tours Sharm" });
+const { locale, t, count, money } = useErpLocale();
+useHead(() => ({ title: `${t("nav.tours")} · Safari Tours Sharm` }));
 
 const router  = useRouter();
 const session = ref<AuthSession | null>(null);
 const tours   = ref<Tour[]>([]);
 const state   = ref<"idle" | "loading" | "loaded" | "error">("idle");
-const error   = ref("");
+const error   = ref<ErpMessageDescriptor | null>(null);
 const page    = ref(0);
 const hasNext = ref(false);
+let loadVersion = 0;
 
 const filterCategory = ref<TourCategory | "">("");
 const filterActive   = ref<"" | "true" | "false">("");
 
 /** Per-tour action state: "idle" | "pending" | "error" */
 const actionState = ref<Record<string, "idle" | "pending" | "error">>({});
+const actionErrors = ref<Record<string, ErpMessageDescriptor>>({});
 
 const canManage = computed(() => hasPermission(session.value, "tours-operator.tour:manage"));
 const canView   = computed(() => hasPermission(session.value, "tours-operator.tour:view") || canManage.value);
 
-const CATEGORIES: { value: TourCategory | ""; label: string }[] = [
-  { value: "",          label: "All Categories" },
-  { value: "DESERT",    label: "Desert" },
-  { value: "SEA",       label: "Sea" },
-  { value: "CULTURAL",  label: "Cultural" },
-  { value: "SHOWS",     label: "Shows" },
-  { value: "TRANSFERS", label: "Transfers" },
-];
+const CATEGORIES: TourCategory[] = ["DESERT", "SEA", "CULTURAL", "SHOWS", "TRANSFERS"];
 
 function categoryLabel(cat: TourCategory): string {
-  return CATEGORIES.find((c) => c.value === cat)?.label ?? cat;
+  return t(`category.${cat}`);
 }
 
 function handleApiError(err: unknown) {
@@ -59,8 +59,9 @@ function handleApiError(err: unknown) {
 
 async function load() {
   if (!session.value) return;
+  const version = ++loadVersion;
   state.value = "loading";
-  error.value = "";
+  error.value = null;
   try {
     const params: Parameters<typeof listStaffTours>[1] = {
       page: page.value,
@@ -70,13 +71,16 @@ async function load() {
     if (filterActive.value !== "") params.activeOnly = filterActive.value === "true";
 
     const result  = await listStaffTours(session.value.token, params);
+    if (version !== loadVersion) return;
     tours.value   = result;
     hasNext.value = result.length === PAGE_SIZE;
     state.value   = "loaded";
     actionState.value = {};
+    actionErrors.value = {};
   } catch (err) {
     handleApiError(err);
-    error.value = err instanceof ToursApiError ? err.errorCode : "Failed to load tours.";
+    if (version !== loadVersion) return;
+    error.value = tourErrorMessage(err);
     state.value = "error";
   }
 }
@@ -94,6 +98,7 @@ async function toggleActive(tour: Tour) {
   } catch (err) {
     handleApiError(err);
     actionState.value[tour.id] = "error";
+    actionErrors.value[tour.id] = tourErrorMessage(err);
   }
 }
 
@@ -126,15 +131,16 @@ onMounted(() => {
       <header class="flex flex-wrap items-center justify-between gap-4">
         <div>
           <div class="flex items-center gap-3"/>
-          <h1 class="mt-1 text-2xl font-semibold tracking-tight">Tours</h1>
+          <h1 class="mt-1 text-2xl font-semibold tracking-tight">{{ t("nav.tours") }}</h1>
         </div>
+        <NuxtLink v-if="canView" to="/categories" class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2.5 text-sm font-semibold text-sts-ocean hover:underline">{{ categoryMessage(locale, "title") }}</NuxtLink>
       </header>
 
       <!-- Nav links -->
 
       <!-- Permission check -->
       <WegoAlert v-if="!canView" variant="danger" class="mt-6">
-        You don't have permission to view tours.
+        {{ t("tours.noPermission") }}
       </WegoAlert>
 
       <template v-else>
@@ -142,53 +148,54 @@ onMounted(() => {
         <div class="mt-6 flex flex-wrap gap-3">
           <select
             v-model="filterCategory"
-            aria-label="Filter by category"
+            :aria-label="t('tours.filterCategory')"
             class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2.5 text-sm focus:outline-sts-gold"
           >
-            <option v-for="c in CATEGORIES" :key="c.value" :value="c.value">{{ c.label }}</option>
+            <option value="">{{ t("tours.allCategories") }}</option>
+            <option v-for="category in CATEGORIES" :key="category" :value="category">{{ categoryLabel(category) }}</option>
           </select>
           <select
             v-model="filterActive"
-            aria-label="Filter by status"
+            :aria-label="t('tours.filterStatus')"
             class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2.5 text-sm focus:outline-sts-gold"
           >
-            <option value="">All statuses</option>
-            <option value="true">Active</option>
-            <option value="false">Inactive</option>
+            <option value="">{{ t("common.allStatuses") }}</option>
+            <option value="true">{{ t("common.active") }}</option>
+            <option value="false">{{ t("common.inactive") }}</option>
           </select>
           <WegoButton type="button" variant="primary" size="sm" @click="applyFilters">
-            Filter
+            {{ t("common.filter") }}
           </WegoButton>
           <WegoButton type="button" variant="secondary" size="sm" @click="resetFilters">
-            Reset
+            {{ t("common.reset") }}
           </WegoButton>
         </div>
 
         <!-- Error -->
-        <WegoAlert v-if="state === 'error'" variant="danger" class="mt-6">{{ error }}</WegoAlert>
+        <WegoAlert v-if="state === 'error' && error" variant="danger" class="mt-6">{{ t(error.key, error.params) }}</WegoAlert>
 
         <!-- Loading -->
-        <p v-else-if="state === 'loading'" class="mt-6 text-sm text-sts-muted">Loading…</p>
+        <p v-else-if="state === 'loading'" class="mt-6 text-sm text-sts-muted" role="status">{{ t("common.loading") }}</p>
 
         <!-- Empty -->
         <p v-else-if="state === 'loaded' && tours.length === 0" class="mt-6 text-sm text-sts-muted">
-          No tours found.
+          {{ t("tours.empty") }}
         </p>
 
         <!-- Table -->
         <div v-else-if="tours.length > 0" class="mt-6 overflow-hidden rounded-2xl border border-sts-border bg-sts-surface shadow-sm">
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm" aria-label="Tours list">
+          <div class="overflow-x-auto" role="region" :aria-label="t('nav.tours')" tabindex="0">
+            <table class="w-full text-sm" :aria-label="t('nav.tours')">
               <thead>
                 <tr class="border-b border-sts-border bg-sts-canvas/60">
-                  <th scope="col" class="px-5 py-3 text-start text-xs font-semibold text-sts-muted">Name / Slug</th>
-                  <th scope="col" class="px-4 py-3 text-start text-xs font-semibold text-sts-muted">Category</th>
-                  <th scope="col" class="px-4 py-3 text-start text-xs font-semibold text-sts-muted">Duration</th>
-                  <th scope="col" class="px-4 py-3 text-end   text-xs font-semibold text-sts-muted">Price</th>
-                  <th scope="col" class="px-4 py-3 text-end   text-xs font-semibold text-sts-muted">Child price</th>
-                  <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-sts-muted">Places / departure</th>
-                  <th scope="col" class="px-5 py-3 text-start text-xs font-semibold text-sts-muted">Status</th>
-                  <th scope="col" class="px-5 py-3 text-start text-xs font-semibold text-sts-muted">Actions</th>
+                  <th scope="col" class="px-5 py-3 text-start text-xs font-semibold text-sts-muted">{{ t("tours.nameSlug") }}</th>
+                  <th scope="col" class="px-4 py-3 text-start text-xs font-semibold text-sts-muted">{{ t("tours.category") }}</th>
+                  <th scope="col" class="px-4 py-3 text-start text-xs font-semibold text-sts-muted">{{ t("tours.duration") }}</th>
+                  <th scope="col" class="px-4 py-3 text-end   text-xs font-semibold text-sts-muted">{{ t("tours.price") }}</th>
+                  <th scope="col" class="px-4 py-3 text-end   text-xs font-semibold text-sts-muted">{{ t("tours.childPrice") }}</th>
+                  <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-sts-muted">{{ t("tours.places") }}</th>
+                  <th scope="col" class="px-5 py-3 text-start text-xs font-semibold text-sts-muted">{{ t("common.status") }}</th>
+                  <th scope="col" class="px-5 py-3 text-start text-xs font-semibold text-sts-muted">{{ t("common.actions") }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -208,37 +215,38 @@ onMounted(() => {
                   <td class="money px-4 py-3.5 text-end font-semibold">
                     <template v-if="tour.priceBasis === 'PER_UNIT'">
                       <div v-for="option in tour.priceOptions" :key="option.code" class="whitespace-nowrap">
-                        {{ formatMoney(option.price) }} <span class="text-xs font-normal text-sts-muted">/ {{ option.label }} ({{ option.seatsPerUnit }})</span>
+                        {{ money(option.price) }} <span class="text-xs font-normal text-sts-muted">/ {{ option.label }} ({{ count(option.seatsPerUnit) }})</span>
                       </div>
                     </template>
-                    <template v-else>{{ formatMoney(tour.priceAdult) }} <span class="text-xs font-normal text-sts-muted">/ adult</span></template>
+                    <template v-else>{{ money(tour.priceAdult) }} <span class="text-xs font-normal text-sts-muted">/ {{ t("tours.adult") }}</span></template>
                   </td>
                   <td class="money px-4 py-3.5 text-end text-sts-muted">
-                    {{ tour.priceBasis === 'PER_UNIT' ? 'per unit' : tour.priceChild != null ? formatMoney(tour.priceChild) : '—' }}
+                    {{ tour.priceBasis === 'PER_UNIT' ? t('tours.perUnit') : tour.priceChild != null ? money(tour.priceChild) : '—' }}
                   </td>
-                  <td class="px-4 py-3.5 text-center tabular-nums">{{ tour.capacity }}</td>
+                  <td class="px-4 py-3.5 text-center tabular-nums">{{ count(tour.capacity) }}</td>
                   <td class="px-5 py-3.5">
                     <span :class="`badge ${tour.isActive ? 'badge-CONFIRMED' : 'badge-EXPIRED'}`">
-                      {{ tour.isActive ? 'Active' : 'Inactive' }}
+                      {{ tour.isActive ? t('common.active') : t('common.inactive') }}
                     </span>
                   </td>
                   <td class="px-5 py-3.5">
                     <div class="flex flex-wrap items-center gap-2">
+                      <NuxtLink :to="`/tours/${tour.id}/content`" class="text-xs font-semibold text-sts-ocean hover:underline underline-offset-2">{{ contentMessage(locale, "title") }}</NuxtLink>
                       <NuxtLink
                         :to="`/tours/${tour.id}/slots`"
                         class="text-xs font-semibold text-sts-ocean hover:underline underline-offset-2"
                       >
-                        Slots →
+                        {{ t("slots.heading") }}
                       </NuxtLink>
                       <template v-if="canManage">
                         <button
                           v-if="!tour.isActive && tour.tourType !== 'REQUEST_ONLY'"
                           type="button"
                           :disabled="actionState[tour.id] === 'pending'"
-                          class="text-xs font-semibold text-emerald-600 hover:underline underline-offset-2 disabled:opacity-50"
+                          class="text-xs font-semibold text-emerald-700 hover:underline underline-offset-2 disabled:opacity-50"
                           @click="toggleActive(tour)"
                         >
-                          {{ actionState[tour.id] === 'pending' ? '…' : 'Activate' }}
+                          {{ actionState[tour.id] === 'pending' ? '…' : t('tours.activate') }}
                         </button>
                         <button
                           v-else-if="tour.isActive"
@@ -247,13 +255,13 @@ onMounted(() => {
                           class="text-xs font-semibold text-rose-600 hover:underline underline-offset-2 disabled:opacity-50"
                           @click="toggleActive(tour)"
                         >
-                          {{ actionState[tour.id] === 'pending' ? '…' : 'Deactivate' }}
+                          {{ actionState[tour.id] === 'pending' ? '…' : t('tours.deactivate') }}
                         </button>
                         <span
-                          v-if="actionState[tour.id] === 'error'"
-                          class="text-xs text-rose-500"
+                          v-if="actionState[tour.id] === 'error' && actionErrors[tour.id]"
+                          class="text-xs text-sts-danger"
                           role="alert"
-                        >Failed</span>
+                        >{{ t(actionErrors[tour.id]!.key, actionErrors[tour.id]!.params) }}</span>
                       </template>
                     </div>
                   </td>
@@ -269,13 +277,13 @@ onMounted(() => {
             type="button" variant="secondary" size="sm"
             :disabled="page === 0"
             @click="page--; load()"
-          >Previous</WegoButton>
-          <span class="text-sm text-sts-muted">Page {{ page + 1 }}</span>
+          >{{ t("common.previous") }}</WegoButton>
+          <span class="text-sm text-sts-muted">{{ t("common.page", { page: count(page + 1) }) }}</span>
           <WegoButton
             type="button" variant="secondary" size="sm"
             :disabled="!hasNext"
             @click="page++; load()"
-          >Next</WegoButton>
+          >{{ t("common.next") }}</WegoButton>
         </div>
       </template>
 

@@ -329,6 +329,10 @@ jobs:
           }
           assert_rate_limit_contract "$app_rate_limit_body" /tmp/app-rate-limit-headers.txt
           assert_rate_limit_contract "$edge_rate_limit_body" /tmp/edge-rate-limit-headers.txt
+      - name: Safari ERP bilingual display and accessibility fixtures
+        env:
+          WEGO_STS_STAFF_BASE_URL: http://staff.localhost:58080
+        run: pnpm --dir e2e exec playwright test tests/safari-erp-locale.spec.ts tests/safari-erp-bookings-locale.spec.ts tests/safari-erp-tours-locale.spec.ts tests/safari-erp-operations-locale.spec.ts
       - name: Build and start isolated Sharm To Go stack
         env:
           COMPOSE_PROJECT_NAME: ci-sharm-to-go
@@ -343,6 +347,44 @@ jobs:
         env:
           COMPOSE_PROJECT_NAME: ci-sharm-to-go
         run: docker compose --env-file .env.sharm-to-go.example -f infrastructure/compose/sharm-to-go.compose.yaml down --volumes --remove-orphans || true
+      - name: Start fresh non-mock Safari enquiry bundle
+        # Its own fresh DB; never erase the paid checkout fixture to make a
+        # payment-history guard pass.
+        env:
+          COMPOSE_PROJECT_NAME: ci-safari-enquiry
+          WEGO_POSTGRES_DB: safari_enquiry_e2e
+          WEGO_POSTGRES_PORT: 55439
+          WEGO_EDGE_PORT: 58087
+          WEGO_SITE_PUBLIC_URL: http://127.0.0.1:58087
+        run: docker compose --env-file .env.safari-tours-sharm.example -f infrastructure/compose/safari-tours-sharm.compose.yaml -f e2e/compose.safari-enquiry.yaml up --build --wait -d
+      - name: Seed only the disposable enquiry catalog/staff fixture
+        env:
+          WEGO_POSTGRES_PORT: 55439
+          WEGO_POSTGRES_DB: safari_enquiry_e2e
+          WEGO_E2E_SEED_CONFIRM: yes-this-is-a-disposable-e2e-database
+          WEGO_E2E_PRODUCT: safari
+        run: pnpm --dir e2e run seed
+      - name: Verify real enquiry mode SSR, four languages, mobile sheets, API and staff mode
+        env:
+          WEGO_STS_SITE_BASE_URL: http://127.0.0.1:58087
+          WEGO_STS_STAFF_BASE_URL: http://staff.localhost:58087
+        run: pnpm --dir e2e exec playwright test tests/safari-enquiry.spec.ts
+      - name: Verify built enquiry backend refuses removing payment-history configuration
+        env:
+          COMPOSE_PROJECT_NAME: ci-safari-enquiry
+          WEGO_POSTGRES_DB: safari_enquiry_e2e
+          WEGO_POSTGRES_PORT: 55439
+          WEGO_EDGE_PORT: 58087
+          WEGO_E2E_SEED_CONFIRM: yes-this-is-a-disposable-e2e-database
+        run: node e2e/verify-safari-enquiry-history-startup.mjs
+      - name: Stop disposable Safari enquiry bundle
+        if: always()
+        env:
+          COMPOSE_PROJECT_NAME: ci-safari-enquiry
+          WEGO_POSTGRES_DB: safari_enquiry_e2e
+          WEGO_POSTGRES_PORT: 55439
+          WEGO_EDGE_PORT: 58087
+        run: docker compose --env-file .env.safari-tours-sharm.example -f infrastructure/compose/safari-tours-sharm.compose.yaml -f e2e/compose.safari-enquiry.yaml down --volumes --remove-orphans
       - name: Upload Playwright report after a failure
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

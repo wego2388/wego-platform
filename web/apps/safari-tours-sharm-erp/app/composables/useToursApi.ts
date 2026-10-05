@@ -185,7 +185,7 @@ export function updateSalesControl(
 }
 
 /** Public flags, readable by any staff member (no permission needed). */
-export async function getPublicSalesStatus(): Promise<{ bookingsOpen: boolean; paymentsOpen: boolean }> {
+export async function getPublicSalesStatus(): Promise<import("@wego/api-contract").PublicSalesStatus> {
   const response = await fetch("/api/v1/tours-operator/sales-status");
   if (!response.ok) throw new ToursApiError(response.status, `http_${response.status}`);
   return response.json();

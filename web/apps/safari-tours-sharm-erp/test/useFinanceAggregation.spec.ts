@@ -49,8 +49,9 @@ function makePayment(
 ): PaymentLedgerEntry {
   const status = overrides.status ?? "PAID";
   const paidAt = overrides.paidAt === undefined ? "2026-10-01T08:01:00Z" : overrides.paidAt;
-  // Mirrors the backend invariant: PAID captures are recognised when paid and
-  // keep that recognition through a refund; review captures never are.
+  // Mirrors the backend invariant: captured payments are recognised when paid
+  // and keep that recognition through a refund or later review; a review that
+  // was never captured has no recognition timestamp.
   const revenueRecognisedAt = "revenueRecognisedAt" in overrides
     ? overrides.revenueRecognisedAt ?? null
     : status === "PAID" || status === "REFUNDED" ? paidAt : null;
@@ -121,6 +122,20 @@ describe("payment-ledger finance truth", () => {
     const summary = computeRevenueSummary(payments, "2026-10-01", "2026-10-31");
     expect(summary.grossPaid.amount).toBe("0.00");
     expect(summary.paidCount).toBe(0);
+  });
+
+  it("keeps a captured review in revenue until staff reconciles it", () => {
+    const payment = makePayment({
+      paymentId: "payment-review-captured",
+      bookingId: "booking-review-captured",
+      status: "REVIEW_REQUIRED",
+      revenueRecognisedAt: "2026-10-02T10:00:00Z",
+    });
+
+    const events = paymentLedgerEvents([payment], "2026-10-01", "2026-10-03");
+
+    expect(events).toHaveLength(1);
+    expect(events[0]?.kind).toBe("PAID");
   });
 
   it("uses Cairo-local dates at the UTC day boundary", () => {

@@ -23,9 +23,14 @@ import {
   type Role,
   type StaffUser,
 } from "../composables/useIdentityAdminApi";
-import { groupPermissions, MIN_PASSWORD_LENGTH, staffErrorText } from "../composables/useStaffAdmin";
+import { groupPermissions, MIN_PASSWORD_LENGTH } from "../composables/useStaffAdmin";
+import { useErpLocale } from "../composables/useErpLocale";
+import { staffErrorMessage, staffGroupKey } from "../utils/staffMessages";
+import type { ErpMessageDescriptor } from "../utils/bookingMessages";
+import ErpLanguageSwitch from "../components/ErpLanguageSwitch.vue";
 
-useHead({ title: "Staff · Safari Tours Sharm" });
+const { t, count } = useErpLocale();
+useHead(() => ({ title: `${t("staff.title")} · Safari Tours Sharm` }));
 
 const router = useRouter();
 const session = ref<AuthSession | null>(null);
@@ -33,7 +38,7 @@ const users = ref<StaffUser[]>([]);
 const roles = ref<Role[]>([]);
 const permissions = ref<Permission[]>([]);
 const state = ref<"idle" | "loading" | "loaded" | "error">("idle");
-const error = ref("");
+const error = ref<ErpMessageDescriptor | null>(null);
 
 const canViewUsers = computed(() => hasPermission(session.value, "identity:user-view"));
 const canManageUsers = computed(() => hasPermission(session.value, "identity:user-manage"));
@@ -52,7 +57,7 @@ async function load() {
   if (!session.value) return;
   const token = session.value.token;
   state.value = "loading";
-  error.value = "";
+  error.value = null;
   try {
     // GET /roles requires role-view on the server; without it, role
     // assignment is hidden instead of failing the whole page.
@@ -67,7 +72,7 @@ async function load() {
     state.value = "loaded";
   } catch (err) {
     handleApiError(err);
-    error.value = staffErrorText(err);
+    error.value = staffErrorMessage(err);
     state.value = "error";
   }
 }
@@ -75,8 +80,8 @@ async function load() {
 // ── Accounts ────────────────────────────────────────────────────────────────
 
 const rowState = ref<Record<string, "idle" | "submitting" | "error">>({});
-const rowError = ref<Record<string, string>>({});
-const rowNotice = ref<Record<string, string>>({});
+const rowError = ref<Record<string, ErpMessageDescriptor | null>>({});
+const rowNotice = ref<Record<string, ErpMessageDescriptor | null>>({});
 
 function replaceUser(updated: StaffUser) {
   users.value = users.value.map((existing) => (existing.id === updated.id ? updated : existing));
@@ -84,15 +89,15 @@ function replaceUser(updated: StaffUser) {
 
 async function runRowAction(user: StaffUser, action: () => Promise<void>) {
   rowState.value[user.id] = "submitting";
-  rowError.value[user.id] = "";
-  rowNotice.value[user.id] = "";
+  rowError.value[user.id] = null;
+  rowNotice.value[user.id] = null;
   try {
     await action();
     rowState.value[user.id] = "idle";
   } catch (err) {
     handleApiError(err);
     rowState.value[user.id] = "error";
-    rowError.value[user.id] = staffErrorText(err);
+    rowError.value[user.id] = staffErrorMessage(err);
   }
 }
 
@@ -139,23 +144,23 @@ function confirmReset() {
   closeReset();
   void runRowAction(user, async () => {
     await resetUserPassword(token, user.id, password);
-    rowNotice.value[user.id] = `Password reset. Tell ${user.email} the new password directly, not by email.`;
+    rowNotice.value[user.id] = { key: "staff.resetDone", params: { email: user.email } };
   });
 }
 
 const newUser = ref({ email: "", password: "", roleCodes: [] as string[] });
 const createUserState = ref<"idle" | "submitting" | "error">("idle");
-const createUserError = ref("");
+const createUserError = ref<ErpMessageDescriptor | null>(null);
 
 async function submitNewUser() {
   if (!session.value) return;
   if (newUser.value.password.length < MIN_PASSWORD_LENGTH) {
     createUserState.value = "error";
-    createUserError.value = `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`;
+    createUserError.value = { key: "staff.passwordLength", params: { count: MIN_PASSWORD_LENGTH } };
     return;
   }
   createUserState.value = "submitting";
-  createUserError.value = "";
+  createUserError.value = null;
   try {
     const created = await createUser(session.value.token, { ...newUser.value });
     users.value = [created, ...users.value];
@@ -164,7 +169,7 @@ async function submitNewUser() {
   } catch (err) {
     handleApiError(err);
     createUserState.value = "error";
-    createUserError.value = staffErrorText(err);
+    createUserError.value = staffErrorMessage(err);
   }
 }
 
@@ -173,7 +178,7 @@ async function submitNewUser() {
 const editingPermissionsFor = ref<string | null>(null);
 const editingPermissions = ref<string[]>([]);
 const roleState = ref<Record<string, "idle" | "submitting" | "error">>({});
-const roleError = ref<Record<string, string>>({});
+const roleError = ref<Record<string, ErpMessageDescriptor | null>>({});
 
 function startEditPermissions(role: Role) {
   editingPermissionsFor.value = role.code;
@@ -183,7 +188,7 @@ function startEditPermissions(role: Role) {
 async function savePermissions(role: Role) {
   if (!session.value) return;
   roleState.value[role.code] = "submitting";
-  roleError.value[role.code] = "";
+  roleError.value[role.code] = null;
   try {
     const updated = await updateRolePermissions(session.value.token, role.code, editingPermissions.value);
     roles.value = roles.value.map((existing) => (existing.code === updated.code ? updated : existing));
@@ -192,18 +197,18 @@ async function savePermissions(role: Role) {
   } catch (err) {
     handleApiError(err);
     roleState.value[role.code] = "error";
-    roleError.value[role.code] = staffErrorText(err);
+    roleError.value[role.code] = staffErrorMessage(err);
   }
 }
 
 const newRole = ref({ code: "", description: "", permissionCodes: [] as string[] });
 const createRoleState = ref<"idle" | "submitting" | "error">("idle");
-const createRoleError = ref("");
+const createRoleError = ref<ErpMessageDescriptor | null>(null);
 
 async function submitNewRole() {
   if (!session.value) return;
   createRoleState.value = "submitting";
-  createRoleError.value = "";
+  createRoleError.value = null;
   try {
     const created = await createRole(session.value.token, { ...newRole.value });
     roles.value = [...roles.value, created];
@@ -212,7 +217,7 @@ async function submitNewRole() {
   } catch (err) {
     handleApiError(err);
     createRoleState.value = "error";
-    createRoleError.value = staffErrorText(err);
+    createRoleError.value = staffErrorMessage(err);
   }
 }
 
@@ -230,19 +235,19 @@ onMounted(() => {
     <div class="mx-auto max-w-5xl">
       <header class="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 class="mt-1 text-2xl font-semibold tracking-tight">Staff</h1>
-          <p class="text-sm text-sts-muted">Sign-in accounts, roles and what each role may do.</p>
+          <h1 class="mt-1 text-2xl font-semibold tracking-tight">{{ t("staff.title") }}</h1>
+          <p class="text-sm text-sts-muted">{{ t("staff.subtitle") }}</p>
         </div>
       </header>
 
-      <WegoAlert v-if="state === 'error'" variant="danger" class="mt-6">{{ error }}</WegoAlert>
-      <p v-else-if="state === 'loading'" class="mt-6 text-sm text-sts-muted">Loading…</p>
+      <WegoAlert v-if="state === 'error' && error" variant="danger" class="mt-6">{{ t(error.key, error.params) }}</WegoAlert>
+      <p v-else-if="state === 'loading'" class="mt-6 text-sm text-sts-muted" role="status">{{ t("common.loading") }}</p>
 
       <template v-else-if="state === 'loaded'">
         <!-- Accounts -->
         <section v-if="canViewUsers" class="mt-8" aria-labelledby="accounts-heading">
-          <h2 id="accounts-heading" class="text-lg font-semibold">Accounts</h2>
-          <p v-if="users.length === 0" class="mt-3 text-sm text-sts-muted">No staff accounts yet.</p>
+          <h2 id="accounts-heading" class="text-lg font-semibold">{{ t("staff.accounts") }}</h2>
+          <p v-if="users.length === 0" class="mt-3 text-sm text-sts-muted">{{ t("staff.empty") }}</p>
           <ul v-else class="mt-3 space-y-3">
             <li
               v-for="user in users"
@@ -253,15 +258,15 @@ onMounted(() => {
                 <div class="min-w-0">
                   <div class="flex flex-wrap items-center gap-2">
                     <p class="break-all font-semibold">{{ user.email }}</p>
-                    <WegoBadge :tone="user.status === 'ACTIVE' ? 'success' : 'neutral'">{{ user.status }}</WegoBadge>
+                    <WegoBadge :tone="user.status === 'ACTIVE' ? 'success' : 'neutral'">{{ t(`staff.${user.status}`) }}</WegoBadge>
                   </div>
-                  <p class="mt-1 text-sm text-sts-muted">{{ user.roles.join(", ") || "No roles — cannot do anything yet" }}</p>
+                  <p class="mt-1 break-all text-sm text-sts-muted">{{ user.roles.join(", ") || t("staff.noRoles") }}</p>
                 </div>
-                <div v-if="canManageUsers" class="flex shrink-0 flex-wrap gap-2">
+                <div v-if="canManageUsers" class="flex w-full min-w-0 flex-wrap gap-2 sm:w-auto">
                   <WegoButton v-if="canViewRoles" type="button" variant="secondary" size="sm" @click="startEditRoles(user)">
-                    Change roles
+                    {{ t("staff.changeRoles") }}
                   </WegoButton>
-                  <WegoButton type="button" variant="secondary" size="sm" @click="resettingFor = user">Reset password</WegoButton>
+                  <WegoButton type="button" variant="secondary" size="sm" @click="resettingFor = user">{{ t("staff.resetPassword") }}</WegoButton>
                   <WegoButton
                     type="button"
                     variant="secondary"
@@ -269,15 +274,15 @@ onMounted(() => {
                     :disabled="rowState[user.id] === 'submitting'"
                     @click="toggleStatus(user)"
                   >
-                    {{ user.status === "ACTIVE" ? "Disable" : "Enable" }}
+                    {{ t(user.status === "ACTIVE" ? "staff.disable" : "staff.enable") }}
                   </WegoButton>
                 </div>
               </div>
-              <WegoAlert v-if="rowState[user.id] === 'error'" variant="danger" class="mt-3">{{ rowError[user.id] }}</WegoAlert>
-              <WegoAlert v-if="rowNotice[user.id]" variant="success" class="mt-3">{{ rowNotice[user.id] }}</WegoAlert>
+              <WegoAlert v-if="rowState[user.id] === 'error' && rowError[user.id]" variant="danger" class="mt-3">{{ t(rowError[user.id]!.key, rowError[user.id]!.params) }}</WegoAlert>
+              <WegoAlert v-if="rowNotice[user.id]" variant="success" class="mt-3">{{ t(rowNotice[user.id]!.key, rowNotice[user.id]!.params) }}</WegoAlert>
 
               <fieldset v-if="editingRolesFor === user.id" class="mt-4 rounded-xl border border-sts-border p-4">
-                <legend class="px-1 text-sm font-medium text-sts-muted">Roles for {{ user.email }}</legend>
+                <legend class="break-all px-1 text-sm font-medium text-sts-muted">{{ t("staff.rolesFor", { email: user.email }) }}</legend>
                 <div class="flex flex-wrap gap-4">
                   <label v-for="role in roles" :key="role.code" class="flex items-center gap-2 text-sm">
                     <input v-model="editingRoles" type="checkbox" :value="role.code">
@@ -285,29 +290,30 @@ onMounted(() => {
                   </label>
                 </div>
                 <div class="mt-3 flex gap-2">
-                  <WegoButton type="button" size="sm" :disabled="rowState[user.id] === 'submitting'" @click="saveRoles(user)">Save roles</WegoButton>
-                  <WegoButton type="button" variant="secondary" size="sm" @click="editingRolesFor = null">Cancel</WegoButton>
+                  <WegoButton type="button" size="sm" :disabled="rowState[user.id] === 'submitting'" @click="saveRoles(user)">{{ t("staff.saveRoles") }}</WegoButton>
+                  <WegoButton type="button" variant="secondary" size="sm" @click="editingRolesFor = null">{{ t("common.cancel") }}</WegoButton>
                 </div>
               </fieldset>
             </li>
           </ul>
 
-          <WegoDialog :open="resettingFor !== null" title="Reset password" @close="closeReset">
+          <WegoDialog :open="resettingFor !== null" :title="t('staff.resetPassword')" @close="closeReset">
+            <ErpLanguageSwitch class="mb-4" />
             <p class="text-sm text-sts-muted">
-              New password for {{ resettingFor?.email }} (at least {{ MIN_PASSWORD_LENGTH }} characters).
+              {{ t("staff.resetHelp", { email: resettingFor?.email ?? "", count: count(MIN_PASSWORD_LENGTH) }) }}
             </p>
             <WegoInput
               id="resetPassword"
               v-model="newPassword"
-              label="New password"
+              :label="t('staff.newPassword')"
               type="password"
               class="mt-3"
               autocomplete="new-password"
             />
             <template #actions>
-              <WegoButton type="button" variant="secondary" @click="closeReset">Cancel</WegoButton>
+              <WegoButton type="button" variant="secondary" @click="closeReset">{{ t("common.cancel") }}</WegoButton>
               <WegoButton type="button" :disabled="newPassword.length < MIN_PASSWORD_LENGTH" @click="confirmReset">
-                Reset password
+                {{ t("staff.resetPassword") }}
               </WegoButton>
             </template>
           </WegoDialog>
@@ -317,21 +323,21 @@ onMounted(() => {
             class="mt-6 space-y-4 rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm"
             @submit.prevent="submitNewUser"
           >
-            <h3 class="font-semibold">New staff account</h3>
-            <WegoInput id="newUserEmail" v-model="newUser.email" label="Email" type="email" autocomplete="off" required />
+            <h3 class="font-semibold">{{ t("staff.newAccount") }}</h3>
+            <WegoInput id="newUserEmail" v-model="newUser.email" :label="t('settings.email')" type="email" autocomplete="off" required />
             <WegoInput
               id="newUserPassword"
               v-model="newUser.password"
-              :label="`Password (at least ${MIN_PASSWORD_LENGTH} characters)`"
+              :label="t('staff.passwordLabel', { count: count(MIN_PASSWORD_LENGTH) })"
               type="password"
               autocomplete="new-password"
               required
             />
             <p v-if="!canViewRoles" class="text-xs text-sts-muted">
-              Roles can be assigned by someone with role-view permission after the account exists.
+              {{ t("staff.rolesLater") }}
             </p>
             <fieldset v-else>
-              <legend class="text-sm font-medium text-sts-muted">Roles</legend>
+              <legend class="text-sm font-medium text-sts-muted">{{ t("staff.roles") }}</legend>
               <div class="mt-2 flex flex-wrap gap-4">
                 <label v-for="role in roles" :key="role.code" class="flex items-center gap-2 text-sm">
                   <input v-model="newUser.roleCodes" type="checkbox" :value="role.code">
@@ -339,14 +345,15 @@ onMounted(() => {
                 </label>
               </div>
             </fieldset>
-            <WegoAlert v-if="createUserState === 'error'" variant="danger">{{ createUserError }}</WegoAlert>
-            <WegoButton type="submit" size="sm" :disabled="createUserState === 'submitting'">Create account</WegoButton>
+            <WegoAlert v-if="createUserState === 'error' && createUserError" variant="danger">{{ t(createUserError.key, createUserError.params) }}</WegoAlert>
+            <WegoButton type="submit" size="sm" :disabled="createUserState === 'submitting'">{{ t("staff.createAccount") }}</WegoButton>
           </form>
         </section>
 
         <!-- Roles -->
         <section v-if="canViewRoles" class="mt-10" aria-labelledby="roles-heading">
-          <h2 id="roles-heading" class="text-lg font-semibold">Roles & permissions</h2>
+          <h2 id="roles-heading" class="text-lg font-semibold">{{ t("staff.rolesPermissions") }}</h2>
+          <p class="mt-2 text-xs text-sts-muted">{{ t("staff.technicalNote") }}</p>
           <ul class="mt-3 space-y-3">
             <li
               v-for="role in roles"
@@ -355,9 +362,9 @@ onMounted(() => {
             >
               <div class="flex flex-wrap items-start justify-between gap-3">
                 <div class="min-w-0">
-                  <p class="font-mono font-semibold">{{ role.code }}</p>
-                  <p class="text-sm text-sts-muted">{{ role.description }}</p>
-                  <p class="mt-1 text-xs text-sts-muted">{{ role.permissions.length }} permissions</p>
+                  <p class="break-all font-mono font-semibold">{{ role.code }}</p>
+                  <p class="break-words text-sm text-sts-muted">{{ role.description }}</p>
+                  <p class="mt-1 text-xs text-sts-muted">{{ t("staff.permissionCount", { count: count(role.permissions.length) }) }}</p>
                 </div>
                 <WegoButton
                   v-if="canManageRoles && editingPermissionsFor !== role.code"
@@ -366,31 +373,31 @@ onMounted(() => {
                   size="sm"
                   @click="startEditPermissions(role)"
                 >
-                  Edit permissions
+                  {{ t("staff.editPermissions") }}
                 </WegoButton>
               </div>
-              <WegoAlert v-if="roleState[role.code] === 'error'" variant="danger" class="mt-3">{{ roleError[role.code] }}</WegoAlert>
+              <WegoAlert v-if="roleState[role.code] === 'error' && roleError[role.code]" variant="danger" class="mt-3">{{ t(roleError[role.code]!.key, roleError[role.code]!.params) }}</WegoAlert>
 
               <div v-if="editingPermissionsFor === role.code" class="mt-4 space-y-4">
                 <fieldset v-for="group in permissionGroups" :key="group.label" class="rounded-xl border border-sts-border p-4">
-                  <legend class="px-1 text-sm font-medium text-sts-muted">{{ group.label }}</legend>
+                  <legend class="px-1 text-sm font-medium text-sts-muted">{{ staffGroupKey(group.label) ? t(staffGroupKey(group.label)!) : group.label }}</legend>
                   <label
                     v-for="permission in group.permissions"
                     :key="permission.code"
                     class="flex items-start gap-2 py-1 text-sm"
                   >
                     <input v-model="editingPermissions" type="checkbox" :value="permission.code" class="mt-1">
-                    <span>
+                    <span class="min-w-0 break-words">
                       {{ permission.description }}
-                      <span class="block font-mono text-xs text-sts-muted">{{ permission.code }}</span>
+                      <span class="block break-all font-mono text-xs text-sts-muted">{{ permission.code }}</span>
                     </span>
                   </label>
                 </fieldset>
                 <div class="flex gap-2">
                   <WegoButton type="button" size="sm" :disabled="roleState[role.code] === 'submitting'" @click="savePermissions(role)">
-                    Save permissions
+                    {{ t("staff.savePermissions") }}
                   </WegoButton>
-                  <WegoButton type="button" variant="secondary" size="sm" @click="editingPermissionsFor = null">Cancel</WegoButton>
+                  <WegoButton type="button" variant="secondary" size="sm" @click="editingPermissionsFor = null">{{ t("common.cancel") }}</WegoButton>
                 </div>
               </div>
             </li>
@@ -401,22 +408,22 @@ onMounted(() => {
             class="mt-6 space-y-4 rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm"
             @submit.prevent="submitNewRole"
           >
-            <h3 class="font-semibold">New role</h3>
-            <WegoInput id="newRoleCode" v-model="newRole.code" label="Code (e.g. front-desk)" required />
-            <WegoInput id="newRoleDescription" v-model="newRole.description" label="Description" required />
+            <h3 class="font-semibold">{{ t("staff.newRole") }}</h3>
+            <WegoInput id="newRoleCode" v-model="newRole.code" :label="t('staff.roleCode')" required />
+            <WegoInput id="newRoleDescription" v-model="newRole.description" :label="t('staff.description')" required />
             <fieldset v-for="group in permissionGroups" :key="group.label" class="rounded-xl border border-sts-border p-4">
-              <legend class="px-1 text-sm font-medium text-sts-muted">{{ group.label }}</legend>
+              <legend class="px-1 text-sm font-medium text-sts-muted">{{ staffGroupKey(group.label) ? t(staffGroupKey(group.label)!) : group.label }}</legend>
               <label
                 v-for="permission in group.permissions"
                 :key="permission.code"
                 class="flex items-start gap-2 py-1 text-sm"
               >
                 <input v-model="newRole.permissionCodes" type="checkbox" :value="permission.code" class="mt-1">
-                <span>{{ permission.description }}</span>
+                <span class="min-w-0 break-words">{{ permission.description }}</span>
               </label>
             </fieldset>
-            <WegoAlert v-if="createRoleState === 'error'" variant="danger">{{ createRoleError }}</WegoAlert>
-            <WegoButton type="submit" size="sm" :disabled="createRoleState === 'submitting'">Create role</WegoButton>
+            <WegoAlert v-if="createRoleState === 'error' && createRoleError" variant="danger">{{ t(createRoleError.key, createRoleError.params) }}</WegoAlert>
+            <WegoButton type="submit" size="sm" :disabled="createRoleState === 'submitting'">{{ t("staff.createRole") }}</WegoButton>
           </form>
         </section>
       </template>

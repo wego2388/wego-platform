@@ -17,7 +17,7 @@ class SessionAuthenticationService(
         if (!session.isActive(now)) return null
 
         val user = userRepository.findById(session.userId) ?: return null
-        if (!user.canAuthenticate(now)) return null
+        if (!user.canUseExistingSession()) return null
 
         return AuthenticatedPrincipal(user, session, permissionResolver.resolve(user.roles))
     }

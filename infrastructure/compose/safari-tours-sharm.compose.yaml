@@ -30,9 +30,12 @@ services:
       WEGO_DB_PASSWORD: ${WEGO_POSTGRES_PASSWORD:?set WEGO_POSTGRES_PASSWORD in the environment file}
       WEGO_DB_POOL_SIZE: 5
       WEGO_FLYWAY_ENABLED: "true"
-      # Paymob (real adapter). The backend refuses to start while any of these
-      # is missing or a placeholder, unless the isolated E2E override enables
-      # the mock adapter.
+      TOURS_OPERATOR_MEDIA_VOLUME_PATH: /data/safari-media
+      # Default ONLINE_PAYMENT requires complete real Paymob config.
+      # Fresh, payment-free ENQUIRY_ONLY may omit all provider credentials.
+      # History requires the real adapter for callbacks/refunds in either mode.
+      TOURS_OPERATOR_BOOKING_MODE: ${TOURS_OPERATOR_BOOKING_MODE:-ONLINE_PAYMENT}
+      TOURS_OPERATOR_PAYMOB_MOCK_ENABLED: "false"
       TOURS_OPERATOR_PAYMOB_SECRET_KEY: ${TOURS_OPERATOR_PAYMOB_SECRET_KEY:-}
       TOURS_OPERATOR_PAYMOB_PUBLIC_KEY: ${TOURS_OPERATOR_PAYMOB_PUBLIC_KEY:-}
       TOURS_OPERATOR_PAYMOB_API_KEY: ${TOURS_OPERATOR_PAYMOB_API_KEY:-}
@@ -51,6 +54,8 @@ services:
       start_period: 20s
     read_only: true
     tmpfs: ["/tmp:size=64m,mode=1777"]
+    volumes:
+      - safari_media:/data/safari-media
     restart: unless-stopped
     networks: [internal]
 
@@ -118,5 +123,7 @@ networks:
   internal: { driver: bridge }
 
 volumes:
+  safari_media:
+    name: ${COMPOSE_PROJECT_NAME:-safari-tours-sharm}-media
   postgres_data:
     name: ${COMPOSE_PROJECT_NAME:-safari-tours-sharm}-postgres-data

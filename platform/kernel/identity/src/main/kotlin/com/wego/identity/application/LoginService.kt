@@ -37,23 +37,33 @@ class LoginService(
         // over-length value must never reach the varchar(320) audit
         // column, which would turn a routine bad-input 401 into an
         // unhandled 500 from the failed INSERT.
-        val boundedRawEmail = rawEmail.take(MAX_AUDIT_EMAIL_LENGTH)
-        val throttleKey = boundedRawEmail.trim().lowercase()
+        // Normalize before bounding so equivalent spellings cannot bypass the
+        // per-account throttle by putting padding outside the first 320
+        // characters. The same normalized value is used for validation and
+        // the bounded audit column.
+        val normalizedRawEmail = rawEmail.trim()
+        val boundedRawEmail = normalizedRawEmail.take(MAX_AUDIT_EMAIL_LENGTH)
+        val throttleKey = boundedRawEmail.lowercase()
 
-        // Keyed by the account, not the caller's address — an edge-level,
-        // per-IP limiter (see infrastructure/nginx/nginx.conf) can't stop
-        // an attacker who paces requests under its rate or spreads them
-        // across many source addresses; this closes that gap by throttling
-        // the account itself, before any DB/bcrypt work happens at all.
+        // Keyed by the account, not the caller's address. A rejected decision
+        // is a hard gate before the database lookup and password verifier: if
+        // rejected guesses still reached bcrypt, an attacker could ignore the
+        // 429 and use the endpoint as an unbounded password oracle. Correct
+        // credentials must use the documented recovery path (wait for the
+        // retry window, password reset, or an already-authenticated admin
+        // recovery action) rather than bypassing this security boundary.
         val throttleDecision = loginAttemptThrottle.tryAcquire(throttleKey)
         if (throttleDecision is ThrottleDecision.Rejected) {
-            return LoginResult.failure(RATE_LIMITED_REASON, retryAfterSeconds = throttleDecision.retryAfterSeconds)
+            return LoginResult.failure(
+                RATE_LIMITED_REASON,
+                retryAfterSeconds = throttleDecision.retryAfterSeconds,
+            )
         }
 
         val result =
             transactionRunner.runInTransaction {
                 val now = Instant.now(clock)
-                val email = runCatching { EmailAddress.of(rawEmail) }.getOrNull()
+                val email = runCatching { EmailAddress.of(normalizedRawEmail) }.getOrNull()
 
                 if (email == null) {
                     // Still pay bcrypt's cost so this branch isn't distinguishable
@@ -73,13 +83,17 @@ class LoginService(
                     return@runInTransaction LoginResult.failure(FAILURE_REASON)
                 }
 
-                if (!user.canAuthenticate(now)) {
+                if (user.status != com.wego.identity.domain.UserStatus.ACTIVE) {
                     passwordHasher.matches(rawPassword, DUMMY_HASH)
-                    auditRecorder.recordLoginFailure(email.value, "ACCOUNT_LOCKED_OR_DISABLED", now, correlationId)
+                    auditRecorder.recordLoginFailure(email.value, "ACCOUNT_DISABLED", now, correlationId)
                     return@runInTransaction LoginResult.failure(FAILURE_REASON)
                 }
 
                 if (!passwordHasher.matches(rawPassword, user.passwordHash)) {
+                    if (user.isLocked(now)) {
+                        auditRecorder.recordLoginFailure(email.value, "ACCOUNT_LOCKED", now, correlationId)
+                        return@runInTransaction LoginResult.failure(FAILURE_REASON)
+                    }
                     user.registerFailedLogin(now, maxFailedAttempts, lockoutDuration)
                     userRepository.save(user)
                     auditRecorder.recordLoginFailure(email.value, "WRONG_PASSWORD", now, correlationId)
@@ -113,7 +127,7 @@ class LoginService(
         // the account's own lockout threshold on a predictable schedule.
         if (result.success) {
             loginAttemptThrottle.recordSuccess(throttleKey)
-        } else {
+        } else if (result.failureReason != RATE_LIMITED_REASON) {
             loginAttemptThrottle.recordFailure(throttleKey)
         }
         return result

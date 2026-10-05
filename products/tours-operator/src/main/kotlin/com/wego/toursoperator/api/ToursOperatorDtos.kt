@@ -33,6 +33,7 @@ data class ErrorResponse(
 // ── Tour responses ────────────────────────────────────────────────────────────
 
 data class TourSummaryResponse(
+    val cover: PublicMediaResponse? = null,
     val id: UUID,
     val slug: String,
     val category: TourCategory,

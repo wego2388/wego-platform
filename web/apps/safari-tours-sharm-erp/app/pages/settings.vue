@@ -7,13 +7,17 @@ import {
   type AuthSession,
 } from "../composables/useAuthSession";
 import { ToursApiError } from "../composables/useToursApi";
+import { useErpLocale } from "../composables/useErpLocale";
+import type { ErpMessageDescriptor } from "../utils/bookingMessages";
+import { operationsErrorMessage } from "../utils/operationsMessages";
 
-useHead({ title: "Settings · Safari Tours Sharm" });
+const { t, count } = useErpLocale();
+useHead(() => ({ title: `${t("settings.title")} · Safari Tours Sharm` }));
 
 const router  = useRouter();
 const session = ref<AuthSession | null>(null);
 const state   = ref<"idle" | "loading" | "loaded" | "error">("idle");
-const error   = ref("");
+const error   = ref<ErpMessageDescriptor | null>(null);
 
 interface SettingsData {
   companyName: string;
@@ -28,9 +32,6 @@ interface SettingsData {
 
 const settings = ref<SettingsData | null>(null);
 
-// Read-only for now (per Phase 4 spec)
-const _canManage = ref(false); // future: hasPermission(session.value, "tours-operator.settings:manage")
-
 function handleApiError(err: unknown) {
   if (err instanceof ToursApiError && err.status === 401) {
     clearAuthSession();
@@ -41,7 +42,7 @@ function handleApiError(err: unknown) {
 async function load() {
   if (!session.value) return;
   state.value = "loading";
-  error.value = "";
+  error.value = null;
   try {
     const response = await fetch("/api/v1/tours-operator/settings", {
       headers: { Authorization: `Bearer ${session.value.token}` },
@@ -60,7 +61,7 @@ async function load() {
       settings.value = null;
       state.value    = "loaded";
     } else {
-      error.value = err instanceof ToursApiError ? err.errorCode : "Failed to load settings.";
+      error.value = operationsErrorMessage(err);
       state.value = "error";
     }
   }
@@ -81,25 +82,25 @@ onMounted(() => {
       <!-- Header -->
       <header class="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 class="mt-1 text-2xl font-semibold tracking-tight">Settings</h1>
+          <h1 class="mt-1 text-2xl font-semibold tracking-tight">{{ t("settings.title") }}</h1>
         </div>
       </header>
 
       <!-- Nav -->
 
-      <WegoAlert v-if="state === 'error'" variant="danger" class="mt-6">{{ error }}</WegoAlert>
-      <p v-else-if="state === 'loading'" class="mt-6 text-sm text-sts-muted">Loading…</p>
+      <WegoAlert v-if="state === 'error' && error" variant="danger" class="mt-6 break-all">{{ t(error.key, error.params) }}</WegoAlert>
+      <p v-else-if="state === 'loading'" class="mt-6 text-sm text-sts-muted" role="status">{{ t("common.loading") }}</p>
 
       <template v-else-if="state === 'loaded'">
 
         <!-- Read-only notice -->
         <div class="mt-6 rounded-2xl border border-sts-border bg-sts-gold-soft px-5 py-3 text-sm text-sts-warning">
-          Settings are read-only in this release. Contact your system administrator to make changes.
+          {{ t("settings.readOnly") }}
         </div>
 
         <!-- No data yet -->
         <div v-if="!settings" class="mt-6 rounded-2xl border border-sts-border bg-sts-surface px-5 py-8 text-center text-sm text-sts-muted shadow-sm">
-          No settings data available from the server yet.
+          {{ t("settings.noData") }}
         </div>
 
         <!-- Settings display -->
@@ -107,55 +108,55 @@ onMounted(() => {
 
           <!-- Company info -->
           <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
-            <h2 class="mb-3 text-sm font-semibold text-sts-muted uppercase tracking-wide">Company</h2>
+            <h2 class="mb-3 text-sm font-semibold text-sts-muted uppercase tracking-wide">{{ t("settings.company") }}</h2>
             <dl class="space-y-2 text-sm">
               <div class="flex justify-between gap-4">
-                <dt class="text-sts-muted shrink-0">Name</dt>
-                <dd class="font-medium text-end">{{ settings.companyName }}</dd>
+                <dt class="text-sts-muted shrink-0">{{ t("settings.name") }}</dt>
+                <dd class="min-w-0 break-words font-medium text-end">{{ settings.companyName }}</dd>
               </div>
               <div class="flex justify-between gap-4">
-                <dt class="text-sts-muted shrink-0">Phone</dt>
-                <dd class="phone">{{ settings.companyPhone }}</dd>
+                <dt class="text-sts-muted shrink-0">{{ t("settings.phone") }}</dt>
+                <dd class="phone min-w-0 break-all">{{ settings.companyPhone }}</dd>
               </div>
               <div class="flex justify-between gap-4">
-                <dt class="text-sts-muted shrink-0">Email</dt>
+                <dt class="text-sts-muted shrink-0">{{ t("settings.email") }}</dt>
                 <dd class="break-all text-end">{{ settings.companyEmail }}</dd>
               </div>
               <div class="flex justify-between gap-4">
-                <dt class="text-sts-muted shrink-0">Address</dt>
-                <dd class="text-end">{{ settings.companyAddress }}</dd>
+                <dt class="text-sts-muted shrink-0">{{ t("settings.address") }}</dt>
+                <dd class="min-w-0 break-words text-end">{{ settings.companyAddress }}</dd>
               </div>
               <div v-if="settings.whatsappNumber" class="flex justify-between gap-4">
                 <dt class="text-sts-muted shrink-0">WhatsApp</dt>
-                <dd class="phone">{{ settings.whatsappNumber }}</dd>
+                <dd class="phone min-w-0 break-all">{{ settings.whatsappNumber }}</dd>
               </div>
             </dl>
           </div>
 
           <!-- System config -->
           <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
-            <h2 class="mb-3 text-sm font-semibold text-sts-muted uppercase tracking-wide">System</h2>
+            <h2 class="mb-3 text-sm font-semibold text-sts-muted uppercase tracking-wide">{{ t("settings.system") }}</h2>
             <dl class="space-y-2 text-sm">
               <div class="flex justify-between gap-4">
-                <dt class="text-sts-muted shrink-0">Currency</dt>
+                <dt class="text-sts-muted shrink-0">{{ t("settings.currency") }}</dt>
                 <dd class="font-mono">{{ settings.currency }}</dd>
               </div>
               <div class="flex justify-between gap-4">
-                <dt class="text-sts-muted shrink-0">Timezone</dt>
-                <dd class="font-mono">{{ settings.timezone }}</dd>
+                <dt class="text-sts-muted shrink-0">{{ t("settings.timezone") }}</dt>
+                <dd class="min-w-0 break-all font-mono" dir="ltr">{{ settings.timezone }}</dd>
               </div>
               <div class="flex justify-between gap-4">
-                <dt class="text-sts-muted shrink-0">Booking expiry</dt>
-                <dd class="tabular-nums">{{ settings.bookingExpiryMinutes }} minutes</dd>
+                <dt class="text-sts-muted shrink-0">{{ t("settings.expiry") }}</dt>
+                <dd class="tabular-nums">{{ t("settings.minutes", { count: count(settings.bookingExpiryMinutes) }) }}</dd>
               </div>
             </dl>
           </div>
 
           <!-- Session info -->
           <div class="rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
-            <h2 class="mb-3 text-sm font-semibold text-sts-muted uppercase tracking-wide">Logged in as</h2>
-            <p class="text-sm">{{ session?.email }}</p>
-            <p class="mt-1 text-xs text-sts-muted">Permissions: {{ session?.permissions.join(", ") || "none" }}</p>
+            <h2 class="mb-3 text-sm font-semibold text-sts-muted uppercase tracking-wide">{{ t("settings.loggedIn") }}</h2>
+            <p class="break-all text-sm" dir="ltr">{{ session?.email }}</p>
+            <p class="mt-1 break-all text-xs text-sts-muted">{{ t("settings.permissions", { permissions: session?.permissions.join(", ") || t("settings.none") }) }}</p>
           </div>
 
         </div>

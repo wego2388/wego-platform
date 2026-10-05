@@ -1,0 +1,10 @@
+# Explicit disposable test override. No mocks, real account IDs or provider
+# credentials. The synthetic analytics ID is intercepted by Playwright.
+services:
+  backend:
+    environment:
+      TOURS_OPERATOR_BOOKING_MODE: ENQUIRY_ONLY
+      TOURS_OPERATOR_PAYMOB_MOCK_ENABLED: "false"
+  safari-site:
+    environment:
+      NUXT_PUBLIC_GA4_ID: G-ENQUIRYTEST

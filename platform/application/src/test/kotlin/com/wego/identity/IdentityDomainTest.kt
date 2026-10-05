@@ -159,6 +159,18 @@ class UserTest {
     }
 
     @Test
+    fun `password guess lockout does not invalidate an existing session but disablement does`() {
+        val user = bootstrapUser()
+        repeat(5) { user.registerFailedLogin(now, maxAttempts = 5, lockoutDuration = Duration.ofMinutes(15)) }
+
+        assertThat(user.isLocked(now)).isTrue()
+        assertThat(user.canUseExistingSession()).isTrue()
+
+        user.disable()
+        assertThat(user.canUseExistingSession()).isFalse()
+    }
+
+    @Test
     fun `a successful login clears failed attempts and any lock`() {
         val user = bootstrapUser()
         repeat(5) { user.registerFailedLogin(now, maxAttempts = 5, lockoutDuration = Duration.ofMinutes(15)) }

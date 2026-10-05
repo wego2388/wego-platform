@@ -2,6 +2,9 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { hasPermission, logoutAuthSession, readAuthSession, type AuthSession } from "../composables/useAuthSession";
 import { getPublicSalesStatus } from "../composables/useToursApi";
+import { useErpLocale } from "../composables/useErpLocale";
+import { isLocalizedErpRoute } from "../utils/erpLocale";
+import ErpLanguageSwitch from "../components/ErpLanguageSwitch.vue";
 
 /**
  * One staff shell for every page: brand, permission-aware navigation and the
@@ -10,16 +13,19 @@ import { getPublicSalesStatus } from "../composables/useToursApi";
  */
 const route = useRoute();
 const router = useRouter();
+const { locale, t } = useErpLocale();
 const session = ref<AuthSession | null>(null);
 const menuOpen = ref(false);
-const signOutError = ref("");
+const signOutFailed = ref(false);
 
 // Every staff member sees when online sales are paused, so nobody wonders
 // why the website stopped taking bookings.
 const salesPaused = ref(false);
+const enquiryOnly = ref(false);
 async function refreshSalesStatus() {
   try {
     const status = await getPublicSalesStatus();
+    enquiryOnly.value = status.bookingMode === "ENQUIRY_ONLY";
     salesPaused.value = !status.bookingsOpen || !status.paymentsOpen;
   } catch {
     // Unknown is not "paused": keep the last known state.
@@ -41,17 +47,17 @@ watch(() => route.fullPath, () => {
 
 const links = computed(() =>
   [
-    { to: "/", label: "Overview", show: true },
-    { to: "/today", label: "Today", show: hasPermission(session.value, "tours-operator.booking:view") },
-    { to: "/bookings", label: "Bookings", show: hasPermission(session.value, "tours-operator.booking:view") },
-    { to: "/tours", label: "Tours", show: hasPermission(session.value, "tours-operator.tour:view") },
-    { to: "/finance", label: "Finance", show: hasPermission(session.value, "tours-operator.payment:view") },
-    { to: "/customers", label: "Customers", show: hasPermission(session.value, "tours-operator.booking:view") },
-    { to: "/reviews", label: "Reviews", show: hasPermission(session.value, "tours-operator.booking:view") },
-    { to: "/notifications", label: "Messages", show: hasPermission(session.value, "tours-operator.notification:manage") },
-    { to: "/staff", label: "Staff", show: hasPermission(session.value, "identity:user-view") || hasPermission(session.value, "identity:role-view") },
-    { to: "/sales", label: "Online sales", show: hasPermission(session.value, "tours-operator.tour:manage") },
-    { to: "/settings", label: "Settings", show: hasPermission(session.value, "tours-operator.settings:manage") },
+    { to: "/", label: t("nav.overview"), show: true },
+    { to: "/today", label: t("nav.today"), show: hasPermission(session.value, "tours-operator.booking:view") },
+    { to: "/bookings", label: t("nav.bookings"), show: hasPermission(session.value, "tours-operator.booking:view") },
+    { to: "/tours", label: t("nav.tours"), show: hasPermission(session.value, "tours-operator.tour:view") },
+    { to: "/finance", label: t("nav.finance"), show: hasPermission(session.value, "tours-operator.payment:view") },
+    { to: "/customers", label: t("nav.customers"), show: hasPermission(session.value, "tours-operator.booking:view") },
+    { to: "/reviews", label: t("nav.reviews"), show: hasPermission(session.value, "tours-operator.booking:view") },
+    { to: "/notifications", label: t("nav.messages"), show: hasPermission(session.value, "tours-operator.notification:manage") },
+    { to: "/staff", label: t("nav.staff"), show: hasPermission(session.value, "identity:user-view") || hasPermission(session.value, "identity:role-view") },
+    { to: "/sales", label: t("nav.sales"), show: hasPermission(session.value, "tours-operator.tour:manage") },
+    { to: "/settings", label: t("nav.settings"), show: hasPermission(session.value, "tours-operator.settings:manage") },
   ].filter((link) => link.show),
 );
 
@@ -60,13 +66,13 @@ function isActive(to: string) {
 }
 
 async function signOut() {
-  signOutError.value = "";
+  signOutFailed.value = false;
   try {
     await logoutAuthSession(session.value);
   } catch {
     // The token could not be revoked: keep the session visible and say so,
     // rather than pretending the staff member is signed out.
-    signOutError.value = "Sign out failed — the server could not end this session. Try again.";
+    signOutFailed.value = true;
     return;
   }
   session.value = null;
@@ -76,14 +82,14 @@ async function signOut() {
 
 <template>
   <div class="min-h-screen bg-sts-canvas text-sts-ink">
-    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:start-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-sts-surface focus:px-4 focus:py-2">Skip to content</a>
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:start-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-sts-surface focus:px-4 focus:py-2">{{ t('shell.skip') }}</a>
     <header class="sticky top-0 z-40 border-b border-white/10 bg-sts-ocean text-white print:hidden">
-      <div class="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-8">
+      <div class="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-4 py-3 sm:gap-4 sm:px-8">
         <NuxtLink to="/" class="flex shrink-0 items-center gap-2 font-semibold">
           <span class="grid size-8 place-items-center rounded-lg bg-sts-gold text-xs font-black text-sts-ocean">STS</span>
-          <span class="hidden sm:inline xl:hidden">Safari Tours Sharm · Staff</span>
+          <span class="hidden sm:inline xl:hidden">Safari Tours Sharm · {{ t('shell.staff') }}</span>
         </NuxtLink>
-        <nav v-if="session" class="hidden flex-1 items-center gap-1 overflow-x-auto xl:flex" aria-label="Main navigation">
+        <nav v-if="session" class="hidden min-w-0 flex-1 items-center gap-1 overflow-x-auto xl:flex" :aria-label="t('shell.navigation')">
           <NuxtLink
             v-for="link in links"
             :key="link.to"
@@ -95,21 +101,24 @@ async function signOut() {
             {{ link.label }}
           </NuxtLink>
         </nav>
-        <div v-if="session" class="ms-auto flex items-center gap-2">
+        <div class="ms-auto flex max-w-full flex-wrap items-center gap-1 sm:gap-2">
+          <ErpLanguageSwitch />
+          <template v-if="session">
           <span class="hidden max-w-40 truncate text-xs text-white/70 md:inline-block" :title="session.email">{{ session.email }}</span>
-          <button type="button" class="rounded-lg border border-white/25 px-3 py-1.5 text-sm font-semibold hover:bg-white/10" @click="signOut">Sign out</button>
+          <button type="button" class="rounded-lg border border-white/25 px-2 py-1.5 text-sm font-semibold hover:bg-white/10 sm:px-3" @click="signOut">{{ t('shell.signOut') }}</button>
           <button
             type="button"
-            class="rounded-lg border border-white/25 px-3 py-1.5 text-sm font-semibold hover:bg-white/10 xl:hidden"
+            class="rounded-lg border border-white/25 px-2 py-1.5 text-sm font-semibold hover:bg-white/10 sm:px-3 xl:hidden"
             :aria-expanded="menuOpen"
             aria-controls="staff-menu"
             @click="menuOpen = !menuOpen"
           >
-            Menu
+            {{ t('shell.menu') }}
           </button>
+          </template>
         </div>
       </div>
-      <nav v-if="session && menuOpen" id="staff-menu" class="grid gap-1 border-t border-white/10 px-4 py-3 xl:hidden" aria-label="Main navigation">
+      <nav v-if="session && menuOpen" id="staff-menu" class="grid gap-1 border-t border-white/10 px-4 py-3 xl:hidden" :aria-label="t('shell.navigation')">
         <NuxtLink
           v-for="link in links"
           :key="link.to"
@@ -121,11 +130,13 @@ async function signOut() {
         </NuxtLink>
       </nav>
     </header>
-    <p v-if="session && salesPaused" role="alert" class="bg-sts-danger px-4 py-2 text-center text-sm font-semibold text-white print:hidden">
-      Online sales are paused.
-      <NuxtLink to="/sales" class="underline">Open the switch</NuxtLink>
+    <p v-if="session && enquiryOnly" role="status" class="border-b border-sts-border bg-sts-info-soft px-4 py-3 text-sm text-sts-info print:hidden">{{ t('sales.enquiryMode') }}</p>
+    <p v-else-if="session && salesPaused" role="alert" class="bg-sts-danger px-4 py-2 text-center text-sm font-semibold text-white print:hidden">
+      {{ t('shell.salesPaused') }}
+      <NuxtLink to="/sales" class="underline">{{ t('shell.salesSwitch') }}</NuxtLink>
     </p>
-    <p v-if="signOutError" role="alert" class="bg-sts-danger-soft px-4 py-2 text-center text-sm font-semibold text-sts-danger">{{ signOutError }}</p>
+    <p v-if="signOutFailed" role="alert" class="bg-sts-danger-soft px-4 py-2 text-center text-sm font-semibold text-sts-danger">{{ t('shell.signOutFailed') }}</p>
+    <p v-if="locale === 'ar' && !isLocalizedErpRoute(route.path)" role="status" class="border-b border-sts-border bg-sts-info-soft px-4 py-3 text-sm text-sts-info print:hidden">{{ t('shell.englishPage') }}</p>
     <div id="main" tabindex="-1">
       <slot />
     </div>

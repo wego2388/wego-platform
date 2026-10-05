@@ -132,16 +132,28 @@ internal class InMemorySessionRepository : SessionRepository {
     ) {
         byId[id]?.revoke(asOf)
     }
+
+    override fun revokeAllForUser(
+        userId: UserId,
+        asOf: Instant,
+    ) {
+        byId.values.filter { it.userId == userId }.forEach { it.revoke(asOf) }
+    }
 }
 
 /** Stores passwords in plaintext with a fixed prefix — test-only, never production. */
 internal class FakePasswordHasher : PasswordHasher {
+    var matchesCalls: Int = 0
+
     override fun hash(rawPassword: String): HashedPassword = HashedPassword.of("hashed:$rawPassword")
 
     override fun matches(
         rawPassword: String,
         hashed: HashedPassword,
-    ): Boolean = hashed.value == "hashed:$rawPassword"
+    ): Boolean {
+        matchesCalls++
+        return hashed.value == "hashed:$rawPassword"
+    }
 }
 
 internal class SequentialTokenGenerator : SessionTokenGenerator {

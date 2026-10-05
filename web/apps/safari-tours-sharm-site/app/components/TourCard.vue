@@ -39,7 +39,10 @@ const onRequest = computed(() => tour.value.tourType === "REQUEST_ONLY");
   <article class="group relative flex h-full flex-col overflow-hidden rounded-[var(--sts-radius-card)] border border-sts-border bg-sts-surface shadow-sts-base transition-[transform,box-shadow] duration-[var(--sts-dur-base)] ease-[var(--sts-ease)] hover:-translate-y-1 hover:shadow-sts-raised focus-within:-translate-y-1 focus-within:shadow-sts-raised">
     <div class="overflow-hidden" :style="{ viewTransitionName: `tour-media-${tour.slug}` }">
       <BrandTourMedia
-        alt=""
+        :src="tour.cover?.path"
+        :alt="tour.cover?.alt ?? ''"
+        :width="tour.cover?.width"
+        :height="tour.cover?.height"
         :category="tour.category"
         :priority="priority"
         ratio="4 / 3"

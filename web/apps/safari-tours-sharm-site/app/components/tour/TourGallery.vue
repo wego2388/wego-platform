@@ -35,13 +35,13 @@ function onKey(event: KeyboardEvent) {
     <ul class="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2">
       <li v-for="(item, i) in media" :key="item.path" class="w-64 shrink-0 snap-start sm:w-72">
         <button type="button" class="block w-full overflow-hidden rounded-[var(--sts-radius-media)]" :aria-label="copy.open(i + 1)" @click="show(i)">
-          <NuxtImg :src="item.path" :alt="item.alt" :width="item.width" :height="item.height" sizes="288px" loading="lazy" class="aspect-[4/3] w-full object-cover transition-transform hover:scale-[1.03]" />
+          <BrandSafeTourImage :src="item.path" :alt="item.alt" :width="item.width" :height="item.height" sizes="288px" loading="lazy" class="aspect-[4/3] w-full object-cover transition-transform hover:scale-[1.03]" />
         </button>
       </li>
     </ul>
     <UiDialog v-model:open="open" :title="copy.heading" :close-label="copy.close">
       <div v-if="current" class="grid gap-3">
-        <NuxtImg :src="current.path" :alt="current.alt" :width="current.width" :height="current.height" sizes="(max-width: 768px) 100vw, 900px" class="max-h-[70vh] w-full rounded-[var(--sts-radius-media)] object-contain" />
+        <BrandSafeTourImage :src="current.path" :alt="current.alt" :width="current.width" :height="current.height" sizes="(max-width: 768px) 100vw, 900px" class="max-h-[70vh] w-full rounded-[var(--sts-radius-media)] object-contain" />
         <div class="flex items-center justify-between gap-3">
           <UiButton variant="secondary" size="sm" icon="lucide:chevron-left" class="rtl:[&_svg]:-scale-x-100" :aria-label="copy.previous" @click="step(-1)" />
           <p class="text-sm text-sts-muted" aria-live="polite">{{ copy.counter(index + 1, media.length) }}</p>

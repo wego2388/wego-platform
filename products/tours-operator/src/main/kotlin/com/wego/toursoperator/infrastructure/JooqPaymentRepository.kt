@@ -3,6 +3,7 @@ package com.wego.toursoperator.infrastructure
 import com.wego.generated.jooq.tables.ToursOperatorBooking.TOURS_OPERATOR_BOOKING
 import com.wego.generated.jooq.tables.ToursOperatorPayment.TOURS_OPERATOR_PAYMENT
 import com.wego.generated.jooq.tables.ToursOperatorPaymentAuditEvent.TOURS_OPERATOR_PAYMENT_AUDIT_EVENT
+import com.wego.generated.jooq.tables.ToursOperatorPaymentRefundEvent.TOURS_OPERATOR_PAYMENT_REFUND_EVENT
 import com.wego.toursoperator.application.PaymentActivity
 import com.wego.toursoperator.application.PaymentHistoryEntry
 import com.wego.toursoperator.application.PaymentRepository
@@ -22,6 +23,9 @@ import java.util.UUID
 class JooqPaymentRepository(
     private val dsl: DSLContext,
 ) : PaymentRepository {
+    @Transactional(readOnly = true)
+    override fun hasAnyPayments(): Boolean = dsl.fetchExists(TOURS_OPERATOR_PAYMENT)
+
     @Transactional(readOnly = true)
     override fun findById(id: PaymentId): Payment? {
         val t = TOURS_OPERATOR_PAYMENT
@@ -207,6 +211,27 @@ class JooqPaymentRepository(
                     recorded = r[a.SOURCE] == "LIVE",
                 )
             }
+    }
+
+    @Transactional
+    override fun claimRefundCallback(
+        paymentId: PaymentId,
+        providerRefundId: String,
+        amountMinorUnits: Long,
+        receivedAt: Instant,
+    ): Boolean {
+        require(providerRefundId.isNotBlank()) { "providerRefundId must not be blank" }
+        val r = TOURS_OPERATOR_PAYMENT_REFUND_EVENT
+        return dsl
+            .insertInto(r)
+            .set(r.ID, UUID.randomUUID())
+            .set(r.PAYMENT_ID, paymentId.value)
+            .set(r.PROVIDER_REFUND_ID, providerRefundId)
+            .set(r.AMOUNT_MINOR_UNITS, amountMinorUnits)
+            .set(r.RECEIVED_AT, toOffset(receivedAt))
+            .onConflict(r.PAYMENT_ID, r.PROVIDER_REFUND_ID)
+            .doNothing()
+            .execute() == 1
     }
 
     private fun toDomain(r: com.wego.generated.jooq.tables.records.ToursOperatorPaymentRecord): Payment =

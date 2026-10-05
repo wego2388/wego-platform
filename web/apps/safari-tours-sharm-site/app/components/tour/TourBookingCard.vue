@@ -7,6 +7,11 @@ import { useSiteLocale } from "../../composables/useSiteLocale";
 import { tourPageCopy } from "../../content/tourPage";
 import { whatsappUrl } from "../../content/locales";
 import { BOOKING_WINDOW_DAYS, addDays, bookableByDay, operatorToday } from "../../utils/availability";
+import { useSalesStatus } from "../../composables/useSalesStatus";
+import { useAnalytics } from "../../composables/useAnalytics";
+import { enquiryCopy } from "../../content/enquiry";
+import { checkoutCopy } from "../../content/checkout";
+import { onlineSalesAvailable, tripEnquiryUrl } from "../../utils/enquiry";
 
 /**
  * Date → time → guests → total → continue. Availability is always read live
@@ -21,6 +26,12 @@ const discovery = useDiscoveryCopy();
 const slotNames = computed(() => discovery.value.tours.slots);
 const router = useRouter();
 const localePath = useLocalePath();
+// This card is inserted after hydration (desktop aside/mobile sheet). Keep
+// setup synchronous; the shared SSR capability is already owned by the layout.
+const { data: sales } = useSalesStatus();
+const enquiry = computed(() => enquiryCopy[locale.value]);
+const online = computed(() => onlineSalesAvailable(sales.value));
+const analytics = useAnalytics();
 
 const today = operatorToday();
 const lastDay = addDays(today, BOOKING_WINDOW_DAYS);
@@ -100,7 +111,7 @@ const canContinue = computed(() => selectedSlot.value !== null && total.value !=
 
 function proceed() {
   const slot = selectedSlot.value;
-  if (!slot) return;
+  if (!slot || !online.value) return;
   void router.push({
     path: localePath(`/booking/${slot.id}`),
     query: {
@@ -115,6 +126,10 @@ function proceed() {
 }
 
 const whatsappLink = computed(() => {
+  if (!online.value) return tripEnquiryUrl(locale.value, props.tour, {
+    date: selectedDate.value, timeSlot: selectedSlot.value?.timeSlot, adults: adults.value,
+    children: childrenBookable.value ? children.value : 0, optionCode: option.value?.code, units: units.value,
+  });
   const text = copy.value.whatsappMessage(props.tourName, selectedDate.value, adults.value, children.value);
   return `${whatsappUrl}?text=${encodeURIComponent(text)}`;
 });
@@ -218,9 +233,13 @@ const whatsappLink = computed(() => {
     </div>
 
     <div class="grid gap-2">
-      <UiButton size="lg" block :disabled="!canContinue" icon-end="lucide:arrow-right" @click="proceed">{{ copy.continue }}</UiButton>
+      <UiButton v-if="online" size="lg" block :disabled="!canContinue" icon-end="lucide:arrow-right" @click="proceed">{{ copy.continue }}</UiButton>
+      <template v-else>
+        <p class="rounded-[var(--sts-radius-control)] bg-sts-sand-soft p-3 text-sm" data-enquiry-notice>{{ sales?.bookingMode === 'ENQUIRY_ONLY' ? enquiry.notice : sales ? checkoutCopy[locale].errors.salesPaused : enquiry.unknown }}</p>
+        <UiButton :href="whatsappLink" size="lg" block icon="lucide:message-circle" data-trip-enquiry @click="analytics.track('whatsapp_click', { placement: 'tour_enquiry', item_id: tour.slug })">{{ enquiry.cta }}</UiButton>
+      </template>
       <p v-if="selectedDate && !selectedSlot" class="text-center text-xs text-sts-muted">{{ copy.pickTime }}</p>
-      <UiButton :href="whatsappLink" variant="ghost" block icon="lucide:message-circle">{{ copy.askWhatsapp }}</UiButton>
+      <UiButton v-if="online" :href="whatsappLink" variant="ghost" block icon="lucide:message-circle">{{ copy.askWhatsapp }}</UiButton>
     </div>
   </div>
 </template>

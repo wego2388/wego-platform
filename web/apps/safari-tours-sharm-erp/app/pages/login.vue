@@ -1,20 +1,26 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { WegoAlert, WegoButton, WegoInput } from "@wego/ui";
 import {
   readAuthSession,
   writeAuthSession,
 } from "../composables/useAuthSession";
+import { useErpLocale } from "../composables/useErpLocale";
+import type { ErpMessageKey } from "../utils/erpLocale";
+import ErpLanguageSwitch from "../components/ErpLanguageSwitch.vue";
 
 // The sign-in screen is full-page and has no staff navigation.
 definePageMeta({ layout: false });
 
-useHead({ title: "Sign in · Safari Tours Sharm" });
+const { t } = useErpLocale();
+useHead(() => ({ title: `${t("login.title")} · Safari Tours Sharm` }));
 
 const email = ref("");
 const password = ref("");
 const state = ref<"idle" | "submitting" | "error">("idle");
-const errorMsg = ref("");
+const errorKey = ref<ErpMessageKey | null>(null);
+const errorCode = ref("");
+const errorMsg = computed(() => errorKey.value ? t(errorKey.value, { code: errorCode.value }) : "");
 
 const router = useRouter();
 
@@ -44,7 +50,8 @@ async function revokeSessionBestEffort(token: string): Promise<void> {
 
 async function submit() {
   state.value = "submitting";
-  errorMsg.value = "";
+  errorKey.value = null;
+  errorCode.value = "";
   let issuedToken = "";
   try {
     const response = await fetch("/api/v1/identity/login", {
@@ -60,11 +67,12 @@ async function submit() {
           ? String(body.error)
           : `http_${response.status}`;
       if (response.status === 401 || code === "invalid_credentials") {
-        errorMsg.value = "Incorrect email or password.";
+        errorKey.value = "login.incorrect";
       } else if (response.status === 429 || code === "rate_limited") {
-        errorMsg.value = "Too many attempts. Please wait before trying again.";
+        errorKey.value = "login.throttled";
       } else {
-        errorMsg.value = `Sign in failed (${code}).`;
+        errorKey.value = "login.failed";
+        errorCode.value = code;
       }
       state.value = "error";
       return;
@@ -80,7 +88,7 @@ async function submit() {
     });
     if (!meResponse.ok) {
       await revokeSessionBestEffort(issuedToken);
-      errorMsg.value = "The server could not validate this session. Please sign in again.";
+      errorKey.value = "login.sessionInvalid";
       state.value = "error";
       return;
     }
@@ -97,14 +105,15 @@ async function submit() {
     // If login succeeded but /me or storage failed, revoke the otherwise
     // orphaned server-side session instead of leaving it valid until expiry.
     await revokeSessionBestEffort(issuedToken);
-    errorMsg.value = "Could not reach the server. Check your connection and try again.";
+    errorKey.value = "login.connectionFailed";
     state.value = "error";
   }
 }
 </script>
 
 <template>
-  <main class="flex min-h-screen items-center justify-center bg-sts-ocean px-6 py-12">
+  <main class="relative flex min-h-screen items-center justify-center bg-sts-ocean px-4 py-20 sm:px-6">
+    <div class="absolute end-4 top-4 text-white"><ErpLanguageSwitch /></div>
     <div class="w-full max-w-sm">
 
       <div class="mb-10 text-center">
@@ -112,11 +121,11 @@ async function submit() {
           S
         </div>
         <p class="mt-4 font-semibold text-white">Safari Tours Sharm</p>
-        <p class="mt-1 text-sm text-white/55">Operations Dashboard</p>
+        <p class="mt-1 text-sm text-white/75">{{ t('login.dashboard') }}</p>
       </div>
 
       <div class="rounded-2xl bg-sts-surface p-8 shadow-xl">
-        <h1 class="text-xl font-semibold text-sts-ink">Sign in</h1>
+        <h1 class="text-xl font-semibold text-sts-ink">{{ t('login.title') }}</h1>
 
         <WegoAlert v-if="state === 'error'" variant="danger" class="mt-5">
           {{ errorMsg }}
@@ -126,15 +135,16 @@ async function submit() {
           <WegoInput
             id="email"
             v-model="email"
-            label="Email"
+            :label="t('login.email')"
             type="email"
+            dir="ltr"
             autocomplete="email"
             required
           />
           <WegoInput
             id="password"
             v-model="password"
-            label="Password"
+            :label="t('login.password')"
             type="password"
             autocomplete="current-password"
             required
@@ -145,12 +155,12 @@ async function submit() {
             :disabled="state === 'submitting'"
             :loading="state === 'submitting'"
           >
-            {{ state === "submitting" ? "Signing in…" : "Sign in" }}
+            {{ state === "submitting" ? t('login.signingIn') : t('login.title') }}
           </WegoButton>
         </form>
 
         <p class="mt-5 text-center text-xs text-sts-muted">
-          Access for invited staff only.
+          {{ t('login.invitedOnly') }}
         </p>
       </div>
 

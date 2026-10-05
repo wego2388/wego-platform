@@ -1712,6 +1712,162 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tours-operator/staff/tours/{tourId}/media/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload a private draft photo; requires media upload and tour manage
+         * @description JPEG/PNG only, at most 10 MiB and 24 million pixels. Server re-encodes without metadata. Appends up to 30 photos or replaces a mediaId only with its current reviewed revision. Never approves rights.
+         */
+        post: operations["uploadToursOperatorTourMedia"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/categories/{category}/media/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload a category draft cover with reviewed revision */
+        post: operations["uploadToursOperatorCategoryMedia"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/categories/media": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Approved category covers only, with requested alt or English fallback */
+        get: operations["listToursOperatorPublicCategoryCovers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/categories/media": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the five existing category covers and review revisions */
+        get: operations["listToursOperatorCategoryMedia"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/categories/{category}/media": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read one category cover for editing */
+        get: operations["getToursOperatorCategoryMedia"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/categories/{category}/media/alt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Edit alt texts with revision; changed text resets rights */
+        put: operations["updateToursOperatorCategoryMediaAlt"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/categories/{category}/media/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve exact reviewed category image and alt; requires content publish */
+        post: operations["approveToursOperatorCategoryMedia"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/media/preview/{assetId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Authorized private draft preview; never put bearer token in URL */
+        get: operations["previewToursOperatorMedia"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/media/{type}/{ref}/{filename}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Rights-gated exact linked image; inactive tours and drafts return 404 */
+        get: operations["getToursOperatorManagedMediaBytes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tours-operator/tours/{tourId}/slots": {
         parameters: {
             query?: never;
@@ -1975,7 +2131,7 @@ export interface paths {
         };
         /**
          * Whether online booking and payment are open
-         * @description Public. Only the two flags — never the staff note or who changed it.
+         * @description Public. Deployment capability and effective flags only — never the staff note or who changed it. Enquiry mode always closes both flags; paused payments also close new bookings so there are no unpayable holds.
          */
         get: operations["getToursOperatorSalesStatus"];
         put?: never;
@@ -2088,6 +2244,70 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ToursOperatorMediaUploadResponse: {
+            /** Format: uuid */
+            assetId: string;
+            /** Format: uuid */
+            mediaId: string | null;
+        };
+        ToursOperatorMediaError: {
+            error: string;
+        };
+        ToursOperatorMediaUploadRequest: {
+            /** Format: binary */
+            file: string;
+            /**
+             * Format: uuid
+             * @description Stable per-attempt UUID. Replay with same owner, bytes and alt returns same linked asset; reuse with changed input is rejected.
+             */
+            requestId: string;
+            /** Format: uuid */
+            mediaId?: string;
+            revision?: string;
+            altEn?: string;
+            altAr?: string;
+            altRu?: string;
+            altIt?: string;
+        };
+        ToursOperatorCategoryAltRequest: {
+            revision: string;
+            altEn?: string | null;
+            altAr?: string | null;
+            altRu?: string | null;
+            altIt?: string | null;
+        };
+        ToursOperatorPublicMedia: {
+            path: string;
+            width: number;
+            height: number;
+            isCover: boolean;
+            alt: string;
+        };
+        ToursOperatorPublicCategoryCover: {
+            category: components["schemas"]["ToursOperatorCategory"];
+            path: string;
+            width: number;
+            height: number;
+            alt: string;
+        };
+        ToursOperatorCategoryMedia: {
+            category: components["schemas"]["ToursOperatorCategory"];
+            /** Format: uuid */
+            assetId: string | null;
+            alt: {
+                [key: string]: string;
+            };
+            /** @enum {string} */
+            rightsStatus: "DRAFT" | "APPROVED";
+            /** Format: date-time */
+            approvedAt: string | null;
+            /** Format: date-time */
+            updatedAt: string;
+            revision: string;
+            path: string | null;
+            width: number | null;
+            height: number | null;
+        };
         LoginRequest: {
             email: string;
             password: string;
@@ -2172,7 +2392,7 @@ export interface components {
         ToursOperatorBookingStatus: "NEW" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "EXPIRED";
         ToursOperatorContentErrorResponse: {
             /** @enum {string} */
-            error: "invalid_content" | "unsupported_locale" | "too_many_media" | "multiple_covers" | "duplicate_media_path" | "duplicate_media_id" | "english_alt_required" | "nothing_to_publish" | "draft_changed";
+            error: "invalid_content" | "unsupported_locale" | "too_many_media" | "multiple_covers" | "duplicate_media_path" | "duplicate_media_id" | "english_alt_required" | "nothing_to_publish" | "draft_changed" | "unknown_managed_asset" | "managed_asset_mismatch" | "media_revision_required";
             /** @description The broken rule for invalid_content (field-level, never stored data). */
             detail?: string | null;
         };
@@ -2266,6 +2486,8 @@ export interface components {
             }[];
         };
         ToursOperatorStaffTourContent: {
+            /** @description Revision of image identity, alt, order, cover, dimensions and approval for concurrent whole-list edits. */
+            mediaRevision: string;
             /** @description Locale code → its DRAFT and/or PUBLISHED documents. */
             content: {
                 [key: string]: {
@@ -2324,6 +2546,8 @@ export interface components {
             imageUrl: string | null;
             cancellationPolicy: components["schemas"]["ToursOperatorCancellationPolicy"];
             pricingNote: string | null;
+            /** @description Current approved catalog cover, never legacy imageUrl or draft media. */
+            cover?: components["schemas"]["ToursOperatorPublicMedia"] | null;
             localized?: components["schemas"]["ToursOperatorLocalizedTourSummary"] | null;
             /**
              * @description PER_PERSON (adults × priceAdult + children × priceChild) or PER_UNIT (book one of priceOptions × a unit count; priceAdult is then the lowest unit price, shown as "from").
@@ -2486,10 +2710,17 @@ export interface components {
         ToursOperatorPublicSalesStatus: {
             bookingsOpen: boolean;
             paymentsOpen: boolean;
+            bookingMode: components["schemas"]["ToursOperatorBookingMode"];
         };
+        /**
+         * @description Deployment capability. Enquiries are not bookings and never reserve inventory.
+         * @enum {string}
+         */
+        ToursOperatorBookingMode: "ONLINE_PAYMENT" | "ENQUIRY_ONLY";
         ToursOperatorSalesControl: {
             bookingsPaused: boolean;
             paymentsPaused: boolean;
+            bookingMode: components["schemas"]["ToursOperatorBookingMode"];
             reason?: string | null;
             /** Format: uuid */
             updatedByUserId?: string | null;
@@ -3296,6 +3527,24 @@ export interface components {
         };
     };
     responses: {
+        /** @description Private asset registered; refresh staff content to read its path, dimensions and revision. */
+        ToursOperatorMediaUploaded: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ToursOperatorMediaUploadResponse"];
+            };
+        };
+        /** @description Invalid image, alt or media selection. */
+        ToursOperatorMediaInvalid: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ToursOperatorMediaError"];
+            };
+        };
         /** @description Aggregate health without component details. */
         HealthResponse: {
             headers: {
@@ -3344,6 +3593,7 @@ export interface components {
         };
     };
     parameters: {
+        ToursOperatorMediaCategory: components["schemas"]["ToursOperatorCategory"];
         /** @description A caller-supplied correlation id, which must be a valid UUID. Echoed back on the response's `X-Correlation-Id` header and threaded through this request's audit and outbox records. If omitted or not a valid UUID, a new id is generated instead — malformed input never fails the request and never breaks traceability, it only replaces the id. */
         CorrelationIdHeader: string;
     };
@@ -7658,7 +7908,10 @@ export interface operations {
     };
     replaceToursOperatorTourMedia: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Current staff mediaRevision. Required when the old or submitted list contains managed assets, including unlinking all images. */
+                revision?: string;
+            };
             header?: never;
             path: {
                 id: string;
@@ -7691,6 +7944,13 @@ export interface operations {
             403: components["responses"]["ForbiddenResponse"];
             /** @description Tour not found. */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description draft_changed; the whole media list changed after review. */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -7747,6 +8007,336 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ToursOperatorContentErrorResponse"];
                 };
+            };
+        };
+    };
+    uploadToursOperatorTourMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tourId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["ToursOperatorMediaUploadRequest"];
+            };
+        };
+        responses: {
+            200: components["responses"]["ToursOperatorMediaUploaded"];
+            400: components["responses"]["ToursOperatorMediaInvalid"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Tour or replacement media not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description draft_changed; re-read before retrying. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Upload exceeds byte or multipart request limit. */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description storage_failed or upload_busy (Retry-After 3); do not blindly retry an append. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    uploadToursOperatorCategoryMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category: components["parameters"]["ToursOperatorMediaCategory"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["ToursOperatorMediaUploadRequest"] & Record<string, never>;
+            };
+        };
+        responses: {
+            200: components["responses"]["ToursOperatorMediaUploaded"];
+            400: components["responses"]["ToursOperatorMediaInvalid"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Unknown category. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description draft_changed. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Upload exceeds limit. */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description storage_failed or upload_busy. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listToursOperatorPublicCategoryCovers: {
+        parameters: {
+            query?: {
+                locale?: components["schemas"]["ToursOperatorContentLocale"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No draft metadata or private storage keys. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorPublicCategoryCover"][];
+                };
+            };
+            /** @description unsupported_locale. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listToursOperatorCategoryMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Staff draft/approved metadata. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorCategoryMedia"][];
+                };
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    getToursOperatorCategoryMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category: components["parameters"]["ToursOperatorMediaCategory"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Staff metadata including revision. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorCategoryMedia"];
+                };
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Unknown category. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateToursOperatorCategoryMediaAlt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category: components["parameters"]["ToursOperatorMediaCategory"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorCategoryAltRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["ToursOperatorMediaInvalid"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Unknown category. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description draft_changed. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    approveToursOperatorCategoryMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category: components["parameters"]["ToursOperatorMediaCategory"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorPublishRequest"];
+            };
+        };
+        responses: {
+            /** @description Approved. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["ToursOperatorMediaInvalid"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Unknown category. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description draft_changed or no_asset. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    previewToursOperatorMedia: {
+        parameters: {
+            query?: {
+                variant?: "base" | "w360" | "w768" | "w1024" | "w1440";
+            };
+            header?: never;
+            path: {
+                assetId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Re-encoded JPEG/PNG; Cache-Control no-store, private. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/jpeg": string;
+                    "image/png": string;
+                };
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Asset or requested variant absent. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getToursOperatorManagedMediaBytes: {
+        parameters: {
+            query?: {
+                v?: "base" | "w360" | "w768" | "w1024" | "w1440";
+            };
+            header?: never;
+            path: {
+                type: "tours" | "categories";
+                ref: string;
+                filename: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Approved JPEG/PNG; no-store so each request re-checks revocation. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/jpeg": string;
+                    "image/png": string;
+                };
+            };
+            /** @description Missing, draft, unlinked, mismatched owner or inactive tour; identical empty response. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -7976,7 +8566,7 @@ export interface operations {
                     "application/json": components["schemas"]["ToursOperatorErrorResponse"];
                 };
             };
-            /** @description Online bookings or payments are paused by a manager (bookings_paused). */
+            /** @description Manager pause (bookings_paused) or enquiry-only deployment (online_booking_unavailable). No booking or inventory hold is created. */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -8223,7 +8813,7 @@ export interface operations {
                     "application/json": components["schemas"]["ToursOperatorErrorResponse"];
                 };
             };
-            /** @description Payment checkouts are paused by a manager (payments_paused). Nothing was created. */
+            /** @description Manager pause (payments_paused) or enquiry-only deployment (online_payment_unavailable). No payment is created or checkout resumed. */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -8487,6 +9077,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Provider intentionally unavailable; retryable, not acknowledged as processed. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
             };
         };
     };

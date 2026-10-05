@@ -133,11 +133,22 @@ class IdentityBeanConfiguration {
     @Bean
     fun resetUserPasswordService(
         userRepository: UserRepository,
+        sessionRepository: SessionRepository,
         passwordHasher: PasswordHasher,
         auditRecorder: IdentityAuditRecorder,
         transactionRunner: TransactionRunner,
         clock: Clock,
-    ): ResetUserPasswordService = ResetUserPasswordService(userRepository, passwordHasher, auditRecorder, transactionRunner, clock)
+        loginAttemptThrottle: LoginAttemptThrottle,
+    ): ResetUserPasswordService =
+        ResetUserPasswordService(
+            userRepository,
+            sessionRepository,
+            passwordHasher,
+            auditRecorder,
+            transactionRunner,
+            clock,
+            loginAttemptThrottle,
+        )
 
     @Bean
     fun assignUserRolesService(

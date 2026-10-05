@@ -16,6 +16,11 @@ spring:
     sql-dialect: POSTGRES
   lifecycle:
     timeout-per-shutdown-phase: 20s
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 11MB
   task:
     scheduling:
       # Booking expiry and customer email delivery must never share one
@@ -29,6 +34,10 @@ spring:
 server:
   shutdown: graceful
   forward-headers-strategy: framework
+  tomcat:
+    # Bounded discard budget above the 11 MiB edge/request limit, not unlimited.
+    # Tomcat's default 2 MiB can reset the socket before a rejected upload's 413 is read.
+    max-swallow-size: 12MB
 
 management:
   endpoints:
@@ -45,6 +54,7 @@ management:
       enabled: true
 
 tours-operator:
+  booking-mode: ${TOURS_OPERATOR_BOOKING_MODE:ONLINE_PAYMENT}
   paymob:
     mock-enabled: ${TOURS_OPERATOR_PAYMOB_MOCK_ENABLED:false}
   # Customer emails (WEGO-016-G). SMTP itself is configured only through the
@@ -58,3 +68,9 @@ tours-operator:
     review-url: ${TOURS_OPERATOR_REVIEW_URL:}
     max-attempts: ${TOURS_OPERATOR_NOTIFICATIONS_MAX_ATTEMPTS:5}
     review-request-delay: ${TOURS_OPERATOR_REVIEW_REQUEST_DELAY:PT24H}
+  # Media / asset storage (WEGO-016-MEDIA).
+  # volume-path must point to the durable, isolated Safari media volume.
+  # The default is suitable for local development only; set TOURS_OPERATOR_MEDIA_VOLUME_PATH
+  # in Compose/production to the real volume mount point.
+  media:
+    volume-path: ${TOURS_OPERATOR_MEDIA_VOLUME_PATH:/tmp/safari-media-dev}

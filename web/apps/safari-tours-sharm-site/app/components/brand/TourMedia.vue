@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import BrandSafeTourImage from "./SafeTourImage.vue";
 import { CATEGORY_VISUAL, type CategoryKey } from "../../utils/categoryVisual";
 
 /**
@@ -17,18 +18,22 @@ const props = withDefaults(
     sizes?: string;
     priority?: boolean;
     label?: string;
+    width?: number;
+    height?: number;
   }>(),
-  { src: null, label: undefined, ratio: "4 / 3", sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw", priority: false },
+  { src: null, label: undefined, width: undefined, height: undefined, ratio: "4 / 3", sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw", priority: false },
 );
 const visual = computed(() => CATEGORY_VISUAL[props.category]);
 </script>
 
 <template>
   <div class="relative overflow-hidden rounded-[var(--sts-radius-media)] bg-sts-sand-soft" :style="{ aspectRatio: ratio }">
-    <NuxtImg
+    <BrandSafeTourImage
       v-if="src"
       :src="src"
       :alt="alt"
+      :width="width"
+      :height="height"
       :sizes="sizes"
       :loading="priority ? 'eager' : 'lazy'"
       :fetchpriority="priority ? 'high' : 'auto'"

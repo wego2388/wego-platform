@@ -137,9 +137,10 @@ class TourContentController(
     fun replaceMedia(
         @PathVariable id: UUID,
         @Valid @RequestBody @Size(max = 30) request: List<TourMediaRequest>,
+        @RequestParam(required = false) revision: String?,
     ): ResponseEntity<Any> {
         val items = runCatching { request.map { it.toInput() } }.getOrElse { return invalid(it) }
-        return runCatching { tourContentService.replaceMedia(TourId(id), items) }
+        return runCatching { tourContentService.replaceMedia(TourId(id), items, revision) }
             .getOrElse { return invalid(it) }
             .toResponse()
     }
@@ -336,6 +337,7 @@ data class StaffTourContentResponse(
     val content: Map<String, List<StagedContentResponse>>,
     val facts: List<StagedFactsResponse>,
     val media: List<StaffMediaResponse>,
+    val mediaRevision: String,
 )
 
 private fun PublicTourContent.toResponse() =
@@ -379,6 +381,7 @@ private fun TourFactsDocument.toRequestShape() =
 
 private fun StaffTourContent.toResponse() =
     StaffTourContentResponse(
+        mediaRevision = mediaRevision,
         content =
             content
                 .mapKeys { it.key.code }

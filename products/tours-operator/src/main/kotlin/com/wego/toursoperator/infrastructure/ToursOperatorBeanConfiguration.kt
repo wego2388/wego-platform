@@ -3,11 +3,16 @@ package com.wego.toursoperator.infrastructure
 import com.wego.events.OutboxWriter
 import com.wego.identity.AuthenticatedApiPrefix
 import com.wego.identity.PublicApiPrefix
+import com.wego.toursoperator.application.AssetRepository
+import com.wego.toursoperator.application.AssetStorage
 import com.wego.toursoperator.application.BookingAuditRecorder
 import com.wego.toursoperator.application.BookingHistoryQuery
+import com.wego.toursoperator.application.BookingMode
 import com.wego.toursoperator.application.BookingQueryService
 import com.wego.toursoperator.application.BookingRepository
 import com.wego.toursoperator.application.CancelBookingService
+import com.wego.toursoperator.application.CategoryMediaRepository
+import com.wego.toursoperator.application.CategoryMediaService
 import com.wego.toursoperator.application.CompleteBookingService
 import com.wego.toursoperator.application.ConfirmBookingService
 import com.wego.toursoperator.application.CreateBookingService
@@ -18,7 +23,9 @@ import com.wego.toursoperator.application.EmailSender
 import com.wego.toursoperator.application.ExpireBookingService
 import com.wego.toursoperator.application.ExpireOverduePaymentsService
 import com.wego.toursoperator.application.HandlePaymobWebhookService
+import com.wego.toursoperator.application.ImageProcessor
 import com.wego.toursoperator.application.InitiatePaymentService
+import com.wego.toursoperator.application.MediaUploadService
 import com.wego.toursoperator.application.NotificationRepository
 import com.wego.toursoperator.application.NotificationSettings
 import com.wego.toursoperator.application.PaymentQueryService
@@ -62,6 +69,13 @@ import java.time.Duration
 @Configuration(proxyBeanMethods = false)
 @EnableScheduling
 class ToursOperatorBeanConfiguration {
+    @Bean("stoBookingMode")
+    fun bookingMode(
+        @Value("\${tours-operator.booking-mode:ONLINE_PAYMENT}") value: String,
+    ): BookingMode =
+        BookingMode.entries.firstOrNull { it.name == value }
+            ?: error("TOURS_OPERATOR_BOOKING_MODE must be ONLINE_PAYMENT or ENQUIRY_ONLY")
+
     // ── Security prefixes ────────────────────────────────────────────────────
     // Declares this product's API surface to kernel security — see
     // AuthenticatedApiPrefix/PublicApiPrefix doc comments.
@@ -147,7 +161,8 @@ class ToursOperatorBeanConfiguration {
         @Qualifier("stoTourContentRepositoryImpl") contentRepository: TourContentRepository,
         transactionRunner: TransactionRunner,
         clock: Clock,
-    ): TourContentService = TourContentService(tourRepository, contentRepository, transactionRunner, clock)
+        @Qualifier("stoAssetRepositoryImpl") assetRepository: AssetRepository,
+    ): TourContentService = TourContentService(tourRepository, contentRepository, transactionRunner, clock, assetRepository)
 
     @Bean("stoCreateTourService")
     fun createTourService(
@@ -204,6 +219,7 @@ class ToursOperatorBeanConfiguration {
         transactionRunner: TransactionRunner,
         @Qualifier("stoObjectMapper") toursOperatorObjectMapper: ObjectMapper,
         clock: Clock,
+        @Qualifier("stoBookingMode") bookingMode: BookingMode,
     ): CreateBookingService =
         CreateBookingService(
             tourRepository,
@@ -215,6 +231,7 @@ class ToursOperatorBeanConfiguration {
             transactionRunner,
             toursOperatorObjectMapper,
             clock,
+            bookingMode,
         )
 
     @Bean("stoConfirmBookingService")
@@ -411,21 +428,21 @@ class ToursOperatorBeanConfiguration {
     fun paymobClient(
         @Qualifier("stoPaymobConfig") config: PaymobConfig,
         @Qualifier("stoObjectMapper") objectMapper: ObjectMapper,
-    ): PaymobClient {
-        // Fail startup rather than run payments on placeholder credentials.
-        val missing = config.missingProductionSettings()
-        check(missing.isEmpty()) {
-            "Paymob is not configured (mock disabled): set ${missing.joinToString()}"
-        }
-        return PaymobHttpClient(config, objectMapper)
-    }
+        @Qualifier("stoBookingMode") bookingMode: BookingMode,
+        @Qualifier("stoPaymentRepositoryImpl") paymentRepository: PaymentRepository,
+    ): PaymobClient = PaymobClientFactory.realOrDisabled(bookingMode, config, objectMapper, paymentRepository::hasAnyPayments)
 
     @Bean("stoPaymobClient")
     @ConditionalOnProperty(
         name = ["tours-operator.paymob.mock-enabled"],
         havingValue = "true",
     )
-    fun mockPaymobClient(): PaymobClient = MockPaymobClient()
+    fun mockPaymobClient(
+        @Qualifier("stoBookingMode") bookingMode: BookingMode,
+    ): PaymobClient {
+        check(bookingMode == BookingMode.ONLINE_PAYMENT) { "ENQUIRY_ONLY must not use a mock payment provider" }
+        return MockPaymobClient()
+    }
 
     @Bean("stoPaymentQueryService")
     fun paymentQueryService(
@@ -440,6 +457,7 @@ class ToursOperatorBeanConfiguration {
         @Qualifier("stoSalesControlRepositoryImpl") salesControlRepository: SalesControlRepository,
         transactionRunner: TransactionRunner,
         clock: Clock,
+        @Qualifier("stoBookingMode") bookingMode: BookingMode,
     ): InitiatePaymentService =
         InitiatePaymentService(
             bookingRepository,
@@ -448,6 +466,7 @@ class ToursOperatorBeanConfiguration {
             salesControlRepository,
             transactionRunner,
             clock,
+            bookingMode,
         )
 
     @Bean("stoHandlePaymobWebhookService")
@@ -455,6 +474,7 @@ class ToursOperatorBeanConfiguration {
         @Qualifier("stoPaymentRepositoryImpl") paymentRepository: PaymentRepository,
         @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
         @Qualifier("stoConfirmBookingService") confirmBookingService: ConfirmBookingService,
+        @Qualifier("stoCancelBookingService") cancelBookingService: CancelBookingService,
         @Qualifier("stoPaymobClient") paymobClient: PaymobClient,
         outboxWriter: OutboxWriter,
         transactionRunner: TransactionRunner,
@@ -465,6 +485,7 @@ class ToursOperatorBeanConfiguration {
             paymentRepository,
             bookingRepository,
             confirmBookingService,
+            cancelBookingService,
             paymobClient,
             outboxWriter,
             transactionRunner,
@@ -483,4 +504,47 @@ class ToursOperatorBeanConfiguration {
             expireBookingService,
             clock,
         )
+
+    // ── Media / Asset beans ────────────────────────────────────────────────────
+
+    @Bean("stoAssetStorage")
+    fun assetStorage(
+        @Value("\${tours-operator.media.volume-path:/data/safari-media}") volumePath: String,
+    ): AssetStorage =
+        FilesystemAssetStorage(
+            java.nio.file.Path
+                .of(volumePath),
+        )
+
+    @Bean("stoImageProcessor")
+    fun imageProcessor(): ImageProcessor = JdkImageProcessor()
+
+    @Bean("stoMediaUploadService")
+    fun mediaUploadService(
+        @Qualifier("stoTourRepositoryImpl") tourRepository: TourRepository,
+        @Qualifier("stoTourContentRepositoryImpl") contentRepository: TourContentRepository,
+        @Qualifier("stoAssetRepositoryImpl") assetRepository: AssetRepository,
+        @Qualifier("stoAssetStorage") assetStorage: AssetStorage,
+        @Qualifier("stoImageProcessor") imageProcessor: ImageProcessor,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): MediaUploadService =
+        MediaUploadService(tourRepository, contentRepository, assetRepository, assetStorage, imageProcessor, transactionRunner, clock)
+
+    @Bean("stoCategoryMediaService")
+    fun categoryMediaService(
+        @Qualifier("stoCategoryMediaRepositoryImpl") categoryMediaRepository: CategoryMediaRepository,
+        @Qualifier("stoAssetRepositoryImpl") assetRepository: AssetRepository,
+        @Qualifier("stoAssetStorage") assetStorage: AssetStorage,
+        @Qualifier("stoImageProcessor") imageProcessor: ImageProcessor,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): CategoryMediaService =
+        CategoryMediaService(categoryMediaRepository, assetRepository, assetStorage, imageProcessor, transactionRunner, clock)
+
+    @Bean("stoPublicMediaPrefix")
+    fun toursOperatorPublicMediaPrefix(): PublicApiPrefix = PublicApiPrefix("/media/**")
+
+    @Bean("stoPublicCategoryCoversPrefix")
+    fun toursOperatorPublicCategoryCoversPrefix(): PublicApiPrefix = PublicApiPrefix("/api/v1/tours-operator/categories/media")
 }

@@ -24,27 +24,46 @@ sealed interface ResetUserPasswordResult {
  */
 class ResetUserPasswordService(
     private val userRepository: UserRepository,
+    private val sessionRepository: SessionRepository,
     private val passwordHasher: PasswordHasher,
     private val auditRecorder: IdentityAuditRecorder,
     private val transactionRunner: TransactionRunner,
     private val clock: Clock,
+    private val loginAttemptThrottle: LoginAttemptThrottle,
 ) {
     fun reset(
         actorUserId: UserId,
         targetUserId: UserId,
         rawNewPassword: String,
         correlationId: UUID?,
-    ): ResetUserPasswordResult =
-        transactionRunner.runInTransaction {
-            require(rawNewPassword.length >= CreateUserService.MIN_PASSWORD_LENGTH) {
-                "Password must be at least ${CreateUserService.MIN_PASSWORD_LENGTH} characters"
-            }
-            val user = userRepository.findByIdForUpdate(targetUserId) ?: return@runInTransaction ResetUserPasswordResult.NotFound
+    ): ResetUserPasswordResult {
+        val result =
+            transactionRunner.runInTransaction {
+                require(rawNewPassword.length >= CreateUserService.MIN_PASSWORD_LENGTH) {
+                    "Password must be at least ${CreateUserService.MIN_PASSWORD_LENGTH} characters"
+                }
+                val user =
+                    userRepository.findByIdForUpdate(targetUserId)
+                        ?: return@runInTransaction ResetUserPasswordResult.NotFound
 
-            user.changePassword(passwordHasher.hash(rawNewPassword))
-            userRepository.save(user)
-            val now = Instant.now(clock)
-            auditRecorder.recordUserPasswordReset(actorUserId, user.id, now, correlationId)
-            ResetUserPasswordResult.Reset(user)
+                user.changePassword(passwordHasher.hash(rawNewPassword))
+                userRepository.save(user)
+                val now = Instant.now(clock)
+                // A password reset is a credential-compromise boundary. Keeping
+                // bearer sessions alive would let a stolen token survive the
+                // reset, so revocation is atomic with the password change.
+                sessionRepository.revokeAllForUser(user.id, now)
+                auditRecorder.recordUserPasswordReset(actorUserId, user.id, now, correlationId)
+                ResetUserPasswordResult.Reset(user)
+            }
+
+        // The reset is a trusted credential-rotation recovery path. Clear the
+        // account throttle only after the database transaction commits, so an
+        // immediate login with the newly issued password is not trapped behind
+        // the old wrong-password window.
+        if (result is ResetUserPasswordResult.Reset) {
+            loginAttemptThrottle.recordSuccess(result.user.email.value)
         }
+        return result
+    }
 }
