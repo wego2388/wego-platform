@@ -65,7 +65,9 @@ else
 fi
 
 # 4. Backup freshness and the last restore drill.
-latest="$(ls -1t "$SAFARI_BACKUP_DIR"/*.dump "$SAFARI_BACKUP_DIR"/*.dump.gpg 2>/dev/null | head -1)"
+# A DB+media bundle counts only once its manifest exists (bundles are moved
+# into place complete); older DB-only dumps still count for pre-V29 installs.
+latest="$(ls -1td "$SAFARI_BACKUP_DIR"/*.bundle/manifest.json "$SAFARI_BACKUP_DIR"/*.dump "$SAFARI_BACKUP_DIR"/*.dump.gpg 2>/dev/null | head -1)"
 if [ -z "$latest" ]; then
   fail "no backup in $SAFARI_BACKUP_DIR"
 else
@@ -76,7 +78,7 @@ else
     ok "latest backup ${age_h}h old"
   fi
 fi
-drill="$(ls -1t "$SAFARI_BACKUP_DIR"/drill-*.json 2>/dev/null | head -1)"
+drill="$(ls -1t "$SAFARI_BACKUP_DIR"/bundle-drill-*.json "$SAFARI_BACKUP_DIR"/drill-*.json 2>/dev/null | head -1)"
 if [ -z "$drill" ]; then
   warn "no restore drill on record"
 else

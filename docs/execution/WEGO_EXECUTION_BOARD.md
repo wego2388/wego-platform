@@ -4123,7 +4123,7 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-10-05 — WEGO-016-MEDIA: catalog editor and managed image uploads
 
-- **Status:** ACTIVE
+- **Status:** COMPLETE (2026-10-05) — code accepted by fresh Tier 1 review; owner/ops release gates carried to OPS2-G
 - **Authority:** owner's approved dashboard upload/catalog request and repeated
   local continuation/delegation (`كمل`, `بالطريقه المناسبة`, `الصور حعملها
   اب لودي من الداش بورد للخدمات والكاتوجري`). ENQUIRY is accepted first;
@@ -4255,6 +4255,59 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   push, deploy, DNS/account/production operation performed.
 
 ---
+
+#### 2026-10-05 — MEDIA acceptance (fresh Tier 1) and closure
+
+- **Backup point:** all work since `8948315` (SEC round 2, ENQUIRY, bilingual
+  ERP, MEDIA) existed only in the working tree; committed as `60e9db1` and
+  pushed to `origin/wego-016-safari-hardening` (secret scan clean).
+- **Fresh Tier 1 review #1 (Opus):** upload/storage/permission/public-bytes/
+  release-isolation code accepted; **REJECT** on the DB+media bundle: H1 no
+  backup on a fresh V29 DB (zero assets), H2 corrupted variant passed the
+  drill, H3 drill trusted manifest keys and a vacuous `|| true` sha step;
+  M1 outdated runbook/no real media restore, M2 tar exit discarded; LOWs.
+- **Fixes:** per-file sha256+size manifest, keys from the restored DB, empty-
+  asset backups, fatal tar/psql errors, 0600 bundle files, whole-line key
+  matching, trap fix; runbook cron → bundle scripts and a real incident
+  restore (DB then media, numeric owner 10001, 0700/0600 kept).
+- **Fresh Tier 1 review #2 (Opus): ACCEPT-WITH-FOLLOWUPS.** Re-ran every
+  attack: happy, empty assets, tampered variant, removed variant, altered
+  original (manifest forged), extra file, truncated archive, GPG round trip,
+  bad recipient, real tar failure (EISDIR) and disk-full (gzip ENOSPC), and
+  the runbook restore into a scratch volume (owner/modes kept, DRAFT private).
+- **Follow-ups fixed after review #2:** bundles are built in the private temp
+  dir and moved into place only when complete (no empty `*.bundle` after a
+  failure — verified with a bad GPG recipient); the archive map rejects links,
+  devices, absolute and `..` member names; `health-check.sh` monitors bundle
+  manifests and `bundle-drill-*.json`; new read-only
+  `scripts/safari-ops/verify-live-media.sh` (DB-referenced originals sha256 +
+  sizes, variants sizes, owner 10001 and 0700/0600 modes) replaces the vague
+  runbook step — 15/15 on `wego-safari-media-final`.
+- **CI on the branch:** dependency audit unblocked for the two unpatched
+  GHSAs (pnpm `auditConfig.ignoreGhsas`, documented); enquiry e2e hook
+  timeout fixed (70 s cache wait under a 30 s hook); foundation ERP e2e flake
+  fixed at its root (reload raced the write in attendance/journal/payroll).
+- **Accepted residual risk:** a variant edited together with its manifest hash
+  by someone with write access to the backup store is not detected (manifest
+  unsigned, variants have no DB sha256); a SIGKILL during the drill can leave
+  decrypted temp files under `/tmp` (0700).
+- **Carried to OPS2-G / release (owner/ops, not code):** owner acknowledgement
+  of the two dependency exemptions; production GPG keypair and its custody
+  (drill must run where the private key is); off-server copy; bundle drill
+  timing on the real server; confirm runtime UID 10001 there; owner UAT and
+  Lighthouse/CWV; legacy photo import with proven rights.
+
+### 2026-10-05 — WEGO-016-OPS2-C: office bookings by staff (Tier 1)
+
+- **Status:** ACTIVE
+- **Activation:** owner instruction «كمل المهام كلها بالتوازي للاخر» (2026-10-05) after MEDIA acceptance.
+- **Review intensity:** Tier 1 (capacity, money, booking state).
+- **Scope:** staff create a booking from the real slot capacity and tour
+  price (same pricing and capacity rules as the public path, recorded booking
+  channel and staff actor), visible in the ERP and the run sheet.
+- **Blocked on owner facts — do not invent:** how office customers pay (cash
+  at office, card terminal, transfer, pay on pickup, deposit?). Until then a
+  staff booking stays unpaid/awaiting collection; no manual PAID, no receipts.
 
 ## WEGO-017 — Foundry executable isolated client releases
 

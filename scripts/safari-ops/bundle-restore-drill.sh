@@ -12,9 +12,14 @@
 #      no shared volume, --network none)
 #   3. Flyway version and zero failed migrations
 #   4. Row counts >= counts recorded at backup time
-#   5. Every dbAssetKeys entry exists in the media archive
-#   6. Every dbAssetKeys entry in the archive matches the sha256 recorded in
-#      the DB's tours_operator_asset table (detects bit-rot or replacement)
+#   5. Expected keys come from the RESTORED database (assets + variants), never
+#      from the manifest; every one must exist in the media archive
+#   6. EVERY file in the archive (originals and variants) matches the sha256 and
+#      size recorded in manifest.json at backup time, and the archive holds no
+#      file the manifest does not list (and vice versa)
+#   7. Originals also match tours_operator_asset.sha256/file_size_bytes, and
+#      variants match tours_operator_asset_variant.file_size_bytes
+#   An empty asset table (fresh V29 DB) is valid; an unreadable one is not.
 #
 # The drill does NOT write to any live volume. It proves both DB and media
 # can be reconstructed together and cross-reference is intact.
@@ -62,7 +67,8 @@ log "checksums ok"
 # ── 2. Decrypt if needed.
 umask 077
 work="$(mktemp -d)"
-trap 'rm -rf "$work"; docker rm -f "$drill_name" >/dev/null 2>&1 || true' EXIT
+drill_name=""
+trap 'rm -rf "$work"; [ -z "$drill_name" ] || docker rm -f "$drill_name" >/dev/null 2>&1 || true' EXIT
 
 plain_db="$db_file"
 plain_media="$media_file"
@@ -113,74 +119,79 @@ SQL
 inventory="$(docker exec -i "$drill_name" psql -U drill -d drill -At < "$inventory_sql_file" 2>/dev/null)"
 [ -n "$inventory" ] || die "failed to read inventory from restored database"
 
-# ── 5. Cross-check: every manifest dbAssetKey must exist in media archive.
-log "cross-checking media archive against DB asset keys..."
-archive_listing="$(docker run --rm \
-  --volume "$work:/in:ro" \
-  --network none \
-  public.ecr.aws/docker/library/alpine:3.20 \
-  tar -tzf /in/$(basename "$plain_media") 2>/dev/null | sed 's|^\./||')" \
-  || archive_listing="$(tar -tzf "$plain_media" 2>/dev/null | sed 's|^\./||')"
-
-manifest_keys="$(python3 -c \
-  'import json,sys; [print(k) for k in json.load(open(sys.argv[1])).get("dbAssetKeys",[])]' "$manifest")"
-
-missing_keys=()
-while IFS= read -r key; do
-  [ -z "$key" ] && continue
-  if ! printf '%s\n' "$archive_listing" | grep -qF "$key"; then
-    missing_keys+=("$key")
-    log "MISSING from archive: $key"
-  fi
-done <<< "$manifest_keys"
-
-if [ "${#missing_keys[@]}" -gt 0 ]; then
-  die "bundle integrity failed: ${#missing_keys[@]} DB-referenced file(s) missing from media archive"
+# ── 5. Expected keys come from the RESTORED DB; verify every archived file.
+log "verifying media archive against restored DB and manifest hashes..."
+db_files_tsv="$work/db-files.tsv"
+printf '%s\n' \
+  "SELECT 'asset' || chr(9) || storage_key || chr(9) || sha256 || chr(9) || file_size_bytes FROM wego.tours_operator_asset
+   UNION ALL
+   SELECT 'variant' || chr(9) || storage_key || chr(9) || '-' || chr(9) || file_size_bytes FROM wego.tours_operator_asset_variant
+   ORDER BY 1" \
+  | docker exec -i "$drill_name" psql -X -v ON_ERROR_STOP=1 -U drill -d drill -At > "$db_files_tsv" \
+  || die "failed to read asset/variant rows from restored database"
+asset_rows="$(printf '%s\n' "SELECT count(*) FROM wego.tours_operator_asset" \
+  | docker exec -i "$drill_name" psql -X -v ON_ERROR_STOP=1 -U drill -d drill -At)" \
+  || die "failed to count asset rows in restored database"
+if [ "$asset_rows" -gt 0 ] && [ ! -s "$db_files_tsv" ]; then
+  die "restored DB has $asset_rows asset row(s) but the key/sha map is empty"
 fi
-key_count="$(printf '%s\n' "$manifest_keys" | grep -c . || echo 0)"
-log "media cross-check passed: all ${key_count} keys present"
 
-# ── 6. Verify original-file sha256s from restored DB match archive.
-#       Only originals (no _w360/_w768 suffix) have sha256 in tours_operator_asset.
-log "verifying original file sha256 hashes..."
-db_sha_map="$(docker exec "$drill_name" psql -U drill -d drill -At -c \
-  "SELECT storage_key || '|' || sha256 FROM wego.tours_operator_asset ORDER BY storage_key" 2>/dev/null || true)"
+archive_tsv="$work/archive-files.tsv"
+archive_file_map "$plain_media" > "$archive_tsv" || die "media archive cannot be read to the end (corrupt or truncated)"
 
-sha_failures=0
-# Extract originals from the archive into a temp subdir for hashing.
-originals_dir="$work/originals"
-mkdir -p "$originals_dir"
-
-while IFS='|' read -r key db_sha256; do
-  [ -z "$key" ] && continue
-  # Extract this single file from the archive.
-  tar -xzf "$plain_media" -C "$originals_dir" --transform 's|.*/||' "./${key}" 2>/dev/null \
-    || tar -xzf "$plain_media" -C "$originals_dir" --transform 's|.*/||' "${key}" 2>/dev/null \
-    || { log "CANNOT EXTRACT: $key"; (( sha_failures++ )) || true; continue; }
-  extracted_file="$originals_dir/$(basename "$key")"
-  if [ -f "$extracted_file" ]; then
-    actual_sha="$(sha256sum "$extracted_file" | cut -d' ' -f1)"
-    if [ "$actual_sha" != "$db_sha256" ]; then
-      log "SHA256 MISMATCH: $key — DB has $db_sha256, archive has $actual_sha"
-      (( sha_failures++ )) || true
-    fi
-    rm -f "$extracted_file"
-  else
-    log "CANNOT FIND extracted file for: $key"
-    (( sha_failures++ )) || true
-  fi
-done <<< "$db_sha_map"
-
-if [ "$sha_failures" -gt 0 ]; then
-  die "bundle integrity failed: $sha_failures original file(s) have sha256 mismatch or could not be extracted"
+verify_out="$work/verify.out"
+python3 - "$manifest" "$db_files_tsv" "$archive_tsv" > "$verify_out" <<'PY' || true
+import json, sys
+manifest = json.load(open(sys.argv[1]))
+mfiles = manifest.get("files")
+problems = []
+missing = mismatch = 0
+if not isinstance(mfiles, dict):
+    print("PROBLEM manifest has no per-file 'files' map (old or damaged manifest)")
+    print("COUNTS 1 0 0"); sys.exit(0)
+arch = {}
+for line in open(sys.argv[3]):
+    sha, size, key = line.rstrip("\n").split("\t", 2)
+    arch[key] = (sha, int(size))
+db = []
+for line in open(sys.argv[2]):
+    line = line.rstrip("\n")
+    if line:
+        kind, key, sha, size = line.split("\t")
+        db.append((kind, key, sha, int(size)))
+for kind, key, sha, size in db:
+    if key not in arch:
+        missing += 1; print(f"PROBLEM MISSING from archive: {key}"); continue
+    a_sha, a_size = arch[key]
+    if kind == "asset" and a_sha != sha:
+        mismatch += 1; print(f"PROBLEM SHA256 MISMATCH (DB): {key} db={sha} archive={a_sha}")
+    if a_size != size:
+        mismatch += 1; print(f"PROBLEM SIZE MISMATCH (DB): {key} db={size} archive={a_size}")
+for key, (a_sha, a_size) in arch.items():
+    m = mfiles.get(key)
+    if m is None:
+        mismatch += 1; print(f"PROBLEM archive file not in manifest: {key}")
+    elif m["sha256"] != a_sha or m["bytes"] != a_size:
+        mismatch += 1; print(f"PROBLEM MANIFEST HASH/SIZE MISMATCH: {key}")
+for key in mfiles:
+    if key not in arch:
+        mismatch += 1; print(f"PROBLEM manifest file not in archive: {key}")
+print(f"COUNTS 0 {missing} {mismatch} {len(db)} {len(arch)}")
+PY
+{ grep '^PROBLEM' "$verify_out" || true; } | sed 's/^PROBLEM //' | while IFS= read -r l; do log "$l"; done
+counts="$(grep '^COUNTS' "$verify_out" || true)"
+[ -n "$counts" ] || die "media verification did not complete"
+read -r _ bad_manifest missing_count sha_failures key_count archive_count <<< "$counts"
+if [ "$bad_manifest" != 0 ] || [ "$missing_count" != 0 ] || [ "$sha_failures" != 0 ]; then
+  die "bundle integrity failed: manifest_problem=${bad_manifest} missing=${missing_count} hash_or_size_mismatch=${sha_failures}"
 fi
-log "sha256 verification passed for all originals"
+log "media verification passed: ${key_count} DB keys present; ${archive_count} archived files match manifest hashes"
 
 # ── 7. Build final report.
 report="$SAFARI_BACKUP_DIR/bundle-drill-$(date -u +%Y%m%dT%H%M%SZ).json"
 INVENTORY="$inventory" \
 python3 - "$manifest" "$report" "$restore_seconds" "$(( $(date +%s) - started ))" \
-  "${#missing_keys[@]}" "$sha_failures" <<'PY'
+  "$missing_count" "$sha_failures" <<'PY'
 import json, os, sys
 meta_path, report_path, restore_s, total_s, missing_k, sha_fail = sys.argv[1:]
 meta = json.load(open(meta_path))
@@ -204,7 +215,7 @@ for name, count in meta["rowCounts"].items():
 if int(missing_k) > 0:
     problems.append(f"{missing_k} DB-referenced media file(s) missing from archive")
 if int(sha_fail) > 0:
-    problems.append(f"{sha_fail} original file(s) failed sha256 verification")
+    problems.append(f"{sha_fail} media file(s) failed sha256/size verification")
 report = {
     "bundle": os.path.basename(meta_path.replace("/manifest.json", "")),
     "backupStamp": meta["stamp"],
@@ -216,6 +227,7 @@ report = {
     "tablesChecked": len(meta["rowCounts"]),
     "rowsRestored": sum(tables.values()),
     "mediaKeysChecked": len(meta.get("dbAssetKeys", [])),
+    "mediaFilesVerified": len(meta.get("files", {})),
 }
 json.dump(report, open(report_path, "w"), indent=2)
 print(json.dumps(report))

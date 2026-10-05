@@ -43,3 +43,29 @@ FROM public.flyway_schema_history WHERE success;
 SELECT 'flyway_failed:' || count(*) FROM public.flyway_schema_history WHERE NOT success;
 SQL
 }
+
+# One line per regular file in a (plain) media tar.gz: "sha256<TAB>size<TAB>key"
+# with any leading "./" removed. Streams the archive (nothing is extracted).
+# Non-zero exit if the archive cannot be read to the end (truncated/corrupt).
+archive_file_map() {
+  python3 - "$1" <<'PY'
+import hashlib, sys, tarfile
+with tarfile.open(sys.argv[1], "r:gz") as tf:
+    for m in tf:
+        # The runbook extracts as root: refuse anything but plain files and
+        # directories, and any absolute or parent-escaping name.
+        parts = m.name.split("/")
+        if m.name.startswith("/") or ".." in parts:
+            sys.exit(f"unsafe archive member name: {m.name!r}")
+        if m.isdir():
+            continue
+        if not m.isreg():
+            sys.exit(f"unsupported archive member (link/device/fifo): {m.name!r}")
+        h, n = hashlib.sha256(), 0
+        f = tf.extractfile(m)
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk); n += len(chunk)
+        name = m.name[2:] if m.name.startswith("./") else m.name
+        print(f"{h.hexdigest()}\t{n}\t{name}")
+PY
+}

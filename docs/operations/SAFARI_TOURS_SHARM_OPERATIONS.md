@@ -43,27 +43,31 @@ SQL
 
 ## 2. Backups
 
-> **V29 / WEGO-016-MEDIA release hold (5 October 2026):** the database-only
-> backup/restore scripts below now refuse schemas/bundles containing
-> `tours_operator_asset`, even when there are no uploaded rows. Restoring
-> PostgreSQL alone cannot recover the private image volume. A matching
-> database+media manifest/checksum bundle and successful clean restore drill
-> are still required before accepting MEDIA or deploying V29. Do not disable
-> these guards or schedule the old cron as if it covers managed images.
-> The earlier evidence below belongs to the pre-MEDIA database-only stack.
+> **V29 / WEGO-016-MEDIA (5 October 2026):** from V29 on, the managed image
+> volume is part of the data. The database-only `backup.sh` /
+> `restore-drill.sh` deliberately refuse V29 schemas and bundles; do not
+> disable those guards and do not schedule them. Use the bundle scripts below.
+> The earlier evidence in this section belongs to the pre-MEDIA stack.
 
-`scripts/safari-ops/backup.sh` — `pg_dump` custom format, verified with
-`pg_restore --list` before it is kept, plus a `.json` with SHA-256, Flyway
-version and per-table row counts. Set `SAFARI_BACKUP_GPG_RECIPIENT` to a
-public key whose private half is **not** on the server, so a stolen server
-does not expose the backups; without it the script refuses to run unless
-`SAFARI_ALLOW_PLAIN_BACKUP=1` is set (local drills only). Retention: `SAFARI_BACKUP_KEEP_DAYS` (default 14).
+`scripts/safari-ops/bundle-backup.sh` writes `<stamp>.bundle/` containing
+`db.dump` (`pg_dump` custom format, checked with `pg_restore --list`),
+`media.tar.gz` (the named media volume, mounted read-only, tar exit status
+checked) and `manifest.json`. The manifest records SHA-256 and size of both
+files, SHA-256 and size of **every file inside the media archive**, the
+DB-referenced storage keys, Flyway version and per-table row counts. The
+backup aborts if any `tours_operator_asset` / `_variant` key is missing from
+the archive; a fresh V29 database with zero assets is valid, a failed query
+is not. Files are mode 0600. Set `SAFARI_BACKUP_GPG_RECIPIENT` to a public
+key whose private half is **not** on the server, so a stolen server does not
+expose the backups (the media volume holds DRAFT images that are private);
+without it the script refuses to run unless `SAFARI_ALLOW_PLAIN_BACKUP=1` is
+set (local drills only). Retention: `SAFARI_BACKUP_KEEP_DAYS` (default 14).
 
 Schedule (crontab of the deploy user):
 
 ```cron
-15 2 * * *  cd /srv/safari && scripts/safari-ops/backup.sh >> /var/log/safari-backup.log 2>&1
-40 3 * * 0  cd /srv/safari && scripts/safari-ops/restore-drill.sh >> /var/log/safari-drill.log 2>&1
+15 2 * * *  cd /srv/safari && scripts/safari-ops/bundle-backup.sh >> /var/log/safari-backup.log 2>&1
+40 3 * * 0  cd /srv/safari && scripts/safari-ops/bundle-restore-drill.sh >> /var/log/safari-drill.log 2>&1
 */5 * * * * cd /srv/safari && scripts/safari-ops/health-check.sh > /dev/null
 ```
 
@@ -73,14 +77,21 @@ storage) — a backup on the same disk does not survive losing that disk.
 
 ## 3. Restore drill (proof that backups work)
 
-`scripts/safari-ops/restore-drill.sh [file]` restores the newest (or the given)
-backup into a **new throw-away container** with no network and no volume,
-then checks the checksum, `pg_restore` success, the Flyway version, that no
-migration failed, and that every table has at least the rows counted at
-backup time. It writes `drill-<time>.json` (with seconds taken) next to the
-backups and always removes the container. It never touches the live database.
+`scripts/safari-ops/bundle-restore-drill.sh [bundle]` restores the newest (or
+the given) bundle's database into a **new throw-away container** with no
+network and no volume, then checks the bundle checksums, `pg_restore`
+success, the Flyway version, that no migration failed, and that every table
+has at least the rows counted at backup time. The expected media keys are
+read from the **restored database** (assets and variants), not from the
+manifest: every one must be in the archive, every archived file must match
+the SHA-256 and size recorded in the manifest, originals must match
+`tours_operator_asset.sha256`, variants must match
+`tours_operator_asset_variant.file_size_bytes`, and the archive may hold no
+file the manifest does not list. It writes `bundle-drill-<time>.json` next
+to the backups and always removes the container. It never touches the live
+database or the live media volume.
 
-Evidence on 2026-10-01 (local stack, small data set): backup 1 s, drill 6 s
+Evidence on 2026-10-01 (database-only scripts, local stack, small data set): backup 1 s, drill 6 s
 end to end, 15 tables checked; a damaged file was refused (checksum), a
 missing-rows case failed the drill, and the encrypted (GPG) round trip
 passed. Repeat on the real server after go-live and record its timing here.
@@ -88,15 +99,42 @@ passed. Repeat on the real server after go-live and record its timing here.
 ## 4. Real restore (incident)
 
 1. Pause online sales (section 1).
-2. Take one more backup of the current state, even if it is damaged.
-3. Run the drill on the chosen backup first; continue only if it passes.
+2. Take one more bundle of the current state, even if it is damaged.
+3. Run `bundle-restore-drill.sh` on the chosen bundle first; continue only if
+   it passes. If the bundle is GPG-encrypted, decrypt `db.dump.gpg` and
+   `media.tar.gz.gpg` to a private directory (mode 0700) first.
 4. `docker compose ... stop backend web safari-site` — the database stays up.
 5. Keep the broken database: `ALTER DATABASE <db> RENAME TO <db>_broken_<date>`
    (from the `postgres` maintenance database), then `CREATE DATABASE <db>`.
-6. `pg_restore --no-owner --exit-on-error -d <db>` from the chosen backup.
-7. Check Flyway history and row counts (the drill's checks), start the
-   services with `--wait`, run the smoke checks (section 6), resume sales.
-8. Reconcile payments made between the backup time and the incident against
+   Keep the broken media volume too: do not delete it; restore into a new one
+   (or, if reusing the name, first copy the old volume aside).
+6. Restore the database: `pg_restore --no-owner --exit-on-error -d <db>`.
+7. Restore media **after** the database, into the named media volume
+   (`<project>-media`), as root with numeric ownership so the backend user
+   (10001:10001) can read it and nobody else can. DRAFT images are private
+   and stay private only if modes are kept (directories 0700, files 0600):
+
+   ```sh
+   docker run --rm --network none \
+     -v <project>-media:/data/media \
+     -v /private/restore-dir:/in:ro \
+     public.ecr.aws/docker/library/alpine:3.20 \
+     sh -c 'cd /data/media && tar -xzf /in/media.tar.gz --numeric-owner'
+   ```
+
+   As root, tar keeps owner and permissions by default (the alpine/busybox
+   tar has no `--same-owner`; with GNU tar add `--same-owner
+   --same-permissions`). Then verify: `find /data/media -type d ! -perm 700` and
+   `find /data/media -type f ! -perm 600` print nothing, and
+   `find /data/media \( ! -user 10001 -o ! -group 10001 \)` prints nothing (run it
+   in a throw-away container with the volume mounted `:ro`). Never extract as
+   a non-root user (ownership is lost) or with a world-readable umask.
+8. Verify with the drill's checks: Flyway history and row counts, and that
+   every `tours_operator_asset` / `_variant` key exists in the volume with the
+   recorded size and SHA-256: run `scripts/safari-ops/verify-live-media.sh`
+   (read-only; also checks owner 10001:10001 and modes 0700/0600). Start the services with
+   `--wait`, run the smoke checks (section 6), resume sales.
+9. Reconcile payments made between the backup time and the incident against
    the Paymob dashboard before telling customers anything.
 
 ## 5. Upgrade and rollback
@@ -107,7 +145,7 @@ never rolling: an older backend must not run beside a newer schema.
 1. Build and test the exact release (`release.plan.json` digest).
 2. Pause online sales; wait until no checkout is in progress
    (ERP → Finance shows no PENDING payment from the last 30 minutes).
-3. `backup.sh`, then `restore-drill.sh` on that backup.
+3. `bundle-backup.sh`, then `bundle-restore-drill.sh` on that bundle.
 4. `docker compose ... stop backend` → start the new release with `--wait`
    (Flyway migrates on start) → smoke checks → resume sales.
 
@@ -232,10 +270,15 @@ Paymob before retrying, to avoid a double refund.
 - **زرار الطوارئ:** من الـERP → «Online sales». تقدر توقف الحجز من الموقع، أو
   الدفع، أو الاتنين بضغطة. الفلوس اللي في الطريق بتتسجل عادي، والموظفين
   شغالين. وطول ما الزرار مفعّل فيه شريط أحمر في كل صفحات الـERP.
-- **النسخة الاحتياطية:** كل يوم الساعة 2:15 بالليل، والملف بيتأكد إنه سليم
-  قبل ما يتحفظ. ممكن يتشفّر بمفتاح مش موجود على السيرفر.
-- **تجربة الاسترجاع:** كل أسبوع بنرجّع النسخة في قاعدة مؤقتة، ونتأكد إن كل
-  الجداول والأرقام موجودة، وبنسجّل الوقت. النهارده محليًا: 6 ثواني.
+- **النسخة الاحتياطية:** كل يوم الساعة 2:15 بالليل بنعمل «باندل»: قاعدة
+  البيانات + مجلد الصور (`bundle-backup.sh`)، ومعاها بصمة SHA-256 وحجم لكل
+  ملف صورة. النسخة بتتلغي لو أي صورة مسجلة في القاعدة ناقصة. ممكن تتشفّر
+  بمفتاح مش موجود على السيرفر، والصور المسودة تفضل خاصة.
+- **تجربة الاسترجاع:** كل أسبوع (`bundle-restore-drill.sh`) بنرجّع القاعدة في
+  حاوية مؤقتة، ونطلع قائمة الصور المطلوبة من القاعدة المسترجعة نفسها (مش من
+  الـmanifest)، ونتأكد إن كل ملف موجود وبصمته وحجمه سليمين، وإن مفيش ملف
+  اتغيّر أو اتشال. استرجاع الحوادث: القاعدة الأول ثم الصور بصلاحيات
+  10001:10001 (مجلدات 0700، ملفات 0600).
 - **المراقبة:** كل 5 دقايق بيتفحص الموقع والسيرفر والنسخة والمساحة والشهادة.
   لو في مشكلة بيبعت تنبيه.
 - **الإلغاء والاسترداد:** إلغاء الموظف يحرر الأماكن لكنه لا يدّعي أن الفلوس
