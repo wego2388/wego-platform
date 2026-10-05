@@ -86,8 +86,8 @@ async function signOut() {
     <header class="sticky top-0 z-40 border-b border-white/10 bg-sts-ocean text-white print:hidden">
       <div class="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-4 py-3 sm:gap-4 sm:px-8">
         <NuxtLink to="/" class="flex shrink-0 items-center gap-2 font-semibold">
-          <img src="/logo-mark.webp" alt="" width="46" height="38" class="h-9 w-auto" decoding="async">
-          <span class="hidden sm:inline xl:hidden">Safari Tours Sharm · {{ t('shell.staff') }}</span>
+          <img src="/logo-mark.webp" alt="Safari Tours Sharm" width="46" height="38" class="h-9 w-auto" decoding="async">
+          <span class="hidden sm:inline xl:hidden" aria-hidden="true">Safari Tours Sharm · {{ t('shell.staff') }}</span>
         </NuxtLink>
         <nav v-if="session" class="hidden min-w-0 flex-1 items-center gap-1 overflow-x-auto xl:flex" :aria-label="t('shell.navigation')">
           <NuxtLink
