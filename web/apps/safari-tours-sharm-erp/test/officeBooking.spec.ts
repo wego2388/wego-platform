@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Booking, Tour } from "@wego/api-contract";
 import { ar, en, type ErpMessageKey } from "../app/utils/erpLocale";
 import {
-  COLLECTION_METHODS, estimateTotal, methodNeedsReference, normalizeReference, officeBadge, officeErrorMessage, parseAmount, validateOfficeForm,
+  COLLECTION_METHODS, estimateTotal, methodNeedsReference, normalizeReference, officeBadge, officeErrorMessage, parseAmount, totalsDiffer, validateOfficeForm,
 } from "../app/utils/officeBooking";
 import { isLive, isUnpaid } from "../app/utils/runSheet";
 import { ToursApiError } from "../app/composables/useToursApi";
@@ -100,5 +100,19 @@ describe("office messages exist in both languages", () => {
       expect(ar[d.key as ErpMessageKey], code).toBeTruthy();
     }
     expect(officeErrorMessage(new ToursApiError(403, "x")).key).toBe("booking.forbidden");
+  });
+});
+
+describe("saved total vs the preview", () => {
+  it("flags a difference and stays quiet when equal", () => {
+    expect(totalsDiffer(eur("87.50"), { ok: true, total: eur("87.50"), seats: 3 })).toBe(false);
+    expect(totalsDiffer(eur("90.00"), { ok: true, total: eur("87.50"), seats: 3 })).toBe(true);
+    expect(totalsDiffer(eur("90.00"), null)).toBe(false);
+  });
+  it("has bilingual messages for the new server codes", () => {
+    for (const code of ["amount_below_minimum", "fx_rate_changed", "invalid_correction", "cannot_reverse_own_collection"]) {
+      const d = officeErrorMessage(new ToursApiError(409, code));
+      expect(en[d.key as ErpMessageKey], code).toBeTruthy(); expect(ar[d.key as ErpMessageKey], code).toBeTruthy();
+    }
   });
 });

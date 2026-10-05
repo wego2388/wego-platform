@@ -243,11 +243,29 @@ class ToursOperatorOfficeBookingHttpTest {
         key: UUID = UUID.randomUUID(),
         currency: String = "EUR",
         reference: String? = null,
+        fxRateId: String? = if (currency == "EGP") currentRateId() else null,
+        corrects: String? = null,
     ) = mockMvc.post("/api/v1/tours-operator/staff/bookings/$bookingId/collections") {
         header("Authorization", "Bearer $token")
         contentType = MediaType.APPLICATION_JSON
         val ref = reference?.let { ""","reference":${jsonString(it)}""" } ?: ""
-        content = """{"clientRequestId":"$key","method":"$method","currency":"$currency","amount":$amount$ref}"""
+        val rate = fxRateId?.let { ""","fxRateId":"$it"""" } ?: ""
+        val fix = corrects?.let { ""","correctsCollectionId":"$it"""" } ?: ""
+        content = """{"clientRequestId":"$key","method":"$method","currency":"$currency","amount":$amount$ref$rate$fix}"""
+    }
+
+    /** The rate staff were last shown for today (what a quote would return). */
+    private fun currentRateId(): String? =
+        dsl
+            .fetchOne(
+                "SELECT id FROM wego.tours_operator_fx_rate WHERE rate_date = (now() AT TIME ZONE 'Africa/Cairo')::date ORDER BY set_at DESC, id DESC LIMIT 1",
+            )?.get(0)
+            ?.toString()
+
+    /** A second manager: reversals must be made by someone other than the person who recorded the entry. */
+    private fun admin2(): String {
+        seedUser("office-admin2@example.com", setOf("platform-admin"))
+        return login("office-admin2@example.com")
     }
 
     private fun jsonString(raw: String): String =
@@ -775,26 +793,26 @@ class ToursOperatorOfficeBookingHttpTest {
         val first = entryId(collect(admin, id, "87.50").andReturn().response.contentAsString)
         assertThat(JsonPath.read<String>(getBooking(admin, id), "$.officePayment.state")).isEqualTo("PAID")
 
-        reverse(admin, id, first, reason = "   ").andExpect { status { isBadRequest() } }
-        reverse(admin, id, UUID.randomUUID().toString()).andExpect { status { isNotFound() } }
+        reverse(admin2(), id, first, reason = "   ").andExpect { status { isBadRequest() } }
+        reverse(admin2(), id, UUID.randomUUID().toString()).andExpect { status { isNotFound() } }
         val reversal =
-            reverse(admin, id, first, reason = "Counted the wrong note")
+            reverse(admin2(), id, first, reason = "Counted the wrong note")
                 .andExpect {
                     status { isCreated() }
                     jsonPath("$.entry.kind") { value("REVERSAL") }
                     jsonPath("$.entry.reason") { value("Counted the wrong note") }
                     jsonPath("$.entry.reversesCollectionId") { value(first) }
-                    jsonPath("$.entry.recordedByUserId") { value(adminId.toString()) }
+                    jsonPath("$.entry.recordedByEmail") { value("office-admin2@example.com") }
                     jsonPath("$.officePayment.state") { value("UNPAID") }
                     jsonPath("$.officePayment.outstanding.amount") { value("87.50") }
                 }.andReturn()
                 .response.contentAsString
         // Reversed once only, and a reversal cannot itself be reversed.
-        reverse(admin, id, first).andExpect {
+        reverse(admin2(), id, first).andExpect {
             status { isConflict() }
             jsonPath("$.error") { value("collection_already_reversed") }
         }
-        reverse(admin, id, entryId(reversal)).andExpect {
+        reverse(admin2(), id, entryId(reversal)).andExpect {
             status { isConflict() }
             jsonPath("$.error") { value("collection_not_reversible") }
         }
@@ -842,7 +860,7 @@ class ToursOperatorOfficeBookingHttpTest {
             .get("/api/v1/tours-operator/staff/bookings/$id/collections") { header("Authorization", "Bearer $admin") }
             .andExpect { jsonPath("$[0].id") { value(deposit) } }
         // Handing the cash back is recorded as an audited reversal, which clears the flag.
-        reverse(admin, id, deposit, reason = "Cash handed back to the customer").andExpect {
+        reverse(admin2(), id, deposit, reason = "Cash handed back to the customer").andExpect {
             status { isCreated() }
             jsonPath("$.officePayment.cashToReturn") { doesNotExist() }
         }
@@ -897,7 +915,7 @@ class ToursOperatorOfficeBookingHttpTest {
         }
         collect(admin, second, "5.00", "INSTAPAY", reference = ref).andExpect { status { isCreated() } }
         // A reversed receipt stays burnt: the entry is kept, so it cannot be re-recorded.
-        reverse(admin, first, entry).andExpect { status { isCreated() } }
+        reverse(admin2(), first, entry).andExpect { status { isCreated() } }
         collect(admin, second, "5.00", "CARD_TERMINAL", reference = ref).andExpect {
             status { isConflict() }
             jsonPath("$.error") { value("reference_already_used") }
@@ -1091,7 +1109,7 @@ class ToursOperatorOfficeBookingHttpTest {
         }
         collect(admin, id, "0.20", "INSTAPAY", currency = "EGP", reference = "EGP-3").andExpect {
             status { isUnprocessableEntity() }
-            jsonPath("$.error") { value("amount_too_small") }
+            jsonPath("$.error") { value("amount_below_minimum") }
         }
         collect(admin, id, "2250.00", "INSTAPAY", currency = "EGP", reference = "EGP-4").andExpect {
             status { isCreated() }
@@ -1116,7 +1134,7 @@ class ToursOperatorOfficeBookingHttpTest {
             )
         // 1000 / 48.5 = 20.6185… → 20.62
         assertThat(JsonPath.read<String>(getBooking(admin, id), "$.officePayment.collected.amount")).isEqualTo("20.62")
-        reverse(admin, id, entry).andExpect {
+        reverse(admin2(), id, entry).andExpect {
             status { isCreated() }
             jsonPath("$.entry.amount.amount") { value("20.62") }
             jsonPath("$.entry.amountPaid.currencyCode") { value("EGP") }
@@ -1224,5 +1242,214 @@ class ToursOperatorOfficeBookingHttpTest {
         mockMvc
             .get("/api/v1/tours-operator/bookings/$id") { header("Authorization", "Bearer $admin") }
             .andExpect { jsonPath("$.awaitingCollection") { value(false) } }
+    }
+
+    // ── review follow-ups: M1, L1, L2, L3 ────────────────────────────────────
+
+    @Test
+    fun `nobody reverses their own entry and reversing needs its own manager permission`() {
+        val (_, slotId) = seedTourAndSlot("own-reversal", capacity = 20)
+        val id = newOffice(slotId)
+        val cashier = tokenWith("tours-operator.booking:collect-cash")
+        val entry = entryId(collect(cashier, id, "20.00").andReturn().response.contentAsString)
+        // collect-cash alone cannot reverse anything.
+        reverse(cashier, id, entry).andExpect { status { isForbidden() } }
+        // Even a manager cannot reverse an entry they recorded themselves.
+        val admin = adminToken()
+        val own = entryId(collect(admin, id, "5.00").andReturn().response.contentAsString)
+        reverse(admin, id, own).andExpect {
+            status { isForbidden() }
+            jsonPath("$.error") { value("cannot_reverse_own_collection") }
+        }
+        assertThat(JsonPath.read<String>(getBooking(admin, id), "$.officePayment.collected.amount")).isEqualTo("25.00")
+        // A different manager can, and the entry shows who reversed it and why.
+        reverse(admin2(), id, own, reason = "Wrong note counted").andExpect {
+            status { isCreated() }
+            jsonPath("$.entry.recordedByEmail") { value("office-admin2@example.com") }
+            jsonPath("$.entry.reason") { value("Wrong note counted") }
+        }
+        mockMvc
+            .get("/api/v1/tours-operator/staff/bookings/$id/collections") { header("Authorization", "Bearer $admin") }
+            .andExpect {
+                jsonPath("$[0].recordedByEmail") { value(org.hamcrest.Matchers.containsString("collect-cash")) }
+                jsonPath("$[2].kind") { value("REVERSAL") }
+                jsonPath("$[2].recordedAt") { exists() }
+            }
+    }
+
+    @Test
+    fun `an EGP entry must be worth at least one euro unless it settles the exact balance`() {
+        dsl.execute("UPDATE wego.tours_operator_fx_rate SET rate_date = rate_date - 1")
+        setRate(tokenWith("tours-operator.fx-rate:manage"), "50.0000").andExpect { status { isCreated() } }
+        val (_, slotId) = seedTourAndSlot("egp-min", capacity = 20)
+        val id = newOffice(slotId) // €87.50
+        val admin = adminToken()
+        collect(admin, id, "49.99", "INSTAPAY", currency = "EGP", reference = "MIN-1").andExpect {
+            status { isUnprocessableEntity() }
+            jsonPath("$.error") { value("amount_below_minimum") }
+        }
+        collect(admin, id, "50.00", "INSTAPAY", currency = "EGP", reference = "MIN-2").andExpect {
+            status { isCreated() }
+            jsonPath("$.entry.amount.amount") { value("1.00") }
+        }
+        // Leave €0.30 due: 15.00 EGP is below one euro but settles the exact remaining balance.
+        collect(admin, id, "86.20", "CASH_AT_OFFICE").andExpect { status { isCreated() } }
+        collect(admin, id, "14.00", "INSTAPAY", currency = "EGP", reference = "MIN-3").andExpect { status { isUnprocessableEntity() } }
+        collect(admin, id, "15.00", "INSTAPAY", currency = "EGP", reference = "MIN-4").andExpect {
+            status { isCreated() }
+            jsonPath("$.entry.amount.amount") { value("0.30") }
+            jsonPath("$.officePayment.state") { value("PAID") }
+        }
+    }
+
+    @Test
+    fun `a rate changed after the quote is refused and an EGP entry must carry the quoted rate`() {
+        dsl.execute("UPDATE wego.tours_operator_fx_rate SET rate_date = rate_date - 1")
+        val manager = tokenWith("tours-operator.fx-rate:manage")
+        setRate(manager, "50.0000").andExpect { status { isCreated() } }
+        val (_, slotId) = seedTourAndSlot("rate-changed", capacity = 20)
+        val id = newOffice(slotId)
+        val admin = adminToken()
+        val quote =
+            mockMvc
+                .get("/api/v1/tours-operator/staff/bookings/$id/collections/quote") {
+                    header("Authorization", "Bearer $admin")
+                    param("currency", "EGP")
+                    param("amount", "500.00")
+                }.andExpect { jsonPath("$.fxRateId") { exists() } }
+                .andReturn()
+                .response.contentAsString
+        val quotedId = JsonPath.read<String>(quote, "$.fxRateId")
+        setRate(manager, "60.0000").andExpect { status { isCreated() } }
+        collect(admin, id, "500.00", "INSTAPAY", currency = "EGP", reference = "CHG-1", fxRateId = quotedId).andExpect {
+            status { isConflict() }
+            jsonPath("$.error") { value("fx_rate_changed") }
+        }
+        collect(admin, id, "500.00", "INSTAPAY", currency = "EGP", reference = "CHG-1", fxRateId = null).andExpect {
+            status { isBadRequest() }
+            jsonPath("$.error") { value("fx_rate_id_required") }
+        }
+        assertThat(
+            dsl.fetchCount(TOURS_OPERATOR_OFFICE_COLLECTION, TOURS_OPERATOR_OFFICE_COLLECTION.BOOKING_ID.eq(UUID.fromString(id))),
+        ).isZero()
+        // Re-quoting returns the new rate; recording with it works at that rate.
+        val fresh =
+            JsonPath.read<String>(
+                mockMvc
+                    .get("/api/v1/tours-operator/staff/bookings/$id/collections/quote") {
+                        header("Authorization", "Bearer $admin")
+                        param("currency", "EGP")
+                        param("amount", "600.00")
+                    }.andReturn()
+                    .response.contentAsString,
+                "$.fxRateId",
+            )
+        assertThat(fresh).isNotEqualTo(quotedId)
+        collect(admin, id, "600.00", "INSTAPAY", currency = "EGP", reference = "CHG-1", fxRateId = fresh).andExpect {
+            status { isCreated() }
+            jsonPath("$.entry.amount.amount") { value("10.00") }
+            jsonPath("$.entry.fxRate") { value("60.0000") }
+        }
+    }
+
+    @Test
+    fun `a reversed receipt can be re-recorded only as an explicit single correction`() {
+        val (_, slotId) = seedTourAndSlot("correction", capacity = 40)
+        val id = newOffice(slotId)
+        val other = newOffice(slotId)
+        val admin = adminToken()
+        val manager2 = admin2()
+        val ref = "COR-${UUID.randomUUID()}".take(40)
+        val original = entryId(collect(admin, id, "30.00", "CARD_TERMINAL", reference = ref).andReturn().response.contentAsString)
+
+        // Not reversed yet: neither a plain re-use nor a "correction" is allowed.
+        collect(admin, id, "30.00", "CARD_TERMINAL", reference = ref).andExpect { status { isConflict() } }
+        collect(admin, id, "30.00", "CARD_TERMINAL", reference = ref, corrects = original).andExpect {
+            status { isConflict() }
+            jsonPath("$.error") { value("invalid_correction") }
+        }
+        reverse(manager2, id, original, reason = "Typed wrong amount").andExpect { status { isCreated() } }
+        // Plain re-use stays refused after the reversal.
+        collect(admin, id, "25.00", "CARD_TERMINAL", reference = ref).andExpect {
+            status { isConflict() }
+            jsonPath("$.error") { value("reference_already_used") }
+        }
+        // A correction must keep the same method and reference, and belong to this booking.
+        collect(admin, id, "25.00", "INSTAPAY", reference = ref, corrects = original).andExpect { status { isConflict() } }
+        collect(admin, id, "25.00", "CARD_TERMINAL", reference = "$ref-x", corrects = original).andExpect { status { isConflict() } }
+        collect(admin, other, "25.00", "CARD_TERMINAL", reference = ref, corrects = original).andExpect { status { isConflict() } }
+        // The correction itself works, links back to the reversed entry, and only once.
+        collect(admin, id, "25.00", "CARD_TERMINAL", reference = ref, corrects = original).andExpect {
+            status { isCreated() }
+            jsonPath("$.entry.correctsCollectionId") { value(original) }
+            jsonPath("$.entry.reference") { value(ref) }
+            jsonPath("$.officePayment.collected.amount") { value("25.00") }
+        }
+        collect(admin, id, "5.00", "CARD_TERMINAL", reference = ref, corrects = original).andExpect {
+            status { isConflict() }
+            jsonPath("$.error") { value("invalid_correction") }
+        }
+    }
+
+    @Test
+    fun `the database guards corrections, reference reuse and the EGP rate id`() {
+        val (_, slotId) = seedTourAndSlot("db-correction", capacity = 40)
+        val id = UUID.fromString(newOffice(slotId))
+        val admin = adminToken()
+        val ref = "DBC-${UUID.randomUUID()}".take(40)
+        val original =
+            UUID.fromString(
+                entryId(collect(admin, id.toString(), "10.00", "INSTAPAY", reference = ref).andReturn().response.contentAsString),
+            )
+
+        fun insert(
+            method: String,
+            reference: String?,
+            corrects: UUID?,
+            currency: String = "EUR",
+        ) = dsl.execute(
+            """
+            INSERT INTO wego.tours_operator_office_collection
+              (id, booking_id, kind, method, currency_paid, amount_paid, amount_eur, fx_rate, reference, corrects_collection_id,
+               recorded_by_user_id, client_request_id, recorded_at)
+            VALUES (?, ?, 'COLLECTION', ?, ?, 1.00, ?, ?, ?, ?, ?, ?, now())
+            """.trimIndent(),
+            UUID.randomUUID(),
+            id,
+            method,
+            currency,
+            if (currency == "EGP") "0.02".toBigDecimal() else "1.00".toBigDecimal(),
+            if (currency == "EGP") "50.0000".toBigDecimal() else null,
+            reference,
+            corrects,
+            adminId,
+            UUID.randomUUID(),
+        )
+        // Re-using a reference without an explicit correction link is rejected by the unique index.
+        org.assertj.core.api.Assertions
+            .assertThatThrownBy { insert("INSTAPAY", ref, null) }
+            .hasMessageContaining("tours_operator_office_collection_reference_unique")
+        // A correction must carry the corrected entry's exact method and reference.
+        org.assertj.core.api.Assertions
+            .assertThatThrownBy { insert("INSTAPAY", "$ref-other", original) }
+            .hasMessageContaining("tours_operator_office_collection_corrects_same_receipt")
+        org.assertj.core.api.Assertions
+            .assertThatThrownBy { insert("FAWRY_OFFICE", ref, original) }
+            .hasMessageContaining("tours_operator_office_collection_corrects_same_receipt")
+        // Once linked, a second correction of the same entry is rejected.
+        insert("INSTAPAY", ref, original)
+        org.assertj.core.api.Assertions
+            .assertThatThrownBy { insert("INSTAPAY", ref, original) }
+            .hasMessageContaining("tours_operator_office_collection_correction_unique")
+        // An EGP row cannot omit the rate it used.
+        org.assertj.core.api.Assertions
+            .assertThatThrownBy {
+                insert(
+                    "INSTAPAY",
+                    "EGP-NULL-${UUID.randomUUID()}".take(40),
+                    null,
+                    currency = "EGP",
+                )
+            }.hasMessageContaining("tours_operator_office_collection_rate_matches_currency")
     }
 }

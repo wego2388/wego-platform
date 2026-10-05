@@ -2137,7 +2137,7 @@ export interface paths {
         put?: never;
         /**
          * Record an office payment (staff)
-         * @description Requires tours-operator.booking:collect-cash. Manual entry only — no online integration. Methods are cash at the office, cash on pickup, mobile wallet, the office card terminal, InstaPay and the office Fawry machine. Non-cash methods require the receipt reference (unique per method); cash must not carry one. EGP settles at today's manager-set rate (fx_rate_not_set when none). The settled EUR can never exceed the outstanding balance; the exact EGP value of the balance settles it exactly. Entries are separate from Paymob payments. Re-sending the same clientRequestId returns the entry already recorded (200).
+         * @description Requires tours-operator.booking:collect-cash. Manual entry only — no online integration. Methods are cash at the office, cash on pickup, mobile wallet, the office card terminal, InstaPay and the office Fawry machine. Non-cash methods require the receipt reference (unique per method); cash must not carry one. EGP settles at today's manager-set rate (fx_rate_not_set when none) and needs the quoted fxRateId. The settled EUR can never exceed the outstanding balance; the exact EGP value of the balance settles it exactly. Entries are separate from Paymob payments. Re-sending the same clientRequestId returns the entry already recorded (200).
          */
         post: operations["recordToursOperatorOfficeCollection"];
         delete?: never;
@@ -2177,7 +2177,7 @@ export interface paths {
         put?: never;
         /**
          * Reverse an office payment with a reason
-         * @description Requires tours-operator.booking:collect-cash. The only way to correct a mistake: a separate audited REVERSAL entry that cancels one collection in full. A collection can be reversed once and a reversal is final. A reversed receipt reference stays used.
+         * @description Requires tours-operator.booking:reverse-collection (managers only), and the actor must not be the user who recorded the entry (403 cannot_reverse_own_collection). The only way to correct a mistake: a separate audited REVERSAL entry that cancels one collection in full. A collection can be reversed once and a reversal is final. A reversed receipt reference stays used unless re-recorded as an explicit correction (correctsCollectionId).
          */
         post: operations["reverseToursOperatorOfficeCollection"];
         delete?: never;
@@ -2585,6 +2585,16 @@ export interface components {
             currency: components["schemas"]["ToursOperatorPaidCurrency"];
             /** @description Receipt number from the terminal, wallet, InstaPay or Fawry. Required for non-cash, forbidden for cash. Trimmed, no control characters, unique per method. */
             reference?: string;
+            /**
+             * Format: uuid
+             * @description The rate id returned by the quote; required for EGP. If the manager changed today's rate since, the server answers 409 fx_rate_changed and the client must re-quote.
+             */
+            fxRateId?: string;
+            /**
+             * Format: uuid
+             * @description Re-records a REVERSED collection of this booking with the same method and reference — the only way a receipt reference is reused, and each reversed entry can be corrected once.
+             */
+            correctsCollectionId?: string;
         };
         ReverseToursOperatorOfficeCollectionRequest: {
             /** Format: uuid */
@@ -2609,8 +2619,12 @@ export interface components {
             reason: string | null;
             /** Format: uuid */
             recordedByUserId: string | null;
+            /** @description Staff user who recorded (or reversed) the entry. */
+            recordedByEmail: string | null;
             /** Format: date-time */
             recordedAt: string;
+            /** Format: uuid */
+            correctsCollectionId: string | null;
         };
         ToursOperatorOfficeCollectionOutcome: {
             entry: components["schemas"]["ToursOperatorOfficeCollection"];
@@ -2618,9 +2632,14 @@ export interface components {
         };
         ToursOperatorOfficeCollectionQuote: {
             /** @enum {string} */
-            status: "OK" | "RATE_MISSING" | "TOO_SMALL" | "EXCEEDS_OUTSTANDING";
+            status: "OK" | "RATE_MISSING" | "BELOW_MINIMUM" | "EXCEEDS_OUTSTANDING";
             settledEur: components["schemas"]["Money"] | null;
             fxRate: string | null;
+            /**
+             * Format: uuid
+             * @description Send back when recording so a rate change after the quote is detected.
+             */
+            fxRateId: string | null;
             outstanding: components["schemas"]["Money"];
         };
         SetToursOperatorFxRateRequest: {
@@ -9057,7 +9076,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Booking not in NEW state. */
+            /** @description Booking not in NEW state, or an office booking (office_booking_not_payable_online — office payments are recorded by staff, never through the online provider). */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -9250,7 +9269,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description not_an_office_booking, booking_not_open_status_*, amount_exceeds_outstanding, reference_already_used, fx_rate_not_set or idempotency_key_reused. */
+            /** @description not_an_office_booking, booking_not_open_status_*, amount_exceeds_outstanding, reference_already_used, fx_rate_not_set, fx_rate_changed, invalid_correction or idempotency_key_reused. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -9259,7 +9278,7 @@ export interface operations {
                     "application/json": components["schemas"]["ToursOperatorErrorResponse"];
                 };
             };
-            /** @description amount_too_small — the payment converts to less than one cent. */
+            /** @description amount_below_minimum — an EGP payment worth less than 1.00 EUR at today's rate (the payment that settles the exact remaining balance is exempt). */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -9350,7 +9369,15 @@ export interface operations {
             };
             400: components["responses"]["ToursOperatorValidationResponse"];
             401: components["responses"]["UnauthenticatedResponse"];
-            403: components["responses"]["ForbiddenResponse"];
+            /** @description Missing the permission, or the actor recorded this entry themselves (error cannot_reverse_own_collection). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
             /** @description Booking or collection not found. */
             404: {
                 headers: {

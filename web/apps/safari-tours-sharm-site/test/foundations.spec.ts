@@ -25,7 +25,7 @@ describe("language-less URL redirect", () => {
     expect(localeRedirectTarget("/tours", "", "de")).toBe("/en/tours");
   });
   it("leaves localized pages, the root, assets, APIs and unknown paths alone", () => {
-    for (const path of ["/", "/ru/tours", "/_safari/app.js", "/api/v1/x", "/media/tours/a/b.avif", "/favicon.svg", "/brand/logo.svg", "/wp-admin", "/foo"]) {
+    for (const path of ["/", "/ru/tours", "/_safari/app.js", "/api/v1/x", "/media/tours/a/b.avif", "/favicon.svg", "/brand/logo.webp", "/wp-admin", "/foo"]) {
       expect(localeRedirectTarget(path, "", "ar")).toBeNull();
     }
   });

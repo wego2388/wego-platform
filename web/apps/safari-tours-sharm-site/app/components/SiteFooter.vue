@@ -25,7 +25,7 @@ function changeCookies() {
     <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-10">
       <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <BrandLogo inverse :height="40" />
+          <BrandLogo variant="full" :height="150" />
           <p class="mt-4 max-w-xs text-sm leading-6 text-white/75">{{ copy.footer.tagline }}</p>
         </div>
 

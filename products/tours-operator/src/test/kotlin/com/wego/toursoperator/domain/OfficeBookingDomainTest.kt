@@ -212,10 +212,10 @@ class OfficeBookingDomainTest {
     @Test
     fun `EGP converts half-up to cents`() {
         val r = rate("4.0000")
-        // 0.02 / 4 = 0.005 → 0.01 (half-up, not banker's)
-        assertEquals(money("0.01"), (settle("0.02", PaidCurrency.EGP, r, "87.50") as Settlement.Settled).eur)
-        // 0.06 / 4 = 0.015 → 0.02
-        assertEquals(money("0.02"), (settle("0.06", PaidCurrency.EGP, r, "87.50") as Settlement.Settled).eur)
+        // 4.02 / 4 = 1.005 → 1.01 (half-up, not banker's); 4.06 / 4 = 1.015 → 1.02; 4.01 / 4 = 1.0025 → 1.00
+        assertEquals(money("1.01"), (settle("4.02", PaidCurrency.EGP, r, "87.50") as Settlement.Settled).eur)
+        assertEquals(money("1.02"), (settle("4.06", PaidCurrency.EGP, r, "87.50") as Settlement.Settled).eur)
+        assertEquals(money("1.00"), (settle("4.01", PaidCurrency.EGP, r, "87.50") as Settlement.Settled).eur)
         val r2 = rate("48.5000")
         // 100 / 48.5 = 2.0618… → 2.06 ; 105 / 48.5 = 2.1649… → 2.16 ; 120 / 48.5 = 2.4742… → 2.47
         assertEquals(money("2.06"), (settle("100.00", PaidCurrency.EGP, r2, "87.50") as Settlement.Settled).eur)
@@ -224,8 +224,13 @@ class OfficeBookingDomainTest {
     }
 
     @Test
-    fun `an EGP amount worth less than a cent is refused`() {
-        assertEquals(Settlement.TooSmall, settle("0.20", PaidCurrency.EGP, rate("50.0000"), "87.50"))
+    fun `an EGP amount below one euro at the rate is refused unless it settles the exact balance`() {
+        val r = rate("50.0000")
+        assertEquals(Settlement.BelowMinimum, settle("49.99", PaidCurrency.EGP, r, "87.50"))
+        assertEquals(money("1.00"), (settle("50.00", PaidCurrency.EGP, r, "87.50") as Settlement.Settled).eur)
+        // Balance of €0.30 = 15.00 EGP: exempt; 14.00 EGP is neither the minimum nor the exact balance.
+        assertEquals(money("0.30"), (settle("15.00", PaidCurrency.EGP, r, "0.30") as Settlement.Settled).eur)
+        assertEquals(Settlement.BelowMinimum, settle("14.00", PaidCurrency.EGP, r, "0.30"))
     }
 
     @Test

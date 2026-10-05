@@ -68,8 +68,8 @@ sealed class Settlement {
     /** Paying EGP needs today's manager-set rate; staff cannot supply their own. */
     data object RateMissing : Settlement()
 
-    /** The payment converts to less than one cent. */
-    data object TooSmall : Settlement()
+    /** An EGP payment worth less than 1.00 EUR at today's rate (unless it settles the exact remaining balance). */
+    data object BelowMinimum : Settlement()
 
     data class ExceedsOutstanding(
         val outstanding: Money,
@@ -95,8 +95,10 @@ sealed class Settlement {
             rate ?: return RateMissing
             val exactEgpDue = outstanding.amount.multiply(rate.egpPerEur).setScale(Money.REQUIRED_SCALE, RoundingMode.HALF_UP)
             if (outstanding.amount.signum() > 0 && paid.amount.compareTo(exactEgpDue) == 0) return Settled(outstanding, rate)
+            // Each entry rounds half-up, so tiny entries could add up in the payer's favour:
+            // an EGP entry must be worth at least 1.00 EUR (the exact-balance payment above is exempt).
+            if (paid.amount < rate.egpPerEur) return BelowMinimum
             val eur = paid.amount.divide(rate.egpPerEur, Money.REQUIRED_SCALE, RoundingMode.HALF_UP)
-            if (eur.signum() == 0) return TooSmall
             if (eur > outstanding.amount) return ExceedsOutstanding(outstanding)
             return Settled(Money(eur), rate)
         }
@@ -137,6 +139,10 @@ data class OfficeCollection(
     val recordedByUserId: UUID?,
     val clientRequestId: UUID,
     val recordedAt: Instant,
+    /** Set when this collection re-records a reversed one with the same method and reference. */
+    val correctsCollectionId: UUID? = null,
+    /** Read-only display of the staff user who recorded the entry. */
+    val recordedByEmail: String? = null,
 ) {
     init {
         require(amount.amount.signum() > 0 && amountPaid.amount.signum() > 0) { "A collection amount must be greater than zero" }
@@ -148,6 +154,7 @@ data class OfficeCollection(
                 require(method.isCash == (reference == null)) { "Non-cash payments need a reference; cash carries none" }
             }
             OfficeCollectionKind.REVERSAL -> {
+                require(correctsCollectionId == null) { "A reversal cannot correct another entry" }
                 require(
                     reversesCollectionId != null && !reason.isNullOrBlank(),
                 ) { "A reversal names the collection it reverses and a reason" }

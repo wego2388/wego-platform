@@ -117,10 +117,7 @@ async function submit() {
     <div class="w-full max-w-sm">
 
       <div class="mb-10 text-center">
-        <div class="inline-grid size-16 place-items-center rounded-3xl bg-sts-gold font-black text-sts-ocean text-2xl select-none">
-          S
-        </div>
-        <p class="mt-4 font-semibold text-white">Safari Tours Sharm</p>
+        <img src="/logo-full.webp" alt="Safari Tours Sharm" width="160" height="170" class="mx-auto h-40 w-auto" decoding="async">
         <p class="mt-1 text-sm text-white/75">{{ t('login.dashboard') }}</p>
       </div>
 

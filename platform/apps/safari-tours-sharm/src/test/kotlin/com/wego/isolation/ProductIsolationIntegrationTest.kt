@@ -93,6 +93,7 @@ class ProductIsolationIntegrationTest(
                 "tours-operator.booking:complete",
                 "tours-operator.booking:create-office",
                 "tours-operator.booking:payment-update",
+                "tours-operator.booking:reverse-collection",
                 "tours-operator.booking:view",
                 "tours-operator.content:publish",
                 "tours-operator.fx-rate:manage",

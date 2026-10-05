@@ -25,6 +25,10 @@ data class RecordCollectionCommand(
     val currency: PaidCurrency,
     /** Receipt number from the terminal/wallet/InstaPay/Fawry; required for non-cash, absent for cash. */
     val reference: String?,
+    /** The rate the staff member was shown; required for EGP. */
+    val fxRateId: UUID?,
+    /** Re-records this reversed collection (same method and reference) under its receipt. */
+    val correctsCollectionId: UUID?,
     val actorUserId: UUID,
     val clientRequestId: UUID,
 )
@@ -84,7 +88,19 @@ sealed class CollectionResult {
     /** EGP needs today's manager-set rate; none exists yet. */
     data object FxRateNotSet : CollectionResult()
 
-    data object AmountTooSmall : CollectionResult()
+    /** An EGP payment worth less than 1.00 EUR at today's rate. */
+    data object AmountBelowMinimum : CollectionResult()
+
+    /** The manager changed today's rate after the staff member's quote; re-quote and retry. */
+    data object FxRateChanged : CollectionResult()
+
+    data object FxRateIdRequired : CollectionResult()
+
+    /** Only a different staff member (a manager) may reverse an entry; nobody reverses their own. */
+    data object CannotReverseOwn : CollectionResult()
+
+    /** The entry to correct is missing, not reversed, a different method/reference, or already corrected. */
+    data object InvalidCorrection : CollectionResult()
 
     data object CollectionNotFound : CollectionResult()
 
@@ -139,17 +155,34 @@ class OfficeCollectionService(
             val reference = command.reference?.let(CollectionReference::of)
             if (!command.method.isCash && reference == null) return@runInTransaction CollectionResult.ReferenceRequired
             if (command.method.isCash && reference != null) return@runInTransaction CollectionResult.ReferenceNotAllowed
-            if (reference != null && collectionRepository.referenceExists(command.method, reference)) {
+            if (command.correctsCollectionId != null) {
+                // The only way a receipt reference is reused: explicitly correcting a reversed entry
+                // of this booking with the same method and reference, once.
+                val corrected = entries.firstOrNull { it.id == command.correctsCollectionId }
+                val valid =
+                    corrected != null &&
+                        corrected.kind == OfficeCollectionKind.COLLECTION &&
+                        corrected.method == command.method &&
+                        corrected.reference == reference &&
+                        entries.any { it.reversesCollectionId == corrected.id } &&
+                        entries.none { it.correctsCollectionId == corrected.id }
+                if (!valid) return@runInTransaction CollectionResult.InvalidCorrection
+            } else if (reference != null && collectionRepository.referenceExists(command.method, reference)) {
                 return@runInTransaction CollectionResult.ReferenceAlreadyUsed
             }
 
             val current = summary(booking.booking, entries)
             val rate = if (command.currency == PaidCurrency.EGP) fxRateRepository.latestFor(FxRateService.todayInSharm(clock)) else null
+            if (command.currency == PaidCurrency.EGP) {
+                if (rate == null) return@runInTransaction CollectionResult.FxRateNotSet
+                if (command.fxRateId == null) return@runInTransaction CollectionResult.FxRateIdRequired
+                if (command.fxRateId != rate.id) return@runInTransaction CollectionResult.FxRateChanged
+            }
             val settled =
                 when (val settlement = Settlement.of(command.amountPaid, command.currency, rate, current.outstanding)) {
                     is Settlement.Settled -> settlement
                     Settlement.RateMissing -> return@runInTransaction CollectionResult.FxRateNotSet
-                    Settlement.TooSmall -> return@runInTransaction CollectionResult.AmountTooSmall
+                    Settlement.BelowMinimum -> return@runInTransaction CollectionResult.AmountBelowMinimum
                     is Settlement.ExceedsOutstanding -> return@runInTransaction CollectionResult.ExceedsOutstanding(settlement.outstanding)
                 }
 
@@ -169,6 +202,7 @@ class OfficeCollectionService(
                     recordedByUserId = command.actorUserId,
                     clientRequestId = command.clientRequestId,
                     recordedAt = Instant.now(clock),
+                    correctsCollectionId = command.correctsCollectionId,
                 )
             collectionRepository.append(entry)
             CollectionResult.Recorded(entry, summary(booking.booking, entries + entry))
@@ -211,6 +245,7 @@ class OfficeCollectionService(
                 entries.firstOrNull { it.id == command.collectionId }
                     ?: return@runInTransaction CollectionResult.CollectionNotFound
             if (target.kind != OfficeCollectionKind.COLLECTION) return@runInTransaction CollectionResult.NotReversible
+            if (target.recordedByUserId == command.actorUserId) return@runInTransaction CollectionResult.CannotReverseOwn
             if (entries.any { it.reversesCollectionId == target.id }) return@runInTransaction CollectionResult.AlreadyReversed
 
             val entry =

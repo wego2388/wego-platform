@@ -140,7 +140,7 @@ export function listOfficeCollections(token: string, bookingId: string): Promise
 export function recordOfficeCollection(
   token: string,
   bookingId: string,
-  payload: { clientRequestId: string; method: CollectionMethod; amount: number; currency: PaidCurrency; reference?: string },
+  payload: { clientRequestId: string; method: CollectionMethod; amount: number; currency: PaidCurrency; reference?: string; fxRateId?: string; correctsCollectionId?: string },
 ): Promise<OfficeCollectionOutcome> {
   return request<OfficeCollectionOutcome>(`/api/v1/tours-operator/staff/bookings/${bookingId}/collections`, token, {
     method: "POST", headers: JSON_HEADERS, body: JSON.stringify(payload),

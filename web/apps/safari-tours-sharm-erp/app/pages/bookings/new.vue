@@ -8,7 +8,7 @@ import {
 } from "../../composables/useToursApi";
 import { useErpLocale } from "../../composables/useErpLocale";
 import type { ErpMessageDescriptor } from "../../utils/bookingMessages";
-import { estimateTotal, officeErrorMessage, validateOfficeForm } from "../../utils/officeBooking";
+import { estimateTotal, officeErrorMessage, totalsDiffer, validateOfficeForm } from "../../utils/officeBooking";
 
 const { t, direction, count, money, dateLabel } = useErpLocale();
 useHead(() => ({ title: `${t("office.new.title")} · Safari Tours Sharm` }));
@@ -44,6 +44,9 @@ const submitted = ref(false);
 const submitState = ref<"idle" | "submitting" | "error">("idle");
 const submitError = ref<ErpMessageDescriptor | null>(null);
 const created = ref<Booking | null>(null);
+/** What the form showed while typing, kept to compare with the server's saved total. */
+const shownEstimate = ref<ReturnType<typeof estimateTotal> | null>(null);
+const createdDiffers = computed(() => !!created.value && totalsDiffer(created.value.totalPrice, shownEstimate.value));
 /**
  * One key per form attempt: a retry after a lost response re-sends the same key, so the
  * server returns the booking it already created instead of taking the places twice.
@@ -109,6 +112,7 @@ async function submit() {
   if (!fitsSlot.value) return;
   submitState.value = "submitting";
   submitError.value = null;
+  shownEstimate.value = estimate.value;
   try {
     created.value = await createOfficeBooking(session.value.token, {
       clientRequestId,
@@ -178,6 +182,9 @@ onMounted(async () => {
 
       <section v-else-if="created" class="mt-6 rounded-2xl border border-sts-border bg-sts-surface p-6" role="status">
         <WegoAlert variant="success">{{ t('office.new.created', { reference: created.reference }) }}</WegoAlert>
+        <p class="mt-3 text-sm font-semibold tabular-nums">{{ t('office.new.serverTotal', { total: money(created.totalPrice) }) }}</p>
+        <p v-if="created.officePayment" class="mt-1 text-sm">{{ t('office.new.paymentState', { state: t(`office.badge.${created.officePayment.state}`) }) }}</p>
+        <WegoAlert v-if="createdDiffers && shownEstimate?.ok" variant="warning" class="mt-3" role="alert">{{ t('office.new.totalDiffers', { server: money(created.totalPrice), estimate: money(shownEstimate.total) }) }}</WegoAlert>
         <p class="mt-3 text-sm">{{ t('office.new.createdNext') }}</p>
         <div class="mt-4 flex flex-wrap gap-3">
           <NuxtLink :to="`/bookings/${created.id}`" class="rounded-xl bg-sts-ocean px-4 py-2 text-sm font-semibold text-white">{{ t('office.new.openBooking') }}</NuxtLink>

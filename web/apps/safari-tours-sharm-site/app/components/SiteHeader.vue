@@ -22,7 +22,7 @@ watch(() => route.fullPath, () => (menuOpen.value = false));
   >
     <header class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-10">
       <NuxtLinkLocale to="/" class="flex shrink-0 items-center rounded-md" aria-label="Safari Tours Sharm">
-        <BrandLogo :inverse="!scrolled" :height="36" />
+        <BrandLogo :inverse="!scrolled" :height="44" />
       </NuxtLinkLocale>
 
       <nav class="hidden items-center gap-1 text-sm font-semibold lg:flex" :aria-label="copy.nav.main">

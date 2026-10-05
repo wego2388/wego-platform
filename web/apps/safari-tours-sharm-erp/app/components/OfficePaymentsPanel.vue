@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import { WegoAlert, WegoBadge, WegoButton, WegoInput, WegoSelect } from "@wego/ui";
+import { ToursApiError } from "../composables/useToursApi";
 import { hasPermission, type AuthSession } from "../composables/useAuthSession";
 import {
   getFxRateToday, listOfficeCollections, quoteOfficeCollection, recordOfficeCollection, reverseOfficeCollection, setFxRate,
@@ -13,9 +14,10 @@ import OfficePaymentBadge from "./OfficePaymentBadge.vue";
 
 const props = defineProps<{ booking: Booking; session: AuthSession }>();
 const emit = defineEmits<{ changed: [] }>();
-const { t, money } = useErpLocale();
+const { t, money, instantLabel } = useErpLocale();
 
 const canCollect = computed(() => hasPermission(props.session, "tours-operator.booking:collect-cash"));
+const canReverse = computed(() => hasPermission(props.session, "tours-operator.booking:reverse-collection"));
 const canManageFx = computed(() => hasPermission(props.session, "tours-operator.fx-rate:manage"));
 const open = computed(() => props.booking.status === "CONFIRMED" || props.booking.status === "COMPLETED");
 const pay = computed(() => props.booking.officePayment);
@@ -34,6 +36,7 @@ const touched = ref(false);
 const quote = ref<OfficeCollectionQuote | null>(null);
 let attemptKey: string = crypto.randomUUID();
 
+const correcting = ref<OfficeCollection | null>(null);
 const reversing = ref<string | null>(null);
 const reverseReason = ref("");
 const reverseTouched = ref(false);
@@ -55,7 +58,7 @@ const quoteText = computed(() => {
     return q.fxRate ? t("office.collect.settles", { eur: money(q.settledEur), rate: q.fxRate }) : t("office.collect.settlesEur", { eur: money(q.settledEur) });
   }
   if (q.status === "RATE_MISSING") return t("office.collect.quoteRateMissing");
-  if (q.status === "TOO_SMALL") return t("office.collect.quoteTooSmall");
+  if (q.status === "BELOW_MINIMUM") return t("office.collect.quoteBelowMinimum");
   return t("office.collect.quoteExceeds", { outstanding: money(q.outstanding) });
 });
 
@@ -73,7 +76,7 @@ async function refresh() {
 }
 
 let quoteSeq = 0;
-watch([amount, currency, () => props.booking.officePayment?.collected.amount], async () => {
+async function requote() {
   quote.value = null;
   const p = parsed.value;
   if (!p || !canCollect.value || !open.value) return;
@@ -82,7 +85,19 @@ watch([amount, currency, () => props.booking.officePayment?.collected.amount], a
     const q = await quoteOfficeCollection(props.session.token, props.booking.id, currency.value, p.text);
     if (seq === quoteSeq) quote.value = q;
   } catch { /* the quote is a convenience; recording still validates on the server */ }
-});
+}
+watch([amount, currency, () => props.booking.officePayment?.collected.amount], requote);
+
+function startCorrection(e: OfficeCollection) {
+  correcting.value = e;
+  method.value = e.method;
+  reference.value = e.reference ?? "";
+  currency.value = "EUR";
+  notice.value = "";
+}
+const whoWhen = (e: OfficeCollection) => ({ who: e.recordedByEmail ?? "—", when: instantLabel(e.recordedAt) });
+const reversalOf = (id: string) => entries.value.find((x) => x.reversesCollectionId === id) ?? null;
+const isCorrected = (id: string) => entries.value.some((x) => x.correctsCollectionId === id);
 
 async function record() {
   touched.value = true;
@@ -94,15 +109,22 @@ async function record() {
     await recordOfficeCollection(props.session.token, props.booking.id, {
       clientRequestId: attemptKey, method: method.value, amount: p.amount, currency: currency.value,
       ...(refCheck.value?.ok ? { reference: refCheck.value.value } : {}),
+      ...(currency.value === "EGP" && quote.value?.fxRateId ? { fxRateId: quote.value.fxRateId } : {}),
+      ...(correcting.value ? { correctsCollectionId: correcting.value.id } : {}),
     });
     attemptKey = crypto.randomUUID();
-    amount.value = ""; reference.value = ""; touched.value = false; quote.value = null;
+    amount.value = ""; reference.value = ""; touched.value = false; quote.value = null; correcting.value = null;
     notice.value = t("office.collect.recorded");
     await refresh();
     emit("changed");
   } catch (e) {
     error.value = officeErrorMessage(e);
     if (e instanceof Error && "status" in e) attemptKey = crypto.randomUUID();
+    // The rate moved after the quote: show the refreshed EUR equivalent before the user tries again.
+    if (e instanceof ToursApiError && (e.errorCode === "fx_rate_changed" || e.errorCode === "fx_rate_id_required")) {
+      await refresh();
+      await requote();
+    }
   } finally { busy.value = false; }
 }
 
@@ -165,8 +187,12 @@ watch(() => props.booking.id, refresh);
           {{ t('office.collect.paidAs', { paid: money(e.amountPaid) }) }}<span v-if="e.fxRate"> · {{ e.fxRate }} EGP/EUR</span>
         </p>
         <p v-if="e.reference" class="text-xs text-sts-muted" dir="ltr">{{ t('office.collect.refLabel', { ref: e.reference }) }}</p>
-        <p v-if="e.reason" class="text-xs">{{ t('office.collect.reversalOf', { reason: e.reason }) }}</p>
-        <div v-if="canCollect && e.kind === 'COLLECTION' && !reversedIds.has(e.id)" class="mt-2">
+        <p v-if="e.kind === 'REVERSAL'" class="text-xs">{{ t('office.collect.reversedBy', { ...whoWhen(e), reason: e.reason ?? '' }) }}</p>
+        <p v-else class="text-xs text-sts-muted">{{ t('office.collect.recordedBy', whoWhen(e)) }}</p>
+        <p v-if="e.correctsCollectionId" class="text-xs text-sts-muted">{{ t('office.collect.corrects') }}</p>
+        <p v-if="e.kind === 'COLLECTION' && reversalOf(e.id)" class="text-xs">{{ t('office.collect.reversedBy', { ...whoWhen(reversalOf(e.id)!), reason: reversalOf(e.id)!.reason ?? '' }) }}</p>
+        <WegoButton v-if="canCollect && open && e.kind === 'COLLECTION' && e.reference && reversedIds.has(e.id) && !isCorrected(e.id)" type="button" variant="secondary" size="sm" class="mt-2" @click="startCorrection(e)">{{ t('office.collect.correct') }}</WegoButton>
+        <div v-if="canReverse && e.kind === 'COLLECTION' && !reversedIds.has(e.id)" class="mt-2">
           <WegoButton v-if="reversing !== e.id" type="button" variant="secondary" size="sm" @click="reversing = e.id; reverseReason = ''; reverseTouched = false">{{ t('office.collect.reverse') }}</WegoButton>
           <div v-else class="flex flex-wrap items-end gap-2">
             <WegoInput :id="`reverse-${e.id}`" v-model="reverseReason" :label="t('office.collect.reverseReason')" class="min-w-[14rem] flex-1" :error="reverseTouched && !reverseReason.trim() ? t('office.collect.reverseNeedsReason') : undefined" />
@@ -177,7 +203,11 @@ watch(() => props.booking.id, refresh);
     </ol>
 
     <form v-if="canCollect && open && pay && pay.state !== 'PAID'" class="mt-5 grid gap-4 sm:grid-cols-2" novalidate @submit.prevent="record">
-      <WegoSelect id="collect-method" v-model="method" :label="t('office.collect.method')">
+      <div v-if="correcting" class="flex flex-wrap items-center gap-3 text-sm sm:col-span-2">
+        <WegoAlert variant="warning" class="flex-1">{{ t('office.collect.correcting') }}</WegoAlert>
+        <WegoButton type="button" variant="secondary" size="sm" @click="correcting = null">{{ t('office.collect.cancelCorrection') }}</WegoButton>
+      </div>
+      <WegoSelect id="collect-method" v-model="method" :disabled="!!correcting" :label="t('office.collect.method')">
         <option v-for="m in COLLECTION_METHODS" :key="m" :value="m">{{ t(`office.collect.method.${m}`) }}</option>
       </WegoSelect>
       <WegoSelect id="collect-currency" v-model="currency" :label="t('office.collect.currency')">
@@ -185,7 +215,7 @@ watch(() => props.booking.id, refresh);
         <option value="EGP">EGP</option>
       </WegoSelect>
       <WegoInput id="collect-amount" v-model="amount" inputmode="decimal" dir="ltr" :label="t('office.collect.amount')" required :error="amountError" />
-      <WegoInput v-if="methodNeedsReference(method)" id="collect-reference" v-model="reference" dir="ltr" maxlength="64" autocomplete="off" :label="t('office.collect.reference')" :help="t('office.collect.referenceHelp')" required :error="refError" />
+      <WegoInput v-if="methodNeedsReference(method)" id="collect-reference" v-model="reference" :readonly="!!correcting" dir="ltr" maxlength="64" autocomplete="off" :label="t('office.collect.reference')" :help="t('office.collect.referenceHelp')" required :error="refError" />
       <p v-if="quoteText" class="text-sm sm:col-span-2" :class="quote?.status === 'OK' ? 'text-sts-muted' : 'font-semibold text-sts-danger'" aria-live="polite">{{ quoteText }}</p>
       <div class="sm:col-span-2">
         <WegoButton type="submit" variant="primary" :disabled="busy">{{ busy ? t('office.collect.recording') : t('office.collect.record') }}</WegoButton>

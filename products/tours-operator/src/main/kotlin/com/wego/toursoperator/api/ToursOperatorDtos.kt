@@ -252,6 +252,10 @@ data class RecordCollectionRequest(
     /** Receipt number from the terminal/wallet/InstaPay/Fawry: required for non-cash, forbidden for cash. */
     @field:Size(max = 64)
     val reference: String? = null,
+    /** The rate id the staff member was quoted; required for EGP. A changed rate returns 409 fx_rate_changed. */
+    val fxRateId: UUID? = null,
+    /** Re-records this reversed collection (same method and reference); the only way a receipt is reused. */
+    val correctsCollectionId: UUID? = null,
 )
 
 data class SetFxRateRequest(
@@ -276,10 +280,12 @@ data class FxRateTodayResponse(
 )
 
 data class CollectionQuoteResponse(
-    /** OK, RATE_MISSING, TOO_SMALL or EXCEEDS_OUTSTANDING. */
+    /** OK, RATE_MISSING, BELOW_MINIMUM or EXCEEDS_OUTSTANDING. */
     val status: String,
     val settledEur: MoneyResponse?,
     val fxRate: String?,
+    /** Send this back when recording so a rate change between quote and save is detected. */
+    val fxRateId: UUID?,
     val outstanding: MoneyResponse,
 )
 
@@ -374,7 +380,10 @@ data class OfficeCollectionResponse(
     val reversesCollectionId: UUID?,
     val reason: String?,
     val recordedByUserId: UUID?,
+    /** Who recorded or reversed the entry. */
+    val recordedByEmail: String?,
     val recordedAt: Instant,
+    val correctsCollectionId: UUID?,
 )
 
 data class OfficeCollectionOutcomeResponse(

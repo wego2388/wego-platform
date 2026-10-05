@@ -1,5 +1,6 @@
 package com.wego.toursoperator.infrastructure
 
+import com.wego.generated.jooq.tables.IdentityUser.IDENTITY_USER
 import com.wego.generated.jooq.tables.ToursOperatorFxRate.TOURS_OPERATOR_FX_RATE
 import com.wego.generated.jooq.tables.ToursOperatorOfficeCollection.TOURS_OPERATOR_OFFICE_COLLECTION
 import com.wego.toursoperator.application.OfficeCollectionRepository
@@ -30,10 +31,12 @@ class JooqOfficeCollectionRepository(
     @Transactional(readOnly = true)
     override fun findByBooking(bookingId: BookingId): List<OfficeCollection> =
         dsl
-            .select(t.asterisk(), fx.RATE_DATE, fx.SET_BY_USER_ID, fx.SET_AT)
+            .select(t.asterisk(), fx.RATE_DATE, fx.SET_BY_USER_ID, fx.SET_AT, IDENTITY_USER.EMAIL)
             .from(t)
             .leftJoin(fx)
             .on(fx.ID.eq(t.FX_RATE_ID))
+            .leftJoin(IDENTITY_USER)
+            .on(IDENTITY_USER.ID.eq(t.RECORDED_BY_USER_ID))
             .where(t.BOOKING_ID.eq(bookingId.value))
             .orderBy(t.RECORDED_AT.asc(), t.ID.asc())
             .fetch()
@@ -90,6 +93,7 @@ class JooqOfficeCollectionRepository(
             .set(t.FX_RATE, collection.fxRate?.egpPerEur)
             .set(t.FX_RATE_ID, collection.fxRate?.id)
             .set(t.REFERENCE, collection.reference)
+            .set(t.CORRECTS_COLLECTION_ID, collection.correctsCollectionId)
             .set(t.REVERSES_COLLECTION_ID, collection.reversesCollectionId)
             .set(t.REASON, collection.reason)
             .set(t.RECORDED_BY_USER_ID, collection.recordedByUserId)
@@ -124,6 +128,8 @@ class JooqOfficeCollectionRepository(
             recordedByUserId = r.get(t.RECORDED_BY_USER_ID),
             clientRequestId = r.get(t.CLIENT_REQUEST_ID),
             recordedAt = r.get(t.RECORDED_AT).toInstant(),
+            correctsCollectionId = r.get(t.CORRECTS_COLLECTION_ID),
+            recordedByEmail = r.field(IDENTITY_USER.EMAIL)?.let { r.get(it) },
         )
     }
 }

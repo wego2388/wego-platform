@@ -1,30 +1,28 @@
 <script setup lang="ts">
 /**
- * Brand logo. The SVGs in /public/brand are mockups until the real logo is
- * delivered. By default it follows the theme (light logo on dark theme);
- * `inverse` forces the light logo, e.g. over a dark hero.
+ * Brand logo: the owner's real logo (emblem + wordmark). The artwork reads on
+ * light and dark backgrounds, so one image serves both themes; `inverse` is
+ * kept for call sites over a dark hero and only adds a soft backdrop.
+ * `variant="full"` shows the stacked logo (footer, about, documents).
  */
-withDefaults(defineProps<{ inverse?: boolean; height?: number }>(), { inverse: false, height: 40 });
+const props = withDefaults(defineProps<{ inverse?: boolean; height?: number; variant?: "lockup" | "full" }>(), {
+  inverse: false,
+  height: 40,
+  variant: "lockup",
+});
+// Intrinsic ratios of the generated assets (see public/brand/README.md).
+const ratio = computed(() => (props.variant === "full" ? 640 / 679 : 1220 / 300));
+const src = computed(() => (props.variant === "full" ? "/brand/logo-full.webp" : "/brand/logo.webp"));
 </script>
 
 <template>
   <span class="sts-logo inline-block" :class="{ 'sts-logo--inverse': inverse }">
     <img
-      src="/brand/logo.svg"
+      :src="src"
       alt="Safari Tours Sharm"
       :height="height"
-      :width="Math.round(height * (240 / 56))"
-      class="sts-logo__light block"
-      :style="{ height: `${height}px`, width: 'auto' }"
-      decoding="async"
-    >
-    <img
-      src="/brand/logo-inverse.svg"
-      alt=""
-      aria-hidden="true"
-      :height="height"
-      :width="Math.round(height * (240 / 56))"
-      class="sts-logo__dark block"
+      :width="Math.round(height * ratio)"
+      class="block"
       :style="{ height: `${height}px`, width: 'auto' }"
       decoding="async"
     >
@@ -32,13 +30,5 @@ withDefaults(defineProps<{ inverse?: boolean; height?: number }>(), { inverse: f
 </template>
 
 <style>
-.sts-logo__dark { display: none; }
-.sts-logo--inverse .sts-logo__light,
-:root[data-theme="dark"] .sts-logo .sts-logo__light { display: none; }
-.sts-logo--inverse .sts-logo__dark,
-:root[data-theme="dark"] .sts-logo .sts-logo__dark { display: block; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .sts-logo .sts-logo__light { display: none; }
-  :root:not([data-theme="light"]) .sts-logo .sts-logo__dark { display: block; }
-}
+.sts-logo--inverse img { filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.35)); }
 </style>

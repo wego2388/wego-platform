@@ -128,6 +128,8 @@ class StaffBookingController(
                     amountPaid = Money(request.amount.setScale(Money.REQUIRED_SCALE)),
                     currency = request.currency,
                     reference = request.reference?.trim()?.takeIf { it.isNotEmpty() },
+                    fxRateId = request.fxRateId,
+                    correctsCollectionId = request.correctsCollectionId,
                     actorUserId = actorUserId,
                     clientRequestId = request.clientRequestId,
                 ),
@@ -158,18 +160,19 @@ class StaffBookingController(
                                 "OK",
                                 MoneyResponse(s.eur.amount.toPlainString()),
                                 s.rate?.egpPerEur?.toPlainString(),
+                                s.rate?.id,
                                 outstanding,
                             )
-                        Settlement.RateMissing -> CollectionQuoteResponse("RATE_MISSING", null, null, outstanding)
-                        Settlement.TooSmall -> CollectionQuoteResponse("TOO_SMALL", null, null, outstanding)
-                        is Settlement.ExceedsOutstanding -> CollectionQuoteResponse("EXCEEDS_OUTSTANDING", null, null, outstanding)
+                        Settlement.RateMissing -> CollectionQuoteResponse("RATE_MISSING", null, null, null, outstanding)
+                        Settlement.BelowMinimum -> CollectionQuoteResponse("BELOW_MINIMUM", null, null, null, outstanding)
+                        is Settlement.ExceedsOutstanding -> CollectionQuoteResponse("EXCEEDS_OUTSTANDING", null, null, null, outstanding)
                     },
                 )
             }
         }
 
     @PostMapping("/{id}/collections/{collectionId}/reverse")
-    @PreAuthorize("hasAuthority('tours-operator.booking:collect-cash')")
+    @PreAuthorize("hasAuthority('tours-operator.booking:reverse-collection')")
     fun reverse(
         @PathVariable id: UUID,
         @PathVariable collectionId: UUID,
@@ -202,7 +205,15 @@ class StaffBookingController(
             CollectionResult.ReferenceNotAllowed -> badRequest("reference_not_allowed")
             CollectionResult.ReferenceAlreadyUsed -> conflict("reference_already_used")
             CollectionResult.FxRateNotSet -> conflict("fx_rate_not_set")
-            CollectionResult.AmountTooSmall -> ResponseEntity.unprocessableEntity().body(ErrorResponse("amount_too_small"))
+            CollectionResult.AmountBelowMinimum -> ResponseEntity.unprocessableEntity().body(ErrorResponse("amount_below_minimum"))
+            CollectionResult.FxRateChanged -> conflict("fx_rate_changed")
+            CollectionResult.FxRateIdRequired -> badRequest("fx_rate_id_required")
+            CollectionResult.InvalidCorrection -> conflict("invalid_correction")
+            CollectionResult.CannotReverseOwn ->
+                ResponseEntity
+                    .status(
+                        HttpStatus.FORBIDDEN,
+                    ).body(ErrorResponse("cannot_reverse_own_collection"))
             CollectionResult.AlreadyReversed -> conflict("collection_already_reversed")
             CollectionResult.NotReversible -> conflict("collection_not_reversible")
             CollectionResult.IdempotencyKeyReused -> conflict("idempotency_key_reused")
@@ -215,7 +226,8 @@ class StaffBookingController(
     ): OfficeCollectionOutcomeResponse {
         val booking = checkNotNull(bookingQueryService.findById(BookingId(bookingId)))
         return OfficeCollectionOutcomeResponse(
-            entry = entry.toResponse(),
+            // Re-read so the response carries the recording user's email like the ledger list does.
+            entry = (officeCollectionService.entries(BookingId(bookingId)).firstOrNull { it.id == entry.id } ?: entry).toResponse(),
             officePayment = checkNotNull(booking.officePaymentResponse(netAfter)),
         )
     }
@@ -237,5 +249,7 @@ private fun OfficeCollection.toResponse() =
         reversesCollectionId = reversesCollectionId,
         reason = reason,
         recordedByUserId = recordedByUserId,
+        recordedByEmail = recordedByEmail,
         recordedAt = recordedAt,
+        correctsCollectionId = correctsCollectionId,
     )

@@ -107,6 +107,9 @@ CREATE TABLE wego.tours_operator_office_collection (
     fx_rate                 numeric(12, 4),
     fx_rate_id              uuid REFERENCES wego.tours_operator_fx_rate (id) ON DELETE RESTRICT,
     reference               varchar(64),
+    -- Set only on a COLLECTION that re-records a REVERSED collection with the
+    -- same method and reference (the only way a receipt reference is reused).
+    corrects_collection_id  uuid,
     reverses_collection_id  uuid REFERENCES wego.tours_operator_office_collection (id) ON DELETE RESTRICT,
     reason                  text,
     recorded_by_user_id     uuid REFERENCES wego.identity_user (id) ON DELETE SET NULL,
@@ -125,7 +128,7 @@ CREATE TABLE wego.tours_operator_office_collection (
     CONSTRAINT tours_operator_office_collection_rate_matches_currency
         CHECK (
             (currency_paid = 'EUR' AND fx_rate IS NULL AND fx_rate_id IS NULL AND amount_paid = amount_eur)
-            OR (currency_paid = 'EGP' AND fx_rate IS NOT NULL AND fx_rate > 0)
+            OR (currency_paid = 'EGP' AND fx_rate IS NOT NULL AND fx_rate > 0 AND fx_rate_id IS NOT NULL)
         ),
     CONSTRAINT tours_operator_office_collection_reference_shape
         CHECK (
@@ -141,6 +144,14 @@ CREATE TABLE wego.tours_operator_office_collection (
             OR (kind = 'COLLECTION' AND method NOT IN ('CASH_AT_OFFICE', 'CASH_ON_PICKUP') AND reference IS NOT NULL)
             OR (kind = 'REVERSAL' AND reference IS NULL)
         ),
+    CONSTRAINT tours_operator_office_collection_corrects_collection_only
+        CHECK (corrects_collection_id IS NULL OR (kind = 'COLLECTION' AND reference IS NOT NULL)),
+    -- Lets a correction reference the exact (id, method, reference) it re-records.
+    CONSTRAINT tours_operator_office_collection_identity_unique
+        UNIQUE (id, method, reference),
+    CONSTRAINT tours_operator_office_collection_corrects_same_receipt
+        FOREIGN KEY (corrects_collection_id, method, reference)
+        REFERENCES wego.tours_operator_office_collection (id, method, reference),
     CONSTRAINT tours_operator_office_collection_reversal_shape
         CHECK (
             (kind = 'COLLECTION' AND reverses_collection_id IS NULL AND reason IS NULL)
@@ -154,10 +165,16 @@ CREATE UNIQUE INDEX tours_operator_office_collection_reversal_unique
     ON wego.tours_operator_office_collection (reverses_collection_id)
     WHERE reverses_collection_id IS NOT NULL;
 
--- The same terminal/wallet/InstaPay/Fawry receipt can never be recorded twice.
+-- The same terminal/wallet/InstaPay/Fawry receipt can never be recorded twice,
+-- except by an explicit correction of a reversed entry (below).
 CREATE UNIQUE INDEX tours_operator_office_collection_reference_unique
     ON wego.tours_operator_office_collection (method, reference)
-    WHERE reference IS NOT NULL;
+    WHERE reference IS NOT NULL AND corrects_collection_id IS NULL;
+
+-- A collection can be corrected once only.
+CREATE UNIQUE INDEX tours_operator_office_collection_correction_unique
+    ON wego.tours_operator_office_collection (corrects_collection_id)
+    WHERE corrects_collection_id IS NOT NULL;
 
 CREATE UNIQUE INDEX tours_operator_office_collection_request_unique
     ON wego.tours_operator_office_collection (recorded_by_user_id, client_request_id);
@@ -171,9 +188,11 @@ COMMENT ON TABLE wego.tours_operator_office_collection IS
 INSERT INTO wego.identity_permission (code, description) VALUES
     ('tours-operator.booking:create-office', 'Create an office booking for a customer (unpaid until a payment is recorded)'),
     ('tours-operator.booking:collect-cash', 'Record or reverse office payments (cash, wallet, card terminal, InstaPay, Fawry) on an office booking'),
+    ('tours-operator.booking:reverse-collection', 'Reverse an office payment recorded by someone else (manager)'),
     ('tours-operator.fx-rate:manage', 'Set the daily EUR→EGP rate used to settle EGP office payments');
 
 INSERT INTO wego.identity_role_permission (role_code, permission_code) VALUES
     ('platform-admin', 'tours-operator.booking:create-office'),
     ('platform-admin', 'tours-operator.booking:collect-cash'),
+    ('platform-admin', 'tours-operator.booking:reverse-collection'),
     ('platform-admin', 'tours-operator.fx-rate:manage');

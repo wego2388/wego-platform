@@ -156,7 +156,11 @@ export function officeErrorMessage(error: unknown): ErpMessageDescriptor {
     reference_not_allowed: "office.err.reference_not_allowed",
     reference_already_used: "office.err.reference_already_used",
     fx_rate_not_set: "office.err.fx_rate_not_set",
-    amount_too_small: "office.err.amount_too_small",
+    amount_below_minimum: "office.err.amount_below_minimum",
+    fx_rate_changed: "office.err.fx_rate_changed",
+    fx_rate_id_required: "office.err.fx_rate_changed",
+    invalid_correction: "office.err.invalid_correction",
+    cannot_reverse_own_collection: "office.err.cannot_reverse_own_collection",
     collection_already_reversed: "office.err.collection_already_reversed",
     collection_not_reversible: "office.err.collection_not_reversible",
   };
@@ -164,4 +168,10 @@ export function officeErrorMessage(error: unknown): ErpMessageDescriptor {
   if (error.errorCode.startsWith("booking_not_open_status_")) return { key: "office.err.booking_not_open" };
   if (error.status === 400) return { key: "office.err.validation" };
   return { key: "common.requestFailed", params: { code: error.errorCode } };
+}
+
+/** Success screen check: the server's price is the truth; a difference from the preview must be visible. */
+export function totalsDiffer(serverTotal: Money, estimate: Estimate | null): boolean {
+  if (!estimate || !estimate.ok) return false;
+  return moneyToMinorUnits(serverTotal) !== moneyToMinorUnits(estimate.total);
 }

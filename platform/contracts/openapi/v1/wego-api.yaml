@@ -5297,7 +5297,10 @@ paths:
         "404":
           description: Booking not found.
         "409":
-          description: Booking not in NEW state.
+          description: >-
+            Booking not in NEW state, or an office booking
+            (office_booking_not_payable_online — office payments are recorded
+            by staff, never through the online provider).
           content:
             application/json:
               schema:
@@ -5435,7 +5438,7 @@ paths:
         mobile wallet, the office card terminal, InstaPay and the office Fawry
         machine. Non-cash methods require the receipt reference (unique per
         method); cash must not carry one. EGP settles at today's manager-set
-        rate (fx_rate_not_set when none). The settled EUR can never exceed the
+        rate (fx_rate_not_set when none) and needs the quoted fxRateId. The settled EUR can never exceed the
         outstanding balance; the exact EGP value of the balance settles it
         exactly. Entries are separate from Paymob payments. Re-sending the
         same clientRequestId returns the entry already recorded (200).
@@ -5480,13 +5483,16 @@ paths:
         "409":
           description: >-
             not_an_office_booking, booking_not_open_status_*, amount_exceeds_outstanding,
-            reference_already_used, fx_rate_not_set or idempotency_key_reused.
+            reference_already_used, fx_rate_not_set, fx_rate_changed, invalid_correction or idempotency_key_reused.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ToursOperatorErrorResponse"
         "422":
-          description: amount_too_small — the payment converts to less than one cent.
+          description: >-
+            amount_below_minimum — an EGP payment worth less than 1.00 EUR at
+            today's rate (the payment that settles the exact remaining balance
+            is exempt).
           content:
             application/json:
               schema:
@@ -5546,10 +5552,12 @@ paths:
       operationId: reverseToursOperatorOfficeCollection
       summary: Reverse an office payment with a reason
       description: >-
-        Requires tours-operator.booking:collect-cash. The only way to correct
-        a mistake: a separate audited REVERSAL entry that cancels one
+        Requires tours-operator.booking:reverse-collection (managers only), and
+        the actor must not be the user who recorded the entry (403
+        cannot_reverse_own_collection). The only way to correct a mistake: a separate audited REVERSAL entry that cancels one
         collection in full. A collection can be reversed once and a reversal
-        is final. A reversed receipt reference stays used.
+        is final. A reversed receipt reference stays used unless re-recorded as an
+        explicit correction (correctsCollectionId).
       tags:
         - ToursOperator
       security:
@@ -5591,7 +5599,13 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthenticatedResponse"
         "403":
-          $ref: "#/components/responses/ForbiddenResponse"
+          description: >-
+            Missing the permission, or the actor recorded this entry themselves
+            (error cannot_reverse_own_collection).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorErrorResponse"
         "404":
           description: Booking or collection not found.
         "409":
@@ -6486,6 +6500,20 @@ components:
             Receipt number from the terminal, wallet, InstaPay or Fawry.
             Required for non-cash, forbidden for cash. Trimmed, no control
             characters, unique per method.
+        fxRateId:
+          type: string
+          format: uuid
+          description: >-
+            The rate id returned by the quote; required for EGP. If the
+            manager changed today's rate since, the server answers 409
+            fx_rate_changed and the client must re-quote.
+        correctsCollectionId:
+          type: string
+          format: uuid
+          description: >-
+            Re-records a REVERSED collection of this booking with the same
+            method and reference — the only way a receipt reference is reused,
+            and each reversed entry can be corrected once.
     ReverseToursOperatorOfficeCollectionRequest:
       type: object
       additionalProperties: false
@@ -6514,7 +6542,9 @@ components:
         - reversesCollectionId
         - reason
         - recordedByUserId
+        - recordedByEmail
         - recordedAt
+        - correctsCollectionId
       properties:
         id:
           type: string
@@ -6555,9 +6585,19 @@ components:
             - string
             - "null"
           format: uuid
+        recordedByEmail:
+          description: Staff user who recorded (or reversed) the entry.
+          type:
+            - string
+            - "null"
         recordedAt:
           type: string
           format: date-time
+        correctsCollectionId:
+          type:
+            - string
+            - "null"
+          format: uuid
     ToursOperatorOfficeCollectionOutcome:
       type: object
       additionalProperties: false
@@ -6576,6 +6616,7 @@ components:
         - status
         - settledEur
         - fxRate
+        - fxRateId
         - outstanding
       properties:
         status:
@@ -6583,7 +6624,7 @@ components:
           enum:
             - OK
             - RATE_MISSING
-            - TOO_SMALL
+            - BELOW_MINIMUM
             - EXCEEDS_OUTSTANDING
         settledEur:
           anyOf:
@@ -6593,6 +6634,12 @@ components:
           type:
             - string
             - "null"
+        fxRateId:
+          description: Send back when recording so a rate change after the quote is detected.
+          type:
+            - string
+            - "null"
+          format: uuid
         outstanding:
           $ref: "#/components/schemas/Money"
     SetToursOperatorFxRateRequest:

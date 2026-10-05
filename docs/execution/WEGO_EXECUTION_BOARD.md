@@ -4379,6 +4379,34 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   money-to-return handling, printed receipts (OPS2-D), and independent Tier 1
   review remain.
 
+### 2026-10-06 — WEGO-016-OPS2-C Tier 1 review: ACCEPT-WITH-FOLLOWUPS, fixes applied
+
+- **Review result:** independent Tier 1 review of 8ada4f9 returned
+  ACCEPT-WITH-FOLLOWUPS. Fixes are in the working tree (not committed):
+  - **M1:** reversing needs the new `tours-operator.booking:reverse-collection`
+    (platform-admin only, the manager role here); collect-cash alone cannot
+    reverse. An actor cannot reverse an entry they recorded: 403
+    `cannot_reverse_own_collection`. The panel shows who reversed, when and why
+    (collections now return `recordedByEmail`). A reversals report may be wanted
+    later by the owner.
+  - **L1:** an EGP entry must be worth at least 1.00 EUR at today's rate
+    (422 `amount_below_minimum`); the payment that settles the exact remaining
+    balance is exempt. Replaces `amount_too_small`.
+  - **L2:** EGP entries must carry the quoted `fxRateId`; a changed rate returns
+    409 `fx_rate_changed` and the ERP re-quotes and shows the new EUR amount.
+  - **L3:** a reversed receipt can be re-recorded only through an explicit
+    `correctsCollectionId` (same booking, method and reference, reversed, once).
+    DB guards: reference unique index excludes correction rows, unique
+    `corrects_collection_id`, composite FK to (id, method, reference).
+  - **L4:** the new-booking success screen shows the server total and payment
+    state, with a visible EN/AR warning if it differs from the preview.
+  - **L5:** V30 requires `fx_rate_id` for EGP rows (edited in place, unreleased).
+  - **L6:** OpenAPI lists `office_booking_not_payable_online` on `/pay` 409,
+    plus the new fields/codes; contract regenerated.
+- **Open by owner decision («طريقة رجوع الفلوس هنحددها بعدين»), for OPS2-D/F:**
+  (L7a) refund / money-returned entries for cancelled office bookings;
+  (L7b) office payments in finance totals (label them office payments).
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE
