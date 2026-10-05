@@ -12,6 +12,9 @@ let tour: { id: string; priceAdult: { amount: string; currencyCode: string } };
 let slot: { id: string; date: string; timeSlot: string; bookedCount: number; available: number };
 
 test.beforeAll(async ({ request }) => {
+  // The catalog wait below can take up to 70 s (60 s SSR cache); the default
+  // 30 s hook timeout would cut it short.
+  test.setTimeout(120_000);
   const status = await (await request.get(`${SITE}/api/v1/tours-operator/sales-status`)).json();
   expect(status).toEqual({ bookingMode: "ENQUIRY_ONLY", bookingsOpen: false, paymentsOpen: false });
   tour = await (await request.get(`${SITE}/api/v1/tours-operator/tours/by-slug?slug=${SLUG}`)).json();

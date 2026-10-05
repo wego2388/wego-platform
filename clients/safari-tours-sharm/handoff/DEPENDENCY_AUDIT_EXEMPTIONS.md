@@ -40,6 +40,14 @@ These exemptions do NOT constitute deployment authorization.
 Before production deployment, an explicit acknowledgement from the project owner (محمد)
 is required for each exemption. Document the acknowledgement date and method in this file.
 
+### CI handling (2026-10-05)
+Both GHSAs are listed in `web/package.json` → `pnpm.auditConfig.ignoreGhsas`
+so the CI audit gate keeps failing on any *new* HIGH advisory while these two
+(no upstream patch) do not block every branch. Remove each entry as soon as a
+patched `node-forge` / `braces` (or a Nuxt release without them) exists.
+Done by Claude under the owner's instruction «هندل و صلح و ظبط» (2026-10-05).
+This is not the production-deploy acknowledgement below.
+
 ### Owner acknowledgements
 - [ ] GHSA-86w9-cpqp-85rv (node-forge): acknowledged by _________ on _________
 - [ ] GHSA-vfj7-8cjw-p6xm (braces): acknowledged by _________ on _________
