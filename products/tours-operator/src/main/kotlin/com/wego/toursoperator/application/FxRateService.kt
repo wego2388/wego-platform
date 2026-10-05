@@ -10,8 +10,8 @@ import java.util.UUID
 
 /**
  * The manager-set daily EUR→EGP rate used to settle EGP office payments.
- * Policy status: proposed, owner confirmation pending. Staff never type a
- * rate; they only see today's.
+ * Policy approved by the owner (2026-10-05). Staff never type a rate; they
+ * only see today's.
  */
 class FxRateService(
     private val fxRateRepository: FxRateRepository,

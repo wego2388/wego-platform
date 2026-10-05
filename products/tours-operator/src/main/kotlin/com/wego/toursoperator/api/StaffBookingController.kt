@@ -2,6 +2,7 @@ package com.wego.toursoperator.api
 
 import com.wego.events.CorrelationContext
 import com.wego.identity.AuthenticatedUser
+import com.wego.toursoperator.application.BookingQueryService
 import com.wego.toursoperator.application.CollectionResult
 import com.wego.toursoperator.application.CreateBookingCommand
 import com.wego.toursoperator.application.CreateBookingResult
@@ -11,7 +12,6 @@ import com.wego.toursoperator.application.OfficeCollectionService
 import com.wego.toursoperator.application.QuoteResult
 import com.wego.toursoperator.application.RecordCollectionCommand
 import com.wego.toursoperator.application.ReverseCollectionCommand
-import com.wego.toursoperator.application.BookingQueryService
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.CustomerContact
 import com.wego.toursoperator.domain.Money
@@ -154,7 +154,12 @@ class StaffBookingController(
                 ResponseEntity.ok(
                     when (val s = quote.settlement) {
                         is Settlement.Settled ->
-                            CollectionQuoteResponse("OK", MoneyResponse(s.eur.amount.toPlainString()), s.rate?.egpPerEur?.toPlainString(), outstanding)
+                            CollectionQuoteResponse(
+                                "OK",
+                                MoneyResponse(s.eur.amount.toPlainString()),
+                                s.rate?.egpPerEur?.toPlainString(),
+                                outstanding,
+                            )
                         Settlement.RateMissing -> CollectionQuoteResponse("RATE_MISSING", null, null, outstanding)
                         Settlement.TooSmall -> CollectionQuoteResponse("TOO_SMALL", null, null, outstanding)
                         is Settlement.ExceedsOutstanding -> CollectionQuoteResponse("EXCEEDS_OUTSTANDING", null, null, outstanding)
@@ -183,8 +188,8 @@ class StaffBookingController(
     private fun collectionResponse(
         bookingId: UUID,
         result: CollectionResult,
-    ): ResponseEntity<Any> {
-        return when (result) {
+    ): ResponseEntity<Any> =
+        when (result) {
             is CollectionResult.Recorded ->
                 ResponseEntity.status(HttpStatus.CREATED).body(outcome(result.entry, result.summary.collected.amount, bookingId))
             is CollectionResult.Replayed ->
@@ -202,7 +207,6 @@ class StaffBookingController(
             CollectionResult.NotReversible -> conflict("collection_not_reversible")
             CollectionResult.IdempotencyKeyReused -> conflict("idempotency_key_reused")
         }
-    }
 
     private fun outcome(
         entry: OfficeCollection,

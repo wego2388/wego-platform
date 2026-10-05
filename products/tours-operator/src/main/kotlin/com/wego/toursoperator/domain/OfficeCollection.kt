@@ -148,7 +148,9 @@ data class OfficeCollection(
                 require(method.isCash == (reference == null)) { "Non-cash payments need a reference; cash carries none" }
             }
             OfficeCollectionKind.REVERSAL -> {
-                require(reversesCollectionId != null && !reason.isNullOrBlank()) { "A reversal names the collection it reverses and a reason" }
+                require(
+                    reversesCollectionId != null && !reason.isNullOrBlank(),
+                ) { "A reversal names the collection it reverses and a reason" }
                 require(reference == null) { "A reversal carries no receipt reference" }
             }
         }

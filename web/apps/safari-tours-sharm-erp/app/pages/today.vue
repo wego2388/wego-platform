@@ -5,7 +5,8 @@ import type { Booking, Tour, TourSlot } from "@wego/api-contract";
 import { clearAuthSession, hasPermission, readAuthSession, type AuthSession } from "../composables/useAuthSession";
 import { ToursApiError, listAllStaffTours, listBookings, listSlotsByDate } from "../composables/useToursApi";
 import { whatsappLink } from "../composables/useWhatsApp";
-import { buildRunSheet } from "../utils/runSheet";
+import OfficePaymentBadge from "../components/OfficePaymentBadge.vue";
+import { buildRunSheet, isUnpaid } from "../utils/runSheet";
 import { useErpLocale } from "../composables/useErpLocale";
 import type { ErpMessageKey } from "../utils/erpLocale";
 
@@ -27,7 +28,7 @@ const errorMsg = computed(() => errorKey.value ? t(errorKey.value) : "");
 
 const runs = computed(() => buildRunSheet(bookings.value, tours.value, slots.value, includeUnpaid.value));
 const totalGuests = computed(() => runs.value.reduce((sum, run) => sum + run.guests, 0));
-const unpaidCount = computed(() => bookings.value.filter((b) => b.status === "NEW").length);
+const unpaidCount = computed(() => bookings.value.filter(isUnpaid).length);
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 const dateLabel = computed(() => formatDate(date.value, true));
 
@@ -162,7 +163,8 @@ function unitsLabel(units: Record<string, number>, tourId: string): string {
                 <span class="money tabular-nums">{{ money(b.totalPrice) }}</span>
               </div>
               <div class="ref font-mono text-xs text-sts-muted">{{ b.reference }} · {{ b.customer.nationality }}</div>
-              <WegoBadge v-if="b.status !== 'CONFIRMED'" :tone="STATUS_TONE[b.status] ?? 'neutral'" class="justify-self-start">{{ t(`status.${b.status}`) }}</WegoBadge>
+              <OfficePaymentBadge v-if="b.channel === 'OFFICE'" :booking="b" class="justify-self-start" />
+              <WegoBadge v-else-if="b.status !== 'CONFIRMED'" :tone="STATUS_TONE[b.status] ?? 'neutral'" class="justify-self-start">{{ t(`status.${b.status}`) }}</WegoBadge>
               <div>{{ b.hotelName }}<span v-if="b.hotelRoom" class="text-sts-muted"> · {{ t('common.room', { room: b.hotelRoom }) }}</span></div>
               <div>
                 {{ t('common.party', { adults: count(b.adultsCount), children: count(b.childrenCount) }) }}
@@ -192,7 +194,8 @@ function unitsLabel(units: Record<string, number>, tourId: string): string {
                   <td class="px-4 py-2">
                     <NuxtLink :to="`/bookings/${b.id}`" class="font-semibold text-sts-ocean-mid hover:underline">{{ b.customer.fullName }}</NuxtLink>
                     <div class="ref font-mono text-xs text-sts-muted">{{ b.reference }} · {{ b.customer.nationality }}</div>
-                    <WegoBadge v-if="b.status !== 'CONFIRMED'" :tone="STATUS_TONE[b.status] ?? 'neutral'" class="mt-1">{{ t(`status.${b.status}`) }}</WegoBadge>
+                    <OfficePaymentBadge v-if="b.channel === 'OFFICE'" :booking="b" class="mt-1" />
+                    <WegoBadge v-else-if="b.status !== 'CONFIRMED'" :tone="STATUS_TONE[b.status] ?? 'neutral'" class="mt-1">{{ t(`status.${b.status}`) }}</WegoBadge>
                   </td>
                   <td class="px-4 py-2">{{ b.hotelName }}<span v-if="b.hotelRoom" class="text-sts-muted"> · {{ t('common.room', { room: b.hotelRoom }) }}</span></td>
                   <td class="px-4 py-2 whitespace-nowrap">

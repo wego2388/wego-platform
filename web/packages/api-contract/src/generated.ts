@@ -2195,7 +2195,7 @@ export interface paths {
         };
         /**
          * Today's manager-set EUR to EGP rate
-         * @description Requires tours-operator.booking:collect-cash or tours-operator.fx-rate:manage. Rate policy = manager sets the daily rate (proposed; owner confirmation pending).
+         * @description Requires tours-operator.booking:collect-cash or tours-operator.fx-rate:manage. Rate policy (owner-approved 2026-10-05): a manager sets the daily rate.
          */
         get: operations["getToursOperatorFxRateToday"];
         put?: never;
@@ -3045,7 +3045,7 @@ export interface components {
         };
         ToursOperatorBookingHistoryEntry: {
             /** @enum {string} */
-            eventType: "BOOKING_CREATED" | "BOOKING_CONFIRMED" | "BOOKING_CANCELLED" | "BOOKING_COMPLETED" | "BOOKING_EXPIRED";
+            eventType: "BOOKING_CREATED" | "BOOKING_CREATED_OFFICE" | "BOOKING_CONFIRMED" | "BOOKING_CANCELLED" | "BOOKING_COMPLETED" | "BOOKING_EXPIRED";
             fromStatus?: string | null;
             toStatus?: string | null;
             reason?: string | null;

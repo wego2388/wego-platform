@@ -19,6 +19,7 @@ import {
   PAGE_SIZE,
 } from "../../composables/useToursApi";
 import { useErpLocale } from "../../composables/useErpLocale";
+import OfficePaymentBadge from "../../components/OfficePaymentBadge.vue";
 import { bookingErrorMessage, type ErpMessageDescriptor } from "../../utils/bookingMessages";
 
 const { t, count, money, dateLabel } = useErpLocale();
@@ -48,6 +49,7 @@ const cancelReason = ref<Record<string, string>>({});
 const canView     = computed(() => hasPermission(session.value, "tours-operator.booking:view"));
 const canCancel   = computed(() => hasPermission(session.value, "tours-operator.booking:cancel"));
 const canComplete = computed(() => hasPermission(session.value, "tours-operator.booking:complete"));
+const canCreateOffice = computed(() => hasPermission(session.value, "tours-operator.booking:create-office"));
 const canViewTours = computed(() => hasPermission(session.value, "tours-operator.tour:view"));
 
 function tourName(tourId: string): string {
@@ -148,6 +150,7 @@ onMounted(async () => {
         <div>
           <h1 class="mt-1 text-2xl font-semibold tracking-tight">{{ t('nav.bookings') }}</h1>
         </div>
+        <NuxtLink v-if="canCreateOffice" to="/bookings/new" class="rounded-xl bg-sts-ocean px-4 py-2 text-sm font-semibold text-white">{{ t('office.new.cta') }}</NuxtLink>
       </header>
 
       <!-- Filters -->
@@ -241,7 +244,8 @@ onMounted(async () => {
                   </td>
                   <td class="money px-4 py-3.5 text-end font-semibold">{{ money(b.totalPrice) }}</td>
                   <td class="px-4 py-3.5">
-                    <span :class="`badge badge-${b.status}`">{{ t(`status.${b.status}`) }}</span>
+                    <OfficePaymentBadge v-if="b.channel === 'OFFICE'" :booking="b" />
+                    <span v-else :class="`badge badge-${b.status}`">{{ t(`status.${b.status}`) }}</span>
                   </td>
                   <td class="px-5 py-3.5" @click.stop>
                     <div class="flex flex-wrap gap-2">

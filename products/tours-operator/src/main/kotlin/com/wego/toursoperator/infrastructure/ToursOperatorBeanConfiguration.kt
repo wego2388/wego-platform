@@ -29,9 +29,9 @@ import com.wego.toursoperator.application.ImageProcessor
 import com.wego.toursoperator.application.InitiatePaymentService
 import com.wego.toursoperator.application.MediaUploadService
 import com.wego.toursoperator.application.NotificationRepository
+import com.wego.toursoperator.application.NotificationSettings
 import com.wego.toursoperator.application.OfficeCollectionRepository
 import com.wego.toursoperator.application.OfficeCollectionService
-import com.wego.toursoperator.application.NotificationSettings
 import com.wego.toursoperator.application.PaymentQueryService
 import com.wego.toursoperator.application.PaymentRepository
 import com.wego.toursoperator.application.PaymobClient
@@ -245,7 +245,8 @@ class ToursOperatorBeanConfiguration {
         @Qualifier("stoFxRateRepositoryImpl") fxRateRepository: FxRateRepository,
         transactionRunner: TransactionRunner,
         clock: Clock,
-    ): OfficeCollectionService = OfficeCollectionService(bookingRepository, collectionRepository, fxRateRepository, transactionRunner, clock)
+    ): OfficeCollectionService =
+        OfficeCollectionService(bookingRepository, collectionRepository, fxRateRepository, transactionRunner, clock)
 
     @Bean("stoFxRateService")
     fun fxRateService(

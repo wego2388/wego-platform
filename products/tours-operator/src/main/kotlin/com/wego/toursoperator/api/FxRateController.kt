@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RestController
 import java.time.Clock
 
 /**
- * The manager-set daily EUR→EGP rate (policy proposed; owner confirmation
- * pending). Anyone who may record office payments can read today's rate;
+ * The manager-set daily EUR→EGP rate (policy approved by the owner,
+ * 2026-10-05). Anyone who may record office payments can read today's rate;
  * only a manager can set it, and every rate is kept as history.
  */
 @Validated

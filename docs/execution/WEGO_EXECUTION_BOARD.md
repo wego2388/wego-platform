@@ -4309,6 +4309,67 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   at office, card terminal, transfer, pay on pickup, deposit?). Until then a
   staff booking stays unpaid/awaiting collection; no manual PAID, no receipts.
 
+### 2026-10-05 — WEGO-016-OPS2-C implementation evidence (Tier 1, review pending)
+
+- **Status:** ACTIVE (unchanged). Not committed, not deployed.
+- **Owner decisions applied (2026-10-05):** office customers pay staff by hand
+  with six methods — cash at the office, cash on pickup, mobile wallet, office
+  card terminal, InstaPay, office Fawry machine — deposits allowed. Daily
+  EUR→EGP rate policy: a manager sets each day's rate, staff cannot change it,
+  every collection stores the rate it used (final owner decision, «موافق على
+  سعر الصرف»). No online integration with any of these methods.
+- **Booking:** `POST /api/v1/tours-operator/staff/bookings`
+  (`tours-operator.booking:create-office`) reuses the public path's pricing
+  (per-person and per-unit) and slot-row-lock reservation. Past, blocked,
+  full and inactive-tour requests are refused. Decision: the sales pause and
+  enquiry-only mode gate online sales only (SalesControl already states staff
+  operations are never affected), so staff can book in both. `channel`
+  ONLINE|OFFICE (default ONLINE), staff creator and idempotency key
+  (`clientRequestId`, unique per actor; replay returns 200, different payload
+  409) are stored; audit event `BOOKING_CREATED_OFFICE` carries the actor.
+- **No auto-expiry:** an office booking stays NEW (unpaid/awaiting collection)
+  and is excluded from the 30-minute sweeper query, refused by
+  `ExpireBookingService`, `Booking.expire`, and a DB CHECK; online payment
+  initiation for it returns 409 `office_booking_not_payable_online`. Staff
+  cancel with the existing endpoint (places released).
+- **Office ledger (V30):** append-only `tours_operator_office_collection`,
+  separate from Paymob rows and online revenue. Payment state
+  UNPAID/PARTIALLY_PAID/PAID is derived, never stored. Booking row lock plus
+  a concurrency test keep collected ≤ total. Non-cash methods require a
+  trimmed 1–64 char reference without control characters, unique per method
+  (partial unique index; a reversed receipt stays used). EGP settles at
+  today's manager rate (`tours_operator_fx_rate`, append-only, permission
+  `tours-operator.fx-rate:manage`), half-up to cents, never above the balance;
+  paying exactly the EGP value of the balance settles it exactly; without a
+  rate EGP is refused (`fx_rate_not_set`) while EUR still works. Corrections
+  only by a reversal with a reason (once per entry). Cancelling a part/fully
+  paid office booking keeps its history and shows "cash to return"; no
+  automatic refund or refund flow. Permissions: create-office, collect-cash,
+  fx-rate:manage (all granted to platform-admin like the others).
+- **Migration:** V30 registered in platform/application and safari app
+  Gradle, `release-profiles.json`, `ProductIsolationIntegrationTest`, release
+  plans regenerated (`generate:release`). Forward-only, existing rows default
+  to ONLINE.
+- **ERP EN/AR:** `/bookings/new` (also linked from the slot calendar), unpaid /
+  deposit / paid / cash-to-return badge with balance in list, detail and run
+  sheet (part/fully-paid office bookings count as live), payments panel with
+  method, currency, reference, EUR-equivalent preview from the backend quote,
+  reversal, and today's rate (manager can set).
+- **Tests:** Safari app 330 and application 327 JUnit (0 failed, 0 skipped),
+  including `ToursOperatorOfficeBookingHttpTest` (26+ cases: permission
+  matrix, pricing parity incl. per-unit, mixed office/online capacity race,
+  past/blocked/full, idempotent retry and concurrent retries, sweeper
+  exclusion, DB guards, cancel, deposits→PAID, overpay, receipt uniqueness
+  incl. race, EGP/rate, concurrent collections, reversal, cancel-keeps-history)
+  and the enquiry-mode interaction; domain unit tests (rounding edge cases);
+  ERP Vitest 243.
+- **Open items:** EGP-heavy cash is recorded in EUR equivalent only through
+  the manager rate; the ERP form estimates the price client-side from tour
+  data (server price is final); finance totals do not yet include office
+  collections (when added they must be labelled office payments); refund /
+  money-to-return handling, printed receipts (OPS2-D), and independent Tier 1
+  review remain.
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE

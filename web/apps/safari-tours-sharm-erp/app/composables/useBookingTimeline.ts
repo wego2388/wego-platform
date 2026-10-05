@@ -19,6 +19,7 @@ export interface TimelineItem {
 
 const BOOKING_TITLES: Record<BookingHistoryEntry["eventType"], ErpMessageKey> = {
   BOOKING_CREATED: "timeline.BOOKING_CREATED",
+  BOOKING_CREATED_OFFICE: "office.timeline.created",
   BOOKING_CONFIRMED: "timeline.BOOKING_CONFIRMED",
   BOOKING_CANCELLED: "timeline.BOOKING_CANCELLED",
   BOOKING_COMPLETED: "timeline.BOOKING_COMPLETED",

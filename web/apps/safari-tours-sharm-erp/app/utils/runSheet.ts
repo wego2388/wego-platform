@@ -26,7 +26,15 @@ export interface TourRun {
 /** Bookings that still matter on the day: paid, completed or awaiting payment. */
 export function isLive(booking: Booking, includeUnpaid: boolean): boolean {
   if (booking.status === "CONFIRMED" || booking.status === "COMPLETED") return true;
+  // An office booking is live on the day once money has been taken (deposit or full); until then it is "unpaid".
+  if (booking.status === "NEW" && booking.channel === "OFFICE" && booking.officePayment && booking.officePayment.state !== "UNPAID") return true;
   return includeUnpaid && booking.status === "NEW";
+}
+
+/** Still owes money on the day: NEW online (awaiting payment) or an office booking not paid in full. */
+export function isUnpaid(booking: Booking): boolean {
+  if (booking.status !== "NEW") return false;
+  return booking.channel !== "OFFICE" || booking.officePayment?.state !== "PAID";
 }
 
 export function buildRunSheet(
@@ -59,7 +67,7 @@ export function buildRunSheet(
         bookings: inSlot,
         guests: inSlot.reduce((sum, b) => sum + b.adultsCount + b.childrenCount, 0),
         units,
-        unpaid: inSlot.filter((b) => b.status === "NEW").length,
+        unpaid: inSlot.filter(isUnpaid).length,
       });
     }
     runs.push({

@@ -21,6 +21,8 @@ import {
 import { mergeTimeline } from "../../composables/useBookingTimeline";
 import { whatsappLink } from "../../composables/useWhatsApp";
 import { useErpLocale } from "../../composables/useErpLocale";
+import OfficePaymentBadge from "../../components/OfficePaymentBadge.vue";
+import OfficePaymentsPanel from "../../components/OfficePaymentsPanel.vue";
 import { bookingErrorMessage, type ErpMessageDescriptor } from "../../utils/bookingMessages";
 
 const { t, locale, direction, count, money, dateLabel, instantLabel } = useErpLocale();
@@ -175,7 +177,8 @@ onMounted(() => {
         <div class="mt-6 flex flex-wrap items-center gap-4 rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
           <div class="flex items-center gap-3">
             <span class="text-sm font-semibold text-sts-muted">{{ t('common.status') }}</span>
-            <span :class="`badge badge-${booking.status}`">{{ t(`status.${booking.status}`) }}</span>
+            <OfficePaymentBadge v-if="booking.channel === 'OFFICE'" :booking="booking" />
+            <span v-else :class="`badge badge-${booking.status}`">{{ t(`status.${booking.status}`) }}</span>
           </div>
           <div class="ms-auto flex flex-wrap gap-2">
             <a
@@ -342,6 +345,8 @@ onMounted(() => {
           </div>
 
         </div>
+
+        <OfficePaymentsPanel v-if="booking.channel === 'OFFICE' && session" :booking="booking" :session="session" @changed="load" />
 
         <!-- History -->
         <section class="mt-6 rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm" aria-labelledby="history-heading">

@@ -58,7 +58,7 @@ ALTER TABLE wego.tours_operator_booking_audit_event
 -- manager sets the day's rate; staff cannot type their own. Rows are
 -- append-only: a new rate for the same day supersedes the earlier one (the
 -- latest set_at wins) and the earlier rows stay as history.
--- Policy status: PROPOSED — owner confirmation pending.
+-- Policy approved by the owner (2026-10-05).
 
 CREATE TABLE wego.tours_operator_fx_rate (
     id               uuid PRIMARY KEY,

@@ -121,10 +121,10 @@ class CreateBookingService(
      * - Everything that protects capacity and price is shared with the public
      *   path: slot row lock, blocked slot, past date, active tour, pricing.
      */
-    fun createOffice(command: CreateOfficeBookingCommand): CreateBookingResult = createInTransaction(command.booking, command.clientRequestId)
+    fun createOffice(command: CreateOfficeBookingCommand): CreateBookingResult =
+        createInTransaction(command.booking, command.clientRequestId)
 
-    private fun createOnline(command: CreateBookingCommand): CreateBookingResult =
-        createInTransaction(command, officeRequestId = null)
+    private fun createOnline(command: CreateBookingCommand): CreateBookingResult = createInTransaction(command, officeRequestId = null)
 
     private fun createInTransaction(
         command: CreateBookingCommand,

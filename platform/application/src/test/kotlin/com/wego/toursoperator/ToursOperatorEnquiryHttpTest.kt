@@ -1,10 +1,10 @@
 package com.wego.toursoperator
 
+import com.jayway.jsonpath.JsonPath
 import com.wego.generated.jooq.tables.ToursOperatorBooking.TOURS_OPERATOR_BOOKING
 import com.wego.generated.jooq.tables.ToursOperatorPayment.TOURS_OPERATOR_PAYMENT
-import com.wego.generated.jooq.tables.ToursOperatorTourSlot.TOURS_OPERATOR_TOUR_SLOT
-import com.jayway.jsonpath.JsonPath
 import com.wego.generated.jooq.tables.ToursOperatorTour.TOURS_OPERATOR_TOUR
+import com.wego.generated.jooq.tables.ToursOperatorTourSlot.TOURS_OPERATOR_TOUR_SLOT
 import com.wego.identity.application.PasswordHasher
 import com.wego.identity.application.UserRepository
 import com.wego.identity.domain.EmailAddress

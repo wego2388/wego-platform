@@ -39,6 +39,7 @@ const today = ref("");
 const weekStart = ref("");
 
 const _canManage = computed(() => hasPermission(session.value, "tours-operator.slot:manage"));
+const canCreateOffice = computed(() => hasPermission(session.value, "tours-operator.booking:create-office"));
 const _canView   = computed(() => hasPermission(session.value, "tours-operator.tour:view"));
 
 const tourId = computed(() => String(route.params.id));
@@ -202,8 +203,12 @@ onMounted(() => {
                   >
                     <template v-if="slotFor(day, timeSlot)?.isBlocked">{{ t("slots.blocked") }}</template>
                     <template v-else>
-                      <span class="block tabular-nums">{{ count(slotFor(day, timeSlot)!.available) }}/{{ count(slotFor(day, timeSlot)!.capacity) }}</span>
-                      <span class="text-[10px]">{{ t("slots.available") }}</span>
+                      <NuxtLink v-if="canCreateOffice && slotFor(day, timeSlot)!.available > 0 && day >= today" :to="{ path: '/bookings/new', query: { tourId, date: day, slotId: slotFor(day, timeSlot)!.id } }" class="block underline" :aria-label="`${t('office.new.cta')} — ${dateLabel(day)} ${t(`slot.${timeSlot}`)}`">
+                        <span class="block tabular-nums">{{ count(slotFor(day, timeSlot)!.available) }}/{{ count(slotFor(day, timeSlot)!.capacity) }}</span>
+                        <span class="text-[10px]">{{ t("office.new.cta") }}</span>
+                      </NuxtLink>
+                      <span v-else class="block tabular-nums">{{ count(slotFor(day, timeSlot)!.available) }}/{{ count(slotFor(day, timeSlot)!.capacity) }}</span>
+                      <span v-if="!(canCreateOffice && slotFor(day, timeSlot)!.available > 0 && day >= today)" class="text-[10px]">{{ t("slots.available") }}</span>
                     </template>
                   </div>
                 </template>

@@ -120,7 +120,11 @@ class OfficeBookingDomainTest {
         assertEquals(OfficePaymentState.PARTIALLY_PAID, part.state)
         assertEquals(money("67.50"), part.outstanding)
 
-        val paid = OfficePaymentSummary.of(total, listOf(deposit, entry(OfficeCollectionKind.COLLECTION, "67.50", CollectionMethod.INSTAPAY)))
+        val paid =
+            OfficePaymentSummary.of(
+                total,
+                listOf(deposit, entry(OfficeCollectionKind.COLLECTION, "67.50", CollectionMethod.INSTAPAY)),
+            )
         assertEquals(OfficePaymentState.PAID, paid.state)
         assertEquals(money("0.00"), paid.outstanding)
 
@@ -141,8 +145,20 @@ class OfficeBookingDomainTest {
             method: CollectionMethod,
             reference: String?,
         ) = OfficeCollection(
-            UUID.randomUUID(), BookingId(UUID.randomUUID()), OfficeCollectionKind.COLLECTION, method,
-            money("5.00"), PaidCurrency.EUR, money("5.00"), null, reference, null, null, null, UUID.randomUUID(), now,
+            UUID.randomUUID(),
+            BookingId(UUID.randomUUID()),
+            OfficeCollectionKind.COLLECTION,
+            method,
+            money("5.00"),
+            PaidCurrency.EUR,
+            money("5.00"),
+            null,
+            reference,
+            null,
+            null,
+            null,
+            UUID.randomUUID(),
+            now,
         )
         assertThrows<IllegalArgumentException> { build(CollectionMethod.FAWRY_OFFICE, null) }
         assertThrows<IllegalArgumentException> { build(CollectionMethod.CASH_ON_PICKUP, "X") }
@@ -217,7 +233,13 @@ class OfficeBookingDomainTest {
 
     @Test
     fun `the exact EGP value of the balance settles it exactly`() {
-        for ((out, rt) in listOf("87.50" to "50.0000", "10.01" to "48.3333", "0.01" to "49.5000", "123.45" to "52.1234", "5.00" to "47.3333")) {
+        for ((out, rt) in listOf(
+            "87.50" to "50.0000",
+            "10.01" to "48.3333",
+            "0.01" to "49.5000",
+            "123.45" to "52.1234",
+            "5.00" to "47.3333",
+        )) {
             val r = rate(rt)
             val due = BigDecimal(out).multiply(r.egpPerEur).setScale(2, java.math.RoundingMode.HALF_UP)
             val s = Settlement.of(Money(due), PaidCurrency.EGP, r, money(out))

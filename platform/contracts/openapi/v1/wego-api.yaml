@@ -5606,8 +5606,8 @@ paths:
       summary: Today's manager-set EUR to EGP rate
       description: >-
         Requires tours-operator.booking:collect-cash or
-        tours-operator.fx-rate:manage. Rate policy = manager sets the daily
-        rate (proposed; owner confirmation pending).
+        tours-operator.fx-rate:manage. Rate policy (owner-approved 2026-10-05): a
+        manager sets the daily rate.
       tags:
         - ToursOperator
       security:
@@ -7909,6 +7909,7 @@ components:
           type: string
           enum:
             - BOOKING_CREATED
+            - BOOKING_CREATED_OFFICE
             - BOOKING_CONFIRMED
             - BOOKING_CANCELLED
             - BOOKING_COMPLETED

@@ -315,7 +315,10 @@ class ToursOperatorOfficeBookingHttpTest {
         val creator = tokenWith("tours-operator.booking:create-office")
         val id =
             JsonPath.read<String>(
-                createOffice(creator, officeBody(slotId)).andExpect { status { isCreated() } }.andReturn().response.contentAsString,
+                createOffice(creator, officeBody(slotId))
+                    .andExpect { status { isCreated() } }
+                    .andReturn()
+                    .response.contentAsString,
                 "$.id",
             )
         // The creator cannot record or reverse cash, and cash-only staff cannot read the ledger without view.
@@ -424,6 +427,7 @@ class ToursOperatorOfficeBookingHttpTest {
     fun `sales pause stops online sales but not staff office bookings`() {
         val admin = adminToken()
         val (_, slotId) = seedTourAndSlot("paused", capacity = 20)
+
         fun pause(paused: Boolean) =
             mockMvc
                 .put("/api/v1/tours-operator/staff/sales-control") {
@@ -483,9 +487,15 @@ class ToursOperatorOfficeBookingHttpTest {
         val key = UUID.randomUUID()
         val admin = adminToken()
         val first =
-            createOffice(admin, officeBody(slotId, key)).andExpect { status { isCreated() } }.andReturn().response.contentAsString
+            createOffice(admin, officeBody(slotId, key))
+                .andExpect { status { isCreated() } }
+                .andReturn()
+                .response.contentAsString
         val retry =
-            createOffice(admin, officeBody(slotId, key)).andExpect { status { isOk() } }.andReturn().response.contentAsString
+            createOffice(admin, officeBody(slotId, key))
+                .andExpect { status { isOk() } }
+                .andReturn()
+                .response.contentAsString
         assertThat(JsonPath.read<String>(retry, "$.id")).isEqualTo(JsonPath.read<String>(first, "$.id"))
         assertThat(JsonPath.read<String>(retry, "$.reference")).isEqualTo(JsonPath.read<String>(first, "$.reference"))
         assertThat(booked(slotId)).isEqualTo(3)
@@ -747,8 +757,10 @@ class ToursOperatorOfficeBookingHttpTest {
         assertThat(statuses.count { it == 409 }).isEqualTo(6)
         val net =
             dsl
-                .select(org.jooq.impl.DSL.sum(TOURS_OPERATOR_OFFICE_COLLECTION.AMOUNT_EUR))
-                .from(TOURS_OPERATOR_OFFICE_COLLECTION)
+                .select(
+                    org.jooq.impl.DSL
+                        .sum(TOURS_OPERATOR_OFFICE_COLLECTION.AMOUNT_EUR),
+                ).from(TOURS_OPERATOR_OFFICE_COLLECTION)
                 .where(TOURS_OPERATOR_OFFICE_COLLECTION.BOOKING_ID.eq(UUID.fromString(id)))
                 .fetchOne(0, java.math.BigDecimal::class.java)!!
         assertThat(net).isEqualByComparingTo("60.00")
@@ -766,15 +778,17 @@ class ToursOperatorOfficeBookingHttpTest {
         reverse(admin, id, first, reason = "   ").andExpect { status { isBadRequest() } }
         reverse(admin, id, UUID.randomUUID().toString()).andExpect { status { isNotFound() } }
         val reversal =
-            reverse(admin, id, first, reason = "Counted the wrong note").andExpect {
-                status { isCreated() }
-                jsonPath("$.entry.kind") { value("REVERSAL") }
-                jsonPath("$.entry.reason") { value("Counted the wrong note") }
-                jsonPath("$.entry.reversesCollectionId") { value(first) }
-                jsonPath("$.entry.recordedByUserId") { value(adminId.toString()) }
-                jsonPath("$.officePayment.state") { value("UNPAID") }
-                jsonPath("$.officePayment.outstanding.amount") { value("87.50") }
-            }.andReturn().response.contentAsString
+            reverse(admin, id, first, reason = "Counted the wrong note")
+                .andExpect {
+                    status { isCreated() }
+                    jsonPath("$.entry.kind") { value("REVERSAL") }
+                    jsonPath("$.entry.reason") { value("Counted the wrong note") }
+                    jsonPath("$.entry.reversesCollectionId") { value(first) }
+                    jsonPath("$.entry.recordedByUserId") { value(adminId.toString()) }
+                    jsonPath("$.officePayment.state") { value("UNPAID") }
+                    jsonPath("$.officePayment.outstanding.amount") { value("87.50") }
+                }.andReturn()
+                .response.contentAsString
         // Reversed once only, and a reversal cannot itself be reversed.
         reverse(admin, id, first).andExpect {
             status { isConflict() }
@@ -896,6 +910,7 @@ class ToursOperatorOfficeBookingHttpTest {
         val a = newOffice(slotId)
         val b = newOffice(slotId)
         collect(adminToken(), a, "5.00", "FAWRY_OFFICE", reference = "DB-REF-1").andExpect { status { isCreated() } }
+
         fun insert(
             booking: String,
             method: String,
@@ -906,7 +921,12 @@ class ToursOperatorOfficeBookingHttpTest {
               (id, booking_id, kind, method, currency_paid, amount_paid, amount_eur, reference, recorded_by_user_id, client_request_id, recorded_at)
             VALUES (?, ?, 'COLLECTION', ?, 'EUR', 1.00, 1.00, ?, ?, ?, now())
             """.trimIndent(),
-            UUID.randomUUID(), UUID.fromString(booking), method, reference, adminId, UUID.randomUUID(),
+            UUID.randomUUID(),
+            UUID.fromString(booking),
+            method,
+            reference,
+            adminId,
+            UUID.randomUUID(),
         )
         org.assertj.core.api.Assertions
             .assertThatThrownBy { insert(b, "FAWRY_OFFICE", "DB-REF-1") }
@@ -1030,7 +1050,9 @@ class ToursOperatorOfficeBookingHttpTest {
                 jsonPath("$.fxRate") { value("50.0000") }
                 jsonPath("$.outstanding.amount") { value("87.50") }
             }
-        assertThat(dsl.fetchCount(TOURS_OPERATOR_OFFICE_COLLECTION, TOURS_OPERATOR_OFFICE_COLLECTION.BOOKING_ID.eq(UUID.fromString(id)))).isZero()
+        assertThat(
+            dsl.fetchCount(TOURS_OPERATOR_OFFICE_COLLECTION, TOURS_OPERATOR_OFFICE_COLLECTION.BOOKING_ID.eq(UUID.fromString(id))),
+        ).isZero()
 
         // Staff cannot supply a rate or the EUR: unknown fields are rejected, nothing is written.
         mockMvc
@@ -1040,7 +1062,9 @@ class ToursOperatorOfficeBookingHttpTest {
                 content =
                     """{"clientRequestId":"${UUID.randomUUID()}","method":"INSTAPAY","currency":"EGP","amount":2500.00,"reference":"EGP-0","fxRate":1,"amountEur":87.50}"""
             }.andExpect { status { isBadRequest() } }
-        assertThat(dsl.fetchCount(TOURS_OPERATOR_OFFICE_COLLECTION, TOURS_OPERATOR_OFFICE_COLLECTION.BOOKING_ID.eq(UUID.fromString(id)))).isZero()
+        assertThat(
+            dsl.fetchCount(TOURS_OPERATOR_OFFICE_COLLECTION, TOURS_OPERATOR_OFFICE_COLLECTION.BOOKING_ID.eq(UUID.fromString(id))),
+        ).isZero()
 
         // The stored rate is the manager's.
         collect(admin, id, "2500.00", "INSTAPAY", currency = "EGP", reference = "EGP-1").andExpect {
@@ -1087,7 +1111,9 @@ class ToursOperatorOfficeBookingHttpTest {
         val id = newOffice(slotId)
         val admin = adminToken()
         val entry =
-            entryId(collect(admin, id, "1000.00", "MOBILE_WALLET", currency = "EGP", reference = "W-1").andReturn().response.contentAsString)
+            entryId(
+                collect(admin, id, "1000.00", "MOBILE_WALLET", currency = "EGP", reference = "W-1").andReturn().response.contentAsString,
+            )
         // 1000 / 48.5 = 20.6185… → 20.62
         assertThat(JsonPath.read<String>(getBooking(admin, id), "$.officePayment.collected.amount")).isEqualTo("20.62")
         reverse(admin, id, entry).andExpect {
