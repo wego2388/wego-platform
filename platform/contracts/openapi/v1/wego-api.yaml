@@ -5339,6 +5339,352 @@ paths:
                 $ref: "#/components/schemas/ToursOperatorPaymentStatusResponse"
         "404":
           description: No payment record for this booking.
+  /api/v1/tours-operator/staff/bookings:
+    post:
+      operationId: createToursOperatorOfficeBooking
+      summary: Create an office booking (staff)
+      description: >-
+        Requires tours-operator.booking:create-office. Uses the same pricing
+        and the same capacity reservation (slot row lock) as the public path.
+        Online sales pause and enquiry-only mode do not block staff office
+        bookings; a past, blocked or full slot is refused. The booking is NEW,
+        unpaid and awaiting collection; it is never expired by the 30-minute
+        online payment window and staff cancel it with the normal cancel
+        endpoint. Re-sending the same clientRequestId returns the booking
+        already created (200).
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateToursOperatorOfficeBookingRequest"
+      responses:
+        "200":
+          description: Idempotent replay of an already-created booking.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorBookingResponse"
+        "201":
+          description: Office booking created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorBookingResponse"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Slot not found.
+        "409":
+          description: Slot blocked, in the past, fully booked, tour inactive, or idempotency_key_reused.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorErrorResponse"
+        "422":
+          description: Pricing does not fit the tour (same codes as the public path).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorErrorResponse"
+  /api/v1/tours-operator/staff/bookings/{id}/collections:
+    get:
+      operationId: listToursOperatorOfficeCollections
+      summary: Office payment ledger of one booking
+      description: Requires tours-operator.booking:view. Append-only entries, oldest first.
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Ledger entries.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ToursOperatorOfficeCollection"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Booking not found.
+    post:
+      operationId: recordToursOperatorOfficeCollection
+      summary: Record an office payment (staff)
+      description: >-
+        Requires tours-operator.booking:collect-cash. Manual entry only — no
+        online integration. Methods are cash at the office, cash on pickup,
+        mobile wallet, the office card terminal, InstaPay and the office Fawry
+        machine. Non-cash methods require the receipt reference (unique per
+        method); cash must not carry one. EGP settles at today's manager-set
+        rate (fx_rate_not_set when none). The settled EUR can never exceed the
+        outstanding balance; the exact EGP value of the balance settles it
+        exactly. Entries are separate from Paymob payments. Re-sending the
+        same clientRequestId returns the entry already recorded (200).
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecordToursOperatorOfficeCollectionRequest"
+      responses:
+        "200":
+          description: Idempotent replay.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorOfficeCollectionOutcome"
+        "201":
+          description: Payment recorded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorOfficeCollectionOutcome"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Booking not found.
+        "409":
+          description: >-
+            not_an_office_booking, booking_not_open_status_*, amount_exceeds_outstanding,
+            reference_already_used, fx_rate_not_set or idempotency_key_reused.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorErrorResponse"
+        "422":
+          description: amount_too_small — the payment converts to less than one cent.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorErrorResponse"
+  /api/v1/tours-operator/staff/bookings/{id}/collections/quote:
+    get:
+      operationId: quoteToursOperatorOfficeCollection
+      summary: Preview what a payment would settle
+      description: >-
+        Requires tours-operator.booking:collect-cash. Shows the EUR a payment
+        settles at today's manager-set rate before saving; writes nothing.
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: currency
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/ToursOperatorPaidCurrency"
+        - name: amount
+          in: query
+          required: true
+          schema:
+            type: number
+            minimum: 0.01
+      responses:
+        "200":
+          description: Quote.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorOfficeCollectionQuote"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Booking not found.
+        "409":
+          description: not_an_office_booking.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorErrorResponse"
+  /api/v1/tours-operator/staff/bookings/{id}/collections/{collectionId}/reverse:
+    post:
+      operationId: reverseToursOperatorOfficeCollection
+      summary: Reverse an office payment with a reason
+      description: >-
+        Requires tours-operator.booking:collect-cash. The only way to correct
+        a mistake: a separate audited REVERSAL entry that cancels one
+        collection in full. A collection can be reversed once and a reversal
+        is final. A reversed receipt reference stays used.
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReverseToursOperatorOfficeCollectionRequest"
+      responses:
+        "200":
+          description: Idempotent replay.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorOfficeCollectionOutcome"
+        "201":
+          description: Reversal recorded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorOfficeCollectionOutcome"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Booking or collection not found.
+        "409":
+          description: collection_already_reversed, collection_not_reversible, not_an_office_booking or idempotency_key_reused.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorErrorResponse"
+  /api/v1/tours-operator/staff/fx-rate/today:
+    get:
+      operationId: getToursOperatorFxRateToday
+      summary: Today's manager-set EUR to EGP rate
+      description: >-
+        Requires tours-operator.booking:collect-cash or
+        tours-operator.fx-rate:manage. Rate policy = manager sets the daily
+        rate (proposed; owner confirmation pending).
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Today's rate, or null when none was set.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorFxRateToday"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/tours-operator/staff/fx-rate:
+    post:
+      operationId: setToursOperatorFxRate
+      summary: Set today's EUR to EGP rate
+      description: >-
+        Requires tours-operator.fx-rate:manage. Append-only: a new rate for
+        the day supersedes the earlier one and every rate is kept as history.
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetToursOperatorFxRateRequest"
+      responses:
+        "201":
+          description: Rate recorded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorFxRate"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/tours-operator/staff/fx-rate/history:
+    get:
+      operationId: listToursOperatorFxRateHistory
+      summary: History of manager-set rates, newest first
+      description: Requires tours-operator.fx-rate:manage.
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 30
+      responses:
+        "200":
+          description: Rates.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ToursOperatorFxRate"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
   /api/v1/tours-operator/staff/bookings/{bookingId}/payment-history:
     get:
       operationId: getToursOperatorPaymentHistory
@@ -6004,6 +6350,302 @@ components:
         - MORNING
         - AFTERNOON
         - SUNSET
+    ToursOperatorBookingChannel:
+      type: string
+      description: >-
+        ONLINE = public checkout (30-minute payment window); OFFICE = created
+        by staff (no payment window, never auto-expired).
+      enum:
+        - ONLINE
+        - OFFICE
+    ToursOperatorPaidCurrency:
+      type: string
+      enum:
+        - EUR
+        - EGP
+    ToursOperatorCollectionMethod:
+      type: string
+      description: >-
+        Manual office payment methods. Cash methods carry no reference;
+        every other method requires the receipt reference.
+      enum:
+        - CASH_AT_OFFICE
+        - CASH_ON_PICKUP
+        - MOBILE_WALLET
+        - CARD_TERMINAL
+        - INSTAPAY
+        - FAWRY_OFFICE
+    ToursOperatorOfficePaymentState:
+      type: string
+      enum:
+        - UNPAID
+        - PARTIALLY_PAID
+        - PAID
+    ToursOperatorOfficePayment:
+      type: object
+      additionalProperties: false
+      required:
+        - state
+        - collected
+        - outstanding
+        - cashToReturn
+      properties:
+        state:
+          $ref: "#/components/schemas/ToursOperatorOfficePaymentState"
+        collected:
+          $ref: "#/components/schemas/Money"
+        outstanding:
+          $ref: "#/components/schemas/Money"
+        cashToReturn:
+          description: >-
+            Set when a cancelled booking still holds collected money that staff
+            must return. No automatic refund exists.
+          anyOf:
+            - $ref: "#/components/schemas/Money"
+            - type: "null"
+    CreateToursOperatorOfficeBookingRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - clientRequestId
+        - slotId
+        - adultsCount
+        - childrenCount
+        - customer
+        - hotelName
+        - locale
+      properties:
+        clientRequestId:
+          type: string
+          format: uuid
+          description: Idempotency key generated by the client.
+        slotId:
+          type: string
+          format: uuid
+        adultsCount:
+          type: integer
+          minimum: 1
+          maximum: 50
+        childrenCount:
+          type: integer
+          minimum: 0
+          maximum: 50
+        priceOptionCode:
+          type: string
+          maxLength: 40
+          pattern: "^[a-z0-9][a-z0-9-]{0,39}$"
+        unitCount:
+          type: integer
+          minimum: 1
+          maximum: 50
+        customer:
+          $ref: "#/components/schemas/ToursOperatorCustomerRequest"
+        hotelName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        hotelRoom:
+          type: string
+          maxLength: 32
+        specialRequests:
+          type: string
+          maxLength: 4000
+        locale:
+          type: string
+          enum:
+            - en
+            - ar
+            - ru
+            - it
+    RecordToursOperatorOfficeCollectionRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - clientRequestId
+        - method
+        - amount
+      properties:
+        clientRequestId:
+          type: string
+          format: uuid
+        method:
+          $ref: "#/components/schemas/ToursOperatorCollectionMethod"
+        amount:
+          type: number
+          minimum: 0.01
+          description: What the customer handed over, in `currency`, at most two decimals.
+        currency:
+          allOf:
+            - $ref: "#/components/schemas/ToursOperatorPaidCurrency"
+          default: EUR
+          description: EGP settles at today's manager-set rate; staff cannot supply a rate.
+        reference:
+          type: string
+          maxLength: 64
+          description: >-
+            Receipt number from the terminal, wallet, InstaPay or Fawry.
+            Required for non-cash, forbidden for cash. Trimmed, no control
+            characters, unique per method.
+    ReverseToursOperatorOfficeCollectionRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - clientRequestId
+        - reason
+      properties:
+        clientRequestId:
+          type: string
+          format: uuid
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+    ToursOperatorOfficeCollection:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - kind
+        - method
+        - amount
+        - amountPaid
+        - fxRate
+        - reference
+        - reversesCollectionId
+        - reason
+        - recordedByUserId
+        - recordedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        kind:
+          type: string
+          enum:
+            - COLLECTION
+            - REVERSAL
+        method:
+          $ref: "#/components/schemas/ToursOperatorCollectionMethod"
+        amount:
+          description: EUR settled against the booking balance.
+          $ref: "#/components/schemas/Money"
+        amountPaid:
+          description: What the customer handed over, in EUR or EGP.
+          $ref: "#/components/schemas/Money"
+        fxRate:
+          description: EGP per 1 EUR used for an EGP payment; null for EUR.
+          type:
+            - string
+            - "null"
+        reference:
+          type:
+            - string
+            - "null"
+        reversesCollectionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        reason:
+          type:
+            - string
+            - "null"
+        recordedByUserId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        recordedAt:
+          type: string
+          format: date-time
+    ToursOperatorOfficeCollectionOutcome:
+      type: object
+      additionalProperties: false
+      required:
+        - entry
+        - officePayment
+      properties:
+        entry:
+          $ref: "#/components/schemas/ToursOperatorOfficeCollection"
+        officePayment:
+          $ref: "#/components/schemas/ToursOperatorOfficePayment"
+    ToursOperatorOfficeCollectionQuote:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+        - settledEur
+        - fxRate
+        - outstanding
+      properties:
+        status:
+          type: string
+          enum:
+            - OK
+            - RATE_MISSING
+            - TOO_SMALL
+            - EXCEEDS_OUTSTANDING
+        settledEur:
+          anyOf:
+            - $ref: "#/components/schemas/Money"
+            - type: "null"
+        fxRate:
+          type:
+            - string
+            - "null"
+        outstanding:
+          $ref: "#/components/schemas/Money"
+    SetToursOperatorFxRateRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - egpPerEur
+      properties:
+        egpPerEur:
+          type: number
+          minimum: 1
+          maximum: 1000
+          description: EGP per 1 EUR, at most four decimals.
+    ToursOperatorFxRate:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - rateDate
+        - egpPerEur
+        - setByUserId
+        - setAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        rateDate:
+          type: string
+          format: date
+        egpPerEur:
+          type: string
+        setByUserId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        setAt:
+          type: string
+          format: date-time
+    ToursOperatorFxRateToday:
+      type: object
+      additionalProperties: false
+      required:
+        - date
+        - rate
+      properties:
+        date:
+          type: string
+          format: date
+        rate:
+          anyOf:
+            - $ref: "#/components/schemas/ToursOperatorFxRate"
+            - type: "null"
     ToursOperatorBookingStatus:
       type: string
       enum:
@@ -6924,6 +7566,9 @@ components:
         - cancellationReason
         - completedAt
         - expiredAt
+        - channel
+        - awaitingCollection
+        - officePayment
       properties:
         id:
           type: string
@@ -7003,6 +7648,16 @@ components:
             - string
             - "null"
           format: date-time
+        channel:
+          $ref: "#/components/schemas/ToursOperatorBookingChannel"
+        awaitingCollection:
+          type: boolean
+          description: True for a NEW office booking, awaiting payment recorded by staff; never auto-expired.
+        officePayment:
+          description: Office payment state derived from the office ledger; null for online bookings.
+          anyOf:
+            - $ref: "#/components/schemas/ToursOperatorOfficePayment"
+            - type: "null"
     ToursOperatorPublicBookingLookupResponse:
       type: object
       additionalProperties: false

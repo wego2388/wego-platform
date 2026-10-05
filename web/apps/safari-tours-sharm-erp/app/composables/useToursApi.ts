@@ -13,6 +13,14 @@ import type {
   CustomerNotification,
   NotificationStatus,
   SalesControl,
+  CreateOfficeBookingPayload,
+  OfficeCollection,
+  OfficeCollectionOutcome,
+  OfficeCollectionQuote,
+  CollectionMethod,
+  PaidCurrency,
+  FxRate,
+  FxRateToday,
 } from "@wego/api-contract";
 
 export type {
@@ -31,6 +39,16 @@ export type {
   CustomerNotification,
   NotificationStatus,
   SalesControl,
+  OfficePayment,
+  OfficePaymentState,
+  OfficeCollection,
+  OfficeCollectionOutcome,
+  OfficeCollectionQuote,
+  CollectionMethod,
+  PaidCurrency,
+  FxRate,
+  FxRateToday,
+  CreateOfficeBookingPayload,
 } from "@wego/api-contract";
 export { addMoney, divideMoney, formatMoney, minorUnitsToMoney, moneyToMinorUnits } from "@wego/api-contract";
 
@@ -102,6 +120,65 @@ export function listSlotsByRange(
 ): Promise<TourSlot[]> {
   const q = new URLSearchParams({ from, to });
   return request<TourSlot[]>(`/api/v1/tours-operator/tours/${tourId}/slots?${q}`, token);
+}
+
+// ── Office bookings (staff-created) and office payments ──────────────────────
+
+const JSON_HEADERS = { "Content-Type": "application/json" };
+
+/** Re-sending the same clientRequestId returns the booking already created, never a second one. */
+export function createOfficeBooking(token: string, payload: CreateOfficeBookingPayload): Promise<Booking> {
+  return request<Booking>("/api/v1/tours-operator/staff/bookings", token, {
+    method: "POST", headers: JSON_HEADERS, body: JSON.stringify(payload),
+  });
+}
+
+export function listOfficeCollections(token: string, bookingId: string): Promise<OfficeCollection[]> {
+  return request<OfficeCollection[]>(`/api/v1/tours-operator/staff/bookings/${bookingId}/collections`, token);
+}
+
+export function recordOfficeCollection(
+  token: string,
+  bookingId: string,
+  payload: { clientRequestId: string; method: CollectionMethod; amount: number; currency: PaidCurrency; reference?: string },
+): Promise<OfficeCollectionOutcome> {
+  return request<OfficeCollectionOutcome>(`/api/v1/tours-operator/staff/bookings/${bookingId}/collections`, token, {
+    method: "POST", headers: JSON_HEADERS, body: JSON.stringify(payload),
+  });
+}
+
+export function reverseOfficeCollection(
+  token: string,
+  bookingId: string,
+  collectionId: string,
+  payload: { clientRequestId: string; reason: string },
+): Promise<OfficeCollectionOutcome> {
+  return request<OfficeCollectionOutcome>(
+    `/api/v1/tours-operator/staff/bookings/${bookingId}/collections/${collectionId}/reverse`,
+    token,
+    { method: "POST", headers: JSON_HEADERS, body: JSON.stringify(payload) },
+  );
+}
+
+/** The EUR a payment would settle at today's manager-set rate; writes nothing. */
+export function quoteOfficeCollection(
+  token: string,
+  bookingId: string,
+  currency: PaidCurrency,
+  amount: string,
+): Promise<OfficeCollectionQuote> {
+  const q = new URLSearchParams({ currency, amount });
+  return request<OfficeCollectionQuote>(`/api/v1/tours-operator/staff/bookings/${bookingId}/collections/quote?${q}`, token);
+}
+
+export function getFxRateToday(token: string): Promise<FxRateToday> {
+  return request<FxRateToday>("/api/v1/tours-operator/staff/fx-rate/today", token);
+}
+
+export function setFxRate(token: string, egpPerEur: number): Promise<FxRate> {
+  return request<FxRate>("/api/v1/tours-operator/staff/fx-rate", token, {
+    method: "POST", headers: JSON_HEADERS, body: JSON.stringify({ egpPerEur }),
+  });
 }
 
 // ── Bookings ───────────────────────────────────────────────────────────────

@@ -13,6 +13,14 @@ interface BookingAuditRecorder {
         correlationId: UUID?,
     )
 
+    /** A booking created by staff at the office; the actor is the staff user. */
+    fun recordCreatedOffice(
+        bookingId: BookingId,
+        actorUserId: UUID,
+        occurredAt: Instant,
+        correlationId: UUID?,
+    )
+
     fun recordConfirmed(
         bookingId: BookingId,
         actorUserId: UUID?,

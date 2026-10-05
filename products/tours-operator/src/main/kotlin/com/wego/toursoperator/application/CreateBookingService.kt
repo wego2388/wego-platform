@@ -3,6 +3,7 @@ package com.wego.toursoperator.application
 import com.wego.events.IntegrationEventEnvelope
 import com.wego.events.OutboxWriter
 import com.wego.toursoperator.domain.Booking
+import com.wego.toursoperator.domain.BookingChannel
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.BookingPricing
 import com.wego.toursoperator.domain.CustomerContact
@@ -35,10 +36,32 @@ data class CreateBookingCommand(
     val correlationId: UUID?,
 )
 
+/**
+ * A booking created by staff for a customer at the office. The same pricing
+ * and capacity rules as the public path apply; [clientRequestId] makes the
+ * request safely retryable.
+ */
+data class CreateOfficeBookingCommand(
+    val booking: CreateBookingCommand,
+    val clientRequestId: UUID,
+) {
+    init {
+        require(booking.actorUserId != null) { "An office booking records the staff actor" }
+    }
+}
+
 sealed class CreateBookingResult {
     data class Created(
         val booking: Booking,
     ) : CreateBookingResult()
+
+    /** The same staff actor already created this booking with this request id; nothing new was written. */
+    data class Replayed(
+        val booking: Booking,
+    ) : CreateBookingResult()
+
+    /** The request id was already used for a different booking request. */
+    data object IdempotencyKeyReused : CreateBookingResult()
 
     data object SlotNotFound : CreateBookingResult()
 
@@ -89,20 +112,53 @@ class CreateBookingService(
             createOnline(command)
         }
 
+    /**
+     * Staff-created booking. Decisions, deliberately:
+     * - Sales control (bookingsPaused/paymentsPaused) and [BookingMode] gate
+     *   only the public online path. Staff operations are never affected by
+     *   the emergency switch, and an enquiry-only deployment is exactly where
+     *   the office confirms bookings by hand.
+     * - Everything that protects capacity and price is shared with the public
+     *   path: slot row lock, blocked slot, past date, active tour, pricing.
+     */
+    fun createOffice(command: CreateOfficeBookingCommand): CreateBookingResult = createInTransaction(command.booking, command.clientRequestId)
+
     private fun createOnline(command: CreateBookingCommand): CreateBookingResult =
+        createInTransaction(command, officeRequestId = null)
+
+    private fun createInTransaction(
+        command: CreateBookingCommand,
+        officeRequestId: UUID?,
+    ): CreateBookingResult =
         transactionRunner.runInTransaction {
-            // A public booking can only be paid online, so paused payments
-            // also stop new bookings — otherwise they would hold places for
-            // 30 minutes with no way to pay.
-            val sales = salesControlRepository.current()
-            if (sales.bookingsPaused || sales.paymentsPaused) {
-                return@runInTransaction CreateBookingResult.BookingsPaused
+            if (officeRequestId == null) {
+                // A public booking can only be paid online, so paused payments
+                // also stop new bookings — otherwise they would hold places for
+                // 30 minutes with no way to pay.
+                val sales = salesControlRepository.current()
+                if (sales.bookingsPaused || sales.paymentsPaused) {
+                    return@runInTransaction CreateBookingResult.BookingsPaused
+                }
             }
 
             // Lock the slot first — serialization point for capacity.
             val slot =
                 slotRepository.findByIdForUpdate(command.slotId)
                     ?: return@runInTransaction CreateBookingResult.SlotNotFound
+
+            // A retried staff request returns the booking it already created.
+            // Looked up under the slot lock so two concurrent retries serialize.
+            if (officeRequestId != null) {
+                val actor = checkNotNull(command.actorUserId)
+                val existing = bookingRepository.findByClientRequest(actor, officeRequestId)
+                if (existing != null) {
+                    return@runInTransaction if (isSameRequest(existing, command)) {
+                        CreateBookingResult.Replayed(existing)
+                    } else {
+                        CreateBookingResult.IdempotencyKeyReused
+                    }
+                }
+            }
 
             if (slot.isBlocked) return@runInTransaction CreateBookingResult.SlotBlocked
             if (slot.date.isBefore(LocalDate.now(clock.withZone(SHARM_ZONE)))) {
@@ -131,29 +187,65 @@ class CreateBookingService(
             val reference = "STR-$year-$seq"
 
             val booking =
-                Booking.createNew(
-                    id = BookingId.generate(),
-                    reference = reference,
-                    tourId = tour.id,
-                    slotId = slot.id,
-                    tourDate = slot.date,
-                    timeSlot = slot.timeSlot,
-                    pricing = pricing,
-                    customer = command.customer,
-                    hotelName = command.hotelName,
-                    hotelRoom = command.hotelRoom,
-                    specialRequests = command.specialRequests,
-                    locale = command.locale,
-                    now = now,
-                )
+                if (officeRequestId == null) {
+                    Booking.createNew(
+                        id = BookingId.generate(),
+                        reference = reference,
+                        tourId = tour.id,
+                        slotId = slot.id,
+                        tourDate = slot.date,
+                        timeSlot = slot.timeSlot,
+                        pricing = pricing,
+                        customer = command.customer,
+                        hotelName = command.hotelName,
+                        hotelRoom = command.hotelRoom,
+                        specialRequests = command.specialRequests,
+                        locale = command.locale,
+                        now = now,
+                    )
+                } else {
+                    Booking.createOffice(
+                        id = BookingId.generate(),
+                        reference = reference,
+                        tourId = tour.id,
+                        slotId = slot.id,
+                        tourDate = slot.date,
+                        timeSlot = slot.timeSlot,
+                        pricing = pricing,
+                        customer = command.customer,
+                        hotelName = command.hotelName,
+                        hotelRoom = command.hotelRoom,
+                        specialRequests = command.specialRequests,
+                        locale = command.locale,
+                        now = now,
+                        createdByUserId = checkNotNull(command.actorUserId),
+                        clientRequestId = officeRequestId,
+                    )
+                }
 
             slotRepository.save(slot)
             bookingRepository.save(booking)
-            bookingAuditRecorder.recordCreated(booking.id, command.actorUserId, now, command.correlationId)
+            if (booking.channel == BookingChannel.OFFICE) {
+                bookingAuditRecorder.recordCreatedOffice(booking.id, checkNotNull(command.actorUserId), now, command.correlationId)
+            } else {
+                bookingAuditRecorder.recordCreated(booking.id, command.actorUserId, now, command.correlationId)
+            }
             outboxWriter.write(createdEnvelope(booking, now, command.correlationId))
 
             CreateBookingResult.Created(booking)
         }
+
+    private fun isSameRequest(
+        existing: Booking,
+        command: CreateBookingCommand,
+    ): Boolean =
+        existing.slotId == command.slotId &&
+            existing.pricing.adultsCount == command.adultsCount &&
+            existing.pricing.childrenCount == command.childrenCount &&
+            existing.pricing.unit?.optionCode == command.priceOptionCode &&
+            existing.pricing.unit?.unitCount == command.unitCount &&
+            existing.customer.phone == command.customer.phone &&
+            existing.customer.fullName == command.customer.fullName
 
     private sealed interface Priced {
         data class Ok(
@@ -225,6 +317,7 @@ class CreateBookingService(
                     mapOf(
                         "bookingId" to booking.id.value.toString(),
                         "reference" to booking.reference,
+                        "channel" to booking.channel.name,
                         "tourId" to booking.tourId.value.toString(),
                         "slotId" to booking.slotId.value.toString(),
                         "tourDate" to booking.tourDate.toString(),

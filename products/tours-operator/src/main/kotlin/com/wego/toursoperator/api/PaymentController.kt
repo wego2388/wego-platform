@@ -77,6 +77,9 @@ class PaymentController(
             InitiatePaymentResult.OnlinePaymentUnavailable ->
                 ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ErrorResponse("online_payment_unavailable"))
 
+            InitiatePaymentResult.OfficeBookingNotPayableOnline ->
+                ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorResponse("office_booking_not_payable_online"))
+
             is InitiatePaymentResult.BookingNotPayable ->
                 ResponseEntity
                     .status(HttpStatus.CONFLICT)

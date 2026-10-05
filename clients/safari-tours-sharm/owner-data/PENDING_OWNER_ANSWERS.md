@@ -12,3 +12,7 @@ hours/24-hour support, exact business email/address and the system behind
 Viator's `Fully connected` badge. Owner requested external profile improvements
 after finishing the project; do not publish screenshot prices/policies or
 claim the workbook has already been updated.
+
+- 2026-10-05 — طريقة الدفع في المكتب (محمد): «كاش في المكتب أو عند الاستلام، والعربون مسموح». مفتوح: هل الكاش بيتدفع أحيانًا بالجنيه؟ (حاليًا يتسجل باليورو بس).
+- 2026-10-05 — الدفع الأونلاين (Paymob) مش متاح دلوقتي وهياخد وقت (محمد): «كمل بطريقة الحجز زي ما انت شغال فيها» — الإطلاق بوضع ENQUIRY_ONLY + الحجز من المكتب كاش/عند الاستلام مع العربون.
+- 2026-10-05 — تصحيح طرق الدفع في المكتب (محمد): «محفظة الكترونية و فيزا كارت و انستا باي و مكنة فوري في المكتب، الموظف بياخد الحجز و الدفع» — زائد الكاش في المكتب/عند الاستلام والعربون. مفتوح: سعر صرف اليورو للجنيه (المقترح: المدير يحدد سعر اليوم في الـERP).

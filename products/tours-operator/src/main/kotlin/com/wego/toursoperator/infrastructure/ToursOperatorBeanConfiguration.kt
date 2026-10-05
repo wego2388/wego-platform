@@ -22,11 +22,15 @@ import com.wego.toursoperator.application.DispatchNotificationsService
 import com.wego.toursoperator.application.EmailSender
 import com.wego.toursoperator.application.ExpireBookingService
 import com.wego.toursoperator.application.ExpireOverduePaymentsService
+import com.wego.toursoperator.application.FxRateRepository
+import com.wego.toursoperator.application.FxRateService
 import com.wego.toursoperator.application.HandlePaymobWebhookService
 import com.wego.toursoperator.application.ImageProcessor
 import com.wego.toursoperator.application.InitiatePaymentService
 import com.wego.toursoperator.application.MediaUploadService
 import com.wego.toursoperator.application.NotificationRepository
+import com.wego.toursoperator.application.OfficeCollectionRepository
+import com.wego.toursoperator.application.OfficeCollectionService
 import com.wego.toursoperator.application.NotificationSettings
 import com.wego.toursoperator.application.PaymentQueryService
 import com.wego.toursoperator.application.PaymentRepository
@@ -233,6 +237,21 @@ class ToursOperatorBeanConfiguration {
             clock,
             bookingMode,
         )
+
+    @Bean("stoOfficeCollectionService")
+    fun officeCollectionService(
+        @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
+        @Qualifier("stoOfficeCollectionRepositoryImpl") collectionRepository: OfficeCollectionRepository,
+        @Qualifier("stoFxRateRepositoryImpl") fxRateRepository: FxRateRepository,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): OfficeCollectionService = OfficeCollectionService(bookingRepository, collectionRepository, fxRateRepository, transactionRunner, clock)
+
+    @Bean("stoFxRateService")
+    fun fxRateService(
+        @Qualifier("stoFxRateRepositoryImpl") fxRateRepository: FxRateRepository,
+        clock: Clock,
+    ): FxRateService = FxRateService(fxRateRepository, clock)
 
     @Bean("stoConfirmBookingService")
     fun confirmBookingService(

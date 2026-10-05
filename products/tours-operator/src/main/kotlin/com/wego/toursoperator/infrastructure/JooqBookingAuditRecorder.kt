@@ -52,6 +52,14 @@ class JooqBookingAuditRecorder(
     ) = insert(bookingId, "BOOKING_CREATED", null, null, null, actorUserId, occurredAt, correlationId)
 
     @Transactional
+    override fun recordCreatedOffice(
+        bookingId: BookingId,
+        actorUserId: UUID,
+        occurredAt: Instant,
+        correlationId: UUID?,
+    ) = insert(bookingId, "BOOKING_CREATED_OFFICE", null, null, null, actorUserId, occurredAt, correlationId)
+
+    @Transactional
     override fun recordConfirmed(
         bookingId: BookingId,
         actorUserId: UUID?,

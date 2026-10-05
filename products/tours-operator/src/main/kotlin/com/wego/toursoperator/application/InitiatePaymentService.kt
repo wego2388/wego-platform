@@ -32,6 +32,9 @@ sealed class InitiatePaymentResult {
 
     data object OnlinePaymentUnavailable : InitiatePaymentResult()
 
+    /** Office bookings are paid in cash at the office or on pickup, not through the provider. */
+    data object OfficeBookingNotPayableOnline : InitiatePaymentResult()
+
     /**
      * Booking is not in NEW state — e.g. already confirmed, cancelled, or expired.
      * Returns the existing payment if one exists so the caller can redirect.
@@ -99,6 +102,12 @@ class InitiatePaymentService(
                     return@runInTransaction PaymentPreparation.Completed(
                         InitiatePaymentResult.BookingNotPayable(booking.status),
                     )
+                }
+
+                // Office bookings are settled in cash through the office ledger,
+                // never through the online provider.
+                if (booking.channel != com.wego.toursoperator.domain.BookingChannel.ONLINE) {
+                    return@runInTransaction PaymentPreparation.Completed(InitiatePaymentResult.OfficeBookingNotPayableOnline)
                 }
 
                 // Checked before any payment row is written and before resuming

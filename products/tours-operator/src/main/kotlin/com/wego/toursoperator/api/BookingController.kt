@@ -11,10 +11,13 @@ import com.wego.toursoperator.application.CompleteBookingService
 import com.wego.toursoperator.application.CreateBookingCommand
 import com.wego.toursoperator.application.CreateBookingResult
 import com.wego.toursoperator.application.CreateBookingService
+import com.wego.toursoperator.application.OfficeCollectionService
 import com.wego.toursoperator.domain.Booking
+import com.wego.toursoperator.domain.BookingChannel
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.BookingStatus
 import com.wego.toursoperator.domain.CustomerContact
+import com.wego.toursoperator.domain.OfficePaymentSummary
 import com.wego.toursoperator.domain.TourId
 import com.wego.toursoperator.domain.TourSlotId
 import com.wego.toursoperator.domain.UnitPurchase
@@ -45,6 +48,7 @@ class BookingController(
     private val cancelBookingService: CancelBookingService,
     private val completeBookingService: CompleteBookingService,
     private val bookingQueryService: BookingQueryService,
+    private val officeCollectionService: OfficeCollectionService,
 ) {
     /**
      * Public — no authentication. Creates a NEW booking and reserves one place
@@ -81,6 +85,11 @@ class BookingController(
         return when (result) {
             is CreateBookingResult.Created ->
                 ResponseEntity.status(HttpStatus.CREATED).body(result.booking.toResponse())
+            // Only staff office requests carry an idempotency key; the public path never produces these.
+            is CreateBookingResult.Replayed ->
+                ResponseEntity.ok(result.booking.toResponse())
+            CreateBookingResult.IdempotencyKeyReused ->
+                ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorResponse("idempotency_key_reused"))
             CreateBookingResult.SlotNotFound ->
                 ResponseEntity.notFound().build()
             CreateBookingResult.SlotBlocked ->
@@ -118,7 +127,7 @@ class BookingController(
                 )
         ) {
             is CancelBookingResult.Cancelled ->
-                ResponseEntity.ok(result.booking.toResponse())
+                ResponseEntity.ok(respond(result.booking))
             CancelBookingResult.NotFound ->
                 ResponseEntity.notFound().build()
             CancelBookingResult.AlreadyCancelled ->
@@ -144,7 +153,7 @@ class BookingController(
                 )
         ) {
             is CompleteBookingResult.Completed ->
-                ResponseEntity.ok(result.booking.toResponse())
+                ResponseEntity.ok(respond(result.booking))
             CompleteBookingResult.NotFound ->
                 ResponseEntity.notFound().build()
             CompleteBookingResult.CannotComplete ->
@@ -164,7 +173,7 @@ class BookingController(
     ): List<BookingResponse> =
         bookingQueryService
             .list(tourId?.let(::TourId), status, date, page, size)
-            .map { it.toResponse() }
+            .let(::respondAll)
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('tours-operator.booking:view')")
@@ -172,7 +181,7 @@ class BookingController(
         @PathVariable id: UUID,
     ): ResponseEntity<BookingResponse> {
         val booking = bookingQueryService.findById(BookingId(id)) ?: return ResponseEntity.notFound().build()
-        return ResponseEntity.ok(booking.toResponse())
+        return ResponseEntity.ok(respond(booking))
     }
 
     /** Staff-only lifecycle history: who changed the booking, when, and why. */
@@ -184,6 +193,11 @@ class BookingController(
         bookingQueryService.findById(BookingId(id)) ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(bookingQueryService.history(BookingId(id)).map { it.toResponse() })
     }
+
+    private fun respond(booking: Booking): BookingResponse = respondAll(listOf(booking)).single()
+
+    /** Attaches the office cash state (one query for the whole page) to office bookings. */
+    private fun respondAll(bookings: List<Booking>): List<BookingResponse> = bookings.toResponses(officeCollectionService)
 
     /**
      * Public lookup — customer retrieves their booking by reference + phone.
@@ -203,7 +217,13 @@ class BookingController(
     }
 }
 
-internal fun Booking.toResponse() =
+internal fun List<Booking>.toResponses(officeCollectionService: OfficeCollectionService): List<BookingResponse> {
+    val nets =
+        officeCollectionService.netCollected(filter { it.channel == BookingChannel.OFFICE }.map { it.id })
+    return map { it.toResponse(nets[it.id]) }
+}
+
+internal fun Booking.toResponse(officeNetCollected: java.math.BigDecimal? = null): BookingResponse =
     BookingResponse(
         id = id.value,
         reference = reference,
@@ -235,7 +255,27 @@ internal fun Booking.toResponse() =
         cancellationReason = cancellationReason,
         completedAt = completedAt,
         expiredAt = expiredAt,
+        channel = channel,
+        awaitingCollection = isAwaitingCollection,
+        officePayment = officePaymentResponse(officeNetCollected),
     )
+
+internal fun Booking.officePaymentResponse(net: java.math.BigDecimal?): OfficePaymentResponse? {
+    if (channel != BookingChannel.OFFICE) return null
+    val summary =
+        OfficePaymentSummary.fromNet(pricing.totalEur, net ?: java.math.BigDecimal.ZERO)
+    return OfficePaymentResponse(
+        state = summary.state,
+        collected = MoneyResponse(summary.collected.amount.toPlainString()),
+        outstanding = MoneyResponse(summary.outstanding.amount.toPlainString()),
+        cashToReturn =
+            if (status == BookingStatus.CANCELLED && summary.collected.amount.signum() > 0) {
+                MoneyResponse(summary.collected.amount.toPlainString())
+            } else {
+                null
+            },
+    )
+}
 
 private fun Booking.toPublicLookupResponse() =
     PublicBookingLookupResponse(

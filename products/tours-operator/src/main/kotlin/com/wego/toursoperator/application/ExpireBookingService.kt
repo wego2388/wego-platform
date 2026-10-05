@@ -3,6 +3,7 @@ package com.wego.toursoperator.application
 import com.wego.events.IntegrationEventEnvelope
 import com.wego.events.OutboxWriter
 import com.wego.toursoperator.domain.Booking
+import com.wego.toursoperator.domain.BookingChannel
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.BookingStatus
 import com.wego.toursoperator.domain.PaymentStatus
@@ -50,6 +51,10 @@ class ExpireBookingService(
                 return@runInTransaction ExpireBookingResult.AlreadyExpired
             }
             if (booking.status != BookingStatus.NEW) {
+                return@runInTransaction ExpireBookingResult.CannotExpire
+            }
+            // The 30-minute window belongs to online checkout only.
+            if (booking.channel != BookingChannel.ONLINE) {
                 return@runInTransaction ExpireBookingResult.CannotExpire
             }
 

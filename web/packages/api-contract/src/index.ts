@@ -30,6 +30,17 @@ export type CategoryMedia = components["schemas"]["ToursOperatorCategoryMedia"];
 export type PublicCategoryCover = components["schemas"]["ToursOperatorPublicCategoryCover"];
 export type TourPriceOption = components["schemas"]["ToursOperatorPriceOption"];
 export type BookingUnit = components["schemas"]["ToursOperatorBookingUnit"];
+export type CreateOfficeBookingPayload = components["schemas"]["CreateToursOperatorOfficeBookingRequest"];
+export type BookingChannel = components["schemas"]["ToursOperatorBookingChannel"];
+export type OfficePayment = components["schemas"]["ToursOperatorOfficePayment"];
+export type OfficePaymentState = components["schemas"]["ToursOperatorOfficePaymentState"];
+export type OfficeCollection = components["schemas"]["ToursOperatorOfficeCollection"];
+export type OfficeCollectionOutcome = components["schemas"]["ToursOperatorOfficeCollectionOutcome"];
+export type OfficeCollectionQuote = components["schemas"]["ToursOperatorOfficeCollectionQuote"];
+export type CollectionMethod = components["schemas"]["ToursOperatorCollectionMethod"];
+export type PaidCurrency = components["schemas"]["ToursOperatorPaidCurrency"];
+export type FxRate = components["schemas"]["ToursOperatorFxRate"];
+export type FxRateToday = components["schemas"]["ToursOperatorFxRateToday"];
 
 const DECIMAL_AMOUNT = /^(0|[1-9]\d{0,16})\.\d{2}$/;
 const ISO_CURRENCY_CODE = /^[A-Z]{3}$/;

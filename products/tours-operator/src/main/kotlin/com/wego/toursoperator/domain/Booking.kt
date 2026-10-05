@@ -42,6 +42,12 @@ class Booking(
     cancellationReason: String?,
     completedAt: Instant?,
     expiredAt: Instant?,
+    /** How the booking entered the system; fixed at creation. */
+    val channel: BookingChannel = BookingChannel.ONLINE,
+    /** Staff user who created an OFFICE booking; null for ONLINE bookings. */
+    val createdByUserId: java.util.UUID? = null,
+    /** Staff-supplied idempotency key of an OFFICE booking; null for ONLINE bookings. */
+    val clientRequestId: java.util.UUID? = null,
 ) {
     var status: BookingStatus = status
         private set
@@ -67,8 +73,18 @@ class Booking(
         }
         require(hotelName.isNotBlank()) { "Hotel name must not be blank" }
         require(locale.matches(LOCALE_FORMAT)) { "Locale must be a 2-3 letter ISO code" }
+        require(channel == BookingChannel.OFFICE || (createdByUserId == null && clientRequestId == null)) {
+            "Only an office booking carries a staff creator and request id"
+        }
+        require(channel == BookingChannel.ONLINE || clientRequestId != null) { "An office booking needs a client request id" }
+        require(channel == BookingChannel.ONLINE || status != BookingStatus.EXPIRED) {
+            "An office booking is never expired by the online payment window"
+        }
         validateStatusConsistency()
     }
+
+    /** NEW office bookings are unpaid and awaiting cash collection (not awaiting online payment). */
+    val isAwaitingCollection: Boolean get() = channel == BookingChannel.OFFICE && status == BookingStatus.NEW
 
     private fun validateStatusConsistency() {
         // confirmedAt is a historical timestamp: it must be set once the booking
@@ -127,14 +143,58 @@ class Booking(
         cancellationReason = reason
     }
 
-    /** Payment window elapsed — NEW → EXPIRED. */
+    /** Payment window elapsed — NEW → EXPIRED. The window is an online-checkout rule only. */
     fun expire(now: Instant) {
+        require(channel == BookingChannel.ONLINE) { "An office booking has no payment window and never expires" }
         require(status == BookingStatus.NEW) { "Only a NEW booking can expire (current: $status)" }
         status = BookingStatus.EXPIRED
         expiredAt = now
     }
 
     companion object {
+        /** A staff-created booking: NEW, unpaid, with no online payment window. */
+        fun createOffice(
+            id: BookingId,
+            reference: String,
+            tourId: TourId,
+            slotId: TourSlotId,
+            tourDate: LocalDate,
+            timeSlot: TimeSlot,
+            pricing: BookingPricing,
+            customer: CustomerContact,
+            hotelName: String,
+            hotelRoom: String?,
+            specialRequests: String?,
+            locale: String,
+            now: Instant,
+            createdByUserId: java.util.UUID,
+            clientRequestId: java.util.UUID,
+        ): Booking =
+            Booking(
+                id = id,
+                reference = reference,
+                tourId = tourId,
+                slotId = slotId,
+                tourDate = tourDate,
+                timeSlot = timeSlot,
+                pricing = pricing,
+                customer = customer,
+                hotelName = hotelName,
+                hotelRoom = hotelRoom,
+                specialRequests = specialRequests,
+                locale = locale,
+                status = BookingStatus.NEW,
+                createdAt = now,
+                confirmedAt = null,
+                cancelledAt = null,
+                cancellationReason = null,
+                completedAt = null,
+                expiredAt = null,
+                channel = BookingChannel.OFFICE,
+                createdByUserId = createdByUserId,
+                clientRequestId = clientRequestId,
+            )
+
         private val REFERENCE_FORMAT = Regex("^STR-\\d{4}-\\d+$")
         private val LOCALE_FORMAT = Regex("^[a-z]{2,3}$")
 

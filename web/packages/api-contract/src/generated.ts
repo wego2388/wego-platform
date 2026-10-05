@@ -2102,6 +2102,150 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tours-operator/staff/bookings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create an office booking (staff)
+         * @description Requires tours-operator.booking:create-office. Uses the same pricing and the same capacity reservation (slot row lock) as the public path. Online sales pause and enquiry-only mode do not block staff office bookings; a past, blocked or full slot is refused. The booking is NEW, unpaid and awaiting collection; it is never expired by the 30-minute online payment window and staff cancel it with the normal cancel endpoint. Re-sending the same clientRequestId returns the booking already created (200).
+         */
+        post: operations["createToursOperatorOfficeBooking"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/bookings/{id}/collections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Office payment ledger of one booking
+         * @description Requires tours-operator.booking:view. Append-only entries, oldest first.
+         */
+        get: operations["listToursOperatorOfficeCollections"];
+        put?: never;
+        /**
+         * Record an office payment (staff)
+         * @description Requires tours-operator.booking:collect-cash. Manual entry only — no online integration. Methods are cash at the office, cash on pickup, mobile wallet, the office card terminal, InstaPay and the office Fawry machine. Non-cash methods require the receipt reference (unique per method); cash must not carry one. EGP settles at today's manager-set rate (fx_rate_not_set when none). The settled EUR can never exceed the outstanding balance; the exact EGP value of the balance settles it exactly. Entries are separate from Paymob payments. Re-sending the same clientRequestId returns the entry already recorded (200).
+         */
+        post: operations["recordToursOperatorOfficeCollection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/bookings/{id}/collections/quote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Preview what a payment would settle
+         * @description Requires tours-operator.booking:collect-cash. Shows the EUR a payment settles at today's manager-set rate before saving; writes nothing.
+         */
+        get: operations["quoteToursOperatorOfficeCollection"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/bookings/{id}/collections/{collectionId}/reverse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reverse an office payment with a reason
+         * @description Requires tours-operator.booking:collect-cash. The only way to correct a mistake: a separate audited REVERSAL entry that cancels one collection in full. A collection can be reversed once and a reversal is final. A reversed receipt reference stays used.
+         */
+        post: operations["reverseToursOperatorOfficeCollection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/fx-rate/today": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Today's manager-set EUR to EGP rate
+         * @description Requires tours-operator.booking:collect-cash or tours-operator.fx-rate:manage. Rate policy = manager sets the daily rate (proposed; owner confirmation pending).
+         */
+        get: operations["getToursOperatorFxRateToday"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/fx-rate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set today's EUR to EGP rate
+         * @description Requires tours-operator.fx-rate:manage. Append-only: a new rate for the day supersedes the earlier one and every rate is kept as history.
+         */
+        post: operations["setToursOperatorFxRate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/fx-rate/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * History of manager-set rates, newest first
+         * @description Requires tours-operator.fx-rate:manage.
+         */
+        get: operations["listToursOperatorFxRateHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tours-operator/staff/bookings/{bookingId}/payment-history": {
         parameters: {
             query?: never;
@@ -2388,6 +2532,117 @@ export interface components {
         ToursOperatorCategory: "DESERT" | "SEA" | "CULTURAL" | "SHOWS" | "TRANSFERS";
         /** @enum {string} */
         ToursOperatorTimeSlot: "SUNRISE" | "MORNING" | "AFTERNOON" | "SUNSET";
+        /**
+         * @description ONLINE = public checkout (30-minute payment window); OFFICE = created by staff (no payment window, never auto-expired).
+         * @enum {string}
+         */
+        ToursOperatorBookingChannel: "ONLINE" | "OFFICE";
+        /** @enum {string} */
+        ToursOperatorPaidCurrency: "EUR" | "EGP";
+        /**
+         * @description Manual office payment methods. Cash methods carry no reference; every other method requires the receipt reference.
+         * @enum {string}
+         */
+        ToursOperatorCollectionMethod: "CASH_AT_OFFICE" | "CASH_ON_PICKUP" | "MOBILE_WALLET" | "CARD_TERMINAL" | "INSTAPAY" | "FAWRY_OFFICE";
+        /** @enum {string} */
+        ToursOperatorOfficePaymentState: "UNPAID" | "PARTIALLY_PAID" | "PAID";
+        ToursOperatorOfficePayment: {
+            state: components["schemas"]["ToursOperatorOfficePaymentState"];
+            collected: components["schemas"]["Money"];
+            outstanding: components["schemas"]["Money"];
+            /** @description Set when a cancelled booking still holds collected money that staff must return. No automatic refund exists. */
+            cashToReturn: components["schemas"]["Money"] | null;
+        };
+        CreateToursOperatorOfficeBookingRequest: {
+            /**
+             * Format: uuid
+             * @description Idempotency key generated by the client.
+             */
+            clientRequestId: string;
+            /** Format: uuid */
+            slotId: string;
+            adultsCount: number;
+            childrenCount: number;
+            priceOptionCode?: string;
+            unitCount?: number;
+            customer: components["schemas"]["ToursOperatorCustomerRequest"];
+            hotelName: string;
+            hotelRoom?: string;
+            specialRequests?: string;
+            /** @enum {string} */
+            locale: "en" | "ar" | "ru" | "it";
+        };
+        RecordToursOperatorOfficeCollectionRequest: {
+            /** Format: uuid */
+            clientRequestId: string;
+            method: components["schemas"]["ToursOperatorCollectionMethod"];
+            /** @description What the customer handed over, in `currency`, at most two decimals. */
+            amount: number;
+            /**
+             * @description EGP settles at today's manager-set rate; staff cannot supply a rate.
+             * @default EUR
+             */
+            currency: components["schemas"]["ToursOperatorPaidCurrency"];
+            /** @description Receipt number from the terminal, wallet, InstaPay or Fawry. Required for non-cash, forbidden for cash. Trimmed, no control characters, unique per method. */
+            reference?: string;
+        };
+        ReverseToursOperatorOfficeCollectionRequest: {
+            /** Format: uuid */
+            clientRequestId: string;
+            reason: string;
+        };
+        ToursOperatorOfficeCollection: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            kind: "COLLECTION" | "REVERSAL";
+            method: components["schemas"]["ToursOperatorCollectionMethod"];
+            /** @description EUR settled against the booking balance. */
+            amount: components["schemas"]["Money"];
+            /** @description What the customer handed over, in EUR or EGP. */
+            amountPaid: components["schemas"]["Money"];
+            /** @description EGP per 1 EUR used for an EGP payment; null for EUR. */
+            fxRate: string | null;
+            reference: string | null;
+            /** Format: uuid */
+            reversesCollectionId: string | null;
+            reason: string | null;
+            /** Format: uuid */
+            recordedByUserId: string | null;
+            /** Format: date-time */
+            recordedAt: string;
+        };
+        ToursOperatorOfficeCollectionOutcome: {
+            entry: components["schemas"]["ToursOperatorOfficeCollection"];
+            officePayment: components["schemas"]["ToursOperatorOfficePayment"];
+        };
+        ToursOperatorOfficeCollectionQuote: {
+            /** @enum {string} */
+            status: "OK" | "RATE_MISSING" | "TOO_SMALL" | "EXCEEDS_OUTSTANDING";
+            settledEur: components["schemas"]["Money"] | null;
+            fxRate: string | null;
+            outstanding: components["schemas"]["Money"];
+        };
+        SetToursOperatorFxRateRequest: {
+            /** @description EGP per 1 EUR, at most four decimals. */
+            egpPerEur: number;
+        };
+        ToursOperatorFxRate: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date */
+            rateDate: string;
+            egpPerEur: string;
+            /** Format: uuid */
+            setByUserId: string | null;
+            /** Format: date-time */
+            setAt: string;
+        };
+        ToursOperatorFxRateToday: {
+            /** Format: date */
+            date: string;
+            rate: components["schemas"]["ToursOperatorFxRate"] | null;
+        };
         /** @enum {string} */
         ToursOperatorBookingStatus: "NEW" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "EXPIRED";
         ToursOperatorContentErrorResponse: {
@@ -2690,6 +2945,11 @@ export interface components {
             completedAt: string | null;
             /** Format: date-time */
             expiredAt: string | null;
+            channel: components["schemas"]["ToursOperatorBookingChannel"];
+            /** @description True for a NEW office booking, awaiting payment recorded by staff; never auto-expired. */
+            awaitingCollection: boolean;
+            /** @description Office payment state derived from the office ledger; null for online bookings. */
+            officePayment: components["schemas"]["ToursOperatorOfficePayment"] | null;
         };
         ToursOperatorPublicBookingLookupResponse: {
             reference: string;
@@ -8851,6 +9111,334 @@ export interface operations {
                 };
                 content?: never;
             };
+        };
+    };
+    createToursOperatorOfficeBooking: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateToursOperatorOfficeBookingRequest"];
+            };
+        };
+        responses: {
+            /** @description Idempotent replay of an already-created booking. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorBookingResponse"];
+                };
+            };
+            /** @description Office booking created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorBookingResponse"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Slot not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Slot blocked, in the past, fully booked, tour inactive, or idempotency_key_reused. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+            /** @description Pricing does not fit the tour (same codes as the public path). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+        };
+    };
+    listToursOperatorOfficeCollections: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Ledger entries. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOfficeCollection"][];
+                };
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Booking not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    recordToursOperatorOfficeCollection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecordToursOperatorOfficeCollectionRequest"];
+            };
+        };
+        responses: {
+            /** @description Idempotent replay. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOfficeCollectionOutcome"];
+                };
+            };
+            /** @description Payment recorded. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOfficeCollectionOutcome"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Booking not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description not_an_office_booking, booking_not_open_status_*, amount_exceeds_outstanding, reference_already_used, fx_rate_not_set or idempotency_key_reused. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+            /** @description amount_too_small — the payment converts to less than one cent. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+        };
+    };
+    quoteToursOperatorOfficeCollection: {
+        parameters: {
+            query: {
+                currency: components["schemas"]["ToursOperatorPaidCurrency"];
+                amount: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Quote. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOfficeCollectionQuote"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Booking not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description not_an_office_booking. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+        };
+    };
+    reverseToursOperatorOfficeCollection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                collectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReverseToursOperatorOfficeCollectionRequest"];
+            };
+        };
+        responses: {
+            /** @description Idempotent replay. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOfficeCollectionOutcome"];
+                };
+            };
+            /** @description Reversal recorded. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOfficeCollectionOutcome"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Booking or collection not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description collection_already_reversed, collection_not_reversible, not_an_office_booking or idempotency_key_reused. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+        };
+    };
+    getToursOperatorFxRateToday: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Today's rate, or null when none was set. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFxRateToday"];
+                };
+            };
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    setToursOperatorFxRate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetToursOperatorFxRateRequest"];
+            };
+        };
+        responses: {
+            /** @description Rate recorded. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFxRate"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    listToursOperatorFxRateHistory: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Rates. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFxRate"][];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
         };
     };
     getToursOperatorPaymentHistory: {

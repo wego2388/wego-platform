@@ -5,6 +5,7 @@ import com.wego.generated.jooq.tables.ToursOperatorBookingReferenceSeq.TOURS_OPE
 import com.wego.generated.jooq.tables.records.ToursOperatorBookingRecord
 import com.wego.toursoperator.application.BookingRepository
 import com.wego.toursoperator.domain.Booking
+import com.wego.toursoperator.domain.BookingChannel
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.BookingPricing
 import com.wego.toursoperator.domain.BookingStatus
@@ -23,6 +24,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import java.util.UUID
 
 @Repository("stoBookingRepositoryImpl")
 class JooqBookingRepository(
@@ -48,6 +50,18 @@ class JooqBookingRepository(
                 .fetchOne() ?: return null
         return toDomain(record)
     }
+
+    @Transactional(readOnly = true)
+    override fun findByClientRequest(
+        actorUserId: UUID,
+        clientRequestId: UUID,
+    ): Booking? =
+        dsl
+            .selectFrom(TOURS_OPERATOR_BOOKING)
+            .where(TOURS_OPERATOR_BOOKING.CREATED_BY_USER_ID.eq(actorUserId))
+            .and(TOURS_OPERATOR_BOOKING.CLIENT_REQUEST_ID.eq(clientRequestId))
+            .fetchOne()
+            ?.let(::toDomain)
 
     @Transactional(readOnly = true)
     override fun findByReference(reference: String): Booking? {
@@ -107,6 +121,7 @@ class JooqBookingRepository(
         dsl
             .selectFrom(TOURS_OPERATOR_BOOKING)
             .where(TOURS_OPERATOR_BOOKING.STATUS.eq(BookingStatus.NEW.name))
+            .and(TOURS_OPERATOR_BOOKING.CHANNEL.eq(BookingChannel.ONLINE.name))
             .and(TOURS_OPERATOR_BOOKING.CREATED_AT.lt(toOffset(cutoff)))
             .orderBy(TOURS_OPERATOR_BOOKING.CREATED_AT.asc(), TOURS_OPERATOR_BOOKING.ID.asc())
             .fetch()
@@ -209,6 +224,9 @@ class JooqBookingRepository(
             .set(TOURS_OPERATOR_BOOKING.CANCELLATION_REASON, booking.cancellationReason)
             .set(TOURS_OPERATOR_BOOKING.COMPLETED_AT, completedAt)
             .set(TOURS_OPERATOR_BOOKING.EXPIRED_AT, expiredAt)
+            .set(TOURS_OPERATOR_BOOKING.CHANNEL, booking.channel.name)
+            .set(TOURS_OPERATOR_BOOKING.CREATED_BY_USER_ID, booking.createdByUserId)
+            .set(TOURS_OPERATOR_BOOKING.CLIENT_REQUEST_ID, booking.clientRequestId)
             .onConflict(TOURS_OPERATOR_BOOKING.ID)
             .doUpdate()
             .set(TOURS_OPERATOR_BOOKING.STATUS, booking.status.name)
@@ -264,6 +282,9 @@ class JooqBookingRepository(
             cancellationReason = record.cancellationReason,
             completedAt = record.completedAt?.toInstant(),
             expiredAt = record.expiredAt?.toInstant(),
+            channel = BookingChannel.valueOf(record.channel),
+            createdByUserId = record.createdByUserId,
+            clientRequestId = record.clientRequestId,
         )
 
     /**

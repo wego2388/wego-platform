@@ -12,6 +12,12 @@ interface BookingRepository {
 
     fun findByIdForUpdate(id: BookingId): Booking?
 
+    /** The booking a staff user already created with this idempotency key, if any. */
+    fun findByClientRequest(
+        actorUserId: java.util.UUID,
+        clientRequestId: java.util.UUID,
+    ): Booking?
+
     fun findByReference(reference: String): Booking?
 
     /**
@@ -31,7 +37,7 @@ interface BookingRepository {
         offset: Int,
     ): List<Booking>
 
-    /** NEW bookings whose payment window has elapsed, using the caller's injected clock. */
+    /** NEW ONLINE bookings whose payment window has elapsed (office bookings have no window), using the caller's injected clock. */
     fun findNewCreatedBefore(cutoff: Instant): List<Booking>
 
     /** Count bookings for a slot — used by the dashboard today-schedule view. */
