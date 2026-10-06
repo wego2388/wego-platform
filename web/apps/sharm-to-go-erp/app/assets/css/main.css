@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@fontsource-variable/inter";
+@import "@fontsource-variable/fredoka";
 @source "../../../../../packages/ui/src";
 
 @theme {
@@ -31,11 +32,81 @@
   --radius-wego-control: var(--wego-radius-control);
   --radius-wego-pill: var(--wego-radius-pill);
   --font-sans: var(--wego-font-sans);
+  --font-display: var(--wego-font-display);
   --z-wego-dropdown: var(--wego-z-dropdown);
   --z-wego-sticky: var(--wego-z-sticky);
   --z-wego-overlay: var(--wego-z-overlay);
   --z-wego-modal: var(--wego-z-modal);
   --z-wego-toast: var(--wego-z-toast);
+}
+
+/*
+ * Sharm To Go brand identity, overriding the generic @wego/design-tokens
+ * defaults this app still imports above. Values are taken verbatim from
+ * clients/sharm-to-go/design/tokens.json (the owner-approved spec) for
+ * every identity token — canvas/surface/ink/border/accent/radius/font —
+ * so the ERP finally reads as Sharm To Go, not a generic Wego admin panel
+ * (this was the owner's own stated complaint: "مش عايجبني ديزاين الداش
+ * بورد"). Semantic status colors (success/warning/danger/info) are left
+ * on the generic system's own values on purpose: tokens.json's light-mode
+ * success/danger already match them exactly, the design spec never asked
+ * to change these, and the generic file's dark-mode values are the only
+ * ones in this codebase with a documented WCAG-AA verification — reusing
+ * them beats inventing new dark-mode status colors that haven't been
+ * checked (full axe verification is UX-8, a later packet).
+ */
+:root {
+  --wego-color-canvas: #f7fbfa;
+  --wego-color-surface: #ffffff;
+  --wego-color-surface-raised: #ffffff;
+  --wego-color-surface-sunken: #eef5f4;
+  --wego-color-surface-hover: #eef5f4;
+  --wego-color-surface-pressed: #e3edec;
+  --wego-color-surface-overlay: rgb(16 47 53 / 50%);
+  --wego-color-surface-inverse: #102f35;
+  --wego-color-ink: #102f35;
+  --wego-color-ink-inverse: #f7fbfa;
+  --wego-color-muted: #587078;
+  --wego-color-border: #d5e1df;
+  --wego-color-border-strong: #9bb7b5;
+  --wego-color-accent: #075f67;
+  --wego-color-accent-soft: #d8f1ef;
+  --wego-color-focus: #f2a93b;
+  --wego-radius-card: 1.25rem;
+  --wego-radius-control: 0.75rem;
+  --wego-font-display: "Fredoka Variable", "Inter Variable", sans-serif;
+  /* Per-category accent, for the dashboard's stat cards and the Today
+     run sheet — a colored left bar names which business area a number
+     belongs to at a glance, matching tokens.json's categoryAccent map. */
+  --wego-category-sea: #0b8691;
+  --wego-category-desert: #f2a93b;
+  --wego-category-transfers: #2f7fa3;
+  --wego-category-city: #c8593a;
+}
+
+:root[data-theme="dark"] {
+  --wego-color-canvas: #0a2124;
+  --wego-color-surface: #123338;
+  --wego-color-surface-raised: #163d42;
+  --wego-color-surface-sunken: #0d2b30;
+  --wego-color-surface-hover: #163d42;
+  --wego-color-surface-pressed: #1a474d;
+  --wego-color-surface-overlay: rgb(5 15 16 / 60%);
+  --wego-color-surface-inverse: #f7fbfa;
+  --wego-color-ink: #f7fbfa;
+  --wego-color-ink-inverse: #102f35;
+  --wego-color-muted: #a9cbc9;
+  --wego-color-border: #234b50;
+  --wego-color-border-strong: #4d7975;
+  --wego-color-accent: #2bc4d1;
+  --wego-color-accent-soft: #123634;
+  --wego-color-focus: #f2a93b;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--wego-font-display);
 }
 
 html {
