@@ -29,5 +29,8 @@ interface TourSlotRepository {
         to: LocalDate,
     ): List<TourSlot>
 
+    /** Every slot of [date] across all tours (the day's departures). */
+    fun findByDate(date: LocalDate): List<TourSlot>
+
     fun save(slot: TourSlot)
 }

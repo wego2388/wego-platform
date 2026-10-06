@@ -33,7 +33,13 @@ import com.wego.toursoperator.application.NotificationRepository
 import com.wego.toursoperator.application.NotificationSettings
 import com.wego.toursoperator.application.OfficeCollectionRepository
 import com.wego.toursoperator.application.OfficeCollectionService
+import com.wego.toursoperator.application.AssignmentService
+import com.wego.toursoperator.application.DriverRepository
 import com.wego.toursoperator.application.OfficeDocumentService
+import com.wego.toursoperator.application.OpsRegistryService
+import com.wego.toursoperator.application.SlotAssignmentRepository
+import com.wego.toursoperator.application.SupplierRepository
+import com.wego.toursoperator.application.VehicleRepository
 import com.wego.toursoperator.application.PaymentQueryService
 import com.wego.toursoperator.application.PaymentRepository
 import com.wego.toursoperator.application.PaymobClient
@@ -260,6 +266,7 @@ class ToursOperatorBeanConfiguration {
         @Qualifier("stoFxRateRepositoryImpl") fxRateRepository: FxRateRepository,
         @Qualifier("stoPaymentRepositoryImpl") paymentRepository: PaymentRepository,
         @Qualifier("stoDocumentPrintRepositoryImpl") printRepository: DocumentPrintRepository,
+        assignmentService: AssignmentService,
         transactionRunner: TransactionRunner,
         clock: Clock,
         @Value("\${tours-operator.notifications.site-base-url:http://localhost:3000}") siteBaseUrl: String,
@@ -273,10 +280,33 @@ class ToursOperatorBeanConfiguration {
             fxRateRepository,
             paymentRepository,
             printRepository,
+            assignmentService,
             transactionRunner,
             clock,
             siteBaseUrl,
         )
+
+    @Bean("stoOpsRegistryService")
+    fun opsRegistryService(
+        @Qualifier("stoSupplierRepositoryImpl") suppliers: SupplierRepository,
+        @Qualifier("stoDriverRepositoryImpl") drivers: DriverRepository,
+        @Qualifier("stoVehicleRepositoryImpl") vehicles: VehicleRepository,
+        @Qualifier("stoTourRepositoryImpl") tourRepository: TourRepository,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): OpsRegistryService = OpsRegistryService(suppliers, drivers, vehicles, tourRepository, transactionRunner, clock)
+
+    @Bean("stoAssignmentService")
+    fun assignmentService(
+        @Qualifier("stoTourSlotRepositoryImpl") slotRepository: TourSlotRepository,
+        @Qualifier("stoTourRepositoryImpl") tourRepository: TourRepository,
+        @Qualifier("stoDriverRepositoryImpl") drivers: DriverRepository,
+        @Qualifier("stoVehicleRepositoryImpl") vehicles: VehicleRepository,
+        @Qualifier("stoSupplierRepositoryImpl") suppliers: SupplierRepository,
+        @Qualifier("stoSlotAssignmentRepositoryImpl") assignments: SlotAssignmentRepository,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): AssignmentService = AssignmentService(slotRepository, tourRepository, drivers, vehicles, suppliers, assignments, transactionRunner, clock)
 
     @Bean("stoFxRateService")
     fun fxRateService(

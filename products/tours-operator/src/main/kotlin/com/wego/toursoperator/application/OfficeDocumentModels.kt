@@ -3,7 +3,9 @@ package com.wego.toursoperator.application
 import com.wego.toursoperator.domain.BookingChannel
 import com.wego.toursoperator.domain.BookingStatus
 import com.wego.toursoperator.domain.CollectionMethod
+import com.wego.toursoperator.domain.ConfirmationChannel
 import com.wego.toursoperator.domain.PaidCurrency
+import com.wego.toursoperator.domain.SupplierServiceType
 import com.wego.toursoperator.domain.TimeSlot
 import java.time.Instant
 import java.time.LocalDate
@@ -18,6 +20,8 @@ enum class DocumentType(
     RUN_SHEET("RUN"),
     PICKUP_MANIFEST("PKM"),
     CANCELLATION_FORM("CXL"),
+    DRIVER_SHEET("DRV"),
+    SUPPLIER_ORDER("SUP"),
 }
 
 /** Printed languages. Both render from the same data. */
@@ -197,9 +201,80 @@ data class PickupManifestData(
     val tourNameAr: String?,
     val totalGuests: Int,
     val lines: List<PickupLine>,
-    /** Filled in later by OPS2-E (assignments); printed as blank lines until then. */
+    /** The departure's assigned driver (name only) and vehicle (label / plate); null prints a blank line. */
     val driver: String?,
     val vehicle: String?,
+)
+
+/** One guest party on the driver's sheet: no phone, no money. */
+data class DriverSheetGuest(
+    val reference: String,
+    val leadName: String,
+    val hotelRoom: String?,
+    val guests: Int,
+)
+
+/** A pickup stop: one hotel, in pickup order, with the parties to collect there. */
+data class DriverSheetStop(
+    val order: Int,
+    val hotelName: String,
+    val guests: Int,
+    val parties: List<DriverSheetGuest>,
+)
+
+data class DriverSheetVehicle(
+    val display: String,
+    val seats: Int,
+)
+
+/**
+ * The driver's sheet for one departure. PII decision: customer name, hotel and
+ * room only; no customer phone, e-mail, price or payment state. A guest who is not at the hotel is
+ * handled by calling the operations contact printed on the sheet, not the guest.
+ */
+data class DriverSheetData(
+    val slotId: UUID,
+    val date: LocalDate,
+    val timeSlot: TimeSlot,
+    val tourNameEn: String,
+    val tourNameAr: String?,
+    val driverName: String,
+    val vehicle: DriverSheetVehicle?,
+    val totalGuests: Int,
+    val stops: List<DriverSheetStop>,
+)
+
+data class SupplierOrderUnit(
+    val optionLabel: String,
+    val unitCount: Int,
+)
+
+data class SupplierOrderSupplier(
+    val code: String,
+    val name: String,
+    val serviceType: SupplierServiceType,
+    val contactPerson: String?,
+    val confirmationChannel: ConfirmationChannel?,
+    val noticeHours: Int?,
+)
+
+/**
+ * The order sent to a supplier for one departure. PII decision: no customer
+ * name, phone or e-mail and no agreed price (costs are OPS2-F). Special requests are
+ * customer-entered free text and are printed as typed.
+ */
+data class SupplierOrderData(
+    val slotId: UUID,
+    val date: LocalDate,
+    val timeSlot: TimeSlot,
+    val tourNameEn: String,
+    val tourNameAr: String?,
+    val supplier: SupplierOrderSupplier,
+    val totalGuests: Int,
+    val adults: Int,
+    val children: Int,
+    val units: List<SupplierOrderUnit>,
+    val specialRequests: List<String>,
 )
 
 data class CancellationCollectionLine(

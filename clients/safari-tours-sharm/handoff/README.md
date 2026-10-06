@@ -2,12 +2,16 @@
 
 ## Agent start here
 
-> **الحالة الحية — 5 أكتوبر 2026:** ابدأ من
-> [تسليم الكتالوج والصور](2026-10-05_CATALOG_MEDIA_SAFE_CHECKPOINT_AR.md)، ثم
-> Board. مكان التنفيذ `/home/wego/wego-safari-hardening`، والحزمة الوحيدة
-> النشطة `WEGO-016-MEDIA`. الكود والمحرران منفذان؛ قبول الحزمة وDB+media
-> restore والإصدار لم يكتملوا. الملاحظات المؤرخة بسبتمبر أدناه سجل تاريخي،
-> وليست تعليمات لفتح WEGO-017 أو إعادة WEGO-016-E.
+> **توجيه النشر — 7 أكتوبر 2026:** ابدأ من
+> [كلودي يجهّز وCodex ينفذ نشر Safari المستقل](2026-10-07_CLAUDE_PREPARE_CODEX_DEPLOY_VPS_HANDOFF_AR.md)،
+> ثم Board الحي. عند كتابة هذا التوجيه: `WEGO-016-OPS2-E` هي النشطة
+> الوحيدة، والحجز المكتبي والمستندات تقدما بعد تسليم MEDIA. لا تنفذ نشرًا
+> أو تفتح packet ثانية بسبب الوثيقة؛ الخيمة وبياناتها وخدماتها محمية.
+> مكان التنفيذ `/home/wego/wego-safari-hardening`، وحدد SHA النهائي قبل التسليم.
+> [تسليم الكتالوج والصور](2026-10-05_CATALOG_MEDIA_SAFE_CHECKPOINT_AR.md)
+> سجل checkpoint 5 أكتوبر؛ وصفه للحزمة النشطة والنواقص لا يتغلب على التقدم
+> المسجل في Board. ملفات سبتمبر أيضًا تاريخية وليست تعليمات لفتح WEGO-017
+> أو إعادة WEGO-016-E.
 
 > **بداية الحسابات السابقة — سجل سبتمبر التاريخي:**
 > `2026-09-29_NEW-CHATGPT-ACCOUNT_START-HERE.md` بعد قراءة
@@ -29,9 +33,10 @@
 8. `../mobile/ANDROID_EXECUTION_PLAN.md` لخطة تطبيق Android التنفيذية.
 9. `../content-research/README.md` قبل لمس محتوى الرحلات أو الصور أو الأسعار.
 
-للمراجعة الحالية اقرأ تسليم الكتالوج والصور أعلاه، ومواصفة
-`CATALOG_MEDIA_IMPLEMENTATION_SPEC_AR.md` و
-`2026-10-05_MEDIA_TIER1_CHECKPOINT_REVIEW.md`؛ قبول checkpoint لا يغلق MEDIA.
+للمراجعة الحالية اقرأ نطاق الحزمة النشطة وأحدث دليل في Board أولًا.
+مواصفة `CATALOG_MEDIA_IMPLEMENTATION_SPEC_AR.md` و
+`2026-10-05_MEDIA_TIER1_CHECKPOINT_REVIEW.md` مراجع لمرحلة MEDIA؛
+قبول ذلك checkpoint وحده ليس قبول إصدار إنتاج لاحق.
 `WEGO016_B_TIER1_REVIEW_HANDOFF.md` سجل تاريخي لمراجعة B، وليس نطاق العمل
 الحالي ولا تصريحًا بالـcommit أو الـdeploy.
 

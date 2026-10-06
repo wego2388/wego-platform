@@ -75,6 +75,15 @@ class JooqTourSlotRepository(
             .fetch()
             .map(::toDomain)
 
+    @Transactional(readOnly = true)
+    override fun findByDate(date: LocalDate): List<TourSlot> =
+        dsl
+            .selectFrom(TOURS_OPERATOR_TOUR_SLOT)
+            .where(TOURS_OPERATOR_TOUR_SLOT.DATE.eq(date))
+            .orderBy(TOURS_OPERATOR_TOUR_SLOT.TIME_SLOT.asc(), TOURS_OPERATOR_TOUR_SLOT.TOUR_ID.asc())
+            .fetch()
+            .map(::toDomain)
+
     @Transactional
     override fun save(slot: TourSlot) {
         dsl

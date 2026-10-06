@@ -106,6 +106,23 @@ class OfficeDocumentController(
         authentication: Authentication,
     ): ResponseEntity<Any> = respond(documents.pickupManifest(TourSlotId(slotId), language(request.language), actor(authentication)))
 
+    @PostMapping("/slots/{slotId}/driver-sheet")
+    @PreAuthorize("hasAuthority('tours-operator.document:print-ops')")
+    fun driverSheet(
+        @PathVariable slotId: UUID,
+        @Valid @RequestBody request: PrintDocumentRequest,
+        authentication: Authentication,
+    ): ResponseEntity<Any> = respond(documents.driverSheet(TourSlotId(slotId), language(request.language), actor(authentication)))
+
+    @PostMapping("/slots/{slotId}/suppliers/{supplierId}/supplier-order")
+    @PreAuthorize("hasAuthority('tours-operator.document:print-ops')")
+    fun supplierOrder(
+        @PathVariable slotId: UUID,
+        @PathVariable supplierId: UUID,
+        @Valid @RequestBody request: PrintDocumentRequest,
+        authentication: Authentication,
+    ): ResponseEntity<Any> = respond(documents.supplierOrder(TourSlotId(slotId), supplierId, language(request.language), actor(authentication)))
+
     private fun actor(authentication: Authentication): UUID = (authentication.principal as AuthenticatedUser).userId
 
     private fun language(code: String?): DocumentLanguage = checkNotNull(code?.let(DocumentLanguage::fromCode))

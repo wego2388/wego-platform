@@ -43,6 +43,7 @@ class OfficeDocumentService(
     private val fxRateRepository: FxRateRepository,
     private val paymentRepository: PaymentRepository,
     private val printRepository: DocumentPrintRepository,
+    private val assignmentService: AssignmentService,
     private val transactionRunner: TransactionRunner,
     private val clock: Clock,
     private val siteBaseUrl: String,
@@ -214,6 +215,7 @@ class OfficeDocumentService(
                     .filter { it.slotId == slot.id }
                     .sortedWith(compareBy({ it.hotelName.lowercase() }, { it.hotelRoom ?: "" }, { it.reference }))
             val names = tourNames(listOf(slot.tourId))
+            val assigned = assignmentService.resolved(slot.id)
             val data =
                 PickupManifestData(
                     slotId = slot.id.value,
@@ -234,8 +236,8 @@ class OfficeDocumentService(
                                 b.pricing.guests,
                             )
                         },
-                    driver = null,
-                    vehicle = null,
+                    driver = assigned?.driver?.name,
+                    vehicle = assigned?.vehicle?.display,
                 )
             val stamp =
                 stamp(
@@ -246,11 +248,126 @@ class OfficeDocumentService(
                     fingerprint(
                         rows.map {
                             "${it.id.value}|${it.pricing.guests}|${it.hotelName}|${it.hotelRoom}"
-                        },
+                        } + "assignment|${assigned?.driver?.id}|${assigned?.vehicle?.id}",
                     ),
                 ) {
                     printRepository.allocateNumber(DocumentType.PICKUP_MANIFEST, year())
                 }
+            DocumentResult.Ready(stamp, data)
+        }
+
+    /**
+     * The driver's sheet of one departure (OPS2-E). Needs an assigned driver. Shows customer name,
+     * hotel and room in pickup order; never a customer phone, e-mail, price or payment state.
+     */
+    fun driverSheet(
+        slotId: TourSlotId,
+        language: DocumentLanguage,
+        actorUserId: UUID,
+    ): DocumentResult<DriverSheetData> =
+        transactionRunner.runInTransaction {
+            val slot = slotRepository.findById(slotId) ?: return@runInTransaction DocumentResult.NotFound
+            val assigned = assignmentService.resolved(slot.id)
+            val driver = assigned?.driver ?: return@runInTransaction DocumentResult.Refused("no_driver_assigned")
+            val rows =
+                liveBookings(slot.date)
+                    .filter { it.slotId == slot.id }
+                    .sortedWith(compareBy({ it.hotelName.lowercase() }, { it.hotelRoom ?: "" }, { it.reference }))
+            val names = tourNames(listOf(slot.tourId))
+            val stops =
+                rows
+                    .groupBy { it.hotelName }
+                    .entries
+                    .mapIndexed { index, (hotel, parties) ->
+                        DriverSheetStop(
+                            order = index + 1,
+                            hotelName = hotel,
+                            guests = parties.sumOf { it.pricing.guests },
+                            parties = parties.map { DriverSheetGuest(it.reference, it.customer.fullName, it.hotelRoom, it.pricing.guests) },
+                        )
+                    }
+            val data =
+                DriverSheetData(
+                    slotId = slot.id.value,
+                    date = slot.date,
+                    timeSlot = slot.timeSlot,
+                    tourNameEn = names.en(slot.tourId),
+                    tourNameAr = names.ar(slot.tourId),
+                    driverName = driver.name,
+                    vehicle = assigned.vehicle?.let { DriverSheetVehicle(it.display, it.seats) },
+                    totalGuests = rows.sumOf { it.pricing.guests },
+                    stops = stops,
+                )
+            val stamp =
+                stamp(
+                    DocumentType.DRIVER_SHEET,
+                    slot.id.value.toString(),
+                    language,
+                    actorUserId,
+                    fingerprint(
+                        rows.map { "${it.id.value}|${it.pricing.guests}|${it.hotelName}|${it.hotelRoom}|${it.customer.fullName}" } +
+                            "assignment|${driver.id}|${assigned.vehicle?.id}",
+                    ),
+                ) { printRepository.allocateNumber(DocumentType.DRIVER_SHEET, year()) }
+            DocumentResult.Ready(stamp, data)
+        }
+
+    /**
+     * The order for one supplier of one departure (OPS2-E). The supplier must be assigned to the
+     * departure. No customer personal data and no agreed price.
+     */
+    fun supplierOrder(
+        slotId: TourSlotId,
+        supplierId: UUID,
+        language: DocumentLanguage,
+        actorUserId: UUID,
+    ): DocumentResult<SupplierOrderData> =
+        transactionRunner.runInTransaction {
+            val slot = slotRepository.findById(slotId) ?: return@runInTransaction DocumentResult.NotFound
+            val supplier =
+                assignmentService.resolved(slot.id)?.suppliers?.firstOrNull { it.id == supplierId }
+                    ?: return@runInTransaction DocumentResult.Refused("supplier_not_assigned")
+            val rows = liveBookings(slot.date).filter { it.slotId == slot.id }
+            val names = tourNames(listOf(slot.tourId))
+            val units =
+                rows
+                    .mapNotNull { it.pricing.unit }
+                    .groupBy { it.optionLabel }
+                    .map { (label, list) -> SupplierOrderUnit(label, list.sumOf { it.unitCount }) }
+                    .sortedBy { it.optionLabel }
+            val requests = rows.mapNotNull { it.specialRequests?.trim()?.takeIf { text -> text.isNotEmpty() } }.sorted()
+            val data =
+                SupplierOrderData(
+                    slotId = slot.id.value,
+                    date = slot.date,
+                    timeSlot = slot.timeSlot,
+                    tourNameEn = names.en(slot.tourId),
+                    tourNameAr = names.ar(slot.tourId),
+                    supplier =
+                        SupplierOrderSupplier(
+                            supplier.code,
+                            supplier.name,
+                            supplier.serviceType,
+                            supplier.contactPerson,
+                            supplier.confirmationChannel,
+                            supplier.noticeHours,
+                        ),
+                    totalGuests = rows.sumOf { it.pricing.guests },
+                    adults = rows.sumOf { it.pricing.adultsCount },
+                    children = rows.sumOf { it.pricing.childrenCount },
+                    units = units,
+                    specialRequests = requests,
+                )
+            val stamp =
+                stamp(
+                    DocumentType.SUPPLIER_ORDER,
+                    "${slot.id.value}:$supplierId",
+                    language,
+                    actorUserId,
+                    fingerprint(
+                        rows.map { "${it.id.value}|${it.pricing.adultsCount}|${it.pricing.childrenCount}|${it.pricing.unit?.optionLabel}|${it.pricing.unit?.unitCount}|${it.specialRequests}" },
+                    ),
+                ) { printRepository.allocateNumber(DocumentType.SUPPLIER_ORDER, year()) }
             DocumentResult.Ready(stamp, data)
         }
 
