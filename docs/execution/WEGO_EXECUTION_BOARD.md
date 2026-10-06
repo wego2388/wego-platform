@@ -4523,7 +4523,11 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   - **Receipt number year:** the year in `RCT|CXL|PKM-YYYY-NNNNNN` is the Africa/Cairo
     year of the first print (not UTC, not the payment date); the sequence
     restarts each Cairo year.
-- **Owner answer (2026-10-07, «اعمل الافضل و انا موافق زي ما هي» / «زي ما هي»):** both
+- **Owner decision update (2026-10-07, «موافق على المقترح وأ وكمل»):** refund basis
+  = option (a), percentage of the amount actually collected; cancellation hours
+  now count to an assumed departure hour per slot (sunrise 04:00, morning 07:00,
+  afternoon 13:00, sunset 15:00, Cairo) instead of the start of the tour day.
+- **Earlier owner answer (2026-10-07, «اعمل الافضل و انا موافق زي ما هي» / «زي ما هي»):** both
   decisions below are approved as implemented; no logic change. Kept here as the
   recorded basis.
 - **Decisions (approved as is) (logic deliberately unchanged):** (1) refund basis when a

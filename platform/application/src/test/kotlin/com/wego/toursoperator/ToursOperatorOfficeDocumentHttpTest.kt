@@ -654,15 +654,39 @@ class ToursOperatorOfficeDocumentHttpTest {
 
     // ── cancellation / money-to-return form ──────────────────────────────────
 
+    /** Pins the cancellation time relative to the assumed departure hour (Cairo). */
+    private fun cancelledHoursBeforeDeparture(
+        bookingId: String,
+        date: LocalDate,
+        departureHour: Int,
+        hoursBefore: Long,
+    ) {
+        val at =
+            date
+                .atTime(departureHour, 0)
+                .atZone(java.time.ZoneId.of("Africa/Cairo"))
+                .minusHours(hoursBefore)
+                .toOffsetDateTime()
+        dsl
+            .update(com.wego.generated.jooq.tables.ToursOperatorBooking.TOURS_OPERATOR_BOOKING)
+            .set(com.wego.generated.jooq.tables.ToursOperatorBooking.TOURS_OPERATOR_BOOKING.CANCELLED_AT, at)
+            .where(
+                com.wego.generated.jooq.tables.ToursOperatorBooking.TOURS_OPERATOR_BOOKING.ID
+                    .eq(UUID.fromString(bookingId)),
+            ).execute()
+    }
+
     @Test
     fun `cancellation form computes the expected return from the policy and records no refund`() {
         setRate("50.0000")
-        // Tour two days ahead: the tour day starts between 24 and 48 hours away (half back).
-        val (_, slotId, _) = seedTourAndSlot("cancel-half", today().plusDays(2))
+        // Cancelled 30 h before the MORNING departure (07:00 Cairo): half back.
+        val halfDate = today().plusDays(2)
+        val (_, slotId, _) = seedTourAndSlot("cancel-half", halfDate)
         val id = newOffice(slotId)
         collect(id, "40.00")
         collect(id, "20.00", method = "MOBILE_WALLET", reference = "WAL-123456")
         cancel(id)
+        cancelledHoursBeforeDeparture(id, halfDate, 7, 30)
         val ledgerBefore =
             dsl.fetchCount(
                 TOURS_OPERATOR_OFFICE_COLLECTION,
@@ -685,15 +709,21 @@ class ToursOperatorOfficeDocumentHttpTest {
             .isEqualTo(ledgerBefore)
 
         // Far ahead: full refund; the day before: nothing.
-        val (_, farSlot, _) = seedTourAndSlot("cancel-full", LocalDate.of(2027, 9, 11))
+        val farDate = LocalDate.of(2027, 9, 11)
+        val (_, farSlot, _) = seedTourAndSlot("cancel-full", farDate)
         val far = newOffice(farSlot)
         collect(far, "40.00")
         cancel(far)
+        // 50 h before a 07:00 departure is 26 h before the tour day starts: the
+        // departure-hour rule (owner, 2026-10-07) still gives the full refund.
+        cancelledHoursBeforeDeparture(far, farDate, 7, 50)
         assertThat(JsonPath.read<String>(printed("bookings/$far/cancellation-form"), "$.data.expectedReturn.amount")).isEqualTo("40.00")
-        val (_, nearSlot, _) = seedTourAndSlot("cancel-none", today().plusDays(1))
+        val nearDate = today().plusDays(1)
+        val (_, nearSlot, _) = seedTourAndSlot("cancel-none", nearDate)
         val near = newOffice(nearSlot)
         collect(near, "40.00")
         cancel(near)
+        cancelledHoursBeforeDeparture(near, nearDate, 7, 20)
         assertThat(JsonPath.read<String>(printed("bookings/$near/cancellation-form"), "$.data.expectedReturn.amount")).isEqualTo("0.00")
     }
 

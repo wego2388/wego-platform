@@ -365,7 +365,9 @@ class OfficeDocumentService(
                     language,
                     actorUserId,
                     fingerprint(
-                        rows.map { "${it.id.value}|${it.pricing.adultsCount}|${it.pricing.childrenCount}|${it.pricing.unit?.optionLabel}|${it.pricing.unit?.unitCount}|${it.specialRequests}" },
+                        rows.map {
+                            "${it.id.value}|${it.pricing.adultsCount}|${it.pricing.childrenCount}|${it.pricing.unit?.optionLabel}|${it.pricing.unit?.unitCount}|${it.specialRequests}"
+                        },
                     ),
                 ) { printRepository.allocateNumber(DocumentType.SUPPLIER_ORDER, year()) }
             DocumentResult.Ready(stamp, data)
@@ -388,8 +390,13 @@ class OfficeDocumentService(
             if (net.signum() <= 0) return@runInTransaction DocumentResult.Refused("no_cash_collected")
             val tour = tourRepository.findById(booking.tourId)
             val policy = tour?.cancellationPolicy ?: com.wego.toursoperator.domain.CancellationPolicy.STANDARD
-            val tourDayStart = booking.tourDate.atStartOfDay(CAIRO).toInstant()
-            val hours = Duration.between(cancelledAt, tourDayStart).toHours()
+            // Owner-approved assumed departure hour per time slot (2026-10-07).
+            val departure =
+                booking.tourDate
+                    .atTime(booking.timeSlot.assumedDepartureHour, 0)
+                    .atZone(CAIRO)
+                    .toInstant()
+            val hours = Duration.between(cancelledAt, departure).toHours()
             val percent = CancellationRefund.percent(policy, hours)
             val expected = net.multiply(BigDecimal(percent)).divide(BigDecimal(100), Money.REQUIRED_SCALE, RoundingMode.HALF_UP)
             val rate = fxRateRepository.latestFor(FxRateService.todayInSharm(clock))
