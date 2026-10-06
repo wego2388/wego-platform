@@ -2,6 +2,9 @@
 import { computed, ref } from "vue";
 import SiteSubHeader from "../components/SiteSubHeader.vue";
 import { directionFor, type SharmLocale } from "../content/locales";
+import { useDevOnlyPage } from "../composables/useDevOnlyPage";
+
+useDevOnlyPage();
 
 const locale = ref<SharmLocale>("en");
 const direction = computed(() => directionFor(locale.value));
