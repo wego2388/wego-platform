@@ -26,7 +26,7 @@ useHead({
 <template>
   <a
     href="#main-content"
-    class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-full focus:bg-sharm-sea focus:px-5 focus:py-3 focus:font-semibold focus:text-white rtl:focus:right-3 rtl:focus:left-auto"
+    class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-full focus:bg-sharm-action focus:px-5 focus:py-3 focus:font-semibold focus:text-white rtl:focus:right-3 rtl:focus:left-auto"
   >
     {{ copy.skipToContent }}
   </a>

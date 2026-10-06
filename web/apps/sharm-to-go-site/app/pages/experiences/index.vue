@@ -114,11 +114,16 @@ onMounted(async () => {
         </span>
         <h1 class="font-display mt-6 text-3xl font-semibold tracking-tight sm:text-5xl">{{ copy.catalog.heading }}</h1>
 
-        <div class="mt-8 flex flex-wrap gap-2" role="tablist" :aria-label="copy.browse.allCategories">
+        <!-- role="group", not "tablist": these buttons filter a list in
+             place, they don't switch between tabpanel content — a real
+             tablist requires role="tab" children plus arrow-key
+             navigation, neither of which this implements. axe correctly
+             flagged the mismatch (aria-required-children). -->
+        <div class="mt-8 flex flex-wrap gap-2" role="group" :aria-label="copy.browse.allCategories">
           <button
             type="button"
             class="rounded-full border px-4 py-2 text-sm font-semibold transition-transform hover:-translate-y-0.5"
-            :class="selectedCategoryId === '' ? 'border-sharm-sea bg-sharm-sea text-white' : 'border-sharm-border bg-sharm-surface text-sharm-sea'"
+            :class="selectedCategoryId === '' ? 'border-sharm-action bg-sharm-action text-white' : 'border-sharm-border bg-sharm-surface text-sharm-sea'"
             @click="selectCategory('')"
           >
             {{ copy.browse.allCategories }}
@@ -128,7 +133,7 @@ onMounted(async () => {
             :key="category.id"
             type="button"
             class="rounded-full border px-4 py-2 text-sm font-semibold transition-transform hover:-translate-y-0.5"
-            :class="selectedCategoryId === category.id ? `${accentForIndex(index).solid} border-transparent text-white` : `${accentForIndex(index).ring} bg-sharm-surface ${accentForIndex(index).text}`"
+            :class="selectedCategoryId === category.id ? `${accentForIndex(index).solid} border-transparent ${accentForIndex(index).onSolidText}` : `${accentForIndex(index).ring} bg-sharm-surface ${accentForIndex(index).text}`"
             @click="selectCategory(category.id)"
           >
             {{ category.name[locale] }}
@@ -183,7 +188,7 @@ onMounted(async () => {
       </div>
 
       <div class="mt-10 flex flex-wrap gap-3">
-        <NuxtLink to="/" class="inline-flex rounded-full bg-sharm-sea px-6 py-3 font-semibold text-white">
+        <NuxtLink to="/" class="inline-flex rounded-full bg-sharm-action px-6 py-3 font-semibold text-white">
           {{ copy.catalog.back }}
         </NuxtLink>
       </div>

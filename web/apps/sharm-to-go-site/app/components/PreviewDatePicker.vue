@@ -30,7 +30,7 @@ const emit = defineEmits<{ select: [id: string] }>();
     >
       <span class="block text-xs font-medium">{{ date.day[locale] }}</span>
       <span class="mt-1 block text-xl font-semibold">{{ date.number }}</span>
-      <span v-if="date.available" class="money mt-3 block text-xs font-semibold text-sharm-sea">
+      <span v-if="date.available" class="money mt-3 block text-xs font-semibold text-sharm-action">
         <span class="sr-only">{{ fromLabel }} </span>{{ formatPreviewMoney(locale, 1450 + date.priceDelta) }}
       </span>
       <span v-else class="mt-3 block text-xs">{{ unavailableLabel }}</span>

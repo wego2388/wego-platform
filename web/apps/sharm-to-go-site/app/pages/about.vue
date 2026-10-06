@@ -29,15 +29,15 @@ useHead(() => ({
         <p v-for="paragraph in copy.aboutPage.story" :key="paragraph">{{ paragraph }}</p>
         <p class="font-display text-2xl font-semibold text-sharm-sea">Sharm To Go. Where you must go.</p>
       </div>
-      <aside class="rounded-[2rem] bg-sharm-sea p-8 text-white shadow-xl shadow-sharm-sea/15">
+      <aside class="rounded-[2rem] bg-sharm-action p-8 text-white shadow-xl shadow-sharm-sea/15">
         <h2 class="font-display text-2xl font-semibold">{{ copy.aboutPage.promiseHeading }}</h2>
         <ul class="mt-6 space-y-4">
           <li v-for="promise in copy.aboutPage.promises" :key="promise" class="flex gap-3">
-            <span class="grid size-6 shrink-0 place-items-center rounded-full bg-sharm-sun font-bold text-sharm-ink">✓</span>
+            <span class="grid size-6 shrink-0 place-items-center rounded-full bg-sharm-sun font-bold text-sharm-on-sun">✓</span>
             <span>{{ promise }}</span>
           </li>
         </ul>
-        <NuxtLink to="/contact" class="mt-8 inline-flex rounded-full bg-sharm-sun px-6 py-3 font-bold text-sharm-ink">
+        <NuxtLink to="/contact" class="mt-8 inline-flex rounded-full bg-sharm-sun px-6 py-3 font-bold text-sharm-on-sun">
           {{ copy.aboutPage.cta }}
         </NuxtLink>
       </aside>

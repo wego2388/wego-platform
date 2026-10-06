@@ -154,7 +154,7 @@ function restart() {
                 :key="language.id"
                 type="button"
                 class="min-h-11 rounded-full border px-5 text-sm font-semibold"
-                :class="selectedLanguageId === language.id ? 'border-sharm-sea bg-sharm-sea text-white' : 'border-sharm-border bg-sharm-surface'"
+                :class="selectedLanguageId === language.id ? 'border-sharm-action bg-sharm-action text-white' : 'border-sharm-border bg-sharm-surface'"
                 :aria-pressed="selectedLanguageId === language.id"
                 @click="selectedLanguageId = language.id"
               >
@@ -171,7 +171,7 @@ function restart() {
                 :key="time"
                 type="button"
                 class="min-h-11 rounded-xl border px-5 font-semibold"
-                :class="selectedTime === time ? 'border-sharm-sea bg-sharm-lagoon text-sharm-sea' : 'border-sharm-border'"
+                :class="selectedTime === time ? 'border-sharm-sea bg-sharm-lagoon text-sharm-action' : 'border-sharm-border'"
                 :aria-pressed="selectedTime === time"
                 @click="selectedTime = time"
               >
@@ -284,7 +284,7 @@ function restart() {
         <div class="mt-6 grid gap-3">
           <button
             type="button"
-            class="min-h-12 rounded-full bg-sharm-sea px-6 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-45"
+            class="min-h-12 rounded-full bg-sharm-action px-6 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-45"
             :disabled="currentStep === 'payment' && !acceptedPolicy"
             @click="continueFlow"
           >
@@ -305,7 +305,7 @@ function restart() {
           </div>
           <button
             type="button"
-            class="min-h-12 rounded-full bg-sharm-sea px-5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-45"
+            class="min-h-12 rounded-full bg-sharm-action px-5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-45"
             :disabled="currentStep === 'payment' && !acceptedPolicy"
             @click="continueFlow"
           >
@@ -320,7 +320,7 @@ function restart() {
         <div class="mx-auto grid size-16 place-items-center rounded-full bg-sharm-success-soft text-3xl text-sharm-success" aria-hidden="true">✓</div>
         <h2 ref="stepHeading" tabindex="-1" class="font-display mt-6 text-3xl font-semibold">{{ copy.completeHeading }}</h2>
         <p class="mx-auto mt-4 max-w-xl leading-7 text-sharm-muted">{{ copy.completeBody }}</p>
-        <button type="button" class="mt-8 min-h-12 rounded-full bg-sharm-sea px-6 font-semibold text-white" @click="restart">{{ copy.restart }}</button>
+        <button type="button" class="mt-8 min-h-12 rounded-full bg-sharm-action px-6 font-semibold text-white" @click="restart">{{ copy.restart }}</button>
       </div>
     </section>
   </main>

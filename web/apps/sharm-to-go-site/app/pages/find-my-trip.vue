@@ -87,7 +87,7 @@ const cards = computed(() => categories.value.map((category) => ({ category, vib
         </NuxtLink>
       </div>
 
-      <NuxtLink to="/experiences" class="mt-10 inline-flex rounded-full bg-sharm-sea px-6 py-3 font-semibold text-white">
+      <NuxtLink to="/experiences" class="mt-10 inline-flex rounded-full bg-sharm-action px-6 py-3 font-semibold text-white">
         {{ copy.finderPage.back }}
       </NuxtLink>
     </section>

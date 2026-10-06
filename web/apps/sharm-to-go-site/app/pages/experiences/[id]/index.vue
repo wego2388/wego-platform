@@ -118,7 +118,7 @@ onMounted(async () => {
       <div v-else-if="state === 'not-found'" class="rounded-[2rem] border border-black/5 bg-sharm-surface p-8 text-center shadow-sm sm:p-12">
         <h1 class="text-2xl font-semibold">{{ copy.detail.notFoundHeading }}</h1>
         <p class="mx-auto mt-3 max-w-xl leading-7 text-sharm-muted">{{ copy.detail.notFoundBody }}</p>
-        <NuxtLink to="/experiences" class="mt-6 inline-flex rounded-full bg-sharm-sea px-6 py-3 font-semibold text-white">
+        <NuxtLink to="/experiences" class="mt-6 inline-flex rounded-full bg-sharm-action px-6 py-3 font-semibold text-white">
           {{ copy.detail.back }}
         </NuxtLink>
       </div>
@@ -149,7 +149,7 @@ onMounted(async () => {
           </ul>
           <NuxtLink
             :to="{ path: `/experiences/${service.id}/request`, query: forwardedQuery }"
-            class="mt-5 inline-flex w-full items-center justify-center rounded-full bg-sharm-sea px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-sharm-sea/20 transition-transform hover:-translate-y-0.5 hover:shadow-xl sm:w-auto"
+            class="mt-5 inline-flex w-full items-center justify-center rounded-full bg-sharm-action px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-sharm-sea/20 transition-transform hover:-translate-y-0.5 hover:shadow-xl sm:w-auto"
           >
             {{ copy.detail.requestCta }}
           </NuxtLink>
@@ -185,7 +185,7 @@ onMounted(async () => {
               :href="whatsappLink(copy.detail.whatsappMessage(service.name[locale]))"
               target="_blank"
               rel="noopener"
-              class="inline-flex rounded-full bg-sharm-sea px-5 py-2.5 text-sm font-semibold text-white"
+              class="inline-flex rounded-full bg-sharm-action px-5 py-2.5 text-sm font-semibold text-white"
             >
               {{ copy.detail.whatsappCta }}
             </a>

@@ -13,6 +13,13 @@
   --color-sharm-sun: var(--stg-color-brand-sun);
   --color-sharm-sky: var(--stg-color-brand-sky);
   --color-sharm-terracotta: var(--stg-color-brand-terracotta);
+  --color-sharm-action: var(--stg-color-action);
+  --color-sharm-sky-solid: var(--stg-color-sky-solid);
+  --color-sharm-terracotta-solid: var(--stg-color-terracotta-solid);
+  --color-sharm-sun-text: var(--stg-color-sun-text);
+  --color-sharm-sky-text: var(--stg-color-sky-text);
+  --color-sharm-terracotta-text: var(--stg-color-terracotta-text);
+  --color-sharm-on-sun: var(--stg-color-on-sun);
   --color-sharm-canvas: var(--stg-color-surface-canvas);
   --color-sharm-surface: var(--stg-color-surface-default);
   --color-sharm-border: var(--stg-color-border-default);
@@ -28,6 +35,34 @@
   --font-display: var(--wego-font-display);
 }
 
+/*
+ * color-contrast fixes (axe-core, WCAG 2.1 AA — see
+ * e2e/tests/sharm-to-go-accessibility.spec.ts), computed and verified
+ * against the real sRGB relative-luminance formula, not eyeballed:
+ *
+ * --stg-color-action: brand-sea's own role was split in two by the dark-
+ * mode block below — brightened for its *text* use (nav links, prices),
+ * which broke its *other* use as a solid button/section background with
+ * white text on top (2.11:1 in dark mode, needs 4.5:1). A single color
+ * cannot be both "light enough to read as text on a dark canvas" and
+ * "dark enough to host white button text" at once. This token keeps the
+ * original, always-safe #075f67 (7.39:1 vs white) for every solid
+ * button/badge background; brand-sea itself is untouched and keeps
+ * brightening correctly for text.
+ *
+ * --stg-color-{sky,terracotta}-solid: the raw brand-sky/brand-terracotta
+ * values are marginal-to-failing as backgrounds under white pill text
+ * (4.48:1 / 4.24:1, both below 4.5) — darkened ~5% to a fixed, mode-
+ * invariant shade that comfortably clears it (4.86:1 / 4.62:1).
+ *
+ * --stg-color-{sun,sky,terracotta}-text: the same three hues used
+ * directly as *text* color (category labels) failed against both a white
+ * page (sun 1.99:1, sky 4.48:1, terracotta 4.24:1) and the dark canvas
+ * (sky 3.01:1, terracotta 3.17:1) — sun's dark-canvas pairing already
+ * passed (6.76:1) so only its light-mode value changes below. Each got
+ * its own light-mode-darkened / dark-mode-lightened pair, mirroring
+ * brand-sea's own light/dark split; sun's dark value is unchanged.
+ */
 :root {
   --stg-color-brand-sea: #075f67;
   --stg-color-brand-sea-bright: #0b8691;
@@ -36,6 +71,23 @@
   --stg-color-brand-sun: #f2a93b;
   --stg-color-brand-sky: #2f7fa3;
   --stg-color-brand-terracotta: #c8593a;
+  --stg-color-action: #075f67;
+  --stg-color-sky-solid: #2d799b;
+  --stg-color-terracotta-solid: #be5537;
+  --stg-color-sun-text: #916523;
+  --stg-color-sky-text: #2d799b;
+  --stg-color-terracotta-text: #be5537;
+  /*
+   * Fixed, never overridden for dark mode — unlike --stg-color-text-
+   * primary (which correctly inverts to near-white for the page's own
+   * body text), this pairs only with --stg-color-brand-sun, a background
+   * that itself never changes between modes. Reusing the mode-reactive
+   * ink token here was a real bug caught before shipping: it inverts to
+   * near-white (#f7fbfa) in dark mode, which against unchanged sun
+   * (#f2a93b) is 1.92:1 — worse than the white-text failure this whole
+   * fix exists to solve. #102f35 against sun is 7.1:1 in both modes.
+   */
+  --stg-color-on-sun: #102f35;
   --stg-color-surface-canvas: #f7fbfa;
   --stg-color-surface-default: #ffffff;
   --stg-color-text-primary: #102f35;
@@ -69,18 +121,24 @@ html {
  * canvas/surface/text/border invert for real page/card contrast; brand-sea
  * brightens since it's used as *text* everywhere (nav links, prices,
  * eyebrow labels) and the original near-black teal would fail contrast on
- * a dark canvas. sun/sky/terracotta are deliberately left unchanged — all
- * three are mid-to-bright hues already legible on a dark surface, unlike
- * sea. lagoon/sand are also left unchanged on purpose: both are only ever
- * used as *light* icon-badge fills paired with dark text on top (category
- * cards), not as a role-based surface — flipping them dark would break
- * that specific pairing's contrast, the same trap sharm-divers-club-site's
- * own dark-mode entry documented for its equivalent tokens.
+ * a dark canvas. --stg-color-action (above) is the fixed, mode-invariant
+ * counterpart for brand-sea's *other* role (solid button/badge
+ * backgrounds under white text), which the brightened brand-sea broke —
+ * see that token's own comment. sun/sky/terracotta's *text* roles
+ * (--stg-color-{sun,sky,terracotta}-text) get real dark-mode values below
+ * too — axe proved they were NOT already legible against the dark surface
+ * (sky 3.01:1, terracotta 3.17:1; sun's was already fine, unchanged).
+ * lagoon/sand stay fixed on purpose — both are only ever light icon-badge
+ * fills paired with --stg-color-action (also fixed), never with a
+ * mode-reactive text token, so they never need their own dark variant.
  */
 @media (prefers-color-scheme: dark) {
   :root {
     --stg-color-surface-canvas: #0a2124;
     --stg-color-surface-default: #123338;
+    --stg-color-sun-text: #f2a93b;
+    --stg-color-sky-text: #639fba;
+    --stg-color-terracotta-text: #d6826b;
     --stg-color-text-primary: #f7fbfa;
     --stg-color-text-secondary: #a9cbc9;
     --stg-color-border-default: #234b50;

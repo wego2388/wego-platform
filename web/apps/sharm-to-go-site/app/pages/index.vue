@@ -18,7 +18,11 @@ useHead(() => ({
   },
 }));
 
-const stepAccents = ["bg-sharm-sun text-sharm-ink", "bg-white text-sharm-sea", "bg-sharm-sun text-sharm-ink"];
+// text-sharm-on-sun, not text-sharm-ink: ink inverts to near-white in dark
+// mode, which against sun's own always-#f2a93b background is 1.92:1 (axe:
+// color-contrast) — the same fixed-dark-on-fixed-sun pairing main.css's
+// --stg-color-on-sun token exists for.
+const stepAccents = ["bg-sharm-sun text-sharm-on-sun", "bg-white text-sharm-sea", "bg-sharm-sun text-sharm-on-sun"];
 
 // The nav below md was simply `hidden`, with no mobile equivalent at all —
 // a real gap, not a deliberate simplification (the desktop nav has 5 real
@@ -140,13 +144,13 @@ function submitSearch() {
           <div class="mt-9 flex flex-wrap gap-3">
             <NuxtLink
               to="/experiences"
-              class="rounded-full bg-sharm-sea px-6 py-3 font-semibold text-white shadow-lg shadow-sharm-sea/20 transition-transform hover:-translate-y-0.5 hover:shadow-xl"
+              class="rounded-full bg-sharm-action px-6 py-3 font-semibold text-white shadow-lg shadow-sharm-sea/20 transition-transform hover:-translate-y-0.5 hover:shadow-xl"
             >
               {{ copy.hero.browse }}
             </NuxtLink>
             <NuxtLink
               to="/find-my-trip"
-              class="rounded-full border border-sharm-sun bg-sharm-sand px-6 py-3 font-semibold text-sharm-ink transition-transform hover:-translate-y-0.5"
+              class="rounded-full border border-sharm-sun bg-sharm-sand px-6 py-3 font-semibold text-sharm-on-sun transition-transform hover:-translate-y-0.5"
             >
               {{ copy.finderNav }}
             </NuxtLink>
@@ -208,11 +212,11 @@ function submitSearch() {
           </div>
           <button
             type="submit"
-            class="mt-4 w-full rounded-full bg-sharm-sea px-6 py-3 font-semibold text-white shadow-lg shadow-sharm-sea/20 transition-transform hover:-translate-y-0.5 hover:shadow-xl"
+            class="mt-4 w-full rounded-full bg-sharm-action px-6 py-3 font-semibold text-white shadow-lg shadow-sharm-sea/20 transition-transform hover:-translate-y-0.5 hover:shadow-xl"
           >
             {{ copy.search.searchButton }}
           </button>
-          <div class="mt-4 rounded-2xl bg-sharm-lagoon p-4 text-sm leading-6 text-sharm-sea">
+          <div class="mt-4 rounded-2xl bg-sharm-lagoon p-4 text-sm leading-6 text-sharm-action">
             {{ copy.marketplaceNotice }}
           </div>
         </form>
@@ -229,7 +233,7 @@ function submitSearch() {
           </NuxtLink>
         </div>
         <dl class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div v-for="fact in copy.proof.facts" :key="fact.value" class="rounded-2xl bg-sharm-lagoon p-5 text-center text-sharm-sea">
+          <div v-for="fact in copy.proof.facts" :key="fact.value" class="rounded-2xl bg-sharm-lagoon p-5 text-center text-sharm-action">
             <dt class="font-display text-2xl font-bold sm:text-3xl">{{ fact.value }}</dt>
             <dd class="mt-2 text-xs font-semibold leading-5">{{ fact.label }}</dd>
           </div>
@@ -261,7 +265,7 @@ function submitSearch() {
       </div>
     </section>
 
-    <section id="how" class="relative overflow-hidden bg-sharm-sea px-6 py-20 text-white lg:px-10">
+    <section id="how" class="relative overflow-hidden bg-sharm-action px-6 py-20 text-white lg:px-10">
       <div class="pointer-events-none absolute top-0 right-0 size-96 rounded-full bg-sharm-sun/10 blur-3xl" aria-hidden="true" />
       <div class="relative mx-auto max-w-7xl">
         <h2 v-reveal class="sharm-reveal font-display text-3xl font-semibold tracking-tight sm:text-4xl">{{ copy.how.heading }}</h2>
@@ -294,7 +298,7 @@ function submitSearch() {
           class="sharm-reveal sharm-card-lift flex items-start gap-3 rounded-2xl border border-black/5 bg-sharm-surface p-5 font-semibold"
           :style="{ transitionDelay: `${index * 60}ms` }"
         >
-          <span class="grid size-6 shrink-0 place-items-center rounded-full bg-sharm-lagoon text-sharm-sea-bright">✓</span>
+          <span class="grid size-6 shrink-0 place-items-center rounded-full bg-sharm-lagoon text-sharm-action">✓</span>
           {{ point }}
         </li>
       </ul>

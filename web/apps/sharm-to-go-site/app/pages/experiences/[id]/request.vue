@@ -221,7 +221,7 @@ async function copySummary() {
       </div>
       <div v-else-if="loadState === 'not-found'" class="rounded-[2rem] border border-black/5 bg-sharm-surface p-8 text-center shadow-sm">
         <h1 class="text-2xl font-semibold">{{ copy.detail.notFoundHeading }}</h1>
-        <NuxtLink to="/experiences" class="mt-6 inline-flex rounded-full bg-sharm-sea px-6 py-3 font-semibold text-white">
+        <NuxtLink to="/experiences" class="mt-6 inline-flex rounded-full bg-sharm-action px-6 py-3 font-semibold text-white">
           {{ copy.detail.back }}
         </NuxtLink>
       </div>
@@ -315,7 +315,7 @@ async function copySummary() {
             <textarea id="notes" v-model="notes" rows="3" class="mt-2 w-full rounded-xl border border-sharm-border p-4 font-normal" />
           </div>
 
-          <button type="submit" class="w-full min-h-12 rounded-full bg-sharm-sea font-semibold text-white">
+          <button type="submit" class="w-full min-h-12 rounded-full bg-sharm-action font-semibold text-white">
             {{ copy.request.continueButton }}
           </button>
         </form>
@@ -361,7 +361,7 @@ async function copySummary() {
             <button type="button" class="min-h-12 rounded-full border border-sharm-border px-6 font-semibold" @click="step = 'party'">
               {{ copy.request.backButton }}
             </button>
-            <button type="submit" class="flex-1 min-h-12 rounded-full bg-sharm-sea font-semibold text-white">
+            <button type="submit" class="flex-1 min-h-12 rounded-full bg-sharm-action font-semibold text-white">
               {{ copy.request.continueButton }}
             </button>
           </div>
@@ -370,7 +370,7 @@ async function copySummary() {
         <!-- Step 3: review -->
         <div v-else-if="step === 'review'" class="mt-8 space-y-6">
           <h2 class="text-lg font-semibold">{{ copy.request.reviewHeading }}</h2>
-          <p class="rounded-xl bg-sharm-lagoon p-4 text-sm leading-6 text-sharm-sea">{{ copy.request.reviewNote }}</p>
+          <p class="rounded-xl bg-sharm-lagoon p-4 text-sm leading-6 text-sharm-action">{{ copy.request.reviewNote }}</p>
 
           <dl class="grid gap-3 text-sm">
             <div class="flex justify-between gap-3"><dt class="text-sharm-muted">{{ copy.request.reviewService }}</dt><dd class="font-semibold">{{ service.name[locale] }} — {{ selectedOption?.label[locale] }}</dd></div>
@@ -397,7 +397,7 @@ async function copySummary() {
             <button type="button" class="min-h-12 rounded-full border border-sharm-border px-6 font-semibold" :disabled="submitState === 'submitting'" @click="step = 'contact'">
               {{ copy.request.backButton }}
             </button>
-            <button type="button" class="flex-1 min-h-12 rounded-full bg-sharm-sea font-semibold text-white disabled:opacity-60" :disabled="submitState === 'submitting'" @click="submit">
+            <button type="button" class="flex-1 min-h-12 rounded-full bg-sharm-action font-semibold text-white disabled:opacity-60" :disabled="submitState === 'submitting'" @click="submit">
               {{ submitState === "submitting" ? copy.request.submittingButton : copy.request.submitButton }}
             </button>
           </div>
@@ -414,8 +414,8 @@ async function copySummary() {
           </p>
 
           <div class="rounded-2xl border border-sharm-sea/25 bg-sharm-lagoon p-6">
-            <p class="text-xs font-bold tracking-[0.12em] text-sharm-sea uppercase">{{ copy.request.referenceLabel }}</p>
-            <p class="reference mt-2 text-2xl font-semibold text-sharm-sea">{{ result.reference }}</p>
+            <p class="text-xs font-bold tracking-[0.12em] text-sharm-action uppercase">{{ copy.request.referenceLabel }}</p>
+            <p class="reference mt-2 text-2xl font-semibold text-sharm-action">{{ result.reference }}</p>
           </div>
 
           <div class="flex flex-wrap justify-center gap-3">

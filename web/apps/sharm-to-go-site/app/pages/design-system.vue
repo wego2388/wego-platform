@@ -44,12 +44,12 @@ const copy = computed(() => locale.value === "en" ? {
 });
 
 const swatches = [
-  { name: "Sea / primary", className: "bg-sharm-sea text-white", value: "#075f67" },
-  { name: "Lagoon / selected", className: "bg-sharm-lagoon text-sharm-ink", value: "#d8f1ef" },
-  { name: "Sand / warmth", className: "bg-sharm-sand text-sharm-ink", value: "#f4dec0" },
-  { name: "Sun / focus", className: "bg-sharm-sun text-sharm-ink", value: "#f2a93b" },
-  { name: "Sky / transfers", className: "bg-sharm-sky text-white", value: "#2f7fa3" },
-  { name: "Terracotta / city", className: "bg-sharm-terracotta text-white", value: "#c8593a" },
+  { name: "Sea / primary", className: "bg-sharm-action text-white", value: "#075f67" },
+  { name: "Lagoon / selected", className: "bg-sharm-lagoon text-sharm-action", value: "#d8f1ef" },
+  { name: "Sand / warmth", className: "bg-sharm-sand text-sharm-on-sun", value: "#f4dec0" },
+  { name: "Sun / focus", className: "bg-sharm-sun text-sharm-on-sun", value: "#f2a93b" },
+  { name: "Sky / transfers", className: "bg-sharm-sky-solid text-white", value: "#2f7fa3" },
+  { name: "Terracotta / city", className: "bg-sharm-terracotta-solid text-white", value: "#c8593a" },
   { name: "Canvas", className: "bg-sharm-canvas text-sharm-ink", value: "#f7fbfa" },
   { name: "Ink", className: "bg-sharm-ink text-white", value: "#102f35" },
 ];
@@ -94,7 +94,7 @@ useHead(() => ({
       <section class="rounded-[1.75rem] border border-sharm-border bg-sharm-surface p-6">
         <h2 class="text-xl font-semibold">{{ copy.controls }}</h2>
         <div class="mt-6 flex flex-wrap gap-3">
-          <button type="button" class="min-h-11 rounded-full bg-sharm-sea px-5 font-semibold text-white">{{ copy.primary }}</button>
+          <button type="button" class="min-h-11 rounded-full bg-sharm-action px-5 font-semibold text-white">{{ copy.primary }}</button>
           <button type="button" class="min-h-11 rounded-full border border-sharm-border px-5 font-semibold text-sharm-sea">{{ copy.secondary }}</button>
         </div>
         <label class="mt-6 grid gap-2 text-sm font-semibold">

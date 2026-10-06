@@ -41,7 +41,7 @@ function search() {
           :placeholder="copy.track.inputPlaceholder"
           class="mt-2 w-full min-h-12 rounded-xl border border-sharm-border px-4 font-normal"
         >
-        <button type="submit" class="mt-4 w-full min-h-12 rounded-full bg-sharm-sea font-semibold text-white">
+        <button type="submit" class="mt-4 w-full min-h-12 rounded-full bg-sharm-action font-semibold text-white">
           {{ copy.track.searchButton }}
         </button>
       </form>

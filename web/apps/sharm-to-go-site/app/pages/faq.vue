@@ -24,7 +24,7 @@ useHead(() => ({ title: locale.value === "ar" ? "الأسئلة الشائعة �
           </details>
         </div>
       </section>
-      <section class="my-12 rounded-[2rem] bg-sharm-lagoon p-7 text-sharm-sea">
+      <section class="my-12 rounded-[2rem] bg-sharm-lagoon p-7 text-sharm-action">
         <h2 class="font-display text-2xl font-semibold">{{ copy.faqPage.unknownHeading }}</h2>
         <p class="mt-3 leading-7">{{ copy.faqPage.unknownBody }}</p>
         <ul class="mt-5 list-disc space-y-2 ps-5">
