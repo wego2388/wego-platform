@@ -11,13 +11,16 @@ import { useErpLocale } from "../composables/useErpLocale";
 import type { ErpMessageDescriptor } from "../utils/bookingMessages";
 import { COLLECTION_METHODS, methodNeedsReference, normalizeReference, officeErrorMessage, parseAmount } from "../utils/officeBooking";
 import OfficePaymentBadge from "./OfficePaymentBadge.vue";
+import { docMessage } from "../utils/documentMessages";
+import { documentPath } from "../utils/documentFormat";
 
 const props = defineProps<{ booking: Booking; session: AuthSession }>();
 const emit = defineEmits<{ changed: [] }>();
-const { t, money, instantLabel } = useErpLocale();
+const { t, locale, money, instantLabel } = useErpLocale();
 
 const canCollect = computed(() => hasPermission(props.session, "tours-operator.booking:collect-cash"));
 const canReverse = computed(() => hasPermission(props.session, "tours-operator.booking:reverse-collection"));
+const canPrint = computed(() => hasPermission(props.session, "tours-operator.document:print"));
 const canManageFx = computed(() => hasPermission(props.session, "tours-operator.fx-rate:manage"));
 const open = computed(() => props.booking.status === "CONFIRMED" || props.booking.status === "COMPLETED");
 const pay = computed(() => props.booking.officePayment);
@@ -191,6 +194,7 @@ watch(() => props.booking.id, refresh);
         <p v-else class="text-xs text-sts-muted">{{ t('office.collect.recordedBy', whoWhen(e)) }}</p>
         <p v-if="e.correctsCollectionId" class="text-xs text-sts-muted">{{ t('office.collect.corrects') }}</p>
         <p v-if="e.kind === 'COLLECTION' && reversalOf(e.id)" class="text-xs">{{ t('office.collect.reversedBy', { ...whoWhen(reversalOf(e.id)!), reason: reversalOf(e.id)!.reason ?? '' }) }}</p>
+        <NuxtLink v-if="canPrint && e.kind === 'COLLECTION'" :to="documentPath('receipt', e.id)" class="mt-2 inline-block text-xs font-semibold text-sts-ocean-mid hover:underline">{{ docMessage(locale, 'doc.ui.printReceipt') }}</NuxtLink>
         <WegoButton v-if="canCollect && open && e.kind === 'COLLECTION' && e.reference && reversedIds.has(e.id) && !isCorrected(e.id)" type="button" variant="secondary" size="sm" class="mt-2" @click="startCorrection(e)">{{ t('office.collect.correct') }}</WegoButton>
         <div v-if="canReverse && e.kind === 'COLLECTION' && !reversedIds.has(e.id)" class="mt-2">
           <WegoButton v-if="reversing !== e.id" type="button" variant="secondary" size="sm" @click="reversing = e.id; reverseReason = ''; reverseTouched = false">{{ t('office.collect.reverse') }}</WegoButton>

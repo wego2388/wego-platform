@@ -21,6 +21,11 @@ import type {
   PaidCurrency,
   FxRate,
   FxRateToday,
+  VoucherDocument,
+  ReceiptDocument,
+  RunSheetDocument,
+  PickupManifestDocument,
+  CancellationFormDocument,
 } from "@wego/api-contract";
 
 export type {
@@ -49,6 +54,12 @@ export type {
   FxRate,
   FxRateToday,
   CreateOfficeBookingPayload,
+  DocumentStamp,
+  VoucherDocument,
+  ReceiptDocument,
+  RunSheetDocument,
+  PickupManifestDocument,
+  CancellationFormDocument,
 } from "@wego/api-contract";
 export { addMoney, divideMoney, formatMoney, minorUnitsToMoney, moneyToMinorUnits } from "@wego/api-contract";
 
@@ -398,3 +409,26 @@ export function unblockSlot(token: string, tourId: string, slotId: string) {
     { method: "PATCH" },
   );
 }
+
+// ── Office documents (OPS2-D) ────────────────────────────────────────────────
+// Each call records one print server-side (original, then reprints) and returns
+// the data the browser renders and prints. Nothing is stored as a PDF.
+
+export type DocumentLanguageCode = "en" | "ar";
+
+function printRequest<T>(token: string, path: string, body: Record<string, string>): Promise<T> {
+  return request<T>(`/api/v1/tours-operator/documents/${path}`, token, {
+    method: "POST", headers: JSON_HEADERS, body: JSON.stringify(body),
+  });
+}
+
+export const printVoucher = (token: string, bookingId: string, language: DocumentLanguageCode) =>
+  printRequest<VoucherDocument>(token, `bookings/${bookingId}/voucher`, { language });
+export const printReceipt = (token: string, collectionId: string, language: DocumentLanguageCode) =>
+  printRequest<ReceiptDocument>(token, `collections/${collectionId}/receipt`, { language });
+export const printCancellationForm = (token: string, bookingId: string, language: DocumentLanguageCode) =>
+  printRequest<CancellationFormDocument>(token, `bookings/${bookingId}/cancellation-form`, { language });
+export const printRunSheet = (token: string, date: string, language: DocumentLanguageCode) =>
+  printRequest<RunSheetDocument>(token, "run-sheet", { date, language });
+export const printPickupManifest = (token: string, slotId: string, language: DocumentLanguageCode) =>
+  printRequest<PickupManifestDocument>(token, `slots/${slotId}/pickup-manifest`, { language });

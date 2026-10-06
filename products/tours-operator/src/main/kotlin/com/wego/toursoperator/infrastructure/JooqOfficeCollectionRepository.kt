@@ -43,6 +43,19 @@ class JooqOfficeCollectionRepository(
             .map(::toDomain)
 
     @Transactional(readOnly = true)
+    override fun findById(id: UUID): OfficeCollection? =
+        dsl
+            .select(t.asterisk(), fx.RATE_DATE, fx.SET_BY_USER_ID, fx.SET_AT, IDENTITY_USER.EMAIL)
+            .from(t)
+            .leftJoin(fx)
+            .on(fx.ID.eq(t.FX_RATE_ID))
+            .leftJoin(IDENTITY_USER)
+            .on(IDENTITY_USER.ID.eq(t.RECORDED_BY_USER_ID))
+            .where(t.ID.eq(id))
+            .fetchOne()
+            ?.let(::toDomain)
+
+    @Transactional(readOnly = true)
     override fun referenceExists(
         method: CollectionMethod,
         reference: String,

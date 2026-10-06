@@ -46,6 +46,7 @@ class ProductIsolationIntegrationTest(
                 "28",
                 "29",
                 "30",
+                "31",
             )
 
         postgres.createConnection("").use { connection ->
@@ -69,6 +70,8 @@ class ProductIsolationIntegrationTest(
                     "tours_operator_payment_refund_event",
                     "tours_operator_office_collection",
                     "tours_operator_fx_rate",
+                    "tours_operator_document_print",
+                    "tours_operator_document_sequence",
                     "tours_operator_asset",
                     "tours_operator_asset_variant",
                     "tours_operator_category_media",
@@ -96,6 +99,8 @@ class ProductIsolationIntegrationTest(
                 "tours-operator.booking:reverse-collection",
                 "tours-operator.booking:view",
                 "tours-operator.content:publish",
+                "tours-operator.document:print",
+                "tours-operator.document:print-ops",
                 "tours-operator.fx-rate:manage",
                 "tours-operator.media:upload",
                 "tours-operator.notification:manage",

@@ -5614,6 +5614,220 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ToursOperatorErrorResponse"
+  /api/v1/tours-operator/documents/bookings/{id}/voucher:
+    post:
+      operationId: printToursOperatorVoucher
+      summary: Print the customer booking voucher
+      description: >-
+        Requires tours-operator.document:print. A draft (NEW) or expired booking is refused (booking_not_confirmed); a cancelled booking prints with valid=false (CANCELLED banner, no QR). The QR encodes only the public my-booking URL. Every call records one print in the append-only
+        register (version 1 the first time, then numbered reprints that keep the
+        document number). No PDF is generated or stored; the response is never
+        cached.
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PrintToursOperatorDocumentRequest"
+      responses:
+        "200":
+          description: Document data and its print stamp.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorVoucherDocument"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Not found.
+        "409":
+          description: booking_not_confirmed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorErrorResponse"
+  /api/v1/tours-operator/documents/collections/{id}/receipt:
+    post:
+      operationId: printToursOperatorReceipt
+      summary: Print the payment receipt of one office collection
+      description: >-
+        Requires tours-operator.document:print. The id is a COLLECTION entry (a reversal has no receipt: not_a_collection). A reversed payment returns reversed=true for the VOID / REVERSED watermark. The receipt number is sequential per year and immutable; the payment reference is masked but for its last 4 characters. Every call records one print in the append-only
+        register (version 1 the first time, then numbered reprints that keep the
+        document number). No PDF is generated or stored; the response is never
+        cached.
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PrintToursOperatorDocumentRequest"
+      responses:
+        "200":
+          description: Document data and its print stamp.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorReceiptDocument"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Not found.
+        "409":
+          description: not_a_collection.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorErrorResponse"
+  /api/v1/tours-operator/documents/bookings/{id}/cancellation-form:
+    post:
+      operationId: printToursOperatorCancellationForm
+      summary: Print the cancellation / money-to-return form
+      description: >-
+        Requires tours-operator.document:print. Only for a cancelled office booking that still holds collected cash (booking_not_cancelled, no_cash_collected, not_an_office_booking). Read-only: it records no refund. Every call records one print in the append-only
+        register (version 1 the first time, then numbered reprints that keep the
+        document number). No PDF is generated or stored; the response is never
+        cached.
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PrintToursOperatorDocumentRequest"
+      responses:
+        "200":
+          description: Document data and its print stamp.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorCancellationFormDocument"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Not found.
+        "409":
+          description: booking_not_cancelled, no_cash_collected or not_an_office_booking.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorErrorResponse"
+  /api/v1/tours-operator/documents/run-sheet:
+    post:
+      operationId: printToursOperatorRunSheet
+      summary: Print the daily run sheet
+      description: >-
+        Requires tours-operator.document:print-ops. Per tour and departure: guests, hotels, notes. Minimal personal data: lead name, hotel, room and guest count only — no phone numbers. Cancelled and unpaid online bookings are not listed. Every call records one print in the append-only
+        register (version 1 the first time, then numbered reprints that keep the
+        document number). No PDF is generated or stored; the response is never
+        cached.
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PrintToursOperatorRunSheetRequest"
+      responses:
+        "200":
+          description: Document data and its print stamp.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorRunSheetDocument"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+  /api/v1/tours-operator/documents/slots/{slotId}/pickup-manifest:
+    post:
+      operationId: printToursOperatorPickupManifest
+      summary: Print the pickup manifest of one departure
+      description: >-
+        Requires tours-operator.document:print-ops. Pickup order by hotel with lead name, room, phone and guests; driver and vehicle stay blank until assignments exist. Carries phone numbers, hence the separate permission. Every call records one print in the append-only
+        register (version 1 the first time, then numbered reprints that keep the
+        document number). No PDF is generated or stored; the response is never
+        cached.
+      tags:
+        - ToursOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: slotId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PrintToursOperatorDocumentRequest"
+      responses:
+        "200":
+          description: Document data and its print stamp.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToursOperatorPickupManifestDocument"
+        "400":
+          $ref: "#/components/responses/ToursOperatorValidationResponse"
+        "401":
+          $ref: "#/components/responses/UnauthenticatedResponse"
+        "403":
+          $ref: "#/components/responses/ForbiddenResponse"
+        "404":
+          description: Not found.
   /api/v1/tours-operator/staff/fx-rate/today:
     get:
       operationId: getToursOperatorFxRateToday
@@ -6609,6 +6823,595 @@ components:
           $ref: "#/components/schemas/ToursOperatorOfficeCollection"
         officePayment:
           $ref: "#/components/schemas/ToursOperatorOfficePayment"
+    PrintToursOperatorDocumentRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - language
+      properties:
+        language:
+          type: string
+          enum:
+          - en
+          - ar
+    PrintToursOperatorRunSheetRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - date
+      - language
+      properties:
+        date:
+          type: string
+          format: date
+        language:
+          type: string
+          enum:
+          - en
+          - ar
+    ToursOperatorDocumentStamp:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - number
+      - version
+      - language
+      - copy
+      - originalPrintedAt
+      - printedAt
+      - printedByEmail
+      properties:
+        type:
+          type: string
+          enum:
+          - VOUCHER
+          - RECEIPT
+          - RUN_SHEET
+          - PICKUP_MANIFEST
+          - CANCELLATION_FORM
+        number:
+          type: string
+          description: Immutable document number; reprints carry the original's.
+        version:
+          type: integer
+          minimum: 1
+          description: 1 = original, n = reprint.
+        language:
+          type: string
+          enum:
+          - en
+          - ar
+        copy:
+          type: boolean
+          description: 'True for a reprint: the page prints COPY / نسخة with the version and the original date.'
+        originalPrintedAt:
+          type: string
+          format: date-time
+        printedAt:
+          type: string
+          format: date-time
+        printedByEmail:
+          anyOf:
+          - type: string
+          - type: 'null'
+    ToursOperatorVoucherData:
+      type: object
+      additionalProperties: false
+      required:
+      - reference
+      - status
+      - valid
+      - channel
+      - tourNameEn
+      - tourNameAr
+      - tourDate
+      - timeSlot
+      - adultsCount
+      - childrenCount
+      - unit
+      - customerName
+      - hotelName
+      - hotelRoom
+      - totalPrice
+      - payment
+      - contentLanguage
+      - includes
+      - excludes
+      - knowBeforeYouGo
+      - meetingPoint
+      - myBookingUrl
+      properties:
+        reference:
+          type: string
+        status:
+          $ref: '#/components/schemas/ToursOperatorBookingStatus'
+        valid:
+          type: boolean
+          description: 'False for a cancelled booking: print a CANCELLED banner and no QR.'
+        channel:
+          $ref: '#/components/schemas/ToursOperatorBookingChannel'
+        tourNameEn:
+          type: string
+        tourNameAr:
+          anyOf:
+          - type: string
+          - type: 'null'
+        tourDate:
+          type: string
+          format: date
+        timeSlot:
+          $ref: '#/components/schemas/ToursOperatorTimeSlot'
+        adultsCount:
+          type: integer
+        childrenCount:
+          type: integer
+        unit:
+          anyOf:
+          - type: object
+            additionalProperties: false
+            required:
+            - optionLabel
+            - unitCount
+            properties:
+              optionLabel:
+                type: string
+              unitCount:
+                type: integer
+          - type: 'null'
+        customerName:
+          type: string
+        hotelName:
+          type: string
+        hotelRoom:
+          anyOf:
+          - type: string
+          - type: 'null'
+        totalPrice:
+          $ref: '#/components/schemas/Money'
+        payment:
+          type: object
+          additionalProperties: false
+          required:
+          - kind
+          - state
+          - collected
+          - outstanding
+          properties:
+            kind:
+              type: string
+              enum:
+              - OFFICE
+              - ONLINE
+            state:
+              type: string
+              description: 'Office: UNPAID, PARTIALLY_PAID, PAID. Online: the provider payment state or NONE.'
+            collected:
+              anyOf:
+              - $ref: '#/components/schemas/Money'
+              - type: 'null'
+            outstanding:
+              anyOf:
+              - $ref: '#/components/schemas/Money'
+              - type: 'null'
+        contentLanguage:
+          type: string
+        includes:
+          type: array
+          items:
+            type: string
+        excludes:
+          type: array
+          items:
+            type: string
+        knowBeforeYouGo:
+          type: array
+          items:
+            type: string
+        meetingPoint:
+          anyOf:
+          - type: string
+          - type: 'null'
+        myBookingUrl:
+          anyOf:
+          - type: string
+            description: The public my-booking page only — no reference, phone or token. Null when the booking
+              is not valid.
+          - type: 'null'
+    ToursOperatorReceiptData:
+      type: object
+      additionalProperties: false
+      required:
+      - bookingReference
+      - tourNameEn
+      - tourNameAr
+      - tourDate
+      - customerName
+      - method
+      - currencyPaid
+      - amountPaid
+      - settledEur
+      - fxRate
+      - referenceMasked
+      - recordedAt
+      - collectedBy
+      - bookingTotal
+      - collectedToDate
+      - remainingAfter
+      - reversed
+      - reversal
+      properties:
+        bookingReference:
+          type: string
+        tourNameEn:
+          type: string
+        tourNameAr:
+          anyOf:
+          - type: string
+          - type: 'null'
+        tourDate:
+          type: string
+          format: date
+        customerName:
+          type: string
+        method:
+          $ref: '#/components/schemas/ToursOperatorCollectionMethod'
+        currencyPaid:
+          $ref: '#/components/schemas/ToursOperatorPaidCurrency'
+        amountPaid:
+          $ref: '#/components/schemas/Money'
+        settledEur:
+          $ref: '#/components/schemas/Money'
+        fxRate:
+          anyOf:
+          - type: string
+          - type: 'null'
+        referenceMasked:
+          anyOf:
+          - type: string
+            description: Receipt number masked but for its last 4 characters; null for cash. Never card data.
+          - type: 'null'
+        recordedAt:
+          type: string
+          format: date-time
+        collectedBy:
+          anyOf:
+          - type: string
+          - type: 'null'
+        bookingTotal:
+          $ref: '#/components/schemas/Money'
+        collectedToDate:
+          $ref: '#/components/schemas/Money'
+        remainingAfter:
+          $ref: '#/components/schemas/Money'
+        reversed:
+          type: boolean
+          description: 'True when a reversal cancelled this payment: print a VOID / REVERSED watermark.'
+        reversal:
+          anyOf:
+          - type: object
+            additionalProperties: false
+            required:
+            - entryRef
+            - recordedAt
+            properties:
+              entryRef:
+                type: string
+              recordedAt:
+                type: string
+                format: date-time
+          - type: 'null'
+    ToursOperatorRunSheetData:
+      type: object
+      additionalProperties: false
+      required:
+      - date
+      - totalGuests
+      - tours
+      properties:
+        date:
+          type: string
+          format: date
+        totalGuests:
+          type: integer
+        tours:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+            - tourId
+            - tourNameEn
+            - tourNameAr
+            - guests
+            - departures
+            properties:
+              tourId:
+                type: string
+                format: uuid
+              tourNameEn:
+                type: string
+              tourNameAr:
+                anyOf:
+                - type: string
+                - type: 'null'
+              guests:
+                type: integer
+              departures:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: false
+                  required:
+                  - timeSlot
+                  - guests
+                  - hotels
+                  - lines
+                  - notes
+                  properties:
+                    timeSlot:
+                      $ref: '#/components/schemas/ToursOperatorTimeSlot'
+                    guests:
+                      type: integer
+                    hotels:
+                      type: array
+                      items:
+                        type: object
+                        additionalProperties: false
+                        required:
+                        - hotelName
+                        - guests
+                        properties:
+                          hotelName:
+                            type: string
+                          guests:
+                            type: integer
+                    lines:
+                      type: array
+                      items:
+                        type: object
+                        additionalProperties: false
+                        required:
+                        - reference
+                        - leadName
+                        - hotelName
+                        - hotelRoom
+                        - guests
+                        - paymentDue
+                        properties:
+                          reference:
+                            type: string
+                          leadName:
+                            type: string
+                          hotelName:
+                            type: string
+                          hotelRoom:
+                            anyOf:
+                            - type: string
+                            - type: 'null'
+                          guests:
+                            type: integer
+                          paymentDue:
+                            type: boolean
+                    notes:
+                      type: array
+                      items:
+                        type: object
+                        additionalProperties: false
+                        required:
+                        - reference
+                        - text
+                        properties:
+                          reference:
+                            type: string
+                          text:
+                            type: string
+    ToursOperatorPickupManifestData:
+      type: object
+      additionalProperties: false
+      required:
+      - slotId
+      - date
+      - timeSlot
+      - tourNameEn
+      - tourNameAr
+      - totalGuests
+      - lines
+      - driver
+      - vehicle
+      properties:
+        slotId:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        timeSlot:
+          $ref: '#/components/schemas/ToursOperatorTimeSlot'
+        tourNameEn:
+          type: string
+        tourNameAr:
+          anyOf:
+          - type: string
+          - type: 'null'
+        totalGuests:
+          type: integer
+        lines:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+            - order
+            - reference
+            - hotelName
+            - hotelRoom
+            - leadName
+            - phone
+            - guests
+            properties:
+              order:
+                type: integer
+              reference:
+                type: string
+              hotelName:
+                type: string
+              hotelRoom:
+                anyOf:
+                - type: string
+                - type: 'null'
+              leadName:
+                type: string
+              phone:
+                type: string
+              guests:
+                type: integer
+        driver:
+          anyOf:
+          - type: string
+          - type: 'null'
+        vehicle:
+          anyOf:
+          - type: string
+          - type: 'null'
+    ToursOperatorCancellationFormData:
+      type: object
+      additionalProperties: false
+      required:
+      - reference
+      - tourNameEn
+      - tourNameAr
+      - tourDate
+      - timeSlot
+      - customerName
+      - cancelledAt
+      - cancellationReason
+      - collections
+      - collectedNet
+      - policy
+      - hoursBeforeTour
+      - refundPercent
+      - expectedReturn
+      properties:
+        reference:
+          type: string
+        tourNameEn:
+          type: string
+        tourNameAr:
+          anyOf:
+          - type: string
+          - type: 'null'
+        tourDate:
+          type: string
+          format: date
+        timeSlot:
+          $ref: '#/components/schemas/ToursOperatorTimeSlot'
+        customerName:
+          type: string
+        cancelledAt:
+          type: string
+          format: date-time
+        cancellationReason:
+          type: string
+        collections:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+            - recordedAt
+            - reversal
+            - method
+            - currencyPaid
+            - amountPaid
+            - settledEur
+            properties:
+              recordedAt:
+                type: string
+                format: date-time
+              reversal:
+                type: boolean
+              method:
+                $ref: '#/components/schemas/ToursOperatorCollectionMethod'
+              currencyPaid:
+                $ref: '#/components/schemas/ToursOperatorPaidCurrency'
+              amountPaid:
+                $ref: '#/components/schemas/Money'
+              settledEur:
+                $ref: '#/components/schemas/Money'
+        collectedNet:
+          $ref: '#/components/schemas/Money'
+        policy:
+          type: string
+          enum:
+          - STANDARD
+          - FLEXIBLE
+          - NON_REFUNDABLE
+        hoursBeforeTour:
+          type: integer
+          format: int64
+          description: Whole hours from cancellation to the start of the tour day (Africa/Cairo).
+        refundPercent:
+          type: integer
+          minimum: 0
+          maximum: 100
+        expectedReturn:
+          $ref: '#/components/schemas/Money'
+    ToursOperatorVoucherDocument:
+      type: object
+      additionalProperties: false
+      required:
+      - document
+      - data
+      properties:
+        document:
+          $ref: '#/components/schemas/ToursOperatorDocumentStamp'
+        data:
+          $ref: '#/components/schemas/ToursOperatorVoucherData'
+    ToursOperatorReceiptDocument:
+      type: object
+      additionalProperties: false
+      required:
+      - document
+      - data
+      properties:
+        document:
+          $ref: '#/components/schemas/ToursOperatorDocumentStamp'
+        data:
+          $ref: '#/components/schemas/ToursOperatorReceiptData'
+    ToursOperatorRunSheetDocument:
+      type: object
+      additionalProperties: false
+      required:
+      - document
+      - data
+      properties:
+        document:
+          $ref: '#/components/schemas/ToursOperatorDocumentStamp'
+        data:
+          $ref: '#/components/schemas/ToursOperatorRunSheetData'
+    ToursOperatorPickupManifestDocument:
+      type: object
+      additionalProperties: false
+      required:
+      - document
+      - data
+      properties:
+        document:
+          $ref: '#/components/schemas/ToursOperatorDocumentStamp'
+        data:
+          $ref: '#/components/schemas/ToursOperatorPickupManifestData'
+    ToursOperatorCancellationFormDocument:
+      type: object
+      additionalProperties: false
+      required:
+      - document
+      - data
+      properties:
+        document:
+          $ref: '#/components/schemas/ToursOperatorDocumentStamp'
+        data:
+          $ref: '#/components/schemas/ToursOperatorCancellationFormData'
     ToursOperatorOfficeCollectionQuote:
       type: object
       additionalProperties: false

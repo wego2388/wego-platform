@@ -10,6 +10,8 @@ import java.util.UUID
 interface OfficeCollectionRepository {
     fun findByBooking(bookingId: BookingId): List<OfficeCollection>
 
+    fun findById(id: UUID): OfficeCollection?
+
     fun findByRequest(
         actorUserId: UUID,
         clientRequestId: UUID,

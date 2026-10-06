@@ -4438,6 +4438,65 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   EN/AR from the same data, A4 print, real logo; no stored PDFs with PII.
   Driver sheet, supplier order and settlement statement follow OPS2-E/F.
 
+### 2026-10-06 — WEGO-016-OPS2-D implementation (Tier 1, review pending)
+
+- **Status:** ACTIVE (unchanged). Not committed, not deployed. Independent Tier 1
+  review still required (PII access widens: pickup manifest carries phones).
+- **Documents (ERP, A4, EN + AR RTL from the same data, real logo, company
+  footer from the owner data hub only — tax ID, address, phone, support hours,
+  languages; no tourism licence and no commercial-register number are printed):**
+  booking voucher, payment receipt, daily run sheet, pickup manifest,
+  cancellation / money-to-return form. Route
+  `/documents/{voucher|receipt|cancellation|run-sheet|pickup}/{id|date}`; nothing
+  is recorded until "Generate and print" is pressed, a language change clears the
+  preview, the browser prints (no server PDF). Links from booking detail, each
+  office payment, cancelled office bookings with cash, and Today (run sheet per
+  day, manifest per departure).
+- **Backend (V31, registered in both Gradle files, `release-profiles.json`
+  incl. `migrationVersions`, `ProductIsolationIntegrationTest`, release plans
+  regenerated):** `POST /api/v1/tours-operator/documents/...` returns the data
+  plus a stamp and records the print in append-only
+  `tours_operator_document_print` (type, subject key, number, version, language,
+  printed by/at; DB trigger forbids update/delete; no customer data). First
+  print allocates the immutable number (receipts/forms/manifests `RCT|CXL|PKM-YYYY-NNNNNN`
+  from `tours_operator_document_sequence` under row lock; voucher = booking
+  reference; run sheet `RUN-YYYYMMDD`); reprints keep it, count versions under a
+  per-subject advisory lock and are marked COPY / نسخة with the original date.
+  Permissions `tours-operator.document:print` (voucher, receipt, cancellation
+  form) and `tours-operator.document:print-ops` (run sheet, manifest), both
+  granted to platform-admin. Responses are `Cache-Control: no-store`.
+- **Rules enforced server-side:** draft (NEW) and expired bookings: 409
+  `booking_not_confirmed`, nothing recorded; cancelled booking prints
+  `valid=false` (banner, no QR, no tour notes); QR = only
+  `{site-base-url}/{en|ar}/my-booking` (no reference, phone or token; `uqr`
+  0.1.3, MIT, exact pin, already in the lockfile via Nuxt tooling); receipt:
+  non-cash reference masked to the last 4 (shorter ones fully masked), balance
+  shown as of that payment, reversed entry returns `reversed=true` (VOID
+  watermark) with a reversal link (reason stays internal), a reversal itself has
+  no receipt; run sheet has no phones, manifest has phones, driver/vehicle blank;
+  cancellation form only for a cancelled office booking with net collected cash,
+  read-only (ledger unchanged, tested), STANDARD policy 48 h/24-48 h/<24 h
+  (FLEXIBLE and NON_REFUNDABLE also supported).
+- **Tests:** `ToursOperatorOfficeDocumentHttpTest` 14 cases (permission split,
+  400/404, voucher content/QR/PII, reprint versioning, 8-way concurrent reprints,
+  cancelled/draft voucher, receipt masking/EGP/void, 6-way concurrent receipt
+  numbering gapless and continued, run sheet and manifest PII, cancellation
+  policy 100/50/0 %, refusals, append-only register). Safari app 354 and
+  application 327 JUnit, 0 failed. ERP Vitest 277 (new
+  `officeDocuments.spec.ts`: each document EN/AR, banner/watermark/COPY, QR
+  content, company facts, page flow, permissions, errors, a11y structure).
+  Print layout checked by rendering real A4 PDFs in headless Chrome (voucher
+  one page EN/AR, running footer on every page of a 4-page run sheet).
+- **Open items / owner decisions:** (1) cancellation hours are counted to the
+  start of the tour day (Cairo) because departure clock times are not stored —
+  confirm or supply departure times; (2) voucher customer-instruction wording
+  (4 generic lines) needs owner approval; (3) the legal name exists in Arabic
+  only so it prints as given in both languages; (4) refund recording, driver
+  sheet, supplier order, settlement statement remain OPS2-E/F; (5) the running
+  page footer uses CSS margin boxes (Chrome/Edge); other browsers still print
+  the full company block at the end of the document; (6) Print-dialog cancel
+  still counts as a recorded print (the register records generation, not paper).
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE

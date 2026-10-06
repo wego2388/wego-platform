@@ -45,7 +45,8 @@
         "27",
         "28",
         "29",
-        "30"
+        "30",
+        "31"
       ],
       "migrationFiles": [
         "platform/application/src/main/resources/db/migration/V1__platform_foundation.sql",
@@ -66,7 +67,8 @@
         "platform/application/src/main/resources/db/migration/V27__tours_operator_captured_payment_review.sql",
         "platform/application/src/main/resources/db/migration/V28__tours_operator_payment_refund_callback.sql",
         "platform/application/src/main/resources/db/migration/V29__tours_operator_asset_registry.sql",
-        "platform/application/src/main/resources/db/migration/V30__tours_operator_office_booking.sql"
+        "platform/application/src/main/resources/db/migration/V30__tours_operator_office_booking.sql",
+        "platform/application/src/main/resources/db/migration/V31__tours_operator_office_documents.sql"
       ]
     },
     "publicSite": {
@@ -112,6 +114,6 @@
   },
   "digests": {
     "releaseLock": "0cec7fbf3c8a77120601a45f54a6b678f233a54190e37627f2524e7286e4255a",
-    "releaseProfiles": "2a1c2c64c847a15707291f250a262e0d92ad3c5c9329a8b2fc7f6344da3fcaff"
+    "releaseProfiles": "e411a5eb9f7edaf9faac01e5c6db44044b34a4c39320a3095b661b8d547469f9"
   }
 }

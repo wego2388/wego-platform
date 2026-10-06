@@ -8,9 +8,11 @@ import { whatsappLink } from "../composables/useWhatsApp";
 import OfficePaymentBadge from "../components/OfficePaymentBadge.vue";
 import { buildRunSheet, isUnpaid } from "../utils/runSheet";
 import { useErpLocale } from "../composables/useErpLocale";
+import { docMessage } from "../utils/documentMessages";
+import { documentPath } from "../utils/documentFormat";
 import type { ErpMessageKey } from "../utils/erpLocale";
 
-const { t, count, money, dateLabel: formatDate } = useErpLocale();
+const { t, locale, count, money, dateLabel: formatDate } = useErpLocale();
 useHead(() => ({ title: `${t("nav.today")} · Safari Tours Sharm` }));
 
 const route = useRoute();
@@ -26,6 +28,7 @@ const state = ref<"loading" | "loaded" | "error">("loading");
 const errorKey = ref<ErpMessageKey | null>(null);
 const errorMsg = computed(() => errorKey.value ? t(errorKey.value) : "");
 
+const canPrintOps = computed(() => hasPermission(session.value, "tours-operator.document:print-ops"));
 const runs = computed(() => buildRunSheet(bookings.value, tours.value, slots.value, includeUnpaid.value));
 const totalGuests = computed(() => runs.value.reduce((sum, run) => sum + run.guests, 0));
 const unpaidCount = computed(() => bookings.value.filter(isUnpaid).length);
@@ -134,6 +137,7 @@ function unitsLabel(units: Record<string, number>, tourId: string): string {
             <input v-model="includeUnpaid" type="checkbox"> {{ t('today.showUnpaid') }}
           </label>
           <button type="button" class="rounded-lg bg-sts-ocean px-4 py-2 text-sm font-semibold text-white" @click="printSheet">{{ t('today.print') }}</button>
+          <NuxtLink v-if="canPrintOps" :to="documentPath('run-sheet', date)" class="rounded-lg border border-sts-border bg-sts-surface px-3 py-2 text-sm font-semibold">{{ docMessage(locale, 'doc.ui.printRunSheet') }}</NuxtLink>
         </div>
       </header>
 
@@ -153,6 +157,7 @@ function unitsLabel(units: Record<string, number>, tourId: string): string {
             <span>{{ t('common.guests', { count: count(departure.guests) }) }}</span>
             <span v-if="departure.slot" class="text-sts-muted">{{ t('today.places', { booked: count(departure.slot.bookedCount), capacity: count(departure.slot.capacity) }) }}</span>
             <span v-if="Object.keys(departure.units).length" class="text-sts-muted">{{ unitsLabel(departure.units, run.tourId) }}</span>
+            <NuxtLink v-if="canPrintOps && departure.slot" :to="documentPath('pickup', departure.slot.id)" class="font-semibold text-sts-ocean-mid hover:underline print:hidden">{{ docMessage(locale, 'doc.ui.printManifest') }}</NuxtLink>
             <WegoBadge v-if="departure.slot?.isBlocked" tone="danger">{{ t('today.blocked') }}</WegoBadge>
             <WegoBadge v-if="departure.unpaid" tone="warning">{{ t('common.awaitingCount', { count: count(departure.unpaid) }) }}</WegoBadge>
           </div>

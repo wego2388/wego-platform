@@ -41,6 +41,12 @@ export type CollectionMethod = components["schemas"]["ToursOperatorCollectionMet
 export type PaidCurrency = components["schemas"]["ToursOperatorPaidCurrency"];
 export type FxRate = components["schemas"]["ToursOperatorFxRate"];
 export type FxRateToday = components["schemas"]["ToursOperatorFxRateToday"];
+export type DocumentStamp = components["schemas"]["ToursOperatorDocumentStamp"];
+export type VoucherDocument = components["schemas"]["ToursOperatorVoucherDocument"];
+export type ReceiptDocument = components["schemas"]["ToursOperatorReceiptDocument"];
+export type RunSheetDocument = components["schemas"]["ToursOperatorRunSheetDocument"];
+export type PickupManifestDocument = components["schemas"]["ToursOperatorPickupManifestDocument"];
+export type CancellationFormDocument = components["schemas"]["ToursOperatorCancellationFormDocument"];
 
 const DECIMAL_AMOUNT = /^(0|[1-9]\d{0,16})\.\d{2}$/;
 const ISO_CURRENCY_CODE = /^[A-Z]{3}$/;

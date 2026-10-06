@@ -24,6 +24,8 @@ import { useErpLocale } from "../../composables/useErpLocale";
 import OfficePaymentBadge from "../../components/OfficePaymentBadge.vue";
 import OfficePaymentsPanel from "../../components/OfficePaymentsPanel.vue";
 import { bookingErrorMessage, type ErpMessageDescriptor } from "../../utils/bookingMessages";
+import { docMessage } from "../../utils/documentMessages";
+import { documentPath } from "../../utils/documentFormat";
 
 const { t, locale, direction, count, money, dateLabel, instantLabel } = useErpLocale();
 useHead(() => ({ title: `${t("booking.title")} · Safari Tours Sharm` }));
@@ -47,6 +49,10 @@ const timelineError  = ref(false);
 const canCancel   = computed(() => hasPermission(session.value, "tours-operator.booking:cancel"));
 const canComplete = computed(() => hasPermission(session.value, "tours-operator.booking:complete"));
 const canViewPayments = computed(() => hasPermission(session.value, "tours-operator.payment:view"));
+const canPrintDocs = computed(() => hasPermission(session.value, "tours-operator.document:print"));
+/** A draft (awaiting online payment) or expired booking is never a voucher. */
+const canPrintVoucher = computed(() => canPrintDocs.value && !!booking.value && ["CONFIRMED", "COMPLETED", "CANCELLED"].includes(booking.value.status));
+const canPrintCancellation = computed(() => canPrintDocs.value && booking.value?.channel === "OFFICE" && booking.value.status === "CANCELLED" && !!booking.value.officePayment?.cashToReturn);
 
 const bookingId = computed(() => String(route.params.id));
 const whatsappUrl = computed(() => (booking.value ? whatsappLink(booking.value) : null));
@@ -190,6 +196,20 @@ onMounted(() => {
             >
               {{ t('booking.whatsapp') }}
             </a>
+            <NuxtLink
+              v-if="canPrintVoucher"
+              :to="documentPath('voucher', booking.id)"
+              class="inline-flex items-center rounded-xl border border-sts-border px-3 py-1.5 text-sm font-semibold text-sts-ocean hover:bg-sts-canvas"
+            >
+              {{ docMessage(locale, 'doc.ui.printVoucher') }}
+            </NuxtLink>
+            <NuxtLink
+              v-if="canPrintCancellation"
+              :to="documentPath('cancellation', booking.id)"
+              class="inline-flex items-center rounded-xl border border-sts-border px-3 py-1.5 text-sm font-semibold text-sts-ocean hover:bg-sts-canvas"
+            >
+              {{ docMessage(locale, 'doc.ui.printCancellation') }}
+            </NuxtLink>
             <WegoButton
               v-if="booking.status === 'CONFIRMED' && canComplete"
               type="button" variant="primary" size="sm"

@@ -2186,6 +2186,106 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tours-operator/documents/bookings/{id}/voucher": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Print the customer booking voucher
+         * @description Requires tours-operator.document:print. A draft (NEW) or expired booking is refused (booking_not_confirmed); a cancelled booking prints with valid=false (CANCELLED banner, no QR). The QR encodes only the public my-booking URL. Every call records one print in the append-only register (version 1 the first time, then numbered reprints that keep the document number). No PDF is generated or stored; the response is never cached.
+         */
+        post: operations["printToursOperatorVoucher"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/documents/collections/{id}/receipt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Print the payment receipt of one office collection
+         * @description Requires tours-operator.document:print. The id is a COLLECTION entry (a reversal has no receipt: not_a_collection). A reversed payment returns reversed=true for the VOID / REVERSED watermark. The receipt number is sequential per year and immutable; the payment reference is masked but for its last 4 characters. Every call records one print in the append-only register (version 1 the first time, then numbered reprints that keep the document number). No PDF is generated or stored; the response is never cached.
+         */
+        post: operations["printToursOperatorReceipt"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/documents/bookings/{id}/cancellation-form": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Print the cancellation / money-to-return form
+         * @description Requires tours-operator.document:print. Only for a cancelled office booking that still holds collected cash (booking_not_cancelled, no_cash_collected, not_an_office_booking). Read-only: it records no refund. Every call records one print in the append-only register (version 1 the first time, then numbered reprints that keep the document number). No PDF is generated or stored; the response is never cached.
+         */
+        post: operations["printToursOperatorCancellationForm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/documents/run-sheet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Print the daily run sheet
+         * @description Requires tours-operator.document:print-ops. Per tour and departure: guests, hotels, notes. Minimal personal data: lead name, hotel, room and guest count only — no phone numbers. Cancelled and unpaid online bookings are not listed. Every call records one print in the append-only register (version 1 the first time, then numbered reprints that keep the document number). No PDF is generated or stored; the response is never cached.
+         */
+        post: operations["printToursOperatorRunSheet"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/documents/slots/{slotId}/pickup-manifest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Print the pickup manifest of one departure
+         * @description Requires tours-operator.document:print-ops. Pickup order by hotel with lead name, room, phone and guests; driver and vehicle stay blank until assignments exist. Carries phone numbers, hence the separate permission. Every call records one print in the append-only register (version 1 the first time, then numbered reprints that keep the document number). No PDF is generated or stored; the response is never cached.
+         */
+        post: operations["printToursOperatorPickupManifest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tours-operator/staff/fx-rate/today": {
         parameters: {
             query?: never;
@@ -2629,6 +2729,200 @@ export interface components {
         ToursOperatorOfficeCollectionOutcome: {
             entry: components["schemas"]["ToursOperatorOfficeCollection"];
             officePayment: components["schemas"]["ToursOperatorOfficePayment"];
+        };
+        PrintToursOperatorDocumentRequest: {
+            /** @enum {string} */
+            language: "en" | "ar";
+        };
+        PrintToursOperatorRunSheetRequest: {
+            /** Format: date */
+            date: string;
+            /** @enum {string} */
+            language: "en" | "ar";
+        };
+        ToursOperatorDocumentStamp: {
+            /** @enum {string} */
+            type: "VOUCHER" | "RECEIPT" | "RUN_SHEET" | "PICKUP_MANIFEST" | "CANCELLATION_FORM";
+            /** @description Immutable document number; reprints carry the original's. */
+            number: string;
+            /** @description 1 = original, n = reprint. */
+            version: number;
+            /** @enum {string} */
+            language: "en" | "ar";
+            /** @description True for a reprint: the page prints COPY / نسخة with the version and the original date. */
+            copy: boolean;
+            /** Format: date-time */
+            originalPrintedAt: string;
+            /** Format: date-time */
+            printedAt: string;
+            printedByEmail: string | null;
+        };
+        ToursOperatorVoucherData: {
+            reference: string;
+            status: components["schemas"]["ToursOperatorBookingStatus"];
+            /** @description False for a cancelled booking: print a CANCELLED banner and no QR. */
+            valid: boolean;
+            channel: components["schemas"]["ToursOperatorBookingChannel"];
+            tourNameEn: string;
+            tourNameAr: string | null;
+            /** Format: date */
+            tourDate: string;
+            timeSlot: components["schemas"]["ToursOperatorTimeSlot"];
+            adultsCount: number;
+            childrenCount: number;
+            unit: {
+                optionLabel: string;
+                unitCount: number;
+            } | null;
+            customerName: string;
+            hotelName: string;
+            hotelRoom: string | null;
+            totalPrice: components["schemas"]["Money"];
+            payment: {
+                /** @enum {string} */
+                kind: "OFFICE" | "ONLINE";
+                /** @description Office: UNPAID, PARTIALLY_PAID, PAID. Online: the provider payment state or NONE. */
+                state: string;
+                collected: components["schemas"]["Money"] | null;
+                outstanding: components["schemas"]["Money"] | null;
+            };
+            contentLanguage: string;
+            includes: string[];
+            excludes: string[];
+            knowBeforeYouGo: string[];
+            meetingPoint: string | null;
+            myBookingUrl: string | null;
+        };
+        ToursOperatorReceiptData: {
+            bookingReference: string;
+            tourNameEn: string;
+            tourNameAr: string | null;
+            /** Format: date */
+            tourDate: string;
+            customerName: string;
+            method: components["schemas"]["ToursOperatorCollectionMethod"];
+            currencyPaid: components["schemas"]["ToursOperatorPaidCurrency"];
+            amountPaid: components["schemas"]["Money"];
+            settledEur: components["schemas"]["Money"];
+            fxRate: string | null;
+            referenceMasked: string | null;
+            /** Format: date-time */
+            recordedAt: string;
+            collectedBy: string | null;
+            bookingTotal: components["schemas"]["Money"];
+            collectedToDate: components["schemas"]["Money"];
+            remainingAfter: components["schemas"]["Money"];
+            /** @description True when a reversal cancelled this payment: print a VOID / REVERSED watermark. */
+            reversed: boolean;
+            reversal: {
+                entryRef: string;
+                /** Format: date-time */
+                recordedAt: string;
+            } | null;
+        };
+        ToursOperatorRunSheetData: {
+            /** Format: date */
+            date: string;
+            totalGuests: number;
+            tours: {
+                /** Format: uuid */
+                tourId: string;
+                tourNameEn: string;
+                tourNameAr: string | null;
+                guests: number;
+                departures: {
+                    timeSlot: components["schemas"]["ToursOperatorTimeSlot"];
+                    guests: number;
+                    hotels: {
+                        hotelName: string;
+                        guests: number;
+                    }[];
+                    lines: {
+                        reference: string;
+                        leadName: string;
+                        hotelName: string;
+                        hotelRoom: string | null;
+                        guests: number;
+                        paymentDue: boolean;
+                    }[];
+                    notes: {
+                        reference: string;
+                        text: string;
+                    }[];
+                }[];
+            }[];
+        };
+        ToursOperatorPickupManifestData: {
+            /** Format: uuid */
+            slotId: string;
+            /** Format: date */
+            date: string;
+            timeSlot: components["schemas"]["ToursOperatorTimeSlot"];
+            tourNameEn: string;
+            tourNameAr: string | null;
+            totalGuests: number;
+            lines: {
+                order: number;
+                reference: string;
+                hotelName: string;
+                hotelRoom: string | null;
+                leadName: string;
+                phone: string;
+                guests: number;
+            }[];
+            driver: string | null;
+            vehicle: string | null;
+        };
+        ToursOperatorCancellationFormData: {
+            reference: string;
+            tourNameEn: string;
+            tourNameAr: string | null;
+            /** Format: date */
+            tourDate: string;
+            timeSlot: components["schemas"]["ToursOperatorTimeSlot"];
+            customerName: string;
+            /** Format: date-time */
+            cancelledAt: string;
+            cancellationReason: string;
+            collections: {
+                /** Format: date-time */
+                recordedAt: string;
+                reversal: boolean;
+                method: components["schemas"]["ToursOperatorCollectionMethod"];
+                currencyPaid: components["schemas"]["ToursOperatorPaidCurrency"];
+                amountPaid: components["schemas"]["Money"];
+                settledEur: components["schemas"]["Money"];
+            }[];
+            collectedNet: components["schemas"]["Money"];
+            /** @enum {string} */
+            policy: "STANDARD" | "FLEXIBLE" | "NON_REFUNDABLE";
+            /**
+             * Format: int64
+             * @description Whole hours from cancellation to the start of the tour day (Africa/Cairo).
+             */
+            hoursBeforeTour: number;
+            refundPercent: number;
+            expectedReturn: components["schemas"]["Money"];
+        };
+        ToursOperatorVoucherDocument: {
+            document: components["schemas"]["ToursOperatorDocumentStamp"];
+            data: components["schemas"]["ToursOperatorVoucherData"];
+        };
+        ToursOperatorReceiptDocument: {
+            document: components["schemas"]["ToursOperatorDocumentStamp"];
+            data: components["schemas"]["ToursOperatorReceiptData"];
+        };
+        ToursOperatorRunSheetDocument: {
+            document: components["schemas"]["ToursOperatorDocumentStamp"];
+            data: components["schemas"]["ToursOperatorRunSheetData"];
+        };
+        ToursOperatorPickupManifestDocument: {
+            document: components["schemas"]["ToursOperatorDocumentStamp"];
+            data: components["schemas"]["ToursOperatorPickupManifestData"];
+        };
+        ToursOperatorCancellationFormDocument: {
+            document: components["schemas"]["ToursOperatorDocumentStamp"];
+            data: components["schemas"]["ToursOperatorCancellationFormData"];
         };
         ToursOperatorOfficeCollectionQuote: {
             /** @enum {string} */
@@ -9393,6 +9687,204 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ToursOperatorErrorResponse"];
                 };
+            };
+        };
+    };
+    printToursOperatorVoucher: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrintToursOperatorDocumentRequest"];
+            };
+        };
+        responses: {
+            /** @description Document data and its print stamp. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorVoucherDocument"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description booking_not_confirmed. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+        };
+    };
+    printToursOperatorReceipt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrintToursOperatorDocumentRequest"];
+            };
+        };
+        responses: {
+            /** @description Document data and its print stamp. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorReceiptDocument"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description not_a_collection. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+        };
+    };
+    printToursOperatorCancellationForm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrintToursOperatorDocumentRequest"];
+            };
+        };
+        responses: {
+            /** @description Document data and its print stamp. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorCancellationFormDocument"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description booking_not_cancelled, no_cash_collected or not_an_office_booking. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+        };
+    };
+    printToursOperatorRunSheet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrintToursOperatorRunSheetRequest"];
+            };
+        };
+        responses: {
+            /** @description Document data and its print stamp. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorRunSheetDocument"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    printToursOperatorPickupManifest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slotId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrintToursOperatorDocumentRequest"];
+            };
+        };
+        responses: {
+            /** @description Document data and its print stamp. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorPickupManifestDocument"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

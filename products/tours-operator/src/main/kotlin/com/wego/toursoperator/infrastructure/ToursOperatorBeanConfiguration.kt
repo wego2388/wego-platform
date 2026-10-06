@@ -19,6 +19,7 @@ import com.wego.toursoperator.application.CreateBookingService
 import com.wego.toursoperator.application.CreateSlotService
 import com.wego.toursoperator.application.CreateTourService
 import com.wego.toursoperator.application.DispatchNotificationsService
+import com.wego.toursoperator.application.DocumentPrintRepository
 import com.wego.toursoperator.application.EmailSender
 import com.wego.toursoperator.application.ExpireBookingService
 import com.wego.toursoperator.application.ExpireOverduePaymentsService
@@ -32,6 +33,7 @@ import com.wego.toursoperator.application.NotificationRepository
 import com.wego.toursoperator.application.NotificationSettings
 import com.wego.toursoperator.application.OfficeCollectionRepository
 import com.wego.toursoperator.application.OfficeCollectionService
+import com.wego.toursoperator.application.OfficeDocumentService
 import com.wego.toursoperator.application.PaymentQueryService
 import com.wego.toursoperator.application.PaymentRepository
 import com.wego.toursoperator.application.PaymobClient
@@ -247,6 +249,32 @@ class ToursOperatorBeanConfiguration {
         clock: Clock,
     ): OfficeCollectionService =
         OfficeCollectionService(bookingRepository, collectionRepository, fxRateRepository, transactionRunner, clock)
+
+    @Bean("stoOfficeDocumentService")
+    fun officeDocumentService(
+        @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
+        @Qualifier("stoTourRepositoryImpl") tourRepository: TourRepository,
+        @Qualifier("stoTourSlotRepositoryImpl") slotRepository: TourSlotRepository,
+        @Qualifier("stoTourContentRepositoryImpl") contentRepository: TourContentRepository,
+        @Qualifier("stoOfficeCollectionRepositoryImpl") collectionRepository: OfficeCollectionRepository,
+        @Qualifier("stoPaymentRepositoryImpl") paymentRepository: PaymentRepository,
+        @Qualifier("stoDocumentPrintRepositoryImpl") printRepository: DocumentPrintRepository,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+        @Value("\${tours-operator.notifications.site-base-url:http://localhost:3000}") siteBaseUrl: String,
+    ): OfficeDocumentService =
+        OfficeDocumentService(
+            bookingRepository,
+            tourRepository,
+            slotRepository,
+            contentRepository,
+            collectionRepository,
+            paymentRepository,
+            printRepository,
+            transactionRunner,
+            clock,
+            siteBaseUrl,
+        )
 
     @Bean("stoFxRateService")
     fun fxRateService(

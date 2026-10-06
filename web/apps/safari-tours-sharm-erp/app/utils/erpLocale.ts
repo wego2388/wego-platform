@@ -1027,6 +1027,7 @@ export function isLocalizedErpRoute(path: string): boolean {
   const normalized = path.replace(/\/+$/, "") || "/";
   return LOCALIZED_ERP_ROUTES.some((route) => route === normalized)
     || /^\/bookings\/[^/]+$/.test(normalized)
+    || /^\/documents\/[a-z-]+\/[^/]+$/.test(normalized)
     || /^\/tours\/[^/]+\/(slots|content)$/.test(normalized);
 }
 
