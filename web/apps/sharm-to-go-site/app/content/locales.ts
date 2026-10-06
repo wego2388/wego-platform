@@ -158,7 +158,53 @@ interface SiteCopy {
     privacy: { heading: string; sections: Array<{ title: string; body: string }> };
     terms: { heading: string; sections: Array<{ title: string; body: string }> };
   };
+  finderNav: string;
+  finderPage: {
+    eyebrow: string;
+    heading: string;
+    body: string;
+    loading: string;
+    loadError: string;
+    cta: (title: string) => string;
+    back: string;
+  };
 }
+
+/**
+ * Keyed by the real, live category `code` (see
+ * clients/sharm-to-go/content-research/import-manifest.json's own 7
+ * categories) — not positional, so the finder page still reads correctly
+ * if categories are ever reordered. A code with no entry here falls back
+ * to the live category's own name/description from the API rather than
+ * crashing, so a future new category degrades gracefully instead of
+ * silently disappearing from the finder.
+ */
+export interface FinderCategoryCopy {
+  eyebrow: string;
+  title: string;
+  description: string;
+}
+
+export const finderCategories: Record<SharmLocale, Record<string, FinderCategoryCopy>> = {
+  en: {
+    sea: { eyebrow: "Red Sea", title: "Sea adventures", description: "Boat days, snorkelling, parasailing and everything that gets you on (or under) the water." },
+    desert: { eyebrow: "Sinai", title: "Desert adventures", description: "Quad bikes, camel rides and sunset dunes — the wild side of Sinai, with every pickup detail sorted." },
+    culture: { eyebrow: "History", title: "City & culture", description: "Museums, Cairo and Luxor day trips, and Sinai's own ancient sites — for the traveler who wants the story, not just the view." },
+    family: { eyebrow: "Everyone", title: "Family activities", description: "Aqua park days and easy outings built for a group with kids, not just adults." },
+    entertainment: { eyebrow: "Unwind", title: "Relaxation & shows", description: "An evening show or a proper hammam reset — the slower side of a Sharm holiday." },
+    transfers: { eyebrow: "Arrival", title: "Transfers", description: "Airport pickups and private rides around Sharm — simple, on time, no haggling." },
+    "heritage-day-trips": { eyebrow: "Beyond Sinai", title: "Heritage & day trips", description: "Petra, the Pyramids and multi-day journeys that take you further than a single day in Sharm." },
+  },
+  ar: {
+    sea: { eyebrow: "البحر الأحمر", title: "مغامرات البحر", description: "أيام مركب، سنوركل، باراسيلنج، وكل حاجة بتوديك فوق المية أو تحتها." },
+    desert: { eyebrow: "سيناء", title: "مغامرات الصحراء", description: "كواد، جمال، وكثبان عند الغروب — وش سيناء البري، بكل تفاصيل الاستلام واضحة." },
+    culture: { eyebrow: "تاريخ", title: "المدينة والثقافة", description: "متاحف، رحلات القاهرة والأقصر، ومواقع سيناء القديمة — للمسافر اللي عايز الحكاية مش بس المنظر." },
+    family: { eyebrow: "العيلة كلها", title: "أنشطة العائلة", description: "أيام أكوا بارك وخرجات سهلة متظبطة لجروب فيه أطفال، مش بس كبار." },
+    entertainment: { eyebrow: "استرخاء", title: "استرخاء وعروض", description: "سهرة فيها عرض أو حمام تركي يريّحك — الوش الأهدى لإجازتك في شرم." },
+    transfers: { eyebrow: "وصول", title: "الانتقالات", description: "استلام من المطار وانتقالات خاصة جوه شرم — بسيطة وفي ميعادها من غير أي فصال." },
+    "heritage-day-trips": { eyebrow: "أبعد من سيناء", title: "رحلات التراث واليوم الكامل", description: "البتراء، الأهرامات، ورحلات بأكتر من يوم بتاخدك أبعد من شرم نفسها." },
+  },
+};
 
 export const siteCopy: Record<SharmLocale, SiteCopy> = {
   en: {
@@ -203,12 +249,15 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       searchButton: "Search experiences",
     },
     categoriesHeading: "Start with the kind of day you want",
-    categoriesBody: "Sea, desert, transfers and local discoveries — start with an idea or ask us to shape the day around you.",
+    categoriesBody: "Sea, desert, culture and more — start with an idea or let our trip finder shape the day around you.",
     categories: [
-      { eyebrow: "Red Sea", title: "Sea adventures", description: "Boat days, snorkelling and water experiences run by Sharm To Go." },
-      { eyebrow: "Sinai", title: "Desert & stargazing", description: "Canyon, safari and evening experiences with clear pickup details." },
-      { eyebrow: "Arrival", title: "Transfers", description: "Airport and local movement requests with vehicle and confirmation details." },
-      { eyebrow: "Local", title: "City & culture", description: "Sharm highlights, food and nearby discoveries curated for your time." },
+      { eyebrow: "Red Sea", title: "Sea adventures", description: "Boat days, snorkelling, parasailing and everything that gets you on (or under) the water." },
+      { eyebrow: "Sinai", title: "Desert adventures", description: "Quad bikes, camel rides and sunset dunes — the wild side of Sinai, with every pickup detail sorted." },
+      { eyebrow: "History", title: "City & culture", description: "Museums, Cairo and Luxor day trips, and Sinai's own ancient sites — for the traveler who wants the story, not just the view." },
+      { eyebrow: "Everyone", title: "Family activities", description: "Aqua park days and easy outings built for a group with kids, not just adults." },
+      { eyebrow: "Unwind", title: "Relaxation & shows", description: "An evening show or a proper hammam reset — the slower side of a Sharm holiday." },
+      { eyebrow: "Arrival", title: "Transfers", description: "Airport pickups and private rides around Sharm — simple, on time, no haggling." },
+      { eyebrow: "Beyond Sinai", title: "Heritage & day trips", description: "Petra, the Pyramids and multi-day journeys that take you further than a single day in Sharm." },
     ],
     how: {
       heading: "A request first, a confirmation second",
@@ -439,6 +488,16 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
         ],
       },
     },
+    finderNav: "Not sure? Let us help",
+    finderPage: {
+      eyebrow: "Trip finder",
+      heading: "Not sure what kind of day you want?",
+      body: "Pick the one that sounds like you, and we'll show you real experiences that match it — like a local friend pointing you the right way, not a list of filters.",
+      loading: "Loading your options…",
+      loadError: "We could not reach the live catalog just now. Please try again shortly.",
+      cta: (title: string) => `Show me ${title}`,
+      back: "Back to the overview",
+    },
   },
   ar: {
     languageName: "English",
@@ -482,12 +541,15 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
       searchButton: "ابحث عن تجارب",
     },
     categoriesHeading: "ابدأ بشكل اليوم اللي يناسبك",
-    categoriesBody: "بحر وصحراء وانتقالات واكتشافات محلية — ابدأ بفكرة أو خلّينا نصمملك اليوم حسب رغبتك.",
+    categoriesBody: "بحر وصحراء وثقافة وأكتر — ابدأ بفكرة أو خلّي مرشد الرحلات يصمملك اليوم حسب رغبتك.",
     categories: [
-      { eyebrow: "البحر الأحمر", title: "مغامرات البحر", description: "رحلات بحرية وسنوركل وتجارب مائية تُشغّلها Sharm To Go." },
-      { eyebrow: "سيناء", title: "الصحراء والنجوم", description: "كانـيون وسفاري وسهرات مع تفاصيل انتقال واضحة." },
-      { eyebrow: "الوصول", title: "الانتقالات", description: "طلبات مطار وتنقلات محلية مع تفاصيل السيارة والتأكيد." },
-      { eyebrow: "محلي", title: "المدينة والثقافة", description: "أهم أماكن شرم والطعام واكتشافات قريبة مناسبة لوقتك." },
+      { eyebrow: "البحر الأحمر", title: "مغامرات البحر", description: "أيام مركب، سنوركل، باراسيلنج، وكل حاجة بتوديك فوق المية أو تحتها." },
+      { eyebrow: "سيناء", title: "مغامرات الصحراء", description: "كواد، جمال، وكثبان عند الغروب — وش سيناء البري، بكل تفاصيل الاستلام واضحة." },
+      { eyebrow: "تاريخ", title: "المدينة والثقافة", description: "متاحف، رحلات القاهرة والأقصر، ومواقع سيناء القديمة — للمسافر اللي عايز الحكاية مش بس المنظر." },
+      { eyebrow: "العيلة كلها", title: "أنشطة العائلة", description: "أيام أكوا بارك وخرجات سهلة متظبطة لجروب فيه أطفال، مش بس كبار." },
+      { eyebrow: "استرخاء", title: "استرخاء وعروض", description: "سهرة فيها عرض أو حمام تركي يريّحك — الوش الأهدى لإجازتك في شرم." },
+      { eyebrow: "وصول", title: "الانتقالات", description: "استلام من المطار وانتقالات خاصة جوه شرم — بسيطة وفي ميعادها من غير أي فصال." },
+      { eyebrow: "أبعد من سيناء", title: "رحلات التراث واليوم الكامل", description: "البتراء، الأهرامات، ورحلات بأكتر من يوم بتاخدك أبعد من شرم نفسها." },
     ],
     how: {
       heading: "الأول طلب، وبعد المراجعة تأكيد",
@@ -717,6 +779,16 @@ export const siteCopy: Record<SharmLocale, SiteCopy> = {
           },
         ],
       },
+    },
+    finderNav: "مش عارف تختار؟ خلّينا نساعدك",
+    finderPage: {
+      eyebrow: "مرشد الرحلات",
+      heading: "مش عارف عايز يومك يكون إزاي؟",
+      body: "اختار اللي بيشبهك، وهنوريك تجارب حقيقية تناسبه — زي ما صاحبك اللي عايش هنا يدلّك على الصح، مش ليستة فلاتر.",
+      loading: "بنحمّل اختياراتك…",
+      loadError: "مش قادرين نوصل للكتالوج الحي دلوقتي. جرّب تاني بعد شوية.",
+      cta: (title: string) => `وريني ${title}`,
+      back: "ارجع للمقدمة",
     },
   },
 };

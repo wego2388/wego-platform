@@ -78,6 +78,7 @@ function submitSearch() {
         </NuxtLink>
         <nav class="hidden items-center gap-7 text-sm font-semibold md:flex" aria-label="Primary navigation">
           <NuxtLink to="/experiences" class="transition-colors hover:text-sharm-sea-bright">{{ copy.nav.experiences }}</NuxtLink>
+          <NuxtLink to="/find-my-trip" class="transition-colors hover:text-sharm-sea-bright">{{ copy.finderNav }}</NuxtLink>
           <a href="#how" class="transition-colors hover:text-sharm-sea-bright">{{ copy.nav.howItWorks }}</a>
           <NuxtLink to="/about" class="transition-colors hover:text-sharm-sea-bright">{{ copy.nav.about }}</NuxtLink>
           <NuxtLink to="/faq" class="transition-colors hover:text-sharm-sea-bright">{{ copy.nav.faq }}</NuxtLink>
@@ -116,6 +117,7 @@ function submitSearch() {
         aria-label="Primary navigation"
       >
         <NuxtLink to="/experiences" class="rounded-xl px-4 py-3 transition-colors hover:bg-sharm-lagoon" @click="mobileMenuOpen = false">{{ copy.nav.experiences }}</NuxtLink>
+        <NuxtLink to="/find-my-trip" class="rounded-xl px-4 py-3 transition-colors hover:bg-sharm-lagoon" @click="mobileMenuOpen = false">{{ copy.finderNav }}</NuxtLink>
         <a href="#how" class="rounded-xl px-4 py-3 transition-colors hover:bg-sharm-lagoon" @click="mobileMenuOpen = false">{{ copy.nav.howItWorks }}</a>
         <NuxtLink to="/about" class="rounded-xl px-4 py-3 transition-colors hover:bg-sharm-lagoon" @click="mobileMenuOpen = false">{{ copy.nav.about }}</NuxtLink>
         <NuxtLink to="/faq" class="rounded-xl px-4 py-3 transition-colors hover:bg-sharm-lagoon" @click="mobileMenuOpen = false">{{ copy.nav.faq }}</NuxtLink>
@@ -141,6 +143,12 @@ function submitSearch() {
               class="rounded-full bg-sharm-sea px-6 py-3 font-semibold text-white shadow-lg shadow-sharm-sea/20 transition-transform hover:-translate-y-0.5 hover:shadow-xl"
             >
               {{ copy.hero.browse }}
+            </NuxtLink>
+            <NuxtLink
+              to="/find-my-trip"
+              class="rounded-full border border-sharm-sun bg-sharm-sand px-6 py-3 font-semibold text-sharm-ink transition-transform hover:-translate-y-0.5"
+            >
+              {{ copy.finderNav }}
             </NuxtLink>
             <a
               href="#how"
