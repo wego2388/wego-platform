@@ -13,7 +13,7 @@ const d = computed(() => props.doc.data);
 </script>
 
 <template>
-  <DocumentSheet :lang="lang" :title="m('doc.pickup.title')" :stamp="doc.document">
+  <DocumentSheet :lang="lang" :title="m('doc.pickup.title')" :stamp="doc.document" internal>
     <section class="doc-section">
       <dl class="doc-grid">
         <div class="doc-wide"><dt>{{ m("doc.pickup.tour") }}</dt><dd dir="auto">{{ docTourName(d, lang) }}</dd></div>

@@ -86,6 +86,7 @@ class JooqDocumentPrintRepository(
             .set(t.LANGUAGE, record.language.code)
             .set(t.PRINTED_BY_USER_ID, record.printedByUserId)
             .set(t.PRINTED_AT, OffsetDateTime.ofInstant(record.printedAt, ZoneOffset.UTC))
+            .set(t.CONTENT_FINGERPRINT, record.contentFingerprint)
             .execute()
     }
 
@@ -132,6 +133,7 @@ class JooqDocumentPrintRepository(
             printedByUserId = r.get(t.PRINTED_BY_USER_ID),
             printedByEmail = r.get(IDENTITY_USER.EMAIL),
             printedAt = r.get(t.PRINTED_AT).toInstant(),
+            contentFingerprint = r.get(t.CONTENT_FINGERPRINT),
         )
 
     private companion object {

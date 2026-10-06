@@ -32,9 +32,14 @@ CREATE TABLE wego.tours_operator_document_print (
     language             varchar(2) NOT NULL,
     printed_by_user_id   uuid REFERENCES wego.identity_user (id) ON DELETE SET NULL,
     printed_at           timestamp with time zone NOT NULL,
+    -- Run sheet / pickup manifest only: SHA-256 of the PII-free row ids, counts and flags that were printed,
+    -- so a later print can tell "same content" (COPY) from "changed" (REVISED).
+    content_fingerprint  varchar(64),
 
     CONSTRAINT tours_operator_document_print_type_known
         CHECK (document_type IN ('VOUCHER', 'RECEIPT', 'RUN_SHEET', 'PICKUP_MANIFEST', 'CANCELLATION_FORM')),
+    CONSTRAINT tours_operator_document_print_fingerprint_shape
+        CHECK (content_fingerprint IS NULL OR content_fingerprint ~ '^[0-9a-f]{64}$'),
     CONSTRAINT tours_operator_document_print_version_positive CHECK (version >= 1),
     CONSTRAINT tours_operator_document_print_language_known CHECK (language IN ('en', 'ar')),
     CONSTRAINT tours_operator_document_print_subject_shape
@@ -54,12 +59,14 @@ CREATE INDEX tours_operator_document_print_subject_idx
 
 -- The guard is PostgreSQL-only (PL/pgSQL), so jOOQ's DDL parser skips it.
 -- [jooq ignore start]
--- Append-only: no edits, no deletes. The only permitted change is the
--- database detaching a deleted staff user (ON DELETE SET NULL).
+-- Append-only: no edits, no deletes, no TRUNCATE. The only permitted change is the database
+-- detaching a deleted staff user: ON DELETE SET NULL runs as a nested (cascade) trigger, so
+-- pg_trigger_depth() > 1; a direct UPDATE (depth 1) is always refused.
 CREATE FUNCTION wego.tours_operator_document_print_guard() RETURNS trigger
     LANGUAGE plpgsql AS $$
 BEGIN
     IF TG_OP = 'UPDATE'
+       AND pg_trigger_depth() > 1
        AND NEW.printed_by_user_id IS NULL
        AND (to_jsonb(NEW) - 'printed_by_user_id') = (to_jsonb(OLD) - 'printed_by_user_id') THEN
         RETURN NEW;
@@ -71,6 +78,10 @@ $$;
 CREATE TRIGGER tours_operator_document_print_append_only
     BEFORE UPDATE OR DELETE ON wego.tours_operator_document_print
     FOR EACH ROW EXECUTE FUNCTION wego.tours_operator_document_print_guard();
+
+CREATE TRIGGER tours_operator_document_print_no_truncate
+    BEFORE TRUNCATE ON wego.tours_operator_document_print
+    FOR EACH STATEMENT EXECUTE FUNCTION wego.tours_operator_document_print_guard();
 -- [jooq ignore stop]
 
 COMMENT ON TABLE wego.tours_operator_document_print IS

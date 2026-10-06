@@ -3,7 +3,7 @@ import { computed, defineComponent, h } from "vue";
 import type { DocumentStamp } from "@wego/api-contract";
 import { COMPANY } from "../../utils/companyProfile";
 import { docMessage, type DocumentLanguage } from "../../utils/documentMessages";
-import { docDir, docInstant } from "../../utils/documentFormat";
+import { docDir, docInstant, staffInitials } from "../../utils/documentFormat";
 
 /**
  * One A4 paper: logo and company header, the document's own identity (number,
@@ -16,6 +16,8 @@ const props = defineProps<{
   stamp: DocumentStamp;
   banner?: string;
   watermark?: string;
+  /** Internal paper (run sheet, manifest) may show the staff email; customer paper shows initials only. */
+  internal?: boolean;
 }>();
 
 /** Emits the @page rule that prints the running footer (company, document number, page x of y) in every page margin. */
@@ -29,7 +31,9 @@ const dir = computed(() => docDir(props.lang));
 const titleId = computed(() => `doc-title-${props.stamp.type}-${props.stamp.number}`.replace(/[^\w-]/g, "-"));
 const brand = computed(() => COMPANY.brand[props.lang]);
 const copyNotice = computed(() => m("doc.copyNotice", { version: props.stamp.version, date: docInstant(props.stamp.originalPrintedAt, props.lang) }));
-const printedLine = computed(() => m("doc.printed", { at: docInstant(props.stamp.printedAt, props.lang), by: props.stamp.printedByEmail ?? "—" }));
+const revisedNotice = computed(() => m("doc.revisedNotice", { version: props.stamp.version, at: docInstant(props.stamp.printedAt, props.lang) }));
+const printedBy = computed(() => props.internal ? (props.stamp.printedByEmail ?? "—") : m("doc.staff", { initials: staffInitials(props.stamp.printedByEmail) }));
+const printedLine = computed(() => m("doc.printed", { at: docInstant(props.stamp.printedAt, props.lang), by: printedBy.value }));
 </script>
 
 <template>
@@ -46,7 +50,8 @@ const printedLine = computed(() => m("doc.printed", { at: docInstant(props.stamp
           <div><dt>{{ m("doc.number") }}</dt><dd dir="ltr" class="doc-number">{{ stamp.number }}</dd></div>
           <div><dt>{{ m("doc.versionLabel") }}</dt><dd>{{ stamp.version }}{{ stamp.copy ? "" : " · " + m("doc.original") }}</dd></div>
         </dl>
-        <p v-if="stamp.copy" class="doc-copy" role="note"><strong>{{ copyNotice }}</strong></p>
+        <p v-if="stamp.revised" class="doc-copy" role="note"><strong>{{ revisedNotice }}</strong></p>
+        <p v-else-if="stamp.copy" class="doc-copy" role="note"><strong>{{ copyNotice }}</strong></p>
       </div>
     </header>
 

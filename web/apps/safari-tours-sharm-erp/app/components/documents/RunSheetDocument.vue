@@ -13,7 +13,7 @@ const d = computed(() => props.doc.data);
 </script>
 
 <template>
-  <DocumentSheet :lang="lang" :title="m('doc.run.title')" :stamp="doc.document">
+  <DocumentSheet :lang="lang" :title="m('doc.run.title')" :stamp="doc.document" internal>
     <section class="doc-section">
       <dl class="doc-grid">
         <div><dt>{{ m("doc.run.date") }}</dt><dd>{{ docDate(d.date, lang, true) }}</dd></div>

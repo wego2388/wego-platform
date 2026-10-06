@@ -4497,6 +4497,37 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   the full company block at the end of the document; (6) Print-dialog cancel
   still counts as a recorded print (the register records generation, not paper).
 
+### 2026-10-06 — WEGO-016-OPS2-D Tier 1 review: ACCEPT-WITH-FOLLOWUPS, fixes applied
+
+- **Status:** ACTIVE (unchanged). Reviewed commit 86a53fe; fixes are in the
+  working tree, not committed.
+- **Fixes (each with a test):**
+  - **Run sheet / pickup manifest reprints:** the register stores a
+    `content_fingerprint` (SHA-256 of sorted booking ids, guest counts and
+    payment-due flags; no names, phones or notes). A reprint whose fingerprint
+    differs from the previous print is `revised=true` and prints
+    "REVISED vN / نسخة معدّلة" with the revision time; an unchanged one stays
+    COPY. Vouchers and receipts keep COPY (no fingerprint).
+  - **V31 guard (edited in place, unreleased):** detaching `printed_by_user_id`
+    is allowed only from the FK cascade (`pg_trigger_depth() > 1`); a direct
+    UPDATE is refused. A `BEFORE TRUNCATE ... FOR EACH STATEMENT` trigger
+    blocks TRUNCATE. jOOQ ignore markers kept. Tested, including that deleting
+    a staff user still works and nulls the printer.
+  - **Staff email on customer paper:** voucher, receipt and cancellation form
+    show "Staff <initials>" / "موظف <initials>" (local-part initials); the run
+    sheet and manifest (internal) keep the email.
+  - **Cancellation form:** next to the EUR amount to return it shows the EGP
+    equivalent "at today's rate X" (manager rate, half-up) or says no rate is
+    set today. The form prints its basis: "the percentage applies to the amount
+    collected; hours are counted to the start of the tour day (Cairo time)".
+  - **Receipt number year:** the year in `RCT|CXL|PKM-YYYY-NNNNNN` is the Africa/Cairo
+    year of the first print (not UTC, not the payment date); the sequence
+    restarts each Cairo year.
+- **Open owner decisions (logic deliberately unchanged):** (1) refund basis when a
+  deposit was paid: the percentage is applied to the amount actually
+  collected; (2) hours are counted to the start of the tour day (Cairo)
+  because departure clock times are not stored.
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE

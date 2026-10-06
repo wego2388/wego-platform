@@ -62,6 +62,10 @@ const hours = computed(() => Math.max(0, d.value.hoursBeforeTour));
       <p class="doc-pay" style="margin-top: 3mm">
         {{ m("doc.cancel.expected") }}: <span class="doc-num">{{ docMoney(d.expectedReturn, lang) }}</span>
       </p>
+      <p v-if="d.todayRate && d.expectedReturnEgp" class="doc-note" data-testid="egp-equivalent">
+        {{ m("doc.cancel.egp", { rate: d.todayRate, amount: docMoney(d.expectedReturnEgp, lang) }) }}
+      </p>
+      <p v-else class="doc-note" data-testid="no-rate">{{ m("doc.cancel.noRate") }}</p>
     </section>
 
     <section class="doc-section">

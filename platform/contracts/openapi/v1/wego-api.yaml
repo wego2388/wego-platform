@@ -6858,6 +6858,7 @@ components:
       - version
       - language
       - copy
+      - revised
       - originalPrintedAt
       - printedAt
       - printedByEmail
@@ -6884,7 +6885,10 @@ components:
           - ar
         copy:
           type: boolean
-          description: 'True for a reprint: the page prints COPY / نسخة with the version and the original date.'
+          description: 'True for a reprint of unchanged content: the page prints COPY / نسخة with the version and the original date.'
+        revised:
+          type: boolean
+          description: 'True for a run sheet or pickup manifest reprinted after its content changed since the previous print: the page prints REVISED / نسخة معدّلة with the version and the revision time (printedAt), not COPY.'
         originalPrintedAt:
           type: string
           format: date-time
@@ -7292,6 +7296,8 @@ components:
       - hoursBeforeTour
       - refundPercent
       - expectedReturn
+      - todayRate
+      - expectedReturnEgp
       properties:
         reference:
           type: string
@@ -7357,6 +7363,16 @@ components:
           maximum: 100
         expectedReturn:
           $ref: '#/components/schemas/Money'
+        todayRate:
+          description: EGP per 1 EUR at today's manager-set rate; null when no rate is set today.
+          anyOf:
+          - type: string
+          - type: 'null'
+        expectedReturnEgp:
+          description: The expected return at todayRate (half-up to cents); null when no rate is set.
+          anyOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
     ToursOperatorVoucherDocument:
       type: object
       additionalProperties: false

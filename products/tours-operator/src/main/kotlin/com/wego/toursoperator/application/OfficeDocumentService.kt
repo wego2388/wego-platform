@@ -40,6 +40,7 @@ class OfficeDocumentService(
     private val slotRepository: TourSlotRepository,
     private val contentRepository: TourContentRepository,
     private val collectionRepository: OfficeCollectionRepository,
+    private val fxRateRepository: FxRateRepository,
     private val paymentRepository: PaymentRepository,
     private val printRepository: DocumentPrintRepository,
     private val transactionRunner: TransactionRunner,
@@ -191,6 +192,7 @@ class OfficeDocumentService(
                     date.toString(),
                     language,
                     actorUserId,
+                    fingerprint(live.map { "${it.id.value}|${it.pricing.guests}|${paymentDue(it, nets)}" }),
                 ) { "RUN-${date.format(DateTimeFormatter.BASIC_ISO_DATE)}" }
             DocumentResult.Ready(stamp, data)
         }
@@ -231,7 +233,17 @@ class OfficeDocumentService(
                     vehicle = null,
                 )
             val stamp =
-                stamp(DocumentType.PICKUP_MANIFEST, slot.id.value.toString(), language, actorUserId) {
+                stamp(
+                    DocumentType.PICKUP_MANIFEST,
+                    slot.id.value.toString(),
+                    language,
+                    actorUserId,
+                    fingerprint(
+                        rows.map {
+                            "${it.id.value}|${it.pricing.guests}"
+                        },
+                    ),
+                ) {
                     printRepository.allocateNumber(DocumentType.PICKUP_MANIFEST, year())
                 }
             DocumentResult.Ready(stamp, data)
@@ -258,6 +270,8 @@ class OfficeDocumentService(
             val hours = Duration.between(cancelledAt, tourDayStart).toHours()
             val percent = CancellationRefund.percent(policy, hours)
             val expected = net.multiply(BigDecimal(percent)).divide(BigDecimal(100), Money.REQUIRED_SCALE, RoundingMode.HALF_UP)
+            val rate = fxRateRepository.latestFor(FxRateService.todayInSharm(clock))
+            val egp = rate?.let { expected.multiply(it.egpPerEur).setScale(Money.REQUIRED_SCALE, RoundingMode.HALF_UP) }
             val names = tourNames(listOf(booking.tourId))
             val data =
                 CancellationFormData(
@@ -285,6 +299,8 @@ class OfficeDocumentService(
                     hoursBeforeTour = hours,
                     refundPercent = percent,
                     expectedReturn = DocMoney(expected.toPlainString(), "EUR"),
+                    todayRate = rate?.egpPerEur?.toPlainString(),
+                    expectedReturnEgp = egp?.let { DocMoney(it.toPlainString(), "EGP") },
                 )
             val stamp =
                 stamp(DocumentType.CANCELLATION_FORM, booking.id.value.toString(), language, actorUserId) {
@@ -301,6 +317,7 @@ class OfficeDocumentService(
         subjectKey: String,
         language: DocumentLanguage,
         actorUserId: UUID,
+        fingerprint: String? = null,
         newNumber: () -> String,
     ): DocumentStamp {
         printRepository.lockSubject(type, subjectKey)
@@ -308,6 +325,9 @@ class OfficeDocumentService(
         val latest = printRepository.findLatest(type, subjectKey)
         // The register stores microseconds; print exactly what is stored so a reprint's "original" date matches.
         val now = Instant.now(clock).truncatedTo(java.time.temporal.ChronoUnit.MICROS)
+        // A run sheet / manifest is rebuilt from live bookings: a reprint whose content differs from the
+        // previous print is REVISED, an identical one stays a COPY. Vouchers and receipts carry no fingerprint.
+        val revised = latest != null && fingerprint != null && latest.contentFingerprint != fingerprint
         val record =
             DocumentPrintRecord(
                 id = UUID.randomUUID(),
@@ -319,6 +339,7 @@ class OfficeDocumentService(
                 printedByUserId = actorUserId,
                 printedByEmail = printRepository.emailOf(actorUserId),
                 printedAt = now,
+                contentFingerprint = fingerprint,
             )
         printRepository.append(record)
         return DocumentStamp(
@@ -326,12 +347,20 @@ class OfficeDocumentService(
             number = record.number,
             version = record.version,
             language = language,
-            copy = record.version > 1,
+            copy = record.version > 1 && !revised,
+            revised = revised,
             originalPrintedAt = original?.printedAt ?: now,
             printedAt = now,
             printedByEmail = record.printedByEmail,
         )
     }
+
+    /** SHA-256 over sorted booking ids, guest counts and payment-due flags: no names, phones or notes. */
+    private fun fingerprint(parts: List<String>): String =
+        java.security.MessageDigest
+            .getInstance("SHA-256")
+            .digest(parts.sorted().joinToString("\n").toByteArray())
+            .joinToString("") { "%02x".format(it) }
 
     private fun year(): Int = LocalDate.now(clock.withZone(CAIRO)).year
 

@@ -16,7 +16,7 @@ import { writeAuthSession, type AuthSession } from "../app/composables/useAuthSe
 import * as api from "../app/composables/useToursApi";
 import { COMPANY } from "../app/utils/companyProfile";
 import { DOCUMENT_MESSAGE_KEYS, docMessage, documentMessages } from "../app/utils/documentMessages";
-import { docInstant, documentPath, isValidSubject } from "../app/utils/documentFormat";
+import { docInstant, documentPath, isValidSubject, staffInitials } from "../app/utils/documentFormat";
 import { isLocalizedErpRoute } from "../app/utils/erpLocale";
 
 vi.mock("../app/composables/useToursApi", async (importOriginal) => ({
@@ -26,7 +26,7 @@ vi.mock("../app/composables/useToursApi", async (importOriginal) => ({
 
 const eur = (amount: string) => ({ amount, currencyCode: "EUR" });
 const stamp = (over: Partial<DocumentStamp> = {}): DocumentStamp => ({
-  type: "VOUCHER", number: "STR-2026-0042", version: 1, language: "en", copy: false,
+  type: "VOUCHER", number: "STR-2026-0042", version: 1, language: "en", copy: false, revised: false,
   originalPrintedAt: "2026-10-06T10:00:00Z", printedAt: "2026-10-06T10:00:00Z", printedByEmail: "clerk@example.com", ...over,
 });
 const voucher = (data: Partial<VoucherDocument["data"]> = {}, s: Partial<DocumentStamp> = {}): VoucherDocument => ({
@@ -87,6 +87,7 @@ const cancellation = (): CancellationFormDocument => ({
       { recordedAt: "2027-06-02T09:00:00Z", reversal: true, method: "CASH_AT_OFFICE", currencyPaid: "EUR", amountPaid: eur("10.00"), settledEur: eur("10.00") },
     ],
     collectedNet: eur("30.00"), policy: "STANDARD", hoursBeforeTour: 60, refundPercent: 100, expectedReturn: eur("30.00"),
+    todayRate: "50.0000", expectedReturnEgp: { amount: "1500.00", currencyCode: "EGP" },
   },
 } as CancellationFormDocument);
 
@@ -120,6 +121,14 @@ describe("document messages", () => {
     expect(documentPath("receipt", "abc")).toBe("/documents/receipt/abc");
     expect(docInstant("2026-10-06T21:30:00Z", "en")).toContain("00:30");
     expect(isLocalizedErpRoute("/documents/voucher/3f2b8c3e-1a2b-4c5d-8e9f-0a1b2c3d4e5f")).toBe(true);
+  });
+});
+
+describe("staff initials", () => {
+  it("derives initials from the email local part", () => {
+    expect(staffInitials("mona.ali@x.com")).toBe("MA");
+    expect(staffInitials("clerk@x.com")).toBe("C");
+    expect(staffInitials(null)).toBe("—");
   });
 });
 
@@ -225,6 +234,42 @@ describe.each([["en", "ltr"], ["ar", "rtl"]] as const)("documents in %s", (lang,
     expect(rows[1]).toContain("Zeta Hotel");
     expect(w.findAll(".doc-blank")).toHaveLength(2);
     expect(w.text()).toContain(docMessage(lang, "doc.pickup.privacy"));
+  });
+
+  it("customer paper shows staff initials, never an email; internal paper keeps the email", () => {
+    for (const w of [
+      mount(VoucherDoc, { props: { doc: voucher(), lang } }),
+      mount(ReceiptDoc, { props: { doc: receipt(), lang } }),
+      mount(CancellationFormDoc, { props: { doc: cancellation(), lang } }),
+    ]) {
+      expect(w.text()).not.toContain("clerk@example.com");
+      expect(w.text()).toContain(docMessage(lang, "doc.staff", { initials: "C" }));
+    }
+    expect(mount(RunSheetDoc, { props: { doc: runSheet(), lang } }).text()).toContain("clerk@example.com");
+    expect(mount(PickupManifestDoc, { props: { doc: manifest(), lang } }).text()).toContain("clerk@example.com");
+  });
+
+  it("a changed run sheet / manifest reprint says REVISED with the time, an unchanged one says COPY", () => {
+    const revised = { ...runSheet(), document: { ...runSheet().document, version: 3, copy: false, revised: true } };
+    let w = mount(RunSheetDoc, { props: { doc: revised, lang } });
+    expect(w.get(".doc-copy").text()).toContain(docMessage(lang, "doc.revised"));
+    expect(w.get(".doc-copy").text().startsWith(docMessage(lang, "doc.revised"))).toBe(true);
+    const same = { ...manifest(), document: { ...manifest().document, version: 2, copy: true, revised: false } };
+    w = mount(PickupManifestDoc, { props: { doc: same, lang } });
+    expect(w.get(".doc-copy").text()).toContain(docMessage(lang, "doc.copy"));
+    expect(w.get(".doc-copy").text().startsWith(docMessage(lang, "doc.copy"))).toBe(true);
+    expect(w.get(".doc-copy").text()).not.toContain(lang === "ar" ? "معدّلة" : "REVISED");
+  });
+
+  it("cancellation form: EGP equivalent at today's rate, or a clear no-rate note, and the basis", () => {
+    let w = mount(CancellationFormDoc, { props: { doc: cancellation(), lang } });
+    expect(w.get("[data-testid=egp-equivalent]").text()).toContain("50.0000");
+    expect(w.text()).toContain(docMessage(lang, "doc.cancel.basis"));
+    const noRate = cancellation();
+    noRate.data.todayRate = null; noRate.data.expectedReturnEgp = null;
+    w = mount(CancellationFormDoc, { props: { doc: noRate, lang } });
+    expect(w.find("[data-testid=egp-equivalent]").exists()).toBe(false);
+    expect(w.get("[data-testid=no-rate]").text()).toBe(docMessage(lang, "doc.cancel.noRate"));
   });
 
   it("cancellation form: collected net, policy, expected return and three signature lines", () => {

@@ -50,3 +50,10 @@ export function isValidSubject(kind: DocumentKind, id: string): boolean {
 export function documentPath(kind: DocumentKind, id: string): string {
   return `/documents/${kind}/${id}`;
 }
+
+/** Customer paper never carries a staff email: only the local part's initials, e.g. mona.ali@… → MA. */
+export function staffInitials(email: string | null | undefined): string {
+  const local = (email ?? "").split("@")[0] ?? "";
+  const letters = local.split(/[^\p{L}]+/u).filter(Boolean).slice(0, 3).map((part) => part.charAt(0).toUpperCase()).join("");
+  return letters || "—";
+}

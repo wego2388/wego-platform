@@ -656,6 +656,7 @@ class ToursOperatorOfficeDocumentHttpTest {
 
     @Test
     fun `cancellation form computes the expected return from the policy and records no refund`() {
+        setRate("50.0000")
         // Tour two days ahead: the tour day starts between 24 and 48 hours away (half back).
         val (_, slotId, _) = seedTourAndSlot("cancel-half", today().plusDays(2))
         val id = newOffice(slotId)
@@ -674,6 +675,10 @@ class ToursOperatorOfficeDocumentHttpTest {
         assertThat(JsonPath.read<Int>(doc, "$.data.refundPercent")).isEqualTo(50)
         assertThat(JsonPath.read<String>(doc, "$.data.expectedReturn.amount")).isEqualTo("30.00")
         assertThat(JsonPath.read<Int>(doc, "$.data.collections.length()")).isEqualTo(2)
+        // The EGP equivalent at today's manager rate sits next to the EUR amount.
+        assertThat(JsonPath.read<String>(doc, "$.data.todayRate")).isEqualTo("50.0000")
+        assertThat(JsonPath.read<String>(doc, "$.data.expectedReturnEgp.amount")).isEqualTo("1500.00")
+        assertThat(JsonPath.read<String>(doc, "$.data.expectedReturnEgp.currencyCode")).isEqualTo("EGP")
         assertThat(doc).doesNotContain("WAL-123456").doesNotContain("+201234567890").doesNotContain("phone")
         assertThat(JsonPath.read<String>(doc, "$.document.number")).matches("CXL-\\d{4}-\\d{6}")
         assertThat(dsl.fetchCount(TOURS_OPERATOR_OFFICE_COLLECTION, TOURS_OPERATOR_OFFICE_COLLECTION.BOOKING_ID.eq(UUID.fromString(id))))
@@ -748,6 +753,78 @@ class ToursOperatorOfficeDocumentHttpTest {
             dsl.execute("DELETE FROM wego.tours_operator_document_print WHERE subject_key = ?", id)
         }.hasMessageContaining("append-only")
         assertThat(registerRows("VOUCHER", id)).hasSize(1)
+    }
+
+    @Test
+    fun `a run sheet or manifest reprint is REVISED when content changed and COPY when it did not`() {
+        val date = LocalDate.of(2027, 9, 14)
+        val (_, slotId, _) = seedTourAndSlot("revised", date)
+        newOffice(slotId, name = "First Guest", phone = "+201000000021", hotel = "Hotel One", adults = 1, children = 0)
+        val body = """{"date":"$date","language":"en"}"""
+
+        val first = printed("run-sheet", body)
+        assertThat(JsonPath.read<Boolean>(first, "$.document.copy")).isFalse()
+        assertThat(JsonPath.read<Boolean>(first, "$.document.revised")).isFalse()
+        val same = printed("run-sheet", body)
+        assertThat(JsonPath.read<Int>(same, "$.document.version")).isEqualTo(2)
+        assertThat(JsonPath.read<Boolean>(same, "$.document.copy")).isTrue()
+        assertThat(JsonPath.read<Boolean>(same, "$.document.revised")).isFalse()
+
+        val manifestFirst = printed("slots/$slotId/pickup-manifest")
+        assertThat(JsonPath.read<Boolean>(printed("slots/$slotId/pickup-manifest"), "$.document.copy")).isTrue()
+        assertThat(JsonPath.read<Boolean>(manifestFirst, "$.document.revised")).isFalse()
+
+        newOffice(slotId, name = "Late Guest", phone = "+201000000022", hotel = "Hotel Two", adults = 2, children = 0)
+        val changed = printed("run-sheet", body)
+        assertThat(JsonPath.read<Int>(changed, "$.document.version")).isEqualTo(3)
+        assertThat(JsonPath.read<Boolean>(changed, "$.document.revised")).isTrue()
+        assertThat(JsonPath.read<Boolean>(changed, "$.document.copy")).isFalse()
+        assertThat(JsonPath.read<String>(changed, "$.document.number")).isEqualTo("RUN-20270914")
+        val manifestChanged = printed("slots/$slotId/pickup-manifest")
+        assertThat(JsonPath.read<Boolean>(manifestChanged, "$.document.revised")).isTrue()
+        // Nothing changed since the revised print: back to a plain copy.
+        assertThat(JsonPath.read<Boolean>(printed("run-sheet", body), "$.document.copy")).isTrue()
+
+        val fingerprints =
+            dsl
+                .fetch(
+                    "SELECT content_fingerprint FROM wego.tours_operator_document_print WHERE subject_key = ? ORDER BY version",
+                    date.toString(),
+                ).map { it.get(0)?.toString() }
+        assertThat(fingerprints).hasSize(4).allMatch { it != null && it.matches(Regex("[0-9a-f]{64}")) }
+        assertThat(fingerprints[0]).isEqualTo(fingerprints[1]).isNotEqualTo(fingerprints[2])
+        // Vouchers and receipts carry no fingerprint and keep plain COPY behaviour.
+        val booking = newOffice(slotId)
+        printed("bookings/$booking/voucher")
+        val voucherAgain = printed("bookings/$booking/voucher")
+        assertThat(JsonPath.read<Boolean>(voucherAgain, "$.document.copy")).isTrue()
+        assertThat(JsonPath.read<Boolean>(voucherAgain, "$.document.revised")).isFalse()
+        assertThat(
+            dsl.fetchValue(
+                "SELECT count(*) FROM wego.tours_operator_document_print WHERE subject_key = ? AND content_fingerprint IS NOT NULL",
+                booking,
+            ),
+        ).isEqualTo(0L)
+    }
+
+    @Test
+    fun `the register refuses truncate and a direct detach but survives deleting the staff user`() {
+        val (_, slotId, _) = seedTourAndSlot("guard", LocalDate.of(2027, 9, 15))
+        val id = newOffice(slotId)
+        printed("bookings/$id/voucher")
+        assertThatThrownBy { dsl.execute("TRUNCATE wego.tours_operator_document_print") }.hasMessageContaining("append-only")
+        // Nulling the printer by hand is refused; only the FK cascade may do it.
+        assertThatThrownBy {
+            dsl.execute("UPDATE wego.tours_operator_document_print SET printed_by_user_id = NULL WHERE subject_key = ?", id)
+        }.hasMessageContaining("append-only")
+
+        val token = tokenWith("tours-operator.document:print")
+        val (_, otherSlot, _) = seedTourAndSlot("guard-2", LocalDate.of(2027, 9, 16))
+        val other = newOffice(otherSlot)
+        print("bookings/$other/voucher", token).andExpect { status { isOk() } }
+        val email = "doc-test-tours-operator-document-print@example.com"
+        dsl.execute("DELETE FROM wego.identity_user WHERE email = ?", email)
+        assertThat(registerRows("VOUCHER", other).single().get(TOURS_OPERATOR_DOCUMENT_PRINT.PRINTED_BY_USER_ID)).isNull()
     }
 
     companion object {

@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import type { ReceiptDocument } from "@wego/api-contract";
 import { docMessage, type DocumentLanguage } from "../../utils/documentMessages";
-import { docDate, docInstant, docMoney, docTourName } from "../../utils/documentFormat";
+import { docDate, docInstant, docMoney, docTourName, staffInitials } from "../../utils/documentFormat";
 import { erpMessage } from "../../utils/erpLocale";
 import DocumentSheet from "./DocumentSheet.vue";
 
@@ -42,7 +42,7 @@ const reversedNotice = computed(() => d.value.reversal
             <td><bdi dir="ltr" class="doc-num">{{ d.referenceMasked }}</bdi> <span class="doc-note">{{ m("doc.receipt.referenceHint") }}</span></td>
           </tr>
           <tr><th scope="row">{{ m("doc.receipt.received") }}</th><td>{{ docInstant(d.recordedAt, lang) }}</td></tr>
-          <tr v-if="d.collectedBy"><th scope="row">{{ m("doc.receipt.by") }}</th><td dir="ltr">{{ d.collectedBy }}</td></tr>
+          <tr v-if="d.collectedBy"><th scope="row">{{ m("doc.receipt.by") }}</th><td>{{ m("doc.staff", { initials: staffInitials(d.collectedBy) }) }}</td></tr>
         </tbody>
       </table>
     </section>

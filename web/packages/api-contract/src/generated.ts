@@ -2749,8 +2749,10 @@ export interface components {
             version: number;
             /** @enum {string} */
             language: "en" | "ar";
-            /** @description True for a reprint: the page prints COPY / نسخة with the version and the original date. */
+            /** @description True for a reprint of unchanged content: the page prints COPY / نسخة with the version and the original date. */
             copy: boolean;
+            /** @description True for a run sheet or pickup manifest reprinted after its content changed since the previous print: the page prints REVISED / نسخة معدّلة with the version and the revision time (printedAt), not COPY. */
+            revised: boolean;
             /** Format: date-time */
             originalPrintedAt: string;
             /** Format: date-time */
@@ -2903,6 +2905,10 @@ export interface components {
             hoursBeforeTour: number;
             refundPercent: number;
             expectedReturn: components["schemas"]["Money"];
+            /** @description EGP per 1 EUR at today's manager-set rate; null when no rate is set today. */
+            todayRate: string | null;
+            /** @description The expected return at todayRate (half-up to cents); null when no rate is set. */
+            expectedReturnEgp: components["schemas"]["Money"] | null;
         };
         ToursOperatorVoucherDocument: {
             document: components["schemas"]["ToursOperatorDocumentStamp"];

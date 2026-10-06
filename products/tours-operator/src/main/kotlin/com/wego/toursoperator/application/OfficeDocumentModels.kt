@@ -44,6 +44,8 @@ data class DocumentPrintRecord(
     val printedByUserId: UUID?,
     val printedByEmail: String?,
     val printedAt: Instant,
+    /** Run sheet / manifest only: hash of the PII-free printed content, to tell a changed reprint from a plain copy. */
+    val contentFingerprint: String? = null,
 )
 
 /** What the printed page shows about its own identity (number, version, original date). */
@@ -52,7 +54,10 @@ data class DocumentStamp(
     val number: String,
     val version: Int,
     val language: DocumentLanguage,
+    /** A reprint of unchanged content. */
     val copy: Boolean,
+    /** A reprint of a run sheet / manifest whose content changed since the previous print: REVISED, not COPY. */
+    val revised: Boolean = false,
     val originalPrintedAt: Instant,
     val printedAt: Instant,
     val printedByEmail: String?,
@@ -224,6 +229,10 @@ data class CancellationFormData(
     val hoursBeforeTour: Long,
     val refundPercent: Int,
     val expectedReturn: DocMoney,
+    /** EGP per 1 EUR at today's manager-set rate; null when no rate is set today. */
+    val todayRate: String?,
+    /** The expected return at [todayRate], half-up to cents; null when no rate is set. */
+    val expectedReturnEgp: DocMoney?,
 )
 
 sealed class DocumentResult<out T> {
