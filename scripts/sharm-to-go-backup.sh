@@ -9,6 +9,17 @@ set -euo pipefail
 # still an open owner decision — see infrastructure/SHARM_TO_GO_VPS.md's
 # "Not covered here" section. Copy the output file off this VPS yourself
 # until that decision is made.
+#
+# Encryption: opt-in via STG_BACKUP_PASSPHRASE. A database dump is customer
+# PII (names, phone numbers, emails) sitting in a plain file on disk — if
+# it's ever copied off this VPS (which the comment above says to do), an
+# unencrypted copy is a real exposure. When the passphrase is set, the dump
+# is symmetrically encrypted with GPG (AES256) and the plaintext file is
+# removed; sharm-to-go-restore-drill.sh decrypts it automatically. Kept
+# deliberately simple — a shared passphrase, not a recipient/PKI setup —
+# because nothing here manages key distribution to multiple people yet.
+# Store the passphrase somewhere durable and NOT on this VPS (a password
+# manager); losing it makes every encrypted backup permanently unreadable.
 
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 compose_file="$repository_root/infrastructure/compose/sharm-to-go.compose.yaml"
@@ -55,8 +66,23 @@ fi
 
 echo "Backup written: $output_file ($dump_size bytes)"
 
-# Prune: keep only the most recent $retention_count backups.
-mapfile -t existing < <(ls -1t "$backup_dir"/sharm-to-go-*.pgdump 2>/dev/null)
+if [[ -n "${STG_BACKUP_PASSPHRASE:-}" ]]; then
+  encrypted_file="$output_file.gpg"
+  echo "Encrypting backup (STG_BACKUP_PASSPHRASE is set)..."
+  gpg --batch --yes --symmetric --cipher-algo AES256 \
+    --passphrase-fd 0 --output "$encrypted_file" "$output_file" <<<"$STG_BACKUP_PASSPHRASE"
+  rm -f "$output_file"
+  output_file="$encrypted_file"
+  echo "Backup encrypted: $output_file"
+else
+  echo "WARNING: STG_BACKUP_PASSPHRASE is not set — this backup is unencrypted plaintext. Set it to encrypt backups containing customer PII (names, phone numbers, emails)." >&2
+fi
+
+# Prune: keep only the most recent $retention_count backups, encrypted or
+# not — a mixed backup_dir (some old plaintext, some new .gpg) is expected
+# right after encryption is first turned on, and both count toward the
+# same retention budget.
+mapfile -t existing < <(ls -1t "$backup_dir"/sharm-to-go-*.pgdump "$backup_dir"/sharm-to-go-*.pgdump.gpg 2>/dev/null)
 if (( ${#existing[@]} > retention_count )); then
   for old in "${existing[@]:$retention_count}"; do
     echo "Pruning old backup beyond retention ($retention_count): $old"

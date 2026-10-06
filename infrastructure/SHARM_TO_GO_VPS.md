@@ -78,6 +78,19 @@ live database:
 scripts/sharm-to-go-restore-drill.sh backups/sharm-to-go/sharm-to-go-<timestamp>.pgdump
 ```
 
+**Encryption (opt-in, `STG_BACKUP_PASSPHRASE`):** a dump contains customer
+PII (names, phone numbers, emails). Set `STG_BACKUP_PASSPHRASE` before
+running the backup script and every dump is symmetrically encrypted
+(GPG, AES256) to `sharm-to-go-<timestamp>.pgdump.gpg`, with the plaintext
+removed immediately after. Store the passphrase in a password manager, not
+on this VPS — losing it makes every encrypted backup permanently
+unreadable. The restore drill decrypts automatically when given a `.gpg`
+file and the same `STG_BACKUP_PASSPHRASE`:
+
+```bash
+STG_BACKUP_PASSPHRASE='...' scripts/sharm-to-go-restore-drill.sh backups/sharm-to-go/sharm-to-go-<timestamp>.pgdump.gpg
+```
+
 Boots a throwaway `postgres:18.4-alpine` container, restores the file into
 it, confirms the `wego` schema actually has tables, then tears the
 container down. **Verified for real** (not just read): run end to end
