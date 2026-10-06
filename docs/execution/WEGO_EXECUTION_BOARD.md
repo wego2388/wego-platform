@@ -4523,6 +4523,8 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   - **Receipt number year:** the year in `RCT|CXL|PKM-YYYY-NNNNNN` is the Africa/Cairo
     year of the first print (not UTC, not the payment date); the sequence
     restarts each Cairo year.
+- **Voucher instructions approved (owner, 2026-10-07, «ردي انت كلامك صح»):** the four
+  customer-instruction lines are approved as written (EN/AR).
 - **Owner decision update (2026-10-07, «موافق على المقترح وأ وكمل»):** refund basis
   = option (a), percentage of the amount actually collected; cancellation hours
   now count to an assumed departure hour per slot (sunrise 04:00, morning 07:00,
