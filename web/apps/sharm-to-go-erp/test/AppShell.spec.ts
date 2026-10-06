@@ -30,7 +30,7 @@ describe("app-shell layout", () => {
     for (const group of ["Overview", "Operations", "Travel Marketplace"]) {
       expect(wrapper.findAll("p").filter((p) => p.text() === group)).toHaveLength(1);
     }
-    for (const link of ["Dashboard", "Requests", "Notifications", "Providers", "Categories", "Services"]) {
+    for (const link of ["Dashboard", "Today", "Requests", "Notifications", "Providers", "Categories", "Services"]) {
       const matches = wrapper.findAll("a").filter((a) => a.text() === link);
       expect(matches).toHaveLength(1);
     }

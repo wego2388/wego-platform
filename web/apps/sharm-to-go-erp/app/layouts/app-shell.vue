@@ -23,6 +23,7 @@ const navGroups: NavGroup[] = [
   {
     label: "Operations",
     links: [
+      { to: "/today", label: "Today" },
       { to: "/requests", label: "Requests" },
       { to: "/notifications", label: "Notifications" },
     ],
