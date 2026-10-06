@@ -1,0 +1,2767 @@
+{
+  "schemaVersion": 1,
+  "note": "Generated for Sharm To Go catalog import (task #66). categoryCode is resolved to a real categoryId at import time via the categories[] list below. Prices are EGP, computed from the owner-approved EUR x 59.80 rate (Safari-sourced trips) or copied verbatim from the owner-decided intake sheets (legacy concepts). Media is placeholder-only and intentionally blocks publish() until real rights-cleared photos exist.",
+  "categories": [
+    {
+      "code": "desert",
+      "name_en": "Desert Adventures",
+      "name_ar": "مغامرات الصحراء",
+      "order": 1
+    },
+    {
+      "code": "sea",
+      "name_en": "Sea Adventures",
+      "name_ar": "مغامرات البحر",
+      "order": 2
+    },
+    {
+      "code": "culture",
+      "name_en": "City & Culture",
+      "name_ar": "المدينة والثقافة",
+      "order": 3
+    },
+    {
+      "code": "entertainment",
+      "name_en": "Relaxation & Shows",
+      "name_ar": "استرخاء وعروض",
+      "order": 4
+    },
+    {
+      "code": "transfers",
+      "name_en": "Transfers",
+      "name_ar": "الانتقالات",
+      "order": 5
+    },
+    {
+      "code": "family",
+      "name_en": "Family Activities",
+      "name_ar": "أنشطة العائلة",
+      "order": 6
+    },
+    {
+      "code": "heritage-day-trips",
+      "name_en": "Heritage & Day Trips",
+      "name_ar": "رحلات التراث واليوم الكامل",
+      "order": 7
+    }
+  ],
+  "services": [
+    {
+      "internalRef": "super-safari-adventure",
+      "categoryCode": "desert",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Sinai Super Safari",
+        "ar": "سفاري سيناء الكبير"
+      },
+      "description": {
+        "en": "This is Sinai with the lights on. Your quad bike kicks up sand as you race across golden dunes toward the Valley of Echo — stand there and shout, and the mountains shout back. Catch your breath with sweet Bedouin tea in a real desert tent, then swap engines for a camel and ride it back across the sand like the Bedouin have for centuries. Go at sunset and the desert turns gold, then pink, then puts on a whole show: a VIP Bedouin dinner under the stars with Tanoura dancers spinning fire. Sinai doesn't get more alive than this.",
+        "ar": "دي سيناء من غير أي تجميل. الكواد بتاعك بيرفع الرمل وانت بتجري وسط الكثبان الذهبية لحد وادي الصدى — قف هناك واصرخ، والجبال ترد عليك. خد نفسك مع كاس شاي بدوي حقيقي في خيمة وسط الصحراء، وبعدين بدّل المحرك بجمل واركبه زي ما البدو بيعملوا من مئات السنين. لو رحت وقت الغروب، الصحراء بتتلون دهب وبعدين وردي، وبعدها عرض كامل: عشاء بدوي VIP تحت النجوم مع رقص التنورة والنار. سيناء مفيهاش حياة أكتر من كده."
+      },
+      "shortDescription": {
+        "en": "Rip across the dunes on a quad bike, shout into the Valley of Echo, and ride a camel home through the desert — Sinai's wild side in one afternoon.",
+        "ar": "اتحرك على الكواد وسط الكثبان، اصرخ في وادي الصدى واسمع صوتك يرجعلك، واركب جمل في رحلة العودة وسط الصحراء — سيناء بوجهها البري في عصرية واحدة."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Air-conditioned transport; Quad bike ride; Camel ride; Stops at the Valley of Echo and a Bedouin tent; Bedouin tea; Sunset departure: VIP Bedouin dinner with Tanoura and fire show; Tour guide; Entrance fees",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ مواصلات مكيفة؛ ركوب دراجة الكواد؛ ركوب الجمل؛ وقفات عند وادي الصدى وخيمة بدوية؛ الشاي البدوي؛ الرحلة المسائية وقت الغروب: عشاء بدوي VIP مع عرض تنورة وعرض نار؛ مرشد سياحي؛ رسوم الدخول"
+      },
+      "exclusions": {
+        "en": "Not specified.",
+        "ar": "غير محدد."
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 330,
+          "maxParticipants": 20,
+          "priceAmount": "2100.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/super-safari-adventure.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "sunset-quad-bike",
+      "categoryCode": "desert",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Sunset Dunes Quad Ride",
+        "ar": "رحلة الكواد عند الغروب"
+      },
+      "description": {
+        "en": "Timing is everything with this one. You'll ride out as the sun starts dropping, the dunes turning every shade of gold around you, all the way to the Valley of Echo for a shout that comes right back at you. Bedouin tea waits in a real desert tent, then a slow camel ride carries you back across the sand just as the sky turns orange. Shorter than the full safari, same big sky.",
+        "ar": "التوقيت هنا هو كل حاجة. هتخرج والشمس بدأت تنزل، والكثبان حواليك بتتلون دهب بكل درجاته، لحد وادي الصدى عشان تصرخ وتسمع صوتك يرجعلك. شاي بدوي مستنيك في خيمة حقيقية وسط الصحراء، وبعدين ركوبة جمل هادية تاخدك عبر الرمل لحظة ما السما تتلون برتقالي. أقصر من السفاري الكامل، بس بنفس السما الواسعة."
+      },
+      "shortDescription": {
+        "en": "Chase the sunset on a quad bike through golden dunes, with a stop for Bedouin tea and a camel ride before the light fades.",
+        "ar": "جري الغروب على الكواد وسط كثبان ذهبية، مع وقفة شاي بدوي وركوب جمل قبل ما الضوء يختفي."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Air-conditioned transport; Quad bike ride; Camel ride; Helmet and safety briefing; Stops at the Valley of Echo and a Bedouin tent; Bedouin tea; Tour guide; Entrance fees",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ مواصلات مكيفة؛ ركوب دراجة الكواد؛ ركوب الجمل؛ خوذة وإرشادات السلامة؛ وقفات عند وادي الصدى وخيمة بدوية؛ الشاي البدوي؛ مرشد سياحي؛ رسوم الدخول"
+      },
+      "exclusions": {
+        "en": "Not specified.",
+        "ar": "غير محدد."
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 150,
+          "maxParticipants": 15,
+          "priceAmount": "2100.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/sunset-quad-bike.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "double-buggy-camel-ride",
+      "categoryCode": "desert",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Double Buggy Desert Drive",
+        "ar": "رحلة البجي المزدوجة في الصحراء"
+      },
+      "description": {
+        "en": "This one puts you in the driver's seat — literally. You and a partner take turns behind the wheel of your own buggy, bouncing across the dunes toward the Echo Mountains. Stop for tea in a Bedouin tent, shout into the valley and listen for your echo, then finish on camel-back for the slow way home across the sand.",
+        "ar": "ده النشاط اللي بيحطك انت في مكان السواق فعليًا. انت وصاحبك بتتبادلوا العجلة في بجي خاص بيكوا وسط الكثبان لجبال الصدى. قف لشاي في خيمة بدوية، اصرخ في الوادي واسمع صوتك يرجعلك، وخلّص الرحلة على ظهر جمل في طريق العودة الهادي وسط الرمل."
+      },
+      "shortDescription": {
+        "en": "Grab the wheel of a two-seat sand buggy and drive yourselves across the dunes, then swap engines for a camel.",
+        "ar": "خد العجلة بنفسك في بجي صحراوي بمقعدين وسوق وسط الكثبان، وبعدين بدّل المحرك بجمل."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Air-conditioned transport; Two-seat sand buggy; Camel ride; Stops at the Valley of Echo and a Bedouin tent; Bedouin tea; Safety equipment; Tour guide; Entrance fees",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ مواصلات مكيفة؛ عربة بجي رملية بمقعدين؛ ركوب الجمل؛ وقفات عند وادي الصدى وخيمة بدوية؛ الشاي البدوي؛ معدات السلامة؛ مرشد سياحي؛ رسوم الدخول"
+      },
+      "exclusions": {
+        "en": "Not specified.",
+        "ar": "غير محدد."
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Two-seat buggy",
+            "ar": "باجي بمقعدين"
+          },
+          "durationMinutes": 150,
+          "maxParticipants": 2,
+          "priceAmount": "1800.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_VEHICLE"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/double-buggy-camel-ride.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "bedouin-dinner-camel-ride",
+      "categoryCode": "desert",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Bedouin Sunset Dinner & Camel Ride",
+        "ar": "عشاء بدوي وركوب جمل عند الغروب"
+      },
+      "description": {
+        "en": "Your evening starts on a camel, swaying through the dunes as the sky turns orange, then pink, then dark. In a Bedouin village, dinner is already on the fire — a real open barbecue, fresh bread, and sweet tea poured the traditional way. The night closes with drums, a Tanoura dancer spinning in color, and a fire show that lights up the whole desert.",
+        "ar": "ليلتك بتبدأ على جمل، بتتهادى وسط الكثبان والسما بتتلون برتقالي وبعدين وردي وبعدين تدلّم. في قرية بدوية، العشاء جاهز على النار — باربيكيو حقيقي، خبز طري، وشاي حلو بيتقدّم على الطريقة البدوية. الليلة تقفل بدقة طبل، ورقص تنورة بألوان بتلف، وعرض نار بيولّع الصحراء كلها."
+      },
+      "shortDescription": {
+        "en": "A camel ride through the dunes at sunset, a real Bedouin barbecue under the stars, and a Tanoura show with fire dancers.",
+        "ar": "ركوبة جمل وسط الكثبان عند الغروب، عشاء بدوي حقيقي على النار تحت النجوم، وعرض تنورة مع رقص النار."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Air-conditioned transport; Camel ride; Barbecue Bedouin dinner (open buffet) in a private VIP tent; Bedouin tea; Fire show and Tanoura show; Tour guide; Entrance fees",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ مواصلات مكيفة؛ ركوب الجمل؛ عشاء بدوي مشوي (بوفيه مفتوح) في خيمة VIP خاصة؛ الشاي البدوي؛ عرض نار وعرض تنورة؛ مرشد سياحي؛ رسوم الدخول"
+      },
+      "exclusions": {
+        "en": "Not specified.",
+        "ar": "غير محدد."
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 210,
+          "maxParticipants": 25,
+          "priceAmount": "2100.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/bedouin-dinner-camel-ride.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "dahab-colored-canyon",
+      "categoryCode": "culture",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Colored Canyon & Dahab Day Trip",
+        "ar": "رحلة الكانيون الملوّن ودهب"
+      },
+      "description": {
+        "en": "The Colored Canyon earns its name the second you step inside — sandstone walls in bands of yellow, purple, red and gold rise around you as you walk through a narrow 800-meter passage carved by water over thousands of years. From there it's a camel ride along the coast, a swim and snorkel at the Three Pools, and free time in Dahab's relaxed bazaar before the drive back. One day, three different Sinais.",
+        "ar": "الكانيون الملوّن بياخد اسمه من أول ما تخطّى الداخل — جبال رملية بخطوط صفرا وبنفسجي وأحمر ودهبي حواليك وانت بتمشي في ممر ضيق طوله 800 متر شكلته المية على مدار آلاف السنين. بعد كده ركوبة جمل على الساحل، وعوم وسنوركل في البحيرات التلاتة، ووقت فاضي في سوق دهب الهادي قبل العودة. يوم واحد بس 3 أوجه مختلفة لسيناء."
+      },
+      "shortDescription": {
+        "en": "Walk between canyon walls striped yellow, purple and gold, then swim and relax in Dahab's famous waters.",
+        "ar": "اتمشى وسط جبال كانيون بخطوط صفرا وبنفسجي ودهبي، وبعدين اعوم واسترخي في مية دهب المشهورة."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Jeep to the Colored Canyon; Guided canyon walk; Lunch by the sea; Camel ride along the coast; Stop at the Three Pools; Free time in Dahab; Local guide",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ سيارة جيب إلى الكانيون الملون؛ جولة مشي مع مرشد داخل الكانيون؛ غداء على البحر؛ ركوب الجمل على طول الساحل؛ وقفة عند البرك الثلاث؛ وقت حر في دهب؛ مرشد محلي"
+      },
+      "exclusions": {
+        "en": "Not specified.",
+        "ar": "غير محدد."
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 540,
+          "maxParticipants": 20,
+          "priceAmount": "2100.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/dahab-colored-canyon.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "camel-horse-ride",
+      "categoryCode": "desert",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Desert Camel or Horse Ride",
+        "ar": "ركوب جمل أو حصان في الصحراء"
+      },
+      "description": {
+        "en": "Sometimes the simplest trip is the best one. Climb onto a camel and sway slowly across the open sand with the Sinai mountains all around, or if you'd rather trot than sway, take the horse trail instead. No experience needed, no rush — just you, the desert, and one of the oldest ways of moving through it.",
+        "ar": "أحيانًا أبسط رحلة تكون أحلى رحلة. اطلع على جمل وتهادى وسط الرمل المفتوح وجبال سيناء حواليك، أو لو تفضّل الهرولة على التهادي، خد مسار الحصان بدالًا منه. مش محتاج خبرة، مش محتاج استعجال — بس انت والصحراء وواحدة من أقدم طرق التحرك فيها."
+      },
+      "shortDescription": {
+        "en": "A gentle camel ride across golden sand, or a horse trail into the mountains — simple, easy, and perfect for all ages.",
+        "ar": "ركوبة جمل هادية وسط الرمل الذهبي، أو مسار حصان جوه الجبال — بسيط وسهل ومناسب لكل الأعمار."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Camel ride in the desert or horse ride on the mountain trail; Photo stop; Local guide",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ ركوب الجمل في الصحراء أو ركوب الخيل على المسار الجبلي؛ وقفة للتصوير؛ مرشد محلي"
+      },
+      "exclusions": {
+        "en": "Not specified.",
+        "ar": "غير محدد."
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 60,
+          "maxParticipants": 20,
+          "priceAmount": "1500.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/camel-horse-ride.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "ras-mohamed-white-island-boat",
+      "categoryCode": "sea",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Ras Mohamed & White Island Full-Day Cruise",
+        "ar": "رحلة رأس محمد وجزيرة النخيل البيضاء ليوم كامل"
+      },
+      "description": {
+        "en": "Ras Mohammed isn't just a dive spot — it's one of the most protected stretches of reef in the world, and today you get to float above it. Your boat makes two stops inside the national park so you can snorkel over coral walls dropping into deep blue, then heads to White Island — a sandbank so white and so empty it feels like you've found it yourself. Lunch is a real buffet on deck, drinks keep coming, and the only decision left is which reef to jump back into.",
+        "ar": "رأس محمد مش بس مكان للغطس — هي من أكتر مناطق الشعاب المحمية في العالم، واليوم ده هتعدّي فوقها عايم. المركب بيقف مرتين جوه المحمية عشان تعمل سنوركل فوق جدران شعاب بتنزل لعمق أزرق غامق، وبعدين يروح لجزيرة النخيل البيضاء — جزيرة رملية بيضاء وفاضية حاسس إنك انت اللي اكتشفتها. الغداء بوفيه حقيقي على السطح، والمشروبات مستمرة، والقرار الوحيد الفاضل أنهي شعبة ترجع تنزل فيها."
+      },
+      "shortDescription": {
+        "en": "A full day on the Red Sea — two snorkel stops inside a national park, a walk on a sandbank island that looks lifted from a postcard, lunch on deck.",
+        "ar": "يوم كامل في البحر الأحمر — وقفتين سنوركل وسط محمية طبيعية، ونزلة على جزيرة رملية بيضاء شكلها زي الكارت بوستال، وغداء على سطح المركب."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Air-conditioned transport; Ras Mohammed National Park entrance fees; Boat trip with two snorkeling stops; Snorkeling guide; Visit to White Island; Buffet lunch on board; Unlimited soft and hot drinks",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ مواصلات مكيفة؛ رسوم دخول محمية رأس محمد الوطنية؛ رحلة بالقارب مع وقفتي سنوركل؛ مرشد سنوركل؛ زيارة الجزيرة البيضاء؛ غداء بوفيه على متن القارب؛ مشروبات غازية وساخنة غير محدودة"
+      },
+      "exclusions": {
+        "en": "Snorkeling equipment (available to rent for an extra fee); Introductory dive (optional, extra charge)",
+        "ar": "معدات السنوركل (متاحة للإيجار برسوم إضافية)؛ الغطسة التعريفية (اختيارية، برسوم إضافية)"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 510,
+          "maxParticipants": 30,
+          "priceAmount": "2400.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/ras-mohamed-white-island-boat.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "evening-cruise",
+      "categoryCode": "sea",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Sharm Evening Cruise & Show",
+        "ar": "رحلة بحرية مسائية مع عرض في شرم"
+      },
+      "description": {
+        "en": "Four hours, one boat, and the whole bay lighting up around you. Dinner is a real spread — seafood, grilled meat, chicken, all the sides — served as you sail off Sharm's coast at sunset. Then the entertainment starts: jugglers, a spinning Tanoura dancer, an oriental show that gets everyone clapping. Tell us if someone's celebrating a birthday — we'll make sure the night remembers it too.",
+        "ar": "4 ساعات، مركب واحد، والخليج كله بيولع حواليك. العشاء سفرة حقيقية — مأكولات بحرية، لحوم مشوية، فراخ، وكل التوابل — بتتقدّم وانت ماشي في البحر وقت الغروب على ساحل شرم. وبعدين السهرة تبدأ: ألعاب خفة، رقصة تنورة بتلف، وعرض شرقي يخلي الكل يصفّق. قولنا لو حد في عيد ميلاده — هنخلي الليلة تفتكره هي كمان."
+      },
+      "shortDescription": {
+        "en": "Dinner on deck, the city lights coming on, and a live Tanoura and oriental show — a night out on the water.",
+        "ar": "عشاء على سطح المركب، أنوار المدينة بتولع، وعرض تنورة ورقص شرقي حي — ليلة خروج على المية."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Evening boat cruise; Dinner on board; Soft drinks; Music and show",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ رحلة بحرية مسائية بالقارب؛ عشاء على متن القارب؛ مشروبات غازية؛ موسيقى وعروض"
+      },
+      "exclusions": {
+        "en": "Not specified.",
+        "ar": "غير محدد."
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 240,
+          "maxParticipants": 40,
+          "priceAmount": "2100.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/evening-cruise.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "glass-bottom-boat",
+      "categoryCode": "sea",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Glass Bottom Boat Reef Tour",
+        "ar": "رحلة القارب ذو القاعدة الزجاجية"
+      },
+      "description": {
+        "en": "No wetsuit, no snorkel, no getting wet at all — just lean over the glass floor and watch an entire coral world drift beneath you. The boat glides over some of the area's best-known reef spots while you sit back on the upper deck between looks, sun on your face, sea breeze doing the rest. An easy hour for anyone, any age, who wants to see the reef without diving into it.",
+        "ar": "من غير بدلة غطس، من غير سنوركل، ومن غير ما تتبل خالص — بس اتكّئ على القاعدة الزجاجية وشاهد عالم كامل من الشعاب بيعدي تحتك. المركب بيعدي فوق أشهر نقط الشعاب في المنطقة، وانت تقدر تقعد على السطح العلوي بين كل نظرة، الشمس على وشك ونسمة البحر تكمل الباقي. ساعة سهلة لأي سن حابب يشوف الشعاب من غير ما ينزل فيها."
+      },
+      "shortDescription": {
+        "en": "Watch the Red Sea's coral and fish through a glass floor — zero swimming, zero effort, maximum color.",
+        "ar": "شاهد شعاب وأسماك البحر الأحمر من خلال قاعدة زجاجية — من غير عوم، من غير تعب، وبأقصى ألوان."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Air-conditioned transport; Glass-bottom boat trip; Entrance fees",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ مواصلات مكيفة؛ رحلة بقارب ذي قاع زجاجي؛ رسوم الدخول"
+      },
+      "exclusions": {
+        "en": "Not specified.",
+        "ar": "غير محدد."
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 90,
+          "maxParticipants": 30,
+          "priceAmount": "900.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/glass-bottom-boat.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "sinai-dream-sailboat",
+      "categoryCode": "sea",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Sinai Dream Sailboat Day",
+        "ar": "يوم سفاري بحري على مركب سيناء دريم"
+      },
+      "description": {
+        "en": "This is the slow, comfortable version of a boat day. The Sinai Dream sails you to three different snorkel spots over colorful coral, but the boat itself is half the experience — sun loungers up top, cozy indoor lounges, and swings hanging right over the water for a photo nobody else will have. Lunch is a real seafood buffet, served while you're still dripping from the last stop.",
+        "ar": "ده النسخة الهادية والمريحة من يوم المركب. مركب سيناء دريم بيوديك لـ3 نقط سنوركل مختلفة فوق شعاب بألوان، بس المركب نفسه نص التجربة — كراسي استرخاء فوق، صالونات داخلية مريحة، ومراجيح معلّقة فوق المية لصورة محدش غيرك هياخدها. الغداء بوفيه مأكولات بحرية حقيقي، بيتقدّم وانت لسه مستغرق من آخر وقفة."
+      },
+      "shortDescription": {
+        "en": "A relaxed day on a real sailboat — three snorkel stops, swings over the sea, and a seafood buffet on deck.",
+        "ar": "يوم هادي ومريح على مركب شراعي حقيقي — 3 وقفات سنوركل، مراجيح فوق البحر، وبوفيه مأكولات بحرية على السطح."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Sailboat trip; Three snorkeling stops; Snorkeling equipment; Seafood buffet lunch; Soft drinks; Professional crew",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ رحلة بمركب شراعي؛ ثلاث وقفات سنوركل؛ معدات السنوركل؛ غداء بوفيه من المأكولات البحرية؛ مشروبات غازية؛ طاقم محترف"
+      },
+      "exclusions": {
+        "en": "Not specified.",
+        "ar": "غير محدد."
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 390,
+          "maxParticipants": 25,
+          "priceAmount": "3900.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/sinai-dream-sailboat.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "ras-mohamed-by-bus",
+      "categoryCode": "sea",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Ras Mohamed National Park Half-Day",
+        "ar": "نصف يوم في محمية رأس محمد"
+      },
+      "description": {
+        "en": "Ras Mohammed packs a lot into one morning. You snorkel over coral in water so clear it barely looks real, walk through a quiet mangrove forest, float on your back in the salty Magic Lake without even trying, and climb a short cliff for a view of the Earth Crack and the coast stretching out below. All of it before lunchtime, all of it inside one of Egypt's most protected parks.",
+        "ar": "رأس محمد بتحشر حاجات كتير في صباح واحد. تعمل سنوركل فوق شعاب في مية صافية بشكل مش حقيقي، تتمشى وسط غابة مانجروف هادية، تعوم على ظهرك في البحيرة الساحرة المالحة من غير أي تعب، وتطلع جرف صغير عشان تشوف الشق الأرضي والساحل مادد تحتك. كل ده قبل الغداء، وكل ده جوه واحدة من أكتر محميات مصر حماية."
+      },
+      "shortDescription": {
+        "en": "Snorkel the park's clear water, walk through mangroves, float in the Magic Lake, and climb to the cliff view — half a day, four different worlds.",
+        "ar": "سنوركل في مية المحمية الصافية، اتمشى وسط المانجروف، اعوم في البحيرة الساحرة، وطلع للمنظر من فوق الجرف — نصف يوم و4 عوالم مختلفة."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Air-conditioned bus; Snorkeling guide; Ras Mohammed National Park entrance fees",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ حافلة مكيفة؛ مرشد سنوركل؛ رسوم دخول محمية رأس محمد الوطنية"
+      },
+      "exclusions": {
+        "en": "Food and drinks",
+        "ar": "الطعام والمشروبات"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 300,
+          "maxParticipants": 30,
+          "priceAmount": "1800.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/ras-mohamed-by-bus.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "banana-boat",
+      "categoryCode": "sea",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Banana Boat Ride",
+        "ar": "ركوب البنانا بوت"
+      },
+      "description": {
+        "en": "No skill required, just a good grip and a sense of humor. A speedboat tows your inflatable banana boat across the water while your driver decides exactly how bumpy the ride gets — sharp turns, little jumps, and at least one dramatic splash. Ten minutes, one life jacket, and a story you'll be telling for the rest of the trip.",
+        "ar": "مش محتاج مهارة، بس قبضة كويسة وروح رياضية. مركب سريع بيجرّ موزتك القابلة للنفخ وسط المية، وسواقها هو اللي يقرر الرحلة هتتهز قد إيه — لفات حادة، نططات صغيرة، وطقة مية درامية على الأقل. 10 دقايق، جاكيت نجاة واحد، وحكاية هتفضل تحكيها لباقي الرحلة."
+      },
+      "shortDescription": {
+        "en": "Hang on, lean in, and try not to fall off — ten wild minutes being towed across the bay on an inflatable banana.",
+        "ar": "استنّ كويس، واتكئ قدام، وحاول ماتقعش — 10 دقايق جامدة وانت بتتجر وسط الخليج على موزة قابلة للنفخ."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Air-conditioned transport; Banana boat ride; Life jacket and safety briefing",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ مواصلات مكيفة؛ ركوب البنانا بوت؛ سترة نجاة وإرشادات السلامة"
+      },
+      "exclusions": {
+        "en": "Not specified.",
+        "ar": "غير محدد."
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 12,
+          "maxParticipants": 8,
+          "priceAmount": "1500.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/banana-boat.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "parasailing-adventure",
+      "categoryCode": "sea",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Red Sea Parasailing",
+        "ar": "باراشوت فوق البحر الأحمر"
+      },
+      "description": {
+        "en": "Seven minutes is all it takes to see Sharm from a completely different angle. The boat pulls you up and suddenly the water, the reef lines, the hotels along the shore all shrink into one view you'll want to remember. No skill needed, no jumping required — the harness and the rope do all the work. You just hang there and take it in.",
+        "ar": "7 دقايق بس وتشوف شرم من زاوية مختلفة تمامًا. المركب بيشدك لفوق وفجأة المية وخطوط الشعاب والفنادق على الساحل كلهم بيصغروا في مشهد واحد هتحب تفتكره. مش محتاج مهارة، مش محتاج نزلة — الحزام والحبل بيعملوا كل الشغل. انت بس معلّق وبتستمتع بالمشهد."
+      },
+      "shortDescription": {
+        "en": "Fly above the Red Sea on a parachute, the whole coastline laid out beneath you — solo or with someone you trust.",
+        "ar": "طير فوق البحر الأحمر بباراشوت، والساحل كله مادد تحتك — لوحدك أو مع حد تثق فيه."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Air-conditioned transport; Parasailing flight; Boat ride; Safety equipment; Professional crew",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ مواصلات مكيفة؛ تحليق بالباراسيلنج؛ رحلة بالقارب؛ معدات السلامة؛ طاقم محترف"
+      },
+      "exclusions": {
+        "en": "Not specified.",
+        "ar": "غير محدد."
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 8,
+          "maxParticipants": 2,
+          "priceAmount": "1500.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/parasailing-adventure.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "speed-boat-adventure",
+      "categoryCode": "sea",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Private Speedboat to Tiran",
+        "ar": "سبيد بوت خاص لجزيرة تيران"
+      },
+      "description": {
+        "en": "This one's just for your group. A private RIB speedboat, a captain who knows the waters, and three hours to spend however you like it — snorkeling over Tiran Island's reefs, cruising past a genuine shipwreck, scanning the horizon for dolphins that show up more often than you'd think. Drinks are cold in the cooler, masks are on board, and there's nobody else's schedule to work around.",
+        "ar": "ده خاص بجروبك بس. سبيد بوت خاص، كابتن عارف المياه، و3 ساعات تصرفها زي ما تحب — سنوركل فوق شعاب جزيرة تيران، تمر على حطام سفينة حقيقي، تفتح عينك على الأفق لدلافين بتظهر أكتر مما تتخيل. المشروبات ساقعة في الكولر، الماسكات موجودة على المركب، ومفيش جدول حد تاني تتماشى معاه."
+      },
+      "shortDescription": {
+        "en": "Your own speedboat and captain for three hours — snorkel Tiran's reefs, pass a real shipwreck, and keep an eye out for wild dolphins.",
+        "ar": "مركبك الخاص وكابتنك لمدة 3 ساعات — سنوركل في شعاب تيران، اعدّي على حطام سفينة حقيقي، وافتح عينك على الدلافين البرية."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off by air-conditioned minibus; Private speedboat with captain; Snorkel mask; Cooler with drinks; Life jackets",
+        "ar": "الاستقبال من الفندق والتوصيل إليه بميني باص مكيف؛ قارب سريع خاص مع قبطان؛ قناع سنوركل؛ ثلاجة محمولة بها مشروبات؛ سترات نجاة"
+      },
+      "exclusions": {
+        "en": "Tips for the captain; Personal expenses",
+        "ar": "إكرامية القبطان؛ المصروفات الشخصية"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Private speedboat",
+            "ar": "مركب سريع خاص"
+          },
+          "durationMinutes": 180,
+          "maxParticipants": 5,
+          "priceAmount": "8950.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_VEHICLE"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/speed-boat-adventure.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "submarine",
+      "categoryCode": "sea",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Red Sea Submarine Tour",
+        "ar": "رحلة الغواصة في البحر الأحمر"
+      },
+      "description": {
+        "en": "A short sail along the coast, then you head below the surface into a real underwater viewing cabin. Big panoramic windows put you face to face with coral and fish exactly where they live, and if a diver happens to swim by, don't be surprised if you end up waving at each other. No wetsuit, no training, no getting wet — just a window into the reef most visitors only ever see in photos.",
+        "ar": "رحلة قصيرة على الساحل، وبعدين تنزل تحت السطح لكابينة حقيقية تحت المية. شبابيك بانورامية كبيرة تخليك وش في وش مع الشعاب والأسماك في بيئتهم، ولو غطّاس عدى جنبك، متتفاجئش لو لقيت نفسك بتسلّم عليه. من غير بدلة غطس، من غير تدريب، من غير ما تتبل — بس شباك على الشعاب اللي معظم الزوار بيشوفوها بس في الصور."
+      },
+      "shortDescription": {
+        "en": "Descend into an underwater cabin and watch coral and fish glide past giant windows — no diving skills needed.",
+        "ar": "انزل لكابينة تحت المية وشاهد الشعاب والأسماك بتعدّي من قدام شبابيك ضخمة — من غير أي خبرة غطس."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Air-conditioned transport; Submarine trip; Tour guide; Entrance fees",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ مواصلات مكيفة؛ رحلة بالغواصة؛ مرشد سياحي؛ رسوم الدخول"
+      },
+      "exclusions": {
+        "en": "Not specified.",
+        "ar": "غير محدد."
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 105,
+          "maxParticipants": 30,
+          "priceAmount": "2100.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/submarine.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "tiran-island-boat-trip",
+      "categoryCode": "sea",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Tiran Island Full-Day Snorkel Cruise",
+        "ar": "رحلة سنوركل يوم كامل لجزيرة تيران"
+      },
+      "description": {
+        "en": "You leave the marina early and head out toward Tiran — keep your eyes on the water, because dolphins turn up more often than people expect. Two separate snorkel stops let you explore different reef patches, with an optional intro dive for anyone who wants to go a little deeper. Lunch is a real buffet on board, drinks never run out, and the ride back is the perfect time to compare everyone's favorite fish sighting.",
+        "ar": "هتخرج من المارينا بدري وتتوجه لتيران — خلّي عينك على المية، لأن الدلافين بتظهر أكتر مما الناس تتخيل. وقفتين سنوركل منفصلتين تخليك تستكشف نقط شعاب مختلفة، مع غطسة تجريبية اختيارية لمن يحب ينزل أعمق شوية. الغداء بوفيه حقيقي على المركب، المشروبات ما تخلصش، والعودة أحسن وقت تتقارنوا فيه أحلى سمكة شافها كل واحد."
+      },
+      "shortDescription": {
+        "en": "A full day sailing to Tiran Island — two snorkel stops, a buffet lunch on deck, and dolphins if luck is on your side.",
+        "ar": "يوم كامل بحري لجزيرة تيران — وقفتين سنوركل، غداء بوفيه على السطح، ودلافين لو الحظ معاك."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Air-conditioned transport; Entrance fees; Boat trip with two snorkeling stops; Buffet lunch on board; Unlimited soft and hot drinks",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ مواصلات مكيفة؛ رسوم الدخول؛ رحلة بالقارب مع وقفتي سنوركل؛ غداء بوفيه على متن القارب؛ مشروبات غازية وساخنة غير محدودة"
+      },
+      "exclusions": {
+        "en": "Snorkeling equipment (available to rent for an extra fee); Introductory dive (optional, extra charge)",
+        "ar": "معدات السنوركل (متاحة للإيجار برسوم إضافية)؛ الغطسة التعريفية (اختيارية، برسوم إضافية)"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 510,
+          "maxParticipants": 30,
+          "priceAmount": "2700.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/tiran-island-boat-trip.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "tube-boat",
+      "categoryCode": "sea",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Tube Boat Ride",
+        "ar": "ركوب التيوب"
+      },
+      "description": {
+        "en": "A quick safety briefing on the beach, then you're off — stretched out on an inflatable tube while a speedboat tows you across the water. It's over almost as fast as it starts, but the laughs last a lot longer than ten minutes.",
+        "ar": "تعليمات أمان سريعة على الشط، وبعدين تنطلق — ممدود على تيوب قابل للنفخ ومركب سريع بيجرّك وسط المية. بتخلص بسرعة أكتر مما بدأت، بس الضحك بيفضل أطول من 10 دقايق بكتير."
+      },
+      "shortDescription": {
+        "en": "Bounce across the bay on an inflatable tube pulled by a speedboat — short, splashy, and surprisingly fun.",
+        "ar": "اتقفّط فوق الخليج على تيوب قابل للنفخ بيجرّه مركب سريع — قصير، مش متوقع، وضحك أكتر مما تتخيل."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Air-conditioned transport; Tube ride; Life jacket and safety briefing",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ مواصلات مكيفة؛ ركوب التيوب؛ سترة نجاة وإرشادات السلامة"
+      },
+      "exclusions": {
+        "en": "Not specified.",
+        "ar": "غير محدد."
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 12,
+          "maxParticipants": 4,
+          "priceAmount": "1500.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/tube-boat.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "cairo-by-bus",
+      "categoryCode": "culture",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Cairo by Road: Museum, Lunch & Pyramids",
+        "ar": "القاهرة بالأتوبيس: المتحف والغداء والأهرامات"
+      },
+      "description": {
+        "en": "It's a long day, and the first thing to know is that it's worth it. An Egyptologist walks you through the Egyptian Museum's highlights — Tutankhamun's treasures included — before lunch with a view of the Nile. Then it's the Giza Plateau: the Pyramids of Khufu, Khafre and Menkaure standing exactly where they've stood for 4,500 years, and the Great Sphinx watching over all of them. The ride home is long, but you'll be too busy going through your photos to notice.",
+        "ar": "اليوم طويل، وأول حاجة تعرفها إنه يستاهل. مرشد آثار يمشي معاك في أهم قطع المتحف المصري — وفيها كنوز توت عنخ آمون — قبل غداء بمنظر على النيل. وبعدين هضبة الجيزة: أهرامات خوفو وخفرع ومنقرع واقفة في نفس مكانها من 4500 سنة، وأبو الهول ساهر عليهم كلهم. رحلة العودة طويلة، بس هتكون مشغول تتفرج على صورك عشان تلاحظ."
+      },
+      "shortDescription": {
+        "en": "A long day by road to Cairo — the Egyptian Museum with an Egyptologist, Nile-side lunch, and the Pyramids of Giza up close.",
+        "ar": "يوم طويل بالطريق للقاهرة — المتحف المصري مع مرشد آثار، غداء على النيل، وأهرامات الجيزة قريبة منك."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Air-conditioned bus; Egyptologist guide; Entrance fees to the sites in the program; Lunch and drinks",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ حافلة مكيفة؛ عالم مصريات يرافقك كمرشد؛ رسوم الدخول إلى المواقع المدرجة في البرنامج؛ الغداء والمشروبات"
+      },
+      "exclusions": {
+        "en": "Not specified.",
+        "ar": "غير محدد."
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 1320,
+          "maxParticipants": 30,
+          "priceAmount": "4500.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/cairo-by-bus.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "cairo-by-plane",
+      "categoryCode": "culture",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "STAFF_REVIEW",
+      "name": {
+        "en": "Cairo in a Day, by Air",
+        "ar": "القاهرة في يوم واحد، بالطيران"
+      },
+      "description": {
+        "en": "An early flight gets you to Cairo while most people are still asleep, and your English-speaking guide is waiting the moment you land. The Egyptian Museum comes first, then lunch with the Nile in view, a stop at a perfume workshop, and the Giza Plateau — the Pyramids, the Sphinx, and a papyrus institute before the flight back. You'll leave Sharm in the morning and come home having seen one of the wonders of the world the same day. Runs Sundays and Thursdays.",
+        "ar": "رحلة طيران بدري توصلك القاهرة والناس لسه نايمة، ومرشدك اللي بيتكلم إنجليزي مستنيك لحظة ما تنزل. المتحف المصري الأول، وبعدين غداء بمنظر النيل، ووقفة في ورشة عطور، وهضبة الجيزة — الأهرامات، أبو الهول، ومعهد البردي قبل رحلة العودة. هتسيب شرم الصبح وترجع بعد ما تكون شفت واحدة من عجائب الدنيا في نفس اليوم. بتمشي الأحد والخميس."
+      },
+      "shortDescription": {
+        "en": "Fly to Cairo for the day — the Egyptian Museum, lunch by the Nile, the Pyramids and the Sphinx — and be back in Sharm by night.",
+        "ar": "طير للقاهرة ليوم واحد — المتحف المصري، غداء على النيل، الأهرامات وأبو الهول — وترجع شرم بالليل."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 72 hours before departure. Cancelling within 72 hours, or a no-show, is charged in full. Some suppliers (flights, ferries, hotels) may apply stricter terms — the applicable policy is confirmed at booking.",
+        "ar": "إلغاء مجاني حتى 72 ساعة قبل موعد المغادرة. الإلغاء خلال أقل من 72 ساعة، أو عدم الحضور، يُحتسب كاملاً. بعض الموردين (طيران، عبّارات، فنادق) قد يطبقون شروطًا أكثر صرامة — يتم تأكيد السياسة المطبقة عند الحجز."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel–airport transfers in Sharm and all transfers in Cairo; Return flights Sharm–Cairo; English-speaking guide; Entrance fees to the sites in the program; Lunch in Cairo",
+        "ar": "التوصيل بين الفندق والمطار في شرم الشيخ وجميع التنقلات في القاهرة؛ تذاكر طيران ذهاب وعودة شرم الشيخ – القاهرة؛ مرشد ناطق بالإنجليزية؛ رسوم الدخول إلى المواقع المدرجة في البرنامج؛ الغداء في القاهرة"
+      },
+      "exclusions": {
+        "en": "Drinks at the restaurant; Optional felucca ride on the Nile; Entry inside the two larger pyramids",
+        "ar": "المشروبات في المطعم؛ رحلة فلوكة اختيارية على النيل؛ الدخول إلى داخل الهرمين الأكبر"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 1320,
+          "maxParticipants": 20,
+          "priceAmount": "16750.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/cairo-by-plane.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "mount-sinai-st-catherine",
+      "categoryCode": "culture",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Mount Sinai Sunrise & St. Catherine's Monastery",
+        "ar": "شروق جبل سيناء ودير سانت كاترين"
+      },
+      "description": {
+        "en": "There's a reason people have climbed this mountain for thousands of years. You'll start in the dark, guided up the path by lantern and starlight, and reach the summit just as the sky turns — first grey, then gold, then a view across the whole Sinai Peninsula that no photo does justice to. On the way down, St. Catherine's Monastery is waiting: a living community of monks, a library of ancient manuscripts, and walls that have stood since the 6th century. This is Sinai's spiritual heart, and you'll earn the view.",
+        "ar": "فيه سبب إن الناس بتطلع الجبل ده من آلاف السنين. هتبدأ في الظلام، وتمشي في الطريق بنور فانوس والنجوم، وتوصل القمة لحظة ما السما تبدأ تتلون — رمادي، وبعدين دهب، وبعدين مشهد على شبه جزيرة سيناء كلها مفيش صورة تقدر توصفه. في النزول، دير سانت كاترين مستنيك: مجتمع رهبان حقيقي، مكتبة مخطوطات قديمة، وأسوار واقفة من القرن السادس. ده قلب سيناء الروحي، وانت هتكسب المشهد ده بتعبك."
+      },
+      "shortDescription": {
+        "en": "Climb through the night to watch the sun rise from the same mountain where Moses received the Ten Commandments, then step into one of the oldest working monasteries on Earth.",
+        "ar": "اطلع في الليل عشان تشوف الشروق من فوق نفس الجبل اللي استلم فيه موسى الوصايا العشر، وبعدين تنزل تزور واحد من أقدم الأديرة الشغالة في العالم."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Air-conditioned transport; Guided climb; Visit to St. Catherine's Monastery",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ مواصلات مكيفة؛ تسلق مع مرشد؛ زيارة دير سانت كاترين"
+      },
+      "exclusions": {
+        "en": "Not specified.",
+        "ar": "غير محدد."
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 930,
+          "maxParticipants": 25,
+          "priceAmount": "2400.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/mount-sinai-st-catherine.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "luxor-by-plane",
+      "categoryCode": "culture",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "STAFF_REVIEW",
+      "name": {
+        "en": "Luxor in a Day, by Air",
+        "ar": "الأقصر في يوم واحد، بالطيران"
+      },
+      "description": {
+        "en": "Luxor is where ancient Egypt gets genuinely overwhelming. An Egyptologist takes you into the Valley of the Kings, where pharaohs were buried for the afterlife, then to Queen Hatshepsut's temple carved straight into the cliffside and the two giant Colossi of Memnon standing alone in a field. After lunch, Karnak Temple's forest of towering columns closes out the day before your evening flight back to Sharm.",
+        "ar": "الأقصر هي المكان اللي مصر القديمة بتبقى فيه مبهرة فعليًا. مرشد آثار يوديك وادي الملوك، فين الفراعنة كانوا بيدفنوا للحياة التانية، وبعدين معبد الملكة حتشبسوت المنحوت في الجبل نفسه، وتمثالي ممنون الضخمين واقفين لوحدهم في الفضا. بعد الغداء، غابة أعمدة معبد الكرنك العالية تقفل اليوم قبل رحلة العودة المسائية لشرم."
+      },
+      "shortDescription": {
+        "en": "Fly to Luxor for the day: the Valley of the Kings, Hatshepsut's temple, the Colossi of Memnon and Karnak Temple.",
+        "ar": "طير للأقصر ليوم واحد: وادي الملوك، معبد حتشبسوت، تمثالي ممنون، ومعبد الكرنك."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 72 hours before departure. Cancelling within 72 hours, or a no-show, is charged in full. Some suppliers (flights, ferries, hotels) may apply stricter terms — the applicable policy is confirmed at booking.",
+        "ar": "إلغاء مجاني حتى 72 ساعة قبل موعد المغادرة. الإلغاء خلال أقل من 72 ساعة، أو عدم الحضور، يُحتسب كاملاً. بعض الموردين (طيران، عبّارات، فنادق) قد يطبقون شروطًا أكثر صرامة — يتم تأكيد السياسة المطبقة عند الحجز."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel–airport transfers; Return flights Sharm–Luxor; Egyptologist guide; Entrance fees to the sites in the program; Lunch at a local restaurant",
+        "ar": "التوصيل بين الفندق والمطار؛ تذاكر طيران ذهاب وعودة شرم الشيخ – الأقصر؛ عالم مصريات يرافقك كمرشد؛ رسوم الدخول إلى المواقع المدرجة في البرنامج؛ الغداء في مطعم محلي"
+      },
+      "exclusions": {
+        "en": "Special tombs such as Tutankhamun's; Personal expenses and tips",
+        "ar": "المقابر الخاصة مثل مقبرة توت عنخ آمون؛ المصروفات الشخصية والإكراميات"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 1320,
+          "maxParticipants": 20,
+          "priceAmount": "16750.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/luxor-by-plane.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "st-catherine-dahab",
+      "categoryCode": "culture",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "St. Catherine's Monastery & Dahab",
+        "ar": "دير سانت كاترين ودهب"
+      },
+      "description": {
+        "en": "St. Catherine's Monastery has been standing — and occupied — since the 6th century, and walking through it feels like stepping into a different century entirely: an ancient church, a gallery of icons, the site believed to be the Burning Bush itself. From there the day slows right down, with lunch and free time to wander Dahab's relaxed streets before heading back. A gentler kind of Sinai day, built for history lovers and anyone who wants the quiet version.",
+        "ar": "دير سانت كاترين واقف ومسكون من القرن السادس، والمشي جواه حاسسك إنك دخلت قرن مختلف تمامًا: كنيسة قديمة، معرض أيقونات، والموقع المعروف إنه العلّيقة المقدسة نفسها. من بعد كده اليوم بيهدى تمامًا، مع غداء ووقت فاضي تتمشى في شوارع دهب الهادية قبل العودة. يوم سيناء أهدى، لعشاق التاريخ وكل من يحب النسخة الهادية."
+      },
+      "shortDescription": {
+        "en": "Visit one of the world's oldest monasteries, then relax over lunch and free time in laid-back Dahab.",
+        "ar": "زور واحد من أقدم أديرة العالم، وبعدين استرخي مع غداء ووقت فاضي في دهب الهادية."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Air-conditioned transport; Visit to St. Catherine's Monastery; Lunch in Dahab; Free time in Dahab; Local guide",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ مواصلات مكيفة؛ زيارة دير سانت كاترين؛ الغداء في دهب؛ وقت حر في دهب؛ مرشد محلي"
+      },
+      "exclusions": {
+        "en": "Not specified.",
+        "ar": "غير محدد."
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 690,
+          "maxParticipants": 25,
+          "priceAmount": "2700.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/st-catherine-dahab.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "turkish-bath",
+      "categoryCode": "entertainment",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Traditional Turkish Hammam",
+        "ar": "حمام تركي تقليدي"
+      },
+      "description": {
+        "en": "Some days of the holiday are for adventure, and some days are for this. Start in the sauna and steam room, slide into the jacuzzi, then let a traditional soap massage and a full exfoliation scrub away everything the sun and sand left behind. A face mask, a sea-salt treatment for hands and feet, and a proper relaxing massage finish the job. You'll walk out lighter than you walked in.",
+        "ar": "فيه أيام في الإجازة للمغامرة، وفيه أيام لده. ابدأ بالساونا وغرفة البخار، انزل الجاكوزي، وبعدين سيب مساج الصابون التقليدي والتقشير الكامل يشيلوا كل اللي الشمس والرمل سيبوه عليك. ماسك للوش، وعلاج بملح البحر للإيد والقدم، ومساج استرخاء حقيقي يقفلوا الموضوع. هتخرج أخف بكتير مما دخلت."
+      },
+      "shortDescription": {
+        "en": "Sauna, steam and jacuzzi, then a full-body soap massage and skin treatment — a proper reset for the whole trip.",
+        "ar": "ساونا وبخار وجاكوزي، وبعدين مساج صابون كامل وعلاج للبشرة — ريستارت حقيقي لباقي رحلتك."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+        "ar": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Sauna, jacuzzi and steam room; Peeling and soap massage; Face mask; Body massage; Towels",
+        "ar": "الاستقبال من الفندق والتوصيل إليه؛ ساونا وجاكوزي وغرفة بخار؛ تقشير ومساج بالصابون؛ قناع للوجه؛ مساج للجسم؛ مناشف"
+      },
+      "exclusions": {
+        "en": "Not specified.",
+        "ar": "غير محدد."
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Per person",
+            "ar": "للفرد"
+          },
+          "durationMinutes": 90,
+          "maxParticipants": 20,
+          "priceAmount": "2700.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/turkish-bath.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "sharm-airport-transfer",
+      "categoryCode": "transfers",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Sharm Airport Pickup & Drop-off",
+        "ar": "استلام وتوصيل من مطار شرم"
+      },
+      "description": {
+        "en": "Sharm To Go starts the second your plane touches down. Tell us your flight, and your driver will be there — holding your name, ready to load your bags, and get you to your hotel in air-conditioned comfort. No shared shuttles, no surprise stops, no haggling with a taxi driver at 2am. Just a private car (or a minibus if you're a bigger group), a driver who knows every hotel zone in Sharm, and one less thing to think about before your holiday actually starts.",
+        "ar": "شرم تو جو بيبدأ معاك من ثانية ما الطيارة تلمس الأرض. قولنا رقم رحلتك، والسواق هيكون واقف ماسك اسمك، جاهز يشيل الشنط ويوصلك لفندقك في عربية مكيّفة. من غير ميكروباص مشترك، من غير وقفات مفاجئة، ومن غير فاصل تفاوض مع سواق تاكسي الساعة 2 بالليل. بس عربية خاصة (أو ميني باص لو جروبكم كبير)، وسواق عارف كل منطقة فنادق في شرم، وحاجة واحدة أقل تفكر فيها قبل ما إجازتك تبدأ فعليًا."
+      },
+      "shortDescription": {
+        "en": "The moment you land, we've got you — a private, air-conditioned ride straight to your hotel, no haggling, no waiting around.",
+        "ar": "من لحظة ما تنزل الطيارة، إحنا معاك — عربية خاصة مكيّفة توصلك للفندق على طول، من غير ما تقف تفاوض تاكسي."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Your hotel reception, or the arrivals hall at Sharm El Sheikh airport.",
+        "ar": "مكتب الاستقبال في فندقك، أو صالة الوصول في مطار شرم الشيخ."
+      },
+      "inclusions": {
+        "en": "Private vehicle for your group; Professional driver; Luggage assistance",
+        "ar": "مركبة خاصة لمجموعتك؛ سائق محترف؛ مساعدة في الحقائب"
+      },
+      "exclusions": {
+        "en": "Not specified.",
+        "ar": "غير محدد."
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Sedan car",
+            "ar": "سيارة سيدان"
+          },
+          "durationMinutes": 45,
+          "maxParticipants": 4,
+          "priceAmount": "900.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_VEHICLE"
+        },
+        {
+          "label": {
+            "en": "SUV",
+            "ar": "سيارة SUV"
+          },
+          "durationMinutes": 45,
+          "maxParticipants": 4,
+          "priceAmount": "1200.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_VEHICLE"
+        },
+        {
+          "label": {
+            "en": "Hiace minibus",
+            "ar": "ميني باص هاي إس"
+          },
+          "durationMinutes": 45,
+          "maxParticipants": 8,
+          "priceAmount": "2100.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_VEHICLE"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/sharm-airport-transfer.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "safari"
+    },
+    {
+      "internalRef": "STG-TRN-002",
+      "categoryCode": "transfers",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "STAFF_REVIEW",
+      "name": {
+        "en": "Private Venue Transfer",
+        "ar": "انتقال خاص لوجهتك في شرم"
+      },
+      "description": {
+        "en": "Going out for the night? Tell us where and when, and a private car (with a driver who actually knows the way) takes you there and — if you want — brings you back too, right on schedule. Entry tickets and reservations stay with the venue; getting you there comfortably is on us.",
+        "ar": "طالع بالليل؟ قولنا فين وإمتى، وعربية خاصة (بسواق عارف الطريق فعليًا) توصلك هناك و — لو عايز — ترجعك كمان في الميعاد. تذاكر الدخول والحجوزات تفضل مع المكان نفسه؛ احنا بس هنوصلك بكل راحة."
+      },
+      "shortDescription": {
+        "en": "Private transport to wherever you're headed in Sharm — one way or a full return, with a pickup time that's agreed with you in advance.",
+        "ar": "انتقال خاص لأي مكان في شرم — اتجاه واحد أو ذهاب وعودة كاملة، بموعد استلام متفق عليه معاك مقدمًا."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Hotel lobby at the confirmed time; return leg from the venue's main entrance.",
+        "ar": "من لوبي الفندق في الوقت المتفق عليه؛ ورحلة العودة من المدخل الرئيسي للمكان."
+      },
+      "inclusions": {
+        "en": "Private vehicle; Driver; Fuel for the agreed route (and the agreed waiting window on a round trip)",
+        "ar": "عربية خاصة؛ سواق؛ بنزين للمسار المتفق عليه (وفترة الانتظار المتفق عليها في الذهاب والعودة)"
+      },
+      "exclusions": {
+        "en": "Venue entry, tickets, table reservations; Any waiting time beyond the agreed window",
+        "ar": "دخول المكان أو التذاكر أو حجز الطاولات؛ أي وقت انتظار زيادة عن الفترة المتفق عليها"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "One-way",
+            "ar": "اتجاه واحد"
+          },
+          "durationMinutes": 60,
+          "maxParticipants": 3,
+          "priceAmount": "400.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_VEHICLE"
+        },
+        {
+          "label": {
+            "en": "Round trip (up to 2h waiting)",
+            "ar": "ذهاب وعودة (حتى ساعتين انتظار)"
+          },
+          "durationMinutes": 60,
+          "maxParticipants": 3,
+          "priceAmount": "650.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_VEHICLE"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/STG-TRN-002.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "legacy-intake"
+    },
+    {
+      "internalRef": "STG-FAM-001",
+      "categoryCode": "family",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Aqua Park Day",
+        "ar": "يوم في الأكوا بارك"
+      },
+      "description": {
+        "en": "Seven hours, one aqua park, zero planning on your end. We pick you up, you spend the day chasing down every slide and pool, and we bring you back tired in the best way. Pick a straight entry ticket or a package with food included — either way, this is the easy family day everyone's been asking for.",
+        "ar": "7 ساعات، أكوا بارك واحد، وصفر تخطيط من عندك. هنستلمك، تقضي يومك بتجرب كل زحلوقة وحمام سباحة، ونرجّعك تعبان بأحلى طريقة. اختار تذكرة دخول بسيطة أو باقة فيها الأكل — في الحالتين، ده يوم العيلة السهل اللي كل واحد كان بيسأل عليه."
+      },
+      "shortDescription": {
+        "en": "A full day of slides and splashes at the aqua park, with hotel pickup and drop-off and your choice of entry ticket or meal package.",
+        "ar": "يوم كامل من الزحاليق والمرح في الأكوا بارك، مع انتقال من الفندق وله، واختيار بين تذكرة الدخول أو باقة تشمل الوجبة."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Hotel lobby; exact time confirmed by WhatsApp/email after booking (30-minute window).",
+        "ar": "من لوبي الفندق؛ الوقت بالظبط يتأكد معاك واتساب/إيميل بعد الحجز (هامش 30 دقيقة)."
+      },
+      "inclusions": {
+        "en": "Return hotel transport; Aqua-park entry; Meal package adds buffet lunch and soft drinks",
+        "ar": "انتقال من وإلى الفندق؛ دخول الأكوا بارك؛ باقة الوجبة تضيف غداء بوفيه ومشروبات"
+      },
+      "exclusions": {
+        "en": "Food and drinks unless the meal package is chosen; Lockers and towels; Photos; Tips and personal expenses",
+        "ar": "الأكل والمشروبات إلا لو اخترت باقة الوجبة؛ اللوكرز والمناشف؛ الصور؛ التيبس والمصاريف الشخصية"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Entry + transfer (adult)",
+            "ar": "دخول + انتقال (فرد بالغ)"
+          },
+          "durationMinutes": 420,
+          "maxParticipants": 30,
+          "priceAmount": "3300.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Entry + transfer + buffet lunch + soft drinks (adult)",
+            "ar": "دخول + انتقال + غداء بوفيه + مشروبات (فرد بالغ)"
+          },
+          "durationMinutes": 420,
+          "maxParticipants": 30,
+          "priceAmount": "3950.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Entry + transfer (child 3-11)",
+            "ar": "دخول + انتقال (طفل 3-11)"
+          },
+          "durationMinutes": 420,
+          "maxParticipants": 30,
+          "priceAmount": "2200.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Entry + transfer + buffet lunch + soft drinks (child 3-11)",
+            "ar": "دخول + انتقال + غداء بوفيه + مشروبات (طفل 3-11)"
+          },
+          "durationMinutes": 420,
+          "maxParticipants": 30,
+          "priceAmount": "2750.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/STG-FAM-001.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "legacy-intake"
+    },
+    {
+      "internalRef": "STG-DSR-005",
+      "categoryCode": "desert",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Sunrise or Morning Quad Safari",
+        "ar": "سفاري كواد عند الشروق أو الصباح"
+      },
+      "description": {
+        "en": "Two ways to see the desert wake up. Go for sunrise and you'll be riding while the sky's still doing its thing, the whole desert turning color around you. Prefer to sleep in a little? The morning convoy covers the same ground with a cooler sun and the same safety briefing up front. Camel rides and camp stops are separate add-ons, so you can keep this one simple or build it out.",
+        "ar": "طريقتين تشوف فيهم الصحراء بتصحى. اختار الشروق وهتكون راكب والسما لسه بتتلون حواليك. تفضل تصحى بدري شوية؟ القافلة الصباحية بتعدي نفس الأماكن بشمس أهدى ونفس تعليمات الأمان في البداية. ركوب الجمل ووقفات المخيم إضافات منفصلة، فتقدر تسيب الرحلة بسيطة أو تضيف عليها."
+      },
+      "shortDescription": {
+        "en": "Pick your time — ride out before the sun's even up, or go for a cooler morning convoy, guided on quad bikes through the desert.",
+        "ar": "اختار توقيتك — اطلع قبل ما الشمس تطلع أصلاً، أو خد قافلة صباحية أهدى شمسًا، بقيادة كواد وسط الصحراء."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Hotel lobby; sunrise pickup about 04:30, morning pickup about 08:30.",
+        "ar": "من لوبي الفندق؛ استلام الشروق حوالي 4:30 الصبح، استلام الصباح حوالي 8:30."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Safety briefing; Guided quad convoy; Helmet and goggles",
+        "ar": "انتقال من وإلى الفندق؛ شرح أمان؛ قافلة كواد بقائد؛ خوذة ونظارة"
+      },
+      "exclusions": {
+        "en": "Optional camel and camp stops; Drinks, tips, personal expenses",
+        "ar": "وقفات الجمل والمخيم الاختيارية؛ المشروبات والتيبس والمصاريف الشخصية"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Sunrise group",
+            "ar": "مجموعة الشروق"
+          },
+          "durationMinutes": 180,
+          "maxParticipants": 16,
+          "priceAmount": "850.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Morning group",
+            "ar": "مجموعة الصباح"
+          },
+          "durationMinutes": 180,
+          "maxParticipants": 16,
+          "priceAmount": "850.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/STG-DSR-005.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "legacy-intake"
+    },
+    {
+      "internalRef": "STG-PT-001",
+      "categoryCode": "culture",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Sharm City Essentials, Private Tour",
+        "ar": "جولة خاصة لأهم معالم شرم"
+      },
+      "description": {
+        "en": "No fixed group, no rushing to keep up — this is Sharm at your pace. Wander the Old Market's lanes, stop by the city's places of worship, catch a few of the best viewpoints, and if you want, swing through Naama Bay before heading back. Your car, your driver, your order of stops.",
+        "ar": "من غير جروب ثابت، من غير استعجال تجري وراه — دي شرم بسرعتك انت. اتمشى في ممرات السوق القديم، قف عند دور العبادة في المدينة، شوف أحلى نقط المشاهدة، ولو عايز، اعدي على خليج نعمة قبل العودة. عربيتك، سواقك، وترتيب وقفاتك."
+      },
+      "shortDescription": {
+        "en": "See Sharm's best-known landmarks at your own pace — the Old Market, places of worship, viewpoints, and an optional Naama Bay stop, all in a private car.",
+        "ar": "شوف أهم معالم شرم بالسرعة اللي تناسبك — السوق القديم، دور العبادة، نقط المشاهدة، ووقفة اختيارية في خليج نعمة، في عربية خاصة."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Hotel lobby; start by arrangement, usually 10:00 or 17:00.",
+        "ar": "من لوبي الفندق؛ الميعاد بالاتفاق، غالبًا 10 الصبح أو 5 المسا."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Private vehicle; Flexible 3-hour city itinerary; Female guide on request",
+        "ar": "انتقال من وإلى الفندق؛ عربية خاصة؛ برنامج مدينة مرن 3 ساعات؛ مرشدة سيدة بالطلب"
+      },
+      "exclusions": {
+        "en": "Museum tickets; Meals and Farsha/SOHO transfers unless added; Tips, personal expenses",
+        "ar": "تذاكر المتحف؛ الوجبات وانتقالات فرشة/سوهو إلا لو أضفتها؛ التيبس والمصاريف الشخصية"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Standard private tour (adult)",
+            "ar": "جولة خاصة عادية (بالغ)"
+          },
+          "durationMinutes": 180,
+          "maxParticipants": 6,
+          "priceAmount": "750.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Female-guide request (adult)",
+            "ar": "بطلب مرشدة سيدة (بالغ)"
+          },
+          "durationMinutes": 180,
+          "maxParticipants": 6,
+          "priceAmount": "900.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Standard private tour (child 4-11)",
+            "ar": "جولة خاصة عادية (طفل 4-11)"
+          },
+          "durationMinutes": 180,
+          "maxParticipants": 6,
+          "priceAmount": "500.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Female-guide request (child 4-11)",
+            "ar": "بطلب مرشدة سيدة (طفل 4-11)"
+          },
+          "durationMinutes": 180,
+          "maxParticipants": 6,
+          "priceAmount": "700.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/STG-PT-001.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "legacy-intake"
+    },
+    {
+      "internalRef": "STG-PT-002",
+      "categoryCode": "culture",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Sharm Museum & City, Your Choice",
+        "ar": "متحف شرم وخيارات جولة المدينة"
+      },
+      "description": {
+        "en": "Start with the Sharm El Sheikh Museum, then pick how you want the rest of the day to go. Old Market for the classic souvenir hunt, Farsha for the cultural detour, SOHO Square for a livelier stop, or the full highlights route if you want it all. Same private car either way.",
+        "ar": "ابدأ بمتحف شرم الشيخ، وبعدين اختار باقي يومك عايز يكون إزاي. السوق القديم لجولة الهدايا الكلاسيكية، فرشة لمحطة ثقافية، سوهو سكوير لوقفة أكتر حيوية، أو المسار الكامل لو عايز كل حاجة. نفس العربية الخاصة في كل الحالات."
+      },
+      "shortDescription": {
+        "en": "Pair the Sharm El Sheikh Museum with the city route that suits you — the Old Market, Farsha, SOHO Square, or a broader highlights tour.",
+        "ar": "اجمع بين زيارة متحف شرم الشيخ ومسار المدينة اللي يناسبك — السوق القديم، فرشة، سوهو سكوير، أو جولة أشمل لأهم المعالم."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Hotel lobby; start by arrangement, usually 10:00.",
+        "ar": "من لوبي الفندق؛ الميعاد بالاتفاق، غالبًا 10 الصبح."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Private vehicle; The chosen museum-plus route",
+        "ar": "انتقال من وإلى الفندق؛ عربية خاصة؛ مسار المتحف المختار"
+      },
+      "exclusions": {
+        "en": "Museum admission unless the package states it; Meals and drinks at Farsha or elsewhere; Tips, personal expenses",
+        "ar": "دخول المتحف إلا لو الباقة بتذكره؛ الوجبات والمشروبات في فرشة أو غيرها؛ التيبس والمصاريف الشخصية"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Museum + Old Market (adult)",
+            "ar": "متحف + السوق القديم (بالغ)"
+          },
+          "durationMinutes": 240,
+          "maxParticipants": 6,
+          "priceAmount": "1100.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Museum + Farsha (adult)",
+            "ar": "متحف + فرشة (بالغ)"
+          },
+          "durationMinutes": 240,
+          "maxParticipants": 6,
+          "priceAmount": "1200.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Museum + SOHO Square (adult)",
+            "ar": "متحف + سوهو سكوير (بالغ)"
+          },
+          "durationMinutes": 240,
+          "maxParticipants": 6,
+          "priceAmount": "1300.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Museum + full city highlights (adult)",
+            "ar": "متحف + أهم معالم المدينة (بالغ)"
+          },
+          "durationMinutes": 240,
+          "maxParticipants": 6,
+          "priceAmount": "1500.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Museum + Old Market (child 4-11)",
+            "ar": "متحف + السوق القديم (طفل 4-11)"
+          },
+          "durationMinutes": 240,
+          "maxParticipants": 6,
+          "priceAmount": "500.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Museum + Farsha (child 4-11)",
+            "ar": "متحف + فرشة (طفل 4-11)"
+          },
+          "durationMinutes": 240,
+          "maxParticipants": 6,
+          "priceAmount": "600.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Museum + SOHO Square (child 4-11)",
+            "ar": "متحف + سوهو سكوير (طفل 4-11)"
+          },
+          "durationMinutes": 240,
+          "maxParticipants": 6,
+          "priceAmount": "700.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Museum + full city highlights (child 4-11)",
+            "ar": "متحف + أهم معالم المدينة (طفل 4-11)"
+          },
+          "durationMinutes": 240,
+          "maxParticipants": 6,
+          "priceAmount": "900.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/STG-PT-002.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "legacy-intake"
+    },
+    {
+      "internalRef": "STG-PT-003",
+      "categoryCode": "family",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Sharm City Tour & Parasailing",
+        "ar": "جولة شرم وتجربة الباراسيلنج"
+      },
+      "description": {
+        "en": "Half city, half sky. Start with a private tour of Sharm's highlights, then head to the water for a short parasailing flight that puts the whole coastline beneath you. Two very different views of the same city, back to back.",
+        "ar": "نص برّه، نص سما. ابدأ بجولة خاصة في أهم معالم شرم، وبعدين روح للبحر لطيارة باراسيلنج قصيرة تحط الساحل كله تحتك. منظرين مختلفين تمامًا لنفس المدينة، واحد بعد التاني."
+      },
+      "shortDescription": {
+        "en": "A private introduction to Sharm paired with a short parasailing flight above the Red Sea, weather permitting.",
+        "ar": "جولة خاصة للتعرف على شرم، مع تجربة باراسيلنج قصيرة فوق البحر الأحمر، حسب حالة الطقس."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Hotel lobby; pickup about 09:30, about 4 hours, weather permitting.",
+        "ar": "من لوبي الفندق؛ استلام حوالي 9:30 الصبح، حوالي 4 ساعات، حسب حالة الطقس."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Private city introduction; One short tandem parasailing flight",
+        "ar": "انتقال من وإلى الفندق؛ تعريف خاص بالمدينة؛ طيارة باراسيلنج ثنائية قصيرة"
+      },
+      "exclusions": {
+        "en": "Solo-flight upgrade unless chosen; Photos, tips, personal expenses",
+        "ar": "ترقية الطيارة الفردية إلا لو اخترتها؛ الصور والتيبس والمصاريف الشخصية"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Tandem parasailing (adult)",
+            "ar": "باراسيلنج ثنائي (بالغ)"
+          },
+          "durationMinutes": 240,
+          "maxParticipants": 6,
+          "priceAmount": "2350.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Tandem parasailing (child 6-11)",
+            "ar": "باراسيلنج ثنائي (طفل 6-11)"
+          },
+          "durationMinutes": 240,
+          "maxParticipants": 6,
+          "priceAmount": "2050.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/STG-PT-003.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "legacy-intake"
+    },
+    {
+      "internalRef": "STG-PT-004",
+      "categoryCode": "desert",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "City Sights & Desert Adventure",
+        "ar": "معالم المدينة ومغامرة الصحراء"
+      },
+      "description": {
+        "en": "Why pick one side of Sharm when you can have both? The first half is the city — landmarks, markets, the pace you choose. The second half swaps pavement for sand on an ATV ride into the desert, with camel rides, dinner, or stargazing available if you want to stretch the evening further.",
+        "ar": "ليه تختار نص واحد من شرم وانت تقدر تاخد الاتنين؟ النص الأول مدينة — معالم، أسواق، السرعة اللي تحبها. النص التاني بيبدّل الأسفلت برمل في قيادة دراجة رباعية وسط الصحراء، مع خيارات ركوب جمل وعشاء ومشاهدة نجوم لو عايز تمدّ الليلة أكتر."
+      },
+      "shortDescription": {
+        "en": "One private outing, two worlds — Sharm's city highlights in the first half, an ATV ride into the desert in the second, with camel, dinner and stargazing as optional add-ons.",
+        "ar": "جولة خاصة واحدة، عالمين — معالم شرم في النص الأول، وقيادة دراجة رباعية في الصحراء في النص التاني، مع خيارات جمل وعشاء ومشاهدة نجوم."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Hotel lobby; pickup about 14:00, about 5 hours before optional extensions.",
+        "ar": "من لوبي الفندق؛ استلام حوالي 2 الضهر، حوالي 5 ساعات قبل أي إضافات اختيارية."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Private city highlights; Guided ATV ride; Helmet and goggles; Dinner and camel only in that option",
+        "ar": "انتقال من وإلى الفندق؛ معالم مدينة خاصة؛ دراجة رباعية بقائد؛ خوذة ونظارة؛ العشاء والجمل في الخيار المحدد بس"
+      },
+      "exclusions": {
+        "en": "Telescope add-on unless chosen; Drinks, tips, personal expenses",
+        "ar": "إضافة التلسكوب إلا لو اخترتها؛ المشروبات والتيبس والمصاريف الشخصية"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "City + ATV (adult)",
+            "ar": "مدينة + دراجة رباعية (بالغ)"
+          },
+          "durationMinutes": 300,
+          "maxParticipants": 6,
+          "priceAmount": "1400.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "City + ATV with dinner and camel (adult)",
+            "ar": "مدينة + دراجة رباعية مع عشاء وجمل (بالغ)"
+          },
+          "durationMinutes": 300,
+          "maxParticipants": 6,
+          "priceAmount": "2150.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "City + ATV (child 6-11)",
+            "ar": "مدينة + دراجة رباعية (طفل 6-11)"
+          },
+          "durationMinutes": 300,
+          "maxParticipants": 6,
+          "priceAmount": "900.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "City + ATV with dinner and camel (child 6-11)",
+            "ar": "مدينة + دراجة رباعية مع عشاء وجمل (طفل 6-11)"
+          },
+          "durationMinutes": 300,
+          "maxParticipants": 6,
+          "priceAmount": "1400.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/STG-PT-004.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "legacy-intake"
+    },
+    {
+      "internalRef": "STG-PT-005",
+      "categoryCode": "culture",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Sharm Highlights & Seafood Meal",
+        "ar": "معالم شرم ووجبة مأكولات بحرية"
+      },
+      "description": {
+        "en": "See the city first — your pick of landmarks, your pace, your private car — then sit down for a real seafood meal to close the day out. Simple, satisfying, and exactly the combination it sounds like.",
+        "ar": "شوف المدينة الأول — معالمك المفضلة، سرعتك، عربيتك الخاصة — وبعدين اقعد لوجبة مأكولات بحرية حقيقية تقفل بيها اليوم. بسيطة، مُشبعة، وبالظبط الكومبو اللي اسمها بيقوله."
+      },
+      "shortDescription": {
+        "en": "A private car tour of Sharm's landmarks, finished with a proper seafood lunch or dinner.",
+        "ar": "جولة بعربية خاصة لمعالم شرم، تقفل بوجبة غداء أو عشاء مأكولات بحرية حقيقية."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Hotel lobby; start by arrangement, usually 11:00 (lunch) or 17:00 (dinner).",
+        "ar": "من لوبي الفندق؛ الميعاد بالاتفاق، غالبًا 11 الصبح (غداء) أو 5 المسا (عشاء)."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Private car; Selected landmarks; The seafood meal set for the itinerary",
+        "ar": "انتقال من وإلى الفندق؛ عربية خاصة؛ المعالم المختارة؛ وجبة المأكولات البحرية في البرنامج"
+      },
+      "exclusions": {
+        "en": "Drinks and anything ordered beyond the set meal; Tips, personal expenses",
+        "ar": "المشروبات وأي طلب زيادة عن الوجبة المحددة؛ التيبس والمصاريف الشخصية"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Adult",
+            "ar": "بالغ"
+          },
+          "durationMinutes": 240,
+          "maxParticipants": 6,
+          "priceAmount": "1600.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Child 4-11",
+            "ar": "طفل 4-11"
+          },
+          "durationMinutes": 240,
+          "maxParticipants": 6,
+          "priceAmount": "1250.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/STG-PT-005.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "legacy-intake"
+    },
+    {
+      "internalRef": "STG-PT-006",
+      "categoryCode": "family",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "SOHO Square & Hollywood Park Transfer",
+        "ar": "انتقال خاص إلى سوهو سكوير وهوليوود بارك"
+      },
+      "description": {
+        "en": "One night, two venues, zero taxis to flag down. We take you to SOHO Square, give you time to enjoy it, then move you on to Hollywood Park and bring you back home at the end — all on your own schedule, not a tour group's.",
+        "ar": "ليلة واحدة، مكانين، وصفر تاكسي تلوّح له. هنوديك سوهو سكوير، نسيبك تستمتع بوقتك، وبعدين نوصّلك هوليوود بارك ونرجعك البيت في النهاية — كل ده بتوقيتك انت، مش توقيت جروب سياحي."
+      },
+      "shortDescription": {
+        "en": "A private return transfer linking two of Sharm's liveliest evening spots, with free time at each.",
+        "ar": "انتقال خاص ذهابًا وعودة بين منطقتين حيويتين في شرم، مع وقت حر في كل محطة."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Hotel lobby; pickup about 18:00 (both are evening venues).",
+        "ar": "من لوبي الفندق؛ استلام حوالي 6 المسا (المكانين بيشغلوا بالليل)."
+      },
+      "inclusions": {
+        "en": "Private return transfer connecting the two venues; Hotel pickup and drop-off",
+        "ar": "انتقال خاص ذهاب وعودة بين المكانين؛ من وإلى الفندق"
+      },
+      "exclusions": {
+        "en": "Venue entry tickets, food and rides; Tips, personal expenses",
+        "ar": "تذاكر دخول الأماكن والأكل واللعب؛ التيبس والمصاريف الشخصية"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Adult (minimum 2 guests)",
+            "ar": "بالغ (حد أدنى 2 أفراد)"
+          },
+          "durationMinutes": 120,
+          "maxParticipants": 6,
+          "priceAmount": "2400.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Child 4-11 (minimum 2 guests)",
+            "ar": "طفل 4-11 (حد أدنى 2 أفراد)"
+          },
+          "durationMinutes": 120,
+          "maxParticipants": 6,
+          "priceAmount": "1200.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/STG-PT-006.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "legacy-intake"
+    },
+    {
+      "internalRef": "STG-PT-007",
+      "categoryCode": "transfers",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "STAFF_REVIEW",
+      "name": {
+        "en": "Private Car & Driver in Sharm",
+        "ar": "سيارة خاصة بسائق داخل شرم"
+      },
+      "description": {
+        "en": "This is a private booking, not a shared tour. Tell us up to three stops you want to make around Sharm, and we'll confirm the route with you before the car even arrives. Your stops, your order, your pace.",
+        "ar": "ده حجز خاص، مش جولة جماعية. قولنا لحد 3 محطات عايز تزورها في شرم، وهنأكد معاك المسار قبل ما العربية توصل أصلاً. محطاتك، ترتيبك، سرعتك."
+      },
+      "shortDescription": {
+        "en": "Reserve a private vehicle and driver for up to three stops inside Sharm — the exact route confirmed with you before pickup.",
+        "ar": "احجز سيارة خاصة بسائق لزيارة لحد 3 محطات داخل شرم — المسار بالظبط يتأكد معاك قبل الاستلام."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Hotel lobby at the confirmed time; route (up to 3 stops) agreed in advance.",
+        "ar": "من لوبي الفندق في الوقت المتفق عليه؛ المسار (لحد 3 محطات) متفق عليه مقدمًا."
+      },
+      "inclusions": {
+        "en": "Private vehicle; Driver; Fuel for the agreed route within the 3-hour window",
+        "ar": "عربية خاصة؛ سواق؛ بنزين للمسار المتفق عليه خلال النافذة"
+      },
+      "exclusions": {
+        "en": "Attraction tickets/admissions; A guide (transport only); Waiting time beyond any agreed stop allowance",
+        "ar": "تذاكر دخول المعالم؛ مرشد (انتقال بس من غير جولة)؛ وقت انتظار زيادة عن المتفق عليه"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Up to 3 stops, 3-hour window",
+            "ar": "لحد 3 محطات، نافذة 3 ساعات"
+          },
+          "durationMinutes": 180,
+          "maxParticipants": 3,
+          "priceAmount": "900.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_VEHICLE"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/STG-PT-007.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "legacy-intake"
+    },
+    {
+      "internalRef": "STG-PT-008",
+      "categoryCode": "desert",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Private ATV Desert Experience",
+        "ar": "مغامرة سفاري خاصة بالدراجات الرباعية"
+      },
+      "description": {
+        "en": "Same desert, your own private group. A guide leads you through the dunes on quad bikes, with a stop at a Bedouin tent along the way, and you choose when: catch the sunrise, keep it cool in the morning, or go for the golden light at sunset.",
+        "ar": "نفس الصحراء، بس جروبك الخاص بس. مرشد بياخدك وسط الكثبان على الكواد، مع وقفة في خيمة بدوية في الطريق، وانت تختار الوقت: شروق، صباح أهدى، أو ضوء دهبي عند الغروب."
+      },
+      "shortDescription": {
+        "en": "A private guided quad route through Sharm's desert, with a safety briefing and a Bedouin stop — available in morning, sunrise, or sunset windows.",
+        "ar": "مسار سفاري خاص بالدراجات الرباعية في صحراء شرم، مع شرح أمان ووقفة بدوية — متاح صباحًا أو وقت الشروق أو الغروب."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Hotel lobby; sunrise pickup about 04:30, morning about 09:00, sunset about 15:30.",
+        "ar": "من لوبي الفندق؛ استلام الشروق حوالي 4:30، الصباح حوالي 9، الغروب حوالي 3:30 العصر."
+      },
+      "inclusions": {
+        "en": "Hotel pickup at the chosen window; Safety briefing; Private guided quad route; Bedouin stop; Helmet and goggles",
+        "ar": "استلام من الفندق في النافذة المختارة؛ شرح أمان؛ مسار كواد خاص بقائد؛ وقفة بدوية؛ خوذة ونظارة"
+      },
+      "exclusions": {
+        "en": "The private-transfer upgrade unless chosen; Drinks, tips, personal expenses",
+        "ar": "ترقية الانتقال الخاص إلا لو اخترتها؛ المشروبات والتيبس والمصاريف الشخصية"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Morning (adult)",
+            "ar": "صباح (بالغ)"
+          },
+          "durationMinutes": 180,
+          "maxParticipants": 6,
+          "priceAmount": "1800.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Sunrise (adult)",
+            "ar": "شروق (بالغ)"
+          },
+          "durationMinutes": 180,
+          "maxParticipants": 6,
+          "priceAmount": "2050.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Sunset (adult)",
+            "ar": "غروب (بالغ)"
+          },
+          "durationMinutes": 180,
+          "maxParticipants": 6,
+          "priceAmount": "2400.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Morning (child 6-11)",
+            "ar": "صباح (طفل 6-11)"
+          },
+          "durationMinutes": 180,
+          "maxParticipants": 6,
+          "priceAmount": "1100.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Sunrise (child 6-11)",
+            "ar": "شروق (طفل 6-11)"
+          },
+          "durationMinutes": 180,
+          "maxParticipants": 6,
+          "priceAmount": "1250.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Sunset (child 6-11)",
+            "ar": "غروب (طفل 6-11)"
+          },
+          "durationMinutes": 180,
+          "maxParticipants": 6,
+          "priceAmount": "1450.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/STG-PT-008.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "legacy-intake"
+    },
+    {
+      "internalRef": "STG-PT-012",
+      "categoryCode": "desert",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Private Dahab & Canyon Adventure",
+        "ar": "رحلة خاصة إلى دهب والوديان"
+      },
+      "description": {
+        "en": "Dahab and its canyons, on your own terms. Keep it easy with a sightseeing-focused route, or go bigger with ATV riding and a camel ride built in. Either way, it's your group, your car, and a full day of Sinai's other coastline.",
+        "ar": "دهب ووديانها، على مزاجك. سيبها هادية بمسار مشاهدة بسيط، أو كبّرها بقيادة دراجة رباعية وركوب جمل مدمجين. في الحالتين، ده جروبك، عربيتك، ويوم كامل في الساحل التاني لسيناء."
+      },
+      "shortDescription": {
+        "en": "A private day from Sharm toward Dahab's canyons and coast — choose a relaxed sightseeing route, or the full program with ATV and camel.",
+        "ar": "يوم خاص من شرم لوديان وساحل دهب — اختار مسار مشاهدة هادي، أو برنامج كامل بدراجة رباعية وجمل."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Hotel lobby; pickup about 07:30, about 8 hours.",
+        "ar": "من لوبي الفندق؛ استلام حوالي 7:30 الصبح، حوالي 8 ساعات."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Private vehicle and driver/guide; Canyon and coastal day; ATV and camel only in the full program",
+        "ar": "انتقال من وإلى الفندق؛ عربية خاصة وسواق/مرشد؛ يوم وديان وساحل؛ الدراجة الرباعية والجمل في البرنامج الكامل بس"
+      },
+      "exclusions": {
+        "en": "Blue Hole/Abu Galum or protectorate fees; Snorkeling equipment and meals unless added; Tips, personal expenses",
+        "ar": "رسوم الهول الأزرق/أبو جلوم أو المحمية؛ معدات السنوركل والوجبات إلا لو أُضيفت؛ التيبس والمصاريف الشخصية"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Without rides, minimum 2 (adult)",
+            "ar": "من غير ركوبات، حد أدنى 2 (بالغ)"
+          },
+          "durationMinutes": 480,
+          "maxParticipants": 6,
+          "priceAmount": "5700.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Full program, minimum 2 (adult)",
+            "ar": "برنامج كامل، حد أدنى 2 (بالغ)"
+          },
+          "durationMinutes": 480,
+          "maxParticipants": 6,
+          "priceAmount": "6600.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Without rides, minimum 2 (child 6-11)",
+            "ar": "من غير ركوبات، حد أدنى 2 (طفل 6-11)"
+          },
+          "durationMinutes": 480,
+          "maxParticipants": 6,
+          "priceAmount": "4450.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Full program, minimum 2 (child 6-11)",
+            "ar": "برنامج كامل، حد أدنى 2 (طفل 6-11)"
+          },
+          "durationMinutes": 480,
+          "maxParticipants": 6,
+          "priceAmount": "5000.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/STG-PT-012.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "legacy-intake"
+    },
+    {
+      "internalRef": "STG-PT-013",
+      "categoryCode": "heritage-day-trips",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Private Cairo: Pyramids & Museum Day",
+        "ar": "يوم خاص إلى أهرامات القاهرة والمتحف"
+      },
+      "description": {
+        "en": "It's a long day by nature — Cairo isn't next door — but this version is entirely yours: a private group, a confirmed museum stop, and the Pyramids of Giza standing exactly where they've stood for thousands of years. Transport mode and admission details are locked in with you before booking, so there's no guessing on the day.",
+        "ar": "اليوم طويل بطبيعته — القاهرة مش جنب — بس النسخة دي خاصة بيك بالكامل: جروبك، وقفة متحف مؤكدة، وأهرامات الجيزة واقفة في نفس مكانها من آلاف السنين. وسيلة الانتقال وتفاصيل التذاكر متفق عليها معاك قبل الحجز، فمفيش تخمين يوم الرحلة."
+      },
+      "shortDescription": {
+        "en": "A private long-distance day from Sharm to the Giza Plateau and a confirmed Cairo museum — transport and tickets agreed before you book.",
+        "ar": "يوم خاص طويل من شرم لهضبة أهرامات الجيزة ومتحف يتأكد في القاهرة — وسيلة الانتقال والتذاكر متفق عليها قبل الحجز."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Hotel lobby; pickup about 01:00 (road departure), full day.",
+        "ar": "من لوبي الفندق؛ استلام حوالي 1 بالليل (سفر بري)، يوم كامل."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Private vehicle and driver; Licensed Egyptologist guide; Giza Plateau and the confirmed Cairo museum",
+        "ar": "انتقال من وإلى الفندق؛ عربية خاصة وسواق؛ مرشد آثار مرخّص؛ هضبة الجيزة ومتحف القاهرة المؤكد"
+      },
+      "exclusions": {
+        "en": "Admissions (pyramid interior about EUR 35, paid separately); Meals, visa/entry costs if any; Tips, personal expenses",
+        "ar": "التذاكر (دخول الهرم من الداخل حوالي 35 يورو يتم دفعها بشكل منفصل)؛ الوجبات وتكاليف الفيزا/الدخول لو وجدت؛ التيبس والمصاريف الشخصية"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Minimum 2 guests (adult)",
+            "ar": "حد أدنى 2 أفراد (بالغ)"
+          },
+          "durationMinutes": 1200,
+          "maxParticipants": 6,
+          "priceAmount": "11350.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Minimum 2 guests (child 4-11)",
+            "ar": "حد أدنى 2 أفراد (طفل 4-11)"
+          },
+          "durationMinutes": 1200,
+          "maxParticipants": 6,
+          "priceAmount": "10750.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/STG-PT-013.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "legacy-intake"
+    },
+    {
+      "internalRef": "STG-PT-014",
+      "categoryCode": "heritage-day-trips",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "INSTANT",
+      "name": {
+        "en": "Giza, Saqqara, Memphis & Khan El-Khalili",
+        "ar": "الجيزة وسقارة وممفيس وخان الخليلي"
+      },
+      "description": {
+        "en": "For the traveler who wants more than just the Pyramids: this private day adds Saqqara's step pyramid, the open-air ruins of ancient Memphis, and a walk through Khan El-Khalili's historic bazaar. Road or flight, the choice is yours.",
+        "ar": "للمسافر اللي عايز أكتر من الأهرامات بس: اليوم الخاص ده بيضيف هرم سقارة المدرّج، آثار ممفيس المفتوحة، ومشية في خان الخليلي التاريخي. بالطريق أو بالطيران، الاختيار ليك."
+      },
+      "shortDescription": {
+        "en": "Cover several of Cairo's biggest heritage sites in one private day from Sharm, by road or by air.",
+        "ar": "زور أهم مناطق القاهرة التاريخية في يوم خاص واحد من شرم، بالطريق أو بالطيران."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 24 hours before the confirmed pickup/start time. Cancelling within 24 hours, or a no-show, is charged in full.",
+        "ar": "إلغاء مجاني حتى 24 ساعة قبل موعد الاستلام أو بدء الخدمة المؤكد. الإلغاء خلال أقل من 24 ساعة، أو عدم الحضور، يُحتسب كاملاً."
+      },
+      "pickupInfo": {
+        "en": "Hotel lobby; pickup about 01:00 for road versions, or by ticket time for flight versions.",
+        "ar": "من لوبي الفندق؛ استلام حوالي 1 بالليل للرحلات البرية، أو حسب وقت التذكرة للطيران."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Private vehicle and driver; Licensed guide; Listed Giza/Saqqara/Memphis/Khan El-Khalili stops; Flights only in the plane option",
+        "ar": "انتقال من وإلى الفندق؛ عربية خاصة وسواق؛ مرشد مرخّص؛ وقفات الجيزة وسقارة وممفيس وخان الخليلي؛ الطيران في خيار الطيران بس"
+      },
+      "exclusions": {
+        "en": "Admissions not stated; Meals; Pyramid interior and camel where not listed; Tips, personal expenses",
+        "ar": "التذاكر غير المذكورة؛ الوجبات؛ دخول الهرم والجمل إلا في الخيار الموجودين فيه؛ التيبس والمصاريف الشخصية"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Road (adult)",
+            "ar": "بري (بالغ)"
+          },
+          "durationMinutes": 1200,
+          "maxParticipants": 6,
+          "priceAmount": "14350.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Road with pyramid interior and camel (adult)",
+            "ar": "بري مع دخول الهرم والجمل (بالغ)"
+          },
+          "durationMinutes": 1200,
+          "maxParticipants": 6,
+          "priceAmount": "16700.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Plane (adult)",
+            "ar": "طيران (بالغ)"
+          },
+          "durationMinutes": 1200,
+          "maxParticipants": 6,
+          "priceAmount": "20250.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Road (child 4-11)",
+            "ar": "بري (طفل 4-11)"
+          },
+          "durationMinutes": 1200,
+          "maxParticipants": 6,
+          "priceAmount": "10750.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Road with pyramid interior and camel (child 4-11)",
+            "ar": "بري مع دخول الهرم والجمل (طفل 4-11)"
+          },
+          "durationMinutes": 1200,
+          "maxParticipants": 6,
+          "priceAmount": "12550.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Plane (child 4-11)",
+            "ar": "طيران (طفل 4-11)"
+          },
+          "durationMinutes": 1200,
+          "maxParticipants": 6,
+          "priceAmount": "16100.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/STG-PT-014.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "legacy-intake"
+    },
+    {
+      "internalRef": "STG-DAY-004",
+      "categoryCode": "heritage-day-trips",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "STAFF_REVIEW",
+      "name": {
+        "en": "Petra: Ferry & Coach Day",
+        "ar": "رحلة إلى البتراء بالعبّارة والأتوبيس"
+      },
+      "description": {
+        "en": "Petra is a different country away, and this trip respects that: every border document, every connection, every timing is checked and confirmed before you're confirmed. What you get at the end is the Rose City itself — carved straight into the cliffs of Jordan, one of the genuine wonders of the ancient world.",
+        "ar": "البتراء دولة تانية بالكامل، والرحلة دي بتحترم ده: كل مستند حدودي، كل محطة، كل توقيت متأكد قبل ما طلبك يتأكد. اللي هتوصله في الآخر هي المدينة الوردية نفسها — منحوتة في جبال الأردن، واحدة من عجائب الدنيا القديمة الحقيقية."
+      },
+      "shortDescription": {
+        "en": "A cross-border day trip from Sharm to Petra by road and ferry — documents, timings, and inclusions confirmed before you go.",
+        "ar": "رحلة يوم عبر الحدود من شرم للبتراء بالطريق والعبّارة — المستندات والمواعيد ومحتوى الرحلة متأكدة قبل السفر."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 72 hours before departure. Cancelling within 72 hours, or a no-show, is charged in full. Some suppliers (flights, ferries, hotels) may apply stricter terms — the applicable policy is confirmed at booking.",
+        "ar": "إلغاء مجاني حتى 72 ساعة قبل موعد المغادرة. الإلغاء خلال أقل من 72 ساعة، أو عدم الحضور، يُحتسب كاملاً. بعض الموردين (طيران، عبّارات، فنادق) قد يطبقون شروطًا أكثر صرامة — يتم تأكيد السياسة المطبقة عند الحجز."
+      },
+      "pickupInfo": {
+        "en": "Hotel lobby; pickup about 01:00, full day. Only bookable on departure days set by the owner.",
+        "ar": "من لوبي الفندق؛ استلام حوالي 1 بالليل، يوم كامل. الحجز بس في أيام السفر اللي يحددها المالك."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Road and ferry connections; Licensed guides; Petra admission per the itinerary",
+        "ar": "انتقال من وإلى الفندق؛ مواصلات بري وعبّارة؛ مرشدين مرخّصين؛ تذكرة البتراء حسب البرنامج"
+      },
+      "exclusions": {
+        "en": "Visa/border fees; Meals; Optional horse or buggy in Petra; Tips, personal expenses",
+        "ar": "رسوم الفيزا/الحدود؛ الوجبات؛ الحصان أو العربية الاختيارية في البتراء؛ التيبس والمصاريف الشخصية"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Adult",
+            "ar": "بالغ"
+          },
+          "durationMinutes": 1200,
+          "maxParticipants": 20,
+          "priceAmount": "13150.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Child 4-11",
+            "ar": "طفل 4-11"
+          },
+          "durationMinutes": 1200,
+          "maxParticipants": 20,
+          "priceAmount": "11650.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/STG-DAY-004.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "legacy-intake"
+    },
+    {
+      "internalRef": "STG-MUL-001",
+      "categoryCode": "heritage-day-trips",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "STAFF_REVIEW",
+      "name": {
+        "en": "Cairo by Air: Two-Day Trip",
+        "ar": "رحلة يومين إلى القاهرة بالطائرة"
+      },
+      "description": {
+        "en": "One day in Cairo barely scratches the surface — this one gives it two. Flights, a real hotel night, and a full guided program through the city's biggest sites, with every detail (room, meals, tickets) nailed down before you confirm. Come back having actually seen Cairo, not just rushed through it.",
+        "ar": "يوم واحد في القاهرة بالكاد بيلمس السطح — ده بياخدك يومين. طيران، ليلة حقيقية في فندق، وبرنامج كامل بمرشد وسط أكبر مواقع المدينة، مع كل تفصيلة (الغرفة، الوجبات، التذاكر) محسومة قبل ما تأكد. ترجع وانت فعلاً شفت القاهرة، مش جريت فيها بس."
+      },
+      "shortDescription": {
+        "en": "Fly from Sharm for a two-day guided Cairo program with one confirmed overnight hotel — room, meals, and admissions agreed before you book.",
+        "ar": "طير من شرم لبرنامج قاهرة يومين مع فندق ليلة واحدة مؤكد — الغرفة والوجبات والتذاكر متفق عليها قبل الحجز."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 72 hours before departure. Cancelling within 72 hours, or a no-show, is charged in full. Some suppliers (flights, ferries, hotels) may apply stricter terms — the applicable policy is confirmed at booking.",
+        "ar": "إلغاء مجاني حتى 72 ساعة قبل موعد المغادرة. الإلغاء خلال أقل من 72 ساعة، أو عدم الحضور، يُحتسب كاملاً. بعض الموردين (طيران، عبّارات، فنادق) قد يطبقون شروطًا أكثر صرامة — يتم تأكيد السياسة المطبقة عند الحجز."
+      },
+      "pickupInfo": {
+        "en": "Hotel lobby; pickup about 01:00 on day 1. Only bookable on departure days set by the owner.",
+        "ar": "من لوبي الفندق؛ استلام حوالي 1 بالليل في اليوم الأول. الحجز بس في أيام السفر اللي يحددها المالك."
+      },
+      "inclusions": {
+        "en": "Return flights; One contracted 4-star hotel night; Guided two-day Cairo program; Transfers; Meals as stated",
+        "ar": "طيران ذهاب وعودة؛ ليلة فندق 4 نجوم متعاقد عليها؛ برنامج قاهرة يومين بمرشد؛ انتقالات؛ الوجبات المذكورة"
+      },
+      "exclusions": {
+        "en": "Admissions unless stated; Single-room supplement (about EGP 3,600); Tips, personal expenses",
+        "ar": "التذاكر غير المذكورة؛ فرق الغرفة المفردة (حوالي 3600 جنيه)؛ التيبس والمصاريف الشخصية"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Shared 4-star (adult)",
+            "ar": "فندق 4 نجوم مشترك (بالغ)"
+          },
+          "durationMinutes": 2880,
+          "maxParticipants": 12,
+          "priceAmount": "16700.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Private 4-star (adult)",
+            "ar": "فندق 4 نجوم خاص (بالغ)"
+          },
+          "durationMinutes": 2880,
+          "maxParticipants": 12,
+          "priceAmount": "20850.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Shared 4-star (child 2-11)",
+            "ar": "فندق 4 نجوم مشترك (طفل 2-11)"
+          },
+          "durationMinutes": 2880,
+          "maxParticipants": 12,
+          "priceAmount": "12500.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Private 4-star (child 2-11)",
+            "ar": "فندق 4 نجوم خاص (طفل 2-11)"
+          },
+          "durationMinutes": 2880,
+          "maxParticipants": 12,
+          "priceAmount": "16100.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/STG-MUL-001.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "legacy-intake"
+    },
+    {
+      "internalRef": "STG-MUL-002",
+      "categoryCode": "heritage-day-trips",
+      "fulfilmentModel": "DIRECT",
+      "confirmationType": "STAFF_REVIEW",
+      "name": {
+        "en": "Dahab & Canyon Camp: Two-Day Trip",
+        "ar": "رحلة يومين إلى دهب والوادي مع إقامة مخيم"
+      },
+      "description": {
+        "en": "One day in Dahab leaves you wanting more — so this one gives you a night there too, camping under a sky with none of Sharm's city lights to compete with it. Canyon walks, snorkeling, confirmed meals, and a real camp stay before heading back.",
+        "ar": "يوم واحد في دهب بيسيبك عايز أكتر — فده بيديك ليلة فيها كمان، تخيّم تحت سما من غير أنوار مدينة شرم تنافسها. مشي وديان، سنوركل، وجبات مؤكدة، وإقامة مخيم حقيقية قبل العودة."
+      },
+      "shortDescription": {
+        "en": "A two-day Dahab and canyon program from Sharm with a confirmed camp stay, meals, and a clear mix of land and snorkeling activities.",
+        "ar": "برنامج يومين في دهب والوادي من شرم مع إقامة مخيم مؤكدة، وجبات، ومزيج واضح من الأنشطة البرية والسنوركل."
+      },
+      "cancellationPolicy": {
+        "en": "Free cancellation up to 72 hours before departure. Cancelling within 72 hours, or a no-show, is charged in full. Some suppliers (flights, ferries, hotels) may apply stricter terms — the applicable policy is confirmed at booking.",
+        "ar": "إلغاء مجاني حتى 72 ساعة قبل موعد المغادرة. الإلغاء خلال أقل من 72 ساعة، أو عدم الحضور، يُحتسب كاملاً. بعض الموردين (طيران، عبّارات، فنادق) قد يطبقون شروطًا أكثر صرامة — يتم تأكيد السياسة المطبقة عند الحجز."
+      },
+      "pickupInfo": {
+        "en": "Hotel lobby; pickup about 08:00 on day 1, back on day 2. Only bookable on departure days set by the owner.",
+        "ar": "من لوبي الفندق؛ استلام حوالي 8 الصبح في اليوم الأول، والعودة في اليوم التاني. الحجز بس في أيام السفر اللي يحددها المالك."
+      },
+      "inclusions": {
+        "en": "Hotel pickup and drop-off; Transport; Guide; Camp stay with the meals stated; Canyon and coastal activities as listed",
+        "ar": "انتقال من وإلى الفندق؛ مواصلات؛ مرشد؛ إقامة مخيم مع الوجبات المذكورة؛ أنشطة الوديان والساحل المذكورة"
+      },
+      "exclusions": {
+        "en": "Snorkeling equipment (about EGP 600 extra); ATV/camel unless listed; Tips, personal expenses",
+        "ar": "معدات السنوركل (حوالي 600 جنيه زيادة)؛ الدراجة الرباعية/الجمل إلا لو مذكورة؛ التيبس والمصاريف الشخصية"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Shared group (adult)",
+            "ar": "مجموعة مشتركة (بالغ)"
+          },
+          "durationMinutes": 2880,
+          "maxParticipants": 20,
+          "priceAmount": "13150.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        },
+        {
+          "label": {
+            "en": "Shared group (child 4-11)",
+            "ar": "مجموعة مشتركة (طفل 4-11)"
+          },
+          "durationMinutes": 2880,
+          "maxParticipants": 20,
+          "priceAmount": "10750.00",
+          "priceCurrency": "EGP",
+          "priceBasis": "PER_PERSON"
+        }
+      ],
+      "media": [
+        {
+          "assetReference": "placeholder/STG-MUL-002.jpg",
+          "rightsEvidence": "Pending real rights-cleared media from operator — placeholder, blocks publish() intentionally",
+          "locale": "en"
+        }
+      ],
+      "source": "legacy-intake"
+    }
+  ]
+}
