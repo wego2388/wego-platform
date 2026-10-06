@@ -192,7 +192,12 @@ class OfficeDocumentService(
                     date.toString(),
                     language,
                     actorUserId,
-                    fingerprint(live.map { "${it.id.value}|${it.pricing.guests}|${paymentDue(it, nets)}" }),
+                    fingerprint(
+                        live.map {
+                            "${it.id.value}|${it.slotId.value}|${it.timeSlot}|${it.pricing.guests}|${paymentDue(it, nets)}|" +
+                                "${it.hotelName}|${it.hotelRoom}|${it.specialRequests}"
+                        },
+                    ),
                 ) { "RUN-${date.format(DateTimeFormatter.BASIC_ISO_DATE)}" }
             DocumentResult.Ready(stamp, data)
         }
@@ -240,7 +245,7 @@ class OfficeDocumentService(
                     actorUserId,
                     fingerprint(
                         rows.map {
-                            "${it.id.value}|${it.pricing.guests}"
+                            "${it.id.value}|${it.pricing.guests}|${it.hotelName}|${it.hotelRoom}"
                         },
                     ),
                 ) {
@@ -355,7 +360,11 @@ class OfficeDocumentService(
         )
     }
 
-    /** SHA-256 over sorted booking ids, guest counts and payment-due flags: no names, phones or notes. */
+    /**
+     * SHA-256 over every value the document prints that can change (booking,
+     * slot, guests, payment due, hotel/room, requests). Only the digest is
+     * stored, never the inputs, so the register holds no customer data.
+     */
     private fun fingerprint(parts: List<String>): String =
         java.security.MessageDigest
             .getInstance("SHA-256")

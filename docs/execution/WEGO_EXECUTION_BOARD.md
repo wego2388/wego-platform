@@ -4430,7 +4430,7 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-10-06 — WEGO-016-OPS2-D: office documents (Tier 1 where PII widens)
 
-- **Status:** ACTIVE
+- **Status:** COMPLETE (2026-10-07) — two Opus Tier 1 reviews ACCEPT-WITH-FOLLOWUPS; follow-ups fixed; owner decisions carried
 - **Activation:** owner roadmap order after OPS2-C; owner instruction «استنى قبل ما تعمل المستندات حعطي لك الملف» — implementation waits for the owner's document file/templates.
 - **Scope (from SAFARI_OPERATIONS_EXPANSION_PLAN_AR.md §3):** booking voucher,
   payment receipt, daily run sheet, pickup manifest, cancellation / money-to-
@@ -4527,6 +4527,30 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   deposit was paid: the percentage is applied to the amount actually
   collected; (2) hours are counted to the start of the tour day (Cairo)
   because departure clock times are not stored.
+
+#### 2026-10-07 — OPS2-D closure
+
+- Re-check of `bebe89a`: ACCEPT-WITH-FOLLOWUPS. Fixed: run-sheet fingerprint
+  now covers slot, time slot, guests, payment due, hotel, room and requests;
+  manifest covers hotel and room (digest only stored); trigger-depth residual
+  documented in V31; EGP rate label shows the unit. Office document tests
+  16/16, ERP Vitest 284.
+- V31 edited in place while unreleased; any later change needs a new migration.
+- **Owner decisions still open (do not guess):** refund basis when only a
+  deposit was paid (% of collected vs. fee on the price); departure hour per
+  time slot for the 48/24 h bands (proposed 04:00/07:00/13:00/15:00); wording
+  of the four voucher instruction lines.
+
+### 2026-10-07 — WEGO-016-OPS2-E: suppliers, drivers, vehicles and daily assignment (Tier 1)
+
+- **Status:** ACTIVE
+- **Activation:** owner roadmap order; owner supplied suppliers, supplier
+  prices, drivers and per-tour costs in the data hub (2026-10-06); vehicles
+  left empty on purpose («العربيات اعملها مكان بس انا معنديش معلومات حاليا»).
+- **Scope:** supplier, driver and vehicle registries (vehicles may stay
+  empty); assign drivers/vehicles/suppliers to a day's departures with
+  conflict prevention; fill driver/vehicle on the pickup manifest; driver sheet
+  and supplier order documents. Costs and settlements stay in OPS2-F.
 
 ## WEGO-017 — Foundry executable isolated client releases
 

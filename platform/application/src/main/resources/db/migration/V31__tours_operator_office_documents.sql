@@ -62,6 +62,8 @@ CREATE INDEX tours_operator_document_print_subject_idx
 -- Append-only: no edits, no deletes, no TRUNCATE. The only permitted change is the database
 -- detaching a deleted staff user: ON DELETE SET NULL runs as a nested (cascade) trigger, so
 -- pg_trigger_depth() > 1; a direct UPDATE (depth 1) is always refused.
+-- Residual (accepted): an UPDATE fired from another trigger also has depth > 1;
+-- it can still only null the printer, and adding such a trigger needs DDL rights.
 CREATE FUNCTION wego.tours_operator_document_print_guard() RETURNS trigger
     LANGUAGE plpgsql AS $$
 BEGIN
