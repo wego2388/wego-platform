@@ -4,7 +4,7 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const siteUrl = String(config.public.siteUrl).replace(/\/$/, "");
-  const paths = ["/", "/experiences", "/about", "/faq", "/contact", "/privacy", "/terms"];
+  const paths = ["/", "/experiences", "/find-my-trip", "/track", "/about", "/faq", "/contact", "/privacy", "/terms"];
 
   // The backend paginates (default/max page size differ — 200 is the real
   // max) — walk every page so a catalog beyond the first page is not
