@@ -652,6 +652,10 @@ export const en = {
   "asg.driverSheet": "Driver sheet",
   "asg.supplierOrder": "Order for {name}",
   "asg.pickupManifest": "Pickup manifest",
+  "asg.inactiveRemove": "{name} — inactive — remove",
+  "asg.inactiveNotice": "An assigned driver, vehicle or supplier has been deactivated. Remove it (choose another or untick it) before saving.",
+  "asg.supplierNote": "Note for the supplier",
+  "asg.supplierNoteHint": "Printed on the supplier orders. Do not include customer phone numbers or health details.",
 } as const;
 
 export type ErpMessageKey = keyof typeof en;
@@ -1303,6 +1307,10 @@ export const ar: Record<ErpMessageKey, string> = {
   "asg.driverSheet": "ورقة السائق",
   "asg.supplierOrder": "طلب {name}",
   "asg.pickupManifest": "كشف الاستلام",
+  "asg.inactiveRemove": "{name} — غير نشط — أزله",
+  "asg.inactiveNotice": "تم إيقاف سائق أو مركبة أو مورد معيَّن. أزله (اختر غيره أو ألغِ تحديده) قبل الحفظ.",
+  "asg.supplierNote": "ملاحظة للمورد",
+  "asg.supplierNoteHint": "تُطبع على طلبات الموردين. لا تكتب أرقام هواتف العملاء أو تفاصيل صحية.",
 };
 
 export function resolveErpLocale(value: unknown): ErpLocale {

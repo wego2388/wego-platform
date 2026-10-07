@@ -167,7 +167,7 @@ describe("assignment panel", () => {
     await w.findAll("select")[0]!.setValue("d1");
     await w.find("input[type=checkbox]").setValue(true);
     await w.find("form").trigger("submit"); await flushPromises();
-    expect(api.saveAssignment).toHaveBeenCalledWith("tok", "slot1", { driverId: "d1", vehicleId: null, supplierIds: ["s1"], expectedRevision: 0 });
+    expect(api.saveAssignment).toHaveBeenCalledWith("tok", "slot1", { driverId: "d1", vehicleId: null, supplierIds: ["s1"], supplierNote: null, expectedRevision: 0 });
     expect(w.emitted("saved")).toHaveLength(1);
   });
   it("refuses an empty selection without calling the API", async () => {
@@ -201,7 +201,7 @@ describe("assignment panel", () => {
   });
   it("lists warnings and blocks as badges, and links to the driver sheet and supplier orders", () => {
     const assigned = view({
-      assignment: { revision: 2, driver: { id: "d1", name: "Amr" }, vehicle: { id: "v1", display: "Hiace", seats: 4 }, suppliers: [{ id: "s1", code: "S01", name: "Panorama" }], assignedByEmail: "a@b.c", assignedAt: "2027-03-01T08:00:00Z", updatedByEmail: "m@b.c", updatedAt: "2027-03-02T08:00:00Z" },
+      assignment: { revision: 2, driver: { id: "d1", name: "Amr" }, vehicle: { id: "v1", display: "Hiace", seats: 4 }, suppliers: [{ id: "s1", code: "S01", name: "Panorama" }], supplierNote: null, assignedByEmail: "a@b.c", assignedAt: "2027-03-01T08:00:00Z", updatedByEmail: "m@b.c", updatedAt: "2027-03-02T08:00:00Z" },
       issues: [{ code: "vehicle_seats_below_guests", resourceId: "v1", value: 9, limit: 4, blocking: false }, { code: "driver_licence_expired", resourceId: "d1", value: null, limit: null, blocking: true }],
     });
     const w = panel(assigned);
@@ -216,9 +216,36 @@ describe("assignment panel", () => {
     const w = panel(view(), false);
     expect(w.findAll("button")).toHaveLength(0);
   });
+  it("keeps an assigned but deactivated driver, vehicle and supplier visible and removable", async () => {
+    vi.mocked(api.saveAssignment).mockResolvedValue(view());
+    const assigned = view({
+      assignment: { revision: 3, driver: { id: "dX", name: "Gone Driver" }, vehicle: { id: "vX", display: "Old Bus", seats: 30 }, suppliers: [{ id: "s1", code: "S01", name: "Panorama" }, { id: "sX", code: "SX", name: "Closed Co" }], supplierNote: "Two child life jackets", assignedByEmail: null, assignedAt: "2027-03-01T08:00:00Z", updatedByEmail: null, updatedAt: "2027-03-01T08:00:00Z" },
+      issues: [{ code: "driver_inactive", resourceId: "dX", value: null, limit: null, blocking: true }],
+    });
+    const w = panel(assigned);
+    expect(w.text()).toContain("Note for the supplier: Two child life jackets");
+    await w.findAll("button").find((b) => b.text() === "Change")!.trigger("click");
+    const [driverSelect, vehicleSelect] = w.findAll("select");
+    expect((driverSelect!.element as HTMLSelectElement).value).toBe("dX");
+    expect(driverSelect!.text()).toContain("Gone Driver — inactive — remove");
+    expect(vehicleSelect!.text()).toContain("Old Bus — inactive — remove");
+    const inactive = w.find("[data-test=inactive-suppliers]");
+    expect(inactive.text()).toContain("Closed Co — inactive — remove");
+    expect(w.find("[data-test=inactive-notice]").text()).toContain("has been deactivated");
+    expect((w.find("input[type=text]").element as HTMLInputElement).value).toBe("Two child life jackets");
+    expect(w.text()).toContain("Do not include customer phone numbers or health details.");
+
+    await driverSelect!.setValue("d1");
+    await vehicleSelect!.setValue("");
+    await inactive.find("input[type=checkbox]").setValue(false);
+    expect(w.find("[data-test=inactive-notice]").exists()).toBe(false);
+    await w.find("input[type=text]").setValue("  One vegetarian lunch ");
+    await w.find("form").trigger("submit"); await flushPromises();
+    expect(api.saveAssignment).toHaveBeenCalledWith("tok", "slot1", { driverId: "d1", vehicleId: null, supplierIds: ["s1"], supplierNote: "One vegetarian lunch", expectedRevision: 3 });
+  });
   it("clears with the current revision", async () => {
     vi.mocked(api.clearAssignment).mockResolvedValue(view());
-    const assigned = view({ assignment: { revision: 4, driver: { id: "d1", name: "Amr" }, vehicle: null, suppliers: [], assignedByEmail: null, assignedAt: "2027-03-01T08:00:00Z", updatedByEmail: null, updatedAt: "2027-03-01T08:00:00Z" } });
+    const assigned = view({ assignment: { revision: 4, driver: { id: "d1", name: "Amr" }, vehicle: null, suppliers: [], supplierNote: null, assignedByEmail: null, assignedAt: "2027-03-01T08:00:00Z", updatedByEmail: null, updatedAt: "2027-03-01T08:00:00Z" } });
     const w = panel(assigned);
     await w.findAll("button").find((b) => b.text() === "Change")!.trigger("click");
     await w.findAll("button").find((b) => b.text() === "Clear assignment")!.trigger("click"); await flushPromises();
@@ -260,20 +287,21 @@ describe("driver sheet and supplier order documents", () => {
     data: {
       slotId: "slot1", date: "2027-03-10", timeSlot: "MORNING", tourNameEn: "Quad Safari", tourNameAr: null,
       supplier: { code: "S01", name: "Panorama", serviceType: "QUAD_BUGGY_SAFARI", contactPerson: "Hamed", confirmationChannel: "WHATSAPP", noticeHours: 24 },
-      totalGuests: 4, adults: 3, children: 1, units: [{ optionLabel: "Buggy", unitCount: 2 }], specialRequests: ["Vegetarian lunch"],
+      totalGuests: 4, adults: 3, children: 1, units: [{ optionLabel: "Buggy", unitCount: 2 }], supplierNote: "One vegetarian lunch",
     },
   };
-  it("supplier order (EN): service, guests, requests and confirmation person; no customer data or price wording", () => {
+  it("supplier order (EN): service, guests, staff note and company confirmation contact; no customer data or price wording", () => {
     const w = mount(SupplierOrderDoc, { props: { doc: order, lang: "en" } });
     const text = w.text();
     expect(text).toContain("Supplier order"); expect(text).toContain("Panorama"); expect(text).toContain("Quad / buggy / safari");
-    expect(text).toContain("Adults 3 · Children 1"); expect(text).toContain("Vegetarian lunch"); expect(text).toContain("Hamed"); expect(text).toContain("WhatsApp");
+    expect(text).toContain("Adults 3 · Children 1"); expect(text).toContain("Note from operations"); expect(text).toContain("One vegetarian lunch"); expect(text).toContain("Hamed");
+    expect(text).toContain("Confirm to"); expect(text).toContain("+20 111 129 2690"); expect(text).not.toContain("Special requests"); expect(text).toContain("WhatsApp");
     expect(text).toContain("Notice required: 24 h"); expect(text).toContain("2 × Buggy");
-    expect(text).toContain("This order carries no customer contact details and no prices.");
+    expect(text).toContain("This order carries no customer names, contact details, requests or prices.");
     expect(w.find(".doc-body").text().toLowerCase()).not.toMatch(/€|egp|price:|phone/);
   });
-  it("supplier order (AR) and an order with no special requests", () => {
-    const w = mount(SupplierOrderDoc, { props: { doc: { ...order, data: { ...order.data, specialRequests: [], units: [] } }, lang: "ar" } });
+  it("supplier order (AR) and an order with no supplier note", () => {
+    const w = mount(SupplierOrderDoc, { props: { doc: { ...order, data: { ...order.data, supplierNote: null, units: [] } }, lang: "ar" } });
     expect(w.find("article").attributes("dir")).toBe("rtl");
     expect(w.text()).toContain("طلب مورد"); expect(w.text()).toContain("لا يوجد"); expect(w.text()).toContain("واتساب");
   });

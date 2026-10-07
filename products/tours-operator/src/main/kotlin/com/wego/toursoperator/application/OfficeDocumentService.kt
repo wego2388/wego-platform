@@ -258,7 +258,7 @@ class OfficeDocumentService(
 
     /**
      * The driver's sheet of one departure (OPS2-E). Needs an assigned driver. Shows customer name,
-     * hotel and room in pickup order; never a customer phone, e-mail, price or payment state.
+     * hotel and room, stops alphabetical by hotel; never a customer phone, e-mail, price or payment state.
      */
     fun driverSheet(
         slotId: TourSlotId,
@@ -272,16 +272,17 @@ class OfficeDocumentService(
             val rows =
                 liveBookings(slot.date)
                     .filter { it.slotId == slot.id }
-                    .sortedWith(compareBy({ it.hotelName.lowercase() }, { it.hotelRoom ?: "" }, { it.reference }))
+                    .sortedWith(compareBy({ hotelKey(it.hotelName) }, { it.hotelRoom ?: "" }, { it.reference }))
             val names = tourNames(listOf(slot.tourId))
+            // Stops are alphabetical by hotel; "Hilton " and "hilton" are one stop, shown with the first spelling.
             val stops =
                 rows
-                    .groupBy { it.hotelName }
-                    .entries
-                    .mapIndexed { index, (hotel, parties) ->
+                    .groupBy { hotelKey(it.hotelName) }
+                    .values
+                    .mapIndexed { index, parties ->
                         DriverSheetStop(
                             order = index + 1,
-                            hotelName = hotel,
+                            hotelName = parties.first().hotelName.trim(),
                             guests = parties.sumOf { it.pricing.guests },
                             parties = parties.map { DriverSheetGuest(it.reference, it.customer.fullName, it.hotelRoom, it.pricing.guests) },
                         )
@@ -314,7 +315,8 @@ class OfficeDocumentService(
 
     /**
      * The order for one supplier of one departure (OPS2-E). The supplier must be assigned to the
-     * departure. No customer personal data and no agreed price.
+     * departure. No customer personal data, no customer special requests and no agreed price: only
+     * guest counts and the staff-written supplier note of the assignment.
      */
     fun supplierOrder(
         slotId: TourSlotId,
@@ -324,9 +326,11 @@ class OfficeDocumentService(
     ): DocumentResult<SupplierOrderData> =
         transactionRunner.runInTransaction {
             val slot = slotRepository.findById(slotId) ?: return@runInTransaction DocumentResult.NotFound
+            val assigned = assignmentService.resolved(slot.id)
             val supplier =
-                assignmentService.resolved(slot.id)?.suppliers?.firstOrNull { it.id == supplierId }
+                assigned?.suppliers?.firstOrNull { it.id == supplierId }
                     ?: return@runInTransaction DocumentResult.Refused("supplier_not_assigned")
+            val note = assigned.assignment.supplierNote
             val rows = liveBookings(slot.date).filter { it.slotId == slot.id }
             val names = tourNames(listOf(slot.tourId))
             val units =
@@ -335,7 +339,6 @@ class OfficeDocumentService(
                     .groupBy { it.optionLabel }
                     .map { (label, list) -> SupplierOrderUnit(label, list.sumOf { it.unitCount }) }
                     .sortedBy { it.optionLabel }
-            val requests = rows.mapNotNull { it.specialRequests?.trim()?.takeIf { text -> text.isNotEmpty() } }.sorted()
             val data =
                 SupplierOrderData(
                     slotId = slot.id.value,
@@ -356,7 +359,8 @@ class OfficeDocumentService(
                     adults = rows.sumOf { it.pricing.adultsCount },
                     children = rows.sumOf { it.pricing.childrenCount },
                     units = units,
-                    specialRequests = requests,
+                    // Never the customers' own special requests (they stay on the internal run sheet).
+                    supplierNote = note,
                 )
             val stamp =
                 stamp(
@@ -366,8 +370,8 @@ class OfficeDocumentService(
                     actorUserId,
                     fingerprint(
                         rows.map {
-                            "${it.id.value}|${it.pricing.adultsCount}|${it.pricing.childrenCount}|${it.pricing.unit?.optionLabel}|${it.pricing.unit?.unitCount}|${it.specialRequests}"
-                        },
+                            "${it.id.value}|${it.pricing.adultsCount}|${it.pricing.childrenCount}|${it.pricing.unit?.optionLabel}|${it.pricing.unit?.unitCount}"
+                        } + "note|${note.orEmpty()}",
                     ),
                 ) { printRepository.allocateNumber(DocumentType.SUPPLIER_ORDER, year()) }
             DocumentResult.Ready(stamp, data)
@@ -439,6 +443,9 @@ class OfficeDocumentService(
         }
 
     // ── helpers ──────────────────────────────────────────────────────────────
+
+    /** One driver-sheet stop per hotel whatever the case or spacing staff typed. */
+    private fun hotelKey(hotel: String): String = hotel.trim().replace(WHITESPACE, " ").lowercase()
 
     /** Records this print. The first one allocates the immutable number; reprints reuse it and count up. */
     private fun stamp(
@@ -578,6 +585,7 @@ class OfficeDocumentService(
     companion object {
         private const val PAGE = 200
         private val CAIRO: ZoneId = ZoneId.of("Africa/Cairo")
+        private val WHITESPACE = Regex("\\s+")
 
         /** Only the last 4 characters of a receipt number are ever printed; shorter ones are fully masked and the length is not revealed. */
         fun maskReference(reference: String): String = if (reference.length <= 4) "****" else "****" + reference.takeLast(4)

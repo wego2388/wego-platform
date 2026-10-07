@@ -5,6 +5,7 @@ import com.wego.toursoperator.domain.AssignmentIssue
 import com.wego.toursoperator.domain.AssignmentRules
 import com.wego.toursoperator.domain.ConflictKind
 import com.wego.toursoperator.domain.Driver
+import com.wego.toursoperator.domain.OpsRules
 import com.wego.toursoperator.domain.SlotAssignment
 import com.wego.toursoperator.domain.Supplier
 import com.wego.toursoperator.domain.SupplierServiceType
@@ -41,6 +42,8 @@ data class AssignmentDetail(
     val driver: NamedRef?,
     val vehicle: VehicleRef?,
     val suppliers: List<SupplierRef>,
+    /** Staff-written note for the supplier orders; never a customer's own special request. */
+    val supplierNote: String?,
     val assignedByEmail: String?,
     val assignedAt: Instant,
     val updatedByEmail: String?,
@@ -68,6 +71,8 @@ data class AssignCommand(
     val supplierIds: Set<UUID>,
     val expectedRevision: Int,
     val actorUserId: UUID,
+    /** Blank means none; trimmed. Control characters are refused (400). */
+    val supplierNote: String? = null,
 )
 
 sealed class AssignResult {
@@ -200,6 +205,7 @@ class AssignmentService(
                     driverId = command.driverId,
                     vehicleId = command.vehicleId,
                     supplierIds = command.supplierIds,
+                    supplierNote = OpsRules.clean(command.supplierNote),
                     revision = currentRevision + 1,
                     assignedAt = existing?.assignedAt ?: now,
                     assignedByUserId = existing?.assignedByUserId ?: command.actorUserId,
@@ -283,6 +289,7 @@ class AssignmentService(
             driverId = assignment.driverId,
             vehicleId = assignment.vehicleId,
             supplierIds = assignment.supplierIds,
+            supplierNote = assignment.supplierNote,
             actorUserId = actor,
             actorEmail = null,
             occurredAt = at,
@@ -324,6 +331,7 @@ class AssignmentService(
                         driver = driver?.let { d -> NamedRef(d.id, d.name) },
                         vehicle = vehicle?.let { v -> VehicleRef(v.id, v.display, v.seats) },
                         suppliers = chosen.map { s -> SupplierRef(s.id, s.code, s.name) },
+                        supplierNote = it.supplierNote,
                         assignedByEmail = it.assignedByUserId?.let(assignments::emailOf),
                         assignedAt = it.assignedAt,
                         updatedByEmail = it.updatedByUserId?.let(assignments::emailOf),

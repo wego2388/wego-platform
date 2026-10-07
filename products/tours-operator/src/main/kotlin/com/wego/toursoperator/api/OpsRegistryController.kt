@@ -220,6 +220,7 @@ class AssignmentController(
                     request.supplierIds.orEmpty(),
                     request.expectedRevision,
                     actor(authentication),
+                    request.supplierNote,
                 ),
             ),
         )

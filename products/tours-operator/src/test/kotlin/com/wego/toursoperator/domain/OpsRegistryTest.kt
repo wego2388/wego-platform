@@ -183,6 +183,24 @@ class OpsRegistryTest {
                 null,
             )
         }.hasMessageContaining("needs")
+        for (bad in listOf("line\nbreak", "bell\u0007", " padded", "x".repeat(501))) {
+            assertThatThrownBy {
+                SlotAssignment(
+                    TourSlotId.generate(),
+                    day,
+                    TimeSlot.MORNING,
+                    null,
+                    null,
+                    setOf(UUID.randomUUID()),
+                    1,
+                    Instant.EPOCH,
+                    null,
+                    Instant.EPOCH,
+                    null,
+                    supplierNote = bad,
+                )
+            }.hasMessageContaining("supplierNote")
+        }
     }
 
     @Test

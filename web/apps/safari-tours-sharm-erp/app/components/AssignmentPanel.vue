@@ -11,7 +11,11 @@ import { documentPath } from "../utils/documentFormat";
 /**
  * Daily assignment of a departure: driver, optional vehicle and suppliers. Conflicts (same driver or
  * vehicle on another departure in the same time window) are shown clearly and nothing is saved;
- * warnings (seats, licence, back-to-back windows) are listed but do not block.
+ * warnings (seats, licence, back-to-back windows) are listed but do not block. A driver, vehicle or
+ * supplier that was deactivated after being assigned stays visible in the form, marked "inactive —
+ * remove", so staff can see it and take it off (the server refuses to save it again).
+ * The supplier note is staff-written text printed on the supplier orders; customers' own special
+ * requests never go to suppliers.
  */
 const props = defineProps<{
   token: string;
@@ -29,7 +33,8 @@ const { t, locale, instantLabel } = useErpLocale();
 const editing = ref(false);
 const saving = ref(false);
 const failure = ref<AssignmentFailure | null>(null);
-const form = reactive({ driverId: "", vehicleId: "", supplierIds: [] as string[] });
+const form = reactive({ driverId: "", vehicleId: "", supplierIds: [] as string[], supplierNote: "" });
+const noteHintId = computed(() => `asg-note-hint-${props.slotId}`);
 const headingId = computed(() => `asg-${props.slotId}`);
 
 const assignment = computed(() => props.view?.assignment ?? null);
@@ -41,12 +46,27 @@ const supplierOptions = computed(() => props.options?.suppliers ?? []);
 const suggestedOptions = computed(() => supplierOptions.value.filter((s) => suggested.value.has(s.id)));
 const otherOptions = computed(() => supplierOptions.value.filter((s) => !suggested.value.has(s.id)));
 const driverLabel = (d: { name: string; licenceCoversDate: boolean }) => (d.licenceCoversDate ? d.name : `${d.name} — ${t("ops.licenceExpired")}`);
+// Options carry active records only; an assigned one missing from them was deactivated since.
+const inactiveDriver = computed(() => {
+  const d = assignment.value?.driver;
+  return d && !driverOptions.value.some((o) => o.id === d.id) ? d : null;
+});
+const inactiveVehicle = computed(() => {
+  const v = assignment.value?.vehicle;
+  return v && !vehicleOptions.value.some((o) => o.id === v.id) ? v : null;
+});
+const inactiveSuppliers = computed(() => (assignment.value?.suppliers ?? []).filter((s) => !supplierOptions.value.some((o) => o.id === s.id)));
+const inactiveStillChosen = computed(() =>
+  (inactiveDriver.value !== null && form.driverId === inactiveDriver.value.id)
+  || (inactiveVehicle.value !== null && form.vehicleId === inactiveVehicle.value.id)
+  || inactiveSuppliers.value.some((s) => form.supplierIds.includes(s.id)));
 
 function startEdit() {
   const a = assignment.value;
   form.driverId = a?.driver?.id ?? "";
   form.vehicleId = a?.vehicle?.id ?? "";
   form.supplierIds = a?.suppliers.map((s) => s.id) ?? [];
+  form.supplierNote = a?.supplierNote ?? "";
   failure.value = null;
   editing.value = true;
 }
@@ -64,6 +84,7 @@ async function save() {
   try {
     const view = await saveAssignment(props.token, props.slotId, {
       driverId: form.driverId || null, vehicleId: form.vehicleId || null, supplierIds: form.supplierIds,
+      supplierNote: form.supplierNote.trim() || null,
       expectedRevision: assignment.value?.revision ?? 0,
     });
     editing.value = false;
@@ -107,6 +128,7 @@ const FIELD = "w-full rounded-lg border border-sts-border bg-sts-surface px-3 py
       <span v-else class="text-sts-muted">{{ t("asg.none") }}</span>
       <button v-if="canAssign && !editing" type="button" class="font-semibold text-sts-ocean-mid hover:underline" @click="startEdit">{{ assignment ? t("asg.change") : t("asg.assign") }}</button>
     </div>
+    <p v-if="assignment?.supplierNote" class="mt-1"><span class="text-sts-muted">{{ t("asg.supplierNote") }}:</span> <span dir="auto">{{ assignment.supplierNote }}</span></p>
     <p v-if="assignment" class="mt-1 text-xs text-sts-muted">
       {{ t("asg.by", { who: assignment.assignedByEmail ?? "—" }) }} · {{ t("asg.updated", { who: assignment.updatedByEmail ?? "—", at: instantLabel(assignment.updatedAt) }) }} · {{ t("asg.rev", { n: assignment.revision }) }}
     </p>
@@ -128,12 +150,14 @@ const FIELD = "w-full rounded-lg border border-sts-border bg-sts-surface px-3 py
         <select v-model="form.driverId" :class="FIELD">
           <option value="">{{ t("asg.noDriver") }}</option>
           <option v-for="d in driverOptions" :key="d.id" :value="d.id">{{ driverLabel(d) }}</option>
+          <option v-if="inactiveDriver" :value="inactiveDriver.id">{{ t("asg.inactiveRemove", { name: inactiveDriver.name }) }}</option>
         </select>
       </label>
       <label class="grid gap-1 font-semibold">{{ t("asg.vehicle") }}
         <select v-model="form.vehicleId" :class="FIELD">
           <option value="">{{ t("asg.noVehicle") }}</option>
           <option v-for="v in vehicleOptions" :key="v.id" :value="v.id">{{ v.display }} ({{ v.seats }})</option>
+          <option v-if="inactiveVehicle" :value="inactiveVehicle.id">{{ t("asg.inactiveRemove", { name: inactiveVehicle.display }) }}</option>
         </select>
       </label>
       <fieldset class="md:col-span-2">
@@ -146,7 +170,15 @@ const FIELD = "w-full rounded-lg border border-sts-border bg-sts-surface px-3 py
         <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1">
           <label v-for="s in otherOptions" :key="s.id" class="inline-flex items-center gap-2"><input v-model="form.supplierIds" type="checkbox" :value="s.id"> <span dir="auto">{{ s.name }}</span></label>
         </div>
+        <div v-if="inactiveSuppliers.length" class="mt-2 flex flex-wrap gap-x-4 gap-y-1" data-test="inactive-suppliers">
+          <label v-for="s in inactiveSuppliers" :key="s.id" class="inline-flex items-center gap-2 text-sts-danger"><input v-model="form.supplierIds" type="checkbox" :value="s.id"> <span dir="auto">{{ t("asg.inactiveRemove", { name: s.name }) }}</span></label>
+        </div>
       </fieldset>
+      <p v-if="inactiveStillChosen" class="font-semibold text-sts-danger md:col-span-2" role="note" data-test="inactive-notice">{{ t("asg.inactiveNotice") }}</p>
+      <label class="grid gap-1 font-semibold md:col-span-2">{{ t("asg.supplierNote") }}
+        <input v-model="form.supplierNote" type="text" maxlength="500" :class="FIELD" :aria-describedby="noteHintId" dir="auto">
+        <span :id="noteHintId" class="text-xs font-normal text-sts-muted">{{ t("asg.supplierNoteHint") }}</span>
+      </label>
       <div class="flex flex-wrap items-center gap-3 md:col-span-2">
         <button type="submit" class="rounded-lg bg-sts-ocean px-4 py-2 font-semibold text-white disabled:opacity-60" :disabled="saving">{{ saving ? t("ops.saving") : t("ops.save") }}</button>
         <button type="button" class="rounded-lg border border-sts-border px-4 py-2 font-semibold" @click="editing = false">{{ t("asg.close") }}</button>

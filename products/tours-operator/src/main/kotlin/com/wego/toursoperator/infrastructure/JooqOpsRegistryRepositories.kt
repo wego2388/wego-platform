@@ -408,6 +408,7 @@ class JooqSlotAssignmentRepository(
                 driverId = it.driverId,
                 vehicleId = it.vehicleId,
                 supplierIds = suppliers[it.slotId].orEmpty().toSet(),
+                supplierNote = it.supplierNote,
                 revision = it.revision,
                 assignedAt = it.assignedAt.toInstant(),
                 assignedByUserId = it.assignedByUserId,
@@ -426,6 +427,7 @@ class JooqSlotAssignmentRepository(
             .set(t.TIME_SLOT, assignment.timeSlot.name)
             .set(t.DRIVER_ID, assignment.driverId)
             .set(t.VEHICLE_ID, assignment.vehicleId)
+            .set(t.SUPPLIER_NOTE, assignment.supplierNote)
             .set(t.REVISION, assignment.revision)
             .set(t.ASSIGNED_AT, assignment.assignedAt.utc())
             .set(t.ASSIGNED_BY_USER_ID, assignment.assignedByUserId)
@@ -445,6 +447,7 @@ class JooqSlotAssignmentRepository(
                 .update(t)
                 .set(t.DRIVER_ID, assignment.driverId)
                 .set(t.VEHICLE_ID, assignment.vehicleId)
+                .set(t.SUPPLIER_NOTE, assignment.supplierNote)
                 .set(t.REVISION, assignment.revision)
                 .set(t.UPDATED_AT, assignment.updatedAt.utc())
                 .set(t.UPDATED_BY_USER_ID, assignment.updatedByUserId)
@@ -509,7 +512,8 @@ class JooqSlotAssignmentRepository(
                     .map { it.toString() }
                     .sorted()
                     .joinToString(","),
-            ).set(audit.ACTOR_USER_ID, entry.actorUserId)
+            ).set(audit.SUPPLIER_NOTE, entry.supplierNote)
+            .set(audit.ACTOR_USER_ID, entry.actorUserId)
             .set(audit.OCCURRED_AT, entry.occurredAt.utc())
             .execute()
     }
@@ -539,6 +543,7 @@ class JooqSlotAssignmentRepository(
                             .filter { it.isNotEmpty() }
                             .map(UUID::fromString)
                             .toSet(),
+                    supplierNote = r[audit.SUPPLIER_NOTE],
                     actorUserId = r[audit.ACTOR_USER_ID],
                     actorEmail = r[IDENTITY_USER.EMAIL],
                     occurredAt = r[audit.OCCURRED_AT]!!.toInstant(),

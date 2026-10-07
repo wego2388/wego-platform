@@ -214,7 +214,7 @@ data class DriverSheetGuest(
     val guests: Int,
 )
 
-/** A pickup stop: one hotel, in pickup order, with the parties to collect there. */
+/** A pickup stop: one hotel (stops alphabetical by hotel, case and spacing ignored), with the parties to collect there. */
 data class DriverSheetStop(
     val order: Int,
     val hotelName: String,
@@ -259,9 +259,10 @@ data class SupplierOrderSupplier(
 )
 
 /**
- * The order sent to a supplier for one departure. PII decision: no customer
- * name, phone or e-mail and no agreed price (costs are OPS2-F). Special requests are
- * customer-entered free text and are printed as typed.
+ * The order sent to a supplier for one departure. PII decision: service, date and window, guest
+ * counts, the staff-written [supplierNote] and who to confirm with; no customer name, phone, e-mail,
+ * hotel or agreed price (costs are OPS2-F). Customers' own special requests are free text that can
+ * carry phone numbers or health details, so they stay internal (run sheet only) and are never forwarded.
  */
 data class SupplierOrderData(
     val slotId: UUID,
@@ -274,7 +275,8 @@ data class SupplierOrderData(
     val adults: Int,
     val children: Int,
     val units: List<SupplierOrderUnit>,
-    val specialRequests: List<String>,
+    /** Written by staff on the departure's assignment; null when none. */
+    val supplierNote: String?,
 )
 
 data class CancellationCollectionLine(

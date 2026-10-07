@@ -2324,7 +2324,7 @@ export interface paths {
         get: operations["getToursOperatorSupplier"];
         /**
          * Update a supplier
-         * @description Requires tours-operator.supplier:manage. expectedRevision is required; a stale one is 409 revision_conflict.
+         * @description Requires tours-operator.supplier:manage. expectedRevision is required; a stale one is 409 revision_conflict. Code is unique (409 supplier_code_taken); unknown tour 422 tour_not_found.
          */
         put: operations["updateToursOperatorSupplier"];
         post?: never;
@@ -2391,7 +2391,7 @@ export interface paths {
         };
         /**
          * List vehicles
-         * @description Requires tours-operator.fleet:manage. May legitimately be empty (the owner has not supplied vehicles yet). Responses are never cached (they carry phone numbers). Records are never deleted: set active=false.
+         * @description Requires tours-operator.fleet:manage. May legitimately be empty (the owner has not supplied vehicles yet). Responses are never cached. Records are never deleted: set active=false.
          */
         get: operations["listToursOperatorVehicles"];
         put?: never;
@@ -2415,12 +2415,12 @@ export interface paths {
         };
         /**
          * Read a vehicle
-         * @description Requires tours-operator.fleet:manage. Responses are never cached (they carry phone numbers). Records are never deleted: set active=false.
+         * @description Requires tours-operator.fleet:manage. Responses are never cached. Records are never deleted: set active=false.
          */
         get: operations["getToursOperatorVehicle"];
         /**
          * Update a vehicle
-         * @description Requires tours-operator.fleet:manage. expectedRevision is required.
+         * @description Requires tours-operator.fleet:manage. expectedRevision is required; a stale one is 409 revision_conflict. Plate unique (409 vehicle_plate_taken); unknown lender 422 supplier_not_found; a lender only for a HIRED vehicle.
          */
         put: operations["updateToursOperatorVehicle"];
         post?: never;
@@ -2483,8 +2483,8 @@ export interface paths {
          */
         get: operations["getToursOperatorSlotAssignment"];
         /**
-         * Assign or change driver, vehicle and suppliers
-         * @description Requires tours-operator.assignment:manage. Blocking: same driver or vehicle on another departure of the same day and window (409 assignment_conflict); inactive or licence-expired driver, inactive vehicle or supplier (422); departure in the past (422 slot_in_past); stale revision (409 revision_conflict). Warnings in `issues`: seats below guests, licence ending within 30 days, supplier not linked to the tour, back-to-back adjacent windows.
+         * Assign or change driver, vehicle, suppliers and the supplier note
+         * @description Requires tours-operator.assignment:manage. Blocking: same driver or vehicle on another departure of the same day and window (409 assignment_conflict); inactive or licence-expired driver, inactive vehicle or supplier (422); departure in the past (422 slot_in_past); stale revision (409 revision_conflict). Warnings in `issues`: seats below guests, licence ending within 30 days, supplier not linked to the tour, back-to-back adjacent windows. `supplierNote` is staff-written text printed on this departure's supplier orders (blank means none; control characters are refused with 400). Do not include customer phone numbers or health details; customers' own special requests are never forwarded to suppliers. A database uniqueness backstop that fires after the checks above (a race) answers 409 validation_failed.
          */
         put: operations["assignToursOperatorSlot"];
         post?: never;
@@ -2529,7 +2529,7 @@ export interface paths {
         put?: never;
         /**
          * Print the driver sheet of one departure
-         * @description Requires tours-operator.document:print-ops. Needs an assigned driver (409 no_driver_assigned). Route by hotel with lead name, room and guests; no phones, e-mail, prices or payment state. Records one print in the append-only register (numbered, reprints COPY or REVISED by content fingerprint). Never cached.
+         * @description Requires tours-operator.document:print-ops. Needs an assigned driver (409 no_driver_assigned). Stops alphabetical by hotel (one stop per hotel whatever its case or spacing) with lead name, room and guests; no phones, e-mail, prices or payment state. Records one print in the append-only register (numbered, reprints COPY or REVISED by content fingerprint). Never cached.
          */
         post: operations["printToursOperatorDriverSheet"];
         delete?: never;
@@ -2549,7 +2549,7 @@ export interface paths {
         put?: never;
         /**
          * Print the order for one supplier of a departure
-         * @description Requires tours-operator.document:print-ops. The supplier must be assigned (409 supplier_not_assigned). Guest counts and relevant special requests only; no customer data, no price. Records one print in the append-only register (numbered, reprints COPY or REVISED by content fingerprint). Never cached.
+         * @description Requires tours-operator.document:print-ops. The supplier must be assigned (409 supplier_not_assigned). Service, date and window, guest counts (adults / children, units) and the staff-written supplier note of the assignment only; customers' own special requests are never forwarded (they stay on the internal run sheet), and there is no customer data and no price. Records one print in the append-only register (numbered, reprints COPY or REVISED by content fingerprint, which includes the note). Never cached.
          */
         post: operations["printToursOperatorSupplierOrder"];
         delete?: never;
@@ -3701,6 +3701,8 @@ export interface components {
             supplierIds?: string[];
             /** @description 0 when the departure has no assignment yet; otherwise the revision read. */
             expectedRevision: number;
+            /** @description Staff-written note printed on the supplier orders. Blank means none. Do not include customer phone numbers or health details. */
+            supplierNote?: string | null;
         };
         ToursOperatorAssignmentIssue: {
             /** @enum {string} */
@@ -3732,6 +3734,8 @@ export interface components {
             driver: components["schemas"]["ToursOperatorNamedRef"] | null;
             vehicle: components["schemas"]["ToursOperatorVehicleRef"] | null;
             suppliers: components["schemas"]["ToursOperatorSupplierRef"][];
+            /** @description Staff-written note for the supplier orders. */
+            supplierNote: string | null;
             assignedByEmail: string | null;
             /** Format: date-time */
             assignedAt: string;
@@ -3780,6 +3784,7 @@ export interface components {
             driverId: string | null;
             vehicleId: string | null;
             supplierIds: string[];
+            supplierNote: string | null;
             actorEmail: string | null;
             /** Format: date-time */
             occurredAt: string;
@@ -3808,7 +3813,7 @@ export interface components {
             error: "revision_conflict";
             currentRevision: number;
         };
-        /** @description No customer phone, e-mail, price or payment state. */
+        /** @description No customer phone, e-mail, price or payment state. Stops are alphabetical by hotel; one stop per hotel whatever its case or spacing (the first spelling is shown). */
         ToursOperatorDriverSheetData: {
             /** Format: uuid */
             slotId: string;
@@ -3839,7 +3844,7 @@ export interface components {
             document: components["schemas"]["ToursOperatorDocumentStamp"];
             data: components["schemas"]["ToursOperatorDriverSheetData"];
         };
-        /** @description No customer name, phone or e-mail, and no agreed price (costs arrive with OPS2-F). */
+        /** @description No customer name, phone, e-mail, hotel or special request, and no agreed price (costs arrive with OPS2-F). */
         ToursOperatorSupplierOrderData: {
             /** Format: uuid */
             slotId: string;
@@ -3863,7 +3868,8 @@ export interface components {
                 optionLabel: string;
                 unitCount: number;
             }[];
-            specialRequests: string[];
+            /** @description Staff-written note of the departure's assignment. Customers' own special requests are never included. */
+            supplierNote: string | null;
         };
         ToursOperatorSupplierOrderDocument: {
             document: components["schemas"]["ToursOperatorDocumentStamp"];
@@ -10586,13 +10592,13 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Stale revision: someone saved first. Re-read and retry. */
+            /** @description revision_conflict (stale revision: someone saved first, re-read and retry) or supplier_code_taken. */
             409: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ToursOperatorRevisionConflictBody"];
+                    "application/json": components["schemas"]["ToursOperatorRevisionConflictBody"] | components["schemas"]["ToursOperatorErrorResponse"];
                 };
             };
             /** @description tour_not_found */
@@ -10871,13 +10877,22 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Stale revision: someone saved first. Re-read and retry. */
+            /** @description revision_conflict (stale revision: someone saved first, re-read and retry) or vehicle_plate_taken. */
             409: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ToursOperatorRevisionConflictBody"];
+                    "application/json": components["schemas"]["ToursOperatorRevisionConflictBody"] | components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+            /** @description supplier_not_found */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
                 };
             };
         };
@@ -10998,13 +11013,13 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description revision_conflict or assignment_conflict. */
+            /** @description revision_conflict, assignment_conflict, or validation_failed (database uniqueness backstop after a race). */
             409: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ToursOperatorRevisionConflictBody"] | components["schemas"]["ToursOperatorAssignmentConflictBody"];
+                    "application/json": components["schemas"]["ToursOperatorRevisionConflictBody"] | components["schemas"]["ToursOperatorAssignmentConflictBody"] | components["schemas"]["ValidationErrorResponse"];
                 };
             };
             /** @description Refused. */

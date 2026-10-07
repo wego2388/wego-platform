@@ -4,12 +4,14 @@ import type { SupplierOrderDocument } from "@wego/api-contract";
 import { docMessage, type DocumentLanguage } from "../../utils/documentMessages";
 import { docCount, docDate, docTourName } from "../../utils/documentFormat";
 import { erpMessage } from "../../utils/erpLocale";
+import { COMPANY } from "../../utils/companyProfile";
 import DocumentSheet from "./DocumentSheet.vue";
 
 /**
- * Order sent to a supplier for one departure: service, date and slot, number of guests, the special
- * requests that matter for the service and who confirms. Privacy decision (OPS2-E): no customer name,
- * phone or e-mail, and no agreed price (costs arrive with OPS2-F).
+ * Order sent to a supplier for one departure: service, date and slot, guest counts, the staff-written
+ * supplier note and the company contact to confirm with. Privacy decision (OPS2-E): no customer name,
+ * phone, e-mail or hotel, never the customers' own special requests (free text that can carry phone
+ * numbers or health details; they stay on the internal run sheet), and no agreed price (OPS2-F).
  */
 const props = defineProps<{ doc: SupplierOrderDocument; lang: DocumentLanguage }>();
 const m = (key: Parameters<typeof docMessage>[1], params?: Record<string, string | number>) => docMessage(props.lang, key, params);
@@ -38,16 +40,15 @@ const channel = computed(() => (d.value.supplier.confirmationChannel ? erpMessag
     </section>
 
     <section class="doc-section">
-      <h2>{{ m("doc.sup.requests") }}</h2>
-      <p v-if="d.specialRequests.length === 0" class="doc-note">{{ m("doc.sup.noRequests") }}</p>
-      <ul v-else class="doc-list">
-        <li v-for="(text, i) in d.specialRequests" :key="i" dir="auto">{{ text }}</li>
-      </ul>
+      <h2>{{ m("doc.sup.note") }}</h2>
+      <p v-if="!d.supplierNote" class="doc-note">{{ m("doc.sup.noNote") }}</p>
+      <p v-else dir="auto">{{ d.supplierNote }}</p>
     </section>
 
     <section class="doc-section">
       <h2>{{ m("doc.sup.confirm") }}</h2>
       <dl class="doc-grid">
+        <div class="doc-wide"><dt>{{ m("doc.sup.confirmTo") }}</dt><dd><span dir="auto">{{ COMPANY.brand[lang] }}</span> · <bdi dir="ltr" class="doc-num">{{ COMPANY.phone }}</bdi></dd></div>
         <div v-if="d.supplier.contactPerson"><dt>{{ m("doc.sup.confirmPerson") }}</dt><dd dir="auto">{{ d.supplier.contactPerson }}</dd></div>
         <div><dt>{{ m("doc.sup.confirmVia") }}</dt><dd>{{ channel }}</dd></div>
         <div v-if="d.supplier.noticeHours !== null"><dt>&nbsp;</dt><dd>{{ m("doc.sup.notice", { hours: docCount(d.supplier.noticeHours, lang) }) }}</dd></div>

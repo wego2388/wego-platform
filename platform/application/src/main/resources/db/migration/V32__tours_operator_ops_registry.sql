@@ -143,6 +143,10 @@ CREATE TABLE wego.tours_operator_slot_assignment (
     time_slot            varchar(16) NOT NULL,
     driver_id            uuid REFERENCES wego.tours_operator_driver (id) ON DELETE RESTRICT,
     vehicle_id           uuid REFERENCES wego.tours_operator_vehicle (id) ON DELETE RESTRICT,
+    -- Staff-written note printed on the supplier orders of this departure. Customers'
+    -- own special requests are never forwarded to suppliers (they can carry phones or
+    -- health details); staff copy only what the supplier needs.
+    supplier_note        varchar(500),
     revision             integer     NOT NULL DEFAULT 1,
     assigned_at          timestamp with time zone NOT NULL,
     assigned_by_user_id  uuid REFERENCES wego.identity_user (id) ON DELETE SET NULL,
@@ -152,6 +156,8 @@ CREATE TABLE wego.tours_operator_slot_assignment (
     CONSTRAINT tours_operator_slot_assignment_slot_fk
         FOREIGN KEY (slot_id, service_date, time_slot)
         REFERENCES wego.tours_operator_tour_slot (id, date, time_slot) ON DELETE CASCADE,
+    CONSTRAINT tours_operator_slot_assignment_supplier_note_shape
+        CHECK (supplier_note IS NULL OR (supplier_note = btrim(supplier_note) AND length(supplier_note) >= 1)),
     CONSTRAINT tours_operator_slot_assignment_revision_positive CHECK (revision >= 1)
 );
 
@@ -182,6 +188,7 @@ CREATE TABLE wego.tours_operator_assignment_audit (
     driver_id       uuid,
     vehicle_id      uuid,
     supplier_ids    text NOT NULL DEFAULT '',
+    supplier_note   varchar(500),
     actor_user_id   uuid REFERENCES wego.identity_user (id) ON DELETE SET NULL,
     occurred_at     timestamp with time zone NOT NULL,
 

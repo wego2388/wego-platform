@@ -97,6 +97,8 @@ data class AssignmentRequest(
     val driverId: UUID? = null,
     val vehicleId: UUID? = null,
     @field:Size(max = 20) val supplierIds: Set<UUID>? = null,
+    /** Staff-written note printed on the supplier orders. Do not include customer phone numbers or health details. */
+    @field:Size(max = 500) val supplierNote: String? = null,
     /** 0 when the departure has no assignment yet; otherwise the revision read. */
     @field:Min(0) val expectedRevision: Int,
 )
@@ -245,6 +247,7 @@ data class AssignmentDetailResponse(
     val driver: NamedRefResponse?,
     val vehicle: VehicleRefResponse?,
     val suppliers: List<SupplierRefResponse>,
+    val supplierNote: String?,
     val assignedByEmail: String?,
     val assignedAt: Instant,
     val updatedByEmail: String?,
@@ -291,6 +294,7 @@ data class AssignmentAuditResponse(
     val driverId: UUID?,
     val vehicleId: UUID?,
     val supplierIds: List<UUID>,
+    val supplierNote: String?,
     val actorEmail: String?,
     val occurredAt: Instant,
 )
@@ -305,6 +309,7 @@ private fun AssignmentDetail.toResponse() =
         driver?.let { NamedRefResponse(it.id, it.name) },
         vehicle?.let { VehicleRefResponse(it.id, it.display, it.seats) },
         suppliers.map { SupplierRefResponse(it.id, it.code, it.name) },
+        supplierNote,
         assignedByEmail,
         assignedAt,
         updatedByEmail,
@@ -333,4 +338,4 @@ fun AssignmentOptions.toResponse() =
     )
 
 fun AssignmentAuditEntry.toResponse() =
-    AssignmentAuditResponse(action.name, revision, driverId, vehicleId, supplierIds.sorted(), actorEmail, occurredAt)
+    AssignmentAuditResponse(action.name, revision, driverId, vehicleId, supplierIds.sorted(), supplierNote, actorEmail, occurredAt)

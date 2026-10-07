@@ -148,11 +148,21 @@ data class SlotAssignment(
     val assignedByUserId: UUID?,
     val updatedAt: Instant,
     val updatedByUserId: UUID?,
+    /**
+     * Staff-written note printed on this departure's supplier orders. Customers' own special
+     * requests are never forwarded to suppliers; staff copy only what the supplier needs.
+     */
+    val supplierNote: String? = null,
 ) {
     init {
         require(
             driverId != null || vehicleId != null || supplierIds.isNotEmpty(),
         ) { "an assignment needs a driver, a vehicle or a supplier" }
+        OpsRules.requireText(supplierNote, "supplierNote", SUPPLIER_NOTE_MAX)
+    }
+
+    companion object {
+        const val SUPPLIER_NOTE_MAX = 500
     }
 }
 

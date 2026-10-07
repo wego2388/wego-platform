@@ -83,6 +83,7 @@ data class AssignmentAuditEntry(
     val driverId: UUID?,
     val vehicleId: UUID?,
     val supplierIds: Set<UUID>,
+    val supplierNote: String? = null,
     val actorUserId: UUID?,
     val actorEmail: String?,
     val occurredAt: Instant,

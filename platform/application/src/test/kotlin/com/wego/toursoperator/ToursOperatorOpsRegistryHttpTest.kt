@@ -277,11 +277,13 @@ class ToursOperatorOpsRegistryHttpTest {
         suppliers: List<String> = emptyList(),
         revision: Int = 0,
         token: String? = admin(),
+        note: String? = null,
     ): Reply {
         val parts =
             listOfNotNull(
                 driver?.let { "\"driverId\":\"$it\"" },
                 vehicle?.let { "\"vehicleId\":\"$it\"" },
+                note?.let { "\"supplierNote\":$it" },
                 "\"supplierIds\":[${suppliers.joinToString(",") { "\"$it\"" }}]",
                 "\"expectedRevision\":$revision",
             )
@@ -960,7 +962,14 @@ class ToursOperatorOpsRegistryHttpTest {
     fun `the supplier order needs an assigned supplier and carries no customer data and no price`() {
         val tour = seedTour()
         val (_, slot) = seedSlot(day(), tourId = tour)
-        bookOffice(slot, name = "Ahmed Hassan", phone = "+201234567890", adults = 2, children = 1, requests = "Vegetarian lunch")
+        bookOffice(
+            slot,
+            name = "Ahmed Hassan",
+            phone = "+201234567890",
+            adults = 2,
+            children = 1,
+            requests = "Diabetic, call my wife on 01099887766",
+        )
         bookOffice(slot, name = "Maria Rossi", phone = "+393331234567", adults = 1, children = 0)
         val supplierCall = call("POST", "$staff/suppliers", body = supplierBody(name = "Panorama Quad", tourIds = listOf(tour)))
         val supplier = supplierCall.read<String>("$.id")
@@ -983,8 +992,11 @@ class ToursOperatorOpsRegistryHttpTest {
         assertThat(order.read<Int>("$.data.totalGuests")).isEqualTo(4)
         assertThat(order.read<Int>("$.data.adults")).isEqualTo(3)
         assertThat(order.read<Int>("$.data.children")).isEqualTo(1)
-        assertThat(order.read<List<String>>("$.data.specialRequests")).containsExactly("Vegetarian lunch")
+        assertThat(order.read<Any?>("$.data.supplierNote")).isNull()
         assertThat(order.body)
+            .doesNotContain("specialRequests")
+            .doesNotContain("Diabetic")
+            .doesNotContain("01099887766")
             .doesNotContain(
                 "Ahmed",
             ).doesNotContain("Hassan")
@@ -1009,6 +1021,13 @@ class ToursOperatorOpsRegistryHttpTest {
         val revised = print("slots/$slot/suppliers/$supplier/supplier-order", language = "ar")
         assertThat(revised.read<Boolean>("$.document.revised")).isTrue()
         assertThat(revised.read<Int>("$.data.totalGuests")).isEqualTo(5)
+
+        // The staff-written note is what reaches the supplier; changing it revises the order.
+        assertThat(assign(slot, suppliers = listOf(supplier), revision = 1, note = "\"  One vegetarian lunch  \"").status).isEqualTo(200)
+        val noted = print("slots/$slot/suppliers/$supplier/supplier-order")
+        assertThat(noted.read<String>("$.data.supplierNote")).isEqualTo("One vegetarian lunch")
+        assertThat(noted.read<Boolean>("$.document.revised")).isTrue()
+        assertThat(noted.body).doesNotContain("Diabetic").doesNotContain("01099887766")
         val rows =
             dsl
                 .selectFrom(
@@ -1017,8 +1036,43 @@ class ToursOperatorOpsRegistryHttpTest {
                     TOURS_OPERATOR_DOCUMENT_PRINT.DOCUMENT_TYPE.eq("SUPPLIER_ORDER"),
                 ).and(TOURS_OPERATOR_DOCUMENT_PRINT.SUBJECT_KEY.eq("$slot:$supplier"))
                 .fetch()
-        assertThat(rows).hasSize(3)
+        assertThat(rows).hasSize(4)
         assertThat(rows.map { it.get(TOURS_OPERATOR_DOCUMENT_PRINT.CONTENT_FINGERPRINT) }.first()).matches("[0-9a-f]{64}")
+    }
+
+    @Test
+    fun `the supplier note is validated, shown on the assignment and audited`() {
+        val tour = seedTour()
+        val (_, slot) = seedSlot(day(), tourId = tour)
+        val supplier = newSupplier(tourIds = listOf(tour))
+        val control = assign(slot, suppliers = listOf(supplier), note = "\"Bring\\u0007 water\"")
+        assertThat(control.status).isEqualTo(400)
+        assertThat(control.read<String>("$.error")).isEqualTo("validation_failed")
+        assertThat(assign(slot, suppliers = listOf(supplier), note = "\"${"x".repeat(501)}\"").status).isEqualTo(400)
+
+        val saved = assign(slot, suppliers = listOf(supplier), note = "\"Two child life jackets\"")
+        assertThat(saved.status).isEqualTo(200)
+        assertThat(saved.read<String>("$.assignment.supplierNote")).isEqualTo("Two child life jackets")
+        val blank = assign(slot, suppliers = listOf(supplier), revision = 1, note = "\"   \"")
+        assertThat(blank.read<Any?>("$.assignment.supplierNote")).isNull()
+
+        val history = call("GET", "$staff/slots/$slot/assignment/history")
+        assertThat(history.read<List<String>>("$[*].action")).containsExactly("ASSIGNED", "CHANGED")
+        assertThat(history.read<String>("$[0].supplierNote")).isEqualTo("Two child life jackets")
+        assertThat(history.read<Any?>("$[1].supplierNote")).isNull()
+    }
+
+    @Test
+    fun `the driver sheet groups one hotel whatever its case or spacing, alphabetical by hotel`() {
+        val (_, slot) = seedSlot(day())
+        bookOffice(slot, name = "Guest One", hotel = "Hilton Sharm Dreams", room = "1", adults = 1, children = 0)
+        bookOffice(slot, name = "Guest Two", hotel = "hilton  sharm dreams ", room = "2", adults = 2, children = 0)
+        bookOffice(slot, name = "Guest Three", hotel = "Baron Palms", room = "3", adults = 1, children = 0)
+        assertThat(assign(slot, driver = newDriver()).status).isEqualTo(200)
+        val sheet = print("slots/$slot/driver-sheet")
+        assertThat(sheet.read<List<String>>("$.data.stops[*].hotelName")).containsExactly("Baron Palms", "Hilton Sharm Dreams")
+        assertThat(sheet.read<List<Int>>("$.data.stops[*].guests")).containsExactly(1, 3)
+        assertThat(sheet.read<List<String>>("$.data.stops[1].parties[*].leadName")).containsExactly("Guest One", "Guest Two")
     }
 
     @Test

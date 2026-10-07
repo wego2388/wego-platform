@@ -161,6 +161,15 @@ Rollback:
   backup instead (section 4), into a new database first, and reconcile any
   payments taken since.
 
+Release notes per migration:
+
+- **V32 (WEGO-016-OPS2-E, suppliers / drivers / vehicles / assignment):** the
+  pickup manifest's reprint fingerprint now includes the departure's driver and
+  vehicle, so the first reprint after the upgrade of a manifest that was
+  printed before V32 is marked **REVISED** once, even when nothing changed.
+  This is expected; tell the office before the upgrade. Supplier orders print
+  only the staff-written supplier note, never customers' own special requests.
+
 ## 6. Smoke checks after any change
 
 ```bash

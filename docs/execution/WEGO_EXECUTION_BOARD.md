@@ -4552,7 +4552,7 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-10-07 — WEGO-016-OPS2-E: suppliers, drivers, vehicles and daily assignment (Tier 1)
 
-- **Status:** ACTIVE
+- **Status:** COMPLETE (2026-10-07) — Opus Tier 1 ACCEPT-WITH-FOLLOWUPS; follow-ups fixed
 - **Activation:** owner roadmap order; owner supplied suppliers, supplier
   prices, drivers and per-tour costs in the data hub (2026-10-06); vehicles
   left empty on purpose («العربيات اعملها مكان بس انا معنديش معلومات حاليا»).
@@ -4571,8 +4571,10 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   or expired-licence drivers refused; seat shortfall and suppliers not linked
   to the tour warn; past departures cannot be changed.
 - Documents (OPS2-D register): pickup manifest shows driver/vehicle; driver
-  sheet (no phone, e-mail or money); supplier order (no customer data, no
-  price). Reprints after an assignment change print REVISED.
+  sheet (no phone, e-mail or money; stops alphabetical by hotel); supplier
+  order (service, date/window, guest counts, staff-written supplier note and
+  company confirmation contact only: no customer data, no customer special
+  requests, no price). Reprints after an assignment change print REVISED.
 - Permissions supplier:manage, fleet:manage, assignment:manage; ERP EN/AR
   suppliers, drivers, vehicles pages and an assignment panel on Today.
 - Implementing agent stopped at its weekly model limit; the main session
@@ -4581,6 +4583,55 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   checkpoint (Vue 3.5.43; overrides for simple-git, shell-quote, seroval,
   source-map-js, @vue/server-renderer) clears new critical/high advisories.
 - Independent Tier 1 review pending.
+
+#### 2026-10-07 — OPS2-E Tier 1 review (Opus): ACCEPT-WITH-FOLLOWUPS
+
+- **Verdict:** ACCEPT-WITH-FOLLOWUPS; follow-ups fixed in the working tree
+  under the owner's delegation («fill gaps with your best judgement»).
+- **Fixes:**
+  1. Supplier order no longer forwards customers' free-text special requests
+     (they can carry phones or medical details). New nullable
+     `supplier_note varchar(500)` on the departure assignment (V32, unreleased,
+     edited in place; also on the assignment audit): staff-written, trimmed,
+     control characters refused, audited with every assignment change,
+     editable in the ERP assignment panel with the hint «do not include customer
+     phone numbers or health details». The order prints only service,
+     date/window, guest counts (adults/children, units), the supplier note and
+     the company confirmation contact. Special requests stay internal (run
+     sheet only); an HTTP test proves a booking's special request never appears
+     in the supplier order JSON, and a note change makes the reprint REVISED.
+  2. Assignment panel: an assigned driver, vehicle or supplier that was
+     deactivated since stays visible in the form, marked «inactive — remove»,
+     with a notice until it is removed (Vitest).
+  3. OpenAPI: supplier PUT 409 `supplier_code_taken`; vehicle PUT 409
+     `vehicle_plate_taken` and 422 `supplier_not_found`; assignment PUT 409
+     oneOf includes the `validation_failed` uniqueness backstop; vehicle
+     list/get no longer claim phones; supplier-note fields; contract
+     regenerated.
+  4. Driver sheet groups hotels case- and whitespace-insensitively (first
+     spelling shown) and is described as «alphabetical by hotel» in EN/AR
+     labels and docs (HTTP test).
+- **Accepted residuals:** (a) a pickup manifest printed before V32 is marked
+  REVISED once on its first reprint after the upgrade (fingerprint now
+  includes the assignment) — added to the Safari runbook release notes;
+  (b) registry (supplier/driver/vehicle) change history is not kept, only the
+  current row with revision and updated-by — can be offered later; (c) a
+  driver/vehicle/supplier deactivated after assignment (deactivation race) is
+  not blocked retroactively; it shows as a blocking issue on the day view and
+  must be removed before the next save.
+
+### 2026-10-07 — WEGO-016-OPS2-F: costs, profitability, settlements and cash box (Tier 1)
+
+- **Status:** ACTIVE
+- **Activation:** owner «انا وافقك كمل للاخر و سلم كوديكس لحد الديبلوي» (2026-10-07)
+  and delegation to fill gaps with best judgement («لو في اي نواقص تقدر تملها و لما
+  نرجع ابقي اعدل»).
+- **Scope:** per-tour cost components seeded from the owner hub (supplier price
+  per person in EGP + extra own costs), cost snapshot per departure, profit per
+  booking/departure/month; supplier and driver payables (owed / paid / balance)
+  with approval rule; daily cash-box close; refund (money-to-return) recording;
+  office payments in finance totals. Defaults are owner-delegated assumptions
+  marked for review in the hub.
 
 ## WEGO-017 — Foundry executable isolated client releases
 

@@ -8,7 +8,7 @@ import { COMPANY } from "../../utils/companyProfile";
 import DocumentSheet from "./DocumentSheet.vue";
 
 /**
- * The driver's sheet of one departure: route in pickup order with customer name, hotel and room.
+ * The driver's sheet of one departure: stops alphabetical by hotel with customer name, hotel and room.
  * Privacy decision (OPS2-E): no customer phone, e-mail, price or payment state; the driver calls the
  * operations contact (company phone) instead of the guest.
  */
