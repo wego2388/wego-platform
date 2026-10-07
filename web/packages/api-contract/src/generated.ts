@@ -2955,7 +2955,7 @@ export interface paths {
         put?: never;
         /**
          * Record a payment to a supplier or driver
-         * @description Requires tours-operator.settlement:pay. The manager limit is per party per Cairo day: today's non-reversed payments to the party plus this one ≤ 5000.00 EGP need no approval. EUR is valued at a rate set today; with no rate today, or a rate more than 20 % away from the previous day's, it needs approval. Above the limit the payment must name an unused owner approval of the same party, currency and amount, recorded by someone other than the approver (403 approver_cannot_pay). Never above the current balance (party lock). Non-cash needs a reference. CASH is refused once today's cash box is closed.
+         * @description Requires tours-operator.settlement:pay. The manager limit is per party per Cairo day: today's non-reversed payments to the party plus this one ≤ 5000.00 EGP need no approval. EUR is valued at a rate set today; with no rate today, no previous day's rate, or a rate more than 20 % away from the previous day's, it needs approval. Above the limit the payment must name an unused owner approval of the same party, currency and amount, recorded by someone other than the approver (403 approver_cannot_pay). Never above the current balance (party lock). Non-cash needs a reference. CASH is refused once today's cash box is closed.
          */
         post: operations["payToursOperatorParty"];
         delete?: never;
@@ -2975,7 +2975,7 @@ export interface paths {
         put?: never;
         /**
          * Reverse a settlement payment
-         * @description Requires tours-operator.settlement:approve. Once only; dated today. The approval it consumed stays consumed.
+         * @description Requires tours-operator.settlement:approve. Once only; dated today. The approval it consumed stays consumed. Never by the person who recorded the payment (403 cannot_reverse_own_payment).
          */
         post: operations["reverseToursOperatorSettlementPayment"];
         delete?: never;
@@ -4319,7 +4319,7 @@ export interface components {
         ToursOperatorCostCategory: "SUPPLIER" | "OWN_EXTRA" | "FIXED" | "DRIVER";
         /** @enum {string} */
         ToursOperatorCostBasis: "PER_PERSON" | "PER_UNIT" | "PER_DEPARTURE";
-        /** @description Exactly one of tourId (SUPPLIER, OWN_EXTRA, FIXED) or driverId (DRIVER). FIXED and DRIVER are PER_DEPARTURE. childAmount only PER_PERSON (absent = a child costs the adult amount). supplierId only SUPPLIER (absent = owed to the single supplier assigned to the departure). An open component with the same owner, category, label, supplier and currency over overlapping days is refused (409 cost_component_duplicate). A past validFrom restates past profit and payables. */
+        /** @description Exactly one of tourId (SUPPLIER, OWN_EXTRA, FIXED) or driverId (DRIVER). FIXED and DRIVER are PER_DEPARTURE. childAmount only PER_PERSON (absent = a child costs the adult amount). supplierId only SUPPLIER (absent = owed to the single supplier assigned to the departure). A component with the same owner, category, label (case and spacing ignored) and supplier over overlapping days, in any currency and whether or not it was ended, is refused (409 cost_component_duplicate). A past validFrom restates past profit and payables. */
         ToursOperatorCostComponentRequest: {
             /**
              * Format: uuid
@@ -12891,7 +12891,15 @@ export interface operations {
             };
             400: components["responses"]["ToursOperatorValidationResponse"];
             401: components["responses"]["UnauthenticatedResponse"];
-            403: components["responses"]["ForbiddenResponse"];
+            /** @description cannot_reverse_own_payment, or missing permission. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
             /** @description Not found. */
             404: {
                 headers: {

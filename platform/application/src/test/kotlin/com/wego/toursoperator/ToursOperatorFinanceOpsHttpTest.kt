@@ -67,6 +67,12 @@ class ToursOperatorFinanceOpsHttpTest {
     fun seed() {
         adminId = seedUser("fin-admin@example.com", setOf("platform-admin"))
         seedUser("fin-admin2@example.com", setOf("platform-admin"))
+        // Re-check F5: EUR is trusted only within 20 % of the previous day's rate, so every test has one (50).
+        dsl.execute(
+            "INSERT INTO wego.tours_operator_fx_rate (id, rate_date, egp_per_eur, set_at) VALUES (?, ?, 50.0000, now())",
+            UUID.randomUUID(),
+            today().minusDays(1),
+        )
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────
@@ -948,7 +954,7 @@ class ToursOperatorFinanceOpsHttpTest {
         // Yesterday's rate 30, today's 50: a 67 % jump — EUR values are not trusted without approval.
         val yesterday = UUID.randomUUID()
         dsl.execute(
-            "INSERT INTO wego.tours_operator_fx_rate (id, rate_date, egp_per_eur, set_at) VALUES (?, ?, 30.0000, now() - interval '1 day')",
+            "INSERT INTO wego.tours_operator_fx_rate (id, rate_date, egp_per_eur, set_at) VALUES (?, ?, 30.0000, now() + interval '1 hour')",
             yesterday,
             today().minusDays(1),
         )
@@ -1002,6 +1008,10 @@ class ToursOperatorFinanceOpsHttpTest {
         val body = """{"clientRequestId":"${UUID.randomUUID()}","reason":"Paid the wrong driver"}"""
         val path = "$staff/payables/drivers/$driver/payments/$paymentId/reverse"
         assertThat(call("POST", path, tokenWith("tours-operator.settlement:pay"), body).status).isEqualTo(403)
+        // Re-check F4: nobody reverses their own payment.
+        val own = call("POST", path, admin(), body)
+        assertThat(own.status).isEqualTo(403)
+        assertThat(own.str("$.error")).isEqualTo("cannot_reverse_own_payment")
         val reversed = call("POST", path, tokenWith("tours-operator.settlement:approve"), body)
         assertThat(reversed.status).withFailMessage(reversed.toString()).isEqualTo(201)
         assertThat(reversed.str("$.kind")).isEqualTo("REVERSAL")
@@ -1099,16 +1109,59 @@ class ToursOperatorFinanceOpsHttpTest {
             )
         assertThat(same.status).isEqualTo(409)
         assertThat(same.str("$.error")).isEqualTo("cost_component_duplicate")
-        // Same label in the other currency is a different component.
-        assertThat(
+        // Re-check F2: the same label (any case or spacing) in the other currency is still the same cost.
+        val other = { label: String, currency: String, from: LocalDate ->
             call(
                 "POST",
                 "$staff/costs",
                 body =
-                    """{"clientRequestId":"${UUID.randomUUID()}","tourId":"$tour","category":"OWN_EXTRA","label":"Water","basis":"PER_PERSON",
-                    "currency":"EUR","amount":1,"validFrom":"${today()}"}""",
-            ).status,
-        ).isEqualTo(201)
+                    """{"clientRequestId":"${UUID.randomUUID()}","tourId":"$tour","category":"OWN_EXTRA","label":"$label","basis":"PER_PERSON",
+                    "currency":"$currency","amount":1,"validFrom":"$from"}""",
+            )
+        }
+        assertThat(other("Water", "EUR", today()).str("$.error")).isEqualTo("cost_component_duplicate")
+        assertThat(other("  WATER ", "EGP", today()).str("$.error")).isEqualTo("cost_component_duplicate")
+        // Re-check F1: an ended component still blocks the days it covers (an end may be a future day).
+        val juice = other("Juice", "EGP", today())
+        assertThat(juice.status).isEqualTo(201)
+        assertThat(
+            call("POST", "$staff/costs/${juice.read<String>("$.id")}/end", body = """{"lastDay":"${today().plusDays(30)}"}""").status,
+        ).isEqualTo(200)
+        assertThat(other("juice", "EGP", today().plusDays(10)).str("$.error")).isEqualTo("cost_component_duplicate")
+        assertThat(other("juice", "EGP", today().plusDays(31)).status).isEqualTo(201)
+
+        // Re-check F7: concurrent retries of one key return the one component (201 once, 200 for the rest), never 500.
+        val retryKey = UUID.randomUUID()
+        val retryBody =
+            """{"clientRequestId":"$retryKey","tourId":"$tour","category":"FIXED","label":"Guide","basis":"PER_DEPARTURE",
+            "currency":"EGP","amount":"300.00","validFrom":"${today()}"}"""
+        val token = admin()
+        val replies = concurrently(4) { call("POST", "$staff/costs", token, retryBody) }
+        assertThat(replies.map { it.status }.sorted()).containsExactly(200, 200, 200, 201)
+        assertThat(replies.map { it.str("$.id") }.toSet()).hasSize(1)
+    }
+
+    @Test
+    fun `an EGP collection whose EGP was refunded cannot be reversed even when the EUR still covers it`() {
+        val booking = office(seedSlot(seedTour()))
+        setRate("100.0000")
+        val first = collect(booking, "1000.00", currency = "EGP") // 10.00 EUR at 100
+        assertThat(first.status).withFailMessage(first.toString()).isEqualTo(201)
+        setRate("50.0000")
+        assertThat(collect(booking, "1000.00", currency = "EGP").status).isEqualTo(201) // 20.00 EUR at 50
+        cancel(booking)
+        // FIFO: 1000 EGP of the first lot (10.00) + 500 EGP of the second (10.00) = 20.00 EUR.
+        assertThat(refund(booking, "1500.00", currency = "EGP").str("$.entry.amount.amount")).isEqualTo("20.00")
+        // Reversing the first lot keeps 20.00 EUR ≥ 20.00 refunded, but only 1000 EGP < 1500 EGP refunded: refused.
+        val reversed =
+            call(
+                "POST",
+                "$staff/bookings/$booking/collections/${first.read<String>("$.entry.id")}/reverse",
+                admin2(),
+                """{"clientRequestId":"${UUID.randomUUID()}","reason":"Wrong"}""",
+            )
+        assertThat(reversed.status).isEqualTo(409)
+        assertThat(reversed.str("$.error")).isEqualTo("refunds_exceed_collected")
     }
 
     @Test

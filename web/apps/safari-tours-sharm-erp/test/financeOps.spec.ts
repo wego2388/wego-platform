@@ -322,6 +322,8 @@ describe("review follow-ups (M2, M3, L1, L2)", () => {
     const charge = financeErrorMessage(new api.ToursApiError(403, "charge_needs_approval", { error: "charge_needs_approval", details: {} }));
     expect(erpMessage("ar", charge.key, charge.params)).toContain("5000");
     expect(financeErrorMessage(new api.ToursApiError(409, "cost_component_duplicate", {})).key).toBe("fops.err.cost_component_duplicate");
+    const ownReversal = financeErrorMessage(new api.ToursApiError(403, "cannot_reverse_own_payment", { error: "cannot_reverse_own_payment", details: {} }));
+    expect(erpMessage("en", ownReversal.key, ownReversal.params)).toBe("You recorded this payment: another person must reverse it.");
   });
 
   it("warns that a past start restates history and sends one idempotency key per save", async () => {

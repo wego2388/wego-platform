@@ -4750,6 +4750,19 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   server access or real secrets by Claude). Deploy itself needs the owner's
   explicit go and his VPS/domain/SMTP/backup inputs.
 
+
+#### 2026-10-07 — OPS2-F re-check follow-ups (F1–F5, F7)
+
+- Re-check of the OPS2-F fixes: ACCEPT-WITH-FOLLOWUPS; fixed with tests (HTTP 25, domain 16, ERP Vitest).
+  F1 the cost duplicate check now includes ended components (date overlap decides; an end may be
+  a future day). F2 duplicate key = owner, category, normalised label (trim, lower-case, single
+  spaces), supplier — currency ignored. F3 reversing an EGP collection also needs the EGP still
+  collected ≥ EGP already refunded (FIFO lots at different rates), 409 `refunds_exceed_collected`.
+  F4 nobody reverses a settlement payment they recorded (403 `cannot_reverse_own_payment`, ERP
+  EN/AR message). F5 EUR without a previous day's rate is untrusted (needs approval). F7 the cost
+  idempotency replay runs after the owner lock (concurrent same-key retries: one 201, the rest 200).
+- **Residual F6 (accepted, follow-up):** CHARGE adjustments are capped per charge (5000 EGP), not
+  cumulatively per party per day.
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE

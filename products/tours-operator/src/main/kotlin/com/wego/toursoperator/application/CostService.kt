@@ -91,6 +91,8 @@ class CostService(
         actorUserId: UUID,
     ): FinanceResult<CostComponent> =
         transactionRunner.runInTransaction {
+            // Re-check F7: lock the owner before the replay check so concurrent retries of one key serialise (200, not 500).
+            ownerOf(input)?.let(costs::lockOwner)
             replay(input, actorUserId, replaces = null)?.let { return@runInTransaction it }
             val component =
                 when (val built = build(input, actorUserId, replaces = null)) {
@@ -101,6 +103,8 @@ class CostService(
             costs.append(component)
             FinanceResult.Ok(component)
         }
+
+    private fun ownerOf(input: CostInput): UUID? = input.tourId ?: input.driverId
 
     /** An idempotent retry: same actor and key. Same payload returns the component (200); a different one is refused. */
     private fun replay(
@@ -127,7 +131,8 @@ class CostService(
         except: UUID?,
     ): FinanceResult.Failed? {
         costs.lockOwner(component.tourId?.value ?: checkNotNull(component.driverId))
-        val clash = costs.findAll().firstOrNull { !it.ended && it.id != except && it.duplicates(component) }
+        // Re-check F1: ended components count too (an end can be a future day); only the date overlap decides.
+        val clash = costs.findAll().firstOrNull { it.id != except && it.duplicates(component) }
         return clash?.let { conflict("cost_component_duplicate", mapOf("existingId" to it.id.toString())) }
     }
 
@@ -138,6 +143,7 @@ class CostService(
         actorUserId: UUID,
     ): FinanceResult<CostComponent> =
         transactionRunner.runInTransaction {
+            ownerOf(input)?.let(costs::lockOwner)
             replay(input, actorUserId, replaces = id)?.let { return@runInTransaction it }
             val old = costs.findByIdForUpdate(id) ?: return@runInTransaction notFound()
             if (old.ended) return@runInTransaction conflict("cost_already_ended")

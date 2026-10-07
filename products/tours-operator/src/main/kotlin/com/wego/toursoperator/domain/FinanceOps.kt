@@ -128,11 +128,19 @@ data class CostComponent(
         tourId == other.tourId &&
             driverId == other.driverId &&
             category == other.category &&
-            label == other.label &&
+            normalisedLabel == other.normalisedLabel &&
             supplierId == other.supplierId &&
-            currency == other.currency &&
+            // Re-check F2: the currency does not make a second "Water" cost a different cost.
+            !empty &&
+            !other.empty &&
             !(validUntil != null && validUntil.isBefore(other.validFrom)) &&
             !(other.validUntil != null && other.validUntil.isBefore(validFrom))
+
+    /** Trimmed, lower-case, single-spaced: "Entry  fee" and "entry fee" are the same cost. */
+    val normalisedLabel: String get() = label.trim().lowercase().replace(Regex("\\s+"), " ")
+
+    /** Withdrawn before it ever applied (validUntil = validFrom − 1). */
+    val empty: Boolean get() = validUntil != null && validUntil.isBefore(validFrom)
 
     val ended: Boolean get() = endedAt != null
 
@@ -346,13 +354,14 @@ object SettlementPolicy {
         today: FxRate?,
         previous: FxRate?,
     ): Boolean =
+        // Re-check F5: without a previous day's rate the band cannot be checked, so EUR is not trusted.
         today != null &&
+            previous != null &&
             (
-                previous == null ||
-                    today.egpPerEur
-                        .subtract(previous.egpPerEur)
-                        .abs()
-                        .divide(previous.egpPerEur, 6, RoundingMode.HALF_UP) <= RATE_BAND
+                today.egpPerEur
+                    .subtract(previous.egpPerEur)
+                    .abs()
+                    .divide(previous.egpPerEur, 6, RoundingMode.HALF_UP) <= RATE_BAND
             )
 
     /**

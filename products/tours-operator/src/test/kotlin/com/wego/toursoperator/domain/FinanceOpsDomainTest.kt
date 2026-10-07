@@ -415,7 +415,7 @@ class FinanceOpsDomainTest {
         val rate = { v: String -> FxRate(UUID.randomUUID(), day, d(v), null, now) }
         assertTrue(SettlementPolicy.rateTrusted(rate("60.0000"), rate("50.0000")))
         assertFalse(SettlementPolicy.rateTrusted(rate("60.0100"), rate("50.0000")))
-        assertTrue(SettlementPolicy.rateTrusted(rate("50.0000"), null))
+        assertFalse(SettlementPolicy.rateTrusted(rate("50.0000"), null)) // re-check F5: no previous day = not trusted
         assertFalse(SettlementPolicy.rateTrusted(null, rate("50.0000")))
     }
 
@@ -488,7 +488,17 @@ class FinanceOpsDomainTest {
         val base = component(CostCategory.OWN_EXTRA, CostBasis.PER_PERSON, PaidCurrency.EGP, "50.00", from = day, until = day.plusDays(10))
         assertTrue(base.duplicates(base.copy(id = UUID.randomUUID(), validFrom = day.plusDays(10), validUntil = null)))
         assertFalse(base.duplicates(base.copy(id = UUID.randomUUID(), validFrom = day.plusDays(11), validUntil = null)))
-        assertFalse(base.duplicates(base.copy(id = UUID.randomUUID(), currency = PaidCurrency.EUR)))
+        assertTrue(base.duplicates(base.copy(id = UUID.randomUUID(), currency = PaidCurrency.EUR))) // re-check F2
+        assertTrue(base.duplicates(base.copy(id = UUID.randomUUID(), label = "own_EXTRA")))
+        assertTrue(
+            component(CostCategory.OWN_EXTRA, CostBasis.PER_PERSON, PaidCurrency.EGP, "1.00", from = day)
+                .copy(label = "Entry  fee")
+                .duplicates(
+                    component(CostCategory.OWN_EXTRA, CostBasis.PER_PERSON, PaidCurrency.EGP, "2.00", from = day).copy(label = "entry fee"),
+                ),
+        )
+        // A component withdrawn before it applied (until = from − 1) is never a duplicate.
+        assertFalse(base.duplicates(base.copy(id = UUID.randomUUID(), validFrom = day.plusDays(3), validUntil = day.plusDays(2))))
         assertFalse(base.duplicates(base.copy(id = UUID.randomUUID(), label = "Other")))
     }
 

@@ -362,6 +362,8 @@ class PayablesService(
             val target = all.firstOrNull { it.id == command.entryId } ?: return@runInTransaction notFound()
             if (target.kind != SettlementPaymentKind.PAYMENT) return@runInTransaction conflict("entry_not_reversible")
             if (all.any { it.reversesPaymentId == target.id }) return@runInTransaction conflict("entry_already_reversed")
+            // Re-check F4: four eyes — nobody reverses a payment they recorded (pay → reverse → pay could double the cash).
+            if (target.recordedByUserId == command.actorUserId) return@runInTransaction forbidden("cannot_reverse_own_payment")
             val reason = checkNotNull(FinanceAmount.text(command.reason, "reason", 500, required = true))
             // Reversing a cash payment puts the cash back in today's box.
             if (target.method.isCash && !cashDayGate.lockOpenToday(target.currency)) return@runInTransaction conflict("cash_day_closed")

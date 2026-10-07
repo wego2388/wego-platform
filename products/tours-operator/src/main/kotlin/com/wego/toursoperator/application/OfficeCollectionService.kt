@@ -271,6 +271,22 @@ class OfficeCollectionService(
             if (OfficePaymentSummary.netCollected(entries).subtract(target.amount.amount) < refunded) {
                 return@runInTransaction CollectionResult.RefundsExceedCollected
             }
+            // Re-check F3: EGP lots have their own rates, so for an EGP collection the EGP itself must also stay covered:
+            // the EGP still collected after this reversal must be at least the EGP already refunded.
+            if (target.currencyPaid == PaidCurrency.EGP) {
+                val egpRefunded = egpNet(refundRepository?.findByBooking(booking.booking.id).orEmpty())
+                val reversedIds = entries.mapNotNull { it.reversesCollectionId }.toSet()
+                val egpCollected =
+                    entries
+                        .filter {
+                            it.kind == OfficeCollectionKind.COLLECTION &&
+                                it.currencyPaid == PaidCurrency.EGP &&
+                                it.id !in reversedIds
+                        }.fold(BigDecimal.ZERO) { acc, e -> acc.add(e.amountPaid.amount) }
+                if (egpCollected.subtract(target.amountPaid.amount) < egpRefunded) {
+                    return@runInTransaction CollectionResult.RefundsExceedCollected
+                }
+            }
             // A reversal takes cash out of today's box (it is dated today, whatever day the original was).
             if (target.method.isCash && !cashDayGate.lockOpenToday(target.currencyPaid)) {
                 return@runInTransaction CollectionResult.CashDayClosed
@@ -304,6 +320,17 @@ class OfficeCollectionService(
 
     /** Net EUR returned on cancelled office bookings (OPS2-F refunds), for the same projections. */
     fun netRefunded(bookingIds: Collection<BookingId>): Map<BookingId, BigDecimal> = refundRepository?.netRefunded(bookingIds).orEmpty()
+
+    /** EGP handed back in EGP refunds, net of their reversals. */
+    private fun egpNet(refunds: List<com.wego.toursoperator.domain.OfficeRefund>): BigDecimal {
+        val reversed = refunds.mapNotNull { it.reversesRefundId }.toSet()
+        return refunds
+            .filter {
+                it.kind == com.wego.toursoperator.domain.OfficeRefundKind.REFUND &&
+                    it.currencyPaid == PaidCurrency.EGP &&
+                    it.id !in reversed
+            }.fold(BigDecimal.ZERO) { acc, r -> acc.add(r.amountPaid.amount) }
+    }
 
     private sealed interface Locked {
         data class Ok(
