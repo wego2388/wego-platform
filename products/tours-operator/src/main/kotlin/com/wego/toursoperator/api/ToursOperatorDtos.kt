@@ -361,8 +361,10 @@ data class OfficePaymentResponse(
     val state: com.wego.toursoperator.domain.OfficePaymentState,
     val collected: MoneyResponse,
     val outstanding: MoneyResponse,
-    /** Set when a cancelled booking still holds collected cash: staff must return it (no automatic refund). */
+    /** Set when a cancelled booking still holds collected money not yet returned (collected minus refunds recorded). */
     val cashToReturn: MoneyResponse?,
+    /** Money already returned to the customer (office refunds, net of reversals; EUR). */
+    val refunded: MoneyResponse = MoneyResponse("0.00"),
 )
 
 data class OfficeCollectionResponse(

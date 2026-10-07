@@ -110,6 +110,9 @@ sealed class CollectionResult {
     data object NotReversible : CollectionResult()
 
     data object IdempotencyKeyReused : CollectionResult()
+
+    /** Today's office cash box for this currency is closed: no cash entry can be added to it (OPS2-F). */
+    data object CashDayClosed : CollectionResult()
 }
 
 /**
@@ -125,6 +128,8 @@ class OfficeCollectionService(
     private val fxRateRepository: FxRateRepository,
     private val transactionRunner: TransactionRunner,
     private val clock: Clock,
+    private val cashDayGate: CashDayGate = CashDayGate.NONE,
+    private val refundRepository: OfficeRefundRepository? = null,
 ) {
     fun record(command: RecordCollectionCommand): CollectionResult =
         transactionRunner.runInTransaction {
@@ -188,6 +193,9 @@ class OfficeCollectionService(
                     Settlement.BelowMinimum -> return@runInTransaction CollectionResult.AmountBelowMinimum
                     is Settlement.ExceedsOutstanding -> return@runInTransaction CollectionResult.ExceedsOutstanding(settlement.outstanding)
                 }
+            if (command.method.isCash && !cashDayGate.lockOpenToday(command.currency)) {
+                return@runInTransaction CollectionResult.CashDayClosed
+            }
 
             val entry =
                 OfficeCollection(
@@ -250,6 +258,10 @@ class OfficeCollectionService(
             if (target.kind != OfficeCollectionKind.COLLECTION) return@runInTransaction CollectionResult.NotReversible
             if (target.recordedByUserId == command.actorUserId) return@runInTransaction CollectionResult.CannotReverseOwn
             if (entries.any { it.reversesCollectionId == target.id }) return@runInTransaction CollectionResult.AlreadyReversed
+            // A reversal takes cash out of today's box (it is dated today, whatever day the original was).
+            if (target.method.isCash && !cashDayGate.lockOpenToday(target.currencyPaid)) {
+                return@runInTransaction CollectionResult.CashDayClosed
+            }
 
             val entry =
                 OfficeCollection(
@@ -276,6 +288,9 @@ class OfficeCollectionService(
 
     /** Net cash collected per booking, for response projections of several bookings at once. */
     fun netCollected(bookingIds: Collection<BookingId>): Map<BookingId, BigDecimal> = collectionRepository.netCollected(bookingIds)
+
+    /** Net EUR returned on cancelled office bookings (OPS2-F refunds), for the same projections. */
+    fun netRefunded(bookingIds: Collection<BookingId>): Map<BookingId, BigDecimal> = refundRepository?.netRefunded(bookingIds).orEmpty()
 
     private sealed interface Locked {
         data class Ok(

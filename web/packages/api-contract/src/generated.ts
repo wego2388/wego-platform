@@ -2567,7 +2567,7 @@ export interface paths {
         };
         /**
          * Today's manager-set EUR to EGP rate
-         * @description Requires tours-operator.booking:collect-cash or tours-operator.fx-rate:manage. Rate policy (owner-approved 2026-10-05): a manager sets the daily rate.
+         * @description Requires tours-operator.booking:collect-cash, tours-operator.fx-rate:manage, tours-operator.booking:refund-office or tours-operator.settlement:pay. Rate policy (owner-approved 2026-10-05): a manager sets the daily rate.
          */
         get: operations["getToursOperatorFxRateToday"];
         put?: never;
@@ -2756,6 +2756,414 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tours-operator/staff/costs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List cost components
+         * @description Requires tours-operator.cost:manage or tours-operator.payment:view. Open components only unless includeEnded=true. Never cached.
+         */
+        get: operations["listToursOperatorCosts"];
+        put?: never;
+        /**
+         * Add a cost component
+         * @description Requires tours-operator.cost:manage. Effective-dated, in EGP or EUR; never edited afterwards (replace or end it).
+         */
+        post: operations["createToursOperatorCost"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/costs/{id}/replace": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change a cost from a date
+         * @description Requires tours-operator.cost:manage. Ends the component the day before validFrom and adds the new value from validFrom (keeping the old end). Same owner and category only.
+         */
+        post: operations["replaceToursOperatorCost"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/costs/{id}/end": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * End a cost component
+         * @description Requires tours-operator.cost:manage. lastDay is inclusive; validFrom − 1 withdraws one that never applied. A component is ended once.
+         */
+        post: operations["endToursOperatorCost"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/finance/profitability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Profitability by booking, departure, tour or month
+         * @description Requires tours-operator.payment:view (the existing finance permission). Bookings by tour day (range ≤ 366 days; 400 invalid_date_range). Costs = components in force on the day × guests; per-departure costs, driver trip rate and payable adjustments of the departure are shared by guests. EGP converts at the departure-day manager rate, else the latest rate (rateSource says which). A missing cost shows no profit.
+         */
+        get: operations["getToursOperatorProfitability"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/finance/office-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Office payments line
+         * @description Requires tours-operator.payment:view. Office collections minus reversals and refunds over the range, EUR, by recording day (Cairo). Never mixed with online revenue.
+         */
+        get: operations["getToursOperatorOfficeSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/bookings/{bookingId}/refunds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Money returned on an office booking
+         * @description Requires tours-operator.booking:view.
+         */
+        get: operations["listToursOperatorOfficeRefunds"];
+        put?: never;
+        /**
+         * Record money returned on a cancelled office booking
+         * @description Requires tours-operator.booking:refund-office (manager). Never more than collected minus already returned (booking row lock). Never a Paymob refund. A CASH refund is refused once today's cash box is closed. Same clientRequestId and payload replays (200).
+         */
+        post: operations["recordToursOperatorOfficeRefund"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/bookings/{bookingId}/refunds/{refundId}/reverse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reverse a refund
+         * @description Requires tours-operator.booking:refund-office; never by the person who recorded it (403 cannot_reverse_own_refund). Once only.
+         */
+        post: operations["reverseToursOperatorOfficeRefund"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/payables": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * What we owe each supplier and driver
+         * @description Requires tours-operator.settlement:pay, settlement:approve or payment:view. Owed = departures up to today with live bookings (supplier cost components; driver trip rate) plus adjustments, minus payments; per currency. Inactive parties with nothing open are omitted.
+         */
+        get: operations["listToursOperatorPayables"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/payables/{partyType}/{partyId}/statement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Statement of one supplier or driver
+         * @description Requires tours-operator.settlement:pay, settlement:approve or payment:view. Opening, owed, paid and closing per currency for the period, with every movement (reversals on their own day) and open issues.
+         */
+        get: operations["getToursOperatorPartyStatement"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/payables/{partyType}/{partyId}/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record a payment to a supplier or driver
+         * @description Requires tours-operator.settlement:pay. Up to 5000.00 EGP per payment (EUR valued at today's manager rate; no rate = above the limit) needs no approval; above it the payment must name an unused owner approval of the same party, currency and amount. Never above the current balance (party lock). Non-cash needs a reference. CASH is refused once today's cash box is closed.
+         */
+        post: operations["payToursOperatorParty"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/payables/{partyType}/{partyId}/payments/{paymentId}/reverse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reverse a settlement payment
+         * @description Requires tours-operator.settlement:approve. Once only; dated today. The approval it consumed stays consumed.
+         */
+        post: operations["reverseToursOperatorSettlementPayment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/payables/{partyType}/{partyId}/approvals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Approve one payment above the manager limit
+         * @description Requires tours-operator.settlement:approve (owner). Authorises exactly one payment of this party, currency and amount; not above the current balance.
+         */
+        post: operations["approveToursOperatorSettlement"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/payables/{partyType}/{partyId}/adjustments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add a documented charge or deduction
+         * @description Requires tours-operator.settlement:pay. CHARGE adds to what is owed (e.g. a driver with no fixed trip rate), DEDUCTION lowers it. Never edited: reverse it.
+         */
+        post: operations["adjustToursOperatorPayable"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/payables/{partyType}/{partyId}/adjustments/{adjustmentId}/reverse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reverse an adjustment
+         * @description Requires tours-operator.settlement:approve. Once only; dated today.
+         */
+        post: operations["reverseToursOperatorPayableAdjustment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/cash-box": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One day of the office cash box
+         * @description Requires tours-operator.cash-box:close, cash-box:confirm or payment:view.
+         */
+        get: operations["getToursOperatorCashDay"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/cash-box/recent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Latest state of recent cash-box days
+         * @description Requires tours-operator.cash-box:close, cash-box:confirm or payment:view. The latest event per day and currency.
+         */
+        get: operations["listToursOperatorCashDays"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/cash-box/{date}/{currency}/count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Count the cash box
+         * @description Requires tours-operator.cash-box:close (reception). Records counted, expected and the difference; a recount is allowed until the day is closed.
+         */
+        post: operations["countToursOperatorCashDay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/cash-box/{date}/{currency}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm and close the day
+         * @description Requires tours-operator.cash-box:confirm (manager), never the person who counted (403 cannot_confirm_own_count). If cash was recorded after the count: 409 cash_expected_changed (count again). A closed day refuses every cash entry.
+         */
+        post: operations["confirmToursOperatorCashDay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/cash-box/{date}/{currency}/reopen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reopen a closed day
+         * @description Requires tours-operator.cash-box:confirm. A reason is required and kept.
+         */
+        post: operations["reopenToursOperatorCashDay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/documents/payables/{partyType}/{partyId}/statement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Print a settlement statement
+         * @description Requires tours-operator.settlement:pay or settlement:approve. Recorded in the print register (STL-YYYY-NNNNNN); a reprint is COPY, or REVISED when the movements changed. Never cached.
+         */
+        post: operations["printToursOperatorSettlementStatement"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2922,8 +3330,10 @@ export interface components {
             state: components["schemas"]["ToursOperatorOfficePaymentState"];
             collected: components["schemas"]["Money"];
             outstanding: components["schemas"]["Money"];
-            /** @description Set when a cancelled booking still holds collected money that staff must return. No automatic refund exists. */
+            /** @description Set when a cancelled booking still holds collected money not yet returned (collected minus office refunds recorded). */
             cashToReturn: components["schemas"]["Money"] | null;
+            /** @description Money already returned (office refunds net of reversals, EUR). */
+            refunded: components["schemas"]["Money"];
         };
         CreateToursOperatorOfficeBookingRequest: {
             /**
@@ -3014,7 +3424,7 @@ export interface components {
         };
         ToursOperatorDocumentStamp: {
             /** @enum {string} */
-            type: "VOUCHER" | "RECEIPT" | "RUN_SHEET" | "PICKUP_MANIFEST" | "CANCELLATION_FORM" | "DRIVER_SHEET" | "SUPPLIER_ORDER";
+            type: "VOUCHER" | "RECEIPT" | "RUN_SHEET" | "PICKUP_MANIFEST" | "CANCELLATION_FORM" | "DRIVER_SHEET" | "SUPPLIER_ORDER" | "SETTLEMENT_STATEMENT";
             /** @description Immutable document number; reprints carry the original's. */
             number: string;
             /** @description 1 = original, n = reprint. */
@@ -3181,6 +3591,22 @@ export interface components {
             todayRate: string | null;
             /** @description The expected return at todayRate (half-up to cents); null when no rate is set. */
             expectedReturnEgp: components["schemas"]["Money"] | null;
+            /** @description Money handed back so far (OPS2-F), oldest first; reversals listed and netted. */
+            refunds: {
+                /** Format: date-time */
+                recordedAt: string;
+                reversal: boolean;
+                method: components["schemas"]["ToursOperatorRefundMethod"];
+                amountPaid: components["schemas"]["ToursOperatorAmount"];
+                returnedEur: components["schemas"]["Money"];
+            }[];
+            refundedNet: components["schemas"]["Money"];
+            remainingToReturn: components["schemas"]["Money"];
+            /**
+             * @description RETURNED = "money returned" (refunded ≥ the policy amount).
+             * @enum {string}
+             */
+            returnState: "NONE_DUE" | "NOT_RETURNED" | "PARTIALLY_RETURNED" | "RETURNED";
         };
         ToursOperatorVoucherDocument: {
             document: components["schemas"]["ToursOperatorDocumentStamp"];
@@ -3874,6 +4300,382 @@ export interface components {
         ToursOperatorSupplierOrderDocument: {
             document: components["schemas"]["ToursOperatorDocumentStamp"];
             data: components["schemas"]["ToursOperatorSupplierOrderData"];
+        };
+        /** @description An amount in a stated currency. EGP and EUR are never added together. */
+        ToursOperatorAmount: {
+            /** @description Decimal string with 2 places; may be negative where a figure can be (profit, balance, statement line). */
+            amount: string;
+            /** @enum {string} */
+            currencyCode: "EUR" | "EGP";
+        };
+        /** @description OPS2-F refusal: a stable code plus optional details (e.g. balance, refundable, limitEgp, expected). */
+        ToursOperatorFinanceError: {
+            error: string;
+            details: {
+                [key: string]: string;
+            };
+        };
+        /** @enum {string} */
+        ToursOperatorCostCategory: "SUPPLIER" | "OWN_EXTRA" | "FIXED" | "DRIVER";
+        /** @enum {string} */
+        ToursOperatorCostBasis: "PER_PERSON" | "PER_UNIT" | "PER_DEPARTURE";
+        /** @description Exactly one of tourId (SUPPLIER, OWN_EXTRA, FIXED) or driverId (DRIVER). FIXED and DRIVER are PER_DEPARTURE. childAmount only PER_PERSON (absent = a child costs the adult amount). supplierId only SUPPLIER (absent = owed to the single supplier assigned to the departure). */
+        ToursOperatorCostComponentRequest: {
+            tourId?: string | null;
+            driverId?: string | null;
+            category: components["schemas"]["ToursOperatorCostCategory"];
+            label: string;
+            basis: components["schemas"]["ToursOperatorCostBasis"];
+            currency: components["schemas"]["ToursOperatorPaidCurrency"];
+            amount: number;
+            childAmount?: number | null;
+            supplierId?: string | null;
+            /** Format: date */
+            validFrom: string;
+            validUntil?: string | null;
+            note?: string | null;
+        };
+        ToursOperatorCostEndRequest: {
+            /** Format: date */
+            lastDay: string;
+        };
+        ToursOperatorCostComponent: {
+            /** Format: uuid */
+            id: string;
+            tourId: string | null;
+            driverId: string | null;
+            category: components["schemas"]["ToursOperatorCostCategory"];
+            label: string;
+            basis: components["schemas"]["ToursOperatorCostBasis"];
+            amount: components["schemas"]["ToursOperatorAmount"];
+            childAmount: components["schemas"]["ToursOperatorAmount"] | null;
+            supplierId: string | null;
+            /** Format: date */
+            validFrom: string;
+            validUntil: string | null;
+            replacesComponentId: string | null;
+            note: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            ended: boolean;
+            endedAt: string | null;
+        };
+        /** @description EUR. onlineRevenue = recognised Paymob payments; officeRevenue = office collections net of reversals minus office refunds — never mixed. cost/profit/marginPercent are null as soon as one booking's cost is incomplete (see gaps). */
+        ToursOperatorProfitTotals: {
+            bookings: number;
+            guests: number;
+            onlineRevenue: components["schemas"]["ToursOperatorAmount"];
+            officeRevenue: components["schemas"]["ToursOperatorAmount"];
+            revenue: components["schemas"]["ToursOperatorAmount"];
+            cost: components["schemas"]["ToursOperatorAmount"] | null;
+            profit: components["schemas"]["ToursOperatorAmount"] | null;
+            marginPercent: string | null;
+            incompleteBookings: number;
+            gaps: ("NO_COST_COMPONENTS" | "UNIT_COST_ON_PER_PERSON_BOOKING" | "DRIVER_COST_MISSING" | "FX_RATE_MISSING")[];
+            rateSources: ("DEPARTURE_DATE" | "LATEST" | "NONE")[];
+        };
+        ToursOperatorProfitGroup: {
+            key: string;
+            tourId: string | null;
+            slotId: string | null;
+            date: string | null;
+            timeSlot: components["schemas"]["ToursOperatorTimeSlot"] | null;
+            month: string | null;
+            bookingId: string | null;
+            reference: string | null;
+            status: components["schemas"]["BookingStatus"] | null;
+            channel: ("ONLINE" | "OFFICE") | null;
+            egpPerEur: string | null;
+            rateSource: ("DEPARTURE_DATE" | "LATEST" | "NONE") | null;
+            totals: components["schemas"]["ToursOperatorProfitTotals"];
+        };
+        ToursOperatorProfitReport: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            /** @enum {string} */
+            groupBy: "BOOKING" | "DEPARTURE" | "TOUR" | "MONTH";
+            totals: components["schemas"]["ToursOperatorProfitTotals"];
+            groups: components["schemas"]["ToursOperatorProfitGroup"][];
+        };
+        /** @description The 'office payments' line of the finance page (EUR, by the Cairo day each entry was recorded). Separate from online (Paymob) revenue. */
+        ToursOperatorOfficeSummary: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            collected: components["schemas"]["ToursOperatorAmount"];
+            collectionsReversed: components["schemas"]["ToursOperatorAmount"];
+            refunded: components["schemas"]["ToursOperatorAmount"];
+            refundsReversed: components["schemas"]["ToursOperatorAmount"];
+            net: components["schemas"]["ToursOperatorAmount"];
+            collectionCount: number;
+            refundCount: number;
+        };
+        /** @enum {string} */
+        ToursOperatorRefundMethod: "CASH" | "MOBILE_WALLET" | "CARD_TERMINAL" | "INSTAPAY" | "FAWRY_OFFICE" | "BANK_TRANSFER";
+        /** @description currency defaults to EUR. Non-cash methods need the reference; EGP needs today's quoted fxRateId. */
+        ToursOperatorOfficeRefundRequest: {
+            /** Format: uuid */
+            clientRequestId: string;
+            method: components["schemas"]["ToursOperatorRefundMethod"];
+            amount: number;
+            currency?: components["schemas"]["ToursOperatorPaidCurrency"] | null;
+            reference?: string | null;
+            fxRateId?: string | null;
+            reason: string;
+        };
+        ToursOperatorReverseEntryRequest: {
+            /** Format: uuid */
+            clientRequestId: string;
+            reason: string;
+        };
+        ToursOperatorOfficeRefund: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            kind: "REFUND" | "REVERSAL";
+            method: components["schemas"]["ToursOperatorRefundMethod"];
+            amount: components["schemas"]["ToursOperatorAmount"];
+            amountPaid: components["schemas"]["ToursOperatorAmount"];
+            fxRate: string | null;
+            reference: string | null;
+            reason: string;
+            reversesRefundId: string | null;
+            recordedByEmail: string | null;
+            /** Format: date-time */
+            recordedAt: string;
+        };
+        ToursOperatorRefundPosition: {
+            collected: components["schemas"]["ToursOperatorAmount"];
+            refunded: components["schemas"]["ToursOperatorAmount"];
+            refundable: components["schemas"]["ToursOperatorAmount"];
+        };
+        ToursOperatorOfficeRefunds: {
+            entries: components["schemas"]["ToursOperatorOfficeRefund"][];
+            position: components["schemas"]["ToursOperatorRefundPosition"];
+        };
+        ToursOperatorOfficeRefundOutcome: {
+            entry: components["schemas"]["ToursOperatorOfficeRefund"];
+            position: components["schemas"]["ToursOperatorRefundPosition"];
+        };
+        /** @enum {string} */
+        ToursOperatorPartyType: "SUPPLIER" | "DRIVER";
+        /** @description closing = opening + owed − paid. Positive = we owe the party. */
+        ToursOperatorCurrencyBalance: {
+            currency: components["schemas"]["ToursOperatorPaidCurrency"];
+            opening: components["schemas"]["ToursOperatorAmount"];
+            owed: components["schemas"]["ToursOperatorAmount"];
+            paid: components["schemas"]["ToursOperatorAmount"];
+            closing: components["schemas"]["ToursOperatorAmount"];
+        };
+        ToursOperatorPartySummary: {
+            partyType: components["schemas"]["ToursOperatorPartyType"];
+            /** Format: uuid */
+            partyId: string;
+            name: string;
+            code: string | null;
+            active: boolean;
+            balances: components["schemas"]["ToursOperatorCurrencyBalance"][];
+            openIssues: number;
+            pendingApprovals: number;
+        };
+        ToursOperatorPayableAdjustment: {
+            /** Format: uuid */
+            id: string;
+            slotId: string | null;
+            /** Format: date */
+            serviceDate: string;
+            /** @enum {string} */
+            kind: "CHARGE" | "DEDUCTION" | "REVERSAL";
+            amount: components["schemas"]["ToursOperatorAmount"];
+            reason: string;
+            reversesAdjustmentId: string | null;
+            recordedByEmail: string | null;
+            /** Format: date-time */
+            recordedAt: string;
+        };
+        /** @enum {string} */
+        ToursOperatorSettlementMethod: "CASH" | "INSTAPAY" | "MOBILE_WALLET" | "BANK_TRANSFER" | "OTHER";
+        ToursOperatorSettlementPayment: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            kind: "PAYMENT" | "REVERSAL";
+            method: components["schemas"]["ToursOperatorSettlementMethod"];
+            amount: components["schemas"]["ToursOperatorAmount"];
+            egpEquivalent: string | null;
+            reference: string | null;
+            note: string | null;
+            approvalId: string | null;
+            reversesPaymentId: string | null;
+            reason: string | null;
+            recordedByEmail: string | null;
+            /** Format: date-time */
+            recordedAt: string;
+        };
+        ToursOperatorSettlementApproval: {
+            /** Format: uuid */
+            id: string;
+            amount: components["schemas"]["ToursOperatorAmount"];
+            note: string | null;
+            approvedByEmail: string | null;
+            /** Format: date-time */
+            approvedAt: string;
+            usedByPaymentId: string | null;
+        };
+        /** @description amount raises (+) or lowers (−) what is owed. */
+        ToursOperatorStatementMovement: {
+            /** Format: date */
+            date: string;
+            /** @enum {string} */
+            kind: "DEPARTURE" | "CHARGE" | "DEDUCTION" | "CHARGE_REVERSED" | "DEDUCTION_REVERSED" | "PAYMENT" | "PAYMENT_REVERSED";
+            amount: components["schemas"]["ToursOperatorAmount"];
+            slotId: string | null;
+            tourId: string | null;
+            timeSlot: components["schemas"]["ToursOperatorTimeSlot"] | null;
+            guests: number | null;
+            labels: string[];
+            adjustment: components["schemas"]["ToursOperatorPayableAdjustment"] | null;
+            payment: components["schemas"]["ToursOperatorSettlementPayment"] | null;
+        };
+        ToursOperatorStatementIssue: {
+            /** Format: date */
+            date: string;
+            /** Format: uuid */
+            slotId: string;
+            /** Format: uuid */
+            tourId: string;
+            timeSlot: components["schemas"]["ToursOperatorTimeSlot"];
+            /** @enum {string} */
+            code: "MANUAL_AMOUNT_NEEDED" | "SHARED_SUPPLIER_COST" | "NO_SUPPLIER_PRICE" | "UNIT_COST_ON_PER_PERSON_BOOKING";
+        };
+        /** @description party.balances is the all-time position up to today (what a payment is checked against); balances is the requested period. */
+        ToursOperatorPartyStatement: {
+            party: components["schemas"]["ToursOperatorPartySummary"];
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            balances: components["schemas"]["ToursOperatorCurrencyBalance"][];
+            movements: components["schemas"]["ToursOperatorStatementMovement"][];
+            issues: components["schemas"]["ToursOperatorStatementIssue"][];
+            approvals: components["schemas"]["ToursOperatorSettlementApproval"][];
+            managerLimitEgp: string;
+        };
+        ToursOperatorPayRequest: {
+            /** Format: uuid */
+            clientRequestId: string;
+            method: components["schemas"]["ToursOperatorSettlementMethod"];
+            currency: components["schemas"]["ToursOperatorPaidCurrency"];
+            amount: number;
+            reference?: string | null;
+            note?: string | null;
+            approvalId?: string | null;
+        };
+        ToursOperatorApproveRequest: {
+            /** Format: uuid */
+            clientRequestId: string;
+            currency: components["schemas"]["ToursOperatorPaidCurrency"];
+            amount: number;
+            note?: string | null;
+        };
+        /** @description Give slotId (its day is used) or serviceDate (today or earlier). */
+        ToursOperatorAdjustRequest: {
+            /** Format: uuid */
+            clientRequestId: string;
+            /** @enum {string} */
+            kind: "CHARGE" | "DEDUCTION";
+            currency: components["schemas"]["ToursOperatorPaidCurrency"];
+            amount: number;
+            slotId?: string | null;
+            serviceDate?: string | null;
+            reason: string;
+        };
+        ToursOperatorCashCountRequest: {
+            counted: number;
+            note?: string | null;
+        };
+        ToursOperatorCashReopenRequest: {
+            reason: string;
+        };
+        ToursOperatorCashBoxEvent: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date */
+            date: string;
+            currency: components["schemas"]["ToursOperatorPaidCurrency"];
+            sequence: number;
+            /** @enum {string} */
+            kind: "COUNT" | "CONFIRM" | "REOPEN";
+            expected: components["schemas"]["ToursOperatorAmount"] | null;
+            counted: components["schemas"]["ToursOperatorAmount"] | null;
+            difference: components["schemas"]["ToursOperatorAmount"] | null;
+            note: string | null;
+            actorEmail: string | null;
+            /** Format: date-time */
+            occurredAt: string;
+        };
+        /** @description Cash only, one currency, one Cairo day. expected = collections − refunds − settlement payments, each net of its reversals (a day starts at zero: the drawer is handed to the manager daily). */
+        ToursOperatorCashDay: {
+            /** Format: date */
+            date: string;
+            currency: components["schemas"]["ToursOperatorPaidCurrency"];
+            /** @enum {string} */
+            state: "OPEN" | "COUNTED" | "CLOSED";
+            cashCollected: components["schemas"]["ToursOperatorAmount"];
+            collectionsReversed: components["schemas"]["ToursOperatorAmount"];
+            cashRefunded: components["schemas"]["ToursOperatorAmount"];
+            refundsReversed: components["schemas"]["ToursOperatorAmount"];
+            cashSettlementsPaid: components["schemas"]["ToursOperatorAmount"];
+            settlementsReversed: components["schemas"]["ToursOperatorAmount"];
+            expected: components["schemas"]["ToursOperatorAmount"];
+            events: components["schemas"]["ToursOperatorCashBoxEvent"][];
+        };
+        ToursOperatorPrintStatementRequest: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            /** @enum {string} */
+            language: "en" | "ar";
+        };
+        /** @description No customer data: departures show tour, window and guest count only. */
+        ToursOperatorSettlementStatementData: {
+            partyType: components["schemas"]["ToursOperatorPartyType"];
+            partyName: string;
+            partyCode: string | null;
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            balances: {
+                currency: components["schemas"]["ToursOperatorPaidCurrency"];
+                opening: components["schemas"]["ToursOperatorAmount"];
+                owed: components["schemas"]["ToursOperatorAmount"];
+                paid: components["schemas"]["ToursOperatorAmount"];
+                closing: components["schemas"]["ToursOperatorAmount"];
+            }[];
+            lines: {
+                /** Format: date */
+                date: string;
+                /** @enum {string} */
+                kind: "DEPARTURE" | "CHARGE" | "DEDUCTION" | "CHARGE_REVERSED" | "DEDUCTION_REVERSED" | "PAYMENT" | "PAYMENT_REVERSED";
+                amount: components["schemas"]["ToursOperatorAmount"];
+                tourNameEn: string | null;
+                tourNameAr: string | null;
+                timeSlot: components["schemas"]["ToursOperatorTimeSlot"] | null;
+                guests: number | null;
+                method: string | null;
+                reference: string | null;
+                text: string | null;
+            }[];
+            openIssues: number;
+        };
+        ToursOperatorSettlementStatementDocument: {
+            document: components["schemas"]["ToursOperatorDocumentStamp"];
+            data: components["schemas"]["ToursOperatorSettlementStatementData"];
         };
         ToursOperatorErrorResponse: {
             error: string;
@@ -10131,7 +10933,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description not_an_office_booking, booking_not_open_status_*, amount_exceeds_outstanding, reference_already_used, fx_rate_not_set, fx_rate_changed, invalid_correction or idempotency_key_reused. */
+            /** @description not_an_office_booking, booking_not_open_status_*, amount_exceeds_outstanding, reference_already_used, fx_rate_not_set, fx_rate_changed, invalid_correction, idempotency_key_reused, or cash_day_closed (a cash method after today's cash box was closed). */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -10247,7 +11049,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description collection_already_reversed, collection_not_reversible, not_an_office_booking or idempotency_key_reused. */
+            /** @description collection_already_reversed, collection_not_reversible, not_an_office_booking, idempotency_key_reused or cash_day_closed. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -11515,6 +12317,937 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ToursOperatorErrorResponse"];
                 };
+            };
+        };
+    };
+    listToursOperatorCosts: {
+        parameters: {
+            query?: {
+                tourId?: string;
+                driverId?: string;
+                includeEnded?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorCostComponent"][];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    createToursOperatorCost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorCostComponentRequest"];
+            };
+        };
+        responses: {
+            /** @description Created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorCostComponent"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description cost_owner_required, driver_cost_needs_driver, basis_must_be_per_departure, child_amount_per_person_only, supplier_only_for_supplier_cost, valid_until_before_valid_from, tour_not_found, driver_not_found or supplier_not_found. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+        };
+    };
+    replaceToursOperatorCost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorCostComponentRequest"];
+            };
+        };
+        responses: {
+            /** @description The new component. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorCostComponent"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description cost_already_ended. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+            /** @description cost_owner_mismatch, effective_before_current, effective_after_current or a create validation code. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+        };
+    };
+    endToursOperatorCost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorCostEndRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorCostComponent"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description cost_already_ended. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+            /** @description end_before_start or end_after_current. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+        };
+    };
+    getToursOperatorProfitability: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+                groupBy?: "BOOKING" | "DEPARTURE" | "TOUR" | "MONTH";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorProfitReport"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    getToursOperatorOfficeSummary: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOfficeSummary"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    listToursOperatorOfficeRefunds: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOfficeRefunds"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    recordToursOperatorOfficeRefund: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorOfficeRefundRequest"];
+            };
+        };
+        responses: {
+            /** @description Idempotent replay. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOfficeRefundOutcome"];
+                };
+            };
+            /** @description Recorded. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOfficeRefundOutcome"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description not_an_office_booking, booking_not_cancelled, nothing_to_refund, amount_exceeds_refundable (details.refundable), fx_rate_not_set, fx_rate_changed, cash_day_closed or idempotency_key_reused. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+            /** @description reference_required, reference_not_allowed, fx_rate_id_required or amount_below_minimum. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+        };
+    };
+    reverseToursOperatorOfficeRefund: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookingId: string;
+                refundId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorReverseEntryRequest"];
+            };
+        };
+        responses: {
+            /** @description Idempotent replay. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOfficeRefundOutcome"];
+                };
+            };
+            /** @description Reversed. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOfficeRefundOutcome"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description refund_already_reversed, refund_not_reversible, cash_day_closed or idempotency_key_reused. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+        };
+    };
+    listToursOperatorPayables: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorPartySummary"][];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    getToursOperatorPartyStatement: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+            };
+            header?: never;
+            path: {
+                partyType: "suppliers" | "drivers";
+                partyId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorPartyStatement"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Unknown party type or party. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    payToursOperatorParty: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partyType: "suppliers" | "drivers";
+                partyId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorPayRequest"];
+            };
+        };
+        responses: {
+            /** @description Idempotent replay. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorSettlementPayment"];
+                };
+            };
+            /** @description Paid. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorSettlementPayment"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Unknown party. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description approval_required (details.limitEgp), approval_mismatch, approval_already_used, amount_exceeds_balance (details.balance), cash_day_closed or idempotency_key_reused. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+            /** @description reference_required or approval_not_found. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+        };
+    };
+    reverseToursOperatorSettlementPayment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partyType: "suppliers" | "drivers";
+                partyId: string;
+                paymentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorReverseEntryRequest"];
+            };
+        };
+        responses: {
+            /** @description Idempotent replay. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorSettlementPayment"];
+                };
+            };
+            /** @description Reversed. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorSettlementPayment"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description entry_already_reversed, entry_not_reversible, cash_day_closed or idempotency_key_reused. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+        };
+    };
+    approveToursOperatorSettlement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partyType: "suppliers" | "drivers";
+                partyId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorApproveRequest"];
+            };
+        };
+        responses: {
+            /** @description Idempotent replay. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorSettlementApproval"];
+                };
+            };
+            /** @description Approved. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorSettlementApproval"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Unknown party. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description amount_exceeds_balance or idempotency_key_reused. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+        };
+    };
+    adjustToursOperatorPayable: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partyType: "suppliers" | "drivers";
+                partyId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorAdjustRequest"];
+            };
+        };
+        responses: {
+            /** @description Idempotent replay. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorPayableAdjustment"];
+                };
+            };
+            /** @description Recorded. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorPayableAdjustment"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Unknown party. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description idempotency_key_reused. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+            /** @description slot_not_found, service_date_required, service_date_in_future or invalid_adjustment_kind. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+        };
+    };
+    reverseToursOperatorPayableAdjustment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partyType: "suppliers" | "drivers";
+                partyId: string;
+                adjustmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorReverseEntryRequest"];
+            };
+        };
+        responses: {
+            /** @description Idempotent replay. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorPayableAdjustment"];
+                };
+            };
+            /** @description Reversed. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorPayableAdjustment"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description entry_already_reversed, entry_not_reversible or idempotency_key_reused. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+        };
+    };
+    getToursOperatorCashDay: {
+        parameters: {
+            query: {
+                date: string;
+                currency: components["schemas"]["ToursOperatorPaidCurrency"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorCashDay"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    listToursOperatorCashDays: {
+        parameters: {
+            query?: {
+                days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorCashBoxEvent"][];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    countToursOperatorCashDay: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                date: string;
+                currency: components["schemas"]["ToursOperatorPaidCurrency"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorCashCountRequest"];
+            };
+        };
+        responses: {
+            /** @description Counted. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorCashDay"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description cash_day_closed. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+            /** @description cash_day_in_future. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+        };
+    };
+    confirmToursOperatorCashDay: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                date: string;
+                currency: components["schemas"]["ToursOperatorPaidCurrency"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Closed. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorCashDay"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description cash_day_not_counted, cash_day_closed or cash_expected_changed (details.expected). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+        };
+    };
+    reopenToursOperatorCashDay: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                date: string;
+                currency: components["schemas"]["ToursOperatorPaidCurrency"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorCashReopenRequest"];
+            };
+        };
+        responses: {
+            /** @description Reopened. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorCashDay"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description cash_day_not_closed. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
+        };
+    };
+    printToursOperatorSettlementStatement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partyType: "suppliers" | "drivers";
+                partyId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorPrintStatementRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorSettlementStatementDocument"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Unknown party. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

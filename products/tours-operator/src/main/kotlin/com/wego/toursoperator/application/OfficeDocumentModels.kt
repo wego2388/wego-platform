@@ -22,6 +22,7 @@ enum class DocumentType(
     CANCELLATION_FORM("CXL"),
     DRIVER_SHEET("DRV"),
     SUPPLIER_ORDER("SUP"),
+    SETTLEMENT_STATEMENT("STL"),
 }
 
 /** Printed languages. Both render from the same data. */
@@ -310,6 +311,60 @@ data class CancellationFormData(
     val todayRate: String?,
     /** The expected return at [todayRate], half-up to cents; null when no rate is set. */
     val expectedReturnEgp: DocMoney?,
+    /** Money handed back so far (OPS2-F refunds, oldest first; reversals listed and netted). */
+    val refunds: List<CancellationRefundLine> = emptyList(),
+    /** Net EUR returned. */
+    val refundedNet: DocMoney = DocMoney("0.00", "EUR"),
+    /** What the policy still expects to be returned (never below zero). */
+    val remainingToReturn: DocMoney = DocMoney("0.00", "EUR"),
+    /** NONE_DUE, NOT_RETURNED, PARTIALLY_RETURNED or RETURNED ("money returned"). */
+    val returnState: String = "NOT_RETURNED",
+)
+
+data class CancellationRefundLine(
+    val recordedAt: Instant,
+    val reversal: Boolean,
+    val method: com.wego.toursoperator.domain.RefundMethod,
+    val amountPaid: DocMoney,
+    val returnedEur: DocMoney,
+)
+
+data class StatementBalance(
+    val currency: PaidCurrency,
+    val opening: DocMoney,
+    val owed: DocMoney,
+    val paid: DocMoney,
+    val closing: DocMoney,
+)
+
+data class StatementLine(
+    val date: LocalDate,
+    /** DEPARTURE, CHARGE, DEDUCTION, CHARGE_REVERSED, DEDUCTION_REVERSED, PAYMENT, PAYMENT_REVERSED. */
+    val kind: String,
+    /** Raises (+) or lowers (−) what is owed, in the line's currency. */
+    val amount: DocMoney,
+    val tourNameEn: String?,
+    val tourNameAr: String?,
+    val timeSlot: TimeSlot?,
+    val guests: Int?,
+    val method: String?,
+    /** Payment reference, masked to the last 4 characters. */
+    val reference: String?,
+    /** Adjustment reason, payment note or reversal reason (staff-written). */
+    val text: String?,
+)
+
+/** Supplier / driver settlement statement (OPS2-F): owed, paid and balance per currency for a period. */
+data class SettlementStatementData(
+    val partyType: String,
+    val partyName: String,
+    val partyCode: String?,
+    val from: LocalDate,
+    val to: LocalDate,
+    val balances: List<StatementBalance>,
+    val lines: List<StatementLine>,
+    /** Departures in the period whose amount could not be derived (entered by hand or split). */
+    val openIssues: Int,
 )
 
 sealed class DocumentResult<out T> {

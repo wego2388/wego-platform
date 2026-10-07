@@ -12,10 +12,14 @@ import com.wego.toursoperator.application.BookingMode
 import com.wego.toursoperator.application.BookingQueryService
 import com.wego.toursoperator.application.BookingRepository
 import com.wego.toursoperator.application.CancelBookingService
+import com.wego.toursoperator.application.CashBoxRepository
+import com.wego.toursoperator.application.CashBoxService
 import com.wego.toursoperator.application.CategoryMediaRepository
 import com.wego.toursoperator.application.CategoryMediaService
 import com.wego.toursoperator.application.CompleteBookingService
 import com.wego.toursoperator.application.ConfirmBookingService
+import com.wego.toursoperator.application.CostComponentRepository
+import com.wego.toursoperator.application.CostService
 import com.wego.toursoperator.application.CreateBookingService
 import com.wego.toursoperator.application.CreateSlotService
 import com.wego.toursoperator.application.CreateTourService
@@ -25,6 +29,7 @@ import com.wego.toursoperator.application.DriverRepository
 import com.wego.toursoperator.application.EmailSender
 import com.wego.toursoperator.application.ExpireBookingService
 import com.wego.toursoperator.application.ExpireOverduePaymentsService
+import com.wego.toursoperator.application.FinanceReadRepository
 import com.wego.toursoperator.application.FxRateRepository
 import com.wego.toursoperator.application.FxRateService
 import com.wego.toursoperator.application.HandlePaymobWebhookService
@@ -36,16 +41,21 @@ import com.wego.toursoperator.application.NotificationSettings
 import com.wego.toursoperator.application.OfficeCollectionRepository
 import com.wego.toursoperator.application.OfficeCollectionService
 import com.wego.toursoperator.application.OfficeDocumentService
+import com.wego.toursoperator.application.OfficeRefundRepository
+import com.wego.toursoperator.application.OfficeRefundService
 import com.wego.toursoperator.application.OpsRegistryService
+import com.wego.toursoperator.application.PayablesService
 import com.wego.toursoperator.application.PaymentQueryService
 import com.wego.toursoperator.application.PaymentRepository
 import com.wego.toursoperator.application.PaymobClient
+import com.wego.toursoperator.application.ProfitabilityService
 import com.wego.toursoperator.application.PublicTourContentQuery
 import com.wego.toursoperator.application.ResendNotificationService
 import com.wego.toursoperator.application.SalesControlRepository
 import com.wego.toursoperator.application.SalesControlService
 import com.wego.toursoperator.application.SetSlotBlockedService
 import com.wego.toursoperator.application.SetTourActiveService
+import com.wego.toursoperator.application.SettlementRepository
 import com.wego.toursoperator.application.SlotAssignmentRepository
 import com.wego.toursoperator.application.SupplierRepository
 import com.wego.toursoperator.application.TourContentRepository
@@ -251,10 +261,90 @@ class ToursOperatorBeanConfiguration {
         @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
         @Qualifier("stoOfficeCollectionRepositoryImpl") collectionRepository: OfficeCollectionRepository,
         @Qualifier("stoFxRateRepositoryImpl") fxRateRepository: FxRateRepository,
+        @Qualifier("stoOfficeRefundRepositoryImpl") refundRepository: OfficeRefundRepository,
+        cashBoxService: CashBoxService,
         transactionRunner: TransactionRunner,
         clock: Clock,
     ): OfficeCollectionService =
-        OfficeCollectionService(bookingRepository, collectionRepository, fxRateRepository, transactionRunner, clock)
+        OfficeCollectionService(
+            bookingRepository,
+            collectionRepository,
+            fxRateRepository,
+            transactionRunner,
+            clock,
+            cashBoxService,
+            refundRepository,
+        )
+
+    @Bean("stoCashBoxService")
+    fun cashBoxService(
+        @Qualifier("stoCashBoxRepositoryImpl") repository: CashBoxRepository,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): CashBoxService = CashBoxService(repository, transactionRunner, clock)
+
+    @Bean("stoCostService")
+    fun costService(
+        @Qualifier("stoCostComponentRepositoryImpl") costs: CostComponentRepository,
+        @Qualifier("stoTourRepositoryImpl") tourRepository: TourRepository,
+        @Qualifier("stoDriverRepositoryImpl") drivers: DriverRepository,
+        @Qualifier("stoSupplierRepositoryImpl") suppliers: SupplierRepository,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): CostService = CostService(costs, tourRepository, drivers, suppliers, transactionRunner, clock)
+
+    @Bean("stoOfficeRefundService")
+    fun officeRefundService(
+        @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,
+        @Qualifier("stoOfficeCollectionRepositoryImpl") collectionRepository: OfficeCollectionRepository,
+        @Qualifier("stoOfficeRefundRepositoryImpl") refundRepository: OfficeRefundRepository,
+        @Qualifier("stoFxRateRepositoryImpl") fxRateRepository: FxRateRepository,
+        cashBoxService: CashBoxService,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): OfficeRefundService =
+        OfficeRefundService(
+            bookingRepository,
+            collectionRepository,
+            refundRepository,
+            fxRateRepository,
+            cashBoxService,
+            transactionRunner,
+            clock,
+        )
+
+    @Bean("stoPayablesService")
+    fun payablesService(
+        @Qualifier("stoSettlementRepositoryImpl") settlements: SettlementRepository,
+        @Qualifier("stoFinanceReadRepositoryImpl") reads: FinanceReadRepository,
+        @Qualifier("stoCostComponentRepositoryImpl") costs: CostComponentRepository,
+        @Qualifier("stoSupplierRepositoryImpl") suppliers: SupplierRepository,
+        @Qualifier("stoDriverRepositoryImpl") drivers: DriverRepository,
+        @Qualifier("stoTourSlotRepositoryImpl") slotRepository: TourSlotRepository,
+        @Qualifier("stoFxRateRepositoryImpl") fxRateRepository: FxRateRepository,
+        cashBoxService: CashBoxService,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): PayablesService =
+        PayablesService(
+            settlements,
+            reads,
+            costs,
+            suppliers,
+            drivers,
+            slotRepository,
+            fxRateRepository,
+            cashBoxService,
+            transactionRunner,
+            clock,
+        )
+
+    @Bean("stoProfitabilityService")
+    fun profitabilityService(
+        @Qualifier("stoFinanceReadRepositoryImpl") reads: FinanceReadRepository,
+        @Qualifier("stoCostComponentRepositoryImpl") costs: CostComponentRepository,
+        @Qualifier("stoSettlementRepositoryImpl") settlements: SettlementRepository,
+    ): ProfitabilityService = ProfitabilityService(reads, costs, settlements)
 
     @Bean("stoOfficeDocumentService")
     fun officeDocumentService(
@@ -266,7 +356,9 @@ class ToursOperatorBeanConfiguration {
         @Qualifier("stoFxRateRepositoryImpl") fxRateRepository: FxRateRepository,
         @Qualifier("stoPaymentRepositoryImpl") paymentRepository: PaymentRepository,
         @Qualifier("stoDocumentPrintRepositoryImpl") printRepository: DocumentPrintRepository,
+        @Qualifier("stoOfficeRefundRepositoryImpl") refundRepository: OfficeRefundRepository,
         assignmentService: AssignmentService,
+        payablesService: PayablesService,
         transactionRunner: TransactionRunner,
         clock: Clock,
         @Value("\${tours-operator.notifications.site-base-url:http://localhost:3000}") siteBaseUrl: String,
@@ -284,6 +376,8 @@ class ToursOperatorBeanConfiguration {
             transactionRunner,
             clock,
             siteBaseUrl,
+            refundRepository,
+            payablesService,
         )
 
     @Bean("stoOpsRegistryService")

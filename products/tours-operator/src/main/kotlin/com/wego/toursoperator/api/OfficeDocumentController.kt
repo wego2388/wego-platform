@@ -134,13 +134,13 @@ class OfficeDocumentController(
                 ResponseEntity
                     .ok()
                     .cacheControl(CacheControl.noStore())
-                    .body(DocumentResponse(result.stamp.toResponse(), result.data))
+                    .body(DocumentResponse(result.stamp.toStampResponse(), result.data))
             DocumentResult.NotFound -> ResponseEntity.notFound().build()
             is DocumentResult.Refused -> ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorResponse(result.code))
         }
 }
 
-private fun DocumentStamp.toResponse() =
+internal fun DocumentStamp.toStampResponse() =
     DocumentStampResponse(
         type = type.name,
         number = number,

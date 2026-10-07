@@ -10,6 +10,10 @@ import com.wego.toursoperator.domain.ContentStage
 import com.wego.toursoperator.domain.Money
 import com.wego.toursoperator.domain.OfficeCollectionKind
 import com.wego.toursoperator.domain.OfficePaymentSummary
+import com.wego.toursoperator.domain.OfficeRefund
+import com.wego.toursoperator.domain.OfficeRefundKind
+import com.wego.toursoperator.domain.PaidCurrency
+import com.wego.toursoperator.domain.PartyRef
 import com.wego.toursoperator.domain.PaymentStatus
 import com.wego.toursoperator.domain.Tour
 import com.wego.toursoperator.domain.TourId
@@ -47,6 +51,8 @@ class OfficeDocumentService(
     private val transactionRunner: TransactionRunner,
     private val clock: Clock,
     private val siteBaseUrl: String,
+    private val refundRepository: OfficeRefundRepository? = null,
+    private val payablesService: PayablesService? = null,
 ) {
     fun voucher(
         bookingId: BookingId,
@@ -406,6 +412,16 @@ class OfficeDocumentService(
             val rate = fxRateRepository.latestFor(FxRateService.todayInSharm(clock))
             val egp = rate?.let { expected.multiply(it.egpPerEur).setScale(Money.REQUIRED_SCALE, RoundingMode.HALF_UP) }
             val names = tourNames(listOf(booking.tourId))
+            val refunds = refundRepository?.findByBooking(booking.id).orEmpty()
+            val refunded = OfficeRefund.netRefunded(refunds)
+            val remaining = expected.subtract(refunded).max(BigDecimal.ZERO.setScale(Money.REQUIRED_SCALE))
+            val returnState =
+                when {
+                    expected.signum() == 0 && refunded.signum() == 0 -> "NONE_DUE"
+                    refunded.signum() == 0 -> "NOT_RETURNED"
+                    refunded >= expected -> "RETURNED"
+                    else -> "PARTIALLY_RETURNED"
+                }
             val data =
                 CancellationFormData(
                     reference = booking.reference,
@@ -434,11 +450,98 @@ class OfficeDocumentService(
                     expectedReturn = DocMoney(expected.toPlainString(), "EUR"),
                     todayRate = rate?.egpPerEur?.toPlainString(),
                     expectedReturnEgp = egp?.let { DocMoney(it.toPlainString(), "EGP") },
+                    refunds =
+                        refunds.map {
+                            CancellationRefundLine(
+                                it.recordedAt,
+                                it.kind == OfficeRefundKind.REVERSAL,
+                                it.method,
+                                DocMoney(it.amountPaid.amount.toPlainString(), it.currencyPaid.name),
+                                eur(it.amount),
+                            )
+                        },
+                    refundedNet = DocMoney(refunded.toPlainString(), "EUR"),
+                    remainingToReturn = DocMoney(remaining.toPlainString(), "EUR"),
+                    returnState = returnState,
                 )
+            // Once money has been returned a reprint must say REVISED, not COPY; before that it stays a plain copy.
+            val refundPrint = if (refunds.isEmpty()) null else fingerprint(refunds.map { "${it.id}|${it.kind}|${it.amount.amount}" })
             val stamp =
-                stamp(DocumentType.CANCELLATION_FORM, booking.id.value.toString(), language, actorUserId) {
+                stamp(DocumentType.CANCELLATION_FORM, booking.id.value.toString(), language, actorUserId, refundPrint) {
                     printRepository.allocateNumber(DocumentType.CANCELLATION_FORM, year())
                 }
+            DocumentResult.Ready(stamp, data)
+        }
+
+    /**
+     * Settlement statement of a supplier or driver for [from]..[to] (OPS2-F):
+     * opening balance, what each departure, adjustment and payment added or
+     * removed, and the closing balance, per currency (EGP and EUR never mixed).
+     * No customer data: departures show tour, window and guest count only.
+     */
+    fun settlementStatement(
+        party: PartyRef,
+        from: LocalDate,
+        to: LocalDate,
+        language: DocumentLanguage,
+        actorUserId: UUID,
+    ): DocumentResult<SettlementStatementData> =
+        transactionRunner.runInTransaction {
+            val payables = checkNotNull(payablesService)
+            val statement = payables.statement(party, from, to) ?: return@runInTransaction DocumentResult.NotFound
+            val names = tourNames(statement.movements.mapNotNull { it.owedLine?.tourId }.distinct())
+
+            fun money(
+                amount: BigDecimal,
+                currency: PaidCurrency,
+            ) = DocMoney(amount.setScale(Money.REQUIRED_SCALE).toPlainString(), currency.name)
+            val lines =
+                statement.movements.map { m ->
+                    val owed = m.owedLine
+                    StatementLine(
+                        date = m.date,
+                        kind = m.kind.name,
+                        amount = money(m.signed, m.currency),
+                        tourNameEn = owed?.let { names.en(it.tourId) },
+                        tourNameAr = owed?.let { names.ar(it.tourId) },
+                        timeSlot = owed?.timeSlot,
+                        guests = owed?.guests,
+                        method = m.payment?.method?.name,
+                        reference = m.payment?.reference?.let(::maskReference),
+                        text = m.adjustment?.reason ?: m.payment?.let { it.reason ?: it.note },
+                    )
+                }
+            val data =
+                SettlementStatementData(
+                    partyType = party.type.name,
+                    partyName = statement.info.name,
+                    partyCode = statement.info.code,
+                    from = from,
+                    to = to,
+                    balances =
+                        statement.balances.map {
+                            StatementBalance(
+                                it.currency,
+                                money(it.opening, it.currency),
+                                money(it.owed, it.currency),
+                                money(it.paid, it.currency),
+                                money(it.closing, it.currency),
+                            )
+                        },
+                    lines = lines,
+                    openIssues = statement.issues.size,
+                )
+            val stamp =
+                stamp(
+                    DocumentType.SETTLEMENT_STATEMENT,
+                    "${party.key}:$from:$to",
+                    language,
+                    actorUserId,
+                    fingerprint(
+                        lines.map { "${it.date}|${it.kind}|${it.amount.amount}|${it.amount.currencyCode}|${it.guests}" } +
+                            "issues|${data.openIssues}",
+                    ),
+                ) { printRepository.allocateNumber(DocumentType.SETTLEMENT_STATEMENT, year()) }
             DocumentResult.Ready(stamp, data)
         }
 

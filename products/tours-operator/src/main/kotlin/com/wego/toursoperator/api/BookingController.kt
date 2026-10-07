@@ -219,13 +219,22 @@ class BookingController(
 }
 
 internal fun List<Booking>.toResponses(officeCollectionService: OfficeCollectionService): List<BookingResponse> {
-    val nets =
-        officeCollectionService.netCollected(filter { it.channel == BookingChannel.OFFICE }.map { it.id })
-    return map { it.toResponse(nets[it.id]) }
+    val office = filter { it.channel == BookingChannel.OFFICE }.map { it.id }
+    val nets = officeCollectionService.netCollected(office)
+    val refunded =
+        officeCollectionService.netRefunded(
+            filter {
+                it.channel == BookingChannel.OFFICE && it.status == BookingStatus.CANCELLED
+            }.map { it.id },
+        )
+    return map { it.toResponse(nets[it.id], refunded[it.id]) }
 }
 
-internal fun Booking.toResponse(officeNetCollected: java.math.BigDecimal? = null): BookingResponse {
-    val officePay = officePaymentResponse(officeNetCollected)
+internal fun Booking.toResponse(
+    officeNetCollected: java.math.BigDecimal? = null,
+    officeRefunded: java.math.BigDecimal? = null,
+): BookingResponse {
+    val officePay = officePaymentResponse(officeNetCollected, officeRefunded)
     return BookingResponse(
         id = id.value,
         reference = reference,
@@ -264,20 +273,23 @@ internal fun Booking.toResponse(officeNetCollected: java.math.BigDecimal? = null
     )
 }
 
-internal fun Booking.officePaymentResponse(net: java.math.BigDecimal?): OfficePaymentResponse? {
+internal fun Booking.officePaymentResponse(
+    net: java.math.BigDecimal?,
+    refunded: java.math.BigDecimal? = null,
+): OfficePaymentResponse? {
     if (channel != BookingChannel.OFFICE) return null
     val summary =
         OfficePaymentSummary.fromNet(pricing.totalEur, net ?: java.math.BigDecimal.ZERO)
+    val returned = (refunded ?: java.math.BigDecimal.ZERO).setScale(2)
+    // What a cancelled booking still holds after the refunds recorded so far (OPS2-F).
+    val toReturn = summary.collected.amount.subtract(returned)
     return OfficePaymentResponse(
         state = summary.state,
         collected = MoneyResponse(summary.collected.amount.toPlainString()),
         outstanding = MoneyResponse(summary.outstanding.amount.toPlainString()),
         cashToReturn =
-            if (status == BookingStatus.CANCELLED && summary.collected.amount.signum() > 0) {
-                MoneyResponse(summary.collected.amount.toPlainString())
-            } else {
-                null
-            },
+            if (status == BookingStatus.CANCELLED && toReturn.signum() > 0) MoneyResponse(toReturn.toPlainString()) else null,
+        refunded = MoneyResponse(returned.toPlainString()),
     )
 }
 

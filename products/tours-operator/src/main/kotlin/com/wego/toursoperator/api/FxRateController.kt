@@ -32,7 +32,9 @@ class FxRateController(
     private val clock: Clock,
 ) {
     @GetMapping("/today")
-    @PreAuthorize("hasAnyAuthority('tours-operator.booking:collect-cash', 'tours-operator.fx-rate:manage')")
+    @PreAuthorize(
+        "hasAnyAuthority('tours-operator.booking:collect-cash', 'tours-operator.fx-rate:manage', 'tours-operator.booking:refund-office', 'tours-operator.settlement:pay')",
+    )
     fun today(): FxRateTodayResponse = FxRateTodayResponse(FxRateService.todayInSharm(clock), fxRateService.today()?.toResponse())
 
     @PostMapping
