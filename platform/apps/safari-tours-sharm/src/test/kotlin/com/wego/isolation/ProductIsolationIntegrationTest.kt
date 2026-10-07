@@ -47,6 +47,7 @@ class ProductIsolationIntegrationTest(
                 "29",
                 "30",
                 "31",
+                "32",
             )
 
         postgres.createConnection("").use { connection ->
@@ -107,8 +108,8 @@ class ProductIsolationIntegrationTest(
                 "tours-operator.content:publish",
                 "tours-operator.document:print",
                 "tours-operator.document:print-ops",
-                "tours-operator.fx-rate:manage",
                 "tours-operator.fleet:manage",
+                "tours-operator.fx-rate:manage",
                 "tours-operator.media:upload",
                 "tours-operator.notification:manage",
                 "tours-operator.payment:refund",

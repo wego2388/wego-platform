@@ -4561,6 +4561,27 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   conflict prevention; fill driver/vehicle on the pickup manifest; driver sheet
   and supplier order documents. Costs and settlements stay in OPS2-F.
 
+#### 2026-10-07 — OPS2-E implementation checkpoint
+
+- V32 registries: suppliers (with tours served), drivers (licence expiry),
+  vehicles (works while empty — owner has no vehicle data yet); departure
+  assignments (driver, vehicle, suppliers) with revisions and audit.
+- Conflicts: the same driver or vehicle cannot serve two departures in the
+  same window of a day (concurrency-tested); adjacent windows warn; inactive
+  or expired-licence drivers refused; seat shortfall and suppliers not linked
+  to the tour warn; past departures cannot be changed.
+- Documents (OPS2-D register): pickup manifest shows driver/vehicle; driver
+  sheet (no phone, e-mail or money); supplier order (no customer data, no
+  price). Reprints after an assignment change print REVISED.
+- Permissions supplier:manage, fleet:manage, assignment:manage; ERP EN/AR
+  suppliers, drivers, vehicles pages and an assignment panel on Today.
+- Implementing agent stopped at its weekly model limit; the main session
+  finished the gates: Safari backend 382 tests + application 327, ERP locale
+  fixtures 122/122, web check green. Dependency security bump in the same
+  checkpoint (Vue 3.5.43; overrides for simple-git, shell-quote, seroval,
+  source-map-js, @vue/server-renderer) clears new critical/high advisories.
+- Independent Tier 1 review pending.
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE
