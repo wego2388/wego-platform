@@ -324,6 +324,11 @@ curl -s -o /dev/null -w '%{http_code}\n' -H 'Host: safaritourssharm.com' $H/api/
 
 القائمة الكاملة والأدلة: `VERIFICATION_CHECKLIST.md` §A.
 
+> **تنبيه 7 أكتوبر:** قراءة إعداد الخيمة محليًا تشير إلى أن بوابة 80/443 **حاوية
+> nginx الخاصة بالخيمة** (`resort-os-prod`، `read_only`)، لا nginx على المضيف.
+> لو أكد الـpreflight ذلك فهذا القسم لا ينطبق كما هو: اتبع الخيار (أ) في
+> `../handoff/2026-10-07_CLAUDE_DEPLOY_AGENT_BRIEF_AR.md` §3 بعد GO محمد.
+
 ## 10. البوابة: ACME ثم الشهادة ثم التفعيل (reload مشترك — بعد GO)
 
 نسخة احتياطية من ملفات البوابة (قبل أي ملف جديد):
