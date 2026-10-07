@@ -1454,6 +1454,103 @@ provider constraints are revalidated against the implemented repository.
   a health test with an empty mail host), ERP 74 Vitest. No commit, push or
   deploy.
 
+### 2026-10-06/07 — Phase 3D: 2026-10-02 pivot executed (catalog merge, new brand identity, trip finder, accessibility) — self-verified, Tier 2 except where noted
+
+- **Why:** the owner's 2026-10-02 decision (see that dated handoff doc):
+  replace the catalog with Safari's 27 owner-approved trips merged against
+  the old 37 concepts with no duplication, and give the ERP/site Safari's
+  UX quality with Sharm To Go's own visual identity, including the site
+  acting as a tourist guide, not just a catalog.
+- **Built, each independently verified against a fresh throwaway
+  Postgres+backend stack (never a shared or production environment),
+  commits on `worktree-wego-010a-0r-isolation` / `origin/wego-010a-sharm-to-go`:**
+  - `1330d27` — original EN/AR marketing copy for the remaining 36 of 41
+    merged-catalog trips (5 already done in an earlier commit), preserving
+    every price/duration/inclusion fact verbatim from the approved source.
+  - `0bf860a` — `import_catalog.py`: idempotent importer driving the real
+    staff API (create → submit-for-review → approve) from a generated
+    manifest. Verified live: 41/41 services created with 0 failures,
+    idempotent re-run confirmed, 0 services visible on the public endpoint
+    (publish is deliberately never called — every service still carries
+    placeholder media, which the real `PublishServiceService.media.isEmpty()`
+    check requires before publish; no change made to that check).
+  - `4996648` — ERP brand identity: the ERP still imported the generic
+    shared `@wego/design-tokens` palette, not Sharm To Go's own tokens —
+    this is the concrete, literal cause of the owner's original design
+    complaint. Fixed with Sharm-To-Go-specific `:root` overrides in the
+    ERP's own `main.css`; semantic status colors deliberately left on the
+    platform's already-WCAG-verified values. Verified with a real
+    Playwright screenshot of the logged-in dashboard rendering the real
+    imported catalog.
+  - `21acd38` — ERP "Today" run-sheet page (confirmed pickups for today,
+    time-ordered, plus an unclaimed-NEW-request count). 80/80 ERP vitest.
+  - `f3b3f67` — `booking-preview.vue`/`design-system.vue` now 404 in a real
+    production build (`import.meta.env.PROD`), closing a real public-crawler
+    exposure gap named in the 2026-10-02 handoff. Verified against the
+    actual built-and-served output, not just the dev server.
+  - `db3baa6` — opt-in GPG (AES256) backup encryption
+    (`STG_BACKUP_PASSPHRASE`) for `sharm-to-go-backup.sh`/
+    `-restore-drill.sh`; verified with a real encrypt/decrypt round-trip
+    and a wrong-passphrase rejection test.
+  - `e962dd8` — `/find-my-trip`: one written "is this you?" card per real
+    live category, linking into the existing filtered catalog page — the
+    concrete answer to the owner's "tourist guide" request. Also corrected
+    the homepage's category showcase, which was still written for 4
+    categories against a now-7-category real catalog.
+  - `9148946` — sitemap fix (`find-my-trip`, `track` were missing).
+  - `8535691` — **the significant finding of this round.** A real
+    axe-core (`@axe-core/playwright`) WCAG 2.1 AA suite
+    (`e2e/tests/sharm-to-go-accessibility.spec.ts`), run against all 9
+    public pages × light/dark/Arabic-RTL, found **33 real violations** on
+    its first run, not noise — traced to 5 distinct bug classes (full math
+    in `clients/sharm-to-go/handoff/2026-10-06_ACCESSIBILITY_COLOR_CONTRAST.md`):
+    one color token used for two incompatible roles (dark-mode-brightened
+    text color also backing every solid button's background, 2.11:1 under
+    white button text where 4.5:1 is required); 3 of 4 category accent
+    colors never contrast-checked as text (sun: 1.99:1 against white);
+    sun as a solid background mathematically cannot pass with white text
+    (the design spec already documented this rule; the implementation
+    hadn't followed it); lagoon/sand badge fills paired with the
+    now-mode-reactive sea text color in 9 places, including this same
+    round's own new trip-finder button; `role="tablist"` on a plain filter
+    button group (`aria-required-children`, critical). Fixed in 16 files.
+    Re-verified to **33/33 passing, zero violations**, plus the full
+    Vitest suite (93/93), `nuxt typecheck`, and `eslint` all clean.
+  - Lighthouse (not a commit — a recorded, unactioned finding): 99
+    performance / 100 accessibility / 100 best-practices / 100 SEO on an
+    unthrottled run; 75 performance on Lighthouse's default throttled
+    mobile/slow-4G preset, with LCP at 4.4s against the design spec's own
+    documented <1s target. No root cause isolated yet (no single
+    render-blocking resource or oversized asset found); left as an open,
+    honestly-flagged gap, not treated as fixed.
+- **Review intensity:** Tier 2 throughout — no migration, no new
+  permission, no auth/payment logic touched. The one item this round
+  identified as needing Tier 1 (a sales-pause "kill switch": a new
+  migration plus a new permission check) was deliberately **not built**
+  this round, specifically because it would be Tier 1 and this session had
+  no independent reviewer available to pair with — correctly left for a
+  session that does, not quietly built and merged solo.
+- **Left open, by the owner's own explicit instruction this round:**
+  real photo upload (owner chose not to decide between "paste externally-
+  hosted links now" vs. "build real upload storage, net-new work — Safari
+  Tours Sharm has no working example of this to copy, confirmed by a
+  dedicated research pass" — yet); Russian/Italian UI strings (explicitly
+  deferred — translation-quality risk the owner and this session agreed
+  needs either explicit authorization to ship flagged machine translation
+  or a native-speaker review, not something to proceed on unprompted);
+  the sales kill switch (Tier 1, needs Codex); Lighthouse mobile LCP;
+  Playwright-in-CI wiring for the new accessibility suite (runs for real
+  locally; this repo's existing e2e CI job stands up a different app's
+  compose stack entirely, and wiring Sharm To Go's own stack in needed its
+  own care this round didn't attempt blind without a real CI run to verify
+  against).
+- **Evidence:** see each commit's own message and the 4 handoff docs dated
+  2026-10-06 in `clients/sharm-to-go/handoff/` for full detail per item.
+  No commit, push, merge, deploy, or production/shared-environment action
+  occurred beyond pushing to this packet's own
+  `origin/wego-010a-sharm-to-go` backup branch, consistent with every
+  prior round.
+
 ## WEGO-003 — Reliable integration delivery and replay
 
 - **Status:** NOT AUTHORIZED — roadmap only; WEGO-002 must close first and owner activation is still required.
