@@ -5,6 +5,7 @@ import com.wego.identity.AuthenticatedApiPrefix
 import com.wego.identity.PublicApiPrefix
 import com.wego.toursoperator.application.AssetRepository
 import com.wego.toursoperator.application.AssetStorage
+import com.wego.toursoperator.application.AssignmentService
 import com.wego.toursoperator.application.BookingAuditRecorder
 import com.wego.toursoperator.application.BookingHistoryQuery
 import com.wego.toursoperator.application.BookingMode
@@ -20,6 +21,7 @@ import com.wego.toursoperator.application.CreateSlotService
 import com.wego.toursoperator.application.CreateTourService
 import com.wego.toursoperator.application.DispatchNotificationsService
 import com.wego.toursoperator.application.DocumentPrintRepository
+import com.wego.toursoperator.application.DriverRepository
 import com.wego.toursoperator.application.EmailSender
 import com.wego.toursoperator.application.ExpireBookingService
 import com.wego.toursoperator.application.ExpireOverduePaymentsService
@@ -33,13 +35,8 @@ import com.wego.toursoperator.application.NotificationRepository
 import com.wego.toursoperator.application.NotificationSettings
 import com.wego.toursoperator.application.OfficeCollectionRepository
 import com.wego.toursoperator.application.OfficeCollectionService
-import com.wego.toursoperator.application.AssignmentService
-import com.wego.toursoperator.application.DriverRepository
 import com.wego.toursoperator.application.OfficeDocumentService
 import com.wego.toursoperator.application.OpsRegistryService
-import com.wego.toursoperator.application.SlotAssignmentRepository
-import com.wego.toursoperator.application.SupplierRepository
-import com.wego.toursoperator.application.VehicleRepository
 import com.wego.toursoperator.application.PaymentQueryService
 import com.wego.toursoperator.application.PaymentRepository
 import com.wego.toursoperator.application.PaymobClient
@@ -49,6 +46,8 @@ import com.wego.toursoperator.application.SalesControlRepository
 import com.wego.toursoperator.application.SalesControlService
 import com.wego.toursoperator.application.SetSlotBlockedService
 import com.wego.toursoperator.application.SetTourActiveService
+import com.wego.toursoperator.application.SlotAssignmentRepository
+import com.wego.toursoperator.application.SupplierRepository
 import com.wego.toursoperator.application.TourContentRepository
 import com.wego.toursoperator.application.TourContentService
 import com.wego.toursoperator.application.TourQueryService
@@ -57,6 +56,7 @@ import com.wego.toursoperator.application.TourSlotQueryService
 import com.wego.toursoperator.application.TourSlotRepository
 import com.wego.toursoperator.application.TransactionRunner
 import com.wego.toursoperator.application.UpdateTourService
+import com.wego.toursoperator.application.VehicleRepository
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -306,7 +306,8 @@ class ToursOperatorBeanConfiguration {
         @Qualifier("stoSlotAssignmentRepositoryImpl") assignments: SlotAssignmentRepository,
         transactionRunner: TransactionRunner,
         clock: Clock,
-    ): AssignmentService = AssignmentService(slotRepository, tourRepository, drivers, vehicles, suppliers, assignments, transactionRunner, clock)
+    ): AssignmentService =
+        AssignmentService(slotRepository, tourRepository, drivers, vehicles, suppliers, assignments, transactionRunner, clock)
 
     @Bean("stoFxRateService")
     fun fxRateService(

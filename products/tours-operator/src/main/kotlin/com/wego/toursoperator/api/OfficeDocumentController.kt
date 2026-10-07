@@ -121,7 +121,8 @@ class OfficeDocumentController(
         @PathVariable supplierId: UUID,
         @Valid @RequestBody request: PrintDocumentRequest,
         authentication: Authentication,
-    ): ResponseEntity<Any> = respond(documents.supplierOrder(TourSlotId(slotId), supplierId, language(request.language), actor(authentication)))
+    ): ResponseEntity<Any> =
+        respond(documents.supplierOrder(TourSlotId(slotId), supplierId, language(request.language), actor(authentication)))
 
     private fun actor(authentication: Authentication): UUID = (authentication.principal as AuthenticatedUser).userId
 

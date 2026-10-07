@@ -108,9 +108,14 @@ class ToursOperatorOpsRegistryHttpTest {
     }
 
     private fun tokenWith(vararg permissions: String): String {
-        val roleCode = "ops-test-" + permissions.joinToString("-") { it.substringAfter("tours-operator.").replace(':', '-').replace('.', '-') }
+        val roleCode =
+            "ops-test-" + permissions.joinToString("-") { it.substringAfter("tours-operator.").replace(':', '-').replace('.', '-') }
         if (dsl.fetchOne(IDENTITY_ROLE, IDENTITY_ROLE.CODE.eq(roleCode)) == null) {
-            dsl.insertInto(IDENTITY_ROLE).set(IDENTITY_ROLE.CODE, roleCode).set(IDENTITY_ROLE.DESCRIPTION, "Test role").execute()
+            dsl
+                .insertInto(IDENTITY_ROLE)
+                .set(IDENTITY_ROLE.CODE, roleCode)
+                .set(IDENTITY_ROLE.DESCRIPTION, "Test role")
+                .execute()
             for (permission in permissions) {
                 dsl
                     .insertInto(IDENTITY_ROLE_PERMISSION)
@@ -161,7 +166,11 @@ class ToursOperatorOpsRegistryHttpTest {
     private fun newSupplier(
         tourIds: List<UUID> = emptyList(),
         name: String = "Supplier ${unique()}",
-    ): String = call("POST", "$staff/suppliers", body = supplierBody(tourIds = tourIds, name = name)).also { assertThat(it.status).isEqualTo(201) }.read("$.id")
+    ): String =
+        call("POST", "$staff/suppliers", body = supplierBody(tourIds = tourIds, name = name))
+            .also {
+                assertThat(it.status).isEqualTo(201)
+            }.read("$.id")
 
     private fun driverBody(
         name: String = "Driver ${unique()}",
@@ -177,7 +186,11 @@ class ToursOperatorOpsRegistryHttpTest {
     private fun newDriver(
         licence: LocalDate = LocalDate.of(2035, 12, 31),
         name: String = "Driver ${unique()}",
-    ): String = call("POST", "$staff/drivers", body = driverBody(name = name, licence = licence)).also { assertThat(it.status).isEqualTo(201) }.read("$.id")
+    ): String =
+        call("POST", "$staff/drivers", body = driverBody(name = name, licence = licence))
+            .also {
+                assertThat(it.status).isEqualTo(201)
+            }.read("$.id")
 
     private fun vehicleBody(
         label: String? = "Van ${unique()}",
@@ -205,7 +218,11 @@ class ToursOperatorOpsRegistryHttpTest {
     private fun newVehicle(
         seats: Int = 14,
         label: String? = "Van ${unique()}",
-    ): String = call("POST", "$staff/vehicles", body = vehicleBody(label = label, seats = seats)).also { assertThat(it.status).isEqualTo(201) }.read("$.id")
+    ): String =
+        call("POST", "$staff/vehicles", body = vehicleBody(label = label, seats = seats))
+            .also {
+                assertThat(it.status).isEqualTo(201)
+            }.read("$.id")
 
     private fun seedTour(): UUID {
         val tourId = UUID.randomUUID()
@@ -313,7 +330,14 @@ class ToursOperatorOpsRegistryHttpTest {
         val viewOnly = tokenWith("tours-operator.booking:view")
         val (_, slotId) = seedSlot(day())
 
-        for (path in listOf("suppliers", "drivers", "vehicles", "assignments?date=2031-01-01", "assignment-options?date=2031-01-01", "slots/$slotId/assignment")) {
+        for (path in listOf(
+            "suppliers",
+            "drivers",
+            "vehicles",
+            "assignments?date=2031-01-01",
+            "assignment-options?date=2031-01-01",
+            "slots/$slotId/assignment",
+        )) {
             assertThat(call("GET", "$staff/$path", token = null).status).isEqualTo(401)
             assertThat(call("GET", "$staff/$path", token = viewOnly).status).isEqualTo(403)
         }
@@ -349,15 +373,28 @@ class ToursOperatorOpsRegistryHttpTest {
         assertThat(suppliersReply.body).contains("+201015048400")
         assertThat(suppliersReply.cacheControl).contains("no-store")
 
-        for (path in listOf("slots/$slotId/assignment", "assignment-options?date=2031-01-01", "assignments?date=${dayOf(slotId)}", "slots/$slotId/assignment/history")) {
+        for (path in listOf(
+            "slots/$slotId/assignment",
+            "assignment-options?date=2031-01-01",
+            "assignments?date=${dayOf(slotId)}",
+            "slots/$slotId/assignment/history",
+        )) {
             val reply = call("GET", "$staff/$path", assignmentOnly)
             assertThat(reply.status).isEqualTo(200)
-            assertThat(reply.body).doesNotContain("1028215951").doesNotContain("1015048400").doesNotContain("Phone").doesNotContain("workPhone").doesNotContain("businessPhone")
+            assertThat(
+                reply.body,
+            ).doesNotContain(
+                "1028215951",
+            ).doesNotContain("1015048400")
+                .doesNotContain("Phone")
+                .doesNotContain("workPhone")
+                .doesNotContain("businessPhone")
             assertThat(reply.cacheControl).contains("no-store")
         }
     }
 
-    private fun dayOf(slotId: UUID): LocalDate = dsl.fetchOne("SELECT date FROM wego.tours_operator_tour_slot WHERE id = ?", slotId)!!.get(0, LocalDate::class.java)
+    private fun dayOf(slotId: UUID): LocalDate =
+        dsl.fetchOne("SELECT date FROM wego.tours_operator_tour_slot WHERE id = ?", slotId)!!.get(0, LocalDate::class.java)
 
     // ── supplier registry ────────────────────────────────────────────────────
 
@@ -376,25 +413,33 @@ class ToursOperatorOpsRegistryHttpTest {
         assertThat(duplicate.read<String>("$.error")).isEqualTo("supplier_code_taken")
 
         val minimal =
-            call("POST", "$staff/suppliers", body = """{"code":"MIN${unique().uppercase().take(4)}","name":"Only the basics","serviceType":"BOAT"}""")
+            call(
+                "POST",
+                "$staff/suppliers",
+                body = """{"code":"MIN${unique().uppercase().take(4)}","name":"Only the basics","serviceType":"BOAT"}""",
+            )
         assertThat(minimal.status).describedAs(minimal.body).isEqualTo(201)
         assertThat(minimal.read<Any?>("$.businessPhone")).isNull()
         assertThat(minimal.read<Any?>("$.noticeHours")).isNull()
 
-        for (bad in
-            listOf(
-                supplierBody(code = "1BAD"),
-                supplierBody(code = "A"),
-                supplierBody(name = " "),
-                supplierBody(extra = ""","noticeHoursX":1"""),
-                supplierBody().replace("\"WHATSAPP\"", "\"SMOKE_SIGNAL\""),
-                supplierBody().replace("+201015048400", "call me"),
-                supplierBody().replace("\"noticeHours\":24", "\"noticeHours\":9999"),
-                supplierBody().replace("\"EGP\"", "\"USD\""),
-            )) {
+        for (
+        bad in
+        listOf(
+            supplierBody(code = "1BAD"),
+            supplierBody(code = "A"),
+            supplierBody(name = " "),
+            supplierBody(extra = ""","noticeHoursX":1"""),
+            supplierBody().replace("\"WHATSAPP\"", "\"SMOKE_SIGNAL\""),
+            supplierBody().replace("+201015048400", "call me"),
+            supplierBody().replace("\"noticeHours\":24", "\"noticeHours\":9999"),
+            supplierBody().replace("\"EGP\"", "\"USD\""),
+        )
+        ) {
             assertThat(call("POST", "$staff/suppliers", body = bad).status).describedAs(bad).isEqualTo(400)
         }
-        assertThat(call("POST", "$staff/suppliers", body = supplierBody(tourIds = listOf(UUID.randomUUID()))).read<String>("$.error")).isEqualTo("tour_not_found")
+        assertThat(
+            call("POST", "$staff/suppliers", body = supplierBody(tourIds = listOf(UUID.randomUUID()))).read<String>("$.error"),
+        ).isEqualTo("tour_not_found")
     }
 
     @Test
@@ -417,7 +462,8 @@ class ToursOperatorOpsRegistryHttpTest {
         assertThat(stale.read<String>("$.error")).isEqualTo("revision_conflict")
         assertThat(stale.read<Int>("$.currentRevision")).isEqualTo(2)
 
-        val off = call("PUT", "$staff/suppliers/$id", body = supplierBody(code = code, tourIds = listOf(tourB), revision = 2, active = false))
+        val off =
+            call("PUT", "$staff/suppliers/$id", body = supplierBody(code = code, tourIds = listOf(tourB), revision = 2, active = false))
         assertThat(off.read<Boolean>("$.active")).isFalse()
         assertThat(call("GET", "$staff/suppliers?active=true").read<List<String>>("$[*].id")).doesNotContain(id)
         assertThat(call("GET", "$staff/suppliers?active=false").read<List<String>>("$[*].id")).contains(id)
@@ -427,7 +473,9 @@ class ToursOperatorOpsRegistryHttpTest {
         assertThat(call("PUT", "$staff/suppliers/${UUID.randomUUID()}", body = supplierBody(revision = 1)).status).isEqualTo(404)
         // changing the code to another supplier's code is refused
         val other = call("POST", "$staff/suppliers", body = supplierBody()).read<String>("$.code")
-        assertThat(call("PUT", "$staff/suppliers/$id", body = supplierBody(code = other, revision = 3, active = false)).read<String>("$.error")).isEqualTo("supplier_code_taken")
+        assertThat(
+            call("PUT", "$staff/suppliers/$id", body = supplierBody(code = other, revision = 3, active = false)).read<String>("$.error"),
+        ).isEqualTo("supplier_code_taken")
     }
 
     // ── drivers and vehicles ─────────────────────────────────────────────────
@@ -439,20 +487,25 @@ class ToursOperatorOpsRegistryHttpTest {
         val id = created.read<String>("$.id")
         assertThat(created.read<String>("$.licenceValidUntil")).isEqualTo("2027-12-31")
 
-        for (bad in
-            listOf(
-                driverBody(name = ""),
-                driverBody(phone = "abc"),
-                driverBody().replace("PER_TRIP", "WHENEVER"),
-                """{"name":"No licence","engagementType":"PER_TRIP"}""",
-                driverBody().replace("2035-12-31", "31/12/2035"),
-            )) {
+        for (
+        bad in
+        listOf(
+            driverBody(name = ""),
+            driverBody(phone = "abc"),
+            driverBody().replace("PER_TRIP", "WHENEVER"),
+            """{"name":"No licence","engagementType":"PER_TRIP"}""",
+            driverBody().replace("2035-12-31", "31/12/2035"),
+        )
+        ) {
             assertThat(call("POST", "$staff/drivers", body = bad).status).describedAs(bad).isEqualTo(400)
         }
-        val noPhone = call("POST", "$staff/drivers", body = """{"name":"No phone","engagementType":"OTHER","licenceValidUntil":"2030-01-01"}""")
+        val noPhone =
+            call("POST", "$staff/drivers", body = """{"name":"No phone","engagementType":"OTHER","licenceValidUntil":"2030-01-01"}""")
         assertThat(noPhone.status).describedAs(noPhone.body).isEqualTo(201)
 
-        assertThat(call("PUT", "$staff/drivers/$id", body = driverBody(revision = 1, active = false, name = "Amr")).read<Int>("$.revision")).isEqualTo(2)
+        assertThat(
+            call("PUT", "$staff/drivers/$id", body = driverBody(revision = 1, active = false, name = "Amr")).read<Int>("$.revision"),
+        ).isEqualTo(2)
         assertThat(call("PUT", "$staff/drivers/$id", body = driverBody(revision = 1, name = "Amr")).status).isEqualTo(409)
         assertThat(call("GET", "$staff/drivers?active=false").read<List<String>>("$[*].id")).contains(id)
         assertThat(call("GET", "$staff/drivers?active=true").read<List<String>>("$[*].id")).doesNotContain(id)
@@ -473,27 +526,43 @@ class ToursOperatorOpsRegistryHttpTest {
         val created = call("POST", "$staff/vehicles", body = vehicleBody(label = null, plate = plate, seats = 7))
         assertThat(created.status).isEqualTo(201)
         assertThat(created.read<String>("$.display")).isEqualTo(plate)
-        assertThat(call("POST", "$staff/vehicles", body = vehicleBody(label = "other", plate = plate.lowercase())).read<String>("$.error")).isEqualTo("vehicle_plate_taken")
+        assertThat(
+            call("POST", "$staff/vehicles", body = vehicleBody(label = "other", plate = plate.lowercase())).read<String>("$.error"),
+        ).isEqualTo("vehicle_plate_taken")
 
-        for (bad in
-            listOf(
-                vehicleBody(label = null, plate = null),
-                vehicleBody(seats = 0),
-                vehicleBody(seats = 81),
-                vehicleBody(ownership = "STOLEN"),
-                vehicleBody(label = " "),
-            )) {
+        for (
+        bad in
+        listOf(
+            vehicleBody(label = null, plate = null),
+            vehicleBody(seats = 0),
+            vehicleBody(seats = 81),
+            vehicleBody(ownership = "STOLEN"),
+            vehicleBody(label = " "),
+        )
+        ) {
             assertThat(call("POST", "$staff/vehicles", body = bad).status).describedAs(bad).isEqualTo(400)
         }
         // only a hired vehicle has a lender; the lender must exist
         assertThat(call("POST", "$staff/vehicles", body = vehicleBody(ownership = "OWNED", lender = newSupplier())).status).isEqualTo(400)
-        assertThat(call("POST", "$staff/vehicles", body = vehicleBody(ownership = "HIRED", lender = UUID.randomUUID().toString())).read<String>("$.error")).isEqualTo("supplier_not_found")
+        assertThat(
+            call(
+                "POST",
+                "$staff/vehicles",
+                body = vehicleBody(ownership = "HIRED", lender = UUID.randomUUID().toString()),
+            ).read<String>("$.error"),
+        ).isEqualTo("supplier_not_found")
         val lender = newSupplier()
         val hired = call("POST", "$staff/vehicles", body = vehicleBody(ownership = "HIRED", lender = lender))
         assertThat(hired.status).isEqualTo(201)
         assertThat(hired.read<String>("$.hiredFromSupplierId")).isEqualTo(lender)
         val id = created.read<String>("$.id")
-        assertThat(call("PUT", "$staff/vehicles/$id", body = vehicleBody(label = null, plate = plate, seats = 9, revision = 1)).read<Int>("$.seats")).isEqualTo(9)
+        assertThat(
+            call(
+                "PUT",
+                "$staff/vehicles/$id",
+                body = vehicleBody(label = null, plate = plate, seats = 9, revision = 1),
+            ).read<Int>("$.seats"),
+        ).isEqualTo(9)
         assertThat(call("PUT", "$staff/vehicles/$id", body = vehicleBody(label = null, plate = plate, revision = 1)).status).isEqualTo(409)
     }
 
@@ -549,8 +618,12 @@ class ToursOperatorOpsRegistryHttpTest {
         assertThat(call("GET", "$staff/slots/${UUID.randomUUID()}/assignment/history").status).isEqualTo(404)
 
         // the audit trail is append-only
-        assertThatThrownBy { dsl.execute("UPDATE wego.tours_operator_assignment_audit SET revision = 99 WHERE slot_id = ?", slotId) }.hasMessageContaining("append-only")
-        assertThatThrownBy { dsl.execute("DELETE FROM wego.tours_operator_assignment_audit WHERE slot_id = ?", slotId) }.hasMessageContaining("append-only")
+        assertThatThrownBy {
+            dsl.execute("UPDATE wego.tours_operator_assignment_audit SET revision = 99 WHERE slot_id = ?", slotId)
+        }.hasMessageContaining("append-only")
+        assertThatThrownBy {
+            dsl.execute("DELETE FROM wego.tours_operator_assignment_audit WHERE slot_id = ?", slotId)
+        }.hasMessageContaining("append-only")
         assertThatThrownBy { dsl.execute("TRUNCATE wego.tours_operator_assignment_audit") }.hasMessageContaining("append-only")
     }
 
@@ -639,7 +712,9 @@ class ToursOperatorOpsRegistryHttpTest {
         // all six want the same driver in the same window: one 200, five 409; the vehicle never doubles up either
         assertThat(statuses.count { it == 200 }).isEqualTo(1)
         assertThat(statuses.count { it == 409 }).isEqualTo(5)
-        assertThat(dsl.fetchValue("SELECT count(*) FROM wego.tours_operator_slot_assignment WHERE driver_id = ?::uuid", driver)).isEqualTo(1L)
+        assertThat(
+            dsl.fetchValue("SELECT count(*) FROM wego.tours_operator_slot_assignment WHERE driver_id = ?::uuid", driver),
+        ).isEqualTo(1L)
     }
 
     @Test
@@ -697,7 +772,11 @@ class ToursOperatorOpsRegistryHttpTest {
         call("PUT", "$staff/vehicles/$vehicle", body = vehicleBody(label = "Retired", revision = 1, active = false))
         assertThat(assign(other, vehicle = vehicle).read<String>("$.error")).isEqualTo("vehicle_inactive")
         val supplier = newSupplier()
-        call("PUT", "$staff/suppliers/$supplier", body = supplierBody(code = call("GET", "$staff/suppliers/$supplier").read("$.code"), revision = 1, active = false))
+        call(
+            "PUT",
+            "$staff/suppliers/$supplier",
+            body = supplierBody(code = call("GET", "$staff/suppliers/$supplier").read("$.code"), revision = 1, active = false),
+        )
         assertThat(assign(other, suppliers = listOf(supplier)).read<String>("$.error")).isEqualTo("supplier_inactive")
     }
 
@@ -710,6 +789,7 @@ class ToursOperatorOpsRegistryHttpTest {
         call("PUT", "$staff/drivers/$driver", body = driverBody(revision = 1, active = false, licence = date.minusDays(3)))
         val flagged = call("GET", "$staff/assignments?date=$date")
         val row = JsonPath.read<List<Map<String, Any>>>(flagged.body, "$[?(@.slotId=='$slot')]").single()
+
         @Suppress("UNCHECKED_CAST")
         val codes = (row["issues"] as List<Map<String, Any>>).map { it["code"] }
         assertThat(codes).contains("driver_inactive", "driver_licence_expired")
@@ -789,14 +869,34 @@ class ToursOperatorOpsRegistryHttpTest {
     @Test
     fun `the driver sheet needs a driver, lists parties by hotel and carries no phone, e-mail or money`() {
         val (_, slot) = seedSlot(day())
-        bookOffice(slot, name = "Ahmed Hassan", hotel = "Hilton Sharm Dreams", room = "312", phone = "+201234567890", requests = "Child seat please")
-        bookOffice(slot, name = "Maria Rossi", hotel = "Hilton Sharm Dreams", room = "101", phone = "+393331234567", adults = 1, children = 0)
+        bookOffice(
+            slot,
+            name = "Ahmed Hassan",
+            hotel = "Hilton Sharm Dreams",
+            room = "312",
+            phone = "+201234567890",
+            requests = "Child seat please",
+        )
+        bookOffice(
+            slot,
+            name = "Maria Rossi",
+            hotel = "Hilton Sharm Dreams",
+            room = "101",
+            phone = "+393331234567",
+            adults = 1,
+            children = 0,
+        )
         bookOffice(slot, name = "John Smith", hotel = "Domina Coral Bay", room = "7", phone = "+447700900123", adults = 3, children = 0)
 
         val noDriver = print("slots/$slot/driver-sheet")
         assertThat(noDriver.status).isEqualTo(409)
         assertThat(noDriver.read<String>("$.error")).isEqualTo("no_driver_assigned")
-        assertThat(dsl.fetchValue("SELECT count(*) FROM wego.tours_operator_document_print WHERE document_type = 'DRIVER_SHEET' AND subject_key = ?", slot.toString())).isEqualTo(0L)
+        assertThat(
+            dsl.fetchValue(
+                "SELECT count(*) FROM wego.tours_operator_document_print WHERE document_type = 'DRIVER_SHEET' AND subject_key = ?",
+                slot.toString(),
+            ),
+        ).isEqualTo(0L)
 
         assertThat(assign(slot, driver = newDriver(name = "Captain Amr")).status).isEqualTo(200)
         val sheet = print("slots/$slot/driver-sheet")
@@ -812,9 +912,18 @@ class ToursOperatorOpsRegistryHttpTest {
         assertThat(sheet.read<List<String>>("$.data.stops[1].parties[*].leadName")).containsExactly("Maria Rossi", "Ahmed Hassan")
         assertThat(sheet.read<List<String>>("$.data.stops[1].parties[*].hotelRoom")).containsExactly("101", "312")
         assertThat(sheet.body)
-            .doesNotContain("234567890").doesNotContain("3331234567").doesNotContain("7700900123").doesNotContain("guest-secret")
-            .doesNotContain("phone").doesNotContain("Phone").doesNotContain("price").doesNotContain("Price")
-            .doesNotContain("amount").doesNotContain("payment").doesNotContain("totalPrice").doesNotContain("Child seat")
+            .doesNotContain("234567890")
+            .doesNotContain("3331234567")
+            .doesNotContain("7700900123")
+            .doesNotContain("guest-secret")
+            .doesNotContain("phone")
+            .doesNotContain("Phone")
+            .doesNotContain("price")
+            .doesNotContain("Price")
+            .doesNotContain("amount")
+            .doesNotContain("payment")
+            .doesNotContain("totalPrice")
+            .doesNotContain("Child seat")
 
         // reprints: unchanged -> COPY, changed -> REVISED; number is kept
         val copy = print("slots/$slot/driver-sheet", language = "ar")
@@ -825,7 +934,10 @@ class ToursOperatorOpsRegistryHttpTest {
         assertThat(revised.read<Boolean>("$.document.revised")).isTrue()
         assertThat(revised.read<Int>("$.data.totalGuests")).isEqualTo(8)
         assertThat(
-            dsl.fetchValue("SELECT count(*) FROM wego.tours_operator_document_print WHERE document_type = 'DRIVER_SHEET' AND subject_key = ?", slot.toString()),
+            dsl.fetchValue(
+                "SELECT count(*) FROM wego.tours_operator_document_print WHERE document_type = 'DRIVER_SHEET' AND subject_key = ?",
+                slot.toString(),
+            ),
         ).isEqualTo(3L)
     }
 
@@ -873,10 +985,23 @@ class ToursOperatorOpsRegistryHttpTest {
         assertThat(order.read<Int>("$.data.children")).isEqualTo(1)
         assertThat(order.read<List<String>>("$.data.specialRequests")).containsExactly("Vegetarian lunch")
         assertThat(order.body)
-            .doesNotContain("Ahmed").doesNotContain("Hassan").doesNotContain("Maria").doesNotContain("234567890").doesNotContain("3331234567")
-            .doesNotContain("guest-secret").doesNotContain("businessPhone").doesNotContain("1015048400")
-            .doesNotContain("price").doesNotContain("Price").doesNotContain("amount").doesNotContain("currency").doesNotContain("settlement")
-            .doesNotContain("cancellationTerms").doesNotContain("hotel")
+            .doesNotContain(
+                "Ahmed",
+            ).doesNotContain("Hassan")
+            .doesNotContain("Maria")
+            .doesNotContain("234567890")
+            .doesNotContain("3331234567")
+            .doesNotContain("guest-secret")
+            .doesNotContain("businessPhone")
+            .doesNotContain("1015048400")
+            .doesNotContain(
+                "price",
+            ).doesNotContain("Price")
+            .doesNotContain("amount")
+            .doesNotContain("currency")
+            .doesNotContain("settlement")
+            .doesNotContain("cancellationTerms")
+            .doesNotContain("hotel")
 
         val copy = print("slots/$slot/suppliers/$supplier/supplier-order")
         assertThat(copy.read<Boolean>("$.document.copy")).isTrue()
@@ -884,7 +1009,14 @@ class ToursOperatorOpsRegistryHttpTest {
         val revised = print("slots/$slot/suppliers/$supplier/supplier-order", language = "ar")
         assertThat(revised.read<Boolean>("$.document.revised")).isTrue()
         assertThat(revised.read<Int>("$.data.totalGuests")).isEqualTo(5)
-        val rows = dsl.selectFrom(TOURS_OPERATOR_DOCUMENT_PRINT).where(TOURS_OPERATOR_DOCUMENT_PRINT.DOCUMENT_TYPE.eq("SUPPLIER_ORDER")).and(TOURS_OPERATOR_DOCUMENT_PRINT.SUBJECT_KEY.eq("$slot:$supplier")).fetch()
+        val rows =
+            dsl
+                .selectFrom(
+                    TOURS_OPERATOR_DOCUMENT_PRINT,
+                ).where(
+                    TOURS_OPERATOR_DOCUMENT_PRINT.DOCUMENT_TYPE.eq("SUPPLIER_ORDER"),
+                ).and(TOURS_OPERATOR_DOCUMENT_PRINT.SUBJECT_KEY.eq("$slot:$supplier"))
+                .fetch()
         assertThat(rows).hasSize(3)
         assertThat(rows.map { it.get(TOURS_OPERATOR_DOCUMENT_PRINT.CONTENT_FINGERPRINT) }.first()).matches("[0-9a-f]{64}")
     }
@@ -898,14 +1030,21 @@ class ToursOperatorOpsRegistryHttpTest {
         val opsOnly = tokenWith("tours-operator.document:print-ops")
         val printOnly = tokenWith("tours-operator.document:print")
         val assignmentOnly = tokenWith("tours-operator.assignment:manage")
-        for (token in listOf(printOnly, assignmentOnly, tokenWith("tours-operator.supplier:manage"), tokenWith("tours-operator.fleet:manage"))) {
+        for (token in listOf(
+            printOnly,
+            assignmentOnly,
+            tokenWith("tours-operator.supplier:manage"),
+            tokenWith("tours-operator.fleet:manage"),
+        )) {
             assertThat(print("slots/$slot/driver-sheet", token).status).isEqualTo(403)
             assertThat(print("slots/$slot/suppliers/$supplier/supplier-order", token).status).isEqualTo(403)
         }
         assertThat(print("slots/$slot/driver-sheet", null).status).isEqualTo(401)
         assertThat(print("slots/$slot/driver-sheet", opsOnly).status).isEqualTo(200)
         assertThat(print("slots/$slot/suppliers/$supplier/supplier-order", opsOnly).status).isEqualTo(200)
-        assertThat(call("POST", "/api/v1/tours-operator/documents/slots/$slot/driver-sheet", admin(), """{"language":"fr"}""").status).isEqualTo(400)
+        assertThat(
+            call("POST", "/api/v1/tours-operator/documents/slots/$slot/driver-sheet", admin(), """{"language":"fr"}""").status,
+        ).isEqualTo(400)
         assertThat(print("slots/${UUID.randomUUID()}/driver-sheet").status).isEqualTo(404)
     }
 

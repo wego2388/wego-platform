@@ -28,8 +28,8 @@ export function docTourName(doc: { tourNameEn: string; tourNameAr: string | null
   return lang === "ar" && doc.tourNameAr ? doc.tourNameAr : doc.tourNameEn;
 }
 
-export type DocumentKind = "voucher" | "receipt" | "cancellation" | "run-sheet" | "pickup";
-export const DOCUMENT_KINDS: readonly DocumentKind[] = ["voucher", "receipt", "cancellation", "run-sheet", "pickup"];
+export type DocumentKind = "voucher" | "receipt" | "cancellation" | "run-sheet" | "pickup" | "driver-sheet" | "supplier-order";
+export const DOCUMENT_KINDS: readonly DocumentKind[] = ["voucher", "receipt", "cancellation", "run-sheet", "pickup", "driver-sheet", "supplier-order"];
 
 export const DOCUMENT_PERMISSION: Record<DocumentKind, string> = {
   voucher: "tours-operator.document:print",
@@ -37,6 +37,8 @@ export const DOCUMENT_PERMISSION: Record<DocumentKind, string> = {
   cancellation: "tours-operator.document:print",
   "run-sheet": "tours-operator.document:print-ops",
   pickup: "tours-operator.document:print-ops",
+  "driver-sheet": "tours-operator.document:print-ops",
+  "supplier-order": "tours-operator.document:print-ops",
 };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -44,7 +46,10 @@ const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 
 /** A document link carries only an internal id (or a date for the run sheet), never customer data. */
 export function isValidSubject(kind: DocumentKind, id: string): boolean {
-  return kind === "run-sheet" ? ISO_DAY.test(id) : UUID.test(id);
+  if (kind === "run-sheet") return ISO_DAY.test(id);
+  // A supplier order is "<slot id>_<supplier id>".
+  if (kind === "supplier-order") return id.split("_").length === 2 && id.split("_").every((part) => UUID.test(part));
+  return UUID.test(id);
 }
 
 export function documentPath(kind: DocumentKind, id: string): string {

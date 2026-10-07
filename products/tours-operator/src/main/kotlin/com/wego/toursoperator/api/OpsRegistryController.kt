@@ -44,14 +44,19 @@ private fun <T> registryResponse(
                 .cacheControl(CacheControl.noStore())
                 .body(map(result.value))
         RegistryResult.NotFound -> ResponseEntity.notFound().build()
-        is RegistryResult.RevisionConflict -> ResponseEntity.status(HttpStatus.CONFLICT).body(RevisionConflictBody(currentRevision = result.currentRevision))
+        is RegistryResult.RevisionConflict ->
+            ResponseEntity
+                .status(
+                    HttpStatus.CONFLICT,
+                ).body(RevisionConflictBody(currentRevision = result.currentRevision))
         is RegistryResult.Refused ->
             ResponseEntity
                 .status(if (result.code.endsWith("_taken")) HttpStatus.CONFLICT else HttpStatus.UNPROCESSABLE_ENTITY)
                 .body(ErrorResponse(result.code))
     }
 
-private fun missingRevision(): ResponseEntity<Any> = ResponseEntity.badRequest().body(ValidationErrorResponse(message = "expectedRevision: required when updating"))
+private fun missingRevision(): ResponseEntity<Any> =
+    ResponseEntity.badRequest().body(ValidationErrorResponse(message = "expectedRevision: required when updating"))
 
 /**
  * WEGO-016-OPS2-E supplier registry. Phones are visible only with
@@ -195,7 +200,9 @@ class AssignmentController(
     @PreAuthorize("hasAuthority('tours-operator.assignment:manage')")
     fun history(
         @PathVariable slotId: UUID,
-    ): ResponseEntity<Any> = assignments.history(TourSlotId(slotId))?.let { entries -> noStore(entries.map { it.toResponse() }) } ?: ResponseEntity.notFound().build()
+    ): ResponseEntity<Any> =
+        assignments.history(TourSlotId(slotId))?.let { entries -> noStore(entries.map { it.toResponse() }) }
+            ?: ResponseEntity.notFound().build()
 
     @PutMapping("/slots/{slotId}/assignment")
     @PreAuthorize("hasAuthority('tours-operator.assignment:manage')")
@@ -206,7 +213,14 @@ class AssignmentController(
     ): ResponseEntity<Any> =
         respond(
             assignments.assign(
-                AssignCommand(TourSlotId(slotId), request.driverId, request.vehicleId, request.supplierIds, request.expectedRevision, actor(authentication)),
+                AssignCommand(
+                    TourSlotId(slotId),
+                    request.driverId,
+                    request.vehicleId,
+                    request.supplierIds.orEmpty(),
+                    request.expectedRevision,
+                    actor(authentication),
+                ),
             ),
         )
 
@@ -222,10 +236,20 @@ class AssignmentController(
         when (result) {
             is AssignResult.Saved -> noStore(result.view.toResponse())
             AssignResult.NotFound -> ResponseEntity.notFound().build()
-            is AssignResult.RevisionConflict -> ResponseEntity.status(HttpStatus.CONFLICT).body(RevisionConflictBody(currentRevision = result.currentRevision))
+            is AssignResult.RevisionConflict ->
+                ResponseEntity
+                    .status(
+                        HttpStatus.CONFLICT,
+                    ).body(RevisionConflictBody(currentRevision = result.currentRevision))
             is AssignResult.Conflict ->
-                ResponseEntity.status(HttpStatus.CONFLICT).body(AssignmentConflictBody("assignment_conflict", result.conflicts.map { it.toResponse() }))
+                ResponseEntity
+                    .status(
+                        HttpStatus.CONFLICT,
+                    ).body(AssignmentConflictBody("assignment_conflict", result.conflicts.map { it.toResponse() }))
             is AssignResult.Refused ->
-                ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(AssignmentRefusalBody(result.code, result.issues.map { it.toResponse() }))
+                ResponseEntity
+                    .status(
+                        HttpStatus.UNPROCESSABLE_ENTITY,
+                    ).body(AssignmentRefusalBody(result.code, result.issues.map { it.toResponse() }))
         }
 }

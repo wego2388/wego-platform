@@ -58,14 +58,22 @@ class JooqSupplierRepository(
     override fun findById(id: UUID): Supplier? = findByIds(listOf(id)).firstOrNull()
 
     @Transactional(readOnly = true)
-    override fun findByIds(ids: Collection<UUID>): List<Supplier> =
-        if (ids.isEmpty()) emptyList() else load(t.ID.`in`(ids))
+    override fun findByIds(ids: Collection<UUID>): List<Supplier> = if (ids.isEmpty()) emptyList() else load(t.ID.`in`(ids))
 
     @Transactional(readOnly = true)
-    override fun findAll(active: Boolean?): List<Supplier> = load(active?.let { t.ACTIVE.eq(it) } ?: org.jooq.impl.DSL.noCondition())
+    override fun findAll(active: Boolean?): List<Supplier> =
+        load(
+            active?.let { t.ACTIVE.eq(it) } ?: org.jooq.impl.DSL
+                .noCondition(),
+        )
 
     private fun load(condition: org.jooq.Condition): List<Supplier> {
-        val records = dsl.selectFrom(t).where(condition).orderBy(t.CODE.asc()).fetch()
+        val records =
+            dsl
+                .selectFrom(t)
+                .where(condition)
+                .orderBy(t.CODE.asc())
+                .fetch()
         if (records.isEmpty()) return emptyList()
         val tours =
             dsl
@@ -83,7 +91,10 @@ class JooqSupplierRepository(
         exceptId: UUID?,
     ): Boolean =
         dsl.fetchExists(
-            dsl.selectFrom(t).where(t.CODE.eq(code)).and(exceptId?.let { t.ID.ne(it) } ?: org.jooq.impl.DSL.noCondition()),
+            dsl.selectFrom(t).where(t.CODE.eq(code)).and(
+                exceptId?.let { t.ID.ne(it) } ?: org.jooq.impl.DSL
+                    .noCondition(),
+            ),
         )
 
     @Transactional
@@ -148,7 +159,11 @@ class JooqSupplierRepository(
     private fun replaceTours(supplier: Supplier) {
         dsl.deleteFrom(link).where(link.SUPPLIER_ID.eq(supplier.id)).execute()
         for (tourId in supplier.tourIds) {
-            dsl.insertInto(link).set(link.SUPPLIER_ID, supplier.id).set(link.TOUR_ID, tourId).execute()
+            dsl
+                .insertInto(link)
+                .set(link.SUPPLIER_ID, supplier.id)
+                .set(link.TOUR_ID, tourId)
+                .execute()
         }
     }
 
@@ -182,14 +197,21 @@ class JooqDriverRepository(
     private val t = TOURS_OPERATOR_DRIVER
 
     @Transactional(readOnly = true)
-    override fun findById(id: UUID): Driver? = dsl.selectFrom(t).where(t.ID.eq(id)).fetchOne()?.let(::toDomain)
+    override fun findById(id: UUID): Driver? =
+        dsl
+            .selectFrom(t)
+            .where(t.ID.eq(id))
+            .fetchOne()
+            ?.let(::toDomain)
 
     @Transactional(readOnly = true)
     override fun findAll(active: Boolean?): List<Driver> =
         dsl
             .selectFrom(t)
-            .where(active?.let { t.ACTIVE.eq(it) } ?: org.jooq.impl.DSL.noCondition())
-            .orderBy(t.NAME.asc(), t.ID.asc())
+            .where(
+                active?.let { t.ACTIVE.eq(it) } ?: org.jooq.impl.DSL
+                    .noCondition(),
+            ).orderBy(t.NAME.asc(), t.ID.asc())
             .fetch()
             .map(::toDomain)
 
@@ -249,14 +271,21 @@ class JooqVehicleRepository(
     private val t = TOURS_OPERATOR_VEHICLE
 
     @Transactional(readOnly = true)
-    override fun findById(id: UUID): Vehicle? = dsl.selectFrom(t).where(t.ID.eq(id)).fetchOne()?.let(::toDomain)
+    override fun findById(id: UUID): Vehicle? =
+        dsl
+            .selectFrom(t)
+            .where(t.ID.eq(id))
+            .fetchOne()
+            ?.let(::toDomain)
 
     @Transactional(readOnly = true)
     override fun findAll(active: Boolean?): List<Vehicle> =
         dsl
             .selectFrom(t)
-            .where(active?.let { t.ACTIVE.eq(it) } ?: org.jooq.impl.DSL.noCondition())
-            .orderBy(t.LABEL.asc().nullsLast(), t.PLATE.asc().nullsLast(), t.ID.asc())
+            .where(
+                active?.let { t.ACTIVE.eq(it) } ?: org.jooq.impl.DSL
+                    .noCondition(),
+            ).orderBy(t.LABEL.asc().nullsLast(), t.PLATE.asc().nullsLast(), t.ID.asc())
             .fetch()
             .map(::toDomain)
 
@@ -268,8 +297,14 @@ class JooqVehicleRepository(
         dsl.fetchExists(
             dsl
                 .selectFrom(t)
-                .where(org.jooq.impl.DSL.upper(t.PLATE).eq(plate.uppercase()))
-                .and(exceptId?.let { t.ID.ne(it) } ?: org.jooq.impl.DSL.noCondition()),
+                .where(
+                    org.jooq.impl.DSL
+                        .upper(t.PLATE)
+                        .eq(plate.uppercase()),
+                ).and(
+                    exceptId?.let { t.ID.ne(it) } ?: org.jooq.impl.DSL
+                        .noCondition(),
+                ),
         )
 
     @Transactional
@@ -342,7 +377,10 @@ class JooqSlotAssignmentRepository(
     ) {
         // Fixed order (sorted keys) so two requests can never wait on each other.
         val keys =
-            listOfNotNull(driverId?.let { "tours-operator-assign:driver:$it" }, vehicleId?.let { "tours-operator-assign:vehicle:$it" }).sorted()
+            listOfNotNull(
+                driverId?.let { "tours-operator-assign:driver:$it" },
+                vehicleId?.let { "tours-operator-assign:vehicle:$it" },
+            ).sorted()
         for (key in keys) dsl.execute("SELECT pg_advisory_xact_lock(hashtextextended(?, 0))", key)
     }
 
@@ -421,7 +459,11 @@ class JooqSlotAssignmentRepository(
     private fun replaceSuppliers(assignment: SlotAssignment) {
         dsl.deleteFrom(sup).where(sup.SLOT_ID.eq(assignment.slotId.value)).execute()
         for (id in assignment.supplierIds) {
-            dsl.insertInto(sup).set(sup.SLOT_ID, assignment.slotId.value).set(sup.SUPPLIER_ID, id).execute()
+            dsl
+                .insertInto(sup)
+                .set(sup.SLOT_ID, assignment.slotId.value)
+                .set(sup.SUPPLIER_ID, id)
+                .execute()
         }
     }
 
@@ -461,8 +503,13 @@ class JooqSlotAssignmentRepository(
             .set(audit.REVISION, entry.revision)
             .set(audit.DRIVER_ID, entry.driverId)
             .set(audit.VEHICLE_ID, entry.vehicleId)
-            .set(audit.SUPPLIER_IDS, entry.supplierIds.map { it.toString() }.sorted().joinToString(","))
-            .set(audit.ACTOR_USER_ID, entry.actorUserId)
+            .set(
+                audit.SUPPLIER_IDS,
+                entry.supplierIds
+                    .map { it.toString() }
+                    .sorted()
+                    .joinToString(","),
+            ).set(audit.ACTOR_USER_ID, entry.actorUserId)
             .set(audit.OCCURRED_AT, entry.occurredAt.utc())
             .execute()
     }
@@ -486,7 +533,12 @@ class JooqSlotAssignmentRepository(
                     revision = r[audit.REVISION]!!,
                     driverId = r[audit.DRIVER_ID],
                     vehicleId = r[audit.VEHICLE_ID],
-                    supplierIds = r[audit.SUPPLIER_IDS]!!.split(',').filter { it.isNotEmpty() }.map(UUID::fromString).toSet(),
+                    supplierIds =
+                        r[audit.SUPPLIER_IDS]!!
+                            .split(',')
+                            .filter { it.isNotEmpty() }
+                            .map(UUID::fromString)
+                            .toSet(),
                     actorUserId = r[audit.ACTOR_USER_ID],
                     actorEmail = r[IDENTITY_USER.EMAIL],
                     occurredAt = r[audit.OCCURRED_AT]!!.toInstant(),
@@ -494,5 +546,10 @@ class JooqSlotAssignmentRepository(
             }
 
     @Transactional(readOnly = true)
-    override fun emailOf(userId: UUID): String? = dsl.select(IDENTITY_USER.EMAIL).from(IDENTITY_USER).where(IDENTITY_USER.ID.eq(userId)).fetchOne(0, String::class.java)
+    override fun emailOf(userId: UUID): String? =
+        dsl
+            .select(IDENTITY_USER.EMAIL)
+            .from(IDENTITY_USER)
+            .where(IDENTITY_USER.ID.eq(userId))
+            .fetchOne(0, String::class.java)
 }

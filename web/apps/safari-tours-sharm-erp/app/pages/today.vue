@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import { WegoAlert, WegoBadge } from "@wego/ui";
-import type { Booking, Tour, TourSlot } from "@wego/api-contract";
+import type { AssignmentOptions, AssignmentView, Booking, Tour, TourSlot } from "@wego/api-contract";
 import { clearAuthSession, hasPermission, readAuthSession, type AuthSession } from "../composables/useAuthSession";
-import { ToursApiError, listAllStaffTours, listBookings, listSlotsByDate } from "../composables/useToursApi";
+import { ToursApiError, getAssignmentOptions, listAllStaffTours, listAssignments, listBookings, listSlotsByDate } from "../composables/useToursApi";
 import { whatsappLink } from "../composables/useWhatsApp";
+import AssignmentPanel from "../components/AssignmentPanel.vue";
 import OfficePaymentBadge from "../components/OfficePaymentBadge.vue";
 import { buildRunSheet, isUnpaid } from "../utils/runSheet";
 import { useErpLocale } from "../composables/useErpLocale";
@@ -28,6 +29,9 @@ const state = ref<"loading" | "loaded" | "error">("loading");
 const errorKey = ref<ErpMessageKey | null>(null);
 const errorMsg = computed(() => errorKey.value ? t(errorKey.value) : "");
 
+const canSeeAssignments = computed(() => hasPermission(session.value, "tours-operator.assignment:manage"));
+const assignmentViews = ref<Record<string, AssignmentView>>({});
+const assignmentOptions = ref<AssignmentOptions | null>(null);
 const canPrintOps = computed(() => hasPermission(session.value, "tours-operator.document:print-ops"));
 const runs = computed(() => buildRunSheet(bookings.value, tours.value, slots.value, includeUnpaid.value));
 const totalGuests = computed(() => runs.value.reduce((sum, run) => sum + run.guests, 0));
@@ -67,6 +71,8 @@ async function load() {
     const slotLists = await Promise.all(tourIds.map((id) => listSlotsByDate(token, id, day).catch(() => [] as TourSlot[])));
     if (seq !== loadSeq) return;
     slots.value = Object.fromEntries(tourIds.map((id, i) => [id, slotLists[i]!]));
+    await loadAssignments(token, day, seq);
+    if (seq !== loadSeq) return;
     state.value = "loaded";
   } catch (err) {
     if (seq !== loadSeq) return;
@@ -78,6 +84,35 @@ async function load() {
     state.value = "error";
     errorKey.value = err instanceof ToursApiError && err.status === 403 ? "common.forbidden" : "today.loadFailed";
   }
+}
+
+/** Assignment data is optional: without the permission, or if it fails, the run sheet still loads. */
+async function loadAssignments(token: string, day: string, seq: number) {
+  if (!canSeeAssignments.value) return;
+  try {
+    const [views, options] = await Promise.all([listAssignments(token, day), getAssignmentOptions(token, day)]);
+    if (seq !== loadSeq) return;
+    assignmentViews.value = Object.fromEntries(views.map((v) => [v.slotId, v]));
+    assignmentOptions.value = options;
+  } catch {
+    assignmentViews.value = {};
+    assignmentOptions.value = null;
+  }
+}
+
+function onAssigned(view: AssignmentView) {
+  assignmentViews.value = { ...assignmentViews.value, [view.slotId]: view };
+}
+
+/** Another writer got there first: reload the day's assignments so the panel shows the latest revision. */
+function onStale() {
+  if (session.value) void loadAssignments(session.value.token, date.value, loadSeq);
+}
+
+/** "Tour name · time window" for a conflicting departure, from the day's own data. */
+function slotLabel(slotId: string): string {
+  const v = assignmentViews.value[slotId];
+  return v ? `${v.tourNameEn} · ${t(`slot.${v.timeSlot}`)}` : t("asg.none");
 }
 
 function printSheet() {
@@ -161,6 +196,12 @@ function unitsLabel(units: Record<string, number>, tourId: string): string {
             <WegoBadge v-if="departure.slot?.isBlocked" tone="danger">{{ t('today.blocked') }}</WegoBadge>
             <WegoBadge v-if="departure.unpaid" tone="warning">{{ t('common.awaitingCount', { count: count(departure.unpaid) }) }}</WegoBadge>
           </div>
+          <AssignmentPanel
+            v-if="canSeeAssignments && departure.slot && session"
+            :token="session.token" :slot-id="departure.slot.id" :view="assignmentViews[departure.slot.id] ?? null"
+            :options="assignmentOptions" :can-assign="canSeeAssignments" :can-print="canPrintOps" :slot-label="slotLabel"
+            @saved="onAssigned" @stale="onStale"
+          />
           <ul class="divide-y divide-sts-border md:hidden print:hidden">
             <li v-for="b in departure.bookings" :key="b.id" class="grid gap-1 px-4 py-3 text-sm">
               <div class="flex items-start justify-between gap-3">

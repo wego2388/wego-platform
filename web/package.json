@@ -25,7 +25,13 @@
       "brace-expansion@>=2.0.0 <2.1.6": "^2.1.6",
       "brace-expansion@>=4.0.0 <5.0.11": "^5.0.11",
       "undici@>=8.0.0 <8.10.2": "^8.10.2",
-      "devalue@<5.9.3": "^5.9.3"
+      "devalue@<5.9.3": "^5.9.3",
+      "simple-git@<4.0.1": "^4.0.1",
+      "@simple-git/argv-parser@<2.0.1": "^2.0.1",
+      "shell-quote@<1.11.0": "^1.11.0",
+      "seroval@<1.6.3": "^1.6.3",
+      "source-map-js@>=1.0.0 <1.2.2": "^1.2.2",
+      "@vue/server-renderer@<3.5.42": "3.5.43"
     },
     "auditConfig": {
       "ignoreGhsas": [

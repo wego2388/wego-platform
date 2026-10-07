@@ -1,9 +1,9 @@
 package com.wego.toursoperator.api
 
+import com.wego.toursoperator.application.AssignmentAuditEntry
 import com.wego.toursoperator.application.AssignmentDetail
 import com.wego.toursoperator.application.AssignmentOptions
 import com.wego.toursoperator.application.AssignmentView
-import com.wego.toursoperator.application.AssignmentAuditEntry
 import com.wego.toursoperator.application.DriverInput
 import com.wego.toursoperator.application.SupplierInput
 import com.wego.toursoperator.application.VehicleInput
@@ -45,15 +45,27 @@ data class SupplierRequest(
     val settlementCadence: SettlementCadence? = null,
     val paymentMethod: SupplierPaymentMethod? = null,
     @field:Size(max = 1000) val cancellationTerms: String? = null,
-    val active: Boolean = true,
-    @field:Size(max = 200) val tourIds: Set<UUID> = emptySet(),
+    val active: Boolean? = null,
+    @field:Size(max = 200) val tourIds: Set<UUID>? = null,
     /** Required when updating: the revision the caller read. Ignored on create. */
     @field:Min(1) val expectedRevision: Int? = null,
 ) {
     fun toInput() =
         SupplierInput(
-            code, name, serviceType, contactPerson, businessPhone, confirmationChannel, noticeHours, pricingBasis, currency,
-            settlementCadence, paymentMethod, cancellationTerms, active, tourIds,
+            code,
+            name,
+            serviceType,
+            contactPerson,
+            businessPhone,
+            confirmationChannel,
+            noticeHours,
+            pricingBasis,
+            currency,
+            settlementCadence,
+            paymentMethod,
+            cancellationTerms,
+            active ?: true,
+            tourIds.orEmpty(),
         )
 }
 
@@ -62,10 +74,10 @@ data class DriverRequest(
     @field:Size(max = 32) val workPhone: String? = null,
     val engagementType: DriverEngagement,
     val licenceValidUntil: LocalDate,
-    val active: Boolean = true,
+    val active: Boolean? = null,
     @field:Min(1) val expectedRevision: Int? = null,
 ) {
-    fun toInput() = DriverInput(name, workPhone, engagementType, licenceValidUntil, active)
+    fun toInput() = DriverInput(name, workPhone, engagementType, licenceValidUntil, active ?: true)
 }
 
 data class VehicleRequest(
@@ -75,16 +87,16 @@ data class VehicleRequest(
     val seats: Int,
     val ownership: VehicleOwnership,
     val hiredFromSupplierId: UUID? = null,
-    val active: Boolean = true,
+    val active: Boolean? = null,
     @field:Min(1) val expectedRevision: Int? = null,
 ) {
-    fun toInput() = VehicleInput(label, plate, vehicleType, seats, ownership, hiredFromSupplierId, active)
+    fun toInput() = VehicleInput(label, plate, vehicleType, seats, ownership, hiredFromSupplierId, active ?: true)
 }
 
 data class AssignmentRequest(
     val driverId: UUID? = null,
     val vehicleId: UUID? = null,
-    @field:Size(max = 20) val supplierIds: Set<UUID> = emptySet(),
+    @field:Size(max = 20) val supplierIds: Set<UUID>? = null,
     /** 0 when the departure has no assignment yet; otherwise the revision read. */
     @field:Min(0) val expectedRevision: Int,
 )
@@ -141,14 +153,44 @@ data class VehicleResponse(
 
 fun Supplier.toResponse() =
     SupplierResponse(
-        id, code, name, serviceType, contactPerson, businessPhone, confirmationChannel, noticeHours, pricingBasis, currency,
-        settlementCadence, paymentMethod, cancellationTerms, active, tourIds.sorted(), audit.revision, audit.createdAt, audit.updatedAt,
+        id,
+        code,
+        name,
+        serviceType,
+        contactPerson,
+        businessPhone,
+        confirmationChannel,
+        noticeHours,
+        pricingBasis,
+        currency,
+        settlementCadence,
+        paymentMethod,
+        cancellationTerms,
+        active,
+        tourIds.sorted(),
+        audit.revision,
+        audit.createdAt,
+        audit.updatedAt,
     )
 
-fun Driver.toResponse() = DriverResponse(id, name, workPhone, engagement, licenceValidUntil, active, audit.revision, audit.createdAt, audit.updatedAt)
+fun Driver.toResponse() =
+    DriverResponse(id, name, workPhone, engagement, licenceValidUntil, active, audit.revision, audit.createdAt, audit.updatedAt)
 
 fun Vehicle.toResponse() =
-    VehicleResponse(id, label, plate, display, type, seats, ownership, hiredFromSupplierId, active, audit.revision, audit.createdAt, audit.updatedAt)
+    VehicleResponse(
+        id,
+        label,
+        plate,
+        display,
+        type,
+        seats,
+        ownership,
+        hiredFromSupplierId,
+        active,
+        audit.revision,
+        audit.createdAt,
+        audit.updatedAt,
+    )
 
 data class AssignmentIssueResponse(
     val code: String,
@@ -271,7 +313,15 @@ private fun AssignmentDetail.toResponse() =
 
 fun AssignmentView.toResponse() =
     AssignmentViewResponse(
-        slotId, tourId, tourNameEn, date, timeSlot, guests, slotBlocked, assignment?.toResponse(), issues.map { it.toResponse() },
+        slotId,
+        tourId,
+        tourNameEn,
+        date,
+        timeSlot,
+        guests,
+        slotBlocked,
+        assignment?.toResponse(),
+        issues.map { it.toResponse() },
         suggestedSuppliers.map { SupplierRefResponse(it.id, it.code, it.name) },
     )
 

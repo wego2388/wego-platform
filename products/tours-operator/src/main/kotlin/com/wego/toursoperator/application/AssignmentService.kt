@@ -10,7 +10,6 @@ import com.wego.toursoperator.domain.Supplier
 import com.wego.toursoperator.domain.SupplierServiceType
 import com.wego.toursoperator.domain.TimeSlot
 import com.wego.toursoperator.domain.TimeSlotOverlap
-import com.wego.toursoperator.domain.TourId
 import com.wego.toursoperator.domain.TourSlot
 import com.wego.toursoperator.domain.TourSlotId
 import com.wego.toursoperator.domain.Vehicle
@@ -223,7 +222,12 @@ class AssignmentService(
     ): AssignResult =
         transactionRunner.runInTransaction {
             val slot = slots.findByIdForUpdate(slotId) ?: return@runInTransaction AssignResult.NotFound
-            if (slot.date.isBefore(FxRateService.todayInSharm(clock))) return@runInTransaction AssignResult.Refused("slot_in_past", emptyList())
+            if (slot.date.isBefore(
+                    FxRateService.todayInSharm(clock),
+                )
+            ) {
+                return@runInTransaction AssignResult.Refused("slot_in_past", emptyList())
+            }
             val existing = assignments.findBySlot(slotId) ?: return@runInTransaction AssignResult.NotFound
             if (existing.revision != expectedRevision) return@runInTransaction AssignResult.RevisionConflict(existing.revision)
             assignments.delete(slotId)
@@ -257,7 +261,8 @@ class AssignmentService(
                 TimeSlotOverlap.overlaps(slot.timeSlot, use.timeSlot) ->
                     conflicts += AssignmentConflict(kind, resourceId, use.slotId, use.tourId, use.timeSlot)
                 TimeSlotOverlap.backToBack(slot.timeSlot, use.timeSlot) ->
-                    backToBack += AssignmentIssue(if (kind == ConflictKind.DRIVER) "driver_back_to_back" else "vehicle_back_to_back", resourceId)
+                    backToBack +=
+                        AssignmentIssue(if (kind == ConflictKind.DRIVER) "driver_back_to_back" else "vehicle_back_to_back", resourceId)
             }
         }
     }

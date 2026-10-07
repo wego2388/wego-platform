@@ -2277,9 +2277,281 @@ export interface paths {
         put?: never;
         /**
          * Print the pickup manifest of one departure
-         * @description Requires tours-operator.document:print-ops. Pickup order by hotel with lead name, room, phone and guests; driver and vehicle stay blank until assignments exist. Carries phone numbers, hence the separate permission. Every call records one print in the append-only register (version 1 the first time, then numbered reprints that keep the document number). No PDF is generated or stored; the response is never cached.
+         * @description Requires tours-operator.document:print-ops. Pickup order by hotel with lead name, room, phone and guests; driver and vehicle come from the departure's assignment (blank when none). Carries phone numbers, hence the separate permission. Every call records one print in the append-only register (version 1 the first time, then numbered reprints that keep the document number). No PDF is generated or stored; the response is never cached.
          */
         post: operations["printToursOperatorPickupManifest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/suppliers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List suppliers
+         * @description Requires tours-operator.supplier:manage. Responses are never cached (they carry phone numbers). Records are never deleted: set active=false.
+         */
+        get: operations["listToursOperatorSuppliers"];
+        put?: never;
+        /**
+         * Create a supplier
+         * @description Requires tours-operator.supplier:manage. Code is unique (409 supplier_code_taken); unknown tour 422 tour_not_found. Agreed prices are not stored here.
+         */
+        post: operations["createToursOperatorSupplier"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/suppliers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a supplier
+         * @description Requires tours-operator.supplier:manage. Responses are never cached (they carry phone numbers). Records are never deleted: set active=false.
+         */
+        get: operations["getToursOperatorSupplier"];
+        /**
+         * Update a supplier
+         * @description Requires tours-operator.supplier:manage. expectedRevision is required; a stale one is 409 revision_conflict.
+         */
+        put: operations["updateToursOperatorSupplier"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/drivers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List drivers
+         * @description Requires tours-operator.fleet:manage. Responses are never cached (they carry phone numbers). Records are never deleted: set active=false.
+         */
+        get: operations["listToursOperatorDrivers"];
+        put?: never;
+        /**
+         * Create a driver
+         * @description Requires tours-operator.fleet:manage. Name, work phone and licence expiry only: no ID number.
+         */
+        post: operations["createToursOperatorDriver"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/drivers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a driver
+         * @description Requires tours-operator.fleet:manage. Responses are never cached (they carry phone numbers). Records are never deleted: set active=false.
+         */
+        get: operations["getToursOperatorDriver"];
+        /**
+         * Update a driver
+         * @description Requires tours-operator.fleet:manage. expectedRevision is required.
+         */
+        put: operations["updateToursOperatorDriver"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/vehicles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List vehicles
+         * @description Requires tours-operator.fleet:manage. May legitimately be empty (the owner has not supplied vehicles yet). Responses are never cached (they carry phone numbers). Records are never deleted: set active=false.
+         */
+        get: operations["listToursOperatorVehicles"];
+        put?: never;
+        /**
+         * Create a vehicle
+         * @description Requires tours-operator.fleet:manage. Needs a label or a plate; plate unique (409 vehicle_plate_taken); a lender only for a HIRED vehicle.
+         */
+        post: operations["createToursOperatorVehicle"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/vehicles/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a vehicle
+         * @description Requires tours-operator.fleet:manage. Responses are never cached (they carry phone numbers). Records are never deleted: set active=false.
+         */
+        get: operations["getToursOperatorVehicle"];
+        /**
+         * Update a vehicle
+         * @description Requires tours-operator.fleet:manage. expectedRevision is required.
+         */
+        put: operations["updateToursOperatorVehicle"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Departures of a day with their assignment and issues
+         * @description Requires tours-operator.assignment:manage. Departures with guests booked or an assignment. Names only, never phones.
+         */
+        get: operations["listToursOperatorAssignments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/assignment-options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Active drivers, vehicles and suppliers to choose from
+         * @description Requires tours-operator.assignment:manage. Names only, never phones.
+         */
+        get: operations["getToursOperatorAssignmentOptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/slots/{slotId}/assignment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Assignment of one departure
+         * @description Requires tours-operator.assignment:manage.
+         */
+        get: operations["getToursOperatorSlotAssignment"];
+        /**
+         * Assign or change driver, vehicle and suppliers
+         * @description Requires tours-operator.assignment:manage. Blocking: same driver or vehicle on another departure of the same day and window (409 assignment_conflict); inactive or licence-expired driver, inactive vehicle or supplier (422); departure in the past (422 slot_in_past); stale revision (409 revision_conflict). Warnings in `issues`: seats below guests, licence ending within 30 days, supplier not linked to the tour, back-to-back adjacent windows.
+         */
+        put: operations["assignToursOperatorSlot"];
+        post?: never;
+        /**
+         * Clear a departure's assignment
+         * @description Requires tours-operator.assignment:manage.
+         */
+        delete: operations["clearToursOperatorSlotAssignment"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/slots/{slotId}/assignment/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Who assigned or changed a departure
+         * @description Requires tours-operator.assignment:manage. Append-only audit, oldest first.
+         */
+        get: operations["listToursOperatorSlotAssignmentHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/documents/slots/{slotId}/driver-sheet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Print the driver sheet of one departure
+         * @description Requires tours-operator.document:print-ops. Needs an assigned driver (409 no_driver_assigned). Route by hotel with lead name, room and guests; no phones, e-mail, prices or payment state. Records one print in the append-only register (numbered, reprints COPY or REVISED by content fingerprint). Never cached.
+         */
+        post: operations["printToursOperatorDriverSheet"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/documents/slots/{slotId}/suppliers/{supplierId}/supplier-order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Print the order for one supplier of a departure
+         * @description Requires tours-operator.document:print-ops. The supplier must be assigned (409 supplier_not_assigned). Guest counts and relevant special requests only; no customer data, no price. Records one print in the append-only register (numbered, reprints COPY or REVISED by content fingerprint). Never cached.
+         */
+        post: operations["printToursOperatorSupplierOrder"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2742,7 +3014,7 @@ export interface components {
         };
         ToursOperatorDocumentStamp: {
             /** @enum {string} */
-            type: "VOUCHER" | "RECEIPT" | "RUN_SHEET" | "PICKUP_MANIFEST" | "CANCELLATION_FORM";
+            type: "VOUCHER" | "RECEIPT" | "RUN_SHEET" | "PICKUP_MANIFEST" | "CANCELLATION_FORM" | "DRIVER_SHEET" | "SUPPLIER_ORDER";
             /** @description Immutable document number; reprints carry the original's. */
             number: string;
             /** @description 1 = original, n = reprint. */
@@ -3312,6 +3584,290 @@ export interface components {
             bookingsPaused: boolean;
             paymentsPaused: boolean;
             reason?: string | null;
+        };
+        /** @enum {string} */
+        ToursOperatorSupplierServiceType: "DIVING_SNORKELING" | "QUAD_BUGGY_SAFARI" | "BOAT" | "TRANSPORT" | "ATTRACTION" | "OTHER";
+        /** @enum {string} */
+        ToursOperatorConfirmationChannel: "WHATSAPP" | "PHONE" | "EMAIL" | "OTHER";
+        /** @enum {string} */
+        ToursOperatorSupplierPricingBasis: "PER_PERSON" | "PER_UNIT" | "PER_TRIP" | "PERCENT_OF_SALE" | "OTHER";
+        /** @enum {string} */
+        ToursOperatorSettlementCadence: "AFTER_EACH_TRIP" | "WEEKLY" | "MONTHLY" | "OTHER";
+        /** @enum {string} */
+        ToursOperatorSupplierPaymentMethod: "CASH" | "INSTAPAY" | "MOBILE_WALLET" | "BANK_TRANSFER" | "OTHER";
+        /** @enum {string} */
+        ToursOperatorDriverEngagement: "PER_TRIP" | "MONTHLY" | "DAILY" | "OTHER";
+        /** @enum {string} */
+        ToursOperatorVehicleType: "SEDAN" | "SUV" | "JEEP" | "VAN" | "MINIBUS" | "BUS" | "OTHER";
+        /** @enum {string} */
+        ToursOperatorVehicleOwnership: "OWNED" | "HIRED";
+        ToursOperatorSupplierRequest: {
+            /** @description Capital letters, digits, hyphen; stored upper-case; unique. */
+            code: string;
+            name: string;
+            serviceType: components["schemas"]["ToursOperatorSupplierServiceType"];
+            contactPerson?: string | null;
+            businessPhone?: string | null;
+            confirmationChannel?: components["schemas"]["ToursOperatorConfirmationChannel"] | null;
+            noticeHours?: number | null;
+            pricingBasis?: components["schemas"]["ToursOperatorSupplierPricingBasis"] | null;
+            currency?: ("EGP" | "EUR") | null;
+            settlementCadence?: components["schemas"]["ToursOperatorSettlementCadence"] | null;
+            paymentMethod?: components["schemas"]["ToursOperatorSupplierPaymentMethod"] | null;
+            cancellationTerms?: string | null;
+            active?: boolean;
+            tourIds?: string[];
+            /** @description Required on update: the revision that was read. */
+            expectedRevision?: number;
+        };
+        ToursOperatorSupplier: {
+            /** Format: uuid */
+            id: string;
+            /** @description Capital letters, digits, hyphen; stored upper-case; unique. */
+            code: string;
+            name: string;
+            serviceType: components["schemas"]["ToursOperatorSupplierServiceType"];
+            contactPerson: string | null;
+            businessPhone: string | null;
+            confirmationChannel: components["schemas"]["ToursOperatorConfirmationChannel"] | null;
+            noticeHours: number | null;
+            pricingBasis: components["schemas"]["ToursOperatorSupplierPricingBasis"] | null;
+            currency: ("EGP" | "EUR") | null;
+            settlementCadence: components["schemas"]["ToursOperatorSettlementCadence"] | null;
+            paymentMethod: components["schemas"]["ToursOperatorSupplierPaymentMethod"] | null;
+            cancellationTerms: string | null;
+            active: boolean;
+            tourIds: string[];
+            revision: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ToursOperatorDriverRequest: {
+            name: string;
+            workPhone?: string | null;
+            engagementType: components["schemas"]["ToursOperatorDriverEngagement"];
+            /** Format: date */
+            licenceValidUntil: string;
+            active?: boolean;
+            expectedRevision?: number;
+        };
+        ToursOperatorDriver: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            workPhone: string | null;
+            engagementType: components["schemas"]["ToursOperatorDriverEngagement"];
+            /** Format: date */
+            licenceValidUntil: string;
+            active: boolean;
+            revision: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ToursOperatorVehicleRequest: {
+            label?: string | null;
+            plate?: string | null;
+            vehicleType: components["schemas"]["ToursOperatorVehicleType"];
+            seats: number;
+            ownership: components["schemas"]["ToursOperatorVehicleOwnership"];
+            hiredFromSupplierId?: string | null;
+            active?: boolean;
+            expectedRevision?: number;
+        };
+        ToursOperatorVehicle: {
+            /** Format: uuid */
+            id: string;
+            label: string | null;
+            plate: string | null;
+            display: string;
+            vehicleType: components["schemas"]["ToursOperatorVehicleType"];
+            seats: number;
+            ownership: components["schemas"]["ToursOperatorVehicleOwnership"];
+            hiredFromSupplierId: string | null;
+            active: boolean;
+            revision: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ToursOperatorAssignmentRequest: {
+            driverId?: string | null;
+            vehicleId?: string | null;
+            supplierIds?: string[];
+            /** @description 0 when the departure has no assignment yet; otherwise the revision read. */
+            expectedRevision: number;
+        };
+        ToursOperatorAssignmentIssue: {
+            /** @enum {string} */
+            code: "driver_inactive" | "driver_licence_expired" | "driver_licence_expires_soon" | "vehicle_inactive" | "vehicle_seats_below_guests" | "supplier_inactive" | "supplier_not_linked_to_tour" | "driver_back_to_back" | "vehicle_back_to_back";
+            resourceId: string | null;
+            value: number | null;
+            limit: number | null;
+            blocking: boolean;
+        };
+        ToursOperatorNamedRef: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
+        ToursOperatorVehicleRef: {
+            /** Format: uuid */
+            id: string;
+            display: string;
+            seats: number;
+        };
+        ToursOperatorSupplierRef: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            name: string;
+        };
+        ToursOperatorAssignmentDetail: {
+            revision: number;
+            driver: components["schemas"]["ToursOperatorNamedRef"] | null;
+            vehicle: components["schemas"]["ToursOperatorVehicleRef"] | null;
+            suppliers: components["schemas"]["ToursOperatorSupplierRef"][];
+            assignedByEmail: string | null;
+            /** Format: date-time */
+            assignedAt: string;
+            updatedByEmail: string | null;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ToursOperatorAssignmentView: {
+            /** Format: uuid */
+            slotId: string;
+            /** Format: uuid */
+            tourId: string;
+            tourNameEn: string;
+            /** Format: date */
+            date: string;
+            timeSlot: components["schemas"]["ToursOperatorTimeSlot"];
+            guests: number;
+            slotBlocked: boolean;
+            assignment: components["schemas"]["ToursOperatorAssignmentDetail"] | null;
+            issues: components["schemas"]["ToursOperatorAssignmentIssue"][];
+            suggestedSuppliers: components["schemas"]["ToursOperatorSupplierRef"][];
+        };
+        ToursOperatorAssignmentOptions: {
+            drivers: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                /** Format: date */
+                licenceValidUntil: string;
+                licenceCoversDate: boolean;
+            }[];
+            vehicles: components["schemas"]["ToursOperatorVehicleRef"][];
+            suppliers: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                name: string;
+                serviceType: components["schemas"]["ToursOperatorSupplierServiceType"];
+                tourIds: string[];
+            }[];
+        };
+        ToursOperatorAssignmentAudit: {
+            /** @enum {string} */
+            action: "ASSIGNED" | "CHANGED" | "CLEARED";
+            revision: number;
+            driverId: string | null;
+            vehicleId: string | null;
+            supplierIds: string[];
+            actorEmail: string | null;
+            /** Format: date-time */
+            occurredAt: string;
+        };
+        ToursOperatorAssignmentConflictBody: {
+            /** @enum {string} */
+            error: "assignment_conflict";
+            conflicts: {
+                /** @enum {string} */
+                kind: "DRIVER" | "VEHICLE";
+                /** Format: uuid */
+                resourceId: string;
+                /** Format: uuid */
+                otherSlotId: string;
+                /** Format: uuid */
+                otherTourId: string;
+                otherTimeSlot: components["schemas"]["ToursOperatorTimeSlot"];
+            }[];
+        };
+        ToursOperatorAssignmentRefusalBody: {
+            error: string;
+            issues: components["schemas"]["ToursOperatorAssignmentIssue"][];
+        };
+        ToursOperatorRevisionConflictBody: {
+            /** @enum {string} */
+            error: "revision_conflict";
+            currentRevision: number;
+        };
+        /** @description No customer phone, e-mail, price or payment state. */
+        ToursOperatorDriverSheetData: {
+            /** Format: uuid */
+            slotId: string;
+            /** Format: date */
+            date: string;
+            timeSlot: components["schemas"]["ToursOperatorTimeSlot"];
+            tourNameEn: string;
+            tourNameAr: string | null;
+            driverName: string;
+            vehicle: {
+                display: string;
+                seats: number;
+            } | null;
+            totalGuests: number;
+            stops: {
+                order: number;
+                hotelName: string;
+                guests: number;
+                parties: {
+                    reference: string;
+                    leadName: string;
+                    hotelRoom: string | null;
+                    guests: number;
+                }[];
+            }[];
+        };
+        ToursOperatorDriverSheetDocument: {
+            document: components["schemas"]["ToursOperatorDocumentStamp"];
+            data: components["schemas"]["ToursOperatorDriverSheetData"];
+        };
+        /** @description No customer name, phone or e-mail, and no agreed price (costs arrive with OPS2-F). */
+        ToursOperatorSupplierOrderData: {
+            /** Format: uuid */
+            slotId: string;
+            /** Format: date */
+            date: string;
+            timeSlot: components["schemas"]["ToursOperatorTimeSlot"];
+            tourNameEn: string;
+            tourNameAr: string | null;
+            supplier: {
+                code: string;
+                name: string;
+                serviceType: components["schemas"]["ToursOperatorSupplierServiceType"];
+                contactPerson: string | null;
+                confirmationChannel: components["schemas"]["ToursOperatorConfirmationChannel"] | null;
+                noticeHours: number | null;
+            };
+            totalGuests: number;
+            adults: number;
+            children: number;
+            units: {
+                optionLabel: string;
+                unitCount: number;
+            }[];
+            specialRequests: string[];
+        };
+        ToursOperatorSupplierOrderDocument: {
+            document: components["schemas"]["ToursOperatorDocumentStamp"];
+            data: components["schemas"]["ToursOperatorSupplierOrderData"];
         };
         ToursOperatorErrorResponse: {
             error: string;
@@ -9891,6 +10447,749 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    listToursOperatorSuppliers: {
+        parameters: {
+            query?: {
+                active?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorSupplier"][];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    createToursOperatorSupplier: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorSupplierRequest"];
+            };
+        };
+        responses: {
+            /** @description Created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorSupplier"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description supplier_code_taken */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+            /** @description tour_not_found */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+        };
+    };
+    getToursOperatorSupplier: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorSupplier"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateToursOperatorSupplier: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorSupplierRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorSupplier"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale revision: someone saved first. Re-read and retry. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorRevisionConflictBody"];
+                };
+            };
+            /** @description tour_not_found */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+        };
+    };
+    listToursOperatorDrivers: {
+        parameters: {
+            query?: {
+                active?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorDriver"][];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    createToursOperatorDriver: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorDriverRequest"];
+            };
+        };
+        responses: {
+            /** @description Created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorDriver"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    getToursOperatorDriver: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorDriver"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateToursOperatorDriver: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorDriverRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorDriver"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale revision: someone saved first. Re-read and retry. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorRevisionConflictBody"];
+                };
+            };
+        };
+    };
+    listToursOperatorVehicles: {
+        parameters: {
+            query?: {
+                active?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorVehicle"][];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    createToursOperatorVehicle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorVehicleRequest"];
+            };
+        };
+        responses: {
+            /** @description Created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorVehicle"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description vehicle_plate_taken */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+            /** @description supplier_not_found */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+        };
+    };
+    getToursOperatorVehicle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorVehicle"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateToursOperatorVehicle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorVehicleRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorVehicle"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale revision: someone saved first. Re-read and retry. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorRevisionConflictBody"];
+                };
+            };
+        };
+    };
+    listToursOperatorAssignments: {
+        parameters: {
+            query: {
+                date: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorAssignmentView"][];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    getToursOperatorAssignmentOptions: {
+        parameters: {
+            query: {
+                date: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorAssignmentOptions"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    getToursOperatorSlotAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slotId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorAssignmentView"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    assignToursOperatorSlot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slotId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToursOperatorAssignmentRequest"];
+            };
+        };
+        responses: {
+            /** @description Saved. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorAssignmentView"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description revision_conflict or assignment_conflict. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorRevisionConflictBody"] | components["schemas"]["ToursOperatorAssignmentConflictBody"];
+                };
+            };
+            /** @description Refused. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorAssignmentRefusalBody"];
+                };
+            };
+        };
+    };
+    clearToursOperatorSlotAssignment: {
+        parameters: {
+            query: {
+                expectedRevision: number;
+            };
+            header?: never;
+            path: {
+                slotId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Cleared. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorAssignmentView"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale revision: someone saved first. Re-read and retry. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorRevisionConflictBody"];
+                };
+            };
+            /** @description Refused. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorAssignmentRefusalBody"];
+                };
+            };
+        };
+    };
+    listToursOperatorSlotAssignmentHistory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slotId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorAssignmentAudit"][];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    printToursOperatorDriverSheet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slotId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrintToursOperatorDocumentRequest"];
+            };
+        };
+        responses: {
+            /** @description Document data and its print stamp. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorDriverSheetDocument"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description no_driver_assigned */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
+            };
+        };
+    };
+    printToursOperatorSupplierOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slotId: string;
+                supplierId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrintToursOperatorDocumentRequest"];
+            };
+        };
+        responses: {
+            /** @description Document data and its print stamp. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorSupplierOrderDocument"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+            /** @description Not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description supplier_not_assigned */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorErrorResponse"];
+                };
             };
         };
     };

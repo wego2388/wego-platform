@@ -25,8 +25,22 @@ class OpsRegistryTest {
         tours: Set<UUID> = emptySet(),
         active: Boolean = true,
     ) = Supplier(
-        UUID.randomUUID(), "S01", "Sindbad", SupplierServiceType.DIVING_SNORKELING, null, null, null, null, null, null, null, null, null,
-        active, tours, audit,
+        UUID.randomUUID(),
+        "S01",
+        "Sindbad",
+        SupplierServiceType.DIVING_SNORKELING,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        active,
+        tours,
+        audit,
     )
 
     @Test
@@ -34,7 +48,9 @@ class OpsRegistryTest {
         for (a in TimeSlot.entries) {
             for (b in TimeSlot.entries) {
                 assertThat(TimeSlotOverlap.overlaps(a, b)).describedAs("$a/$b overlap").isEqualTo(a == b)
-                assertThat(TimeSlotOverlap.backToBack(a, b)).describedAs("$a/$b adjacent").isEqualTo(kotlin.math.abs(a.ordinal - b.ordinal) == 1)
+                assertThat(TimeSlotOverlap.backToBack(a, b)).describedAs("$a/$b adjacent").isEqualTo(
+                    kotlin.math.abs(a.ordinal - b.ordinal) == 1,
+                )
             }
         }
         assertThat(TimeSlotOverlap.backToBack(TimeSlot.SUNRISE, TimeSlot.MORNING)).isTrue()
@@ -47,6 +63,7 @@ class OpsRegistryTest {
         assertThat(driver(licence = day).licenceCovers(day)).isTrue()
         assertThat(driver(licence = day.minusDays(1)).licenceCovers(day)).isFalse()
         val tour = UUID.randomUUID()
+
         fun codes(d: Driver) = AssignmentRules.evaluate(day, 2, tour, d, null, emptyList()).map { it.code }
         assertThat(codes(driver(licence = day.minusDays(1)))).containsExactly("driver_licence_expired")
         assertThat(codes(driver(licence = day))).containsExactly("driver_licence_expires_soon")
@@ -67,7 +84,15 @@ class OpsRegistryTest {
         assertThat(seats.limit).isEqualTo(4)
         assertThat(AssignmentRules.evaluate(day, 9, tour, null, vehicle(seats = 9), emptyList())).isEmpty()
         assertThat(AssignmentRules.evaluate(day, 0, tour, null, vehicle(seats = 1), emptyList())).isEmpty()
-        val issues = AssignmentRules.evaluate(day, 1, tour, null, vehicle(active = false), listOf(supplier(active = false), supplier(setOf(tour))))
+        val issues =
+            AssignmentRules.evaluate(
+                day,
+                1,
+                tour,
+                null,
+                vehicle(active = false),
+                listOf(supplier(active = false), supplier(setOf(tour))),
+            )
         assertThat(issues.map { it.code }).containsExactlyInAnyOrder("vehicle_inactive", "supplier_inactive", "supplier_not_linked_to_tour")
         assertThat(issues.filter { it.blocking }.map { it.code }).containsExactlyInAnyOrder("vehicle_inactive", "supplier_inactive")
     }
@@ -75,24 +100,99 @@ class OpsRegistryTest {
     @Test
     fun `registry values are validated by the domain`() {
         assertThatThrownBy { vehicle(seats = 0) }.hasMessageContaining("seats")
-        assertThatThrownBy { Vehicle(UUID.randomUUID(), null, null, VehicleType.VAN, 4, VehicleOwnership.OWNED, null, true, audit) }.hasMessageContaining("label or a plate")
-        assertThatThrownBy { Vehicle(UUID.randomUUID(), "x", null, VehicleType.VAN, 4, VehicleOwnership.OWNED, UUID.randomUUID(), true, audit) }.hasMessageContaining("lender")
-        assertThatThrownBy { Driver(UUID.randomUUID(), " Amr", null, DriverEngagement.OTHER, day, true, audit) }.hasMessageContaining("name")
-        assertThatThrownBy { Driver(UUID.randomUUID(), "Amr", "phone", DriverEngagement.OTHER, day, true, audit) }.hasMessageContaining("workPhone")
         assertThatThrownBy {
-            Supplier(UUID.randomUUID(), "bad code", "S", SupplierServiceType.BOAT, null, null, null, null, null, null, null, null, null, true, emptySet(), audit)
+            Vehicle(UUID.randomUUID(), null, null, VehicleType.VAN, 4, VehicleOwnership.OWNED, null, true, audit)
+        }.hasMessageContaining("label or a plate")
+        assertThatThrownBy {
+            Vehicle(UUID.randomUUID(), "x", null, VehicleType.VAN, 4, VehicleOwnership.OWNED, UUID.randomUUID(), true, audit)
+        }.hasMessageContaining("lender")
+        assertThatThrownBy {
+            Driver(
+                UUID.randomUUID(),
+                " Amr",
+                null,
+                DriverEngagement.OTHER,
+                day,
+                true,
+                audit,
+            )
+        }.hasMessageContaining("name")
+        assertThatThrownBy {
+            Driver(
+                UUID.randomUUID(),
+                "Amr",
+                "phone",
+                DriverEngagement.OTHER,
+                day,
+                true,
+                audit,
+            )
+        }.hasMessageContaining("workPhone")
+        assertThatThrownBy {
+            Supplier(
+                UUID.randomUUID(),
+                "bad code",
+                "S",
+                SupplierServiceType.BOAT,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                true,
+                emptySet(),
+                audit,
+            )
         }.hasMessageContaining("code")
         assertThatThrownBy {
-            Supplier(UUID.randomUUID(), "S01", "S", SupplierServiceType.BOAT, null, null, null, 721, null, null, null, null, null, true, emptySet(), audit)
+            Supplier(
+                UUID.randomUUID(),
+                "S01",
+                "S",
+                SupplierServiceType.BOAT,
+                null,
+                null,
+                null,
+                721,
+                null,
+                null,
+                null,
+                null,
+                null,
+                true,
+                emptySet(),
+                audit,
+            )
         }.hasMessageContaining("noticeHours")
-        assertThatThrownBy { SlotAssignment(TourSlotId.generate(), day, TimeSlot.MORNING, null, null, emptySet(), 1, Instant.EPOCH, null, Instant.EPOCH, null) }
-            .hasMessageContaining("needs")
+        assertThatThrownBy {
+            SlotAssignment(
+                TourSlotId.generate(),
+                day,
+                TimeSlot.MORNING,
+                null,
+                null,
+                emptySet(),
+                1,
+                Instant.EPOCH,
+                null,
+                Instant.EPOCH,
+                null,
+            )
+        }.hasMessageContaining("needs")
     }
 
     @Test
     fun `vehicle display prefers the label and brackets the plate`() {
-        assertThat(Vehicle(UUID.randomUUID(), "Hiace", "ABC 123", VehicleType.VAN, 14, VehicleOwnership.OWNED, null, true, audit).display).isEqualTo("Hiace (ABC 123)")
-        assertThat(Vehicle(UUID.randomUUID(), null, "ABC 123", VehicleType.VAN, 14, VehicleOwnership.OWNED, null, true, audit).display).isEqualTo("ABC 123")
+        assertThat(
+            Vehicle(UUID.randomUUID(), "Hiace", "ABC 123", VehicleType.VAN, 14, VehicleOwnership.OWNED, null, true, audit).display,
+        ).isEqualTo("Hiace (ABC 123)")
+        assertThat(
+            Vehicle(UUID.randomUUID(), null, "ABC 123", VehicleType.VAN, 14, VehicleOwnership.OWNED, null, true, audit).display,
+        ).isEqualTo("ABC 123")
         assertThat(vehicle().display).isEqualTo("Hiace")
         assertThat(OpsRules.clean("  ")).isNull()
         assertThat(OpsRules.clean(" x ")).isEqualTo("x")

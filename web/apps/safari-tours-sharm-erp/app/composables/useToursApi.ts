@@ -26,9 +26,31 @@ import type {
   RunSheetDocument,
   PickupManifestDocument,
   CancellationFormDocument,
+  Supplier,
+  SupplierRequest,
+  Driver,
+  DriverRequest,
+  Vehicle,
+  VehicleRequest,
+  AssignmentView,
+  AssignmentOptions,
+  AssignmentRequest,
+  DriverSheetDocument,
+  SupplierOrderDocument,
 } from "@wego/api-contract";
 
 export type {
+  Supplier,
+  SupplierRequest,
+  Driver,
+  DriverRequest,
+  Vehicle,
+  VehicleRequest,
+  AssignmentView,
+  AssignmentIssue,
+  AssignmentOptions,
+  DriverSheetDocument,
+  SupplierOrderDocument,
   Booking,
   BookingCustomer,
   BookingStatus,
@@ -70,6 +92,8 @@ export class ToursApiError extends Error {
   constructor(
     public readonly status: number,
     public readonly errorCode: string,
+    /** The parsed error body, e.g. the conflicts of a refused assignment. */
+    public readonly body: unknown = null,
   ) {
     super(errorCode);
   }
@@ -87,7 +111,7 @@ async function request<T>(path: string, token: string, init: RequestInit = {}): 
       body && typeof body === "object" && "error" in body
         ? String(body.error)
         : `http_${response.status}`;
-    throw new ToursApiError(response.status, errorCode);
+    throw new ToursApiError(response.status, errorCode, body);
   }
 
   const text = await response.text();
@@ -432,3 +456,35 @@ export const printRunSheet = (token: string, date: string, language: DocumentLan
   printRequest<RunSheetDocument>(token, "run-sheet", { date, language });
 export const printPickupManifest = (token: string, slotId: string, language: DocumentLanguageCode) =>
   printRequest<PickupManifestDocument>(token, `slots/${slotId}/pickup-manifest`, { language });
+
+export const printDriverSheet = (token: string, slotId: string, language: DocumentLanguageCode) =>
+  printRequest<DriverSheetDocument>(token, `slots/${slotId}/driver-sheet`, { language });
+export const printSupplierOrder = (token: string, slotId: string, supplierId: string, language: DocumentLanguageCode) =>
+  printRequest<SupplierOrderDocument>(token, `slots/${slotId}/suppliers/${supplierId}/supplier-order`, { language });
+
+// ── Suppliers, drivers, vehicles (OPS2-E) ───────────────────────────────────
+// Records are never deleted; every update echoes the revision that was read.
+
+const STAFF = "/api/v1/tours-operator/staff";
+const write = <T>(token: string, method: "POST" | "PUT", path: string, body: unknown) =>
+  request<T>(path, token, { method, headers: JSON_HEADERS, body: JSON.stringify(body) });
+
+export const listSuppliers = (token: string) => request<Supplier[]>(`${STAFF}/suppliers`, token);
+export const saveSupplier = (token: string, payload: SupplierRequest, id?: string) =>
+  write<Supplier>(token, id ? "PUT" : "POST", id ? `${STAFF}/suppliers/${id}` : `${STAFF}/suppliers`, payload);
+export const listDrivers = (token: string) => request<Driver[]>(`${STAFF}/drivers`, token);
+export const saveDriver = (token: string, payload: DriverRequest, id?: string) =>
+  write<Driver>(token, id ? "PUT" : "POST", id ? `${STAFF}/drivers/${id}` : `${STAFF}/drivers`, payload);
+export const listVehicles = (token: string) => request<Vehicle[]>(`${STAFF}/vehicles`, token);
+export const saveVehicle = (token: string, payload: VehicleRequest, id?: string) =>
+  write<Vehicle>(token, id ? "PUT" : "POST", id ? `${STAFF}/vehicles/${id}` : `${STAFF}/vehicles`, payload);
+
+// ── Daily assignment ────────────────────────────────────────────────────────
+
+export const listAssignments = (token: string, date: string) => request<AssignmentView[]>(`${STAFF}/assignments?date=${encodeURIComponent(date)}`, token);
+export const getAssignmentOptions = (token: string, date: string) =>
+  request<AssignmentOptions>(`${STAFF}/assignment-options?date=${encodeURIComponent(date)}`, token);
+export const saveAssignment = (token: string, slotId: string, payload: AssignmentRequest) =>
+  write<AssignmentView>(token, "PUT", `${STAFF}/slots/${slotId}/assignment`, payload);
+export const clearAssignment = (token: string, slotId: string, expectedRevision: number) =>
+  request<AssignmentView>(`${STAFF}/slots/${slotId}/assignment?expectedRevision=${expectedRevision}`, token, { method: "DELETE" });

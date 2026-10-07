@@ -150,7 +150,9 @@ data class SlotAssignment(
     val updatedByUserId: UUID?,
 ) {
     init {
-        require(driverId != null || vehicleId != null || supplierIds.isNotEmpty()) { "an assignment needs a driver, a vehicle or a supplier" }
+        require(
+            driverId != null || vehicleId != null || supplierIds.isNotEmpty(),
+        ) { "an assignment needs a driver, a vehicle or a supplier" }
     }
 }
 
