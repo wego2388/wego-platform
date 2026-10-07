@@ -268,7 +268,7 @@ class ToursOperatorFinanceOpsHttpTest {
             "POST",
             "$staff/costs",
             token,
-            """{$owner,"category":"$category","label":"$category ${unique()}","basis":"$basis","currency":"$currency",
+            """{"clientRequestId":"${UUID.randomUUID()}",$owner,"category":"$category","label":"$category ${unique()}","basis":"$basis","currency":"$currency",
             "amount":$amount,"validFrom":"$validFrom"$extra}""",
         )
 
@@ -409,7 +409,7 @@ class ToursOperatorFinanceOpsHttpTest {
                 Triple(
                     "POST",
                     "$staff/costs",
-                    """{"tourId":"$tour","category":"FIXED","label":"Guide","basis":"PER_DEPARTURE","currency":"EGP","amount":1,"validFrom":"$d"}""",
+                    """{"clientRequestId":"${UUID.randomUUID()}","tourId":"$tour","category":"FIXED","label":"Guide","basis":"PER_DEPARTURE","currency":"EGP","amount":1,"validFrom":"$d"}""",
                 ) to
                     listOf("tours-operator.cost:manage"),
                 Triple("GET", "$staff/finance/profitability?from=$d&to=$d", null) to listOf("tours-operator.payment:view"),
@@ -496,7 +496,7 @@ class ToursOperatorFinanceOpsHttpTest {
                 "POST",
                 "$staff/costs/$id/replace",
                 body =
-                    """{"tourId":"$tour","category":"SUPPLIER","label":"Supplier price","basis":"PER_PERSON","currency":"EGP",
+                    """{"clientRequestId":"${UUID.randomUUID()}","tourId":"$tour","category":"SUPPLIER","label":"Supplier price","basis":"PER_PERSON","currency":"EGP",
                     "amount":1200,"validFrom":"${today()}"}""",
             )
         assertThat(replaced.status).withFailMessage(replaced.toString()).isEqualTo(201)
@@ -513,7 +513,7 @@ class ToursOperatorFinanceOpsHttpTest {
                 "POST",
                 "$staff/costs/$id/replace",
                 body =
-                    """{"tourId":"$tour","category":"SUPPLIER","label":"x","basis":"PER_PERSON","currency":"EGP",
+                    """{"clientRequestId":"${UUID.randomUUID()}","tourId":"$tour","category":"SUPPLIER","label":"x","basis":"PER_PERSON","currency":"EGP",
                     "amount":1,"validFrom":"${today()}"}""",
             ).str("$.error"),
         ).isEqualTo("cost_already_ended")
@@ -843,7 +843,7 @@ class ToursOperatorFinanceOpsHttpTest {
     }
 
     @Test
-    fun `payments above 5000 EGP need one owner approval, exactly 5000 does not`() {
+    fun `the 5000 EGP manager limit is per party per day, above it one owner approval paid by someone else`() {
         setRate("50.0000")
         val tour = seedTour()
         assertThat(cost(""""tourId":"$tour"""", "SUPPLIER", "PER_PERSON", "EGP", "5000.00").status).isEqualTo(201)
@@ -854,11 +854,14 @@ class ToursOperatorFinanceOpsHttpTest {
         val manager = tokenWith("tours-operator.settlement:pay")
         val owner = tokenWith("tours-operator.settlement:approve")
 
-        assertThat(pay("suppliers", supplier, "5000.00", token = manager).status).isEqualTo(201)
-        val over = pay("suppliers", supplier, "5000.01", token = manager)
+        assertThat(pay("suppliers", supplier, "3000.00", token = manager).status).isEqualTo(201)
+        assertThat(pay("suppliers", supplier, "2000.00", token = manager).status).isEqualTo(201) // exactly 5000.00 today
+        val over = pay("suppliers", supplier, "0.01", token = manager)
         assertThat(over.status).isEqualTo(409)
         assertThat(over.str("$.error")).isEqualTo("approval_required")
         assertThat(over.str("$.details.limitEgp")).isEqualTo("5000.00")
+        assertThat(over.str("$.details.paidTodayEgp")).isEqualTo("5000.00")
+        assertThat(statement("suppliers", supplier).str("$.paidTodayEgp")).isEqualTo("5000.00")
 
         val approval =
             call(
@@ -878,7 +881,19 @@ class ToursOperatorFinanceOpsHttpTest {
         ).isEqualTo("approval_already_used")
         assertThat(pay("suppliers", supplier, "1.00", approvalId = UUID.randomUUID().toString(), token = manager).str("$.error"))
             .isEqualTo("approval_not_found")
-        // Balance is now 4999.99: an approval above it is refused.
+        // Four eyes: whoever approved cannot record that payment.
+        val selfApproval =
+            call(
+                "POST",
+                "$staff/payables/suppliers/$supplier/approvals",
+                admin(),
+                """{"clientRequestId":"${UUID.randomUUID()}","currency":"EGP","amount":1}""",
+            )
+        val own = pay("suppliers", supplier, "1.00", approvalId = selfApproval.read("$.id"), token = admin())
+        assertThat(own.status).isEqualTo(403)
+        assertThat(own.str("$.error")).isEqualTo("approver_cannot_pay")
+        assertThat(pay("suppliers", supplier, "1.00", approvalId = selfApproval.read("$.id"), token = admin2()).status).isEqualTo(201)
+        // Balance is now 4998.99: an approval above it is refused.
         assertThat(
             call(
                 "POST",
@@ -888,13 +903,19 @@ class ToursOperatorFinanceOpsHttpTest {
             ).str("$.error"),
         ).isEqualTo("amount_exceeds_balance")
 
-        // EUR is valued at today's rate: 100.00 × 50 = 5000.00 passes, 100.01 does not.
-        assertThat(charge("suppliers", supplier, "300.00", currency = "EUR").status).isEqualTo(201)
-        val eurOk = pay("suppliers", supplier, "100.00", currency = "EUR", token = manager)
+        // EUR is valued at today's rate: 100.00 × 50 = 5000.00 passes; a reversed payment no longer counts for the day.
+        val eurSupplier = newSupplier()
+        assertThat(charge("suppliers", eurSupplier, "300.00", currency = "EUR").status).isEqualTo(201)
+        val eurOk = pay("suppliers", eurSupplier, "100.00", currency = "EUR", token = manager)
         assertThat(eurOk.status).isEqualTo(201)
         assertThat(eurOk.str("$.egpEquivalent")).isEqualTo("5000.00")
-        assertThat(pay("suppliers", supplier, "100.01", currency = "EUR", token = manager).str("$.error")).isEqualTo("approval_required")
-        // The database itself refuses a payment above the limit without an approval.
+        assertThat(pay("suppliers", eurSupplier, "0.01", currency = "EUR", token = manager).str("$.error")).isEqualTo("approval_required")
+        val reversePath = "$staff/payables/suppliers/$eurSupplier/payments/${eurOk.read<String>("$.id")}/reverse"
+        assertThat(
+            call("POST", reversePath, owner, """{"clientRequestId":"${UUID.randomUUID()}","reason":"Paid twice"}""").status,
+        ).isEqualTo(201)
+        assertThat(pay("suppliers", eurSupplier, "100.00", currency = "EUR", token = manager).status).isEqualTo(201)
+        // The database itself refuses a single payment above the limit without an approval.
         assertThatThrownBy {
             dsl.execute(
                 """INSERT INTO wego.tours_operator_settlement_payment (id, party_type, supplier_id, kind, method, currency, amount, egp_equivalent,
@@ -905,6 +926,42 @@ class ToursOperatorFinanceOpsHttpTest {
                 UUID.randomUUID(),
             )
         }.hasMessageContaining("tours_operator_settlement_payment_limit")
+    }
+
+    @Test
+    fun `a rate jump over 20 percent or a large charge needs the owner, and a charge must name a departure the party served`() {
+        setRate("50.0000")
+        val manager = tokenWith("tours-operator.settlement:pay")
+        val supplier = newSupplier()
+        assertThat(charge("suppliers", supplier, "100.00", currency = "EUR", token = manager).status).isEqualTo(201) // 100 × 50 = 5000 EGP
+        assertThat(
+            charge("suppliers", supplier, "100.01", currency = "EUR", token = manager).str("$.error"),
+        ).isEqualTo("charge_needs_approval")
+        assertThat(charge("suppliers", supplier, "5000.01", token = manager).status).isEqualTo(403)
+        assertThat(charge("suppliers", supplier, "5000.00", token = manager).status).isEqualTo(201)
+        assertThat(charge("suppliers", supplier, "9000.00", token = admin()).status).isEqualTo(201) // owner permission
+        // A departure the supplier did not serve.
+        val slot = seedSlot(seedTour())
+        office(slot, 1, 0)
+        assertThat(charge("suppliers", supplier, "10.00", slotId = slot).str("$.error")).isEqualTo("slot_not_served_by_party")
+
+        // Yesterday's rate 30, today's 50: a 67 % jump — EUR values are not trusted without approval.
+        val yesterday = UUID.randomUUID()
+        dsl.execute(
+            "INSERT INTO wego.tours_operator_fx_rate (id, rate_date, egp_per_eur, set_at) VALUES (?, ?, 30.0000, now() - interval '1 day')",
+            yesterday,
+            today().minusDays(1),
+        )
+        try {
+            assertThat(pay("suppliers", supplier, "1.00", currency = "EUR", token = manager).str("$.error")).isEqualTo("approval_required")
+            assertThat(
+                charge("suppliers", supplier, "1.00", currency = "EUR", token = manager).str("$.error"),
+            ).isEqualTo("charge_needs_approval")
+            assertThat(pay("suppliers", supplier, "10.00", token = manager).status).isEqualTo(201) // EGP needs no rate
+        } finally {
+            dsl.execute("DELETE FROM wego.tours_operator_fx_rate WHERE id = ?", yesterday)
+        }
+        assertThat(pay("suppliers", supplier, "1.00", currency = "EUR", token = manager).status).isEqualTo(201)
     }
 
     @Test
@@ -926,7 +983,8 @@ class ToursOperatorFinanceOpsHttpTest {
             call(
                 "POST",
                 "$staff/payables/suppliers/$supplier/approvals",
-                body = """{"clientRequestId":"${UUID.randomUUID()}","currency":"EGP","amount":6000}""",
+                admin2(),
+                """{"clientRequestId":"${UUID.randomUUID()}","currency":"EGP","amount":6000}""",
             )
         val approvalId: String = approval.read("$.id")
         val token = admin()
@@ -990,6 +1048,94 @@ class ToursOperatorFinanceOpsHttpTest {
         assertThat(call("POST", path, tokenWith("tours-operator.document:print-ops"), body).status).isEqualTo(403)
     }
 
+    // ── review follow-ups (M1, M3, L1) ──────────────────────────────────────
+
+    @Test
+    fun `a collection cannot be reversed below what was already refunded`() {
+        val tour = seedTour()
+        assertThat(cost(""""tourId":"$tour"""", "FIXED", "PER_DEPARTURE", "EUR", "0.00").status).isEqualTo(201)
+        val booking = office(seedSlot(tour))
+        val collected = collect(booking, "87.50")
+        cancel(booking)
+        assertThat(refund(booking, "87.50").status).isEqualTo(201)
+        val cashBefore = cashDay().str("$.expected.amount")
+        val reversed =
+            call(
+                "POST",
+                "$staff/bookings/$booking/collections/${collected.read<String>("$.entry.id")}/reverse",
+                admin2(),
+                """{"clientRequestId":"${UUID.randomUUID()}","reason":"Wrong"}""",
+            )
+        assertThat(reversed.status).isEqualTo(409)
+        assertThat(reversed.str("$.error")).isEqualTo("refunds_exceed_collected")
+        // Nothing changed: the box, the refund position and profitability still agree (collected 87.50, returned 87.50).
+        assertThat(cashDay().str("$.expected.amount")).isEqualTo(cashBefore)
+        assertThat(call("GET", "$staff/bookings/$booking/refunds").str("$.position.refundable.amount")).isEqualTo("0.00")
+        val byBooking = call("GET", "$staff/finance/profitability?from=${today()}&to=${today()}&groupBy=BOOKING")
+        assertThat(amountOf(byBooking.read<List<Map<String, Any?>>>("$.groups[?(@.key == '$booking')].totals").single(), "officeRevenue"))
+            .isEqualTo("0.00")
+    }
+
+    @Test
+    fun `cost components are idempotent per request and an overlapping duplicate is refused`() {
+        val tour = seedTour()
+        val key = UUID.randomUUID()
+        val body = { amount: String, label: String ->
+            """{"clientRequestId":"$key","tourId":"$tour","category":"OWN_EXTRA","label":"$label","basis":"PER_PERSON","currency":"EGP",
+            "amount":"$amount","validFrom":"${today()}"}"""
+        }
+        assertThat(call("POST", "$staff/costs", body = body("50.00", "Water")).status).isEqualTo(201)
+        assertThat(call("POST", "$staff/costs", body = body("50.00", "Water")).status).isEqualTo(200) // replay
+        assertThat(call("POST", "$staff/costs", body = body("60.00", "Water")).str("$.error")).isEqualTo("idempotency_key_reused")
+        val duplicate = cost(""""tourId":"$tour"""", "OWN_EXTRA", "PER_PERSON", "EGP", "70.00") // different label: allowed
+        assertThat(duplicate.status).isEqualTo(201)
+        val same =
+            call(
+                "POST",
+                "$staff/costs",
+                body =
+                    """{"clientRequestId":"${UUID.randomUUID()}","tourId":"$tour","category":"OWN_EXTRA","label":"Water","basis":"PER_PERSON",
+                    "currency":"EGP","amount":55,"validFrom":"${today().plusDays(10)}"}""",
+            )
+        assertThat(same.status).isEqualTo(409)
+        assertThat(same.str("$.error")).isEqualTo("cost_component_duplicate")
+        // Same label in the other currency is a different component.
+        assertThat(
+            call(
+                "POST",
+                "$staff/costs",
+                body =
+                    """{"clientRequestId":"${UUID.randomUUID()}","tourId":"$tour","category":"OWN_EXTRA","label":"Water","basis":"PER_PERSON",
+                    "currency":"EUR","amount":1,"validFrom":"${today()}"}""",
+            ).status,
+        ).isEqualTo(201)
+    }
+
+    @Test
+    fun `an EGP refund follows the rate the customer paid at, FIFO, and only the rest uses today's rate`() {
+        setRate("50.0000")
+        val booking = office(seedSlot(seedTour()))
+        assertThat(collect(booking, "2500.00", currency = "EGP").status).isEqualTo(201) // 50.00 EUR at 50
+        setRate("60.0000")
+        cancel(booking)
+        val first = refund(booking, "1250.00", currency = "EGP")
+        assertThat(first.status).withFailMessage(first.toString()).isEqualTo(201)
+        assertThat(first.str("$.entry.amount.amount")).isEqualTo("25.00") // at the paid rate 50, not today's 60
+        assertThat(first.read<Any?>("$.warning")).isNull()
+        assertThat(refund(booking, "1300.00", currency = "EGP").str("$.error")).isEqualTo("amount_exceeds_refundable")
+        assertThat(refund(booking, "1250.01", currency = "EGP").str("$.error")).isEqualTo("amount_below_minimum")
+        assertThat(refund(booking, "1250.00", currency = "EGP").str("$.position.refundable.amount")).isEqualTo("0.00")
+
+        // Paid in EUR, refunded in EGP: today's rate, with a warning.
+        val eurBooking = office(seedSlot(seedTour()))
+        assertThat(collect(eurBooking, "30.00").status).isEqualTo(201)
+        cancel(eurBooking)
+        val todayRate = refund(eurBooking, "600.00", currency = "EGP")
+        assertThat(todayRate.status).isEqualTo(201)
+        assertThat(todayRate.str("$.entry.amount.amount")).isEqualTo("10.00")
+        assertThat(todayRate.str("$.warning")).isEqualTo("TODAY_RATE_USED")
+    }
+
     // ── cash box ─────────────────────────────────────────────────────────────
 
     private fun cashDay(currency: String = "EUR") = call("GET", "$staff/cash-box?date=${today()}&currency=$currency")
@@ -1015,6 +1161,7 @@ class ToursOperatorFinanceOpsHttpTest {
 
     @Test
     fun `cash box counts, is confirmed by someone else, then refuses cash until reopened`() {
+        setRate("50.0000")
         val booking = office(seedSlot(seedTour()))
         val cashEntry = collect(booking, "50.00")
         assertThat(cashEntry.status).isEqualTo(201)

@@ -218,6 +218,7 @@ class StaffBookingController(
             CollectionResult.NotReversible -> conflict("collection_not_reversible")
             CollectionResult.IdempotencyKeyReused -> conflict("idempotency_key_reused")
             CollectionResult.CashDayClosed -> conflict("cash_day_closed")
+            CollectionResult.RefundsExceedCollected -> conflict("refunds_exceed_collected")
         }
 
     private fun outcome(

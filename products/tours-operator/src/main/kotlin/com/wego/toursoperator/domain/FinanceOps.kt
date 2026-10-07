@@ -104,6 +104,8 @@ data class CostComponent(
     val createdAt: Instant,
     val endedByUserId: UUID? = null,
     val endedAt: Instant? = null,
+    /** Idempotency key of the request that created it (unique per creator). */
+    val clientRequestId: UUID = UUID.randomUUID(),
 ) {
     init {
         require((tourId == null) != (driverId == null)) { "A cost belongs to a tour or to a driver" }
@@ -120,6 +122,17 @@ data class CostComponent(
     }
 
     fun effectiveOn(day: LocalDate): Boolean = !day.isBefore(validFrom) && (validUntil == null || !day.isAfter(validUntil))
+
+    /** Review M3: the same cost twice — same owner, category, label, supplier and currency over overlapping days. */
+    fun duplicates(other: CostComponent): Boolean =
+        tourId == other.tourId &&
+            driverId == other.driverId &&
+            category == other.category &&
+            label == other.label &&
+            supplierId == other.supplierId &&
+            currency == other.currency &&
+            !(validUntil != null && validUntil.isBefore(other.validFrom)) &&
+            !(other.validUntil != null && other.validUntil.isBefore(validFrom))
 
     val ended: Boolean get() = endedAt != null
 
@@ -325,6 +338,123 @@ object SettlementPolicy {
         }
 
     fun needsApproval(egpEquivalent: BigDecimal?): Boolean = egpEquivalent == null || egpEquivalent > MANAGER_LIMIT_EGP
+
+    /** Today's rate may differ from the previous day's by at most 20 %; beyond that EUR values are not trusted without approval. */
+    val RATE_BAND: BigDecimal = BigDecimal("0.20")
+
+    fun rateTrusted(
+        today: FxRate?,
+        previous: FxRate?,
+    ): Boolean =
+        today != null &&
+            (
+                previous == null ||
+                    today.egpPerEur
+                        .subtract(previous.egpPerEur)
+                        .abs()
+                        .divide(previous.egpPerEur, 6, RoundingMode.HALF_UP) <= RATE_BAND
+            )
+
+    /**
+     * OPS2-F review M2 (owner-delegated reading): the manager limit is per party per Cairo day.
+     * Today's non-reversed payments to the party plus this one must stay ≤ 5000.00 EGP; an
+     * unknown EGP value (EUR without a rate set today, or outside the 20 % band) needs approval.
+     */
+    fun dailyNeedsApproval(
+        paidTodayEgp: BigDecimal?,
+        egpEquivalent: BigDecimal?,
+        currency: PaidCurrency,
+        rateTrusted: Boolean,
+    ): Boolean =
+        egpEquivalent == null ||
+            paidTodayEgp == null ||
+            (currency == PaidCurrency.EUR && !rateTrusted) ||
+            paidTodayEgp.add(egpEquivalent) > MANAGER_LIMIT_EGP
+
+    /** Today's non-reversed payments to one party, in EGP; null when one of them has no EGP value. */
+    fun paidTodayEgp(
+        payments: List<SettlementPayment>,
+        isToday: (Instant) -> Boolean,
+    ): BigDecimal? {
+        val reversed = payments.mapNotNull { it.reversesPaymentId }.toSet()
+        return payments
+            .filter { it.kind == SettlementPaymentKind.PAYMENT && it.id !in reversed && isToday(it.recordedAt) }
+            .fold(BigDecimal.ZERO.setScale(2) as BigDecimal?) { acc, p -> p.egpEquivalent?.let { acc?.add(it) } }
+    }
+}
+
+/** One EGP office collection still available to be refunded at its own rate. */
+data class EgpLot(
+    val collectionId: UUID,
+    val egp: BigDecimal,
+    val eur: BigDecimal,
+    val rate: FxRate,
+)
+
+/**
+ * OPS2-F review L1: an EGP refund returns money at the rate(s) the customer paid at, FIFO over
+ * the booking's EGP collections (net of reversals and of earlier EGP refunds). Only what goes
+ * beyond those collections (or a booking paid only in EUR) uses today's rate, with a warning.
+ */
+object EgpRefundRule {
+    data class Conversion(
+        val eurFromLots: BigDecimal,
+        val excessEgp: BigDecimal,
+        val firstRate: FxRate?,
+    )
+
+    fun remainingLots(
+        collections: List<OfficeCollection>,
+        refunds: List<OfficeRefund>,
+    ): List<EgpLot> {
+        val reversedCollections = collections.mapNotNull { it.reversesCollectionId }.toSet()
+        val reversedRefunds = refunds.mapNotNull { it.reversesRefundId }.toSet()
+        var alreadyRefunded =
+            refunds
+                .filter { it.kind == OfficeRefundKind.REFUND && it.currencyPaid == PaidCurrency.EGP && it.id !in reversedRefunds }
+                .fold(BigDecimal.ZERO.setScale(2)) { acc, r -> acc.add(r.amountPaid.amount) }
+        return collections
+            .filter { it.kind == OfficeCollectionKind.COLLECTION && it.currencyPaid == PaidCurrency.EGP && it.id !in reversedCollections }
+            .sortedWith(compareBy({ it.recordedAt }, { it.id }))
+            .mapNotNull { c ->
+                val egp = c.amountPaid.amount
+                val used = alreadyRefunded.min(egp)
+                alreadyRefunded = alreadyRefunded.subtract(used)
+                val left = egp.subtract(used)
+                if (left.signum() <= 0) {
+                    null
+                } else {
+                    val eur =
+                        if (used.signum() ==
+                            0
+                        ) {
+                            c.amount.amount
+                        } else {
+                            c.amount.amount
+                                .multiply(left)
+                                .divide(egp, 2, RoundingMode.HALF_UP)
+                        }
+                    EgpLot(c.id, left, eur, checkNotNull(c.fxRate))
+                }
+            }
+    }
+
+    fun convert(
+        lots: List<EgpLot>,
+        amountEgp: BigDecimal,
+    ): Conversion {
+        var remaining = amountEgp
+        var eur = BigDecimal.ZERO.setScale(2)
+        var first: FxRate? = null
+        for (lot in lots) {
+            if (remaining.signum() <= 0) break
+            val take = remaining.min(lot.egp)
+            eur = eur.add(if (take.compareTo(lot.egp) == 0) lot.eur else lot.eur.multiply(take).divide(lot.egp, 2, RoundingMode.HALF_UP))
+            first = first ?: lot.rate
+            remaining = remaining.subtract(take)
+        }
+        return Conversion(eur, remaining, first)
+    }
 }
 
 // ── Cash box ────────────────────────────────────────────────────────────────

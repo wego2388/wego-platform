@@ -6,6 +6,7 @@ import OfficeRefundPanel from "../app/components/OfficeRefundPanel.vue";
 import SettlementStatementDoc from "../app/components/documents/SettlementStatementDocument.vue";
 import CancellationFormDoc from "../app/components/documents/CancellationFormDocument.vue";
 import CashBoxPage from "../app/pages/cash-box.vue";
+import CostsPage from "../app/pages/costs.vue";
 import SettlementsPage from "../app/pages/settlements.vue";
 import ProfitabilityPage from "../app/pages/profitability.vue";
 import { writeAuthSession, type AuthSession } from "../app/composables/useAuthSession";
@@ -15,7 +16,7 @@ import { docMessage } from "../app/utils/documentMessages";
 import { erpMessage, formatErpSignedMoney, isLocalizedErpRoute } from "../app/utils/erpLocale";
 import { financeOpsAr, financeOpsEn } from "../app/utils/financeOpsMessages";
 import {
-  financeErrorMessage, monthRange, needsApproval, parseStatementSubject, statementSubject, toCents,
+  financeErrorMessage, monthRange, needsApproval, needsApprovalToday, parseStatementSubject, statementSubject, toCents,
 } from "../app/utils/financeOps";
 
 vi.mock("../app/composables/useToursApi", async (importOriginal) => ({
@@ -23,7 +24,7 @@ vi.mock("../app/composables/useToursApi", async (importOriginal) => ({
   listRefunds: vi.fn(), recordRefund: vi.fn(), reverseRefund: vi.fn(), getFxRateToday: vi.fn(),
   getCashDay: vi.fn(), listRecentCashDays: vi.fn(), countCash: vi.fn(), confirmCash: vi.fn(), reopenCash: vi.fn(),
   listPayables: vi.fn(), getStatement: vi.fn(), paySettlement: vi.fn(), approveSettlement: vi.fn(), adjustPayable: vi.fn(),
-  getProfitability: vi.fn(), listAllStaffTours: vi.fn(),
+  getProfitability: vi.fn(), listAllStaffTours: vi.fn(), listCosts: vi.fn(), createCost: vi.fn(),
 }));
 
 const eur = (amount: string) => ({ amount, currencyCode: "EUR" as const });
@@ -204,7 +205,7 @@ describe("settlements page", () => {
     openIssues: 1, pendingApprovals: 1,
   };
   const statement: PartyStatement = {
-    party, from: "2026-10-01", to: "2026-10-31", balances: party.balances, managerLimitEgp: "5000.00",
+    party, from: "2026-10-01", to: "2026-10-31", balances: party.balances, managerLimitEgp: "5000.00", paidTodayEgp: "0.00",
     movements: [{ date: "2026-10-07", kind: "DEPARTURE", amount: egp("15000.00"), slotId: "s1", tourId: "t1", timeSlot: "MORNING", guests: 3, labels: ["Supplier price"], adjustment: null, payment: null }],
     issues: [{ date: "2026-10-07", slotId: "s2", tourId: "t1", timeSlot: "MORNING", code: "MANUAL_AMOUNT_NEEDED" }],
     approvals: [{ id: "ap1", amount: egp("6000.00"), note: null, approvedByEmail: "owner@x.y", approvedAt: "2026-10-07T10:00:00Z", usedByPaymentId: null }],
@@ -303,4 +304,63 @@ describe("OPS2-F documents", () => {
       expect(w.get("[data-testid=return-state]").text()).toBe(docMessage(lang, "doc.cancel.state.RETURNED"));
     });
   }
+});
+
+describe("review follow-ups (M2, M3, L1, L2)", () => {
+  it("previews the daily limit: today's payments count, unknown means approval", () => {
+    expect(needsApprovalToday("2000", "EGP", null, "3000.00")).toBe(false);
+    expect(needsApprovalToday("2000.01", "EGP", null, "3000.00")).toBe(true);
+    expect(needsApprovalToday("0.01", "EGP", null, "5000.00")).toBe(true);
+    expect(needsApprovalToday("10", "EGP", null, null)).toBe(true);
+    expect(needsApprovalToday("40", "EUR", "50.0000", "3000.00")).toBe(false);
+    expect(needsApprovalToday("40.01", "EUR", "50.0000", "3000.00")).toBe(true);
+  });
+
+  it("explains the new refusals", () => {
+    const own = financeErrorMessage(new api.ToursApiError(403, "approver_cannot_pay", { error: "approver_cannot_pay", details: {} }));
+    expect(erpMessage("en", own.key, own.params)).toBe("You approved this payment: someone else must record it.");
+    const charge = financeErrorMessage(new api.ToursApiError(403, "charge_needs_approval", { error: "charge_needs_approval", details: {} }));
+    expect(erpMessage("ar", charge.key, charge.params)).toContain("5000");
+    expect(financeErrorMessage(new api.ToursApiError(409, "cost_component_duplicate", {})).key).toBe("fops.err.cost_component_duplicate");
+  });
+
+  it("warns that a past start restates history and sends one idempotency key per save", async () => {
+    setup("en", ["tours-operator.cost:manage"]);
+    vi.mocked(api.listCosts).mockResolvedValue([]);
+    vi.mocked(api.createCost).mockRejectedValue(new api.ToursApiError(409, "cost_component_duplicate", { error: "cost_component_duplicate", details: {} }));
+    const w = mount(CostsPage);
+    await flushPromises();
+    await w.get("button.bg-sts-ocean").trigger("click");
+    await w.get("#cost-category").setValue("FIXED");
+    await w.get("#cost-label").setValue("Guide");
+    await w.get("#cost-amount").setValue("300");
+    expect(w.find("#cost-past-warning").exists()).toBe(false);
+    await w.get("#cost-from").setValue("2020-01-01");
+    expect(w.get("#cost-past-warning").text()).toBe("This start date is in the past: it restates past profit and payables.");
+    await w.get("#cost-form").trigger("submit");
+    await flushPromises();
+    await w.get("#cost-form").trigger("submit");
+    await flushPromises();
+    const keys = vi.mocked(api.createCost).mock.calls.map((c) => c[1].clientRequestId);
+    expect(keys).toHaveLength(2);
+    expect(keys[0]).toBe(keys[1]);
+    expect(w.text()).toContain("The same cost is already in force for these days");
+  });
+
+  it("tells staff when an EGP refund used today's rate", async () => {
+    setup("en", ["tours-operator.booking:refund-office"]);
+    const booking = { id: "b1", channel: "OFFICE", status: "CANCELLED" } as Booking;
+    vi.mocked(api.listRefunds).mockResolvedValue({ entries: [], position: { collected: eur("30.00"), refunded: eur("0.00"), refundable: eur("30.00") } });
+    vi.mocked(api.getFxRateToday).mockResolvedValue({ date: "2026-10-07", rate: { id: "r1", rateDate: "2026-10-07", egpPerEur: "60.0000", setByUserId: null, setAt: "2026-10-07T08:00:00Z" } });
+    vi.mocked(api.recordRefund).mockResolvedValue({ warning: "TODAY_RATE_USED" } as never);
+    const w = mount(OfficeRefundPanel, { props: { booking, session: session(["tours-operator.booking:refund-office"]) } });
+    await flushPromises();
+    await w.get("#refund-currency").setValue("EGP");
+    await w.get("#refund-amount").setValue("600");
+    await w.get("#refund-reason").setValue("Policy");
+    await w.get("#refund-form").trigger("submit");
+    await flushPromises();
+    expect(vi.mocked(api.recordRefund).mock.calls[0]![2]).toMatchObject({ currency: "EGP", fxRateId: "r1" });
+    expect(w.get("#refund-today-rate").exists()).toBe(true);
+  });
 });

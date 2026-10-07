@@ -399,6 +399,99 @@ class FinanceOpsDomainTest {
         assertThrows<IllegalArgumentException> { refund.copy(method = RefundMethod.INSTAPAY) }
     }
 
+    @Test
+    fun `the daily limit adds today's payments, and an untrusted EUR value needs approval`() {
+        val party = PartyRef(PartyType.SUPPLIER, UUID.randomUUID())
+        val today = { _: Instant -> true }
+        val first = payment(party, "3000.00")
+        val reversedOne = payment(party, "1500.00")
+        val reversal = payment(party, "1500.00", kind = SettlementPaymentKind.REVERSAL, reverses = reversedOne.id)
+        val paid = SettlementPolicy.paidTodayEgp(listOf(first, reversedOne, reversal), today)
+        assertEquals(d("3000.00"), paid)
+        assertFalse(SettlementPolicy.dailyNeedsApproval(paid, d("2000.00"), PaidCurrency.EGP, rateTrusted = false))
+        assertTrue(SettlementPolicy.dailyNeedsApproval(paid, d("2000.01"), PaidCurrency.EGP, rateTrusted = false))
+        assertTrue(SettlementPolicy.dailyNeedsApproval(paid, d("10.00"), PaidCurrency.EUR, rateTrusted = false))
+        assertTrue(SettlementPolicy.dailyNeedsApproval(null, d("10.00"), PaidCurrency.EGP, rateTrusted = true))
+        val rate = { v: String -> FxRate(UUID.randomUUID(), day, d(v), null, now) }
+        assertTrue(SettlementPolicy.rateTrusted(rate("60.0000"), rate("50.0000")))
+        assertFalse(SettlementPolicy.rateTrusted(rate("60.0100"), rate("50.0000")))
+        assertTrue(SettlementPolicy.rateTrusted(rate("50.0000"), null))
+        assertFalse(SettlementPolicy.rateTrusted(null, rate("50.0000")))
+    }
+
+    @Test
+    fun `an EGP refund consumes EGP collections first in, net of reversals and earlier refunds`() {
+        val booking = BookingId(UUID.randomUUID())
+        val r50 = FxRate(UUID.randomUUID(), day, d("50.0000"), null, now)
+        val r60 = FxRate(UUID.randomUUID(), day, d("60.0000"), null, now)
+
+        fun egpCollection(
+            egp: String,
+            eur: String,
+            rate: FxRate,
+            at: Instant,
+        ) = OfficeCollection(
+            UUID.randomUUID(),
+            booking,
+            OfficeCollectionKind.COLLECTION,
+            CollectionMethod.CASH_AT_OFFICE,
+            money(eur),
+            PaidCurrency.EGP,
+            money(egp),
+            rate,
+            null,
+            null,
+            null,
+            null,
+            UUID.randomUUID(),
+            at,
+        )
+        val a = egpCollection("1000.00", "20.00", r50, now)
+        val b = egpCollection("600.00", "10.00", r60, now.plusSeconds(60))
+        val gone = egpCollection("500.00", "10.00", r50, now.plusSeconds(30))
+        val reversal =
+            gone.copy(
+                id = UUID.randomUUID(),
+                kind = OfficeCollectionKind.REVERSAL,
+                reversesCollectionId = gone.id,
+                reason = "wrong",
+            )
+        val earlier =
+            OfficeRefund(
+                UUID.randomUUID(),
+                booking,
+                OfficeRefundKind.REFUND,
+                RefundMethod.CASH,
+                money("8.00"),
+                PaidCurrency.EGP,
+                money("400.00"),
+                r50,
+                null,
+                "part",
+                null,
+                null,
+                UUID.randomUUID(),
+                now,
+            )
+        val lots = EgpRefundRule.remainingLots(listOf(a, gone, reversal, b), listOf(earlier))
+        assertEquals(listOf(d("600.00"), d("600.00")), lots.map { it.egp })
+        assertEquals(d("12.00"), lots.first().eur)
+        val conversion = EgpRefundRule.convert(lots, d("900.00")) // 600 at 50 = 12.00, then 300 of the 60-rate lot = 5.00
+        assertEquals(d("17.00"), conversion.eurFromLots)
+        assertEquals(d("0.00"), conversion.excessEgp.setScale(2))
+        assertEquals(r50.id, conversion.firstRate?.id)
+        assertEquals(d("300.00"), EgpRefundRule.convert(lots, d("1500.00")).excessEgp)
+    }
+
+    @Test
+    fun `cost duplicates are the same owner, category, label, supplier and currency over overlapping days`() {
+        val base = component(CostCategory.OWN_EXTRA, CostBasis.PER_PERSON, PaidCurrency.EGP, "50.00", from = day, until = day.plusDays(10))
+        assertTrue(base.duplicates(base.copy(id = UUID.randomUUID(), validFrom = day.plusDays(10), validUntil = null)))
+        assertFalse(base.duplicates(base.copy(id = UUID.randomUUID(), validFrom = day.plusDays(11), validUntil = null)))
+        assertFalse(base.duplicates(base.copy(id = UUID.randomUUID(), currency = PaidCurrency.EUR)))
+        assertFalse(base.duplicates(base.copy(id = UUID.randomUUID(), label = "Other")))
+    }
+
     companion object {
         private val CAIRO: ZoneId = ZoneId.of("Africa/Cairo")
     }

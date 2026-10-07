@@ -64,6 +64,8 @@ data class FinanceErrorResponse(
 // ── Costs ────────────────────────────────────────────────────────────────────
 
 data class CostComponentRequest(
+    /** Idempotency key: a retry with the same key and payload returns 200 with what was created. */
+    val clientRequestId: UUID,
     val tourId: UUID? = null,
     val driverId: UUID? = null,
     val category: CostCategory,
@@ -305,6 +307,8 @@ data class OfficeRefundsResponse(
 data class OfficeRefundOutcomeResponse(
     val entry: OfficeRefundResponse,
     val position: RefundPositionResponse,
+    /** TODAY_RATE_USED: part of an EGP refund had no EGP collection to follow and was valued at today's rate. */
+    val warning: String? = null,
 )
 
 // ── Payables and settlements ────────────────────────────────────────────────
@@ -441,8 +445,10 @@ data class PartyStatementResponse(
     val movements: List<StatementMovementResponse>,
     val issues: List<StatementIssueResponse>,
     val approvals: List<SettlementApprovalResponse>,
-    /** The manager limit per payment, EGP (owner-delegated default). */
+    /** The manager limit per party per Cairo day, EGP (owner-delegated default). */
     val managerLimitEgp: String,
+    /** Today's non-reversed payments to this party in EGP (counted against the daily limit); null = unknown (needs approval). */
+    val paidTodayEgp: String?,
 )
 
 fun PartyStatement.toResponse(summary: PartySummaryResponse) =
@@ -469,6 +475,7 @@ fun PartyStatement.toResponse(summary: PartySummaryResponse) =
         issues = issues.map { StatementIssueResponse(it.date, it.slotId.value, it.tourId.value, it.timeSlot, it.code) },
         approvals = approvals.map { it.toResponse() },
         managerLimitEgp = SettlementPolicy.MANAGER_LIMIT_EGP.toPlainString(),
+        paidTodayEgp = paidTodayEgp?.toPlainString(),
     )
 
 data class PayRequest(

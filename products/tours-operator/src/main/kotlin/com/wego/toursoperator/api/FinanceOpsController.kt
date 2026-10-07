@@ -137,7 +137,21 @@ class CostController(
         }
 
     private fun CostComponentRequest.toInput() =
-        CostInput(tourId, driverId, category, label, basis, currency, amount, childAmount, supplierId, validFrom, validUntil, note)
+        CostInput(
+            tourId,
+            driverId,
+            category,
+            label,
+            basis,
+            currency,
+            amount,
+            childAmount,
+            supplierId,
+            validFrom,
+            validUntil,
+            note,
+            clientRequestId,
+        )
 }
 
 /**
@@ -209,7 +223,7 @@ class OfficeRefundController(
                     request.clientRequestId,
                 ),
             ),
-        ) { OfficeRefundOutcomeResponse(it.entry.toResponse(), it.position.toResponse()) }
+        ) { OfficeRefundOutcomeResponse(it.entry.toResponse(), it.position.toResponse(), it.warning) }
 
     @PostMapping("/{refundId}/reverse")
     @PreAuthorize("hasAuthority('tours-operator.booking:refund-office')")
@@ -343,6 +357,7 @@ class PayablesController(
                     request.reason,
                     actorOf(authentication),
                     request.clientRequestId,
+                    authentication.authorities.any { it.authority == "tours-operator.settlement:approve" },
                 ),
             ),
         ) { it.toResponse() }

@@ -39,6 +39,8 @@ CREATE TABLE wego.tours_operator_cost_component (
     valid_until             date,
     replaces_component_id   uuid REFERENCES wego.tours_operator_cost_component (id) ON DELETE RESTRICT,
     note                    varchar(500),
+    -- Idempotency key of the staff request (or of the import row) that created it.
+    client_request_id       uuid NOT NULL,
     created_by_user_id      uuid REFERENCES wego.identity_user (id) ON DELETE SET NULL,
     created_at              timestamp with time zone NOT NULL,
     ended_by_user_id        uuid REFERENCES wego.identity_user (id) ON DELETE SET NULL,
@@ -72,6 +74,8 @@ CREATE TABLE wego.tours_operator_cost_component (
 
 CREATE INDEX tours_operator_cost_component_tour_idx ON wego.tours_operator_cost_component (tour_id, valid_from);
 CREATE INDEX tours_operator_cost_component_driver_idx ON wego.tours_operator_cost_component (driver_id, valid_from);
+CREATE UNIQUE INDEX tours_operator_cost_component_request_unique
+    ON wego.tours_operator_cost_component (created_by_user_id, client_request_id);
 -- A row is replaced at most once.
 CREATE UNIQUE INDEX tours_operator_cost_component_replaces_unique
     ON wego.tours_operator_cost_component (replaces_component_id) WHERE replaces_component_id IS NOT NULL;

@@ -113,6 +113,9 @@ sealed class CollectionResult {
 
     /** Today's office cash box for this currency is closed: no cash entry can be added to it (OPS2-F). */
     data object CashDayClosed : CollectionResult()
+
+    /** Reversing this collection would leave less collected than was already refunded (OPS2-F review M1). */
+    data object RefundsExceedCollected : CollectionResult()
 }
 
 /**
@@ -258,6 +261,16 @@ class OfficeCollectionService(
             if (target.kind != OfficeCollectionKind.COLLECTION) return@runInTransaction CollectionResult.NotReversible
             if (target.recordedByUserId == command.actorUserId) return@runInTransaction CollectionResult.CannotReverseOwn
             if (entries.any { it.reversesCollectionId == target.id }) return@runInTransaction CollectionResult.AlreadyReversed
+            // Money already handed back can never exceed what stays collected (both under the booking lock).
+            val refunded =
+                refundRepository?.findByBooking(booking.booking.id)?.let {
+                    com.wego.toursoperator.domain.OfficeRefund
+                        .netRefunded(it)
+                }
+                    ?: BigDecimal.ZERO
+            if (OfficePaymentSummary.netCollected(entries).subtract(target.amount.amount) < refunded) {
+                return@runInTransaction CollectionResult.RefundsExceedCollected
+            }
             // A reversal takes cash out of today's box (it is dated today, whatever day the original was).
             if (target.method.isCash && !cashDayGate.lockOpenToday(target.currencyPaid)) {
                 return@runInTransaction CollectionResult.CashDayClosed

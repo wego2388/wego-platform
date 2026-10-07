@@ -42,16 +42,30 @@ export function centsToText(cents: bigint): string {
  * Preview of the manager limit: EGP as typed, EUR at today's rate (rounded half-up to piastres).
  * Exactly 5000.00 EGP needs no approval; EUR without a rate always needs one (the server says the same).
  */
-export function needsApproval(amount: string, currency: PaidCurrency, egpPerEur: string | null): boolean {
+export function needsApproval(amount: string, currency: PaidCurrency, egpPerEur: string | null, limitCents?: bigint): boolean {
   const cents = toCents(amount);
   if (cents === null) return false;
-  const limit = toCents(MANAGER_LIMIT_EGP)!;
+  const limit = limitCents ?? toCents(MANAGER_LIMIT_EGP)!;
   if (currency === "EGP") return cents > limit;
   if (!egpPerEur || !/^\d+(\.\d{1,4})?$/.test(egpPerEur)) return true;
   const [w, f = ""] = egpPerEur.split(".") as [string, string?];
   const rate10k = BigInt(w) * 10000n + BigInt(f.padEnd(4, "0") || "0");
   const egpCents = (cents * rate10k + 5000n) / 10000n;
   return egpCents > limit;
+}
+
+/**
+ * Review M2: the limit is per party per Cairo day. Adds today's payments (from the statement);
+ * an unknown figure (null) always needs approval, like the server.
+ */
+export function needsApprovalToday(amount: string, currency: PaidCurrency, egpPerEur: string | null, paidTodayEgp: string | null): boolean {
+  if (toCents(amount) === null) return false;
+  if (paidTodayEgp === null) return true;
+  const paid = paidTodayEgp === "0.00" || paidTodayEgp === "0" ? 0n : (toCents(paidTodayEgp) ?? 0n);
+  const limit = toCents(MANAGER_LIMIT_EGP)!;
+  const remaining = limit - paid;
+  if (remaining <= 0n) return true;
+  return needsApproval(amount, currency, egpPerEur, remaining);
 }
 
 export function partyPath(type: "SUPPLIER" | "DRIVER"): PartyPath {
@@ -80,7 +94,7 @@ const CODES = new Set<string>([
   "cash_day_not_closed", "cash_day_in_future", "cash_expected_changed", "cannot_confirm_own_count", "cannot_reverse_own_refund",
   "entry_already_reversed", "refund_already_reversed", "reference_required", "reference_not_allowed", "fx_rate_not_set",
   "fx_rate_changed", "cost_already_ended", "effective_before_current", "basis_must_be_per_departure", "child_amount_per_person_only",
-  "idempotency_key_reused",
+  "idempotency_key_reused", "approver_cannot_pay", "charge_needs_approval", "slot_not_served_by_party", "cost_component_duplicate",
 ]);
 
 /** Plain-language message for an OPS2-F refusal, with the server's details (balance, refundable, expected) as parameters. */
@@ -89,7 +103,7 @@ export function financeErrorMessage(error: unknown): ErpMessageDescriptor {
   if (error.status === 401) return { key: "common.sessionExpired" };
   if (error.status === 403 && !CODES.has(error.errorCode)) return { key: "fops.err.forbidden" };
   const details = (error.body as { details?: Record<string, string> } | null)?.details ?? {};
-  if (CODES.has(error.errorCode)) return { key: `fops.err.${error.errorCode}` as ErpMessageKey, params: details };
+  if (CODES.has(error.errorCode)) return { key: `fops.err.${error.errorCode}` as ErpMessageKey, params: { limit: MANAGER_LIMIT_EGP, ...details } };
   if (error.status === 400 || error.errorCode === "validation_failed") return { key: "fops.err.invalid" };
   return { key: "fops.err.generic", params: { code: error.errorCode } };
 }

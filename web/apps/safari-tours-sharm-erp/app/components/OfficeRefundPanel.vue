@@ -25,6 +25,7 @@ const data = ref<OfficeRefunds | null>(null);
 const rate = ref<FxRate | null>(null);
 const error = ref<ErpMessageDescriptor | null>(null);
 const done = ref(false);
+const todayRateUsed = ref(false);
 const busy = ref(false);
 const METHODS: RefundMethod[] = ["CASH", "MOBILE_WALLET", "CARD_TERMINAL", "INSTAPAY", "FAWRY_OFFICE", "BANK_TRANSFER"];
 const method = ref<RefundMethod>("CASH");
@@ -52,18 +53,15 @@ async function submit() {
     error.value = { key: "fops.reasonRequired" };
     return;
   }
-  if (currency.value === "EGP" && !rate.value) {
-    error.value = { key: "fops.refund.noRate" };
-    return;
-  }
   busy.value = true;
   try {
-    await recordRefund(props.session.token, props.booking.id, {
+    const outcome = await recordRefund(props.session.token, props.booking.id, {
       clientRequestId: key, method: method.value, amount: Number(amount.value), currency: currency.value, reason: reason.value.trim(),
       ...(method.value !== "CASH" ? { reference: reference.value.trim() } : {}),
       ...(currency.value === "EGP" && rate.value ? { fxRateId: rate.value.id } : {}),
     });
     key = newRequestId();
+    todayRateUsed.value = outcome.warning === "TODAY_RATE_USED";
     amount.value = "";
     reference.value = "";
     reason.value = "";
@@ -122,6 +120,7 @@ const k = (s: string) => t(s as ErpMessageKey);
       </li>
     </ul>
     <p v-if="done" class="mt-3 text-sm font-semibold text-sts-success" role="status">{{ t('fops.saved') }}</p>
+    <p v-if="todayRateUsed" id="refund-today-rate" class="mt-1 text-sm font-semibold text-sts-warning" role="status">{{ t('fops.refund.todayRateUsed') }}</p>
     <WegoAlert v-if="error" variant="danger" class="mt-3" role="alert">{{ t(error.key, error.params) }}</WegoAlert>
     <form v-if="canRefund && data && data.position.refundable.amount !== '0.00'" id="refund-form" class="mt-4 grid gap-3 md:grid-cols-3" @submit.prevent="submit">
       <label class="grid gap-1 text-sm font-semibold">{{ t('fops.method') }}<select id="refund-method" v-model="method" :class="FIELD"><option v-for="m in METHODS" :key="m" :value="m">{{ k(`fops.rm.${m}`) }}</option></select></label>

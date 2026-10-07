@@ -163,6 +163,8 @@ export function officeErrorMessage(error: unknown): ErpMessageDescriptor {
     cannot_reverse_own_collection: "office.err.cannot_reverse_own_collection",
     collection_already_reversed: "office.err.collection_already_reversed",
     collection_not_reversible: "office.err.collection_not_reversible",
+    refunds_exceed_collected: "office.err.refunds_exceed_collected",
+    cash_day_closed: "fops.err.cash_day_closed",
   };
   if (Object.hasOwn(codes, error.errorCode)) return { key: codes[error.errorCode]! };
   if (error.errorCode.startsWith("booking_not_open_status_")) return { key: "office.err.booking_not_open" };

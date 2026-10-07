@@ -5,15 +5,17 @@ import com.wego.toursoperator.domain.BookingChannel
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.BookingStatus
 import com.wego.toursoperator.domain.CollectionReference
+import com.wego.toursoperator.domain.EgpRefundRule
 import com.wego.toursoperator.domain.FinanceAmount
+import com.wego.toursoperator.domain.FxRate
 import com.wego.toursoperator.domain.Money
 import com.wego.toursoperator.domain.OfficePaymentSummary
 import com.wego.toursoperator.domain.OfficeRefund
 import com.wego.toursoperator.domain.OfficeRefundKind
 import com.wego.toursoperator.domain.PaidCurrency
 import com.wego.toursoperator.domain.RefundMethod
-import com.wego.toursoperator.domain.Settlement
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.Clock
 import java.time.Instant
 import java.util.UUID
@@ -49,6 +51,8 @@ data class RefundPosition(
 data class RefundOutcome(
     val entry: OfficeRefund,
     val position: RefundPosition,
+    /** TODAY_RATE_USED when part of an EGP refund had no EGP collection to follow and used today's rate. */
+    val warning: String? = null,
 )
 
 /**
@@ -103,25 +107,38 @@ class OfficeRefundService(
 
             val before = position(booking.id)
             if (before.refundable.signum() <= 0) return@runInTransaction conflict("nothing_to_refund")
-            val rate = if (command.currency == PaidCurrency.EGP) fxRates.latestFor(FxRateService.todayInSharm(clock)) else null
-            if (command.currency == PaidCurrency.EGP) {
-                if (rate == null) return@runInTransaction conflict("fx_rate_not_set")
-                if (command.fxRateId == null) return@runInTransaction invalid("fx_rate_id_required")
-                if (command.fxRateId != rate.id) return@runInTransaction conflict("fx_rate_changed")
-            }
-            val settled =
-                when (val s = Settlement.of(amountPaid, command.currency, rate, Money(before.refundable))) {
-                    is Settlement.Settled -> s
-                    Settlement.RateMissing -> return@runInTransaction conflict("fx_rate_not_set")
-                    Settlement.BelowMinimum -> return@runInTransaction invalid("amount_below_minimum")
-                    is Settlement.ExceedsOutstanding ->
-                        return@runInTransaction conflict(
-                            "amount_exceeds_refundable",
-                            mapOf(
-                                "refundable" to before.refundable.toPlainString(),
-                            ),
-                        )
+            val exceeds = conflict("amount_exceeds_refundable", mapOf("refundable" to before.refundable.toPlainString()))
+            var warning: String? = null
+            val settledEur: Money
+            val settledRate: FxRate?
+            if (command.currency == PaidCurrency.EUR) {
+                if (amountPaid.amount > before.refundable) return@runInTransaction exceeds
+                settledEur = amountPaid
+                settledRate = null
+            } else {
+                // Review L1: EGP goes back at the rate(s) the customer paid at, FIFO; only the excess uses today's rate.
+                val lots = EgpRefundRule.remainingLots(collections.findByBooking(booking.id), refunds.findByBooking(booking.id))
+                val conversion = EgpRefundRule.convert(lots, amountPaid.amount)
+                var eur = conversion.eurFromLots
+                var anchor = conversion.firstRate
+                if (conversion.excessEgp.signum() > 0) {
+                    val today = fxRates.latestFor(FxRateService.todayInSharm(clock)) ?: return@runInTransaction conflict("fx_rate_not_set")
+                    if (command.fxRateId == null) return@runInTransaction invalid("fx_rate_id_required")
+                    if (command.fxRateId != today.id) return@runInTransaction conflict("fx_rate_changed")
+                    val excessEur = conversion.excessEgp.divide(today.egpPerEur, 2, RoundingMode.HALF_UP)
+                    // Never hand back EGP that is worth nothing in EUR (a rounding gift).
+                    if (excessEur.signum() <= 0) return@runInTransaction invalid("amount_below_minimum")
+                    eur = eur.add(excessEur)
+                    anchor = anchor ?: today
+                    warning = "TODAY_RATE_USED"
                 }
+                if (eur.signum() <= 0) return@runInTransaction invalid("amount_below_minimum")
+                if (eur > before.refundable) return@runInTransaction exceeds
+                val blended = amountPaid.amount.divide(eur, FxRate.RATE_SCALE, RoundingMode.HALF_UP)
+                if (blended < FxRate.MIN_RATE || blended > FxRate.MAX_RATE) return@runInTransaction invalid("amount_below_minimum")
+                settledEur = Money(eur)
+                settledRate = FxRate(checkNotNull(anchor).id, anchor.rateDate, blended, anchor.setByUserId, anchor.setAt)
+            }
             if (command.method.isCash && !cashDayGate.lockOpenToday(command.currency)) return@runInTransaction conflict("cash_day_closed")
 
             val entry =
@@ -130,10 +147,10 @@ class OfficeRefundService(
                     bookingId = booking.id,
                     kind = OfficeRefundKind.REFUND,
                     method = command.method,
-                    amount = settled.eur,
+                    amount = settledEur,
                     currencyPaid = command.currency,
                     amountPaid = amountPaid,
-                    fxRate = settled.rate,
+                    fxRate = settledRate,
                     reference = reference,
                     reason = reason,
                     reversesRefundId = null,
@@ -142,7 +159,7 @@ class OfficeRefundService(
                     recordedAt = Instant.now(clock),
                 )
             refunds.append(entry)
-            FinanceResult.Ok(RefundOutcome(entry, position(booking.id)))
+            FinanceResult.Ok(RefundOutcome(entry, position(booking.id), warning))
         }
 
     /** Cancels one refund in full. Never by the person who recorded it. */

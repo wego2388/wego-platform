@@ -53,6 +53,8 @@ data class CostInput(
     val validFrom: LocalDate,
     val validUntil: LocalDate?,
     val note: String?,
+    /** Idempotency key (review M3): a retry with the same key and payload returns what was created. */
+    val clientRequestId: UUID = UUID.randomUUID(),
 )
 
 /**
@@ -89,14 +91,45 @@ class CostService(
         actorUserId: UUID,
     ): FinanceResult<CostComponent> =
         transactionRunner.runInTransaction {
+            replay(input, actorUserId, replaces = null)?.let { return@runInTransaction it }
             val component =
                 when (val built = build(input, actorUserId, replaces = null)) {
                     is FinanceResult.Ok -> built.value
                     is FinanceResult.Failed -> return@runInTransaction built
                 }
+            duplicate(component, except = null)?.let { return@runInTransaction it }
             costs.append(component)
             FinanceResult.Ok(component)
         }
+
+    /** An idempotent retry: same actor and key. Same payload returns the component (200); a different one is refused. */
+    private fun replay(
+        input: CostInput,
+        actorUserId: UUID,
+        replaces: UUID?,
+    ): FinanceResult<CostComponent>? {
+        val existing = costs.findByRequest(actorUserId, input.clientRequestId) ?: return null
+        val same =
+            existing.tourId?.value == input.tourId &&
+                existing.driverId == input.driverId &&
+                existing.category == input.category &&
+                existing.label == input.label.trim() &&
+                existing.currency == input.currency &&
+                existing.amount.compareTo(input.amount) == 0 &&
+                existing.validFrom == input.validFrom &&
+                existing.replacesComponentId == replaces
+        return if (same) FinanceResult.Ok(existing, created = false) else conflict("idempotency_key_reused")
+    }
+
+    /** Review M3: an identical open component over overlapping days is refused (use "change from a date" instead). */
+    private fun duplicate(
+        component: CostComponent,
+        except: UUID?,
+    ): FinanceResult.Failed? {
+        costs.lockOwner(component.tourId?.value ?: checkNotNull(component.driverId))
+        val clash = costs.findAll().firstOrNull { !it.ended && it.id != except && it.duplicates(component) }
+        return clash?.let { conflict("cost_component_duplicate", mapOf("existingId" to it.id.toString())) }
+    }
 
     /** End [id] on the day before [input].validFrom and add the new value from that day. */
     fun replace(
@@ -105,6 +138,7 @@ class CostService(
         actorUserId: UUID,
     ): FinanceResult<CostComponent> =
         transactionRunner.runInTransaction {
+            replay(input, actorUserId, replaces = id)?.let { return@runInTransaction it }
             val old = costs.findByIdForUpdate(id) ?: return@runInTransaction notFound()
             if (old.ended) return@runInTransaction conflict("cost_already_ended")
             if (old.tourId?.value != input.tourId || old.driverId != input.driverId || old.category != input.category) {
@@ -121,6 +155,7 @@ class CostService(
                     is FinanceResult.Ok -> built.value
                     is FinanceResult.Failed -> return@runInTransaction built
                 }
+            duplicate(successor, except = old.id)?.let { return@runInTransaction it }
             costs.end(old.id, input.validFrom.minusDays(1), actorUserId, Instant.now(clock))
             costs.append(successor)
             FinanceResult.Ok(successor)
@@ -176,6 +211,7 @@ class CostService(
                 note = FinanceAmount.text(input.note, "note", 500),
                 createdByUserId = actorUserId,
                 createdAt = Instant.now(clock),
+                clientRequestId = input.clientRequestId,
             ),
         )
     }

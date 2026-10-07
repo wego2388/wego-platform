@@ -4622,7 +4622,7 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 
 ### 2026-10-07 — WEGO-016-OPS2-F: costs, profitability, settlements and cash box (Tier 1)
 
-- **Status:** ACTIVE
+- **Status:** COMPLETE (2026-10-07) — Opus Tier 1 ACCEPT-WITH-FOLLOWUPS; M1–M3, L1, L2 fixed; re-check pending in OPS2-G
 - **Activation:** owner «انا وافقك كمل للاخر و سلم كوديكس لحد الديبلوي» (2026-10-07)
   and delegation to fill gaps with best judgement («لو في اي نواقص تقدر تملها و لما
   نرجع ابقي اعدل»).
@@ -4698,6 +4698,57 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 - **Open items:** owner review of all defaults above and of the 19 flagged hub
   cells; approval void/expiry; vehicle hire costs (no data); actual-vs-expected
   cost variance workflow and gateway fees (plan §5) not built; reversals report.
+
+#### 2026-10-07 — OPS2-F Tier 1 review: ACCEPT-WITH-FOLLOWUPS, fixes applied
+
+- **Review result:** independent Tier 1 review of `7c85bc6` returned ACCEPT-WITH-FOLLOWUPS.
+  The coordinator applied the owner's delegation; fixes are in the working tree (not committed),
+  each with a test. Status stays **ACTIVE** pending re-check.
+- **M1 refunds vs reversals:** reversing an office collection is refused with 409
+  `refunds_exceed_collected` when (net collected − that collection) < net refunded, under the
+  booking lock. HTTP test: collect, refund all, reverse → 409; cash box expected, refund
+  position and profitability unchanged.
+- **M2 manager limit — recorded reading:** the 5000.00 EGP limit is **per supplier/driver per
+  Cairo day**: today's non-reversed payments to that party plus the new one must be ≤ 5000.00
+  EGP, otherwise the payment needs an owner approval (exactly 5000.00 passes). EUR is valued only
+  at a rate set **today**; with no rate today, or a rate more than **20 %** away from the most
+  recent previous day's rate (sanity band), the EUR value is untrusted and needs approval. The
+  same valuation applies to a CHARGE adjustment: above 5000 EGP (or untrusted EUR) it needs
+  `settlement:approve` (403 `charge_needs_approval`). An adjustment naming a departure must name
+  one the party served (driver or assigned supplier; 422 `slot_not_served_by_party`, covers L6).
+  The per-payment DB CHECK stays as a backstop. Statements expose `paidTodayEgp`; the ERP
+  preview adds it.
+- **M3 cost components:** `client_request_id` (unique per creator) added to V33 in place
+  (unreleased); same key + payload replays 200, a different payload 409
+  `idempotency_key_reused`. An open component with the same owner, category, label, supplier and
+  currency over overlapping days is refused with 409 `cost_component_duplicate` (owner advisory
+  lock). The ERP warns when the start date is in the past ("restates past profit and
+  payables"). `import_costs.py` sends a deterministic UUIDv5 `clientRequestId` per hub row and
+  amounts as decimal strings (covers L8); a 409 counts as already present.
+- **L1 EGP refunds — recorded rule:** an EGP refund is converted at the rate(s) of the booking's
+  own EGP collections, first in first out, net of reversed collections and of earlier EGP
+  refunds; only the part beyond them (or a booking paid only in EUR) uses today's manager rate,
+  then needs the quoted `fxRateId`, and returns `warning: TODAY_RATE_USED` (shown in the ERP).
+  An excess worth 0.00 EUR is refused (`amount_below_minimum`). The row stores the blended rate
+  and the first lot's rate id.
+- **L2 four eyes:** the user who approved a payment cannot record it (403 `approver_cannot_pay`).
+- **Accepted residuals (owner-delegated):** L3 the cash box may show a negative expected amount
+  (visible at count); L4 a same-day overpayment shows as a negative balance; L5 profitability
+  falls back to the latest rate when the departure day has none (labelled); L7 after a day is
+  closed no cash can be recorded until midnight unless a manager reopens it.
+- **Tests:** HTTP 24 (new: refunds vs reversal, daily limit incl. exactly 5000 and reversal
+  release, rate band, charge approval, slot served, four eyes, cost idempotency/duplicate, EGP
+  FIFO refund + today-rate warning), domain 16, ERP Vitest 20 in `financeOps.spec.ts`.
+
+### 2026-10-07 — WEGO-016-OPS2-G: release verification and Codex deploy handoff
+
+- **Status:** ACTIVE
+- **Activation:** owner «كمل للاخر و سلم كوديكس لحد الديبلوي زي موجود ملف التسليم» (2026-10-07).
+- **Scope:** focused re-check of the OPS2-F fixes; full gates on the final
+  tree; owner UAT checklist; a single Arabic/English handoff for Codex that
+  takes the release from this branch to a deployed VPS (no deploy, DNS,
+  server access or real secrets by Claude). Deploy itself needs the owner's
+  explicit go and his VPS/domain/SMTP/backup inputs.
 
 ## WEGO-017 — Foundry executable isolated client releases
 

@@ -22,8 +22,10 @@ Assumptions (owner-delegated, marked for review in the hub):
   * the guide column is per departure (only numbers are imported);
   * a child costs the adult amount unless a child price is given;
   * own costs start on the tour's supplier-price date, else ``--valid-from``.
-Re-running is safe: a component identical to an open one (same owner,
-category, label, basis, currency, amount, start) is skipped.
+Re-running is safe: every row is sent with a deterministic clientRequestId
+(UUID v5 of the row), amounts travel as exact decimal strings, an identical
+open component is skipped, and the server refuses an overlapping duplicate
+(409 cost_component_duplicate), which is counted as already present.
 """
 import argparse
 import datetime as dt
@@ -31,7 +33,9 @@ import json
 import os
 import re
 import sys
+import urllib.error
 import urllib.request
+import uuid
 from pathlib import Path
 
 import openpyxl
@@ -41,6 +45,8 @@ HUB = HERE / "safari-tours-owner-data-hub.xlsx"
 SKIP_WORDS = {"شامل", "لا يوجد", "لايوجد", "-", "—"}
 CURRENCY = {"جنيه": "EGP", "جنيه مصري": "EGP", "egp": "EGP", "يورو": "EUR", "eur": "EUR"}
 NUMBER = re.compile(r"^\d{1,7}(\.\d{1,2})?$")
+# Fixed namespace: the same hub row always yields the same request id, so re-running never creates twice.
+IMPORT_NAMESPACE = uuid.UUID("8f0e7c52-5a4b-4c55-9d3e-0f5c0d1a7e21")
 
 
 def parse_amount(value):
@@ -155,6 +161,12 @@ def plan(workbook, default_from):
     return components, flags
 
 
+def request_id(component):
+    """Deterministic per hub row: owner, category, label, basis, currency, amount and start."""
+    key = "|".join(str(component.get(k) or "") for k in ("tour", "driver", "category", "label", "basis", "currency", "amount", "childAmount", "validFrom"))
+    return str(uuid.uuid5(IMPORT_NAMESPACE, key))
+
+
 class Api:
     def __init__(self, base, email, password):
         self.base = base.rstrip("/")
@@ -197,11 +209,19 @@ def apply(components, flags):
         if same:
             skipped += 1
             continue
-        body = {**owner, **{k: c[k] for k in ("category", "label", "basis", "currency", "validFrom", "validUntil")},
-                "amount": float(c["amount"]), "childAmount": float(c["childAmount"]) if c["childAmount"] else None,
+        body = {"clientRequestId": request_id(c), **owner,
+                **{k: c[k] for k in ("category", "label", "basis", "currency", "validFrom", "validUntil")},
+                # Exact decimal strings, never floats.
+                "amount": c["amount"], "childAmount": c["childAmount"],
                 "note": "Imported from the owner data hub (OPS2-F import_costs.py)"}
-        api.call("POST", "/api/v1/tours-operator/staff/costs", body)
-        created += 1
+        try:
+            api.call("POST", "/api/v1/tours-operator/staff/costs", body)
+            created += 1
+        except urllib.error.HTTPError as error:
+            if error.code != 409:
+                raise
+            skipped += 1
+            flags.append(f"{c.get('tour') or c.get('driver')}/{c['label']}: refused by the server (409) — an overlapping cost already exists")
     print(f"created {created}, already present {skipped}")
 
 
@@ -218,7 +238,7 @@ def main():
     for c in components:
         owner = c.get("tour") or f"driver {c.get('driver')}"
         child = f" (child {c['childAmount']})" if c["childAmount"] else ""
-        print(f"  {owner:34} {c['category']:9} {c['basis']:13} {c['amount']:>10} {c['currency']}{child} from {c['validFrom']}  [{c['label']}]")
+        print(f"  {owner:34} {c['category']:9} {c['basis']:13} {c['amount']:>10} {c['currency']}{child} from {c['validFrom']}  [{c['label']}]  {request_id(c)[:8]}")
     if args.apply:
         apply(components, flags)
     print(f"\n{len(flags)} cell(s) need the owner's attention (not imported):")

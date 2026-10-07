@@ -50,6 +50,8 @@ data class PartyStatement(
     val approvals: List<SettlementApproval>,
     /** All-time position up to today, per currency (what a payment is checked against). */
     val current: List<CurrencyBalance>,
+    /** Today's (Cairo) non-reversed payments to the party in EGP, counted against the daily manager limit; null = unknown. */
+    val paidTodayEgp: BigDecimal? = null,
 )
 
 data class PayCommand(
@@ -83,6 +85,8 @@ data class AdjustCommand(
     val reason: String,
     val actorUserId: UUID,
     val clientRequestId: UUID,
+    /** The actor holds tours-operator.settlement:approve (needed for a charge above 5000 EGP). */
+    val actorCanApprove: Boolean = false,
 )
 
 data class ReverseEntryCommand(
@@ -160,6 +164,7 @@ class PayablesService(
             issues = issues.filter { !it.date.isBefore(from) && !it.date.isAfter(to) },
             approvals = settlements.approvals(ref),
             current = PayablesCalculator.balances(movements, null, today()),
+            paidTodayEgp = paidTodayEgp(ref),
         )
     }
 
@@ -187,11 +192,17 @@ class PayablesService(
             val note = FinanceAmount.text(command.note, "note", 500)
 
             val rate = if (command.currency == PaidCurrency.EUR) fxRates.latestFor(today()) else null
+            val trusted = command.currency == PaidCurrency.EGP || rateTrusted()
             val egp = SettlementPolicy.egpEquivalent(command.currency, amount, rate)
-            if (command.approvalId == null && SettlementPolicy.needsApproval(egp)) {
+            // Review M2: the 5000 EGP manager limit is per party per Cairo day (today's payments + this one).
+            val paidToday = paidTodayEgp(command.party)
+            if (command.approvalId == null && SettlementPolicy.dailyNeedsApproval(paidToday, egp, command.currency, trusted)) {
                 return@runInTransaction conflict(
                     "approval_required",
-                    mapOf("limitEgp" to SettlementPolicy.MANAGER_LIMIT_EGP.toPlainString()),
+                    mapOf(
+                        "limitEgp" to SettlementPolicy.MANAGER_LIMIT_EGP.toPlainString(),
+                        "paidTodayEgp" to (paidToday?.toPlainString() ?: "unknown"),
+                    ),
                 )
             }
             command.approvalId?.let { approvalId ->
@@ -199,6 +210,8 @@ class PayablesService(
                 if (approval.party != command.party || approval.currency != command.currency || approval.amount.compareTo(amount) != 0) {
                     return@runInTransaction conflict("approval_mismatch")
                 }
+                // Review L2: four eyes — whoever approved a payment cannot also record it.
+                if (approval.approvedByUserId == command.actorUserId) return@runInTransaction forbidden("approver_cannot_pay")
                 if (approval.usedByPaymentId != null) return@runInTransaction conflict("approval_already_used")
             }
             val balance = balance(command.party, command.currency)
@@ -264,6 +277,14 @@ class PayablesService(
             val slot = command.slotId?.let { slots.findById(it) ?: return@runInTransaction invalid("slot_not_found") }
             val serviceDate = slot?.date ?: command.serviceDate ?: return@runInTransaction invalid("service_date_required")
             if (serviceDate.isAfter(today())) return@runInTransaction invalid("service_date_in_future")
+            // Review M2/L6: an adjustment named to a departure must be for a party that served it.
+            if (slot != null && command.party !in reads.slotParties(slot.id)) return@runInTransaction invalid("slot_not_served_by_party")
+            if (command.kind == AdjustmentKind.CHARGE && !command.actorCanApprove) {
+                val amount = FinanceAmount.positive(command.amount)
+                val trusted = command.currency == PaidCurrency.EGP || rateTrusted()
+                val egp = if (trusted) SettlementPolicy.egpEquivalent(command.currency, amount, fxRates.latestFor(today())) else null
+                if (egp == null || egp > SettlementPolicy.MANAGER_LIMIT_EGP) return@runInTransaction forbidden("charge_needs_approval")
+            }
             settlements.lockParty(command.party)
             settlements.findAdjustmentByRequest(command.actorUserId, command.clientRequestId)?.let { existing ->
                 val same =
@@ -385,6 +406,12 @@ class PayablesService(
     }
 
     private fun cairoDay(instant: Instant): LocalDate = instant.atZone(CAIRO).toLocalDate()
+
+    private fun paidTodayEgp(party: PartyRef): BigDecimal? =
+        SettlementPolicy.paidTodayEgp(settlements.payments(party)) { cairoDay(it) == today() }
+
+    /** A EUR amount is valued only with a rate set today and within 20 % of the previous day's rate. */
+    private fun rateTrusted(): Boolean = SettlementPolicy.rateTrusted(fxRates.latestFor(today()), fxRates.latestBefore(today()))
 
     companion object {
         private val CAIRO: ZoneId = ZoneId.of("Africa/Cairo")

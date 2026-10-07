@@ -138,10 +138,26 @@ class JooqCostComponentRepository(
             .set(t.VALID_UNTIL, component.validUntil)
             .set(t.REPLACES_COMPONENT_ID, component.replacesComponentId)
             .set(t.NOTE, component.note)
+            .set(t.CLIENT_REQUEST_ID, component.clientRequestId)
             .set(t.CREATED_BY_USER_ID, component.createdByUserId)
             .set(t.CREATED_AT, component.createdAt.utc())
             .execute()
     }
+
+    @Transactional(readOnly = true)
+    override fun findByRequest(
+        actorUserId: UUID,
+        clientRequestId: UUID,
+    ): CostComponent? =
+        dsl
+            .selectFrom(t)
+            .where(t.CREATED_BY_USER_ID.eq(actorUserId))
+            .and(t.CLIENT_REQUEST_ID.eq(clientRequestId))
+            .fetchOne()
+            ?.let(::toDomain)
+
+    @Transactional
+    override fun lockOwner(ownerId: UUID) = dsl.advisoryLock("tours-operator-cost:$ownerId")
 
     @Transactional
     override fun end(
@@ -180,6 +196,7 @@ class JooqCostComponentRepository(
             createdAt = r.get(t.CREATED_AT).toInstant(),
             endedByUserId = r.get(t.ENDED_BY_USER_ID),
             endedAt = r.get(t.ENDED_AT)?.toInstant(),
+            clientRequestId = r.get(t.CLIENT_REQUEST_ID),
         )
 }
 
@@ -698,6 +715,25 @@ class JooqFinanceReadRepository(
             .where(sa.SLOT_ID.`in`(slotIds.map { it.value }))
             .fetch()
             .associate { TourSlotId(checkNotNull(it.value1())) to it.value2() }
+    }
+
+    @Transactional(readOnly = true)
+    override fun slotParties(slotId: TourSlotId): Set<PartyRef> {
+        val driver =
+            dsl
+                .select(sa.DRIVER_ID)
+                .from(sa)
+                .where(sa.SLOT_ID.eq(slotId.value))
+                .fetchOne()
+                ?.value1()
+        val suppliers =
+            dsl
+                .select(sas.SUPPLIER_ID)
+                .from(sas)
+                .where(sas.SLOT_ID.eq(slotId.value))
+                .fetch()
+                .mapNotNull { it.value1() }
+        return (listOfNotNull(driver?.let { PartyRef(PartyType.DRIVER, it) }) + suppliers.map { PartyRef(PartyType.SUPPLIER, it) }).toSet()
     }
 
     @Transactional(readOnly = true)

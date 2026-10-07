@@ -33,6 +33,8 @@ const lastDay = ref(todayCairo());
 const saving = ref(false);
 const saved = ref(false);
 const error = ref<ErpMessageDescriptor | null>(null);
+// One idempotency key per form attempt (review M3): a retried save never creates a second component.
+let requestKey = crypto.randomUUID();
 
 const CATEGORIES: CostCategory[] = ["SUPPLIER", "OWN_EXTRA", "FIXED", "DRIVER"];
 const BASES: CostBasis[] = ["PER_PERSON", "PER_UNIT", "PER_DEPARTURE"];
@@ -44,6 +46,7 @@ const form = reactive({
   basis: "PER_PERSON" as CostBasis, currency: "EGP" as PaidCurrency, amount: "", childAmount: "", supplierId: "", validFrom: todayCairo(),
   validUntil: "", note: "",
 });
+const restatesPast = computed(() => !!form.validFrom && form.validFrom < todayCairo());
 const perDepartureOnly = computed(() => form.category === "FIXED" || form.category === "DRIVER");
 
 const tourName = (id: string | null) => (id ? (tours.value.find((x) => x.id === id)?.nameEn ?? tours.value.find((x) => x.id === id)?.slug ?? id.slice(0, 8)) : "—");
@@ -83,6 +86,7 @@ async function load() {
 
 function open(target: "new" | CostComponent) {
   editing.value = target;
+  requestKey = crypto.randomUUID();
   ending.value = null;
   error.value = null;
   saved.value = false;
@@ -103,6 +107,7 @@ function payload(): CostComponentRequest | null {
   }
   const driver = form.category === "DRIVER";
   return {
+    clientRequestId: requestKey,
     tourId: driver ? null : form.tourId || null,
     driverId: driver ? form.driverId || null : null,
     category: form.category,
@@ -218,6 +223,7 @@ const basis = (v: string) => t(`fops.basis.${v}` as ErpMessageKey);
             <select v-model="form.supplierId" :class="FIELD"><option value="">{{ t('fops.costs.anySupplier') }}</option><option v-for="s in suppliers" :key="s.id" :value="s.id">{{ s.name }}</option></select>
           </label>
           <label class="grid gap-1 text-sm font-semibold">{{ t('fops.costs.validFrom') }}<input id="cost-from" v-model="form.validFrom" type="date" required :class="FIELD" dir="ltr"></label>
+          <p v-if="restatesPast" id="cost-past-warning" class="text-sm font-semibold text-sts-warning md:col-span-3" role="alert">{{ t('fops.costs.pastWarning') }}</p>
           <label v-if="editing === 'new'" class="grid gap-1 text-sm font-semibold">{{ t('fops.costs.validUntil') }}<input v-model="form.validUntil" type="date" :class="FIELD" dir="ltr"></label>
           <label class="grid gap-1 text-sm font-semibold md:col-span-3">{{ t('fops.note') }}<input v-model="form.note" maxlength="500" :class="FIELD" dir="auto"></label>
           <div class="flex flex-wrap gap-3 md:col-span-3">

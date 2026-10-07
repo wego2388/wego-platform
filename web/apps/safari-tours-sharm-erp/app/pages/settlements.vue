@@ -11,7 +11,7 @@ import type { ErpMessageDescriptor } from "../utils/bookingMessages";
 import type { ErpMessageKey } from "../utils/erpLocale";
 import { documentPath } from "../utils/documentFormat";
 import {
-  MANAGER_LIMIT_EGP, financeErrorMessage, monthRange, needsApproval, newRequestId, partyPath, statementSubject, toCents,
+  MANAGER_LIMIT_EGP, financeErrorMessage, monthRange, needsApprovalToday, newRequestId, partyPath, statementSubject, toCents,
 } from "../utils/financeOps";
 
 /**
@@ -44,7 +44,7 @@ const pay = reactive({ method: "CASH" as SettlementMethod, currency: "EGP" as Pa
 const approve = reactive({ currency: "EGP" as PaidCurrency, amount: "", note: "", key: newRequestId() });
 const adjust = reactive({ kind: "CHARGE" as "CHARGE" | "DEDUCTION", currency: "EGP" as PaidCurrency, amount: "", slotId: "", serviceDate: "", reason: "", key: newRequestId() });
 
-const payNeedsApproval = computed(() => needsApproval(pay.amount, pay.currency, rate.value));
+const payNeedsApproval = computed(() => needsApprovalToday(pay.amount, pay.currency, rate.value, statement.value ? statement.value.paidTodayEgp : "0.00"));
 const usableApprovals = computed(() =>
   (statement.value?.approvals ?? []).filter((a) => !a.usedByPaymentId && a.amount.currencyCode === pay.currency
     && toCents(a.amount.amount) === toCents(pay.amount)),
@@ -280,6 +280,7 @@ const k = (key: string) => t(key as ErpMessageKey);
           <div class="mt-6 grid gap-4 lg:grid-cols-3">
             <form v-if="canPay" id="pay-form" class="grid gap-2 rounded-xl border border-sts-border p-4" @submit.prevent="submitPay">
               <h3 class="font-semibold">{{ t('fops.set.pay') }}</h3>
+              <p v-if="statement" id="paid-today" class="text-xs text-sts-muted">{{ t('fops.set.paidToday', { amount: statement.paidTodayEgp ?? '?', limit: MANAGER_LIMIT_EGP }) }}</p>
               <label class="grid gap-1 text-sm">{{ t('fops.method') }}<select v-model="pay.method" :class="FIELD"><option v-for="m in METHODS" :key="m" :value="m">{{ k(`fops.sm.${m}`) }}</option></select></label>
               <label class="grid gap-1 text-sm">{{ t('fops.currency') }}<select v-model="pay.currency" :class="FIELD"><option value="EGP">{{ t('fops.cur.EGP') }}</option><option value="EUR">{{ t('fops.cur.EUR') }}</option></select></label>
               <label class="grid gap-1 text-sm">{{ t('fops.amount') }}<input id="pay-amount" v-model="pay.amount" inputmode="decimal" required :class="FIELD" dir="ltr"></label>

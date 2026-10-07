@@ -29,6 +29,14 @@ interface CostComponentRepository {
 
     fun append(component: CostComponent)
 
+    fun findByRequest(
+        actorUserId: UUID,
+        clientRequestId: UUID,
+    ): CostComponent?
+
+    /** Serialises cost changes of one tour or driver for the rest of the transaction. */
+    fun lockOwner(ownerId: UUID)
+
     fun end(
         id: UUID,
         validUntil: LocalDate,
@@ -136,6 +144,9 @@ interface FinanceReadRepository {
 
     /** Driver assigned to each departure, for the given departures. */
     fun drivers(slotIds: Collection<TourSlotId>): Map<TourSlotId, UUID?>
+
+    /** The driver and suppliers assigned to a departure. */
+    fun slotParties(slotId: TourSlotId): Set<PartyRef>
 
     /** Departures up to and including [to] that have live bookings, with their driver and suppliers. */
     fun payableDepartures(to: LocalDate): List<PayableDeparture>

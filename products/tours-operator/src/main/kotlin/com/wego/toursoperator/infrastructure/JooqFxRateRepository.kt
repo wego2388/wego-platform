@@ -27,6 +27,16 @@ class JooqFxRateRepository(
             .fetchOne()
             ?.let(::toDomain)
 
+    @Transactional(readOnly = true)
+    override fun latestBefore(date: LocalDate): FxRate? =
+        dsl
+            .selectFrom(t)
+            .where(t.RATE_DATE.lt(date))
+            .orderBy(t.RATE_DATE.desc(), t.SET_AT.desc(), t.ID.desc())
+            .limit(1)
+            .fetchOne()
+            ?.let(::toDomain)
+
     @Transactional
     override fun append(rate: FxRate) {
         dsl
