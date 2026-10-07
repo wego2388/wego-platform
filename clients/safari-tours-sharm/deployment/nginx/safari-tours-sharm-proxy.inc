@@ -21,6 +21,10 @@ proxy_set_header X-Forwarded-Proto https;
 proxy_set_header X-Forwarded-Host $host;
 # Never forward RFC 7239 "Forwarded" from the visitor.
 proxy_set_header Forwarded "";
+proxy_set_header X-Forwarded-Port 443;
+# Headers some frameworks honour; never let a visitor supply them.
+proxy_set_header X-Forwarded-Prefix "";
+proxy_set_header X-Forwarded-Ssl "";
 
 proxy_connect_timeout 5s;
 proxy_send_timeout 60s;

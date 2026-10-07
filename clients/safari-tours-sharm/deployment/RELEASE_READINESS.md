@@ -9,7 +9,7 @@ from evidence on the **final** SHA. Codex reviews it for GO / NO-GO.
 | Field | Value |
 |---|---|
 | Final source SHA | `<final SHA>` |
-| HEAD when this package was written | `32f6a1c027001424021eb38b93e55435a7058ba7` (OPS2-F follow-ups); working tree also held another agent's uncommitted FinanceOps fixes — not part of this SHA |
+| HEAD when this package was written | `32f6a1c` (OPS2-F follow-ups); OPS2-F re-check fixes F1–F5/F7 landed in `7660ca9`; package committed as `f82c92b` — CI green on `f82c92b` (run 37645085034); review follow-ups in the next commit |
 | Branch | `wego-016-safari-hardening` |
 | Release ID | `<RELEASE_ID>` (suggested `str-YYYY.MM.DD-<short-sha>`) |
 | Board packet | WEGO-016-OPS2-G (ACTIVE) |
@@ -115,13 +115,23 @@ admin in the ERP after bootstrap; Mohamed approves who gets money permissions `[
    disposable containers; needs reviewer sign-off before deploy. Sharm To Go /
    Sharm Divers edges still use `$scheme` (out of scope).
 6. **Encrypted backup drill** needs the private key, which must not be on the
-   server — drill location/key custody is an owner decision. `[!]`
+   server — so the drill runs **off-server** (runbook §14.1) and its passing
+   `bundle-drill-*.json` is copied back for `health-check.sh`; the machine and
+   key custody are an owner decision. `[!]`
 7. **alpine:3.20** used by backup/verify scripts is tag-pinned, not digest-pinned.
-8. **Certificate renewal reload** of the shared gateway (deploy hook) needs an
-   explicit decision; renewal must not restart El Kheima. `[!]`
-9. **Open document/finance decisions** on the Board (deposit refund basis,
-   48/24 h reference time, voucher instructions text) — the affected functions
-   must be decided or restricted before office use. `[!]`
+8. **Certificate renewal reload** — `--deploy-hook 'nginx -t && systemctl reload nginx'`
+   stored only in Safari's renewal conf; a graceful reload of the shared gateway
+   on each Safari renewal. Mandatory GO item; no cert without it. `[!]`
+9. ~~Open document/finance decisions~~ — **resolved by the owner 2026-10-07**:
+   refund basis = % of the amount collected; 48/24 h bands use departure hours
+   sunrise 04:00 / morning 07:00 / afternoon 13:00 / sunset 15:00; the 4 voucher
+   instruction lines are approved.
+10a. **IPv6 / HSTS defaults** — gateway `listen [::]` lines ship commented out
+   (enable only if El Kheima already serves on `[::]`); HSTS is sent without
+   `includeSubDomains` (edge + gateway) until the owner confirms no HTTP-only
+   subdomain (mail/webmail/cpanel) exists. `[!]`
+10b. **CDN** — per-visitor rate limits assume DNS points straight at the VPS; a
+   proxied/CDN record requires a trusted-ranges decision first.
 10. **Customer e-mail** off (`NOTIFICATIONS_ENABLED=false`) until SMTP is supplied.
 
 ## 8. Owner items `[!]` (Mohamed, not secrets in chat)
@@ -132,13 +142,16 @@ admin in the ERP after bootstrap; Mohamed approves who gets money permissions `[
 - [!] Certificate e-mail; off-server backup destination; backup GPG public key (private key kept by owner); alert channel.
 - [!] Who types the first admin password (bootstrap-admin, interactive).
 - [!] Approval for one test enquiry (checklist B12) and for the maintenance page variant, if used.
-- [!] Owner-data flags from `import_costs.py` dry run; open finance/document decisions above.
+- [!] Owner-data flags from `import_costs.py` dry run.
+- [!] GO for the Safari-only certificate renewal deploy hook (shared gateway reload on renewal).
+- [!] Confirm no HTTP-only subdomain of safaritourssharm.com before HSTS `includeSubDomains` is ever enabled.
+- [!] Machine + key custody for the weekly off-server restore drill.
 
 ## 9. Reviewer verdict
 
 | Reviewer | Scope | Verdict | Date |
 |---|---|---|---|
-| `<name>` | deploy package + edge proto change | `<ACCEPT / BLOCKERS>` | |
+| Opus independent review | deploy package + edge proto | ACCEPT-WITH-FOLLOWUPS (findings 1–8 fixed in the `docs(safari-ops2-g): deploy package review follow-ups` commit) | 2026-10-07 |
 
 **First step for Codex:** review this file + `DEPLOY_RUNBOOK_AR.md`, then run
 runbook §1 (read-only preflight) and report topology before asking for GO.

@@ -58,7 +58,7 @@ services:
     environment:
       WEGO_DB_POOL_SIZE: ${SAFARI_DB_POOL_SIZE:-5}
       # Bounded heap inside the container memory limit (no -Xmx guesswork).
-      JAVA_TOOL_OPTIONS: ${SAFARI_BACKEND_JAVA_OPTS:--XX:MaxRAMPercentage=70 -XX:+ExitOnOutOfMemoryError}
+      JAVA_TOOL_OPTIONS: ${SAFARI_BACKEND_JAVA_OPTS:--XX:MaxRAMPercentage=60 -XX:+ExitOnOutOfMemoryError}
       # Production mode must be chosen explicitly; launch plan: ENQUIRY_ONLY.
       TOURS_OPERATOR_BOOKING_MODE: ${TOURS_OPERATOR_BOOKING_MODE:?set TOURS_OPERATOR_BOOKING_MODE explicitly (launch is ENQUIRY_ONLY)}
       TOURS_OPERATOR_PAYMOB_MOCK_ENABLED: "false"

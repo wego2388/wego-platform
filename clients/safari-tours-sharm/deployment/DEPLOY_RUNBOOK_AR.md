@@ -80,6 +80,30 @@ sudo certbot certificates 2>/dev/null | grep -E 'Certificate Name|Domains|Expiry
   vhost، (4) هل يوجد `server_name` يلتقط `*.safaritourssharm.com` أو `_` بطريقة تتعارض.
   لا تطبع مفاتيح أو ملفات env.
 
+- [ ] IPv6 (مراجعة، finding 1): أسطر `listen [::]:…` في قوالب Safari **معطلة افتراضيًا**.
+
+```bash
+sudo nginx -T 2>/dev/null | grep -n '\[::\]'           # هل البوابة/الخيمة تستمع على IPv6؟
+dig +short AAAA <ELKHEIMA_DOMAIN>; dig +short AAAA safaritourssharm.com
+dig +short AAAA www.safaritourssharm.com; dig +short AAAA staff.safaritourssharm.com
+```
+
+  فعّل `listen [::]:…` في ملف Safari **فقط** إذا الخيمة تستمع فعلًا على `[::]` بسيرفراتها
+  الخاصة (وdefault_server الخاص بها على `[::]` موجود)؛ وإلا يصبح أول server لسفاري هو
+  default على IPv6 ويرد على زوار الخيمة. لا AAAA لسفاري + لا `[::]` في الخيمة ← اتركها معطلة.
+  حالة غير واضحة ← STOP.
+
+- [ ] DNS غير ممرر عبر CDN/proxy (finding 6) — وإلا كل الزوار يظهرون بعناوين الـCDN
+  وتنهار حدود الطلبات لكل زائر:
+
+```bash
+for h in safaritourssharm.com www.safaritourssharm.com staff.safaritourssharm.com; do
+  echo "$h A=$(dig +short A $h | paste -sd,)"; done          # يجب 187.6.167.233 فقط
+dig +short NS safaritourssharm.com
+```
+
+  أي A غير IP الـVPS (مثلاً نطاقات Cloudflare) ← STOP/escalate: يلزم قرار trusted CDN ranges قبل النشر.
+
 - [ ] هل يوجد تثبيت Safari سابق؟
 
 ```bash
@@ -104,6 +128,9 @@ sudo mkdir -p "$(dirname "$B")"
     $(docker ps -q) | grep -vi safari
   curl -sS -o /dev/null -w 'elkheima %{http_code} %{ssl_verify_result} %{time_total}\n' \
     https://<ELKHEIMA_DOMAIN>/
+  # إذا للخيمة سجل AAAA: نفس الفحص عبر IPv6
+  [ -n "$(dig +short AAAA <ELKHEIMA_DOMAIN>)" ] && curl -6 -sS -o /dev/null \
+    -w 'elkheima-v6 %{http_code} %{ssl_verify_result}\n' https://<ELKHEIMA_DOMAIN>/
   echo | openssl s_client -connect <ELKHEIMA_DOMAIN>:443 -servername <ELKHEIMA_DOMAIN> 2>/dev/null \
     | openssl x509 -noout -subject -enddate -fingerprint -sha256
   sudo nginx -T 2>/dev/null | sha256sum
@@ -116,7 +143,8 @@ sudo mkdir -p "$(dirname "$B")"
 
 خطة التغيير التي يوافق عليها محمد صراحة: release ID، الوضع ENQUIRY_ONLY،
 المنفذ، ملفات vhost الجديدة فقط، **graceful reload للبوابة المشتركة** (مرة لـACME،
-مرة للتفعيل)، بريد الشهادة، مكان backup خارج السيرفر، قناة التنبيه، وقبول
+مرة للتفعيل)، **reload تلقائي عند تجديد شهادة Safari** (deploy hook — §10.2، بند GO إلزامي)،
+تأكيد عدم وجود subdomain يعمل HTTP فقط قبل أي `includeSubDomains` لـHSTS، بريد الشهادة، مكان backup خارج السيرفر، قناة التنبيه، وقبول
 استثناءات dependency audit. بدون GO مكتوب: لا شيء بعد هذا السطر.
 
 ## 4. المجلدات والصلاحيات
@@ -328,17 +356,20 @@ sudo rm "$A/probe"
 sudo certbot certonly --webroot -w /var/www/safari-tours-sharm-acme \
   --cert-name safaritourssharm.com \
   -d safaritourssharm.com -d www.safaritourssharm.com -d staff.safaritourssharm.com \
-  --email <OWNER_CERT_EMAIL> --agree-tos --no-eff-email --dry-run
+  --email <OWNER_CERT_EMAIL> --agree-tos --no-eff-email \
+  --deploy-hook 'nginx -t && systemctl reload nginx' --dry-run
 # بعد نجاح dry-run، نفس الأمر بدون --dry-run
 sudo certbot certificates | grep -A3 'Certificate Name: safaritourssharm.com'
 ```
 
 - شهادة مستقلة باسم `safaritourssharm.com`؛ لا `--expand` لشهادة الخيمة ولا `--nginx`.
-- التجديد: مؤقت certbot الموجود يجدد بنفس webroot (محفوظ في
-  `/etc/letsencrypt/renewal/safaritourssharm.com.conf`). إضافة
-  `--deploy-hook 'nginx -t && systemctl reload nginx'` تعني reload مشتركًا دوريًا → قرار `[!]`؛
-  البديل: Codex يتحقق من آلية reload الحالية للخيمة ويستخدمها نفسها.
-  `sudo certbot renew --dry-run --cert-name safaritourssharm.com` للتأكد.
+- التجديد: مؤقت certbot الموجود يجدد بنفس webroot. الـ`--deploy-hook` أعلاه يحفظ
+  `renew_hook = nginx -t && systemctl reload nginx` **في
+  `/etc/letsencrypt/renewal/safaritourssharm.com.conf` فقط** — يعمل فقط عند تجديد شهادة
+  Safari فعليًا (كل ~60 يومًا)، graceful reload للبوابة المشتركة لا restart. هذا **بند GO
+  إلزامي** (§3): بدون موافقة محمد لا تصدر الشهادة. لا تعدل `cli.ini` العام ولا renewal conf الخيمة.
+  تحقق: `sudo grep -n renew_hook /etc/letsencrypt/renewal/safaritourssharm.com.conf` ثم
+  `sudo certbot renew --dry-run --cert-name safaritourssharm.com` (dry-run لا ينفذ الـhook).
 
 ### 10.3 التفعيل الكامل
 
@@ -389,9 +420,11 @@ SAFARI_PUBLIC_HOST=safaritourssharm.com
 SAFARI_BACKUP_GPG_RECIPIENT=<OWNER_BACKUP_KEY_ID>
 SAFARI_ALERT_COMMAND=<OWNER_APPROVED_ALERT_COMMAND>
 15 2 * * *   cd /srv/safari-tours-sharm/current && scripts/safari-ops/bundle-backup.sh >> /srv/safari-tours-sharm/shared/logs/backup.log 2>&1
-40 3 * * 0   cd /srv/safari-tours-sharm/current && scripts/safari-ops/bundle-restore-drill.sh >> /srv/safari-tours-sharm/shared/logs/drill.log 2>&1
 */5 * * * *  cd /srv/safari-tours-sharm/current && scripts/safari-ops/health-check.sh > /dev/null
 ```
+
+لا cron لـ`bundle-restore-drill.sh` على الـVPS: النسخ مشفرة لمفتاح خاص **غير موجود** على
+السيرفر، فالـdrill هناك سيفشل دائمًا. الـdrill الأسبوعي يتم خارج السيرفر (§14).
 
 `current` = `ln -sfn "$REL" $SAFARI_ROOT/current` (للسكربتات فقط؛ الـsymlink لا
 يبدّل صورة — Compose يشغّل الوسم المكتوب في `$ENVF`). نسخة خارج السيرفر يوميًا
@@ -403,16 +436,46 @@ SAFARI_ALERT_COMMAND=<OWNER_APPROVED_ALERT_COMMAND>
 cd $SAFARI_ROOT/current
 SAFARI_COMPOSE_PROJECT=safari-tours-sharm-prod SAFARI_BACKUP_DIR=$SAFARI_ROOT/backups \
   SAFARI_BACKUP_GPG_RECIPIENT=<OWNER_BACKUP_KEY_ID> scripts/safari-ops/bundle-backup.sh
-SAFARI_COMPOSE_PROJECT=safari-tours-sharm-prod SAFARI_BACKUP_DIR=$SAFARI_ROOT/backups \
-  scripts/safari-ops/bundle-restore-drill.sh
 SAFARI_COMPOSE_PROJECT=safari-tours-sharm-prod scripts/safari-ops/verify-live-media.sh
 SAFARI_COMPOSE_PROJECT=safari-tours-sharm-prod SAFARI_HEALTH_URL=http://127.0.0.1:$EDGE_PORT \
   SAFARI_BACKUP_DIR=$SAFARI_ROOT/backups SAFARI_PUBLIC_HOST=safaritourssharm.com \
   scripts/safari-ops/health-check.sh
 ```
 
-- الـdrill المشفر يحتاج المفتاح الخاص لفك التشفير — لا يوضع على السيرفر؛ نفذ
-  drill المشفر على جهاز المالك/جهاز آمن، أو سجل قرار محمد `[!]`.
+### 14.1 الـdrill خارج السيرفر (أول مرة ثم أسبوعيًا)
+
+المكان: جهاز يملكه/يعتمده محمد عليه Docker وgpg والمفتاح الخاص (`[!]` اختيار الجهاز).
+لا يُنسخ المفتاح الخاص إلى الـVPS أبدًا.
+
+```bash
+# على الجهاز الآمن
+BUNDLE=<STAMP>.bundle
+mkdir -m 0700 -p ~/safari-drill/backups && cd ~/safari-drill
+rsync -a <DEPLOY_USER>@187.6.167.233:/srv/safari-tours-sharm/backups/$BUNDLE backups/
+#   (أو من نسخة off-server اليومية نفسها — أفضل: يثبت أن النسخة الخارجية سليمة)
+git -C <repo> archive <FINAL_SHA> scripts/safari-ops infrastructure/compose/safari-tours-sharm.compose.yaml | tar -x
+# الـdrill يأخذ صورة postgres من حاوية postgres جارية لنفس اسم المشروع:
+printf 'WEGO_POSTGRES_PASSWORD=%s\n' "$(openssl rand -hex 16)" > drill.env
+docker compose -p safari-drill-offsite --env-file drill.env \
+  -f infrastructure/compose/safari-tours-sharm.compose.yaml up -d --wait postgres
+SAFARI_COMPOSE_PROJECT=safari-drill-offsite SAFARI_BACKUP_DIR=$PWD/backups \
+  scripts/safari-ops/bundle-restore-drill.sh backups/$BUNDLE     # يفك التشفير بمفتاح المالك (gpg-agent)
+docker compose -p safari-drill-offsite --env-file drill.env \
+  -f infrastructure/compose/safari-tours-sharm.compose.yaml down -v   # مشروع الـdrill المحلي فقط
+```
+
+الناتج `backups/bundle-drill-<UTC>.json` وفيه `"ok": true`. **ربطه بالمراقبة:**
+`health-check.sh` يقرأ أحدث `bundle-drill-*.json` (أو `drill-*.json`) داخل `SAFARI_BACKUP_DIR`
+على الـVPS، ويتحقق من `"ok": true` ومن عمر الملف (mtime) ≤ `SAFARI_DRILL_MAX_AGE_DAYS` (8).
+بعد نجاح الـdrill فقط انسخ التقرير (بدون `-p` حتى يكون mtime وقت النسخ، أي وقت الإثبات):
+
+```bash
+scp backups/bundle-drill-<UTC>.json <DEPLOY_USER>@187.6.167.233:/srv/safari-tours-sharm/backups/
+ssh <DEPLOY_USER>@187.6.167.233 chmod 600 /srv/safari-tours-sharm/backups/bundle-drill-<UTC>.json
+```
+
+drill فاشل ← لا تنسخ تقريرًا ناجحًا؛ انسخ تقرير الفشل (`"ok": false`) حتى يعطي health-check
+FAIL وينبه. بدون drill لمدة > 8 أيام ← WARN متوقع ويجب أن يصل للتنبيه.
 - اختبار الاسترجاع الكامل (DB **وحجم جديدين** + تشغيل الإصدار فوقهما + فحص روابط
   approved وخصوصية DRAFT): الأفضل خارج الـVPS. لو على الـVPS فبمشروع منفصل
   (`-p safari-restore-test`، منفذ loopback مختلف، حجوم بأسماء مختلفة) بعد فحص الموارد،
@@ -441,9 +504,13 @@ SAFARI_COMPOSE_PROJECT=safari-tours-sharm-prod SAFARI_HEALTH_URL=http://127.0.0.
 - الموارد (RAM/disk) لا تكفي بحدود Safari مع هامش الخيمة.
 - SHA أو image IDs لا تطابق `RELEASE_READINESS.md`؛ BLOCKING review مفتوح.
 - منفذ منشور غير `127.0.0.1:$EDGE_PORT` في `docker ps`/`ss`.
+- منفذ الـedge غير متطابق في الأماكن الأربعة: `SAFARI_EDGE_PORT` في `$ENVF`، `SAFARI_HEALTH_URL`
+  في crontab، upstream البوابة (`server 127.0.0.1:<port>`)، ونتيجة `ss`.
+- البوابة/الخيمة لا تستمع على `[::]` بسيرفراتها بينما يُطلب تفعيل IPv6 لسفاري، أو حالة IPv6 غير واضحة.
+- DNS لأسماء Safari يمر عبر CDN/proxy (A ≠ IP الـVPS) بدون قرار trusted ranges.
 - Flyway history ≠ القائمة المتوقعة أو `failed>0`؛ تثبيت Safari سابق موجود.
 - `nginx -t` يفشل؛ شهادة لا تطابق الأسماء الثلاثة؛ الحاجة لـ`-k`.
-- backup/drill يفشل؛ placeholders باقية؛ استثناءات audit بلا إقرار محمد.
+- backup/drill (خارج السيرفر) يفشل؛ لا GO لـdeploy hook التجديد؛ placeholders باقية؛ استثناءات audit بلا إقرار محمد.
 - أي تغير في baseline الخيمة.
 
 ## 17. ما يسلمه Codex بعد النشر

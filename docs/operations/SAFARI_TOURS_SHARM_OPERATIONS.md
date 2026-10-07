@@ -71,6 +71,11 @@ Schedule (crontab of the deploy user):
 */5 * * * * cd /srv/safari && scripts/safari-ops/health-check.sh > /dev/null
 ```
 
+With `SAFARI_BACKUP_GPG_RECIPIENT` set (production) the private key is not on
+the server, so the weekly drill line above cannot run there: run the drill
+off-server and copy its passing `bundle-drill-*.json` back into
+`SAFARI_BACKUP_DIR` (see `clients/safari-tours-sharm/deployment/DEPLOY_RUNBOOK_AR.md` §14.1).
+
 Copy the backup directory off the server daily (provider snapshot or object
 storage) — a backup on the same disk does not survive losing that disk.
 **Owner decision still needed:** where the off-server copy goes.

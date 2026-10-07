@@ -16,6 +16,7 @@ For the external section run from a machine **outside** the VPS.
 | # | Check | Command (abridged) | Expected |
 |---|---|---|---|
 | A1 | Only the edge is published, loopback only | `docker ps --filter label=com.docker.compose.project=safari-tours-sharm-prod --format '{{.Names}} {{.Ports}}'`; `ss -ltnp \| grep <port>` | one `127.0.0.1:<port>->8080/tcp`; nothing on 0.0.0.0/::, no 5432/8080/3000/3001 |
+| A1b | Edge port identical everywhere | compare `SAFARI_EDGE_PORT` (env file), `SAFARI_HEALTH_URL` (crontab), gateway `upstream safari_tours_sharm_edge` port, `ss -ltnp` | all four match — **STOP if not** |
 | A2 | All 5 containers healthy | `docker compose … ps` | postgres, backend, web, safari-site, edge `healthy` |
 | A3 | Flyway history | runbook §7 SQL | `1,2,3,14,16…33` (22 rows), `failed=0` |
 | A4 | Edge health | `curl -fsS $H/healthz` | `{"status":"UP"…}` |
@@ -29,7 +30,7 @@ For the external section run from a machine **outside** the VPS.
 | A12 | Staff API denied without auth | `curl -s -o /dev/null -w '%{http_code}' $S $H/api/v1/tours-operator/staff/tours` | 401 |
 | A13 | Staff/identity API absent on public origin | `curl -s -o /dev/null -w '%{http_code}' $P $H/api/v1/identity/me` and `…/api/v1/tours-operator/staff/tours` | 404 |
 | A14 | Staff app absent on public origin | `curl -s -o /dev/null -w '%{http_code}' $P $H/login` and compare body with A11 | public-site 404 page, never the ERP login markup |
-| A15 | Security headers | `curl -sI $P $H/en/tours` | CSP, HSTS, X-Frame-Options, nosniff, Referrer-Policy present |
+| A15 | Security headers | `curl -sI $P $H/en/tours` | CSP, HSTS `max-age=31536000` (no `includeSubDomains` until owner confirms), X-Frame-Options, nosniff, Referrer-Policy present |
 | A16 | Media (only if an approved image exists) | `curl -sI $P $H/media/tours/<slug>/<uuid>.jpg` | 200 image/jpeg; DRAFT image URL → 404 |
 | A17 | Health script | `scripts/safari-ops/health-check.sh` (env per runbook §13) | only expected WARNs (sales closed in ENQUIRY_ONLY; backup/drill before first run) |
 
@@ -60,6 +61,7 @@ For the external section run from a machine **outside** the VPS.
 | C3 | El Kheima containers: names, images, `StartedAt`, `RestartCount` | | | |
 | C4 | El Kheima response time (3 samples) | | | |
 | C5 | `nginx -T \| sha256sum` | | | changes only by the Safari file |
+| C5b | El Kheima over IPv6 (only if it has AAAA): `curl -6` status + cert | | | |
 | C6 | Safari names no longer serve El Kheima content/cert | n/a (was El Kheima) | Safari | — |
 
 Any difference in C1–C4 → stop, remove only the Safari vhost, reload, report (runbook §15).
