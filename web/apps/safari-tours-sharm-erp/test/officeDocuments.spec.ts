@@ -88,6 +88,7 @@ const cancellation = (): CancellationFormDocument => ({
     ],
     collectedNet: eur("30.00"), policy: "STANDARD", hoursBeforeTour: 60, refundPercent: 100, expectedReturn: eur("30.00"),
     todayRate: "50.0000", expectedReturnEgp: { amount: "1500.00", currencyCode: "EGP" },
+    refunds: [], refundedNet: { amount: "0.00", currencyCode: "EUR" }, remainingToReturn: { amount: "30.00", currencyCode: "EUR" }, returnState: "NOT_RETURNED",
   },
 } as CancellationFormDocument);
 

@@ -3,10 +3,10 @@ import { computed } from "vue";
 import type { CancellationFormDocument } from "@wego/api-contract";
 import { docMessage, type DocumentLanguage } from "../../utils/documentMessages";
 import { docCount, docDate, docInstant, docMoney, docTourName } from "../../utils/documentFormat";
-import { erpMessage } from "../../utils/erpLocale";
+import { erpMessage, formatErpSignedMoney } from "../../utils/erpLocale";
 import DocumentSheet from "./DocumentSheet.vue";
 
-/** Read-only money-to-return form for a cancelled office booking. It records no refund. */
+/** Read-only money-to-return form for a cancelled office booking. It records nothing; refunds recorded in OPS2-F are listed. */
 const props = defineProps<{ doc: CancellationFormDocument; lang: DocumentLanguage }>();
 const m = (key: Parameters<typeof docMessage>[1], params?: Record<string, string | number>) => docMessage(props.lang, key, params);
 const d = computed(() => props.doc.data);
@@ -68,7 +68,29 @@ const hours = computed(() => Math.max(0, d.value.hoursBeforeTour));
       <p v-else class="doc-note" data-testid="no-rate">{{ m("doc.cancel.noRate") }}</p>
     </section>
 
-    <section class="doc-section">
+    <section v-if="d.refunds.length" class="doc-section" data-testid="refunds">
+      <h2>{{ m("doc.cancel.returned") }}</h2>
+      <table class="doc-table">
+        <tbody>
+          <tr v-for="(line, i) in d.refunds" :key="i">
+            <td>{{ docInstant(line.recordedAt, lang) }}</td>
+            <td>{{ erpMessage(lang, `fops.rm.${line.method}`) }}<strong v-if="line.reversal"> · {{ m("doc.cancel.reversal") }}</strong></td>
+            <td class="doc-num">{{ line.reversal ? "−" : "" }}{{ formatErpSignedMoney(line.amountPaid, lang) }}</td>
+            <td class="doc-num">{{ line.reversal ? "−" : "" }}{{ docMoney(line.returnedEur, lang) }}</td>
+          </tr>
+          <tr class="doc-total-row">
+            <td colspan="3">{{ m("doc.cancel.returnedNet") }}</td>
+            <td class="doc-num">{{ docMoney(d.refundedNet, lang) }}</td>
+          </tr>
+          <tr>
+            <td colspan="3">{{ m("doc.cancel.remaining") }}</td>
+            <td class="doc-num">{{ docMoney(d.remainingToReturn, lang) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    <p class="doc-pay" data-testid="return-state">{{ m(`doc.cancel.state.${d.returnState}`) }}</p>
+    <section v-if="!d.refunds.length" class="doc-section">
       <dl class="doc-grid">
         <div><dt>{{ m("doc.cancel.actual") }}</dt><dd><span class="doc-blank" /></dd></div>
         <div><dt>{{ m("doc.cancel.returnMethod") }}</dt><dd><span class="doc-blank" /></dd></div>

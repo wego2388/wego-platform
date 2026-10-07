@@ -55,6 +55,16 @@ const links = computed(() =>
     { to: "/drivers", label: t("nav.drivers"), show: hasPermission(session.value, "tours-operator.fleet:manage") },
     { to: "/vehicles", label: t("nav.vehicles"), show: hasPermission(session.value, "tours-operator.fleet:manage") },
     { to: "/finance", label: t("nav.finance"), show: hasPermission(session.value, "tours-operator.payment:view") },
+    { to: "/profitability", label: t("nav.profitability"), show: hasPermission(session.value, "tours-operator.payment:view") },
+    { to: "/costs", label: t("nav.costs"), show: hasPermission(session.value, "tours-operator.cost:manage") || hasPermission(session.value, "tours-operator.payment:view") },
+    {
+      to: "/settlements", label: t("nav.settlements"),
+      show: ["tours-operator.settlement:pay", "tours-operator.settlement:approve", "tours-operator.payment:view"].some((p) => hasPermission(session.value, p)),
+    },
+    {
+      to: "/cash-box", label: t("nav.cashBox"),
+      show: ["tours-operator.cash-box:close", "tours-operator.cash-box:confirm", "tours-operator.payment:view"].some((p) => hasPermission(session.value, p)),
+    },
     { to: "/customers", label: t("nav.customers"), show: hasPermission(session.value, "tours-operator.booking:view") },
     { to: "/reviews", label: t("nav.reviews"), show: hasPermission(session.value, "tours-operator.booking:view") },
     { to: "/notifications", label: t("nav.messages"), show: hasPermission(session.value, "tours-operator.notification:manage") },

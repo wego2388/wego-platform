@@ -28,8 +28,8 @@ export function docTourName(doc: { tourNameEn: string; tourNameAr: string | null
   return lang === "ar" && doc.tourNameAr ? doc.tourNameAr : doc.tourNameEn;
 }
 
-export type DocumentKind = "voucher" | "receipt" | "cancellation" | "run-sheet" | "pickup" | "driver-sheet" | "supplier-order";
-export const DOCUMENT_KINDS: readonly DocumentKind[] = ["voucher", "receipt", "cancellation", "run-sheet", "pickup", "driver-sheet", "supplier-order"];
+export type DocumentKind = "voucher" | "receipt" | "cancellation" | "run-sheet" | "pickup" | "driver-sheet" | "supplier-order" | "settlement-statement";
+export const DOCUMENT_KINDS: readonly DocumentKind[] = ["voucher", "receipt", "cancellation", "run-sheet", "pickup", "driver-sheet", "supplier-order", "settlement-statement"];
 
 export const DOCUMENT_PERMISSION: Record<DocumentKind, string> = {
   voucher: "tours-operator.document:print",
@@ -39,7 +39,14 @@ export const DOCUMENT_PERMISSION: Record<DocumentKind, string> = {
   pickup: "tours-operator.document:print-ops",
   "driver-sheet": "tours-operator.document:print-ops",
   "supplier-order": "tours-operator.document:print-ops",
+  "settlement-statement": "tours-operator.settlement:pay",
 };
+
+/** The settlement statement prints with either settlement permission (manager or owner). */
+export function canPrintDocument(kind: DocumentKind, has: (permission: string) => boolean): boolean {
+  if (kind === "settlement-statement") return has("tours-operator.settlement:pay") || has("tours-operator.settlement:approve");
+  return has(DOCUMENT_PERMISSION[kind] ?? "");
+}
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
@@ -47,6 +54,12 @@ const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 /** A document link carries only an internal id (or a date for the run sheet), never customer data. */
 export function isValidSubject(kind: DocumentKind, id: string): boolean {
   if (kind === "run-sheet") return ISO_DAY.test(id);
+  // A settlement statement is "<suppliers|drivers>_<party id>_<from>_<to>".
+  if (kind === "settlement-statement") {
+    const [party, partyId, from, to, ...rest] = id.split("_");
+    return rest.length === 0 && (party === "suppliers" || party === "drivers") && UUID.test(partyId ?? "")
+      && ISO_DAY.test(from ?? "") && ISO_DAY.test(to ?? "") && (to ?? "") >= (from ?? "");
+  }
   // A supplier order is "<slot id>_<supplier id>".
   if (kind === "supplier-order") return id.split("_").length === 2 && id.split("_").every((part) => UUID.test(part));
   return UUID.test(id);

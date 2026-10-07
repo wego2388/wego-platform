@@ -23,6 +23,7 @@ import { whatsappLink } from "../../composables/useWhatsApp";
 import { useErpLocale } from "../../composables/useErpLocale";
 import OfficePaymentBadge from "../../components/OfficePaymentBadge.vue";
 import OfficePaymentsPanel from "../../components/OfficePaymentsPanel.vue";
+import OfficeRefundPanel from "../../components/OfficeRefundPanel.vue";
 import { bookingErrorMessage, type ErpMessageDescriptor } from "../../utils/bookingMessages";
 import { docMessage } from "../../utils/documentMessages";
 import { documentPath } from "../../utils/documentFormat";
@@ -367,6 +368,7 @@ onMounted(() => {
         </div>
 
         <OfficePaymentsPanel v-if="booking.channel === 'OFFICE' && session" :booking="booking" :session="session" @changed="load" />
+        <OfficeRefundPanel v-if="booking.channel === 'OFFICE' && booking.status === 'CANCELLED' && session" :booking="booking" :session="session" @changed="load" />
 
         <!-- History -->
         <section class="mt-6 rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm" aria-labelledby="history-heading">

@@ -10,6 +10,8 @@ import {
 import {
   listPaymentLedger,
   listAllStaffTours,
+  getOfficeSummary,
+  type OfficeSummary,
   ToursApiError,
   type PaymentLedgerEntry,
   type Tour,
@@ -38,6 +40,8 @@ const router  = useRouter();
 const session = ref<AuthSession | null>(null);
 const payments = ref<PaymentLedgerEntry[]>([]);
 const tours    = ref<Tour[]>([]);
+// Office payments (OPS2-F) are a separate labelled line: never added to online revenue.
+const office   = ref<OfficeSummary | null>(null);
 const state    = ref<"idle" | "loading" | "loaded" | "error">("idle");
 const error    = ref<ErpMessageDescriptor | null>(null);
 let loadVersion = 0;
@@ -130,7 +134,9 @@ async function load() {
     assertSingleCurrency(paymentLedgerEvents(allPayments, from, to));
     // Tour names are a label only; finance must not depend on catalog access.
     const allTours = canViewTours.value ? await listAllStaffTours(session.value.token) : [];
+    const officeSummary = await getOfficeSummary(session.value.token, from, to);
     if (version !== loadVersion) return;
+    office.value = officeSummary;
     payments.value = allPayments;
     tours.value = allTours;
     appliedFrom.value = from;
@@ -236,6 +242,17 @@ onMounted(() => {
               <p class="mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ count(summary.paxTotal) }}</p>
               <p class="mt-0.5 text-xs text-sts-muted">{{ t("finance.paxHelp") }}</p>
             </div>
+          </div>
+
+          <!-- Office payments: a separate line, not part of the online figures above -->
+          <div v-if="office" id="office-payments" class="mt-4 rounded-2xl border border-sts-border bg-sts-surface px-5 py-4 shadow-sm">
+            <p class="text-xs font-semibold text-sts-muted uppercase tracking-wide">{{ t("fops.office.title") }}</p>
+            <p class="money mt-1 text-2xl font-black tabular-nums text-sts-ocean">{{ signedMoney(office.net) }}</p>
+            <p class="mt-0.5 text-xs text-sts-muted">
+              {{ t("fops.office.collected", { amount: money(office.collected) }) }} ·
+              {{ t("fops.office.refunded", { amount: money(office.refunded) }) }}
+            </p>
+            <p class="mt-0.5 text-xs text-sts-muted">{{ t("fops.office.help") }}</p>
           </div>
 
           <!-- Ledger status breakdown -->

@@ -4633,6 +4633,72 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   office payments in finance totals. Defaults are owner-delegated assumptions
   marked for review in the hub.
 
+#### 2026-10-07 — OPS2-F implementation (Tier 1, review pending)
+
+- **Status:** ACTIVE (unchanged). Not committed by the implementer (the coordinator
+  made a WIP backup commit), not deployed. Independent Tier 1 review required.
+- **V33** (registered in both Gradle files, `release-profiles.json` incl.
+  `migrationVersions`, `ProductIsolationIntegrationTest`, release plans regenerated):
+  `cost_component` (effective-dated, EGP/EUR, tour or driver owner; never edited — a
+  trigger allows only ending an open row once), `office_refund`,
+  `payable_adjustment`, `settlement_approval`, `settlement_payment`,
+  `cash_box_event` (all append-only: UPDATE/DELETE/TRUNCATE refused by trigger except
+  the FK user detach); print register type `SETTLEMENT_STATEMENT` (STL-YYYY-NNNNNN).
+  DB backstops: one reversal per entry, one payment per approval, a payment above
+  5000.00 EGP without an approval is refused by a CHECK.
+- **Permissions:** `cost:manage`, `settlement:pay`, `settlement:approve`,
+  `cash-box:close`, `cash-box:confirm`, `booking:refund-office` (platform-admin only).
+  **Decision:** profitability and the office-payments line reuse the existing finance
+  permission `tours-operator.payment:view` (no new finance:view).
+- **Rules:** profit by tour day; revenue EUR = recognised Paymob PAID (online) +
+  office collections net − office refunds (office), shown apart; cost = components in
+  force × guests (per person/unit) + per-departure components, driver trip rate and
+  the departure's payable adjustments split by guests (remainder on the last
+  booking); EGP at the departure-day rate, else the latest rate (`rateSource`
+  DEPARTURE_DATE|LATEST|NONE); any gap (no components, per-unit on per-person,
+  driver without rate/charge, EGP without any rate) hides cost/profit. Payables =
+  departures up to today with live bookings (unlinked supplier price → the single
+  assigned supplier, several → flagged for manual split), plus CHARGE/DEDUCTION,
+  minus payments; reversals dated on their own day; balance per currency, never mixed.
+  Payment ≤ balance under a party advisory lock; ≤ 5000.00 EGP (EUR at today's rate,
+  no rate = above) by `settlement:pay`, above it consumes one exact owner approval;
+  reversals need `settlement:approve`. Cash box per Cairo day & currency: expected =
+  cash collections − cash refunds − cash settlement payments (each net of reversals);
+  COUNT by close, CONFIRM by a different confirm holder (re-checks expected → 409
+  `cash_expected_changed`), REOPEN with reason; every cash entry (collection, reversal,
+  refund, settlement, and their reversals) takes the same day lock and is refused
+  (`cash_day_closed`) on a closed day. Refunds only on cancelled office bookings, ≤
+  collected − refunded under the booking lock, EGP with the quoted rate, never by the
+  recorder's own reversal; booking `officePayment.refunded`/`cashToReturn` and the
+  cancellation form (`refunds`, `returnState` RETURNED = "money returned", reprint
+  REVISED) reflect them; Paymob untouched.
+- **ERP EN/AR:** `/costs`, `/profitability`, `/settlements` (statement, pay with
+  approval preview, approve, charge/deduction, reversals, print), `/cash-box`, refund
+  panel on cancelled office bookings, "Office payments" card on `/finance` (separate,
+  online figures unchanged), settlement statement document (A4, EN/AR).
+- **Import:** `clients/safari-tours-sharm/owner-data/import_costs.py` (dry run
+  default; `--apply` via staff API with env credentials; NOT run): 57 components
+  planned, 19 cells flagged (guide names, '500+100', '600/800', «حسب الطلب», driver
+  pay «حسب التشغيله»).
+- **Assumptions (owner-delegated, for review):** 5000 EGP limit inclusive and
+  hard-coded (a change needs a migration); owner may approve and then pay himself;
+  a used approval stays used after its payment is reversed; unused approvals never
+  expire (no void yet); a child costs the adult amount unless given; «رسوم دخول» is an
+  own per-person cost; guide/other costs per departure; supplier price unlinked;
+  CASH_ON_PICKUP counts as box cash; the drawer starts each day at zero; a cost
+  change may be dated in the past (audited by row, not blocked) so old profit can be
+  restated — no per-departure cost snapshot table; payables recompute from all
+  departures each time (fine at current volume); profit range ≤ 366 days.
+- **Tests:** `ToursOperatorFinanceOpsHttpTest` 20 (permission matrix, approval
+  threshold incl. exactly 5000.00 and EUR at rate, concurrent payments, one approval
+  under concurrency, concurrent refunds, concurrent confirm, close-vs-cash race,
+  reversal rules, profitability EUR/EGP/latest-rate/missing cost, immutability after
+  close, append-only guards, statement COPY/REVISED); `FinanceOpsDomainTest` 13;
+  ERP Vitest `financeOps.spec.ts` 16 (total 325).
+- **Open items:** owner review of all defaults above and of the 19 flagged hub
+  cells; approval void/expiry; vehicle hire costs (no data); actual-vs-expected
+  cost variance workflow and gateway fees (plan §5) not built; reversals report.
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE

@@ -3,8 +3,8 @@ import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { WegoAlert } from "@wego/ui";
 import { clearAuthSession, hasPermission, readAuthSession, type AuthSession } from "../../../composables/useAuthSession";
 import {
-  ToursApiError, printCancellationForm, printDriverSheet, printPickupManifest, printSupplierOrder, printReceipt, printRunSheet, printVoucher,
-  type CancellationFormDocument, type DriverSheetDocument, type PickupManifestDocument, type SupplierOrderDocument, type ReceiptDocument, type RunSheetDocument, type VoucherDocument,
+  ToursApiError, printCancellationForm, printSettlementStatement, printDriverSheet, printPickupManifest, printSupplierOrder, printReceipt, printRunSheet, printVoucher,
+  type CancellationFormDocument, type SettlementStatementDocument, type DriverSheetDocument, type PickupManifestDocument, type SupplierOrderDocument, type ReceiptDocument, type RunSheetDocument, type VoucherDocument,
 } from "../../../composables/useToursApi";
 import { useErpLocale } from "../../../composables/useErpLocale";
 import ErpLanguageSwitch from "../../../components/ErpLanguageSwitch.vue";
@@ -15,9 +15,11 @@ import PickupManifestDoc from "../../../components/documents/PickupManifestDocum
 import DriverSheetDoc from "../../../components/documents/DriverSheetDocument.vue";
 import SupplierOrderDoc from "../../../components/documents/SupplierOrderDocument.vue";
 import CancellationFormDoc from "../../../components/documents/CancellationFormDocument.vue";
+import SettlementStatementDoc from "../../../components/documents/SettlementStatementDocument.vue";
 import { docMessage, type DocumentLanguage, type DocumentMessageKey } from "../../../utils/documentMessages";
 import { splitSupplierOrderSubject } from "../../../utils/opsRegistry";
-import { DOCUMENT_KINDS, DOCUMENT_PERMISSION, isValidSubject, type DocumentKind } from "../../../utils/documentFormat";
+import { DOCUMENT_KINDS, canPrintDocument, isValidSubject, type DocumentKind } from "../../../utils/documentFormat";
+import { parseStatementSubject } from "../../../utils/financeOps";
 
 definePageMeta({ layout: "print" });
 
@@ -39,16 +41,16 @@ const valid = computed(() => (DOCUMENT_KINDS as readonly string[]).includes(kind
 
 const session = ref<AuthSession | null>(null);
 const lang = ref<DocumentLanguage>(route.query.lang === "ar" ? "ar" : route.query.lang === "en" ? "en" : locale.value);
-type AnyDoc = VoucherDocument | ReceiptDocument | RunSheetDocument | PickupManifestDocument | CancellationFormDocument | DriverSheetDocument | SupplierOrderDocument;
+type AnyDoc = VoucherDocument | ReceiptDocument | RunSheetDocument | PickupManifestDocument | CancellationFormDocument | DriverSheetDocument | SupplierOrderDocument | SettlementStatementDocument;
 const doc = ref<AnyDoc | null>(null);
 const state = ref<"idle" | "loading" | "ready" | "error">("idle");
 const errorKey = ref<DocumentMessageKey | null>(null);
 const errorCode = ref("");
 const sheet = ref<HTMLElement | null>(null);
 
-const allowed = computed(() => hasPermission(session.value, DOCUMENT_PERMISSION[kind.value] ?? ""));
+const allowed = computed(() => canPrintDocument(kind.value, (p) => hasPermission(session.value, p)));
 const kindTitleKey = computed<DocumentMessageKey>(() => ({
-  voucher: "doc.voucher.title", receipt: "doc.receipt.title", cancellation: "doc.cancel.title", "run-sheet": "doc.run.title", pickup: "doc.pickup.title", "driver-sheet": "doc.drv.title", "supplier-order": "doc.sup.title",
+  voucher: "doc.voucher.title", receipt: "doc.receipt.title", cancellation: "doc.cancel.title", "run-sheet": "doc.run.title", pickup: "doc.pickup.title", "driver-sheet": "doc.drv.title", "supplier-order": "doc.sup.title", "settlement-statement": "doc.stl.title",
 } as const)[kind.value] ?? "doc.voucher.title");
 useHead(() => ({ title: doc.value ? `${docMessage(lang.value, kindTitleKey.value)} ${doc.value.document.number}` : ui(kindTitleKey.value) }));
 
@@ -72,6 +74,11 @@ async function request(token: string): Promise<AnyDoc> {
     case "supplier-order": {
       const [slotId, supplierId] = splitSupplierOrderSubject(subject.value) ?? ["", ""];
       return printSupplierOrder(token, slotId, supplierId, lang.value);
+    }
+    case "settlement-statement": {
+      const parsed = parseStatementSubject(subject.value);
+      if (!parsed) throw new ToursApiError(400, "invalid_statement_link");
+      return printSettlementStatement(token, parsed.party, parsed.id, parsed.from, parsed.to, lang.value);
     }
     default: return printPickupManifest(token, subject.value, lang.value);
   }
@@ -169,6 +176,7 @@ onMounted(() => {
       <RunSheetDoc v-else-if="kind === 'run-sheet'" :doc="doc as RunSheetDocument" :lang="lang" />
       <DriverSheetDoc v-else-if="kind === 'driver-sheet'" :doc="doc as DriverSheetDocument" :lang="lang" />
       <SupplierOrderDoc v-else-if="kind === 'supplier-order'" :doc="doc as SupplierOrderDocument" :lang="lang" />
+      <SettlementStatementDoc v-else-if="kind === 'settlement-statement'" :doc="doc as SettlementStatementDocument" :lang="lang" />
       <PickupManifestDoc v-else :doc="doc as PickupManifestDocument" :lang="lang" />
     </section>
   </main>

@@ -37,6 +37,9 @@ import type {
   AssignmentRequest,
   DriverSheetDocument,
   SupplierOrderDocument,
+  CostComponent, CostComponentRequest, ProfitReport, OfficeSummary, OfficeRefunds, OfficeRefundOutcome, RefundMethod,
+  PartySummary, PartyStatement, SettlementPayment, SettlementApproval, PayableAdjustment, SettlementMethod, CashDay, CashBoxEvent,
+  SettlementStatementDocument,
 } from "@wego/api-contract";
 
 export type {
@@ -488,3 +491,90 @@ export const saveAssignment = (token: string, slotId: string, payload: Assignmen
   write<AssignmentView>(token, "PUT", `${STAFF}/slots/${slotId}/assignment`, payload);
 export const clearAssignment = (token: string, slotId: string, expectedRevision: number) =>
   request<AssignmentView>(`${STAFF}/slots/${slotId}/assignment?expectedRevision=${expectedRevision}`, token, { method: "DELETE" });
+
+// ── Costs, profitability, settlements, cash box, refunds (OPS2-F) ───────────
+// Money records are append-only: corrections are reversals with a reason.
+
+export type {
+  CostComponent, CostComponentRequest, ProfitReport, ProfitGroup, ProfitTotals, OfficeSummary, OfficeRefunds, OfficeRefund, OfficeRefundOutcome,
+  RefundMethod, PartySummary, PartyStatement, StatementMovement, SettlementPayment, SettlementApproval, PayableAdjustment, SettlementMethod,
+  CashDay, CashBoxEvent, CostCategory, CostBasis, FinanceAmount, CurrencyBalance, SettlementStatementDocument,
+} from "@wego/api-contract";
+
+export type PartyPath = "suppliers" | "drivers";
+export type ProfitGrouping = "BOOKING" | "DEPARTURE" | "TOUR" | "MONTH";
+
+export function listCosts(token: string, includeEnded: boolean): Promise<CostComponent[]> {
+  return request<CostComponent[]>(`${STAFF}/costs?includeEnded=${includeEnded}`, token);
+}
+export const createCost = (token: string, payload: CostComponentRequest) => write<CostComponent>(token, "POST", `${STAFF}/costs`, payload);
+export const replaceCost = (token: string, id: string, payload: CostComponentRequest) =>
+  write<CostComponent>(token, "POST", `${STAFF}/costs/${id}/replace`, payload);
+export const endCost = (token: string, id: string, lastDay: string) => write<CostComponent>(token, "POST", `${STAFF}/costs/${id}/end`, { lastDay });
+
+export function getProfitability(token: string, from: string, to: string, groupBy: ProfitGrouping): Promise<ProfitReport> {
+  const q = new URLSearchParams({ from, to, groupBy });
+  return request<ProfitReport>(`${STAFF}/finance/profitability?${q}`, token);
+}
+export function getOfficeSummary(token: string, from: string, to: string): Promise<OfficeSummary> {
+  const q = new URLSearchParams({ from, to });
+  return request<OfficeSummary>(`${STAFF}/finance/office-summary?${q}`, token);
+}
+
+export const listRefunds = (token: string, bookingId: string) => request<OfficeRefunds>(`${STAFF}/bookings/${bookingId}/refunds`, token);
+export const recordRefund = (
+  token: string,
+  bookingId: string,
+  payload: { clientRequestId: string; method: RefundMethod; amount: number; currency: PaidCurrency; reference?: string; fxRateId?: string; reason: string },
+) => write<OfficeRefundOutcome>(token, "POST", `${STAFF}/bookings/${bookingId}/refunds`, payload);
+export const reverseRefund = (token: string, bookingId: string, refundId: string, payload: { clientRequestId: string; reason: string }) =>
+  write<OfficeRefundOutcome>(token, "POST", `${STAFF}/bookings/${bookingId}/refunds/${refundId}/reverse`, payload);
+
+export const listPayables = (token: string) => request<PartySummary[]>(`${STAFF}/payables`, token);
+export function getStatement(token: string, party: PartyPath, id: string, from: string, to: string): Promise<PartyStatement> {
+  const q = new URLSearchParams({ from, to });
+  return request<PartyStatement>(`${STAFF}/payables/${party}/${id}/statement?${q}`, token);
+}
+export const paySettlement = (
+  token: string,
+  party: PartyPath,
+  id: string,
+  payload: { clientRequestId: string; method: SettlementMethod; currency: PaidCurrency; amount: number; reference?: string; note?: string; approvalId?: string },
+) => write<SettlementPayment>(token, "POST", `${STAFF}/payables/${party}/${id}/payments`, payload);
+export const approveSettlement = (
+  token: string,
+  party: PartyPath,
+  id: string,
+  payload: { clientRequestId: string; currency: PaidCurrency; amount: number; note?: string },
+) => write<SettlementApproval>(token, "POST", `${STAFF}/payables/${party}/${id}/approvals`, payload);
+export const adjustPayable = (
+  token: string,
+  party: PartyPath,
+  id: string,
+  payload: { clientRequestId: string; kind: "CHARGE" | "DEDUCTION"; currency: PaidCurrency; amount: number; slotId?: string; serviceDate?: string; reason: string },
+) => write<PayableAdjustment>(token, "POST", `${STAFF}/payables/${party}/${id}/adjustments`, payload);
+export const reverseSettlementEntry = (
+  token: string,
+  party: PartyPath,
+  id: string,
+  entry: "payments" | "adjustments",
+  entryId: string,
+  payload: { clientRequestId: string; reason: string },
+) => write<SettlementPayment | PayableAdjustment>(token, "POST", `${STAFF}/payables/${party}/${id}/${entry}/${entryId}/reverse`, payload);
+
+export function getCashDay(token: string, date: string, currency: PaidCurrency): Promise<CashDay> {
+  const q = new URLSearchParams({ date, currency });
+  return request<CashDay>(`${STAFF}/cash-box?${q}`, token);
+}
+export const listRecentCashDays = (token: string) => request<CashBoxEvent[]>(`${STAFF}/cash-box/recent?days=14`, token);
+export const countCash = (token: string, date: string, currency: PaidCurrency, counted: number, note?: string) =>
+  write<CashDay>(token, "POST", `${STAFF}/cash-box/${date}/${currency}/count`, { counted, ...(note ? { note } : {}) });
+export const confirmCash = (token: string, date: string, currency: PaidCurrency) =>
+  request<CashDay>(`${STAFF}/cash-box/${date}/${currency}/confirm`, token, { method: "POST" });
+export const reopenCash = (token: string, date: string, currency: PaidCurrency, reason: string) =>
+  write<CashDay>(token, "POST", `${STAFF}/cash-box/${date}/${currency}/reopen`, { reason });
+
+export const printSettlementStatement = (token: string, party: PartyPath, id: string, from: string, to: string, language: DocumentLanguageCode) =>
+  request<SettlementStatementDocument>(`/api/v1/tours-operator/documents/payables/${party}/${id}/statement`, token, {
+    method: "POST", headers: JSON_HEADERS, body: JSON.stringify({ from, to, language }),
+  });
