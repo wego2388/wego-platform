@@ -4763,6 +4763,21 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   idempotency replay runs after the owner lock (concurrent same-key retries: one 201, the rest 200).
 - **Residual F6 (accepted, follow-up):** CHARGE adjustments are capped per charge (5000 EGP), not
   cumulatively per party per day.
+
+- **Delivered 2026-10-07 (Claude):** OPS2-F re-check follow-ups `7660ca9`;
+  ERP locale fixture fix `fae1477`; deploy package `f82c92b` (production
+  Compose overlay, env template, Safari-only gateway vhosts, Arabic runbook,
+  verification checklist, readiness manifest; edge forwards
+  `X-Forwarded-Proto` only from trusted hops); package review follow-ups
+  `f5b43f6`. CI green on `f82c92b` (run 37645085034).
+- **Review:** Opus independent review of the package — ACCEPT-WITH-FOLLOWUPS;
+  findings 1–8 fixed (IPv6 listens off by default, drill off-server, mandatory
+  renewal reload hook, forwarded-header clearing, port consistency, CDN check,
+  HSTS without includeSubDomains, heap 60%).
+- **Handoff:** `clients/safari-tours-sharm/handoff/2026-10-07_RELEASE_READY_CODEX_DEPLOY_HANDOFF_AR.md`.
+- **Remains ACTIVE until:** owner GO + Codex executes the runbook. Claude does
+  not deploy. Full-stack E2E relies on CI for the release SHA (local disk).
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE

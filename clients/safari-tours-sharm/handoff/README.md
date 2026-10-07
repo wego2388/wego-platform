@@ -8,6 +8,7 @@
 > الوحيدة، والحجز المكتبي والمستندات تقدما بعد تسليم MEDIA. لا تنفذ نشرًا
 > أو تفتح packet ثانية بسبب الوثيقة؛ الخيمة وبياناتها وخدماتها محمية.
 > مكان التنفيذ `/home/wego/wego-safari-hardening`، وحدد SHA النهائي قبل التسليم.
+> **ابدأ هنا للنشر:** [تسليم Claude إلى Codex حتى النشر](2026-10-07_RELEASE_READY_CODEX_DEPLOY_HANDOFF_AR.md).
 > **حزمة النشر الجاهزة لـCodex (OPS2-G):** [`../deployment/`](../deployment/README.md) —
 > readiness manifest، runbook عربي، checklist، `.env.production.example`،
 > قوالب nginx للبوابة، وoverlay الإنتاج. لم يُنفذ أي نشر.
