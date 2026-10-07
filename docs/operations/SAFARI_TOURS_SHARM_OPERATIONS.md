@@ -191,7 +191,12 @@ terminator (e.g. Caddy) forwards to it. The terminator **must overwrite**
 `X-Forwarded-For` with the real client address (not append to a
 client-supplied one): the edge trusts that header from private/loopback
 hops for its per-visitor rate limits. After the first deploy, check from two
-different networks that each gets its own limit. The customer origin only
+different networks that each gets its own limit. The terminator must also
+**overwrite** `X-Forwarded-Proto` with `https`: the edge passes `https` on to
+the backend/site only when the TCP peer is a loopback/private hop and the
+header is exactly `https` (`$wego_forwarded_proto`); otherwise it sends its
+own `$scheme` (`http`). Gateway templates that do both:
+`clients/safari-tours-sharm/deployment/nginx/`. The customer origin only
 proxies the API the public site uses; staff login and staff APIs exist only
 on the staff origin. HSTS is sent on every response — serve both origins
 over HTTPS only.

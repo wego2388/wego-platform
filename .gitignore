@@ -5,6 +5,7 @@
 !.env.sharm-to-go.example
 !.env.safari-tours-sharm.example
 !.env.sharm-divers-club.example
+!clients/safari-tours-sharm/deployment/.env.production.example
 *.pem
 *.key
 *.p12

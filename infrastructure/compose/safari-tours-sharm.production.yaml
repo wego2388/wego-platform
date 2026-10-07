@@ -1,0 +1,126 @@
+# Safari Tours Sharm — PRODUCTION overlay (WEGO-016-OPS2-G deploy package).
+#
+# Use ONLY together with the base file, from an immutable release directory:
+#
+#   docker compose \
+#     --env-file /srv/safari-tours-sharm/shared/.env.production \
+#     -f infrastructure/compose/safari-tours-sharm.compose.yaml \
+#     -f infrastructure/compose/safari-tours-sharm.production.yaml \
+#     <command>
+#
+# What this overlay changes compared with the local/E2E base:
+#   - fixed project name `safari-tours-sharm-prod` and fixed volume names, so a
+#     shell with a different COMPOSE_PROJECT_NAME can never create a second,
+#     empty production database next to the real one;
+#   - NO published ports except the edge, and the edge only on 127.0.0.1
+#     (the host's existing HTTPS gateway proxies to it). PostgreSQL, backend
+#     8080, ERP 3000 and site 3001 are reachable only on the private network;
+#   - prebuilt, reviewed images (no `build:` on the VPS); app images must
+#     already be loaded (`pull_policy: never`);
+#   - restart policy, CPU/memory/PID limits and json-file log rotation.
+#
+# `!reset` / `!override` are required: Compose MERGES `ports:` lists, so a
+# plain overlay would keep the base file's 127.0.0.1:55432 PostgreSQL port.
+# Prove the result with the resolved config (see the deploy runbook,
+# "resolved ports" check) — never by reading this file alone.
+#
+# Every value below that needs a real secret comes from the private env file
+# in /srv/safari-tours-sharm/shared/ (template:
+# clients/safari-tours-sharm/deployment/.env.production.example).
+
+name: safari-tours-sharm-prod
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: ${SAFARI_LOG_MAX_SIZE:-10m}
+    max-file: "${SAFARI_LOG_MAX_FILE:-5}"
+
+services:
+  postgres:
+    ports: !reset []
+    pull_policy: missing
+    shm_size: 128m
+    stop_grace_period: 60s
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "${SAFARI_POSTGRES_CPUS:-1.0}"
+          memory: ${SAFARI_POSTGRES_MEMORY:-768m}
+          pids: 256
+
+  backend:
+    build: !reset null
+    image: ${SAFARI_BACKEND_IMAGE:?set SAFARI_BACKEND_IMAGE (reviewed release tag) in the env file}
+    pull_policy: never
+    stop_grace_period: 40s
+    environment:
+      WEGO_DB_POOL_SIZE: ${SAFARI_DB_POOL_SIZE:-5}
+      # Bounded heap inside the container memory limit (no -Xmx guesswork).
+      JAVA_TOOL_OPTIONS: ${SAFARI_BACKEND_JAVA_OPTS:--XX:MaxRAMPercentage=70 -XX:+ExitOnOutOfMemoryError}
+      # Production mode must be chosen explicitly; launch plan: ENQUIRY_ONLY.
+      TOURS_OPERATOR_BOOKING_MODE: ${TOURS_OPERATOR_BOOKING_MODE:?set TOURS_OPERATOR_BOOKING_MODE explicitly (launch is ENQUIRY_ONLY)}
+      TOURS_OPERATOR_PAYMOB_MOCK_ENABLED: "false"
+      # Customer e-mail notifications stay off until SMTP is supplied and
+      # owner-approved; enabling without SPRING_MAIL_HOST fails startup.
+      TOURS_OPERATOR_NOTIFICATIONS_ENABLED: ${TOURS_OPERATOR_NOTIFICATIONS_ENABLED:-false}
+      TOURS_OPERATOR_NOTIFICATIONS_FROM: ${TOURS_OPERATOR_NOTIFICATIONS_FROM:-}
+      TOURS_OPERATOR_NOTIFICATIONS_REPLY_TO: ${TOURS_OPERATOR_NOTIFICATIONS_REPLY_TO:-}
+      TOURS_OPERATOR_SITE_BASE_URL: ${WEGO_SITE_PUBLIC_URL:?set WEGO_SITE_PUBLIC_URL=https://safaritourssharm.com}
+      TOURS_OPERATOR_REVIEW_URL: ${TOURS_OPERATOR_REVIEW_URL:-}
+      SPRING_MAIL_HOST: ${SPRING_MAIL_HOST:-}
+      SPRING_MAIL_PORT: ${SPRING_MAIL_PORT:-}
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME:-}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD:-}
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "${SAFARI_BACKEND_CPUS:-1.5}"
+          memory: ${SAFARI_BACKEND_MEMORY:-1024m}
+          pids: 512
+
+  web:
+    build: !reset null
+    image: ${SAFARI_ERP_IMAGE:?set SAFARI_ERP_IMAGE (reviewed release tag) in the env file}
+    pull_policy: never
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "${SAFARI_ERP_CPUS:-0.5}"
+          memory: ${SAFARI_ERP_MEMORY:-256m}
+          pids: 128
+
+  safari-site:
+    build: !reset null
+    image: ${SAFARI_SITE_IMAGE:?set SAFARI_SITE_IMAGE (reviewed release tag) in the env file}
+    pull_policy: never
+    environment:
+      NUXT_PUBLIC_I18N_BASE_URL: ${WEGO_SITE_PUBLIC_URL:?set WEGO_SITE_PUBLIC_URL=https://safaritourssharm.com}
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "${SAFARI_SITE_CPUS:-1.0}"
+          memory: ${SAFARI_SITE_MEMORY:-384m}
+          pids: 128
+
+  edge:
+    pull_policy: missing
+    ports: !override
+      - "127.0.0.1:${SAFARI_EDGE_PORT:-58080}:8080"
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "${SAFARI_EDGE_CPUS:-0.5}"
+          memory: ${SAFARI_EDGE_MEMORY:-128m}
+          pids: 128
+
+volumes:
+  safari_media:
+    name: safari-tours-sharm-prod-media
+  postgres_data:
+    name: safari-tours-sharm-prod-postgres-data
