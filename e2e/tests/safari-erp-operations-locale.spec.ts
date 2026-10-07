@@ -50,6 +50,7 @@ async function fixtures(page: Page, locale: Locale, options: Options = {}) {
     if (path.endsWith("/settings")) return options.settingsData ? route.fulfill({ json: { companyName: "Original business label", companyPhone: "+200000000000", companyEmail: "fixture@example.com", companyAddress: "Original address", currency: "EUR", timezone: "Africa/Cairo", bookingExpiryMinutes: 30, whatsappNumber: "+200000000000" } }) : route.fulfill({ status: 404, json: { error: "not_found" } });
     if (path.endsWith("/bookings")) return route.fulfill({ json: options.empty ? [] : [BOOKING, { ...BOOKING, id: "fixture-cancelled", status: "CANCELLED", totalPrice: { amount: "0.05", currencyCode: "EUR" } }, { ...BOOKING, id: "fixture-egp", totalPrice: { amount: "200.05", currencyCode: "EGP" } }] });
     if (path.endsWith("/staff/tours")) return route.fulfill({ json: [TOUR] });
+    if (path.endsWith("/staff/finance/office-summary")) return route.fulfill({ json: { from: url.searchParams.get("from"), to: url.searchParams.get("to"), collected: { amount: "0.00", currencyCode: "EUR" }, collectionsReversed: { amount: "0.00", currencyCode: "EUR" }, refunded: { amount: "0.00", currencyCode: "EUR" }, refundsReversed: { amount: "0.00", currencyCode: "EUR" }, net: { amount: "0.00", currencyCode: "EUR" }, collectionCount: 0, refundCount: 0 } });
     if (path.endsWith("/staff/payments")) {
       const first = ++financeLoads === 1;
       if (options.slowFinance && first) await firstGate;
