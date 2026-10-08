@@ -4845,6 +4845,17 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   runbook supersedes host-Nginx assumptions. No production mutation/commit yet.
 - Evidence: `clients/safari-tours-sharm/deployment/evidence/2026-10-08_PREDEPLOY_FIXES_AND_GATES_AR.md`.
 
+#### 2026-10-08 — Gateway CI startup-readiness follow-up
+
+- Scoped infra commit0a52ce3 pushed; run37712394156 gateway job113101079557
+  failed at the FIRST Resort readiness curl (connection reset), after nginx-t
+  passed. No application assertion failed; no production service started.
+- Added bounded gateway-worker startup readiness with exact expected response
+  and early container-exit rejection. nginx-t alone is not HTTP readiness.
+  No curl-k, test retries, assertions removed or application source changes.
+- Local real fixture rerun and reviewer confirmation required before follow-up
+  commit/new CI; rollout remains gated on final source CI.
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE

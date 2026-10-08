@@ -47,7 +47,21 @@ request() {
 }
 # Missing Safari must not prevent the real gateway starting or Resort routing.
 docker exec "$gateway" nginx -t
-curl -fsS --max-time 5 -H 'Host: elkheima.example.test' "http://127.0.0.1:$http_port/" | grep -qx resort-unchanged
+# docker run -d and nginx -t prove process creation/config, not that the
+# original master has finished starting workers. Fast CI hit a connection
+# reset here. Bound startup readiness; retain exact response assertions.
+ready=false
+for attempt in $(seq 1 15); do
+  [[ "$(docker inspect "$gateway" --format '{{.State.Running}}')" == true ]] \
+    || { echo 'FAIL: gateway exited during startup' >&2; exit 1; }
+  if curl -fsS --max-time 5 -H 'Host: elkheima.example.test' \
+    "http://127.0.0.1:$http_port/" 2>/dev/null | grep -qx resort-unchanged; then
+    ready=true
+    break
+  fi
+  sleep 1
+done
+[[ "$ready" == true ]] || { echo 'FAIL: gateway did not become ready' >&2; exit 1; }
 [[ "$(request '/absent?hmac=GW_PRIVACY_SENTINEL' -H 'Referer: https://example.test/?token=GW_PRIVACY_SENTINEL' -o /dev/null -w '%{http_code}')" == 502 ]]
 start_edge() {
   docker run -d --name "$edge" --network "$network" --network-alias safari-edge \
