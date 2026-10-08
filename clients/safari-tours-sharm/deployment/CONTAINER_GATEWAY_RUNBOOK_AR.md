@@ -1,7 +1,9 @@
 # سفاري — مسار النشر الفعلي على بوابة Docker المشتركة
 
 8 أكتوبر 2026 · OPS2-G ACTIVE · المنفذ الوحيد Codex.
-هذه خطة تنفيذ؛ البنود الإنتاجية ليست `[x]` حتى تسجيل الدليل اللاحق.
+تم تنفيذ هذا المسار بنجاح؛ الدليل والحالة الحالية في
+[تسليم الإنتاج](../handoff/2026-10-08_PRODUCTION_DEPLOYED_HANDOFF_AR.md).
+الخطوات التالية مرجع للنشر/الرجوع، لا إذن بإعادة first-install على الإنتاج.
 محمد أجاز نشر سفاري والتعديل الضروري للبوابة المشتركة، وحفظ ورفع التغييرات
 المحددة على الفروع الحالية فقط. لا main merge ولا تعديل تطبيق أو بيانات الخيمة.
 
@@ -54,8 +56,9 @@ DC up -d --no-build --wait --wait-timeout 180
 edge على الشبكة الخارجية، الحجوم الصحيحة، صورة كل service pinned كما في manifest.
 لا طباعة JSON أو env. لا `down -v` ولا system/volume prune.
 
-قبل تعريض الموقع: health UP، 22 migrations ناجحة/صفر فشل، 30 tour معتمدة،
-Private Boat REQUEST_ONLY/inactive، 32 permission، لا مستخدم/رحلة E2E، ولا جداول منتجات أخرى.
+قبل تعريض الموقع: health UP، 22 migrations ناجحة/صفر فشل، 30 tour معتمدة
+منها27 نشطة وفق V25؛ Private Boat وIntro Diving REQUEST_ONLY/inactive،
+Crocodile Show inactive؛32 permission، لا مستخدم/رحلة E2E، ولا جداول منتجات أخرى.
 صور sharp/IPX فعليًا، canonicals على النطاق العام، ERP noindex، لا تشغيل checkout.
 
 ## إضافة البوابة مع الحفاظ على الخيمة

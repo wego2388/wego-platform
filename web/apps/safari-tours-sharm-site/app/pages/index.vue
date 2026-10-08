@@ -57,6 +57,8 @@ useHead(() => ({
 <template>
   <main id="main-content" tabindex="-1">
     <section class="sts-hero relative isolate overflow-hidden" aria-labelledby="hero-heading">
+      <BrandArtwork kind="hero" priority />
+      <div class="pointer-events-none absolute inset-0 bg-gradient-to-r from-sts-ocean/95 via-sts-ocean/80 to-sts-ocean/25 rtl:bg-gradient-to-l" aria-hidden="true" />
       <div class="relative z-10 mx-auto max-w-7xl px-4 pt-14 pb-20 sm:px-6 lg:px-10 lg:pt-24 lg:pb-28">
         <div class="max-w-3xl">
           <p class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold tracking-[0.12em] text-white/90 uppercase ring-1 ring-white/20 backdrop-blur">

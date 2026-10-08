@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
-import { unitsNeeded, type Tour, type TourSlot } from "@wego/api-contract";
+import { unitsNeeded, type TimeSlot, type Tour, type TourSlot } from "@wego/api-contract";
 import { calculateBookingTotal, formatMoney, getAvailableSlots, multiplyMoney } from "../../composables/usePublicToursApi";
 import { useDiscoveryCopy } from "../../composables/useDiscoveryCopy";
 import { useSiteLocale } from "../../composables/useSiteLocale";
@@ -11,7 +11,7 @@ import { useSalesStatus } from "../../composables/useSalesStatus";
 import { useAnalytics } from "../../composables/useAnalytics";
 import { enquiryCopy } from "../../content/enquiry";
 import { checkoutCopy } from "../../content/checkout";
-import { onlineSalesAvailable, tripEnquiryUrl } from "../../utils/enquiry";
+import { onlineSalesAvailable, tripEnquiryUrl, validPreferredDate } from "../../utils/enquiry";
 
 /**
  * Date → time → guests → total → continue. Availability is always read live
@@ -39,10 +39,12 @@ const slots = ref<TourSlot[]>([]);
 const state = ref<"loading" | "ready" | "error">("loading");
 const selectedDate = ref<string | null>(null);
 const selectedSlotId = ref<string | null>(null);
+const preferredTime = ref<TimeSlot | null>(null);
 const adults = ref(1);
 const children = ref(0);
 
 async function load() {
+  if (!online.value) return;
   state.value = "loading";
   try {
     slots.value = await getAvailableSlots(props.tour.id, today, lastDay);
@@ -51,7 +53,14 @@ async function load() {
     state.value = "error";
   }
 }
-onMounted(load);
+onMounted(() => {
+  watch(online, (enabled) => {
+    selectedSlotId.value = null;
+    slots.value = [];
+    if (enabled) void load();
+    else state.value = "ready";
+  }, { immediate: true });
+});
 
 const perUnit = computed(() => props.tour.priceBasis === "PER_UNIT" && props.tour.priceOptions.length > 0);
 const optionCode = ref<string | null>(props.tour.priceOptions[0]?.code ?? null);
@@ -108,6 +117,8 @@ const total = computed(() => {
   }
 });
 const canContinue = computed(() => selectedSlot.value !== null && total.value !== null && fits.value);
+const preferredDateValid = computed(() => validPreferredDate(selectedDate.value, today));
+const canRequest = computed(() => preferredDateValid.value && total.value !== null && fits.value);
 
 function proceed() {
   const slot = selectedSlot.value;
@@ -127,7 +138,7 @@ function proceed() {
 
 const whatsappLink = computed(() => {
   if (!online.value) return tripEnquiryUrl(locale.value, props.tour, {
-    date: selectedDate.value, timeSlot: selectedSlot.value?.timeSlot, adults: adults.value,
+    date: preferredDateValid.value ? selectedDate.value : null, timeSlot: preferredTime.value, adults: adults.value,
     children: childrenBookable.value ? children.value : 0, optionCode: option.value?.code, units: units.value,
   });
   const text = copy.value.whatsappMessage(props.tourName, selectedDate.value, adults.value, children.value);
@@ -138,7 +149,7 @@ const whatsappLink = computed(() => {
 <template>
   <div class="grid gap-5">
     <div class="flex items-baseline justify-between gap-3">
-      <h2 class="text-lg font-semibold">{{ copy.heading }}</h2>
+      <h2 class="text-lg font-semibold">{{ online ? copy.heading : enquiry.title }}</h2>
       <p class="text-end">
         <span class="text-xs text-sts-muted">{{ copy.from }}</span>
         <span class="ms-1 text-2xl font-bold tabular-nums text-sts-ocean-bright">{{ formatMoney(tour.priceAdult) }}</span>
@@ -148,7 +159,22 @@ const whatsappLink = computed(() => {
 
     <p v-if="tour.pricingNote" class="rounded-[var(--sts-radius-control)] bg-sts-sand-soft p-3 text-sm" lang="en">{{ tour.pricingNote }}</p>
 
-    <section :aria-label="copy.date">
+    <section v-if="!online" :aria-label="enquiry.dateLabel">
+      <label :for="`preferred-date-${tour.id}`" class="mb-2 block text-sm font-bold">{{ enquiry.dateLabel }}</label>
+      <input
+        :id="`preferred-date-${tour.id}`" v-model="selectedDate" data-preferred-date type="date" :min="today" required
+        :aria-describedby="`preferred-date-help-${tour.id}`" :aria-invalid="!!selectedDate && !preferredDateValid"
+        class="min-h-12 w-full min-w-0 rounded-[var(--sts-radius-control)] border border-sts-border bg-sts-surface px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sts-ocean-bright"
+      >
+      <p :id="`preferred-date-help-${tour.id}`" class="mt-2 text-xs text-sts-muted">{{ enquiry.dateHint }}</p>
+      <p v-if="selectedDate && !preferredDateValid" class="mt-2 text-sm text-sts-danger" role="alert">{{ enquiry.dateInvalid }}</p>
+      <label :for="`preferred-time-${tour.id}`" class="mb-2 mt-4 block text-sm font-bold">{{ enquiry.timeLabel }}</label>
+      <select :id="`preferred-time-${tour.id}`" v-model="preferredTime" data-preferred-time class="min-h-12 w-full rounded-[var(--sts-radius-control)] border border-sts-border bg-sts-surface px-3 py-2 text-sm">
+        <option :value="null">{{ enquiry.anyTime }}</option>
+        <option v-for="time in tour.availableTimeSlots" :key="time" :value="time">{{ slotNames[time] }}</option>
+      </select>
+    </section>
+    <section v-else :aria-label="copy.date">
       <h3 class="mb-2 text-sm font-bold">{{ copy.date }}</h3>
       <div v-if="state === 'loading'" class="grid gap-2" role="status">
         <span class="sr-only">{{ copy.loading }}</span>
@@ -166,7 +192,7 @@ const whatsappLink = computed(() => {
       <TourAvailabilityCalendar v-else v-model="selectedDate" :by-day="byDay" :today="today" :last-day="lastDay" />
     </section>
 
-    <section v-if="selectedDate" :aria-label="copy.time">
+    <section v-if="online && selectedDate" :aria-label="copy.time">
       <h3 class="mb-2 text-sm font-bold">{{ copy.time }}</h3>
       <fieldset class="flex flex-wrap gap-2">
         <legend class="sr-only">{{ copy.time }}</legend>
@@ -182,7 +208,7 @@ const whatsappLink = computed(() => {
         </label>
       </fieldset>
     </section>
-    <p v-else-if="state === 'ready' && byDay.size" class="text-sm text-sts-muted">{{ copy.pickDate }}</p>
+    <p v-else-if="online && state === 'ready' && byDay.size" class="text-sm text-sts-muted">{{ copy.pickDate }}</p>
 
     <fieldset v-if="perUnit && tour.priceOptions.length > 1" class="grid gap-2 border-t border-sts-border pt-4">
       <legend class="mb-2 text-sm font-bold">{{ copy.option }}</legend>
@@ -213,7 +239,7 @@ const whatsappLink = computed(() => {
       <UiStepper v-if="perUnit && option" v-model="units" :label="copy.units" :hint="perUnitLabel(option.code)" :min="unitsMin" :max="unitsMax" />
     </section>
 
-    <div v-if="selectedSlot && total" class="rounded-[var(--sts-radius-control)] bg-sts-sand-soft p-4 text-sm">
+    <div v-if="(online ? selectedSlot : preferredDateValid) && total" class="rounded-[var(--sts-radius-control)] bg-sts-sand-soft p-4 text-sm">
       <p v-if="perUnit && option" class="flex justify-between text-sts-muted">
         <span>{{ copy.unitLine(units, unitName(option.code, option.label)) }} × {{ formatMoney(option.price) }}</span>
         <span class="tabular-nums">{{ formatMoney(total) }}</span>
@@ -227,7 +253,7 @@ const whatsappLink = computed(() => {
         <span class="tabular-nums">{{ formatMoney(multiplyMoney(tour.priceChild, children)) }}</span>
       </p>
       <p class="mt-2 flex justify-between border-t border-sts-border pt-2 text-base font-bold">
-        <span>{{ copy.total }}</span>
+        <span>{{ online ? copy.total : enquiry.estimatedTotal }}</span>
         <span class="tabular-nums">{{ formatMoney(total) }}</span>
       </p>
     </div>
@@ -236,9 +262,9 @@ const whatsappLink = computed(() => {
       <UiButton v-if="online" size="lg" block :disabled="!canContinue" icon-end="lucide:arrow-right" @click="proceed">{{ copy.continue }}</UiButton>
       <template v-else>
         <p class="rounded-[var(--sts-radius-control)] bg-sts-sand-soft p-3 text-sm" data-enquiry-notice>{{ sales?.bookingMode === 'ENQUIRY_ONLY' ? enquiry.notice : sales ? checkoutCopy[locale].errors.salesPaused : enquiry.unknown }}</p>
-        <UiButton :href="whatsappLink" size="lg" block icon="lucide:message-circle" data-trip-enquiry @click="analytics.track('whatsapp_click', { placement: 'tour_enquiry', item_id: tour.slug })">{{ enquiry.cta }}</UiButton>
+        <UiButton :href="whatsappLink" :disabled="!canRequest" size="lg" block icon="lucide:message-circle" data-trip-enquiry @click="analytics.track('whatsapp_click', { placement: 'tour_enquiry', item_id: tour.slug })">{{ enquiry.cta }}</UiButton>
       </template>
-      <p v-if="selectedDate && !selectedSlot" class="text-center text-xs text-sts-muted">{{ copy.pickTime }}</p>
+      <p v-if="online && selectedDate && !selectedSlot" class="text-center text-xs text-sts-muted">{{ copy.pickTime }}</p>
       <UiButton v-if="online" :href="whatsappLink" variant="ghost" block icon="lucide:message-circle">{{ copy.askWhatsapp }}</UiButton>
     </div>
   </div>

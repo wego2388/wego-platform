@@ -3,6 +3,9 @@ import { AxeBuilder } from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { E2E_STAFF_EMAIL, E2E_STAFF_PASSWORD } from "../seed.mjs";
 import { enquiryCopy } from "../../web/apps/safari-tours-sharm-site/app/content/enquiry";
+import { brandArtworkCopy } from "../../web/apps/safari-tours-sharm-site/app/content/brandArtwork";
+import { tripadvisorUrl } from "../../web/apps/safari-tours-sharm-site/app/content/locales";
+import { officeCopy } from "../../web/apps/safari-tours-sharm-site/app/content/salesAwareCopy";
 
 const SITE = (process.env.WEGO_STS_SITE_BASE_URL ?? "http://127.0.0.1:58087").replace(/\/+$/, "");
 const STAFF = process.env.WEGO_STS_STAFF_BASE_URL ?? "http://staff.localhost:58087";
@@ -10,6 +13,7 @@ const STAFF_HOST = new URL(STAFF).host;
 const SLUG = "e2e-desert-quad-safari";
 let tour: { id: string; priceAdult: { amount: string; currencyCode: string } };
 let slot: { id: string; date: string; timeSlot: string; bookedCount: number; available: number };
+let unscheduledTour: { id: string; slug: string };
 
 test.beforeAll(async ({ request }) => {
   // The catalog wait below can take up to 70 s (60 s SSR cache); the default
@@ -23,6 +27,10 @@ test.beforeAll(async ({ request }) => {
   const slots = await (await request.get(`${SITE}/api/v1/tours-operator/tours/${tour.id}/slots?from=${from}&to=${to}`)).json();
   slot = slots.find((s: typeof slot) => s.timeSlot === "MORNING");
   expect(slot).toBeTruthy();
+  // Existing production catalog fixture, deliberately without synthetic slots.
+  unscheduledTour = await (await request.get(`${SITE}/api/v1/tours-operator/tours/by-slug?slug=super-safari-adventure`)).json();
+  expect(unscheduledTour.id).toBeTruthy();
+  expect(await (await request.get(`${SITE}/api/v1/tours-operator/tours/${unscheduledTour.id}/slots?from=${from}&to=${to}`)).json()).toEqual([]);
   // Health checks can warm the existing 60s SSR catalog cache before the
   // synthetic fixture is seeded. Wait for that bounded cache, not for a UI
   // mutation or a retry that could disguise a booking defect.
@@ -50,6 +58,89 @@ async function preventExternalTracking(page: Page) {
 }
 
 for (const locale of ["en", "ar", "ru", "it"] as const) {
+  for (const width of [360, 1440]) {
+    test(`${locale} ${width}px: responsive brand art loads with truthful disclosure and no third-party widget`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await preventExternalTracking(page);
+      const errors: string[] = [], widgets: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      page.on("request", (r) => { if (/jscache|tacdn/.test(r.url())) widgets.push(r.url()); });
+      await page.goto(`${SITE}/${locale}`, { waitUntil: "networkidle" });
+      await expect(page.locator("main")).toContainText(officeCopy[locale].hero);
+      await expect(page.locator("main")).not.toContainText("Paymob");
+      const hero = page.locator('[data-brand-art="hero"]');
+      await expect(hero.locator("img")).toHaveAttribute("alt", ""); // Decorative, not a documentary tour photo.
+      await expect(hero.locator("img")).toHaveAttribute("aria-hidden", "true");
+      await expect(hero.locator("img")).toHaveAttribute("fetchpriority", "high");
+      await expect(hero.locator("figcaption")).toHaveText(brandArtworkCopy[locale]);
+      for (const kind of ["hero", "desert", "sea"]) {
+        const image = page.locator(`[data-brand-art="${kind}"] img`);
+        await image.scrollIntoViewIfNeeded();
+        await expect.poll(() => image.evaluate((element) => {
+          const img = element as HTMLImageElement;
+          return img.complete && img.naturalWidth > 0 && /\/images\/brand\/.*\.webp$/.test(img.currentSrc);
+        })).toBe(true);
+        await expect(image).toHaveAttribute("width", /^\d+$/);
+        await expect(image).toHaveAttribute("height", /^\d+$/);
+      }
+      await expect(page.locator("[data-tripadvisor-link]")).toHaveAttribute("href", tripadvisorUrl);
+      await accessibility(page);
+      expect(errors).toEqual([]);
+      expect(widgets).toEqual([]);
+      await page.evaluate(() => scrollTo(0, 0));
+      if (locale === "en" || locale === "ar") await page.screenshot({ path: test.info().outputPath(`home-${locale}-${width}.png`) });
+    });
+    test(`${locale} ${width}px: a real tour without slots accepts a preferred date beyond 60 days, not a reservation`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await preventExternalTracking(page);
+      const apiRequests: { method: string; path: string }[] = [];
+      page.on("request", (r) => {
+        if (r.url().includes("/api/v1/tours-operator/")) apiRequests.push({ method: r.method(), path: new URL(r.url()).pathname });
+      });
+      await page.goto(`${SITE}/${locale}/tour/${unscheduledTour.slug}`, { waitUntil: "networkidle" });
+      if (width < 1024) {
+        await expect(page.locator("[data-mobile-booking]")).toHaveText(enquiryCopy[locale].title);
+        await page.locator("[data-mobile-booking]").click();
+      }
+      const button = page.locator("[data-trip-enquiry]").first();
+      await expect(button).toBeDisabled();
+      const scope = width < 1024 ? page.getByRole("dialog") : page.locator("aside");
+      const date = scope.locator("[data-preferred-date]");
+      await expect(date).not.toHaveAttribute("max");
+      const futureDate = new Date(Date.now() + 120 * 86400000).toISOString().slice(0, 10);
+      await date.fill(futureDate);
+      await expect(button).toHaveAttribute("href", /^https:\/\/wa\.me\/201111292690\?/);
+      const text = new URL((await button.getAttribute("href"))!).searchParams.get("text")!;
+      expect(text).toContain(unscheduledTour.slug);
+      expect(text).toContain(futureDate);
+      expect(text).toContain(enquiryCopy[locale].message);
+      expect(text).not.toMatch(/STR-|PAID|@|token|EUR/);
+      await expect(scope.locator("table")).toHaveCount(0);
+      await expect(scope.getByText(/60/)).toHaveCount(0);
+      await accessibility(page);
+      await date.fill("2020-01-01");
+      await expect(button).toBeDisabled();
+      await expect(date).toHaveAttribute("aria-invalid", "true");
+      await expect(scope.getByRole("alert")).toHaveText(enquiryCopy[locale].dateInvalid);
+      expect(apiRequests.filter((r) => r.method !== "GET" || /\/slots$/.test(r.path))).toEqual([]);
+    });
+  }
+  test(`${locale}: SSR information and FAQ structured data describe office confirmation, not disabled online payment`, async ({ request }) => {
+    for (const path of ["about", "faq", "terms", "privacy"]) {
+      const response = await request.get(`${SITE}/${locale}/${path}`);
+      expect(response.status()).toBe(200);
+      const html = await response.text();
+      if (path === "privacy") expect(html).toContain(officeCopy[locale].privacy);
+      else if (path === "about") expect(html).toContain(officeCopy[locale].availability);
+      else expect(html).toContain(officeCopy[locale].booking);
+      if (path === "faq") {
+        const scripts = [...html.matchAll(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)].map((match) => JSON.parse(match[1]!));
+        const faq = scripts.find((schema) => schema["@type"] === "FAQPage");
+        expect(faq.mainEntity[1].acceptedAnswer.text).toBe(officeCopy[locale].booking);
+        expect(faq.mainEntity[4].acceptedAnswer.text).toBe(officeCopy[locale].confirmation);
+      }
+    }
+  });
   test(`${locale}: SSR renders truthful enquiry notice and no checkout form`, async ({ request }) => {
     const response = await request.get(bookingPath(locale));
     expect(response.status()).toBe(200);
@@ -77,8 +168,11 @@ for (const locale of ["en", "ar", "ru", "it"] as const) {
       await expect(card).toBeVisible();
       await expect(card).toContainText(enquiryCopy[locale].cta);
       const scope = width < 1024 ? page.getByRole("dialog") : page.locator("aside").filter({ has: card });
-      await expect(scope.locator("table button:not([disabled])").first()).toBeVisible();
-      await scope.locator("table button:not([disabled])").first().click();
+      await expect(scope.locator("table")).toHaveCount(0);
+      await expect(scope.getByText(/60/)).toHaveCount(0);
+      await expect(scope.locator("[data-preferred-date]")).toBeVisible();
+      await scope.locator("[data-preferred-date]").fill(slot.date);
+      await scope.locator("[data-preferred-time]").selectOption("MORNING");
       await expect(card).toHaveAttribute("href", /e2e-desert-quad-safari/);
       let link = new URL((await card.getAttribute("href"))!);
       expect(link.searchParams.get("text")).toContain(slot.date);

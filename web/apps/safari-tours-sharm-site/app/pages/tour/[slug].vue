@@ -10,10 +10,16 @@ import { categoryMeta, siteCopy, siteWebsite, whatsappUrl } from "../../content/
 import { tourPageCopy } from "../../content/tourPage";
 import { CATEGORY_VISUAL } from "../../utils/categoryVisual";
 import { formatDuration } from "../../utils/tourDuration";
+import { useSalesStatus } from "../../composables/useSalesStatus";
+import { onlineSalesAvailable } from "../../utils/enquiry";
+import { enquiryCopy } from "../../content/enquiry";
 
 const route = useRoute();
 const locale = useSiteLocale();
 const copy = computed(() => tourPageCopy[locale.value]);
+const { data: sales } = useSalesStatus();
+const online = computed(() => onlineSalesAvailable(sales.value));
+const enquiry = computed(() => enquiryCopy[locale.value]);
 const discovery = useDiscoveryCopy();
 const slug = () => String(route.params.slug);
 
@@ -283,7 +289,7 @@ function jsonLd(value: unknown): string {
         </section>
       </article>
 
-      <aside class="hidden lg:block" :aria-label="onRequest ? copy.requestOnly.heading : copy.booking.heading">
+      <aside class="hidden lg:block" :aria-label="onRequest ? copy.requestOnly.heading : online ? copy.booking.heading : enquiry.title">
         <div class="sticky top-24 rounded-[var(--sts-radius-card)] border border-sts-border bg-sts-surface p-6 shadow-sts-raised">
           <div v-if="onRequest" class="grid gap-3">
             <h2 class="text-lg font-semibold">{{ copy.requestOnly.heading }}</h2>
@@ -318,7 +324,7 @@ function jsonLd(value: unknown): string {
           <span class="ms-1 text-xs text-sts-muted">{{ perUnit ? (copy.booking.perUnit[firstOption?.code ?? ""] ?? copy.booking.perUnitDefault) : copy.booking.perPerson }}</span>
         </p>
         <UiButton v-if="onRequest" :href="whatsappRequest" icon="lucide:message-circle" block>{{ copy.requestOnly.cta }}</UiButton>
-        <UiButton v-else data-mobile-booking icon="lucide:calendar" @click="bookingOpen = true">{{ copy.booking.mobileBar }}</UiButton>
+        <UiButton v-else data-mobile-booking icon="lucide:calendar" @click="bookingOpen = true">{{ online ? copy.booking.mobileBar : enquiry.title }}</UiButton>
       </div>
     </div>
     <UiSheet v-if="!onRequest && isMobile" v-model:open="bookingOpen" :title="name" :close-label="copy.booking.close">

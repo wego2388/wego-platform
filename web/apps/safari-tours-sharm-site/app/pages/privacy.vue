@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useSiteLocale } from "../composables/useSiteLocale";
-import { LEGAL_UPDATED, infoCopy } from "../content/info";
+import { LEGAL_UPDATED } from "../content/info";
+import { useInfoCopy } from "../composables/useInfoCopy";
 import { useConsent } from "../composables/useConsent";
 
-const locale = useSiteLocale();
 const consent = useConsent();
+const info = useInfoCopy();
 // When analytics is configured the cookie section says so (and how to change the choice).
 const copy = computed(() => {
-  const privacy = infoCopy[locale.value].privacy;
+  const privacy = info.value.privacy;
   if (!consent.configured.value) return privacy;
   return {
     ...privacy,
     sections: privacy.sections.map((section, i) =>
-      i === 3 ? { ...section, body: [section.body[0]!.split(/(?<=\.)\s/)[0]!, infoCopy[locale.value].consent.analyticsCookies] } : section,
+      i === 3 ? { ...section, body: [section.body[0]!.split(/(?<=\.)\s/)[0]!, info.value.consent.analyticsCookies] } : section,
     ),
   };
 });

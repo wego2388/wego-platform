@@ -5,12 +5,14 @@ import { useDiscoveryCopy } from "../composables/useDiscoveryCopy";
 import { useSiteLocale } from "../composables/useSiteLocale";
 import { categoryMeta, siteCopy } from "../content/locales";
 import { CATEGORY_VISUAL } from "../utils/categoryVisual";
+import { categoryArtwork } from "../content/brandArtwork";
 
 const props = withDefaults(defineProps<{ category: TourCategory; count?: number | null; cover?: PublicCategoryCover }>(), { count: null, cover: undefined });
 const copy = useDiscoveryCopy();
 const locale = useSiteLocale();
 const visual = computed(() => CATEGORY_VISUAL[props.category]);
 const text = computed(() => siteCopy[locale.value].categories[props.category]);
+const artwork = computed(() => categoryArtwork(props.category));
 </script>
 
 <template>
@@ -20,6 +22,7 @@ const text = computed(() => siteCopy[locale.value].categories[props.category]);
     :style="{ '--tile': `var(${visual.colorVar})` }"
   >
     <BrandTourMedia v-if="cover" :src="cover.path" :alt="cover.alt" :width="cover.width" :height="cover.height" :category="category" ratio="16 / 9" class="mb-5" />
+    <BrandArtwork v-else-if="artwork" :kind="artwork" />
     <span class="pointer-events-none absolute -end-10 -top-10 size-36 rounded-full bg-[var(--tile)] opacity-10 transition-transform duration-[var(--sts-dur-reveal)] group-hover:scale-125" aria-hidden="true" />
     <span class="grid size-12 place-items-center rounded-2xl bg-[var(--tile)] text-white" aria-hidden="true">
       <Icon :name="visual.icon" class="size-6" />

@@ -1,8 +1,12 @@
 # Safari Tours Sharm — release readiness manifest
 
-Prepared 2026-10-07 by Claude (WEGO-016-OPS2-G). **No deploy has happened.**
-This manifest is incomplete until every `<…>` and empty gate cell is filled
-from evidence on the **final** SHA. Codex reviews it for GO / NO-GO.
+> **Superseded preparation template:** production was deployed on 2026-10-08.
+> Actual source/image IDs/CI/live TLS/backup/owner login and residual risks are
+> recorded in [the deployed handoff](../handoff/2026-10-08_PRODUCTION_DEPLOYED_HANDOFF_AR.md).
+> Do not interpret the old empty cells or GO warnings below as current state.
+
+Prepared 2026-10-07 by Claude (WEGO-016-OPS2-G). The remaining sections preserve
+the pre-deployment template and historical checks, not a current launch verdict.
 
 ## 1. Source
 

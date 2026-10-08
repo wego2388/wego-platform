@@ -1,11 +1,18 @@
 import { describe, expect, it } from "vitest";
 import type { Tour } from "@wego/api-contract";
 import { enquiryCopy } from "../app/content/enquiry";
-import { onlineSalesAvailable, readSalesCapability, tripEnquiryUrl } from "../app/utils/enquiry";
+import { onlineSalesAvailable, readSalesCapability, tripEnquiryUrl, validPreferredDate } from "../app/utils/enquiry";
 
 const tour = { slug: "desert-buggy", priceBasis: "PER_UNIT", availableTimeSlots: ["MORNING", "SUNSET"], priceOptions: [{ code: "buggy" }] } as Tour;
 
 describe("enquiry mode — factual selection only", () => {
+  it("preferred dates are real future days with no fictitious 60-day availability limit", () => {
+    expect(validPreferredDate("2026-10-08", "2026-10-08")).toBe(true);
+    expect(validPreferredDate("2027-02-28", "2026-10-08")).toBe(true);
+    for (const value of [null, "", "2026-10-07", "2027-02-30", "2026-13-01", "2026-10-08@example.com"]) {
+      expect(validPreferredDate(value, "2026-10-08")).toBe(false);
+    }
+  });
   it("rejects malformed or inconsistent status without echoing unrelated fields", () => {
     for (const value of [null, {}, { bookingMode: "legacy", bookingsOpen: true, paymentsOpen: true },
       { bookingMode: ["ONLINE_PAYMENT"], bookingsOpen: true, paymentsOpen: true },

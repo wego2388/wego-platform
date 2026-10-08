@@ -1,15 +1,21 @@
 # Safari Tours Sharm — production deploy package (WEGO-016-OPS2-G)
 
+> **Live deployment, 2026-10-08:** Safari is running with independent HTTPS,
+> a verified owner-admin login, encrypted off-site backup/restore and health
+> timers. See [the current deployed handoff](../handoff/2026-10-08_PRODUCTION_DEPLOYED_HANDOFF_AR.md).
+> OPS2-G remains ACTIVE for owner acceptance; do not repeat fresh-install steps.
+
 > **Current VPS procedure, 2026-10-08:** actual HTTPS gateway is the Resort
 > Docker container, NOT host Nginx. Use [CONTAINER_GATEWAY_RUNBOOK_AR.md](CONTAINER_GATEWAY_RUNBOOK_AR.md).
 > Host-Nginx commands in the older runbook must NOT be executed on this VPS.
 > Owner authorized the necessary gateway-container recreation only; keep both
 > applications, databases, secrets, certificates and release lifecycles independent.
 
-Prepared by Claude on 2026-10-07 for Codex, who reviews and later executes the
-deploy after the owner's GO. **Nothing here has been run on a server.** No
-secrets are stored in this directory; every real value is a `CHANGE_ME_…` or
-`<…>` placeholder filled on the VPS only.
+The original preparation below was authored by Claude on 2026-10-07 and
+executed by Codex after explicit owner authorization on 2026-10-08. No secrets
+are stored in this directory; examples retain placeholders. Actual source,
+image IDs and acceptance evidence are in the deployed handoff, not the older
+unfilled readiness template.
 
 | File | Purpose |
 |---|---|

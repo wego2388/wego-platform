@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useDiscoveryCopy } from "../composables/useDiscoveryCopy";
-import { siteCopy, siteEmail, whatsappPhone, whatsappUrl, categoryMeta, instagramUrl, facebookUrl } from "../content/locales";
+import { siteCopy, siteEmail, whatsappPhone, whatsappUrl, categoryMeta, instagramUrl, facebookUrl, tripadvisorUrl } from "../content/locales";
 import { infoCopy } from "../content/info";
 import { useConsent } from "../composables/useConsent";
 import { useSiteLocale } from "../composables/useSiteLocale";
@@ -64,6 +64,11 @@ function changeCookies() {
             <li>
               <a :href="facebookUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-white/75 hover:text-white">
                 <Icon name="lucide:facebook" class="size-4" aria-hidden="true" />Facebook
+              </a>
+            </li>
+            <li>
+              <a :href="tripadvisorUrl" target="_blank" rel="noopener noreferrer" data-tripadvisor-link class="inline-flex items-center gap-2 text-white/75 hover:text-white">
+                <Icon name="lucide:external-link" class="size-4" aria-hidden="true" />Tripadvisor
               </a>
             </li>
             <li>

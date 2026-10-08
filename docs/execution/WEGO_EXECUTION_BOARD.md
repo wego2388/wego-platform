@@ -4867,6 +4867,108 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   gateway reload. Local real fixture PASS, reviewer ACCEPT/zero blockers;
   final committed CI still required before rollout.
 
+#### 2026-10-08 — Codex live deployment verified; owner acceptance remains
+
+- OPS2-G remains the sole ACTIVE packet for owner UAT/administration handoff;
+  production launch itself is complete. No marketing/other-product packet activated.
+- Final Safari infrastructure61b34cf, CI37714374585 SUCCESS, app images198959e
+  with unchanged platform/products/web trees. Resort contractb4317b7,
+  CI37716063910 SUCCESS; earlier failed runs preserved, not counted as passes.
+- Exact reviewed images loaded into immutable str-2026.10.08-61b34cf; five
+  Safari containers healthy, private DB/apps, loopback58080 only.22 successful
+  Flyway migrations/latest33/0failed;30 tours/27active/32permissions. V25 inactive
+  intro-diving/private-boat/crocodile-show preserved; no synthetic operational data.
+- Independent gateway review ACCEPT/zero blockers, guard7/verifier14 and actual
+  gateway/enquiry24/24 gates before rollout. Quota prevented a last helper review;
+  configure-vps-gateway.sh was NOT executed. Reviewed runbook/renderers/wrapper
+  were used; no fictitious helper approval or boundary-review waiver.
+- Root-owned mandatory wrapper/guard/overlay/independent marker installed and
+  resolved guard passed. Only nginx/Safari edge share safari-gateway. Original
+  Resort eight other IDs/images/start/restarts, vhost hashes and certificate
+  fingerprint preserved; four strict-TLS Resort origins200. One transient
+  connection failure occurred during authorized nginx-only recreation; recovered.
+- Safari separate3SAN certificate valid to2027-01-06; redirects/strictTLS passed.
+  Safari-only Certbot renewal dry-run+existingDocker hook succeeded; existing
+  Resort timers unchanged, no duplicate generic renewal timer activated.
+- Production browser26 read-only page checks passed (four locales,360/1440,
+  home/list/detail plus EN/AR staff login): metadata/hreflang/RTL/no overflow,
+  AXE0/page-errors0/no analytics/no mutations. Sitemap160 canonicals/5alternates;
+  public/privateAPI gates and actual IPX WebP passed; query/referrer sentinels absent.
+- Owner interactively created primary admin; ACTIVE/platform-admin/32permissions
+  and actual LOGIN_SUCCESS confirmed. Owner requested second account
+  safaritourssharm@gmail.com; existing ERP form prepared, owner password/save
+  and creation verification remain. No default password/direct SQL account insert.
+- Encrypted production backup pulled off-VPS and restored network-none twice;
+  post-admin bundle20261008T023138Z restored43tables/107rows/latest33/media0.
+  Passing drill report copied back. Safari daily backup/5min health and local
+  hourly offsite timers ACTIVE; latest health allOK. Private key never on VPS.
+- Lighthouse13.5 mobile home67performance/100accessibility/100best-practices/
+  100SEO, LCP2.85s/CLS0.000884/TBT694ms: performance follow-up, not field-INP proof.
+- Launch deliberately ENQUIRY_ONLY/mockfalse, no Paymob/SMTP/analytics credentials.
+  Photos/translations and operational master data require real owner input.
+  Existing HIGH exemptions accepted with runtime directories absent, not a whole
+  image scan. External alerts/always-online offsite/weekly automated drill/key
+  recovery copy remain. Resort PyJWT2.15 source fix is NOT live-app remediation.
+- Current evidence and [x]/[ ] handoff:
+  clients/safari-tours-sharm/handoff/2026-10-08_PRODUCTION_DEPLOYED_HANDOFF_AR.md.
+
+#### 2026-10-08 — Owner postlaunch handoff: approved content and request UX
+
+- OPS2-G remains the sole ACTIVE packet. Owner explicitly asks to complete
+  approved details, requests preferred-date WhatsApp booking rather than a
+  misleading empty 60-day calendar, and approves branded hero/section artwork.
+  No later packet is activated. This is scoped launch/UAT correction, not
+  booking/payment/auth/schema expansion.
+- Owner created the second `safaritourssharm@gmail.com` ACTIVE platform-admin
+  personally; both administrators remain ACTIVE. No credentials in evidence.
+- Completed the already-authorized WEGO-016-CNT publication:27 active tours ×
+  four locales =108 published documents; exact matches to the owner-approved
+  EN source and approved translation fingerprints. Used the existing importer
+  and revision-checked APIs, refusing pre-existing content before writes.
+  Prices/slots/availability/images/inactive tours unchanged. No direct SQL writes.
+- Post-content encrypted backup `20261008T030251Z.bundle`, off-VPS pull and
+  isolated network-none restore:43 tables,380 rows,Flyway33,0 missing media;
+  `bundle-drill-20261008T030401Z.json` copied back; production health allOK.
+- UI-only Tier2 correction under verification: preferred date/time, unchanged
+  confirmed online-slot branch, no fictitious availability or customer fields.
+  New zero-slot/>60-day tests retain all existing no-hold/payment/PII assertions.
+  AI destination art is disclosed/local/optimized, never tour documentary media;
+  real approved ERP category covers take priority. Owner uploads actual tour
+  images. No video requested, generated or added.
+- Administrator operating guide: Arabic, nontechnical, includes real limits
+  (slot calendar and prices read-only; WhatsApp requests not auto-ERP bookings).
+  New app changes are not covered by the earlier core release SHA/CI and must
+  pass their own build/Compose/browser/CI before a site-only update.
+  Later documentation commits do not relabel deployed sources. No main merge,
+  DNS mutation, other-Claude worktree changes, app/finance/QR/Resort DB changes.
+
+#### 2026-10-08 — Postlaunch site correction: Tier2 verified candidate
+
+- Single-pass Tier2 self-review: no blocking findings. Scope is public UI/copy,
+  allow-listed request selection and local disclosed destination art; no backend,
+  payment/auth/PII/schema/gateway boundary change. Catalog prices and cancellation
+  tiers are unchanged. Enabled online-slot flow remains capability-gated.
+- Found and corrected marketing promises inconsistent with current production:
+  enquiry mode no longer promises confirmation in minutes, live online departures
+  or active Paymob. Home/About/FAQ/Terms/Privacy and FAQ JSON-LD describe explicit
+  office confirmation; unknown capability fails closed to the same truthful copy.
+- Final site candidate:145 unit tests/14 files PASS; lint/typecheck/production
+  build PASS. Real five-service Compose enquiry Playwright44/44 PASS (2.8min),
+  four languages/mobile/desktop, zero-slot preferred dates beyond60days, no
+  availability writes/holds/purchase/PII, visible art disclosure/real image loads,
+  accessibility0 and SSR FAQ truth. Contracts/Foundry/repository/diff checks PASS.
+- An earlier local candidate run targeted the wrong Compose project because
+  env-file overrode its name; failed evidence retained. Only the exact new
+  candidate container and empty network were removed. Corrected runs explicitly
+  use `-p safari-release-verify`; earlier32/40 and final44 tests passed. No live
+  production database or owner media were copied/deleted.
+- Owner-confirmed Google review URL corrected to `/Cd4uOnKD1ldBEBM/review` and
+  Tripadvisor34123701 linked directly without widget scripts/fake ratings.
+- This is candidate evidence, NOT live deployment or committed CI evidence.
+  Next: scoped commit, exact-source full CI, immutable SITE-only upgrade, then
+  new production browser/health/backup proof. Existing backend/ERP/gateway and
+  Resort application stay unchanged; OPS2-G remains ACTIVE for owner UAT.
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE

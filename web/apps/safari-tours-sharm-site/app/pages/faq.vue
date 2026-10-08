@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useSiteLocale } from "../composables/useSiteLocale";
-import { infoCopy } from "../content/info";
+import { useInfoCopy } from "../composables/useInfoCopy";
 import { whatsappUrl } from "../content/locales";
 
-const locale = useSiteLocale();
-const copy = computed(() => infoCopy[locale.value].faq);
-const contact = computed(() => infoCopy[locale.value].contact);
+const info = useInfoCopy();
+const copy = computed(() => info.value.faq);
+const contact = computed(() => info.value.contact);
 const items = computed(() => copy.value.items.map((item, i) => ({ value: `faq-${i}`, ...item })));
 
 useSeoMeta({ title: () => `${copy.value.title} — Safari Tours Sharm`, description: () => copy.value.intro });
