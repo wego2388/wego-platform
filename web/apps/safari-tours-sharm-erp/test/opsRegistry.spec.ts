@@ -86,6 +86,47 @@ describe("pure helpers", () => {
 });
 
 describe("registry pages", () => {
+  it.each([["", null], ["0", 0], ["24", 24], ["720", 720]])("suppliers: native notice input %s saves without freezing", async (input, expected) => {
+    vi.mocked(api.listAllStaffTours).mockResolvedValue([]);
+    vi.mocked(api.listSuppliers).mockResolvedValue([]);
+    vi.mocked(api.saveSupplier).mockResolvedValue({} as never);
+    const w = mount(SuppliersPage, link); await flushPromises();
+    await w.findAll("button").find((b) => b.text() === "Add")!.trigger("click");
+    const fields = w.findAll("form input:not([type])");
+    await fields[0]!.setValue("TEST-01"); await fields[1]!.setValue("Synthetic supplier");
+    await w.find("input[type=number]").setValue(input);
+    await w.find("form").trigger("submit"); await flushPromises();
+    expect(api.saveSupplier).toHaveBeenCalledWith("tok", expect.objectContaining({ code: "TEST-01", noticeHours: expected }), undefined);
+    expect(w.find("form").exists()).toBe(false);
+    expect(w.find("[role=status]").text()).toBe("Saved.");
+    w.unmount();
+  });
+  it.each(["-1", "24.5", "721"])("suppliers: invalid notice %s is refused without a stuck save button", async (input) => {
+    vi.mocked(api.listAllStaffTours).mockResolvedValue([]); vi.mocked(api.listSuppliers).mockResolvedValue([]);
+    const w = mount(SuppliersPage, link); await flushPromises();
+    await w.findAll("button").find((b) => b.text() === "Add")!.trigger("click");
+    await w.find("input[type=number]").setValue(input);
+    await w.find("form").trigger("submit"); await flushPromises();
+    expect(api.saveSupplier).not.toHaveBeenCalled();
+    expect(w.find("[role=alert]").exists()).toBe(true);
+    expect(w.find("button[type=submit]").attributes("disabled")).toBeUndefined();
+    w.unmount();
+  });
+  it("suppliers: a refused save retains populated notice and permits correction/retry", async () => {
+    vi.mocked(api.listAllStaffTours).mockResolvedValue([]); vi.mocked(api.listSuppliers).mockResolvedValue([]);
+    vi.mocked(api.saveSupplier).mockRejectedValueOnce(new ToursApiError(409, "supplier_code_taken")).mockResolvedValue({} as never);
+    const w = mount(SuppliersPage, link); await flushPromises();
+    await w.findAll("button").find((b) => b.text() === "Add")!.trigger("click");
+    await w.find("input[type=number]").setValue("24");
+    await w.find("form").trigger("submit"); await flushPromises();
+    expect((w.find("input[type=number]").element as HTMLInputElement).value).toBe("24");
+    expect(w.find("button[type=submit]").attributes("disabled")).toBeUndefined();
+    expect(w.find("[role=alert]").text()).toContain("code");
+    await w.find("form").trigger("submit"); await flushPromises();
+    expect(api.saveSupplier).toHaveBeenCalledTimes(2);
+    expect(w.find("form").exists()).toBe(false);
+    w.unmount();
+  });
   it("vehicles: an empty registry explains that the owner has not provided vehicles", async () => {
     vi.mocked(api.listVehicles).mockResolvedValue([]); vi.mocked(api.listSuppliers).mockResolvedValue([]);
     const w = mount(VehiclesPage, link); await flushPromises();

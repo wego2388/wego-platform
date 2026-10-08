@@ -280,10 +280,20 @@ jobs:
           WEGO_STS_STAFF_BASE_URL: http://staff.localhost:58080
           WEGO_SAFARI_OFFICE_E2E_CONFIRM: yes-this-is-a-disposable-office-stack
         run: pnpm --dir e2e exec playwright test tests/safari-office-inventory.spec.ts --workers=1
+      - name: Safari complete operating cycle with synthetic data (disposable database)
+        env:
+          WEGO_STS_SITE_BASE_URL: http://127.0.0.1:58080
+          WEGO_STS_STAFF_BASE_URL: http://staff.localhost:58080
+          WEGO_SAFARI_OFFICE_E2E_CONFIRM: yes-this-is-a-disposable-office-stack
+        run: pnpm --dir e2e exec playwright test tests/safari-operations-cycle.spec.ts --workers=1
+      - name: Safari multilingual brand backgrounds and title identity
+        env:
+          WEGO_STS_SITE_BASE_URL: http://127.0.0.1:58080
+        run: pnpm --dir e2e exec playwright test tests/safari-brand-shell.spec.ts --workers=1
       - name: Verify office customer data is absent from runtime logs
         run: |
           office_logs="$(docker compose --env-file .env.example -f infrastructure/compose/safari-tours-sharm.compose.yaml -f e2e/compose.safari-checkout.yaml logs --no-color)"
-          if grep -qiE 'E2EOfficeFixture|201099888777' <<< "$office_logs"; then
+          if grep -qiE 'E2EOfficeFixture|201099888777|Synthetic operations guest|200000000000' <<< "$office_logs"; then
             echo "Office customer data was retained in Compose logs" >&2
             exit 1
           fi
@@ -353,7 +363,7 @@ jobs:
       - name: Safari ERP bilingual display and accessibility fixtures
         env:
           WEGO_STS_STAFF_BASE_URL: http://staff.localhost:58080
-        run: pnpm --dir e2e exec playwright test tests/safari-erp-locale.spec.ts tests/safari-erp-bookings-locale.spec.ts tests/safari-erp-tours-locale.spec.ts tests/safari-erp-operations-locale.spec.ts
+        run: pnpm --dir e2e exec playwright test tests/safari-erp-locale.spec.ts tests/safari-erp-bookings-locale.spec.ts tests/safari-erp-tours-locale.spec.ts tests/safari-erp-operations-locale.spec.ts tests/safari-erp-workspace.spec.ts
       - name: Build and start isolated Sharm To Go stack
         env:
           COMPOSE_PROJECT_NAME: ci-sharm-to-go

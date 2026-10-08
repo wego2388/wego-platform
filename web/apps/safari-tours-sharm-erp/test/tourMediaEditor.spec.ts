@@ -14,8 +14,71 @@ function make(overrides: Record<string, unknown> = {}) {
   return mount(TourMediaEditor, { props: { tourId: "tour-id", token: "secret", media: [{ ...photo, alt: { ...photo.alt } }], mediaRevision: "whole-list-v1", staffLocale: "en", canManage: true, canUpload: true, canPublish: true, locked: false, verified: true, refresh: vi.fn(async () => true), ...overrides }, global: { stubs: { StaffPhotoPreview: Preview } } });
 }
 const button = (wrapper: VueWrapper, text: string) => { const found = wrapper.findAll("button").find(entry => entry.text() === text); if (!found) throw new Error(`Missing button: ${text}`); return found; };
-afterEach(() => vi.clearAllMocks());
+afterEach(() => { vi.clearAllMocks(); vi.useRealTimers(); });
+async function approvedSelection(wrapper: VueWrapper) {
+  const input = wrapper.find("#photo-file");
+  Object.defineProperty(input.element, "files", { configurable: true, value: [new File(["jpeg"], "photo.jpg", { type: "image/jpeg" })] });
+  await input.trigger("change");
+  await wrapper.find("#upload-alt-en").setValue("A quad bike on sand");
+  await wrapper.find('form img').trigger("load");
+  await wrapper.find("#upload-photo-rights").setValue(true);
+}
+const uploadedPhoto: Photo = { ...photo, id: "new-photo", alt: { en: "A quad bike on sand" }, revision: "uploaded-v1" };
+const uploadedAsset = "16f34404-0bc9-4cf0-ae8b-3c60f7d5f7d0";
 describe("tour photos owner workflow", () => {
+  it("uploads and approves the exact server asset/revision in one confirmed owner action", async () => {
+    vi.mocked(uploadTourPhoto).mockResolvedValueOnce({ assetId: uploadedAsset, mediaId: "new-photo" });
+    vi.mocked(approveTourPhoto).mockResolvedValueOnce(undefined);
+    let reads = 0;
+    const refresh = vi.fn(async () => { await wrapper.setProps({ media: [{ ...uploadedPhoto, rightsStatus: ++reads === 1 ? "DRAFT" : "APPROVED" }], mediaRevision: `list-${reads}` }); return true; });
+    const wrapper = make({ media: [], refresh }); await approvedSelection(wrapper);
+    await wrapper.find("form").trigger("submit"); await flushPromises();
+    expect(approveTourPhoto).toHaveBeenCalledExactlyOnceWith("secret", "tour-id", "new-photo", "uploaded-v1");
+    expect(uploadTourPhoto).toHaveBeenCalledTimes(1);
+    expect(wrapper.text()).toContain("Photo uploaded, rights approved and verified");
+    expect(wrapper.find('form img').exists()).toBe(false); wrapper.unmount();
+  });
+  for (const changed of ["asset", "alt", "additionalAlt", "identity"] as const) {
+    it(`never approves a ${changed} that changed after the upload snapshot`, async () => {
+      vi.mocked(uploadTourPhoto).mockResolvedValueOnce({ assetId: uploadedAsset, mediaId: "new-photo" });
+      const refresh = vi.fn(async () => {
+        await wrapper.setProps({ media: [{ ...uploadedPhoto, ...(changed === "asset" ? { path: "/media/tours/real-tour/00000000-0000-0000-0000-000000000000.jpg" } : changed === "alt" ? { alt: { en: "Unreviewed other description" } } : changed === "additionalAlt" ? { alt: { ...uploadedPhoto.alt, ru: "Unreviewed concurrent description" } } : {}) }], ...(changed === "identity" ? { token: "another-session" } : {}) }); return true;
+      });
+      const wrapper = make({ media: [], refresh }); await approvedSelection(wrapper);
+      await wrapper.find("form").trigger("submit"); await flushPromises();
+      expect(approveTourPhoto).not.toHaveBeenCalled(); expect(uploadTourPhoto).toHaveBeenCalledTimes(1);
+      expect(wrapper.text()).toContain("approval could not be verified"); wrapper.unmount();
+    });
+  }
+  it("normalizes omitted blank optional descriptions exactly as the upload API does", async () => {
+    vi.mocked(uploadTourPhoto).mockResolvedValueOnce({ assetId: uploadedAsset, mediaId: "new-photo" });
+    vi.mocked(approveTourPhoto).mockResolvedValueOnce(undefined);
+    let reads = 0;
+    const refresh = vi.fn(async () => { await wrapper.setProps({ media: [{ ...uploadedPhoto, rightsStatus: ++reads === 1 ? "DRAFT" : "APPROVED" }] }); return true; });
+    const wrapper = make({ media: [], refresh }); await approvedSelection(wrapper);
+    await wrapper.find("#upload-alt-ru").setValue("   "); await wrapper.find("#upload-photo-rights").setValue(true);
+    await wrapper.find("form").trigger("submit"); await flushPromises();
+    expect(approveTourPhoto).toHaveBeenCalledExactlyOnceWith("secret", "tour-id", "new-photo", "uploaded-v1"); wrapper.unmount();
+  });
+  it("does not claim approval or resend the file after a failed approval response", async () => {
+    vi.mocked(uploadTourPhoto).mockResolvedValueOnce({ assetId: uploadedAsset, mediaId: "new-photo" });
+    vi.mocked(approveTourPhoto).mockRejectedValueOnce(new ToursApiError(409, "draft_changed"));
+    const refresh = vi.fn(async () => { await wrapper.setProps({ media: [uploadedPhoto] }); return true; });
+    const wrapper = make({ media: [], refresh }); await approvedSelection(wrapper);
+    await wrapper.find("form").trigger("submit"); await flushPromises();
+    await wrapper.find("form").trigger("submit"); await flushPromises();
+    expect(uploadTourPhoto).toHaveBeenCalledTimes(1); expect(approveTourPhoto).toHaveBeenCalledTimes(1);
+    expect(wrapper.text()).toContain("do not upload it again"); expect(wrapper.text()).not.toContain("Photo uploaded, rights approved and verified"); wrapper.unmount();
+  });
+  it("requires publish permission, a decoded local preview and English description; editing resets confirmation", async () => {
+    const denied = make({ canPublish: false }); expect(denied.find("#upload-photo-rights").exists()).toBe(false); denied.unmount();
+    const wrapper = make(); await approvedSelection(wrapper);
+    expect((wrapper.find("#upload-photo-rights").element as HTMLInputElement).checked).toBe(true);
+    await wrapper.find("#upload-alt-en").setValue("A different description");
+    expect((wrapper.find("#upload-photo-rights").element as HTMLInputElement).checked).toBe(false);
+    await wrapper.find('form img').trigger("error");
+    expect(wrapper.find("#upload-photo-rights").attributes("disabled")).toBeDefined(); wrapper.unmount();
+  });
   it("uses readonly image paths/dimensions and only edits localized alt/cover/order", async () => {
     const wrapper = make(); await flushPromises();
     await wrapper.find("#photo-alt-media-id-en").setValue("Verified new alt");

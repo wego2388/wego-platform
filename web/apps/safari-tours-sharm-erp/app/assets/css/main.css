@@ -78,6 +78,17 @@ html {
 }
 body { margin: 0; }
 
+/* Dedicated staff workspace: restrained brand accents, readable working area.
+   The sidebar never overlays financial forms; narrow screens use the menu. */
+.staff-workspace {
+  background-image: radial-gradient(ellipse at 80% 0%, #1b4f8a08, transparent 45%);
+}
+.staff-navigation input[type="search"]::-webkit-search-cancel-button { appearance: none; }
+.staff-navigation a[aria-current="page"] { font-weight: 700; }
+@media (min-width: 1280px) {
+  .staff-workspace #main > main { padding-inline: clamp(1.5rem, 3vw, 3rem); }
+}
+
 /* RTL — Arabic */
 html[dir="rtl"] {
   --font-sans: "Noto Sans Arabic Variable", "Noto Sans Arabic", Tahoma, Arial, sans-serif;
@@ -113,6 +124,7 @@ html[dir="rtl"] {
 }
 
 @media print {
+  .staff-frame { display: block !important; }
   html, body, .bg-sts-canvas {
     background: #fff !important;
   }

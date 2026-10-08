@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { StaffTourContent } from "@wego/api-contract";
 import ContentPage from "../app/pages/tours/[id]/content.vue";
-import { getStaffTourContent, publishTourContent, saveTourContentDraft } from "../app/composables/useTourContentApi";
+import { getStaffTourContent, publishTourContent, saveTourContentDraft, saveTourFactsDraft } from "../app/composables/useTourContentApi";
 import { getStaffTour } from "../app/composables/useToursApi";
 import { writeAuthSession } from "../app/composables/useAuthSession";
 
@@ -24,6 +24,22 @@ afterEach(() => { vi.clearAllMocks(); vi.unstubAllGlobals(); sessionStorage.clea
 const make = () => mount(ContentPage, { global: { stubs: { NuxtLink: { template: "<a><slot /></a>" }, TourMediaEditor: { template: '<div class="photo-editor" />' } } } });
 
 describe("EN/AR catalog editor page", () => {
+  it.each([["0", 0], ["12", 12], ["99", 99], ["", null]])("native minimum-age input %s saves the fact without a coercion exception", async (value, expected) => {
+    let state = initial();
+    vi.mocked(getStaffTourContent).mockImplementation(async () => state);
+    vi.mocked(saveTourFactsDraft).mockImplementation(async (_token, _id, document) => {
+      state = { ...state, facts: [{ stage: "DRAFT", revision: "saved-age-v2", updatedAt: "2026-10-08T18:00:00Z", document }] };
+    });
+    const wrapper = make(); await flushPromises();
+    await wrapper.find("#facts-age").setValue("18");
+    await wrapper.find("#facts-age").setValue(value);
+    if (expected === null) await wrapper.find("#facts-children").setValue("true");
+    await wrapper.findAll("form")[1]!.trigger("submit"); await flushPromises();
+    expect(saveTourFactsDraft).toHaveBeenCalledExactlyOnceWith("private-token", "tour-id", expect.objectContaining({ minimumAge: expected }));
+    expect((wrapper.find("#facts-age").element as HTMLInputElement).value).toBe(value);
+    expect(wrapper.text()).toContain("Draft saved and refreshed from the server.");
+    wrapper.unmount();
+  });
   it("preserves separate English/Arabic unsaved drafts and real multiline editing", async () => {
     const wrapper = make(); await flushPromises();
     await wrapper.find("#content-name").setValue("Local English title");

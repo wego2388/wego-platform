@@ -5,6 +5,7 @@ import { getPublicSalesStatus } from "../composables/useToursApi";
 import { useErpLocale } from "../composables/useErpLocale";
 import { isLocalizedErpRoute } from "../utils/erpLocale";
 import ErpLanguageSwitch from "../components/ErpLanguageSwitch.vue";
+import StaffNavigation from "../components/StaffNavigation.vue";
 
 /**
  * One staff shell for every page: brand, permission-aware navigation and the
@@ -16,6 +17,7 @@ const router = useRouter();
 const { locale, t } = useErpLocale();
 const session = ref<AuthSession | null>(null);
 const menuOpen = ref(false);
+const menuButton = ref<HTMLButtonElement | null>(null);
 const signOutFailed = ref(false);
 
 // Every staff member sees when online sales are paused, so nobody wonders
@@ -33,12 +35,21 @@ async function refreshSalesStatus() {
 }
 
 const onSalesChanged = () => void refreshSalesStatus();
+const onMenuKey = (event: KeyboardEvent) => {
+  if (event.key !== "Escape" || event.defaultPrevented || !menuOpen.value) return;
+  event.preventDefault();
+  closeMenu();
+};
 onMounted(() => {
   session.value = readAuthSession();
   void refreshSalesStatus();
   window.addEventListener("sts:sales-control-changed", onSalesChanged);
+  window.addEventListener("keydown", onMenuKey);
 });
-onBeforeUnmount(() => window.removeEventListener("sts:sales-control-changed", onSalesChanged));
+onBeforeUnmount(() => {
+  window.removeEventListener("sts:sales-control-changed", onSalesChanged);
+  window.removeEventListener("keydown", onMenuKey);
+});
 watch(() => route.fullPath, () => {
   session.value = readAuthSession();
   menuOpen.value = false;
@@ -51,6 +62,7 @@ const links = computed(() =>
     { to: "/today", label: t("nav.today"), show: hasPermission(session.value, "tours-operator.booking:view") },
     { to: "/bookings", label: t("nav.bookings"), show: hasPermission(session.value, "tours-operator.booking:view") },
     { to: "/tours", label: t("nav.tours"), show: hasPermission(session.value, "tours-operator.tour:view") },
+    { to: "/categories", label: t("nav.categories"), show: hasPermission(session.value, "tours-operator.tour:view") },
     { to: "/suppliers", label: t("nav.suppliers"), show: hasPermission(session.value, "tours-operator.supplier:manage") },
     { to: "/drivers", label: t("nav.drivers"), show: hasPermission(session.value, "tours-operator.fleet:manage") },
     { to: "/vehicles", label: t("nav.vehicles"), show: hasPermission(session.value, "tours-operator.fleet:manage") },
@@ -74,8 +86,10 @@ const links = computed(() =>
   ].filter((link) => link.show),
 );
 
-function isActive(to: string) {
-  return to === "/" ? route.path === "/" : route.path === to || route.path.startsWith(`${to}/`);
+function closeMenu() {
+  if (!menuOpen.value) return;
+  menuOpen.value = false;
+  menuButton.value?.focus();
 }
 
 async function signOut() {
@@ -94,32 +108,21 @@ async function signOut() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-sts-canvas text-sts-ink">
+  <div class="staff-workspace min-h-screen bg-sts-canvas text-sts-ink">
     <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:start-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-sts-surface focus:px-4 focus:py-2">{{ t('shell.skip') }}</a>
     <header class="sticky top-0 z-40 border-b border-white/10 bg-sts-ocean text-white print:hidden">
       <div class="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-4 py-3 sm:gap-4 sm:px-8">
         <NuxtLink to="/" class="flex shrink-0 items-center gap-2 font-semibold">
           <img src="/logo-mark.webp" alt="Safari Tours Sharm" width="46" height="38" class="h-9 w-auto" decoding="async">
-          <span class="hidden sm:inline xl:hidden" aria-hidden="true">Safari Tours Sharm · {{ t('shell.staff') }}</span>
+          <span class="hidden sm:inline" aria-hidden="true">Safari Tours Sharm <span class="block text-xs font-normal text-white/75">{{ t('workspace.controlRoom') }}</span></span>
         </NuxtLink>
-        <nav v-if="session" class="hidden min-w-0 flex-1 items-center gap-1 overflow-x-auto xl:flex" :aria-label="t('shell.navigation')">
-          <NuxtLink
-            v-for="link in links"
-            :key="link.to"
-            :to="link.to"
-            class="rounded-lg px-2.5 py-2 text-sm font-semibold whitespace-nowrap transition-colors"
-            :class="isActive(link.to) ? 'bg-white/15 text-white' : 'text-white/75 hover:bg-white/10 hover:text-white'"
-            :aria-current="isActive(link.to) ? 'page' : undefined"
-          >
-            {{ link.label }}
-          </NuxtLink>
-        </nav>
         <div class="ms-auto flex max-w-full flex-wrap items-center gap-1 sm:gap-2">
           <ErpLanguageSwitch />
           <template v-if="session">
           <span class="hidden max-w-40 truncate text-xs text-white/70 md:inline-block" :title="session.email">{{ session.email }}</span>
           <button type="button" class="rounded-lg border border-white/25 px-2 py-1.5 text-sm font-semibold hover:bg-white/10 sm:px-3" @click="signOut">{{ t('shell.signOut') }}</button>
           <button
+            ref="menuButton"
             type="button"
             class="rounded-lg border border-white/25 px-2 py-1.5 text-sm font-semibold hover:bg-white/10 sm:px-3 xl:hidden"
             :aria-expanded="menuOpen"
@@ -131,18 +134,17 @@ async function signOut() {
           </template>
         </div>
       </div>
-      <nav v-if="session && menuOpen" id="staff-menu" class="grid gap-1 border-t border-white/10 px-4 py-3 xl:hidden" :aria-label="t('shell.navigation')">
-        <NuxtLink
-          v-for="link in links"
-          :key="link.to"
-          :to="link.to"
-          class="rounded-lg px-3 py-2 text-sm font-semibold"
-          :class="isActive(link.to) ? 'bg-white/15' : 'text-white/80'"
-        >
-          {{ link.label }}
-        </NuxtLink>
-      </nav>
+      <div v-if="session && menuOpen" id="staff-menu" class="max-h-[calc(100dvh-5rem)] overflow-y-auto border-b border-sts-border bg-sts-surface px-4 py-5 text-sts-ink shadow-xl xl:hidden">
+        <StaffNavigation :links="links" search-id="staff-mobile-search" />
+      </div>
     </header>
+    <div class="staff-frame" :class="session ? 'xl:grid xl:grid-cols-[15rem_minmax(0,1fr)]' : ''">
+    <aside v-if="session" class="hidden border-e border-sts-border bg-sts-surface xl:block print:hidden">
+      <div class="sticky top-20 max-h-[calc(100dvh-5rem)] overflow-y-auto px-3 py-6">
+        <StaffNavigation :links="links" search-id="staff-desktop-search" />
+      </div>
+    </aside>
+    <div class="min-w-0">
     <p v-if="session && enquiryOnly" role="status" class="border-b border-sts-border bg-sts-info-soft px-4 py-3 text-sm text-sts-info print:hidden">{{ t('sales.enquiryMode') }}</p>
     <p v-else-if="session && salesPaused" role="alert" class="bg-sts-danger px-4 py-2 text-center text-sm font-semibold text-white print:hidden">
       {{ t('shell.salesPaused') }}
@@ -152,6 +154,8 @@ async function signOut() {
     <p v-if="locale === 'ar' && !isLocalizedErpRoute(route.path)" role="status" class="border-b border-sts-border bg-sts-info-soft px-4 py-3 text-sm text-sts-info print:hidden">{{ t('shell.englishPage') }}</p>
     <div id="main" tabindex="-1">
       <slot />
+    </div>
+    </div>
     </div>
   </div>
 </template>

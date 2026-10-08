@@ -103,8 +103,9 @@ useHead(() => ({
       </ul>
     </section>
 
-    <section v-if="featured.length" class="bg-sts-sand-soft py-16 lg:py-20" aria-labelledby="featured-heading">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
+    <section v-if="featured.length" class="relative isolate overflow-hidden bg-sts-sand-soft py-16 lg:py-20" aria-labelledby="featured-heading">
+      <BrandSectionBackdrop />
+      <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
         <div class="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h2 id="featured-heading" class="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{{ copy.featured.heading }}</h2>
@@ -120,7 +121,9 @@ useHead(() => ({
       </div>
     </section>
 
-    <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-10 lg:py-20" aria-labelledby="why-heading">
+    <section class="relative isolate mx-auto max-w-7xl overflow-hidden px-4 py-16 sm:px-6 lg:px-10 lg:py-20" aria-labelledby="why-heading">
+      <BrandSectionBackdrop tone="sea" />
+      <div class="relative z-10">
       <h2 id="why-heading" class="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{{ copy.why.heading }}</h2>
       <ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <li v-for="item in copy.why.items" :key="item.title" class="rounded-[var(--sts-radius-card)] border border-sts-border bg-sts-surface p-6">
@@ -131,6 +134,7 @@ useHead(() => ({
           <p class="mt-2 text-sm leading-6 text-sts-muted">{{ item.body }}</p>
         </li>
       </ul>
+      </div>
     </section>
 
     <section class="mx-auto max-w-3xl px-4 pb-16 sm:px-6 lg:pb-20" aria-labelledby="faq-heading">
@@ -138,8 +142,9 @@ useHead(() => ({
       <UiAccordion class="mt-6" :items="faqItems" />
     </section>
 
-    <section class="bg-sts-ocean px-4 py-16 text-white sm:px-6 lg:px-10" aria-labelledby="cta-heading">
-      <div class="mx-auto max-w-3xl text-center">
+    <section class="relative isolate overflow-hidden bg-sts-ocean px-4 py-16 text-white sm:px-6 lg:px-10" aria-labelledby="cta-heading">
+      <BrandSectionBackdrop tone="night" />
+      <div class="relative z-10 mx-auto max-w-3xl text-center">
         <h2 id="cta-heading" class="font-display text-3xl font-semibold">{{ copy.cta.title }}</h2>
         <p class="mt-3 leading-7 text-white/80">{{ copy.cta.body }}</p>
         <div class="mt-8 flex flex-wrap justify-center gap-3">

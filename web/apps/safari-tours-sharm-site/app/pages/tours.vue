@@ -41,7 +41,7 @@ useSeoMeta({
 
 <template>
   <main id="main-content" tabindex="-1">
-    <div class="bg-sts-ocean px-4 pt-12 pb-10 text-white sm:px-6 lg:px-10">
+    <BrandPageBanner>
       <div class="mx-auto max-w-7xl">
         <h1 class="font-display text-3xl font-semibold sm:text-4xl">{{ copy.tours.title }}</h1>
         <p class="mt-3 max-w-2xl text-white/80">{{ copy.tours.body }}</p>
@@ -63,7 +63,7 @@ useSeoMeta({
           >
         </form>
       </div>
-    </div>
+    </BrandPageBanner>
 
     <div class="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[17rem_1fr] lg:px-10">
       <aside class="hidden lg:block" :aria-label="copy.tours.filters">

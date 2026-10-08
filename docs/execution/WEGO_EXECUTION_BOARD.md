@@ -5049,6 +5049,61 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   network-none:43tables/410rows/Flyway33/media20, all hashes verified. No live
   database restore or test-data import occurred.
 
+#### 2026-10-08 — Owner UAT: photos, brand shell and operations workspace
+
+- OPS2-G remains the sole ACTIVE packet; no later packet, migration, backend,
+  auth contract or payment mode is changed. Owner authorizes broader dashboard
+  UX, photo approval/gallery, background identity and operational rehearsal.
+- **Implemented, not yet deployed:** permission-filtered EN/AR navigation in five
+  groups, page search, workflow shortcuts, mobile Escape/focus handling and clean
+  single-column print; native date/slot/new-tour entry checkpoint is preserved.
+  Photos support explicit owner rights approval after verified upload and reread;
+  DRAFT remains the backend default. Partial/uncertain upload cannot be blindly
+  repeated. Tour gallery retains only approved photography, up to30 linked photos.
+- Reusable destination banners/backgrounds use existing disclosed brand art and
+  code-native decorative SVG, responsive dimensions and localized brand-first
+  titles. Decorative art is not evidence of a real tour or operator possession.
+- **Actual live-browser defect found and fixed locally:** native number inputs
+  coerce populated values to numbers. Supplier notice `.trim()` threw before
+  network and left saving stuck; minimum-age setter had the same defect. Numeric
+  supplier range/integer checks now run inside try/finally; blank/null and zero
+  remain distinct.12 new native-input unit cases cover boundaries and recovery.
+- Current numeric build: ERP375 tests/29files, lint/typecheck/build PASS; site154
+  tests/17files PASS. Real disposable native supplier24 and age0 save/reread plus
+  full synthetic financial lifecycle PASS. Fresh183-case matrix PASS(10.6min),
+  final native/office/workspace delta9PASS(52.5s), full repository Safari gate
+  PASS: real backend tests, all web contract/lint/types/units/builds and Foundry.
+  Strengthened real two-photo upload→approval→public-gallery path4PASS(53.4s):
+  EN/AR×360/1440, decoded images, AXE0, counter/arrows/Escape/focus restoration.
+- Review `office_inventory_tier1_review`: previous tree READY; incremental source
+  and independent375 units +11 scratch adversarial probes have zero blockers.
+  Independent rebuilt-image/browser review READY, zero open blockers, including
+  final two-photo test-only strengthening. Clean-source CI and deployment remain
+  due. Production still runs the previous UI images.
+- The synthetic cycle uses real existing APIs with two actual disposable staff
+  identities,70EUR revenue/25cost/45profit, idempotent collections/settlements,
+  real printable documents and four-eyes cash closure. Mutations refuse remote
+  targets or missing explicit opt-in before login. No test data reaches VPS.
+  Native supplier/age UI is covered; page/API actions have bounded timeouts and
+  cleanup owns a separate request context while the worker remains alive. Forced
+  process termination still needs disposable DB teardown/explicit local recovery.
+  The first timeout's synthetic cashier was disabled through the local API.
+  Initial selector/status failures are retained, not counted as passing evidence.
+- One existing owner-reviewed tour photo was actually APPROVED via protected
+  production UI, without changing cover. Production supplier count remains0:
+  attempted S01 never reached the API because of the discovered UI bug. Five
+  verified workbook suppliers are pending inactive entry after the fixed release;
+  missing tour mappings, costs, vehicle facts and licence dates remain unresolved.
+- Pre-update encrypted bundle20261008T174304Z copied offsite and actually restored:
+ 43tables/412rows/Flyway33/media20; all archive keys and hashes verified. No live
+  restore. Six older unused task candidate images removed after container checks;
+  sources/evidence retained, production images/backups/keys/unrelated work intact.
+- Operating references updated: `ADMIN_OPERATING_GUIDE_AR.md` and
+  `2026-10-08_OPERATIONS_REHEARSAL_AR.md`. The older PDF is explicitly not the
+  current reference for newly implemented UI. Candidate images cannot be deployed.
+- Fresh pre-release encrypted bundle20261008T182322Z copied offsite and restored
+  network-none:43tables/414rows/Flyway33/media20, all hashes PASS. No live restore.
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE

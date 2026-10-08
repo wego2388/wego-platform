@@ -2,7 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { WegoAlert, WegoButton } from "@wego/ui";
 import type { ContentLocale, StaffTourContent, TourMediaInput } from "@wego/api-contract";
-import { approveTourPhoto, MAX_PHOTO_BYTES, replaceTourMedia, uploadTourPhoto, type PhotoAlt } from "../composables/useTourMediaApi";
+import { approveTourPhoto, managedPhotoAssetId, MAX_PHOTO_BYTES, replaceTourMedia, uploadTourPhoto, type PhotoAlt } from "../composables/useTourMediaApi";
 import { contentErrorKey, contentMessage, type ContentMessageKey } from "../utils/contentMessages";
 import { CONTENT_LANGUAGE_NAMES, CONTENT_LOCALES } from "../utils/tourContentEditor";
 import { erpMessage, type ErpLocale } from "../utils/erpLocale";
@@ -27,6 +27,10 @@ const uploadAlt = ref<PhotoAlt>({});
 const replacementId = ref("");
 const uploadUncertain = ref(false);
 const fileInvalid = ref(false);
+const uploadRights = ref(false);
+const localPreview = ref<string | null>(null);
+const localReady = ref(false);
+const uploadedNeedsApproval = ref(false);
 const ready = ref<Record<string, boolean>>({});
 const review = ref<Photo | null>(null);
 const reviewPanel = ref<HTMLElement | null>(null);
@@ -46,16 +50,23 @@ watch(() => [props.media, props.mediaRevision] as const, ([photos, revision]) =>
 const hasLocalChanges = computed(() => dirty.value || selectedFile.value !== null);
 watch(hasLocalChanges, value => emit("dirty", value), { immediate: true });
 watch(pending, value => emit("busy", value));
-watch(replacementId, id => { uploadAlt.value = { ...(props.media.find(photo => photo.id === id)?.alt ?? {}) }; });
-onBeforeUnmount(() => { alive = false; });
+watch(replacementId, id => { uploadRights.value = false; uploadAlt.value = { ...(props.media.find(photo => photo.id === id)?.alt ?? {}) }; });
+watch(uploadAlt, () => { uploadRights.value = false; }, { deep: true });
+watch(selectedFile, file => {
+  if (localPreview.value) URL.revokeObjectURL(localPreview.value);
+  localPreview.value = file ? URL.createObjectURL(file) : null;
+  localReady.value = false; uploadRights.value = false;
+});
+onBeforeUnmount(() => { alive = false; if (localPreview.value) URL.revokeObjectURL(localPreview.value); });
 
 function selectFile(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0] ?? null;
   fileInvalid.value = file !== null && (file.size === 0 || file.size > MAX_PHOTO_BYTES || !["image/jpeg", "image/png"].includes(file.type));
   selectedFile.value = fileInvalid.value ? null : file;
   uploadUncertain.value = false;
+  uploadedNeedsApproval.value = false;
 }
-function clearFile() { selectedFile.value = null; fileInvalid.value = false; uploadUncertain.value = false; if (fileInput.value) fileInput.value.value = ""; }
+function clearFile() { selectedFile.value = null; fileInvalid.value = false; uploadUncertain.value = false; uploadedNeedsApproval.value = false; if (fileInput.value) fileInput.value.value = ""; }
 function setAlt(entry: TourMediaInput, language: ContentLocale, event: Event) {
   const value = (event.target as HTMLInputElement).value;
   if (!entry.alt) entry.alt = {};
@@ -67,7 +78,7 @@ function move(index: number, direction: number) {
   [next[index], next[to]] = [next[to]!, next[index]!]; entries.value = next;
 }
 function setCover(index: number, event: Event) { const checked = (event.target as HTMLInputElement).checked; entries.value.forEach((entry, position) => { entry.isCover = position === index && checked; }); }
-async function command(action: () => Promise<void>, success: ContentMessageKey): Promise<boolean> {
+async function command(action: () => Promise<void>, success: ContentMessageKey, verify?: () => boolean): Promise<boolean> {
   if (locked.value) return false;
   pending.value = true; error.value = null; notice.value = null;
   try {
@@ -75,6 +86,7 @@ async function command(action: () => Promise<void>, success: ContentMessageKey):
     if (!await props.refresh()) throw new Error("verification_failed");
     await nextTick();
     if (!alive) return false;
+    if (verify && !verify()) throw new Error("verification_failed");
     entries.value = inputs(props.media); baseline.value = JSON.stringify(entries.value); baselineRevision.value = props.mediaRevision; metadataConflict.value = false; notice.value = success;
     return true;
   } catch (cause) {
@@ -90,8 +102,34 @@ async function upload() {
   const previous = replacementId.value ? props.media.find(photo => photo.id === replacementId.value) : null;
   if (replacementId.value && !previous) return;
   const file = selectedFile.value;
+  const approveNow = uploadRights.value;
+  if (approveNow && (!props.canPublish || !localReady.value || !uploadAlt.value.en?.trim())) return;
+  const tourId = props.tourId; const token = props.token;
+  const alt = { ...uploadAlt.value };
+  let uploadedId: string | null = null; let uploadedRevision = "";
   const requestId = crypto.randomUUID();
-  const success = await command(async () => { await uploadTourPhoto(props.token, props.tourId, file, { ...uploadAlt.value }, requestId, previous ? { mediaId: previous.id, revision: previous.revision } : undefined); }, "uploaded");
+  const success = await command(async () => {
+    const receipt = await uploadTourPhoto(token, tourId, file, alt, requestId, previous ? { mediaId: previous.id, revision: previous.revision } : undefined);
+    if (!approveNow) return;
+    uploadedId = receipt.mediaId;
+    if (!uploadedId || !alive || props.tourId !== tourId || props.token !== token) throw new Error("verification_failed");
+    ready.value[uploadedId] = false;
+    if (!await props.refresh()) throw new Error("verification_failed");
+    await nextTick();
+    const uploaded = props.media.find(photo => photo.id === uploadedId);
+    if (!uploaded || managedPhotoAssetId(uploaded.path) !== receipt.assetId || CONTENT_LOCALES.some(language => (alt[language]?.trim() || "") !== (uploaded.alt[language]?.trim() || ""))) throw new Error("verification_failed");
+    uploadedRevision = uploaded.revision;
+    // Review the actual re-encoded server image, not a filename or a placeholder.
+    document.getElementById(`tour-photo-${uploadedId}`)?.scrollIntoView?.({ block: "center", behavior: "instant" });
+    const imageReady = ready.value[uploadedId] || await new Promise<boolean>(resolve => {
+      const stop = watch(() => ready.value[uploadedId!], value => { if (value) finish(true); });
+      const timer = setTimeout(() => finish(false), 10_000);
+      function finish(value: boolean) { clearTimeout(timer); stop(); resolve(value); }
+    });
+    if (!imageReady || !alive || props.tourId !== tourId || props.token !== token || !props.canPublish || !props.verified || props.media.find(photo => photo.id === uploadedId)?.revision !== uploadedRevision) throw new Error("verification_failed");
+    await approveTourPhoto(token, tourId, uploadedId, uploadedRevision);
+  }, approveNow ? "uploadedApproved" : "uploaded", approveNow ? () => props.media.some(photo => photo.id === uploadedId && photo.revision === uploadedRevision && photo.rightsStatus === "APPROVED") : undefined);
+  uploadedNeedsApproval.value = !success && approveNow && uploadedId !== null;
   if (success) clearFile(); else uploadUncertain.value = true;
 }
 async function saveMetadata() {
@@ -128,7 +166,7 @@ async function approve() {
     <WegoAlert v-if="metadataConflict" variant="danger" class="mt-4">{{ ct('photoConflict') }}<button type="button" :disabled="pending || props.locked" class="mt-2 block min-h-11 text-start font-semibold underline" @click="discardPhotoEdits">{{ ct('discardPhotoEdits') }}</button></WegoAlert>
     <p v-if="entries.length === 0" class="mt-4 text-sm text-sts-muted">{{ ct('noPhotos') }}</p>
     <ol v-else class="mt-4 grid gap-4 lg:grid-cols-2">
-      <li v-for="(photo, index) in entries" :key="photo.id || photo.path" class="min-w-0 space-y-3 rounded-xl border border-sts-border p-3">
+      <li v-for="(photo, index) in entries" :id="`tour-photo-${photo.id}`" :key="photo.id || photo.path" class="min-w-0 space-y-3 rounded-xl border border-sts-border p-3">
         <StaffPhotoPreview :path="photo.path" :token="token" :width="photo.width" :height="photo.height" :alt="photo.alt?.[staffLocale] || photo.alt?.en || ''" :failure-label="ct('previewFailed')" @ready="ready[photo.id!] = $event" />
         <p class="text-xs font-semibold">{{ media.find(item => item.id === photo.id)?.rightsStatus === 'APPROVED' ? ct('approved') : ct('photoDraft') }}</p>
         <p class="break-all font-mono text-xs text-sts-muted" dir="ltr">{{ photo.path }}</p>
@@ -152,9 +190,11 @@ async function approve() {
         <label class="grid gap-1 text-sm" for="photo-replacement">{{ ct('replacePhoto') }}<select id="photo-replacement" v-model="replacementId" class="photo-input"><option value="">{{ ct('newPhoto') }}</option><option v-for="photo in media" :key="photo.id" :value="photo.id">{{ photo.alt[staffLocale] || photo.alt.en || photo.id }}</option></select></label>
         <label class="grid gap-1 text-sm" for="photo-file">{{ ct('choosePhoto') }}<input id="photo-file" ref="fileInput" type="file" accept="image/jpeg,image/png" aria-describedby="photo-upload-help" class="min-w-0 w-full rounded-xl border border-sts-border px-3 py-2 text-sm" @change="selectFile"></label>
         <label v-for="language in CONTENT_LOCALES" :key="language" class="grid gap-1 text-xs" :for="`upload-alt-${language}`"><span>{{ ct('alt') }} · <span :lang="language">{{ CONTENT_LANGUAGE_NAMES[language] }}</span></span><input :id="`upload-alt-${language}`" v-model="uploadAlt[language]" :lang="language" :dir="language === 'ar' ? 'rtl' : 'ltr'" class="photo-input" maxlength="200"></label>
+        <div v-if="localPreview" class="sm:col-span-2"><img :key="localPreview" :src="localPreview" :alt="uploadAlt[staffLocale] || uploadAlt.en || ''" class="max-h-48 w-full rounded-xl object-contain" @load="localReady = true" @error="localReady = false; uploadRights = false"></div>
+        <label v-if="canPublish" class="flex min-h-11 items-start gap-2 text-sm sm:col-span-2"><input id="upload-photo-rights" v-model="uploadRights" type="checkbox" class="mt-1" :disabled="!localReady || !uploadAlt.en?.trim()">{{ ct('uploadAndApproveRights') }}</label>
         <p v-if="fileInvalid" role="alert" class="text-sm text-sts-danger sm:col-span-2">{{ ct('fileInvalid') }}</p>
-        <p v-if="uploadUncertain" role="alert" class="text-sm text-sts-danger sm:col-span-2">{{ ct('uploadUncertain') }}</p>
-        <div class="flex flex-wrap gap-3 sm:col-span-2"><WegoButton type="submit" variant="primary" :disabled="!selectedFile || fileInvalid || uploadUncertain || (!replacementId && media.length >= 30)">{{ pending ? ct('saving') : ct('upload') }}</WegoButton><WegoButton type="button" variant="secondary" @click="clearFile">{{ ct('clearFile') }}</WegoButton></div>
+        <p v-if="uploadUncertain" role="alert" class="text-sm text-sts-danger sm:col-span-2">{{ ct(uploadedNeedsApproval ? 'uploadedNeedsApproval' : 'uploadUncertain') }}</p>
+        <div class="flex flex-wrap gap-3 sm:col-span-2"><WegoButton type="submit" variant="primary" :disabled="!selectedFile || fileInvalid || uploadUncertain || (!replacementId && media.length >= 30) || (uploadRights && (!localReady || !uploadAlt.en?.trim()))">{{ pending ? ct('saving') : ct(uploadRights ? 'uploadAndApprove' : 'upload') }}</WegoButton><WegoButton type="button" variant="secondary" @click="clearFile">{{ ct('clearFile') }}</WegoButton></div>
       </fieldset>
     </form>
     <section v-if="review" ref="reviewPanel" role="dialog" aria-labelledby="photo-rights-title" tabindex="-1" class="mt-6 rounded-xl border-2 border-sts-ocean p-4 focus:outline-none" @keydown.esc="dismissReview">

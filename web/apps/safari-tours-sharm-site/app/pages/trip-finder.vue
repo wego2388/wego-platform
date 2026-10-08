@@ -49,12 +49,12 @@ const off = "border-sts-border bg-sts-surface hover:border-sts-ocean-bright";
 
 <template>
   <main id="main-content" tabindex="-1">
-    <div class="bg-sts-ocean px-4 pt-12 pb-10 text-white sm:px-6 lg:px-10">
+    <BrandPageBanner>
       <div class="mx-auto max-w-4xl">
         <h1 class="font-display text-3xl font-semibold sm:text-4xl">{{ copy.title }}</h1>
         <p class="mt-4 max-w-2xl text-lg text-white/85">{{ copy.intro }}</p>
       </div>
-    </div>
+    </BrandPageBanner>
 
     <div class="mx-auto max-w-4xl px-4 py-10 sm:px-6">
       <form class="grid gap-7" @submit.prevent="submit">

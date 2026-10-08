@@ -37,7 +37,8 @@ const tourName = (id: string) => tours.value.find((x) => x.id === id)?.nameEn ??
 
 const form = reactive({
   code: "", name: "", serviceType: "OTHER" as SupplierRequest["serviceType"], contactPerson: "", businessPhone: "",
-  confirmationChannel: "" as string, noticeHours: "" as string, pricingBasis: "" as string, currency: "" as string,
+  // Native number inputs emit numbers when populated and a string when cleared.
+  confirmationChannel: "" as string, noticeHours: "" as string | number, pricingBasis: "" as string, currency: "" as string,
   settlementCadence: "" as string, paymentMethod: "" as string, cancellationTerms: "", active: true, tourIds: [] as string[],
 });
 
@@ -80,21 +81,27 @@ async function load() {
 }
 
 async function save() {
-  if (!session.value || saving.value || !editing.value) return;
+  if (!session.value || !allowed.value || saving.value || !editing.value) return;
   saving.value = true;
   saved.value = false;
   error.value = null;
   stale.value = false;
   const current = editing.value === "new" ? null : editing.value;
-  const payload = {
-    code: form.code.trim(), name: form.name.trim(), serviceType: form.serviceType, contactPerson: orNull(form.contactPerson),
-    businessPhone: orNull(form.businessPhone), confirmationChannel: orNull(form.confirmationChannel) as SupplierRequest["confirmationChannel"],
-    noticeHours: form.noticeHours.trim() === "" ? null : Number(form.noticeHours), pricingBasis: orNull(form.pricingBasis) as SupplierRequest["pricingBasis"],
-    currency: orNull(form.currency) as SupplierRequest["currency"], settlementCadence: orNull(form.settlementCadence) as SupplierRequest["settlementCadence"],
-    paymentMethod: orNull(form.paymentMethod) as SupplierRequest["paymentMethod"], cancellationTerms: orNull(form.cancellationTerms),
-    active: form.active, tourIds: form.tourIds, ...(current ? { expectedRevision: current.revision } : {}),
-  } satisfies SupplierRequest;
   try {
+    const noticeText = String(form.noticeHours).trim();
+    const noticeHours = noticeText === "" ? null : Number(noticeText);
+    if (noticeHours !== null && (!Number.isInteger(noticeHours) || noticeHours < 0 || noticeHours > 720)) {
+      error.value = { key: "ops.invalid" };
+      return;
+    }
+    const payload = {
+      code: form.code.trim(), name: form.name.trim(), serviceType: form.serviceType, contactPerson: orNull(form.contactPerson),
+      businessPhone: orNull(form.businessPhone), confirmationChannel: orNull(form.confirmationChannel) as SupplierRequest["confirmationChannel"],
+      noticeHours, pricingBasis: orNull(form.pricingBasis) as SupplierRequest["pricingBasis"],
+      currency: orNull(form.currency) as SupplierRequest["currency"], settlementCadence: orNull(form.settlementCadence) as SupplierRequest["settlementCadence"],
+      paymentMethod: orNull(form.paymentMethod) as SupplierRequest["paymentMethod"], cancellationTerms: orNull(form.cancellationTerms),
+      active: form.active, tourIds: form.tourIds, ...(current ? { expectedRevision: current.revision } : {}),
+    } satisfies SupplierRequest;
     await saveSupplier(session.value.token, payload, current?.id);
     saved.value = true;
     editing.value = null;
@@ -159,7 +166,7 @@ const FIELD = "w-full rounded-lg border border-sts-border bg-sts-surface px-3 py
             <select v-model="form.confirmationChannel" :class="FIELD"><option value="">{{ t('ops.f.none') }}</option><option v-for="v in CHANNEL" :key="v" :value="v">{{ key('ch', v) }}</option></select>
           </label>
           <label class="grid gap-1 text-sm font-semibold">{{ t('ops.f.notice') }}
-            <input v-model="form.noticeHours" type="number" min="0" max="720" :class="FIELD" dir="ltr">
+            <input v-model="form.noticeHours" type="number" min="0" max="720" step="1" :class="FIELD" dir="ltr">
           </label>
           <label class="grid gap-1 text-sm font-semibold">{{ t('ops.f.pricing') }}
             <select v-model="form.pricingBasis" :class="FIELD"><option value="">{{ t('ops.f.none') }}</option><option v-for="v in PRICING" :key="v" :value="v">{{ key('pb', v) }}</option></select>

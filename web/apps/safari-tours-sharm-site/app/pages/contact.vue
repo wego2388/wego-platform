@@ -12,12 +12,12 @@ const phoneDisplay = "+20 111 129 2690";
 
 <template>
   <main id="main-content" tabindex="-1">
-    <div class="bg-sts-ocean px-4 pt-12 pb-10 text-white sm:px-6 lg:px-10">
+    <BrandPageBanner kind="sea">
       <div class="mx-auto max-w-5xl">
         <h1 class="font-display text-3xl font-semibold sm:text-4xl">{{ copy.title }}</h1>
         <p class="mt-4 max-w-2xl text-lg text-white/85">{{ copy.intro }}</p>
       </div>
-    </div>
+    </BrandPageBanner>
 
     <div class="mx-auto grid max-w-5xl gap-6 px-4 py-12 sm:px-6">
       <ul class="grid gap-5 md:grid-cols-3">

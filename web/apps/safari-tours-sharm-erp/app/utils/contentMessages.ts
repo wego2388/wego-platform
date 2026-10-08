@@ -2,6 +2,7 @@ import { ToursApiError } from "../composables/useToursApi";
 import type { ErpLocale } from "./erpLocale";
 
 export const contentEn = {
+  uploadAndApprove: "Upload & approve photo", uploadAndApproveRights: "I own or have permission to use this photo and its description. Approve it after upload.", uploadedApproved: "Photo uploaded, rights approved and verified. Published tour pages can now show it.", uploadedNeedsApproval: "The upload returned a photo, but approval could not be verified. Check that photo's saved status and use Review photo rights if needed; do not upload it again.",
   title: "Content & photos", subtitle: "Edit verified tour information. Saving a draft never changes the public site.",
   photoConflict: "The saved photo list changed while you were editing. Your local edits are kept, but saving is blocked to protect newer uploads. Copy your edits, then discard the local photo changes and review the latest list.", discardPhotoEdits: "Discard local photo edits & reload list",
   language: "Content language", draft: "Saved draft", published: "Published", missing: "Not created", unsaved: "Unsaved changes", clean: "No unsaved changes",
@@ -18,6 +19,7 @@ export const contentEn = {
 } as const;
 export type ContentMessageKey = keyof typeof contentEn;
 export const contentAr: Record<ContentMessageKey, string> = {
+  uploadAndApprove: "رفع واعتماد الصورة", uploadAndApproveRights: "أملك الصورة أو لدي إذن باستخدامها ووصفها. اعتمدها بعد الرفع.", uploadedApproved: "تم رفع الصورة واعتماد حقوقها والتحقق منها. يمكن عرضها الآن في صفحات الرحلة المنشورة.", uploadedNeedsApproval: "عاد الرفع بصورة، لكن لم نتأكد من اعتمادها. راجع حالتها المحفوظة واستخدم مراجعة حقوق الصورة عند الحاجة؛ لا ترفعها مرة أخرى.",
   title: "المحتوى والصور", subtitle: "عدّل معلومات الرحلة المعتمدة. حفظ المسودة لا يغيّر الموقع العام.",
   photoConflict: "تغيرت قائمة الصور المحفوظة أثناء تعديلك. تعديلاتك المحلية محفوظة، لكن الحفظ معطل لحماية الصور الأحدث. انسخ تعديلاتك ثم تجاهل التعديلات المحلية للصور وراجع القائمة الحديثة.", discardPhotoEdits: "تجاهل تعديلات الصور المحلية وتحديث القائمة",
   language: "لغة المحتوى", draft: "المسودة المحفوظة", published: "منشور", missing: "لم يُنشأ", unsaved: "تعديلات غير محفوظة", clean: "لا توجد تعديلات غير محفوظة",

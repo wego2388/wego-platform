@@ -32,6 +32,14 @@ const errorMsg = computed(() => errorKey.value ? t(errorKey.value, { code: error
 
 const canViewBookings = computed(() => hasPermission(session.value, "tours-operator.booking:view"));
 const canViewTours    = computed(() => hasPermission(session.value, "tours-operator.tour:view"));
+const workflow = computed(() => [
+  { to: "/tours", title: "workspace.prepare", hint: "workspace.prepareHint", show: canViewTours.value },
+  { to: "/bookings/new", title: "workspace.book", hint: "workspace.bookHint", show: hasPermission(session.value, "tours-operator.booking:create-office") },
+  { to: "/today", title: "workspace.run", hint: "workspace.runHint", show: canViewBookings.value },
+  { to: "/suppliers", title: "workspace.partners", hint: "workspace.partnersHint", show: hasPermission(session.value, "tours-operator.supplier:manage") },
+  { to: "/finance", title: "workspace.accounts", hint: "workspace.accountsHint", show: hasPermission(session.value, "tours-operator.payment:view") },
+  { to: "/settlements", title: "workspace.close", hint: "workspace.closeHint", show: ["tours-operator.payment:view", "tours-operator.settlement:pay", "tours-operator.settlement:approve"].some(permission => hasPermission(session.value, permission)) },
+].filter(step => step.show) as { to: string; title: ErpMessageKey; hint: ErpMessageKey; show: boolean }[]);
 
 // The operator's calendar day; Cairo's timezone rules include seasonal offsets.
 const todayIso = new Date().toLocaleDateString("sv-SE", { timeZone: "Africa/Cairo" });
@@ -117,7 +125,19 @@ onMounted(() => {
       <header>
         <p class="text-sm font-semibold tracking-widest text-sts-muted uppercase">Safari Tours Sharm</p>
         <h1 class="mt-2 text-3xl font-semibold tracking-tight">{{ t('nav.overview') }}</h1>
+        <p class="mt-3 max-w-2xl text-sm leading-6 text-sts-muted">{{ t('workspace.intro') }}</p>
       </header>
+
+      <section v-if="session" aria-labelledby="workflow-heading" class="mt-7 rounded-3xl border border-sts-border bg-sts-surface p-5 shadow-sm sm:p-6">
+        <h2 id="workflow-heading" class="text-xl font-semibold">{{ t('workspace.workflow') }}</h2>
+        <p class="mt-2 text-xs leading-5 text-sts-muted">{{ t('workspace.workflowNote') }}</p>
+        <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <NuxtLink v-for="step in workflow" :key="step.title" :to="step.to" class="group rounded-2xl border border-sts-border bg-sts-canvas/50 p-4 transition-colors hover:border-sts-ocean-mid hover:bg-sts-info-soft">
+            <p class="font-semibold text-sts-ocean">{{ t(step.title) }}</p>
+            <p class="mt-2 text-sm leading-6 text-sts-muted">{{ t(step.hint) }}</p>
+          </NuxtLink>
+        </div>
+      </section>
 
       <WegoAlert v-if="state === 'error'" variant="danger" class="mt-6">{{ errorMsg }}</WegoAlert>
 

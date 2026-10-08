@@ -56,9 +56,47 @@ for (const locale of ["en", "ar"] as const) for (const width of [360, 1440]) {
       await page.getByRole("button", { name: label("Save inactive tour", "حفظ رحلة غير مفعلة"), exact: true }).click();
       const createdTour = await (await tourResponse).json(); tourId = createdTour.id;
       expect(createdTour.isActive).toBe(false); expect(createdTour.priceAdult).toEqual({ amount: "35.05", currencyCode: "EUR" });
+      // Two synthetic pictures exist only in this disposable database. Prove
+      // the real upload→rights→public gallery path, not only component props.
+      await page.goto(`${STAFF}/tours/${tourId}/content`);
+      for (const [photoIndex, color] of [[1, "#0e7c86"], [2, "#ec9f53"]] as const) {
+      const png = await page.evaluate((fill) => {
+        const canvas = document.createElement("canvas"); canvas.width = 64; canvas.height = 64;
+        const context = canvas.getContext("2d")!; context.fillStyle = fill; context.fillRect(0, 0, 64, 64);
+        return canvas.toDataURL("image/png").split(",")[1]!;
+      }, color);
+      await page.locator("#photo-file").setInputFiles({ name: `synthetic-office-test-${photoIndex}.png`, mimeType: "image/png", buffer: Buffer.from(png, "base64") });
+      await page.locator("#upload-alt-en").fill(`Synthetic solid-color E2E test image ${photoIndex}`);
+      await page.locator("#upload-photo-rights").check();
+      const photoResponse = page.waitForResponse(r => r.request().method() === "POST" && new URL(r.url()).pathname.endsWith("/media/upload"));
+      await page.getByRole("button", { name: label("Upload & approve photo", "رفع واعتماد الصورة"), exact: true }).click();
+      const uploaded = await (await photoResponse).json(); expect(uploaded.mediaId).toBeTruthy();
+      await expect(page.getByRole("status").filter({ hasText: label("Photo uploaded, rights approved and verified", "تم رفع الصورة واعتماد حقوقها والتحقق منها") })).toBeVisible();
+      await expect(page.locator(`#tour-photo-${uploaded.mediaId}`)).toContainText(label("Rights approved", "الحقوق معتمدة"));
+      }
+      await accessible(page);
       expect((await request.get(`${SITE}/api/v1/tours-operator/tours/${tourId}/slots/by-date?date=${day}`)).status()).toBe(200);
       expect(await (await request.get(`${SITE}/api/v1/tours-operator/tours/${tourId}/slots/by-date?date=${day}`)).json()).toEqual([]);
       expect((await request.patch(`${SITE}/api/v1/tours-operator/staff/tours/${tourId}/activate`, { headers })).status()).toBe(204);
+      const publicContext = await page.context().browser()!.newContext({ viewport: { width, height: 1000 } });
+      const publicPage = await publicContext.newPage();
+      try {
+        await publicPage.goto(`${SITE}/${locale}/tour/${slug}`);
+        const firstPhoto = publicPage.getByRole("button", { name: label("Open photo 1", "فتح الصورة 1"), exact: true });
+        await firstPhoto.click();
+        const gallery = publicPage.getByRole("dialog", { name: label("Photos", "الصور"), exact: true });
+        await expect(gallery).toContainText(label("1 of 2", "1 من 2"));
+        await gallery.getByRole("button", { name: label("Next photo", "الصورة التالية"), exact: true }).click();
+        await expect(gallery).toContainText(label("2 of 2", "2 من 2"));
+        await expect(gallery.getByRole("img")).toHaveAttribute("alt", "Synthetic solid-color E2E test image 2");
+        expect(await gallery.getByRole("img").evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+        await accessible(publicPage);
+        await publicPage.keyboard.press(locale === "ar" ? "ArrowRight" : "ArrowLeft");
+        await expect(gallery).toContainText(label("1 of 2", "1 من 2"));
+        await publicPage.keyboard.press("Escape");
+        await expect(gallery).toHaveCount(0);
+        await expect(firstPhoto).toBeFocused();
+      } finally { await publicContext.close(); }
 
       await page.goto(`${STAFF}/bookings/new?tourId=${tourId}&date=${day}`);
       await expect(page.locator("#office-date-day")).toHaveValue("29");

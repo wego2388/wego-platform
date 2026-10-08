@@ -166,11 +166,13 @@ test.describe("Safari ERP remaining operations EN/AR", () => {
     test(`${locale}: customer search and finance date edits survive language without refetch`, async ({ page }) => {
       const { requests } = await fixtures(page, locale);
       await page.goto(`${ERP}/customers`);
-      await page.getByRole("searchbox").fill("  Original  ");
+      // The shell also has a distinct page-navigation search. Exercise the
+      // customer search inside the main working area, not the sidebar.
+      await page.locator("main").getByRole("searchbox").fill("  Original  ");
       await page.getByRole("combobox").selectOption("GB");
       const before = requests.length;
       await switchLanguage(page, locale);
-      await expect(page.getByRole("searchbox")).toHaveValue("  Original  ");
+      await expect(page.locator("main").getByRole("searchbox")).toHaveValue("  Original  ");
       await expect(page.getByRole("combobox")).toHaveValue("GB");
       expect(requests).toHaveLength(before);
       await page.goto(`${ERP}/finance`);

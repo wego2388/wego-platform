@@ -7,6 +7,7 @@ import { useDiscoveryCopy } from "../../composables/useDiscoveryCopy";
 import { useSiteLocale } from "../../composables/useSiteLocale";
 import { categoryMeta, siteCopy, whatsappUrl } from "../../content/locales";
 import { CATEGORY_VISUAL } from "../../utils/categoryVisual";
+import { categoryArtwork } from "../../content/brandArtwork";
 
 const route = useRoute();
 const copy = useDiscoveryCopy();
@@ -38,8 +39,7 @@ useSeoMeta({
 
 <template>
   <main id="main-content" tabindex="-1">
-    <div class="relative isolate overflow-hidden bg-sts-ocean px-4 pt-10 pb-12 text-white sm:px-6 lg:px-10" :style="{ '--tile': `var(${visual.colorVar})` }">
-      <span class="pointer-events-none absolute -end-24 -top-24 -z-10 size-80 rounded-full bg-[var(--tile)] opacity-40 blur-3xl" aria-hidden="true" />
+    <BrandPageBanner :kind="categoryArtwork(category!) ?? 'hero'" :style="{ '--tile': `var(${visual.colorVar})` }">
       <div class="mx-auto max-w-7xl">
         <NuxtLinkLocale to="/tours" class="inline-flex items-center gap-1 text-sm font-semibold text-white/75 hover:text-white">
           <Icon name="lucide:arrow-left" class="size-4 rtl:-scale-x-100" aria-hidden="true" />{{ copy.category.all }}
@@ -52,7 +52,7 @@ useSeoMeta({
         </div>
         <p class="mt-4 max-w-2xl text-white/80">{{ text.description }}</p>
       </div>
-    </div>
+    </BrandPageBanner>
 
     <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-10" :aria-label="text.name">
       <p class="text-sm font-semibold text-sts-muted">{{ copy.tours.results(tours.length) }}</p>
@@ -77,8 +77,9 @@ useSeoMeta({
       </ul>
     </section>
 
-    <section class="bg-sts-sand-soft px-4 py-14 sm:px-6 lg:px-10" aria-labelledby="other-categories">
-      <div class="mx-auto max-w-7xl">
+    <section class="relative isolate overflow-hidden bg-sts-sand-soft px-4 py-14 sm:px-6 lg:px-10" aria-labelledby="other-categories">
+      <BrandSectionBackdrop />
+      <div class="relative z-10 mx-auto max-w-7xl">
         <h2 id="other-categories" class="font-display text-2xl font-semibold">{{ copy.category.back }}</h2>
         <ul class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           <li v-for="other in others" :key="other"><CategoryTile :category="other" :count="countsByCategory[other]" :cover="covers[other]" /></li>

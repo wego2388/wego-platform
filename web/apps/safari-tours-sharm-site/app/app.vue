@@ -3,6 +3,7 @@ import { computed } from "vue";
 import WhatsAppFab from "./components/WhatsAppFab.vue";
 import { useSiteLocale } from "./composables/useSiteLocale";
 import { useSiteTheme } from "./composables/useSiteTheme";
+import { brandTitle } from "./utils/brandTitle";
 
 const locale = useSiteLocale();
 const theme = useSiteTheme();
@@ -11,13 +12,14 @@ const theme = useSiteTheme();
 // so the first byte of every page already has the right language metadata.
 const localeHead = useLocaleHead({ dir: true, lang: true, seo: true });
 useHead(() => ({
+  titleTemplate: (title) => brandTitle(title, locale.value),
   htmlAttrs: {
     lang: localeHead.value.htmlAttrs?.lang,
     dir: localeHead.value.htmlAttrs?.dir as "ltr" | "rtl" | undefined,
     "data-theme": theme.value === "system" ? undefined : theme.value,
   },
   link: localeHead.value.link,
-  meta: localeHead.value.meta,
+  meta: [...(localeHead.value.meta ?? []), { name: "application-name", content: "Safari Tours Sharm" }, { name: "apple-mobile-web-app-title", content: "Safari Tours Sharm" }],
 }));
 
 // Default share card; pages with their own picture override it.

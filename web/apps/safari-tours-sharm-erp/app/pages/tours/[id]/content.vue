@@ -56,7 +56,7 @@ const childChoice = computed({
 });
 const minimumAge = computed({
   get: () => facts.value.minimumAge == null ? "" : String(facts.value.minimumAge),
-  set: value => { facts.value.minimumAge = value.trim() === "" ? null : Number(value); },
+  set: (value: string | number) => { facts.value.minimumAge = String(value).trim() === "" ? null : Number(value); },
 });
 const guideLanguages = computed({
   get: () => facts.value.guideLanguages?.join(", ") ?? "",

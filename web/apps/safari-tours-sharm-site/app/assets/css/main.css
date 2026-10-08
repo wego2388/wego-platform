@@ -9,6 +9,12 @@
 @import "@fontsource/ibm-plex-sans-arabic/arabic-600.css";
 @import "@fontsource/ibm-plex-sans-arabic/arabic-700.css";
 
+/* Quiet destination atmosphere across detail/forms/legal pages, without extra
+ * image requests, motion, click layers or a fake documentary tour photograph. */
+.sts-content-atmosphere {
+  background-image: radial-gradient(ellipse 44rem 28rem at 100% 35%, rgb(200 169 126 / .10), transparent 72%), radial-gradient(ellipse 42rem 32rem at 0% 78%, rgb(14 124 134 / .07), transparent 72%);
+}
+
 /* ══ Sinai Afterglow — design tokens v1 (FRONTEND_MASTER_PLAN_AR.md §3) ══
  * Light values on :root; dark values apply when the visitor picks dark, or
  * picks "system" and the OS is dark. Components use only these tokens.   */
