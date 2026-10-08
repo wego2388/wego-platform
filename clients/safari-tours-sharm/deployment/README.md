@@ -5,6 +5,14 @@
 > timers. See [the current deployed handoff](../handoff/2026-10-08_PRODUCTION_DEPLOYED_HANDOFF_AR.md).
 > OPS2-G remains ACTIVE for owner acceptance; do not repeat fresh-install steps.
 
+Latest verified site-only update: `str-2026.10.08-cd18068`, exact-source
+[CI37723501226 SUCCESS](https://github.com/wego2388/wego-platform/actions/runs/37723501226),
+34 read-only production page checks,108 approved published tour documents.
+Backend/ERP still use the reviewed198959e images; all Resort containers and
+Safari's other four containers stayed unchanged. Current images/rollback and
+manual operational gaps are explicit in the handoff. Do not relabel a later
+documentation commit as application source.
+
 > **Current VPS procedure, 2026-10-08:** actual HTTPS gateway is the Resort
 > Docker container, NOT host Nginx. Use [CONTAINER_GATEWAY_RUNBOOK_AR.md](CONTAINER_GATEWAY_RUNBOOK_AR.md).
 > Host-Nginx commands in the older runbook must NOT be executed on this VPS.

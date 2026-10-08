@@ -22,6 +22,32 @@
 
 ## قبل أي تعديل إنتاج
 
+### تحديث الموقع وحده بعد الإطلاق
+
+تحديث8 أكتوبر النهائي استخدم صورة الموقعcd18068 فقط؛ backend/ERP من198959e
+ظلا كما هما. current الآن`str-2026.10.08-cd18068`. الإصدار الجديد يحفظ
+RELEASE_MANIFEST المحدث وCI_SOURCE_PROOF وCORE_RELEASE_MANIFEST التاريخي.
+تفاصيل الصور والاختبارات في التسليم؛ لا relabel الصور بمصدر commit توثيق لاحق.
+
+1. خذ backup مشفرًا واسحبه خارج VPS واختبر الاستعادة المعزولة قبل التحديث.
+2. ابنِ صورة من المصدر المحدد الذي اجتاز CI كاملًا، وافحص immutable image
+   عبر Compose/Playwright. انقل checksum/imageID/source/output hashes ودليل CI.
+3. جهّز release جديدًا، لا تعدّل القديم. نسخة env احتياطية خاصة mode0600؛
+   بدّل SAFARI_SITE_IMAGE فقط، وتحقق أن كل الأسطر الأخرى لم تتغير.
+4. اعرض resolved Compose للـverifier عبر stdin، لا تطبعه أو تحفظ أسراره في logs.
+5. استخدم base+production+gateway و`-p safari-tours-sharm-prod` صراحةً:
+   `up -d --no-deps --no-build --wait safari-site` فقط.
+6. بعد healthy: `docker exec safari-tours-sharm-prod-edge-1 nginx -t`، ثم
+   `docker exec safari-tours-sharm-prod-edge-1 nginx -s reload` ليحل عنوان
+   الموقع الجديد. لا recreate للـedge أو nginx الخيمة لتغيير صورة الموقع وحدها.
+7. تحقق على الدومين الحقيقي، واحتفاظ باقي container IDs/start/images/restarts
+   بحالتها، ثم بدّل current atomically. خذ backup جديدًا واختبره أيضًا.
+8. عند الفشل أعد SAFARI_SITE_IMAGE السابق، وأعد up للموقع فقط وedge reload؛
+   اختبره قبل current switch. لا DB restore ولا down-v لرجوع كود الموقع.
+
+النشر الحالي single-instance؛ استبدال الموقع قد يسبب فجوة قصيرة، ولا ادعاء
+zero-downtime دون قياس. لا تكرر خطوات first-install أدناه على قاعدة المالك.
+
 1. تثبيت هوية VPS وDNS A للأسماء الثلاثة، عدم CDN/AAAA غير مخطط.
 2. تسجيل الأربع HTTPS للخيمة بـTLS صارم وبصمة الشهادة، current release، صور
    وتوقيت/restart/ID كل حاويات الخيمة، checksum ملفات nginx الحالية.
@@ -44,7 +70,7 @@
 Compose سفاري دائمًا base ثم production ثم gateway، بالـenv الإنتاجي:
 
 ```bash
-DC() { docker compose --env-file "$ENVF" \
+DC() { docker compose -p safari-tours-sharm-prod --env-file "$ENVF" \
   -f "$REL/infrastructure/compose/safari-tours-sharm.compose.yaml" \
   -f "$REL/infrastructure/compose/safari-tours-sharm.production.yaml" \
   -f "$REL/infrastructure/compose/safari-tours-sharm.gateway.yaml" "$@"; }

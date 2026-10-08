@@ -4969,6 +4969,48 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   new production browser/health/backup proof. Existing backend/ERP/gateway and
   Resort application stay unchanged; OPS2-G remains ACTIVE for owner UAT.
 
+#### 2026-10-08 — Final postlaunch site-only deployment verified
+
+- OPS2-G remains the sole ACTIVE packet for owner UAT and documented business
+  follow-ups. This owner-authorized launch correction is deployed, not a pending
+  preview. No later implementation packet activated.
+- Site sourcecd180682d3c3b1c7f1b94504916c4cdc723dc6a8, full CI37723501226 SUCCESS:
+  checkout13/public-site11/launch5/ERP bilingual122/enquiry44 plus all required
+  backend/web/mobile/contracts/repository/audit/gateway jobs. PR-only/main-only
+  conditional jobs SKIPPED, not claimed passed. New immutable site image
+  d6d4d9cc51a24cddc182f50154b673b0062f39849cc8897d0fc606336645a062 passed
+  another44-test real local Compose run; runtime advisory directories absent.
+- Exact image/checksums/labels/config verified before SITE-only replacement;
+  five services healthy, nginx-t and Safari-edge reload only. Private env changed
+  only SAFARI_SITE_IMAGE, no PII/auth/payment/schema/data/gateway change. All
+  nine Resort and four other Safari container identities/images/start/restarts
+  unchanged; four strict-TLS Resort origins200. Atomic current now points to
+  str-2026.10.08-cd18068, with old immutable release/images retained for rollback.
+- Production read-only browser34 checks PASS, four locales360/1440 with real
+  home/list/tour/FAQ and EN/AR staff login; AXE0/page-errors0/no overflow,
+  canonical/hreflang/RTL, actual preferred date beyond60days/no slot fetch,
+  no API writes or marketing tags.108 public documents still exact approved
+  matches with requested locale served; active catalog27/inactive3 unchanged.
+- Live sitemap160/alternates800/robots/www301 path-query preservation/private
+  API404/staff401/inactive404/local WebP200 PASS. Node status probe was corrected
+  to drain response bodies so it exits cleanly; assertions unchanged and clean
+  rerun retained separately, not a hidden test weakening.
+- Encrypted offsite bundles before033909Z/after035702Z restored in isolated
+  network-none DB:43tables/380rows/Flyway33/media0, each0problems. Health allOK;
+  owner key stays local. Post-update report035917Z retained with evidence.
+- Final Lighthouse13.5 quiet mobile: Home71/Tour82; accessibility/best-practices/
+  SEO100 both, HomeLCP3.53s/CLS0.000781/TBT687ms; Tour2.38s/0.000695/508ms.
+  First concurrent70/78 reports preserved. Performance follow-upP1, not field
+  INP/CWV evidence. Full visual checks and Arabic operating PDF11pages completed.
+- Removed exactly3 unused local candidate image references/IDs, verified no
+  container depended on them. No blanket prune, owner data/photos, released
+  images/backups/keys or other worktree deletion. Git/application source stays
+  explicit; a subsequent docs-only commit is not the image's source SHA.
+- Next business needs: owner tour images/rights, genuine supplier/driver/cost/
+  schedule data, ERP slot-create form (existing protected API; current UI read-only),
+  Paymob/SMTP separate gate, external alerts/always-online offsite, owner UAT.
+  Handoff:clients/safari-tours-sharm/handoff/2026-10-08_PRODUCTION_DEPLOYED_HANDOFF_AR.md.
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE

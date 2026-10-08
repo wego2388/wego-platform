@@ -15,7 +15,71 @@ OPS2-G يبقى ACTIVE لاستكمال قبول المالك وتجربة ال�
   قائمة الموظفين الفعلية تؤكد ACTIVE/platform-admin. الحسابان نشطان، والأول محفوظ.
 - [x] لا كلمة مرور افتراضية أو كلمة مرور في الشات/Git/ملفات env.
 
-## ما نُشر بالضبط
+## آخر تحديث حي — طلب الحجز والهوية والمحتوى
+
+اكتمل التحديث النهائي واختبار الدومين الحقيقي في 8 أكتوبر2026 نحو03:56UTC.
+هذه الحالة هي الحالية؛ جداول إصدار الإطلاق الأول أدناه محفوظة كتاريخ فقط.
+
+- [x] الإصدار الحالي: `/srv/safari-tours-sharm/releases/str-2026.10.08-cd18068`،
+  و`current` يشير إليه. مصدر الموقع `cd180682d3c3b1c7f1b94504916c4cdc723dc6a8`.
+- [x] [CI37723501226](https://github.com/wego2388/wego-platform/actions/runs/37723501226)
+  SUCCESS على المصدر نفسه: backend/web/mobile/contracts/repository/audit/gateway؛
+  checkout13، public-site11، launch5، ERP bilingual122، enquiry44 PASS.
+  dependency-review وmain dependency-submission SKIPPED وفق شروط push، لا PASS.
+- [x] صورة الموقع `safari-tours-sharm-site:str-2026.10.08-cd18068`، ID
+  `sha256:d6d4d9cc51a24cddc182f50154b673b0062f39849cc8897d0fc606336645a062`؛
+  output hash `6c8789d78b30f6e0b14dc50b63d0c68a906dd0862be71efa8b00fdb93733cb35`.
+  لا candidate/dirty labels. صورة immutable نفسها اجتازت44 E2E محليًا أيضًا.
+- [x] الزائر يختار تاريخًا مطلوبًا بلا حد60 يومًا، ووقتًا مفضلًا اختياريًا من
+  أكواد الرحلة المعتمدة، وعدد الأشخاص/الوحدات، ثم يرسل طلب واتساب؛ بدون حساب.
+  التاريخ ليس إتاحة مؤكدة، والطلب ليس hold أو PAID أو إنشاءً تلقائيًا لحجز ERP.
+  إجمالي الكتالوج تقديري يحتاج تأكيد المكتب. الدفع الإلكتروني ما زال غير مفعّل.
+- [x] لا تقويم60 يومًا أو استدعاء availability في وضع ENQUIRY_ONLY. مسار
+  المواعيد والدفع المستقبلي محفوظ، واجتاز checkout الحقيقي في CI باختبار mock
+  معزول؛ لا mock أو بيانات تجريبية في الإنتاج.
+- [x] تفاصيل27 رحلة ×4 لغات منشورة. فحص جديد بعد تحديث الصورة يثبت108
+  تطابقات كاملة للمحتوى العام، وservedLocale الصحيح دون fallback.
+- [x] صور هوية محلية محسّنة WebP للهوم والصحراء والبحر، بأحجام480/960/1600،
+  disclosure مرئي بأنها تعبيرية مولدة. ليست صورًا توثيقية لرحلات أو ملكية مركبات.
+  صور أقسام ERP المعتمدة لها الأولوية؛ صور تفاصيل الرحلات بقيت للمالك.
+  [المصادر والبرومبتات النهائية](../content-research/brand-art/README.md).
+- [x] Home/About/FAQ/Terms/Privacy وFAQ JSON-LD تصف تأكيد المكتب في هذا
+  الوضع؛ لا وعد «تأكيد في دقائق» أو Paymob فعّال أو مواعيد حية غير موجودة.
+  سياسة48/24 ساعة وأسعار الكتالوج لم تتغير.
+- [x] Google review link الصحيحBEBM وTripadvisor34123701؛ روابط مباشرة فقط،
+  دون jscache/tacdn/widget scripts أو rating/reviews مختلقة.
+- [x] الدليل الدقيق هو34 page checks على الدومين الحقيقي، أربع لغات
+  على360/1440، Home/Tours/Detail/FAQ ودخول ERP EN/AR؛ AXE0/page-errors0،
+  canonical/hreflang/RTL/no-overflow وطلب بعد120 يومًا PASS؛ API writes0/tracking0.
+- [x] sitemap160/alternates800، robots وwww301 مع path/query؛ حدود private
+  API404/staff401، inactive/unknown tours404، صورة brand WebP200.
+- [x] خمس خدمات سفاري healthy. تغيرت حاوية الموقع وحدها، وedge عمل reload
+  فقط بعد nginx-t. حاويات backend/ERP/DB/edge الأربع و**الخيمة التسع كلها**
+  احتفظت بـID/image/start/restart؛ أربعة origins للخيمة200/TLS0.
+  لا إعادة إنشاء بوابة الخيمة في هذا التحديث، ولا تغيير DNS/شهادة/schema.
+- [x] backup قبل التحديث `20261008T033909Z.bundle` وبعده
+  `20261008T035702Z.bundle`، كلاهما مشفر وخارج VPS واستعادة network-none
+  حقيقية43tables/380rows/Flyway33/media0. التقرير الأخير
+  `bundle-drill-20261008T035917Z.json` محفوظ محليًا ونُسخ للسيرفر mode0600؛
+  أدلة التحديث الخاصة في `shared/evidence/site-cd18068` mode0700/0600.
+- [x] دليل الأدمن المبسط [ADMIN_OPERATING_GUIDE_AR.md](../operations/ADMIN_OPERATING_GUIDE_AR.md)
+  وPDF11 صفحة، راجع بصريًا، يشرح حدود التشغيل الفعلية لا أزرارًا غير موجودة.
+- [x] Lighthouse13.5 mobile quiet: Home71، Tour82، وكل من accessibility/
+  best-practices/SEO100؛ HomeLCP3.53s/CLS0.000781/TBT687ms،
+  TourLCP2.38s/CLS0.000695/TBT508ms. أول قياس بالتوازي مع browser gate
+ 70/78 محفوظ؛ لا انتقاء صامت ولا ادعاء field-INP/CWV. أداء الموبايل متابعةP1.
+- [x] إزالة3 صور candidate محلية ثبت أنها غير مستخدمة؛ محفوظة مصادرها
+  وlogs وآثار الاختبارات. لا حذف صور الإصدار السابق/الحالي أو backups/keys/data،
+  ولا global prune أو تنظيف شغل كلودي الآخر.
+
+المتبقيP1 واضح: صور المالك وحقوقها، بيانات الموردين والسائقين والتكاليف
+والمواعيد الحقيقية. **تقويم ERP حاليًا عرض/حجز من موعد موجود فقط**؛ endpoint
+إنشاء/حجب موعد موجود ومحمي، لكن نموذج إدخالها في الداشبورد لم يُنفذ بعد.
+جهّز ذلك كمتابعةUI منفصلة ببيانات تشغيل معتمدة، ولا seed مواعيد وهمية.
+Paymob/SMTP والتنبيهات الخارجية وalways-online offsite/UAT المالك متابعة مستقلة.
+OPS2-G ACTIVE للقبول والمتبقي المحدد، لا إغلاق صامت أو توسع جديد.
+
+## إصدار الإطلاق الأول — مرجع تاريخي لا الحالة الحالية
 
 | البند | القيمة المثبتة |
 |---|---|
@@ -23,13 +87,14 @@ OPS2-G يبقى ACTIVE لاستكمال قبول المالك وتجربة ال�
 | Safari branch | `wego-016-safari-hardening`، لا دمج main |
 | مصدر بنية سفاري | `61b34cfbef7e2972b229251202de2d7a888cfc13` |
 | مصدر التطبيقات داخل الصور | `198959efdd3754fffc9c357e555f25a014569b46`؛ platform/products/web مطابقة لـ61b34cf |
-| إصدار السيرفر | `/srv/safari-tours-sharm/releases/str-2026.10.08-61b34cf`؛ `current` يشير إليه |
+| إصدار الإطلاق الأول | `/srv/safari-tours-sharm/releases/str-2026.10.08-61b34cf`؛ السابق المحفوظ للرجوع، وليس current الآن |
 | Compose project | `safari-tours-sharm-prod`، خمس خدمات healthy |
 | بوابة سفاري الخاصة | `127.0.0.1:58080`؛ لا منافذ عامة للـDB/backend/site/ERP |
 | مصدر عقد بوابة الخيمة | `b4317b796d98a3a0b6c72cb594a0f3abfe353524`، فرع `codex/shared-gateway-20261008` |
 | تطبيق الخيمة الذي ظل يعمل | `4983a7b0d53bfbcf905775b8278ee994900f1be3`؛ لم تُستبدل صوره بهذا النشر |
 
-صور التطبيقات الثلاثة تحمل tag `str-2026.10.08-198959e`:
+عند الإطلاق الأول حملت الصور الثلاث tag `str-2026.10.08-198959e`؛ backend/ERP
+ما زالا بهذه الصور، بينما صورة الموقع الحالية موثقة أعلاه:
 
 | الصورة | Image ID المتحقق منه بعد load على VPS |
 |---|---|
@@ -106,9 +171,8 @@ OPS2-G يبقى ACTIVE لاستكمال قبول المالك وتجربة ال�
   والرحلات غير النشطة لم تتغير. كلمة المرور أدخلها المالك محليًا خارج الشات.
 - [ ] صور تفاصيل الرحلات الحقيقية وحقوقها يرفعها المالك عبر ERP؛ ليس مطلوبًا
   منه كتابة التفاصيل من البداية. صور الهوية المولدة منفصلة عن وسائط الرحلات.
-- [ ] تحديث UX الطلب والصور التعبيرية تحت التحقق: preferred date بلا حد60 يوم،
-  no slot/capacity hold، والتأكيد للمكتب. حتى توثيق نشر جديد، صورة الموقع
-  القديمة وCI القديمة أعلاه لا يُنسب لهما نجاح كود UX الجاري.
+- [x] تحديث UX الطلب والصور التعبيرية نُشر بعد CI خاص بالمصدرcd18068؛
+  أدلته في قسم آخر تحديث حي أعلاه، وليست منسوبة لـCI وصورة الإطلاق القديمة.
 - [ ] إدخال الموردين والسائقين والمركبات والمواعيد والتكاليف وسعر الصرف الحقيقي
   من الداشبورد؛ الوحدات موجودة، سجلات التشغيل التجارية لم تُختلق.
 - [ ] Paymob وSMTP الحقيقيان، ثم gate مستقل قبل تفعيل الدفع أو رسائل البريد.
@@ -127,14 +191,24 @@ env أو قاعدة أو private keys. أهم السجلات:
 `vps-start.log`، `vps-gateway-recreate.log`، `vps-certificate-renewal-drill.log`،
 `vps-admin-health-final.log`، `vps-final-gates.log`، `live-browser-smoke.log`،
 `production-admin-offsite-restore.log`، `lighthouse-mobile-home.json`.
+آخر أدلة التحديث: `CI_SOURCE_PROOF.json` و`ci-cd18068-complete.log`،
+`immutable-site-e2e.log`، `site-only-upgrade.log`، `live-postlaunch-smoke.log`،
+`live-final-public-content.log`، `live-final-boundaries-drained.log`،
+`live-final-current-health.log`، `post-site-upgrade-offsite-restore.log`،
+`lighthouse-final-quiet-mobile-{home,tour}.json` وصور `live-final-*`.
+حزمة السيرفر الجديدة تحفظCORE_RELEASE_MANIFEST التاريخي، وRELEASE_MANIFEST
+المحدث وCI_SOURCE_PROOF؛ تطبيقات backend/ERP من198959e وليست relabel باسمcd18068.
 فحص Lighthouse على مسار خاطئ `/en/tours/...` عاد404؛ ليس دليل نجاح صفحة الرحلة.
 
 Runbook الحاكم: [CONTAINER_GATEWAY_RUNBOOK_AR.md](../deployment/CONTAINER_GATEWAY_RUNBOOK_AR.md).
 لا تشغيل hostNginx أو certbotstandalone، ولا إعادة first-install/seed/bootstrap
 فوق الإدارة الحالية. كل عملية مستقبلية للخيمة تستخدم `/usr/local/sbin/resort-compose`؛
 وكيل الخيمة يضم عقد البوابة في فرع إنتاجه قبل أي نشر، بلا main merge تلقائي.
-رجوع سفاري بعد التركيب: maintenance503 لسفاري أو صور الإصدار السابق مع
-edge recreate؛ حافظ على شبكة ومثبتات البوابة والخيمة. لا DB restore لمجرد رجوع كود،
+رجوع تحديث الموقع فقط: أعد SAFARI_SITE_IMAGE السابق من النسخة الخاصة للـenv،
+ثم Compose المشروع الصحيح `up -d --no-deps --no-build --wait safari-site`،
+وبعد nginx-t اعمل edge reload لتحديث عنوان upstream، ثم تحقق قبل current switch.
+لا edge recreate أو بوابة الخيمة لتغيير الموقع وحده؛ حافظ على مثبتات البوابة.
+لا DB restore لمجرد رجوع كود،
 ولا down-v أو prune عام أو حذف مفتاح/نسخ أو تشغيل شغل كلودي الآخر.
 
 التسليم يثبت إطلاقًا مستقرًا للاستفسارات، لا اكتمال كل البيانات التجارية أو
