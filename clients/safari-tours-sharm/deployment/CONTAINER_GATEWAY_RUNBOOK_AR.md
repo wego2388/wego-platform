@@ -22,28 +22,35 @@
 
 ## قبل أي تعديل إنتاج
 
-### تحديث الموقع وحده بعد الإطلاق
+### تحديث الموقع والداشبورد بعد الإطلاق — الحالة الحالية
 
-تحديث8 أكتوبر النهائي استخدم صورة الموقعcd18068 فقط؛ backend/ERP من198959e
-ظلا كما هما. current الآن`str-2026.10.08-cd18068`. الإصدار الجديد يحفظ
-RELEASE_MANIFEST المحدث وCI_SOURCE_PROOF وCORE_RELEASE_MANIFEST التاريخي.
-تفاصيل الصور والاختبارات في التسليم؛ لا relabel الصور بمصدر commit توثيق لاحق.
+تحديث8 أكتوبر نحو19:00UTC استخدم صورتي الموقع وERP من0004800 فقط؛ backend
+من198959e بقي كما هو. current الآن`str-2026.10.08-0004800`، والسابقcd18068
+محفوظ. الإصدار الجديد يحفظRELEASE_MANIFEST وCI_SOURCE_PROOF وتاريخ manifest
+السابق؛ تفاصيل صور المصدر النظيف والاختبارات في التسليم. لا relabel باسم
+commit توثيق لاحق، ولا إعادة first-install أو bootstrap أو seed لقاعدة المالك.
 
 1. خذ backup مشفرًا واسحبه خارج VPS واختبر الاستعادة المعزولة قبل التحديث.
 2. ابنِ صورة من المصدر المحدد الذي اجتاز CI كاملًا، وافحص immutable image
    عبر Compose/Playwright. انقل checksum/imageID/source/output hashes ودليل CI.
 3. جهّز release جديدًا، لا تعدّل القديم. نسخة env احتياطية خاصة mode0600؛
-   بدّل SAFARI_SITE_IMAGE فقط، وتحقق أن كل الأسطر الأخرى لم تتغير.
+   بدّل SAFARI_SITE_IMAGE وSAFARI_ERP_IMAGE فقط لهذا التحديث، وتحقق أن كل
+   الأسطر الأخرى لم تتغير. صور backend/DB/edge والخيمة لا تتبدل.
 4. اعرض resolved Compose للـverifier عبر stdin، لا تطبعه أو تحفظ أسراره في logs.
 5. استخدم base+production+gateway و`-p safari-tours-sharm-prod` صراحةً:
-   `up -d --no-deps --no-build --wait safari-site` فقط.
+   `up -d --no-deps --no-build --wait web safari-site` فقط.
 6. بعد healthy: `docker exec safari-tours-sharm-prod-edge-1 nginx -t`، ثم
    `docker exec safari-tours-sharm-prod-edge-1 nginx -s reload` ليحل عنوان
-   الموقع الجديد. لا recreate للـedge أو nginx الخيمة لتغيير صورة الموقع وحدها.
+   الواجهتين الجديدتين. لا recreate للـedge أو nginx الخيمة لتغيير الواجهات.
 7. تحقق على الدومين الحقيقي، واحتفاظ باقي container IDs/start/images/restarts
    بحالتها، ثم بدّل current atomically. خذ backup جديدًا واختبره أيضًا.
-8. عند الفشل أعد SAFARI_SITE_IMAGE السابق، وأعد up للموقع فقط وedge reload؛
-   اختبره قبل current switch. لا DB restore ولا down-v لرجوع كود الموقع.
+8. عند الفشل أعد مفتاحَي صور الموقع وERP السابقين منenv الخاص، وأعد up
+   للواجهتين فقط وedge reload؛ اختبرهما قبل current switch. لا DB restore
+   ولا down-v لرجوع كود، ولا إلغاء سجلات الموردين والحجوزات لمجرد رجوع الواجهة.
+
+إذا كان التحديث المستقبلي للموقع وحده، استبدل مفتاح صورته وحاويته وحدهما؛
+لا تغيّر ERP بلا داعٍ. إذا شمل backend أو migrations يحتاج تحقق ومراجعة
+نطاقه صراحةً؛ هذا المسار لا يمنح إذنًا لتوسع مالي أو schema ضمن تحديثUI.
 
 النشر الحالي single-instance؛ استبدال الموقع قد يسبب فجوة قصيرة، ولا ادعاء
 zero-downtime دون قياس. لا تكرر خطوات first-install أدناه على قاعدة المالك.

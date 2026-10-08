@@ -5104,6 +5104,57 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 - Fresh pre-release encrypted bundle20261008T182322Z copied offsite and restored
   network-none:43tables/414rows/Flyway33/media20, all hashes PASS. No live restore.
 
+#### 2026-10-08 — Owner UAT release actually deployed:0004800
+
+- OPS2-G remains the sole ACTIVE packet for owner operating acceptance and the
+  documented factual follow-ups. No new packet/migration/payment/auth change.
+- Owner-authorized commit/push on `wego-016-safari-hardening`: source
+  `00048009d570f42348c3f0c2ffe22eff9c211d34`,42 files,+1011/-86. No main merge.
+  [CI37825115838](https://github.com/wego2388/wego-platform/actions/runs/37825115838)
+  completed SUCCESS on this source, all eight applicable jobs successful;
+  dependency-review/submission skipped by push conditions, not claimed PASS.
+- Exact clean-source, non-root immutable ERP and site images built and verified;
+  final browser61PASS(6.7min) including real2-photo upload/approval/gallery and
+  synthetic full operating cycle. Earlier183/9/4 evidence and independent Tier1
+  READY are preserved. Final local recovery finds0 active synthetic cashiers.
+- **Deployed, not merely prepared:** only production web/site containers replaced
+  after verified backup/archive/CI/image checks; `current` atomically accepted as
+  `str-2026.10.08-0004800` after browser acceptance. Backend remains198959e,
+  DB/edge and all nine Resort containers retain IDs/images/starts/restarts(12
+  protected services); five Safari healthy, four Resort HTTPS origins200/TLS0.
+  No DNS/certificate/schema/SMTP/Paymob-mode change. Single-instance UI replacement
+  can have a brief gap; zero-downtime is not asserted.
+- Live read-only browser34 pages PASS: four locales360/1440, enquiry+SEO+AXE0,
+  staff login EN/AR,0 writes/trackers/errors.108 approved tour documents still
+  exact-match;27 active, sitemap160/800alternates, boundaries404/401 and redirects
+  correct. Owner's authenticated browser rendered18 navigation pages without
+  overflow/visible alerts and switched EN/AR; this is not live dummy finance UAT.
+- Verified workbook suppliersS01–S05 actually saved through fixed production
+  UI, all inactive with no inferred tour/cost/cancellation mapping. Reload proves
+  five stored rows; S01 edit proves notice24 persisted. Other incomplete commercial
+  facts remain pending. No synthetic bookings/collections/settlements on VPS.
+- Post-release encrypted backup20261008T190355Z copied offsite and actually
+  restored network-none:43tables/419rows/Flyway33,20 DB media keys/20 archived files,
+  all hashes PASS. Report191012Z copied back privately; private key never on VPS.
+  Actual health service PASS, VPS disk15% and TLS89days. Offsite still depends
+  on owner device availability; external alerts/dedicated destination remain due.
+- Lighthouse13.5 live lab: HomeEN75/AR57, Tours74, real-photoTour53, all public
+  accessibility/best-practices/SEO100. Login95/accessibility100/best-practices100,
+  SEO54 intentional noindex. Mobile performance remains **P1**; PNG768 cover
+  ~656KB contributes to LCP. Future compression must retain per-request rights
+  enforcement, never bypass managed-media checks with cachedIPX. Failed local
+  disk/socket attempts and transient tour interstitial are retained, not PASS.
+  No field-INP/CWV claim and no old score82 attributed to the new tour picture.
+- Local root space ran out after release. Explicit unused Codex E2E volumes,
+  old candidate images and Gradle tool image removed; three exact reclaimable
+  Safari build cache IDs freed582.1+616.2+431.4MB. No global prune, current/previous
+  release-image deletion, user worktree cleanup, backup/key deletion or VPS-volume
+  mutation. Root now~2GB free; disposable stack five healthy again.
+- Deployed handoff, operating guide, workbook reconciliation, hub/rehearsal and
+  gateway runbook updated. Docs-only commits do not change image source0004800.
+  Remaining: true partner mappings/licence dates/fleet/costs/fx/departures, owner
+  photos/UAT, mobile-performance follow-up and separately gated payment/email.
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE

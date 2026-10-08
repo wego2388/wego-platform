@@ -6,6 +6,27 @@ services, the tour catalogue, per-unit options, media, translations, open
 questions, quick replies, FAQs, marketing foundations and the current
 readiness dashboard. The owner (Mohamed) edits it; agents read it.
 
+## Runtime checkpoint — 2026-10-08
+
+The October1 account audit below is historical, not today's hosting status.
+Safari is now deployed at <https://safaritourssharm.com> and
+<https://staff.safaritourssharm.com>, with independent TLS beside El Kheima.
+Current site/ERP source is0004800; backend remains198959e and sales remain
+ENQUIRY_ONLY. See the [deployed handoff](../handoff/2026-10-08_PRODUCTION_DEPLOYED_HANDOFF_AR.md).
+
+The separate owner-provided operational workbook
+`/home/wego/Downloads/safari-tours-owner-data (1).xlsx` was read-only reviewed.
+Five verified suppliersS01–S05 were entered through the production ERP, inactive
+with no inferred tour mappings, prices or cancellation agreements. Licence
+dates, fleet facts and financial pricing rows remain incomplete. The exact
+applied subset and gaps are in [workbook reconciliation](2026-10-08_WORKBOOK_RECONCILIATION_AR.md).
+Neither spreadsheet was regenerated or overwritten by this deployment.
+
+The old Meta feed is not automatically ready just because TLS now works:
+revalidate current canonical URLs, live approved images, prices and product
+acceptance before any upload. No external account changes were made in this
+release. Preserve owner review/consent and Wego's booking authority.
+
 `build_owner_hub.py` is now a **bootstrap-only** generator for a brand-new
 workbook from the preserved catalogue sources. It deliberately refuses to
 overwrite the live workbook unless `--force-bootstrap` is supplied. Do not use
