@@ -50,7 +50,7 @@ async function fixtures(page: Page, locale: "en" | "ar", options: FixtureOptions
     if (path.endsWith("/sales-status")) return route.fulfill({ json: { bookingsOpen: true, paymentsOpen: true } });
     if (path.endsWith("/staff/tours")) return route.fulfill({ json: [TOUR] });
     if (path.endsWith(`/staff/tours/${TOUR.id}`)) return route.fulfill({ json: TOUR });
-    if (path.endsWith(`/tours/${TOUR.id}/slots`)) return route.fulfill({ json: [] });
+    if (path.endsWith(`/tours/${TOUR.id}/slots/by-date`)) return route.fulfill({ json: [] });
     if (path.endsWith("/bookings")) {
       if (options.delay) await new Promise((resolve) => setTimeout(resolve, options.delay));
       if (options.listStatus) return route.fulfill({ status: options.listStatus, json: { error: "fixture_failure" } });
@@ -119,7 +119,9 @@ test.describe("Safari ERP booking EN/AR presentation", () => {
       await expect(page.getByRole("link", { name: "FIXTURE-0", exact: true })).toBeVisible();
       await page.getByLabel(locale === "ar" ? "تصفية حسب حالة الحجز" : "Filter by booking status").selectOption("CONFIRMED");
       await page.getByLabel(locale === "ar" ? "تصفية حسب الرحلة" : "Filter by tour", { exact: true }).selectOption(TOUR.id);
-      await page.getByLabel(locale === "ar" ? "تصفية حسب تاريخ الرحلة" : "Filter by tour date", { exact: true }).fill(DAY);
+      await page.locator("#booking-filter-date-day").selectOption(String(Number(DAY.slice(8))));
+      await page.locator("#booking-filter-date-month").selectOption(String(Number(DAY.slice(5, 7))));
+      await page.locator("#booking-filter-date-year").fill(DAY.slice(0, 4));
       await expect.poll(() => requests.filter(({ path }) => path.endsWith("/bookings")).at(-1)?.search).toContain(`date=${DAY}`);
       await page.getByRole("button", { name: locale === "ar" ? "التالي" : "Next", exact: true }).click();
       await expect(page.getByRole("link", { name: BOOKING.reference, exact: true })).toBeVisible();
@@ -244,7 +246,7 @@ test.describe("Safari ERP booking EN/AR presentation", () => {
     await page.goto(`${ERP}/tours/${TOUR.id}/slots`);
     await expect(page.getByRole("heading", { name: `Slots ${TOUR.slug}` })).toBeVisible();
     await expect(page.getByRole("table", { name: "Weekly slot availability" })).toBeVisible();
-    expect(requests.some(({ path }) => path.endsWith(`/tours/${TOUR.id}/slots`))).toBe(true);
+    expect(requests.filter(({ path }) => path.endsWith(`/tours/${TOUR.id}/slots/by-date`))).toHaveLength(7);
     expect(mutations(requests)).toHaveLength(0);
     await page.locator("main").getByRole("link", { name: "Tours", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Tours", exact: true })).toBeVisible();

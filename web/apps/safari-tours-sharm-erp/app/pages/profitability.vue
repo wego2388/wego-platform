@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CalendarDateField from "../components/CalendarDateField.vue";
 import { computed, onMounted, ref } from "vue";
 import { WegoAlert, WegoBadge } from "@wego/ui";
 import { clearAuthSession, hasPermission, readAuthSession, type AuthSession } from "../composables/useAuthSession";
@@ -9,6 +10,7 @@ import {
 import { useErpLocale } from "../composables/useErpLocale";
 import type { ErpMessageKey } from "../utils/erpLocale";
 import { monthRange } from "../utils/financeOps";
+import { isCalendarDate } from "../utils/calendarDate";
 
 /**
  * Read-only profitability (OPS2-F, finance permission). Online card revenue and office
@@ -49,7 +51,7 @@ function flags(totals: ProfitTotals, g?: ProfitGroup): string[] {
 }
 
 async function load() {
-  if (!session.value || !canView.value || to.value < from.value) return;
+  if (!session.value || !canView.value || !isCalendarDate(from.value) || !isCalendarDate(to.value) || to.value < from.value) return;
   state.value = "loading";
   try {
     report.value = await getProfitability(session.value.token, from.value, to.value, groupBy.value);
@@ -84,8 +86,8 @@ const FIELD = "rounded-xl border border-sts-border bg-sts-surface px-4 py-2.5 te
       <WegoAlert v-if="session && !canView" variant="danger" class="mt-6" role="alert">{{ t('common.forbidden') }}</WegoAlert>
       <template v-else-if="canView">
         <form class="mt-6 flex flex-wrap items-end gap-3" @submit.prevent="load">
-          <label class="grid gap-1 text-xs font-semibold text-sts-muted">{{ t('fops.from') }}<input id="profit-from" v-model="from" type="date" :class="FIELD" dir="ltr"></label>
-          <label class="grid gap-1 text-xs font-semibold text-sts-muted">{{ t('fops.to') }}<input id="profit-to" v-model="to" type="date" :class="FIELD" dir="ltr"></label>
+          <CalendarDateField id="profit-from" v-model="from" :label="t('fops.from')" required class="w-full sm:w-80" />
+          <CalendarDateField id="profit-to" v-model="to" :label="t('fops.to')" required class="w-full sm:w-80" />
           <label class="grid gap-1 text-xs font-semibold text-sts-muted">{{ t('fops.profit.groupBy') }}
             <select id="profit-group" v-model="groupBy" :class="FIELD"><option v-for="g in GROUPS" :key="g" :value="g">{{ t(`fops.group.${g}`) }}</option></select>
           </label>

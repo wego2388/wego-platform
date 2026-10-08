@@ -5011,6 +5011,44 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   Paymob/SMTP separate gate, external alerts/always-online offsite, owner UAT.
   Handoff:clients/safari-tours-sharm/handoff/2026-10-08_PRODUCTION_DEPLOYED_HANDOFF_AR.md.
 
+#### 2026-10-08 — Owner UAT correction: office booking, dates and new-tour entry
+
+- OPS2-G remains the sole ACTIVE packet. Owner explicitly authorizes fixing
+  office booking availability, adding new tours from ERP, clearer dates and
+  related operations UX. No new packet, payment mode or migration is activated.
+- **Risk: Tier1** (staff inventory writes and real booking/PII workflow). Fresh
+  independent review is required before commit; full gates before deployment.
+- **Bounded implementation:** existing protected create-tour/create-slot APIs;
+  inactive new tours; staff-confirmed date/time/capacity; no generated schedules;
+  unchanged server pricing, inventory locking, office idempotency and payments.
+  Calendar reads each day's existing endpoint so blocked/full departures remain
+  visible. Clear Gregorian day/month/year control with ISO storage and Cairo day.
+- **Acceptance:** EN/AR, mobile/desktop, empty inventory → confirmed slot → office
+  booking in a disposable database; permissions, duplicate/lost-response handling,
+  stale selection, date validation, actual prices and no real production fixtures.
+- Owner workbook is read-only input. Supplier/cost records with missing mappings,
+  ambiguous bases or incomplete licence dates must not be imported by guessing.
+  Actual new-tour commercial facts remain an owner input; UI delivery does not
+  authorize invented catalog records.
+- **Verified checkpoint:** ERP350 unit tests, lint/typecheck/build, the complete
+  `safari-tours-sharm-check.sh` and repository/contract gates PASS. Final browser
+  evidence is110PASS (106 bilingual +4 real Compose inventory lifecycles) plus
+  foundation16PASS, total126. The earlier7 stale-fixture failures are retained;
+  final fixtures assert full seven-day inventory and Cairo date semantics.
+- **Fresh independent Tier1:** `office_inventory_tier1_review` READY, zero open
+  blockers; independently350tests +6 adversarial probes +56focused PASS. Lost
+  responses retain immutable body/key, including502→429→replay; financial writes
+  require applied loaded date/currency/party, not draft filters. Retry recovery is
+  current-tab only: after refresh/login inspect saved bookings before re-entry.
+  Candidate image `b2f47f71e7796655b00502df83c59aa6ee07e98e7ea0dcee56aa97bfcf89b8c7`
+  is disposable and MUST NOT be deployed. Exact committed-source CI remains due.
+- Owner clarified that new-tour delivery is the ability to add tours himself,
+  not an instruction to create an invented tour. Workbook readiness audit is
+  `clients/safari-tours-sharm/owner-data/2026-10-08_WORKBOOK_RECONCILIATION_AR.md`.
+  Fresh production backup20261008T164517Z copied offsite and actually restored
+  network-none:43tables/410rows/Flyway33/media20, all hashes verified. No live
+  database restore or test-data import occurred.
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE

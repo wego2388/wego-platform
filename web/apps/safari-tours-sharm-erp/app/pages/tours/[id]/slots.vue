@@ -9,14 +9,19 @@ import {
 } from "../../../composables/useAuthSession";
 import {
   getStaffTour,
-  listSlotsByRange,
+  listSlotsByDate,
+  blockSlot,
+  unblockSlot,
   ToursApiError,
   type Tour,
   type TourSlot,
   type TimeSlot,
 } from "../../../composables/useToursApi";
 import { useErpLocale } from "../../../composables/useErpLocale";
-import { addCalendarDays, calendarWeek, localCalendarDay, mondayForDay } from "../../../utils/slotCalendar";
+import { addCalendarDays, calendarWeek, mondayForDay } from "../../../utils/slotCalendar";
+import { isCalendarDate, operatorCalendarDay } from "../../../utils/calendarDate";
+import CalendarDateField from "../../../components/CalendarDateField.vue";
+import DepartureCreator from "../../../components/DepartureCreator.vue";
 import type { ErpMessageDescriptor } from "../../../utils/bookingMessages";
 import { tourErrorMessage } from "../../../utils/tourMessages";
 
@@ -38,9 +43,13 @@ let loadVersion = 0;
 const today = ref("");
 const weekStart = ref("");
 
-const _canManage = computed(() => hasPermission(session.value, "tours-operator.slot:manage"));
+const canManage = computed(() => hasPermission(session.value, "tours-operator.slot:manage"));
 const canCreateOffice = computed(() => hasPermission(session.value, "tours-operator.booking:create-office"));
-const _canView   = computed(() => hasPermission(session.value, "tours-operator.tour:view"));
+const canView = computed(() => hasPermission(session.value, "tours-operator.tour:view") || hasPermission(session.value, "tours-operator.tour:manage"));
+const jumpDate = ref("");
+const actionBusy = ref(false);
+const actionError = ref<ErpMessageDescriptor | null>(null);
+const actionSaved = ref(false);
 
 const tourId = computed(() => String(route.params.id));
 
@@ -92,14 +101,15 @@ function handleApiError(err: unknown) {
 }
 
 async function load() {
-  if (!session.value || !weekStart.value) return;
+  if (!session.value || !canView.value || !weekStart.value) return;
   const version = ++loadVersion;
   loadState.value = "loading";
   loadError.value = null;
   try {
     const [tourResult, slotsResult] = await Promise.all([
       getStaffTour(session.value.token, tourId.value),
-      listSlotsByRange(session.value.token, tourId.value, weekDays.value[0]!, weekDays.value[6]!),
+      // The existing by-date API returns full + blocked inventory, unlike public availability.
+      Promise.all(weekDays.value.map((day) => listSlotsByDate(session.value!.token, tourId.value, day))).then((days) => days.flat()),
     ]);
     if (version !== loadVersion) return;
     tour.value      = tourResult;
@@ -113,13 +123,33 @@ async function load() {
   }
 }
 
+function sessionExpired() { clearAuthSession(); void router.replace("/login"); }
+async function departureSaved(slot: TourSlot) {
+  jumpDate.value = slot.date;
+  const monday = mondayForDay(slot.date);
+  if (weekStart.value === monday) await load(); else weekStart.value = monday;
+}
+async function toggleSlot(slot: TourSlot) {
+  if (!session.value || !canManage.value || actionBusy.value) return;
+  if (!window.confirm(t(slot.isBlocked ? "inventory.unblockConfirm" : "inventory.blockConfirm", { date: dateLabel(slot.date), time: t(`slot.${slot.timeSlot}`) }))) return;
+  actionBusy.value = true; actionError.value = null; actionSaved.value = false;
+  try {
+    if (slot.isBlocked) await unblockSlot(session.value.token, tourId.value, slot.id);
+    else await blockSlot(session.value.token, tourId.value, slot.id);
+    await load(); actionSaved.value = true;
+  } catch (e) { handleApiError(e); actionError.value = tourErrorMessage(e); }
+  finally { actionBusy.value = false; }
+}
+watch(jumpDate, (day) => { if (isCalendarDate(day)) weekStart.value = mondayForDay(day); });
 
 watch(weekStart, () => { void load(); });
 
 onMounted(() => {
   session.value = readAuthSession();
   if (!session.value) { void router.replace("/login"); return; }
-  today.value = localCalendarDay(new Date());
+  if (!canView.value) { void router.replace("/"); return; }
+  today.value = operatorCalendarDay();
+  jumpDate.value = today.value;
   weekStart.value = mondayForDay(today.value); // watcher issues exactly one initial load
 });
 </script>
@@ -144,16 +174,20 @@ onMounted(() => {
 
       <!-- Error -->
       <WegoAlert v-if="loadState === 'error' && loadError" variant="danger" class="mt-6">{{ t(loadError.key, loadError.params) }}</WegoAlert>
+      <WegoAlert v-if="actionError" variant="danger" class="mt-4" role="alert">{{ t(actionError.key, actionError.params) }}</WegoAlert>
+      <WegoAlert v-if="actionSaved" variant="success" class="mt-4" role="status">{{ t('inventory.slotChanged') }}</WegoAlert>
+      <DepartureCreator v-if="tour && session && canManage" class="mt-6" :token="session.token" :tour="tour" :disabled="actionBusy" @saved="departureSaved" @conflict="load" @expired="sessionExpired" />
 
       <!-- Week nav -->
       <div v-if="weekStart" class="mt-6 flex flex-wrap items-center gap-4">
+        <CalendarDateField id="calendar-jump" v-model="jumpDate" :label="t('common.date')" class="w-full sm:w-80" />
         <WegoButton type="button" variant="secondary" size="sm" @click="prevWeek">{{ t("slots.previousWeek") }}</WegoButton>
         <span class="text-sm font-semibold text-sts-ocean tabular-nums">{{ weekLabel }}</span>
         <WegoButton type="button" variant="secondary" size="sm" @click="nextWeek">{{ t("slots.nextWeek") }}</WegoButton>
       </div>
 
       <!-- Legend -->
-      <p class="mt-4 text-sm text-sts-muted">{{ t("slots.scope") }}</p>
+      <p class="mt-4 text-sm text-sts-muted">{{ t("inventory.fullScope") }}</p>
       <div class="mt-3 flex flex-wrap gap-3 text-xs">
         <span class="flex items-center gap-1.5"><span class="inline-block h-3 w-3 rounded bg-sts-success-soft"/>{{ t("slots.available") }}</span>
         <span class="flex items-center gap-1.5"><span class="inline-block h-3 w-3 rounded bg-yellow-50 border border-yellow-200"/>{{ t("slots.low") }}</span>
@@ -162,7 +196,7 @@ onMounted(() => {
 
       <!-- Loading -->
       <p v-if="loadState === 'loading' || loadState === 'idle'" class="mt-6 text-sm text-sts-muted" role="status">{{ t("common.loading") }}</p>
-      <p v-if="loadState === 'loaded' && slots.length === 0" class="mt-6 text-sm text-sts-muted">{{ t("slots.empty") }}</p>
+      <p v-if="loadState === 'loaded' && slots.length === 0" class="mt-6 text-sm text-sts-muted">{{ t("inventory.empty") }}</p>
 
       <!-- Calendar grid -->
       <div v-if="loadState === 'loaded'" class="mt-4 overflow-x-auto rounded-2xl border border-sts-border bg-sts-surface shadow-sm" role="region" :aria-label="t('slots.calendar')" tabindex="0">
@@ -211,6 +245,7 @@ onMounted(() => {
                       <span v-if="!(canCreateOffice && slotFor(day, timeSlot)!.available > 0 && day >= today)" class="text-[10px]">{{ t("slots.available") }}</span>
                     </template>
                   </div>
+                  <button v-if="canManage && day >= today" type="button" class="mt-1 text-xs font-semibold text-sts-ocean underline" :disabled="actionBusy" @click="toggleSlot(slotFor(day, timeSlot)!)">{{ t(slotFor(day, timeSlot)!.isBlocked ? 'inventory.unblock' : 'inventory.block') }}</button>
                 </template>
                 <template v-else>
                   <span class="text-xs text-sts-muted">—</span>

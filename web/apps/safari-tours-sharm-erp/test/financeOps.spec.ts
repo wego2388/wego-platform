@@ -16,7 +16,7 @@ import { docMessage } from "../app/utils/documentMessages";
 import { erpMessage, formatErpSignedMoney, isLocalizedErpRoute } from "../app/utils/erpLocale";
 import { financeOpsAr, financeOpsEn } from "../app/utils/financeOpsMessages";
 import {
-  financeErrorMessage, monthRange, needsApproval, needsApprovalToday, parseStatementSubject, statementSubject, toCents,
+  financeErrorMessage, monthRange, needsApproval, needsApprovalToday, parseStatementSubject, statementSubject, todayCairo, toCents,
 } from "../app/utils/financeOps";
 
 vi.mock("../app/composables/useToursApi", async (importOriginal) => ({
@@ -157,7 +157,7 @@ describe("refund panel on a cancelled office booking", () => {
 
 describe("cash box page", () => {
   const day = (state: CashDay["state"]): CashDay => ({
-    date: "2026-10-07", currency: "EUR", state, cashCollected: eur("100.00"), collectionsReversed: eur("10.00"), cashRefunded: eur("20.00"),
+    date: todayCairo(), currency: "EUR", state, cashCollected: eur("100.00"), collectionsReversed: eur("10.00"), cashRefunded: eur("20.00"),
     refundsReversed: eur("0.00"), cashSettlementsPaid: eur("5.00"), settlementsReversed: eur("0.00"), expected: eur("65.00"),
     events: state === "OPEN" ? [] : [{ id: "e1", date: "2026-10-07", currency: "EUR", sequence: 1, kind: "COUNT", expected: eur("65.00"), counted: eur("60.00"), difference: eur("-5.00"), note: null, actorEmail: "r@x.y", occurredAt: "2026-10-07T18:00:00Z" }],
   });
@@ -197,6 +197,26 @@ describe("cash box page", () => {
     expect(w.find("#cash-count").exists()).toBe(false);
     expect(w.find("#cash-reopen").exists()).toBe(true);
   });
+  it("hides cash mutations until a changed day/currency is applied, and never sends an invalid date", async () => {
+    setup("en", ["tours-operator.cash-box:close", "tours-operator.cash-box:confirm"]);
+    vi.mocked(api.getCashDay).mockResolvedValue(day("COUNTED")); vi.mocked(api.listRecentCashDays).mockResolvedValue([]);
+    const w = mount(CashBoxPage); await flushPromises();
+    expect(w.find("#cash-confirm").exists()).toBe(true);
+    await w.get("#cash-currency").setValue("EGP");
+    expect(w.find("#cash-confirm").exists()).toBe(false); expect(w.find("#cash-count").exists()).toBe(false);
+    expect(w.text()).toContain("Apply the filters before recording");
+    expect(api.countCash).not.toHaveBeenCalled(); expect(api.confirmCash).not.toHaveBeenCalled();
+    await w.get("#cash-date-year").setValue("20"); await w.get("form").trigger("submit"); await flushPromises();
+    expect(api.getCashDay).toHaveBeenCalledTimes(1);
+  });
+  it("discards a late cash-day result after the operator changes the draft date", async () => {
+    setup("en", ["tours-operator.cash-box:close"]);
+    let resolve!: (value: CashDay) => void;
+    vi.mocked(api.getCashDay).mockReturnValue(new Promise((r) => { resolve = r; })); vi.mocked(api.listRecentCashDays).mockResolvedValue([]);
+    const w = mount(CashBoxPage); await flushPromises();
+    await w.get("#cash-date-year").setValue("2028"); resolve(day("OPEN")); await flushPromises();
+    expect(w.find("#cash-count").exists()).toBe(false); expect(w.find("#cash-expected").exists()).toBe(false);
+  });
 });
 
 describe("settlements page", () => {
@@ -210,6 +230,17 @@ describe("settlements page", () => {
     issues: [{ date: "2026-10-07", slotId: "s2", tourId: "t1", timeSlot: "MORNING", code: "MANUAL_AMOUNT_NEEDED" }],
     approvals: [{ id: "ap1", amount: egp("6000.00"), note: null, approvedByEmail: "owner@x.y", approvedAt: "2026-10-07T10:00:00Z", usedByPaymentId: null }],
   };
+  it("changing the statement dates hides payment/print actions until the new range is loaded", async () => {
+    setup("en", ["tours-operator.settlement:pay"]);
+    vi.mocked(api.listPayables).mockResolvedValue([party]); vi.mocked(api.getStatement).mockResolvedValue(statement);
+    vi.mocked(api.getFxRateToday).mockResolvedValue({ date: todayCairo(), rate: null });
+    const w = mount(SettlementsPage, link); await flushPromises(); await w.get("tbody button").trigger("click"); await flushPromises();
+    expect(w.find("#pay-form").exists()).toBe(true);
+    await w.get("#settlement-from-year").setValue("20");
+    expect(w.find("#pay-form").exists()).toBe(false); expect(w.html()).not.toContain(`/documents/settlement-statement/suppliers_${PARTY}_`);
+    expect(api.paySettlement).not.toHaveBeenCalled();
+    expect(w.text()).toContain("Apply the filters before recording");
+  });
 
   it("asks for the owner's approval above 5000 EGP and sends it with the payment", async () => {
     setup("en", ["tours-operator.settlement:pay"]);
@@ -337,7 +368,9 @@ describe("review follow-ups (M2, M3, L1, L2)", () => {
     await w.get("#cost-label").setValue("Guide");
     await w.get("#cost-amount").setValue("300");
     expect(w.find("#cost-past-warning").exists()).toBe(false);
-    await w.get("#cost-from").setValue("2020-01-01");
+    await w.get("#cost-from-day").setValue("1");
+    await w.get("#cost-from-month").setValue("1");
+    await w.get("#cost-from-year").setValue("2020");
     expect(w.get("#cost-past-warning").text()).toBe("This start date is in the past: it restates past profit and payables.");
     await w.get("#cost-form").trigger("submit");
     await flushPromises();

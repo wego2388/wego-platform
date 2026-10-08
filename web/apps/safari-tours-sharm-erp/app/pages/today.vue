@@ -12,6 +12,8 @@ import { useErpLocale } from "../composables/useErpLocale";
 import { docMessage } from "../utils/documentMessages";
 import { documentPath } from "../utils/documentFormat";
 import type { ErpMessageKey } from "../utils/erpLocale";
+import CalendarDateField from "../components/CalendarDateField.vue";
+import { isCalendarDate, operatorCalendarDay } from "../utils/calendarDate";
 
 const { t, locale, count, money, dateLabel: formatDate } = useErpLocale();
 useHead(() => ({ title: `${t("nav.today")} · Safari Tours Sharm` }));
@@ -19,8 +21,8 @@ useHead(() => ({ title: `${t("nav.today")} · Safari Tours Sharm` }));
 const route = useRoute();
 const router = useRouter();
 const session = ref<AuthSession | null>(null);
-const operatorToday = new Date().toLocaleDateString("sv-SE", { timeZone: "Africa/Cairo" });
-const date = ref(typeof route.query.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(route.query.date) ? route.query.date : operatorToday);
+const operatorToday = operatorCalendarDay();
+const date = ref(typeof route.query.date === "string" && isCalendarDate(route.query.date) ? route.query.date : operatorToday);
 const includeUnpaid = ref(false);
 const bookings = ref<Booking[]>([]);
 const tours = ref<Record<string, Tour>>({});
@@ -36,7 +38,6 @@ const canPrintOps = computed(() => hasPermission(session.value, "tours-operator.
 const runs = computed(() => buildRunSheet(bookings.value, tours.value, slots.value, includeUnpaid.value));
 const totalGuests = computed(() => runs.value.reduce((sum, run) => sum + run.guests, 0));
 const unpaidCount = computed(() => bookings.value.filter(isUnpaid).length);
-const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 const dateLabel = computed(() => formatDate(date.value, true));
 
 async function fetchAllBookings(token: string, day: string): Promise<Booking[]> {
@@ -53,8 +54,8 @@ async function fetchAllBookings(token: string, day: string): Promise<Booking[]> 
 let loadSeq = 0;
 
 async function load() {
-  if (!session.value || !ISO_DAY.test(date.value)) return;
   const seq = ++loadSeq;
+  if (!session.value || !isCalendarDate(date.value)) { bookings.value = []; state.value = "loaded"; return; }
   const day = date.value;
   state.value = "loading";
   errorKey.value = null;
@@ -128,7 +129,7 @@ function shiftDay(days: number) {
 
 watch(date, (value) => {
   // A cleared or partial date input must never load "all dates".
-  if (!ISO_DAY.test(value)) return;
+  if (!isCalendarDate(value)) { loadSeq++; bookings.value = []; state.value = "loaded"; return; }
   void router.replace({ query: value === operatorToday ? {} : { date: value } });
   void load();
 });
@@ -164,10 +165,10 @@ function unitsLabel(units: Record<string, number>, tourId: string): string {
         </div>
         <div class="flex flex-wrap items-center gap-2 print:hidden">
           <button type="button" class="rounded-lg border border-sts-border bg-sts-surface px-3 py-2 text-sm font-semibold" :aria-label="t('today.previous')" @click="shiftDay(-1)"><span aria-hidden="true" class="inline-block rtl:rotate-180">←</span></button>
-          <label class="sr-only" for="run-date">{{ t('common.date') }}</label>
-          <input id="run-date" v-model="date" type="date" class="rounded-lg border border-sts-border bg-sts-surface px-3 py-2 text-sm">
+          <CalendarDateField id="run-date" v-model="date" :label="t('common.date')" required class="w-full sm:w-80" />
           <button type="button" class="rounded-lg border border-sts-border bg-sts-surface px-3 py-2 text-sm font-semibold" :aria-label="t('today.next')" @click="shiftDay(1)"><span aria-hidden="true" class="inline-block rtl:rotate-180">→</span></button>
           <button v-if="date !== operatorToday" type="button" class="rounded-lg px-3 py-2 text-sm font-semibold text-sts-ocean-mid hover:underline" @click="date = operatorToday">{{ t('nav.today') }}</button>
+          <NuxtLink v-if="hasPermission(session, 'tours-operator.booking:create-office')" :to="{ path: '/bookings/new', query: isCalendarDate(date) ? { date } : {} }" class="rounded-lg border border-sts-border bg-sts-surface px-3 py-2 text-sm font-semibold text-sts-ocean">{{ t('inventory.addBooking') }}</NuxtLink>
           <label class="ms-2 inline-flex items-center gap-2 text-sm">
             <input v-model="includeUnpaid" type="checkbox"> {{ t('today.showUnpaid') }}
           </label>

@@ -20,6 +20,7 @@ import {
 } from "../../composables/useToursApi";
 import { useErpLocale } from "../../composables/useErpLocale";
 import OfficePaymentBadge from "../../components/OfficePaymentBadge.vue";
+import CalendarDateField from "../../components/CalendarDateField.vue";
 import { bookingErrorMessage, type ErpMessageDescriptor } from "../../utils/bookingMessages";
 
 const { t, count, money, dateLabel } = useErpLocale();
@@ -177,13 +178,14 @@ onMounted(async () => {
           <option v-for="tour in allTours" :key="tour.id" :value="tour.id">{{ tour.nameEn ?? tour.slug }}</option>
         </select>
 
-        <input
+        <CalendarDateField
+          id="booking-filter-date"
           v-model="filterDate"
-          type="date"
-          :aria-label="t('bookings.filterDate')"
-          class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2.5 text-sm focus:outline-sts-gold"
-          @change="page = 0; load()"
-        >
+          :label="t('bookings.filterDate')"
+          class="w-full sm:w-80"
+          @update:model-value="(value) => { if (value) { page = 0; load(); } }"
+          @cleared="page = 0; load()"
+        />
 
         <button
           type="button"

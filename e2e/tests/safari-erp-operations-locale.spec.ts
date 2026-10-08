@@ -175,12 +175,18 @@ test.describe("Safari ERP remaining operations EN/AR", () => {
       expect(requests).toHaveLength(before);
       await page.goto(`${ERP}/finance`);
       await expect(page.locator(".money").first()).toBeVisible();
-      await page.locator("#fin-from").fill("2026-09-01");
+      await page.locator("#fin-from-day").selectOption("1");
+      await page.locator("#fin-from-month").selectOption("9");
+      await page.locator("#fin-from-year").fill("2026");
       const ledgerBefore = requests.filter((r) => r.path.endsWith("/staff/payments")).length;
       await switchLanguage(page, locale === "en" ? "ar" : "en");
-      await expect(page.locator("#fin-from")).toHaveValue("2026-09-01");
+      await expect(page.locator("#fin-from-day")).toHaveValue("1");
+      await expect(page.locator("#fin-from-month")).toHaveValue("9");
+      await expect(page.locator("#fin-from-year")).toHaveValue("2026");
       expect(requests.filter((r) => r.path.endsWith("/staff/payments"))).toHaveLength(ledgerBefore);
-      await page.locator("#fin-to").fill("2026-08-01");
+      await page.locator("#fin-to-day").selectOption("1");
+      await page.locator("#fin-to-month").selectOption("8");
+      await page.locator("#fin-to-year").fill("2026");
       await page.getByRole("button", { name: title(locale, "Apply", "تطبيق"), exact: true }).click();
       await expect(page.getByRole("alert")).toContainText(title(locale, "valid dates", "تاريخين صحيحين"));
       expect(requests.filter((r) => r.path.endsWith("/staff/payments"))).toHaveLength(ledgerBefore);
@@ -318,7 +324,9 @@ test.describe("Safari ERP remaining operations EN/AR", () => {
   test("stale finance result cannot overwrite the applied range", async ({ page }) => {
     const { releaseFirst } = await fixtures(page, "en", { slowFinance: true });
     await page.goto(`${ERP}/finance`);
-    await page.locator("#fin-from").fill("2026-09-01");
+    await page.locator("#fin-from-day").selectOption("1");
+    await page.locator("#fin-from-month").selectOption("9");
+    await page.locator("#fin-from-year").fill("2026");
     await page.getByRole("button", { name: "Apply", exact: true }).click();
     await expect(page.locator(".money").first()).toContainText("€35.05");
     const staleResponse = page.waitForResponse((r) => r.url().includes("/staff/payments?") && new URL(r.url()).searchParams.get("from") === "2026-10-01");

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CalendarDateField from "../components/CalendarDateField.vue";
 import { computed, onMounted, ref } from "vue";
 import { WegoAlert, WegoButton } from "@wego/ui";
 import {
@@ -185,24 +186,8 @@ onMounted(() => {
       <template v-else>
         <!-- Date range filter -->
         <div class="mt-6 flex flex-wrap items-end gap-3">
-          <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold text-sts-muted" for="fin-from">{{ t("finance.from") }}</label>
-            <input
-              id="fin-from"
-              v-model="filterFrom"
-              type="date"
-              class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2.5 text-sm focus:outline-sts-gold"
-            >
-          </div>
-          <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold text-sts-muted" for="fin-to">{{ t("finance.to") }}</label>
-            <input
-              id="fin-to"
-              v-model="filterTo"
-              type="date"
-              class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2.5 text-sm focus:outline-sts-gold"
-            >
-          </div>
+          <CalendarDateField id="fin-from" v-model="filterFrom" :label="t('finance.from')" required class="w-full sm:w-80" />
+          <CalendarDateField id="fin-to" v-model="filterTo" :label="t('finance.to')" required class="w-full sm:w-80" />
           <WegoButton type="button" variant="primary" size="sm" @click="applyFilters">
             {{ t("finance.apply") }}
           </WegoButton>

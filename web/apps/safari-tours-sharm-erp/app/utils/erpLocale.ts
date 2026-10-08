@@ -1,5 +1,6 @@
 import { moneyToMinorUnits, type Money } from "@wego/api-contract";
 import { financeOpsAr, financeOpsEn } from "./financeOpsMessages";
+import { inventoryAr, inventoryEn } from "./inventoryMessages";
 
 export type ErpLocale = "en" | "ar";
 export const ERP_LOCALE_COOKIE = "sts_staff_locale";
@@ -7,6 +8,7 @@ export const LOCALIZED_ERP_ROUTES = ["/", "/login", "/today", "/bookings", "/tou
 
 export const en = {
   ...financeOpsEn,
+  ...inventoryEn,
   "shell.staff": "Staff",
   "shell.skip": "Skip to content",
   "shell.navigation": "Main navigation",
@@ -663,6 +665,7 @@ export const en = {
 
 export type ErpMessageKey = keyof typeof en;
 export const ar: Record<ErpMessageKey, string> = {
+  ...inventoryAr,
   ...financeOpsAr,
   "shell.staff": "الموظفون",
   "shell.skip": "انتقل إلى المحتوى",
@@ -1327,6 +1330,7 @@ export function isLocalizedErpRoute(path: string): boolean {
   return LOCALIZED_ERP_ROUTES.some((route) => route === normalized)
     || /^\/bookings\/[^/]+$/.test(normalized)
     || /^\/documents\/[a-z-]+\/[^/]+$/.test(normalized)
+    || normalized === "/tours/new"
     || /^\/tours\/[^/]+\/(slots|content)$/.test(normalized);
 }
 

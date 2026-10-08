@@ -49,11 +49,11 @@ async function fixtures(page: Page, locale: "en" | "ar", options: Options = {}) 
       return route.fulfill({ json: tours });
     }
     if (path.endsWith(`/staff/tours/${TOUR.id}`)) return route.fulfill({ json: { ...TOUR, isActive: !options.inactive } });
-    if (path.endsWith(`/tours/${TOUR.id}/slots`)) {
+    if (path.endsWith(`/tours/${TOUR.id}/slots/by-date`)) {
       const first = ++slotLoads === 1;
       if (options.slowFirstSlots && first) await firstGate;
       if (options.slotError) return route.fulfill({ status: options.slotError, json: { error: "fixture_failure" } });
-      const date = url.searchParams.get("from");
+      const date = url.searchParams.get("date");
       return route.fulfill({ json: options.empty ? [] : [
         { id: "fixture-slot", tourId: TOUR.id, date, timeSlot: "MORNING", capacity: 20, available: options.slowFirstSlots && !first ? 8 : 3, isBlocked: false },
       ] });
@@ -72,7 +72,7 @@ async function accessible(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze()).violations).toEqual([]);
 }
-const slotRequests = (requests: Request[]) => requests.filter(({ path }) => path.endsWith("/slots"));
+const slotRequests = (requests: Request[]) => requests.filter(({ path }) => path.endsWith("/slots/by-date"));
 
 test.describe("Safari ERP tours and slots EN/AR", () => {
   test.use({ timezoneId: "Africa/Cairo" });
@@ -102,11 +102,11 @@ test.describe("Safari ERP tours and slots EN/AR", () => {
         await expect(table).toContainText(locale === "ar" ? "الصباح" : "Morning");
         await expect(table).toContainText(locale === "ar" ? "٣/٢٠" : "3/20");
         await expect(page.getByText(locale === "ar"
-          ? "يعرض التقويم المواعيد المتاحة للحجز من مصدر التوافر العام، وليس كشف التشغيل الكامل. المواعيد الممتلئة والمحظورة لا ترجع؛ علامة الشرطة لا تعني عدم وجود رحلة."
-          : "This calendar shows bookable slots from public availability, not the full operating schedule. Full/blocked slots are not returned; a dash does not mean no departure exists.", { exact: true })).toBeVisible();
+          ? "كشف الأسبوع الكامل: المواعيد المسجلة والممتلئة والموقوفة. الشرطة تعني عدم تسجيل موعد لهذه الفترة في هذا اليوم."
+          : "Full weekly schedule: registered, full and blocked departures. A dash means no registered departure for that date and time.", { exact: true })).toBeVisible();
         expect(requests.some(({ path }) => path === `/api/v1/tours-operator/tours/${TOUR.id}`)).toBe(false);
         expect(requests.some(({ path }) => path === `/api/v1/tours-operator/staff/tours/${TOUR.id}`)).toBe(true);
-        expect(Object.fromEntries(new URLSearchParams(slotRequests(requests).at(-1)!.search))).toEqual({ from: "2026-10-05", to: "2026-10-11" });
+        expect(slotRequests(requests).map((r) => new URLSearchParams(r.search).get("date")).sort()).toEqual(["2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10", "2026-10-11"]);
         await accessible(page);
         expect(requests.filter(({ method }) => method !== "GET")).toHaveLength(0);
         await page.screenshot({ path: test.info().outputPath(`calendar-${locale}-${width}.png`), fullPage: true });
@@ -176,7 +176,7 @@ test.describe("Safari ERP tours and slots EN/AR", () => {
     await page.goto(`${ERP}/tours`);
     await expect(page.getByText("لا توجد رحلات.", { exact: true })).toBeVisible();
     await page.goto(`${ERP}/tours/${TOUR.id}/slots`);
-    await expect(page.getByText("لم ترجع مواعيد متاحة للحجز هذا الأسبوع. قد توجد مواعيد ممتلئة أو محظورة.", { exact: true })).toBeVisible();
+    await expect(page.getByText("لا توجد مواعيد مسجلة هذا الأسبوع. أضف موعدًا مؤكدًا بالأعلى.", { exact: true })).toBeVisible();
     await expect(page.getByRole("alert")).toHaveCount(0);
   });
 
@@ -192,11 +192,11 @@ test.describe("Safari ERP tours and slots EN/AR", () => {
     await page.clock.setFixedTime(new Date("2026-10-05T12:00:00Z"));
     const { requests, releaseFirst } = await fixtures(page, "en", { slowFirstSlots: true });
     await page.goto(`${ERP}/tours/${TOUR.id}/slots`);
-    await expect.poll(() => slotRequests(requests).length).toBe(1);
+    await expect.poll(() => slotRequests(requests).length).toBe(7);
     await expect(page.getByRole("status").filter({ hasText: "Loading" })).toBeVisible();
     await page.getByRole("button", { name: "Next week", exact: true }).click();
     await expect(page.getByRole("table")).toContainText("8/20");
-    const finished = page.waitForResponse((response) => response.url().includes("from=2026-10-05"));
+    const finished = page.waitForResponse((response) => response.url().includes("date=2026-10-05"));
     releaseFirst();
     await finished;
     await expect(page.getByRole("table")).toContainText("8/20");
@@ -221,23 +221,36 @@ test.describe("Safari ERP tours and slots EN/AR", () => {
 for (const scenario of [
   { zone: "Africa/Cairo", instant: "2026-09-28T00:30:00+03:00", monday: "2026-09-28", sunday: "2026-10-04" },
   { zone: "UTC", instant: "2026-09-28T00:30:00Z", monday: "2026-09-28", sunday: "2026-10-04" },
-  { zone: "America/Los_Angeles", instant: "2026-10-04T22:30:00-07:00", monday: "2026-09-28", sunday: "2026-10-04" },
+  { zone: "America/Los_Angeles", instant: "2026-10-04T22:30:00-07:00", monday: "2026-10-05", sunday: "2026-10-11" },
   { zone: "Asia/Tokyo", instant: "2026-12-31T00:30:00+09:00", monday: "2026-12-28", sunday: "2027-01-03" },
   { zone: "Africa/Cairo", instant: "2026-10-29T23:30:00+03:00", monday: "2026-10-26", sunday: "2026-11-01" },
 ]) {
   test.describe(`calendar ${scenario.zone} ${scenario.instant}`, () => {
     test.use({ timezoneId: scenario.zone });
-    test("query is the local Monday–Sunday date range, including midnight/DST/year boundaries", async ({ page }) => {
+    test("inventory uses the operator Cairo Monday–Sunday dates, including midnight/DST/year boundaries", async ({ page }) => {
       await page.clock.setFixedTime(new Date(scenario.instant));
       const { requests } = await fixtures(page, "en");
       await page.goto(`${ERP}/tours/${TOUR.id}/slots`);
       await expect(page.getByRole("table")).toBeVisible();
-      expect(Object.fromEntries(new URLSearchParams(slotRequests(requests).at(-1)!.search))).toEqual({ from: scenario.monday, to: scenario.sunday });
+      const expectedWeek = (offset: number) => Array.from({ length: 7 }, (_, day) => {
+        const date = new Date(`${scenario.monday}T12:00:00Z`);
+        date.setUTCDate(date.getUTCDate() + offset + day);
+        return { date: date.toISOString().slice(0, 10) };
+      });
+      const queriedDays = (start: number) => slotRequests(requests).slice(start, start + 7)
+        .map(({ search }) => Object.fromEntries(new URLSearchParams(search)))
+        .sort((a, b) => a.date!.localeCompare(b.date!));
+      await expect.poll(() => slotRequests(requests).length).toBe(7);
+      expect(queriedDays(0)).toEqual(expectedWeek(0));
+      expect(queriedDays(0).at(-1)).toEqual({ date: scenario.sunday });
       await page.getByRole("button", { name: "Next week", exact: true }).click();
-      await expect.poll(() => slotRequests(requests).length).toBe(2);
+      await expect.poll(() => slotRequests(requests).length).toBe(14);
+      await expect(page.getByRole("table")).toBeVisible();
+      expect(queriedDays(7)).toEqual(expectedWeek(7));
       await page.getByRole("button", { name: "Previous week", exact: true }).click();
-      await expect.poll(() => slotRequests(requests).length).toBe(3);
-      expect(Object.fromEntries(new URLSearchParams(slotRequests(requests).at(-1)!.search))).toEqual({ from: scenario.monday, to: scenario.sunday });
+      await expect.poll(() => slotRequests(requests).length).toBe(21);
+      await expect(page.getByRole("table")).toBeVisible();
+      expect(queriedDays(14)).toEqual(expectedWeek(0));
     });
   });
 }

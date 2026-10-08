@@ -96,6 +96,43 @@ describe("new office booking form", () => {
     const w = mount(NewOfficeBooking, link); await flushPromises();
     expect(w.text()).toContain("cannot create office bookings"); expect(w.find("form").exists()).toBe(false);
   });
+  for (const status of [408, 502, 503, 504]) it(`HTTP ${status} freezes the body and replays the same key after an ambiguous response`, async () => {
+    vi.mocked(api.createOfficeBooking).mockRejectedValueOnce(new api.ToursApiError(status, "upstream_interrupted"))
+      .mockResolvedValue({ id: "b1", reference: "STR-fixture", totalPrice: eur("87.50"), officePayment: { state: "UNPAID" } } as unknown as Booking);
+    const w = mount(NewOfficeBooking, link); await flushPromises(); await fill(w);
+    await w.find("form").trigger("submit"); await flushPromises();
+    const original = structuredClone(vi.mocked(api.createOfficeBooking).mock.calls[0]![1]);
+    expect(w.text()).toContain("booking may already be saved");
+    expect(w.find("#office-name").element.closest("fieldset")!.disabled).toBe(true);
+    // Even a programmatic field change must not mutate the frozen request body.
+    await w.find("#office-name").setValue("Changed after timeout");
+    await w.find("form").trigger("submit"); await flushPromises();
+    expect(vi.mocked(api.createOfficeBooking).mock.calls[1]![1]).toEqual(original);
+    expect(w.text()).toContain("STR-fixture");
+  });
+  it("a late slot response cannot reselect a departure after the date becomes invalid", async () => {
+    let resolve!: (slots: TourSlot[]) => void;
+    vi.mocked(api.listSlotsByDate).mockReturnValue(new Promise((r) => { resolve = r; }));
+    const w = mount(NewOfficeBooking, link); await flushPromises();
+    await w.find("#office-tour").setValue("t1");
+    await w.find("#office-date-year").setValue("20"); resolve([slot]); await flushPromises();
+    expect(w.findAll("#office-slot option")).toHaveLength(1);
+    expect((w.find("#office-slot").element as HTMLSelectElement).value).toBe("");
+    expect(api.createOfficeBooking).not.toHaveBeenCalled();
+  });
+  it("a throttled retry cannot erase uncertainty from the original interrupted attempt", async () => {
+    vi.mocked(api.createOfficeBooking).mockRejectedValueOnce(new api.ToursApiError(502, "interrupted"))
+      .mockRejectedValueOnce(new api.ToursApiError(429, "rate_limited"))
+      .mockResolvedValue({ id: "b1", reference: "STR-fixture", totalPrice: eur("87.50"), officePayment: { state: "UNPAID" } } as unknown as Booking);
+    const w = mount(NewOfficeBooking, link); await flushPromises(); await fill(w);
+    await w.find("form").trigger("submit"); await flushPromises();
+    await w.find("form").trigger("submit"); await flushPromises();
+    expect(w.text()).toContain("booking may already be saved");
+    expect(w.find("#office-name").element.closest("fieldset")!.disabled).toBe(true);
+    await w.find("form").trigger("submit"); await flushPromises();
+    const requests = vi.mocked(api.createOfficeBooking).mock.calls.map((call) => call[1]);
+    expect(requests[1]).toEqual(requests[0]); expect(requests[2]).toEqual(requests[0]);
+  });
 });
 
 const booking = (state: string, extra: Record<string, unknown> = {}) => ({

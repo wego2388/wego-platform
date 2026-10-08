@@ -133,7 +133,10 @@ onMounted(() => {
           <div class="flex items-center gap-3"/>
           <h1 class="mt-1 text-2xl font-semibold tracking-tight">{{ t("nav.tours") }}</h1>
         </div>
-        <NuxtLink v-if="canView" to="/categories" class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2.5 text-sm font-semibold text-sts-ocean hover:underline">{{ categoryMessage(locale, "title") }}</NuxtLink>
+        <div class="flex flex-wrap gap-3">
+          <NuxtLink v-if="canManage" to="/tours/new" class="rounded-xl bg-sts-ocean px-4 py-2.5 text-sm font-semibold text-white">{{ t('inventory.newTour') }}</NuxtLink>
+          <NuxtLink v-if="canView" to="/categories" class="rounded-xl border border-sts-border bg-sts-surface px-4 py-2.5 text-sm font-semibold text-sts-ocean hover:underline">{{ categoryMessage(locale, "title") }}</NuxtLink>
+        </div>
       </header>
 
       <!-- Nav links -->

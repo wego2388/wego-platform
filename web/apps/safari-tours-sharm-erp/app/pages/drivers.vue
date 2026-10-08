@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CalendarDateField from "../components/CalendarDateField.vue";
 import { computed, onMounted, reactive, ref } from "vue";
 import { WegoAlert, WegoBadge } from "@wego/ui";
 import type { Driver, DriverRequest } from "@wego/api-contract";
@@ -117,7 +118,7 @@ const engagement = (v: string) => t(`ops.eng.${v}` as ErpMessageKey);
           <label class="grid gap-1 text-sm font-semibold">{{ t('ops.f.engagement') }}
             <select v-model="form.engagementType" :class="FIELD"><option v-for="v in ENGAGEMENT" :key="v" :value="v">{{ engagement(v) }}</option></select>
           </label>
-          <label class="grid gap-1 text-sm font-semibold">{{ t('ops.f.licence') }}<input v-model="form.licenceValidUntil" type="date" required :class="FIELD" dir="ltr"></label>
+          <CalendarDateField id="driver-licence" v-model="form.licenceValidUntil" :label="t('ops.f.licence')" required />
           <label class="inline-flex items-center gap-2 text-sm font-semibold"><input v-model="form.active" type="checkbox"> {{ t('ops.active') }}</label>
           <div class="flex flex-wrap items-center gap-3 md:col-span-2">
             <button type="submit" class="rounded-lg bg-sts-ocean px-4 py-2 text-sm font-semibold text-white disabled:opacity-60" :disabled="saving">{{ saving ? t('ops.saving') : t('ops.save') }}</button>

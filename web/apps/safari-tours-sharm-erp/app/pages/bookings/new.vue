@@ -9,6 +9,9 @@ import {
 import { useErpLocale } from "../../composables/useErpLocale";
 import type { ErpMessageDescriptor } from "../../utils/bookingMessages";
 import { estimateTotal, officeErrorMessage, totalsDiffer, validateOfficeForm } from "../../utils/officeBooking";
+import CalendarDateField from "../../components/CalendarDateField.vue";
+import DepartureCreator from "../../components/DepartureCreator.vue";
+import { isCalendarDate, operatorCalendarDay } from "../../utils/calendarDate";
 
 const { t, direction, count, money, dateLabel } = useErpLocale();
 useHead(() => ({ title: `${t("office.new.title")} · Safari Tours Sharm` }));
@@ -17,13 +20,14 @@ const route = useRoute();
 const router = useRouter();
 const session = ref<AuthSession | null>(null);
 const canCreate = computed(() => hasPermission(session.value, "tours-operator.booking:create-office"));
+const canManageSlots = computed(() => hasPermission(session.value, "tours-operator.slot:manage"));
 
 const tours = ref<Tour[]>([]);
 const slots = ref<TourSlot[]>([]);
 const loadState = ref<"loading" | "loaded" | "error">("loading");
 const slotsState = ref<"idle" | "loading" | "loaded" | "error">("idle");
 
-const operatorToday = new Date().toLocaleDateString("sv-SE", { timeZone: "Africa/Cairo" });
+const operatorToday = operatorCalendarDay();
 const tourId = ref("");
 const date = ref(operatorToday);
 const slotId = ref("");
@@ -44,6 +48,9 @@ const submitted = ref(false);
 const submitState = ref<"idle" | "submitting" | "error">("idle");
 const submitError = ref<ErpMessageDescriptor | null>(null);
 const created = ref<Booking | null>(null);
+const uncertain = ref(false);
+const formLocked = computed(() => submitState.value === "submitting" || uncertain.value);
+let submittedPayload: Parameters<typeof createOfficeBooking>[1] | null = null;
 /** What the form showed while typing, kept to compare with the server's saved total. */
 const shownEstimate = ref<ReturnType<typeof estimateTotal> | null>(null);
 const createdDiffers = computed(() => !!created.value && totalsDiffer(created.value.totalPrice, shownEstimate.value));
@@ -79,20 +86,22 @@ function handleApiError(err: unknown) {
 let slotSeq = 0;
 let preferredSlotId = "";
 async function loadSlots() {
+  const seq = ++slotSeq; // invalidate an earlier request even when the new date is partial/cleared
   slots.value = [];
   slotsState.value = "idle";
-  if (!session.value || !tourId.value || !/^\d{4}-\d{2}-\d{2}$/.test(date.value)) return;
-  const seq = ++slotSeq;
+  slotId.value = "";
+  if (!session.value || !tourId.value || !isCalendarDate(date.value) || date.value < operatorToday) return;
   slotsState.value = "loading";
   try {
     const result = await listSlotsByDate(session.value.token, tourId.value, date.value);
     if (seq !== slotSeq) return;
-    slots.value = result.filter((s) => !s.isBlocked);
+    slots.value = result;
     slotsState.value = "loaded";
     // A link from the slot calendar pre-selects its departure once; otherwise a lone slot is chosen for the user.
-    const preferred = slots.value.find((s) => s.id === preferredSlotId);
+    const bookable = slots.value.filter((s) => !s.isBlocked && s.available > 0);
+    const preferred = bookable.find((s) => s.id === preferredSlotId);
     preferredSlotId = "";
-    slotId.value = preferred ? preferred.id : slots.value.length === 1 ? slots.value[0]!.id : "";
+    slotId.value = preferred ? preferred.id : bookable.length === 1 ? bookable[0]!.id : "";
   } catch (err) {
     if (seq !== slotSeq) return;
     handleApiError(err);
@@ -100,21 +109,28 @@ async function loadSlots() {
   }
 }
 
-watch([tourId, date], () => {
-  slotId.value = "";
+watch(tourId, () => {
   optionCode.value = tour.value?.priceBasis === "PER_UNIT" ? (tour.value.priceOptions[0]?.code ?? "") : "";
-  void loadSlots();
 });
+watch([tourId, date], () => { void loadSlots(); });
+
+async function departureSaved(saved: TourSlot) {
+  if (saved.tourId !== tourId.value || saved.date !== date.value) return;
+  preferredSlotId = saved.id;
+  await loadSlots();
+}
+function sessionExpired() { clearAuthSession(); void router.replace("/login"); }
 
 async function submit() {
+  if (submitState.value === "submitting") return;
   submitted.value = true;
-  if (!session.value || Object.keys(fieldErrors.value).length || !tour.value || !estimate.value?.ok) return;
-  if (!fitsSlot.value) return;
+  if (!session.value || !canCreate.value) return;
+  if (!submittedPayload && (Object.keys(fieldErrors.value).length || !tour.value || !estimate.value?.ok || !isCalendarDate(date.value) || date.value < operatorToday || slotsState.value !== "loaded" || !slot.value || slot.value.isBlocked || slot.value.available <= 0 || !fitsSlot.value)) return;
   submitState.value = "submitting";
   submitError.value = null;
-  shownEstimate.value = estimate.value;
+  if (!submittedPayload) shownEstimate.value = estimate.value;
   try {
-    created.value = await createOfficeBooking(session.value.token, {
+    submittedPayload ??= {
       clientRequestId,
       slotId: slotId.value,
       adultsCount: Number(adults.value),
@@ -129,15 +145,22 @@ async function submit() {
       ...(hotelRoom.value.trim() ? { hotelRoom: hotelRoom.value.trim() } : {}),
       ...(specialRequests.value.trim() ? { specialRequests: specialRequests.value.trim() } : {}),
       locale: customerLocale.value,
-    });
+    };
+    created.value = await createOfficeBooking(session.value.token, submittedPayload);
+    submittedPayload = null; uncertain.value = false;
     submitState.value = "idle";
   } catch (err) {
     handleApiError(err);
     submitState.value = "error";
     submitError.value = officeErrorMessage(err);
-    // A definite refusal (not a lost connection) ends this attempt; the next try is a new request.
-    if (err instanceof ToursApiError) clientRequestId = crypto.randomUUID();
-    if (err instanceof ToursApiError && err.errorCode === "slot_fully_booked") void loadSlots();
+    // An interrupted/5xx/408 response can follow a committed booking. Re-send the
+    // frozen original body/key; never release it merely because HTTP failed.
+    // A refusal on a later retry says nothing about whether the ORIGINAL
+    // interrupted attempt committed. Once uncertain, keep the original key.
+    const refused = !uncertain.value && err instanceof ToursApiError && [400, 401, 403, 404, 409, 422, 429].includes(err.status);
+    uncertain.value = !refused;
+    if (refused) { clientRequestId = crypto.randomUUID(); submittedPayload = null; }
+    if (refused && err instanceof ToursApiError && err.errorCode === "slot_fully_booked") void loadSlots();
   }
 }
 
@@ -147,6 +170,7 @@ function startAnother() {
   submitState.value = "idle";
   fullName.value = ""; phone.value = ""; email.value = ""; hotelName.value = ""; hotelRoom.value = ""; specialRequests.value = "";
   clientRequestId = crypto.randomUUID();
+  submittedPayload = null; uncertain.value = false;
   void loadSlots();
 }
 
@@ -162,7 +186,7 @@ onMounted(async () => {
     return;
   }
   const q = route.query;
-  if (typeof q.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(q.date)) date.value = q.date;
+  if (typeof q.date === "string" && isCalendarDate(q.date) && q.date >= operatorToday) date.value = q.date;
   if (typeof q.slotId === "string") preferredSlotId = q.slotId;
   if (typeof q.tourId === "string" && tours.value.some((x) => x.id === q.tourId)) tourId.value = q.tourId;
 });
@@ -194,28 +218,34 @@ onMounted(async () => {
 
       <form v-else-if="loadState === 'loaded'" class="mt-6 space-y-6" novalidate @submit.prevent="submit">
         <WegoAlert v-if="submitState === 'error'" variant="danger" role="alert">{{ messageText(submitError) }}</WegoAlert>
+        <WegoAlert v-if="uncertain" variant="warning" role="alert">{{ t('inventory.retryBooking') }}</WegoAlert>
 
-        <fieldset class="rounded-2xl border border-sts-border bg-sts-surface p-5">
+        <fieldset :disabled="formLocked" class="rounded-2xl border border-sts-border bg-sts-surface p-5">
           <legend class="px-1 text-sm font-semibold text-sts-muted">{{ t('office.new.tripSection') }}</legend>
           <div class="grid gap-4 sm:grid-cols-2">
             <WegoSelect id="office-tour" v-model="tourId" :label="t('common.tour')" required :error="errorText(fieldErrors.tourId)">
               <option value="">{{ t('office.new.chooseTour') }}</option>
               <option v-for="x in tours" :key="x.id" :value="x.id">{{ tourLabel(x) }}</option>
             </WegoSelect>
-            <WegoInput id="office-date" v-model="date" type="date" :min="operatorToday" :label="t('common.date')" required />
+            <CalendarDateField id="office-date" v-model="date" :min="operatorToday" :label="t('common.date')" required :disabled="formLocked" />
             <WegoSelect id="office-slot" v-model="slotId" :label="t('office.new.slot')" required :disabled="!slots.length" :error="errorText(fieldErrors.slotId)" :help="slotsState === 'loaded' && !slots.length ? t('office.new.noSlots') : undefined">
               <option value="">{{ t('office.new.chooseSlot') }}</option>
-              <option v-for="s in slots" :key="s.id" :value="s.id" :disabled="s.available === 0">
-                {{ t(`slot.${s.timeSlot}`) }} — {{ t('office.new.placesLeft', { available: count(s.available), capacity: count(s.capacity) }) }}
+              <option v-for="s in slots" :key="s.id" :value="s.id" :disabled="s.isBlocked || s.available === 0">
+                {{ t(`slot.${s.timeSlot}`) }} — {{ s.isBlocked ? t('slots.blocked') : t('office.new.placesLeft', { available: count(s.available), capacity: count(s.capacity) }) }}
               </option>
             </WegoSelect>
             <p v-if="slot" class="self-end text-sm" :class="fitsSlot ? 'text-sts-muted' : 'font-semibold text-sts-danger'" aria-live="polite">
               {{ fitsSlot ? t('office.new.placesLeftLive', { available: count(slot.available) }) : t('office.new.notEnoughPlaces', { available: count(slot.available), needed: count(seatsNeeded ?? 0) }) }}
             </p>
           </div>
+          <p v-if="slotsState === 'loaded' && !slots.length" class="mt-3 text-sm text-sts-muted">{{ t('inventory.noSlotHelp') }}</p>
+          <p v-if="slotsState === 'error'" class="mt-3 text-sm text-sts-danger" role="alert">{{ t('common.connectionFailed') }}</p>
+          <button v-if="tour && date" type="button" class="mt-3 text-sm font-semibold text-sts-ocean hover:underline" :disabled="slotsState === 'loading' || formLocked" @click="loadSlots">{{ t('inventory.refresh') }}</button>
+          <NuxtLink v-if="tour && canManageSlots" :to="`/tours/${tour.id}/slots`" class="ms-4 text-sm font-semibold text-sts-ocean hover:underline">{{ t('slots.heading') }}</NuxtLink>
         </fieldset>
+        <DepartureCreator v-if="tour && session && canManageSlots && isCalendarDate(date) && date >= operatorToday" :key="tour.id" :token="session.token" :tour="tour" :date="date" :disabled="formLocked" @saved="departureSaved" @conflict="loadSlots" @expired="sessionExpired" />
 
-        <fieldset v-if="tour" class="rounded-2xl border border-sts-border bg-sts-surface p-5">
+        <fieldset v-if="tour" :disabled="formLocked" class="rounded-2xl border border-sts-border bg-sts-surface p-5">
           <legend class="px-1 text-sm font-semibold text-sts-muted">{{ t('office.new.partySection') }}</legend>
           <div class="grid gap-4 sm:grid-cols-2">
             <WegoInput id="office-adults" v-model="adults" type="number" min="1" max="50" :label="t('booking.adults')" required />
@@ -237,7 +267,7 @@ onMounted(async () => {
           </p>
         </fieldset>
 
-        <fieldset class="rounded-2xl border border-sts-border bg-sts-surface p-5">
+        <fieldset :disabled="formLocked" class="rounded-2xl border border-sts-border bg-sts-surface p-5">
           <legend class="px-1 text-sm font-semibold text-sts-muted">{{ t('common.customer') }}</legend>
           <div class="grid gap-4 sm:grid-cols-2">
             <WegoInput id="office-name" v-model="fullName" :label="t('booking.name')" autocomplete="off" required :error="errorText(fieldErrors.fullName)" />

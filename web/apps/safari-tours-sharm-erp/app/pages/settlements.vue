@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import CalendarDateField from "../components/CalendarDateField.vue";
+import { isCalendarDate } from "../utils/calendarDate";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { WegoAlert, WegoBadge } from "@wego/ui";
 import { clearAuthSession, hasPermission, readAuthSession, type AuthSession } from "../composables/useAuthSession";
 import {
@@ -34,6 +36,10 @@ const rate = ref<string | null>(null);
 const busy = ref(false);
 const done = ref(false);
 const error = ref<ErpMessageDescriptor | null>(null);
+const statementLoading = ref(false);
+let statementSeq = 0;
+const applied = computed(() => !statementLoading.value && !!statement.value && !!selected.value && statement.value.party.partyId === selected.value.partyId && statement.value.party.partyType === selected.value.partyType && statement.value.from === from.value && statement.value.to === to.value);
+watch([from, to], () => { statementSeq++; statementLoading.value = false; done.value = false; });
 
 const canPay = computed(() => hasPermission(session.value, "tours-operator.settlement:pay"));
 const canApprove = computed(() => hasPermission(session.value, "tours-operator.settlement:approve"));
@@ -50,7 +56,7 @@ const usableApprovals = computed(() =>
     && toCents(a.amount.amount) === toCents(pay.amount)),
 );
 const printLink = computed(() =>
-  selected.value ? documentPath("settlement-statement", statementSubject(partyPath(selected.value.partyType), selected.value.partyId, from.value, to.value)) : "",
+  applied.value && selected.value && statement.value ? documentPath("settlement-statement", statementSubject(partyPath(selected.value.partyType), selected.value.partyId, statement.value.from, statement.value.to)) : "",
 );
 
 function handle(err: unknown) {
@@ -76,19 +82,27 @@ async function load() {
 }
 
 async function open(party: PartySummary) {
+  if (busy.value) return;
   selected.value = party;
+  statement.value = null;
   error.value = null;
   done.value = false;
   await loadStatement();
 }
 
 async function loadStatement() {
-  if (!session.value || !selected.value || to.value < from.value) return;
+  const seq = ++statementSeq;
+  if (!session.value || !selected.value || !isCalendarDate(from.value) || !isCalendarDate(to.value) || to.value < from.value) { statementLoading.value = false; error.value = { key: "date.invalid" }; return; }
+  const target = selected.value; const start = from.value; const end = to.value;
+  statementLoading.value = true;
   try {
-    statement.value = await getStatement(session.value.token, partyPath(selected.value.partyType), selected.value.partyId, from.value, to.value);
+    const result = await getStatement(session.value.token, partyPath(target.partyType), target.partyId, start, end);
+    if (seq !== statementSeq) return;
+    statement.value = result;
   } catch (err) {
+    if (seq !== statementSeq) return;
     handle(err);
-  }
+  } finally { if (seq === statementSeq) statementLoading.value = false; }
 }
 
 async function run(action: () => Promise<unknown>, reset: () => void) {
@@ -116,7 +130,7 @@ function amountOk(text: string): boolean {
 
 async function submitPay() {
   const p = selected.value;
-  if (!session.value || !p || !amountOk(pay.amount)) return;
+  if (!session.value || !canPay.value || !applied.value || !p || !amountOk(pay.amount)) return;
   const token = session.value.token;
   await run(
     () => paySettlement(token, partyPath(p.partyType), p.partyId, {
@@ -130,7 +144,7 @@ async function submitPay() {
 
 async function submitApprove() {
   const p = selected.value;
-  if (!session.value || !p || !amountOk(approve.amount)) return;
+  if (!session.value || !canApprove.value || !applied.value || !p || !amountOk(approve.amount)) return;
   const token = session.value.token;
   await run(
     () => approveSettlement(token, partyPath(p.partyType), p.partyId, {
@@ -142,7 +156,8 @@ async function submitApprove() {
 
 async function submitAdjust() {
   const p = selected.value;
-  if (!session.value || !p || !amountOk(adjust.amount)) return;
+  if (!session.value || !canPay.value || !applied.value || !p || !amountOk(adjust.amount)) return;
+  if (!adjust.slotId.trim() && !isCalendarDate(adjust.serviceDate)) { error.value = { key: "date.invalid" }; return; }
   if (!adjust.reason.trim()) {
     error.value = { key: "fops.reasonRequired" };
     return;
@@ -151,7 +166,7 @@ async function submitAdjust() {
   await run(
     () => adjustPayable(token, partyPath(p.partyType), p.partyId, {
       clientRequestId: adjust.key, kind: adjust.kind, currency: adjust.currency, amount: Number(adjust.amount), reason: adjust.reason.trim(),
-      ...(adjust.slotId.trim() ? { slotId: adjust.slotId.trim() } : { serviceDate: adjust.serviceDate || from.value }),
+      ...(adjust.slotId.trim() ? { slotId: adjust.slotId.trim() } : { serviceDate: adjust.serviceDate }),
     }),
     () => Object.assign(adjust, { amount: "", slotId: "", reason: "", key: newRequestId() }),
   );
@@ -167,7 +182,7 @@ const reversedIds = computed(() => new Set((statement.value?.movements ?? []).fl
 async function reverse(m: StatementMovement) {
   const p = selected.value;
   const target = reversible(m);
-  if (!session.value || !p || !target) return;
+  if (!session.value || !canApprove.value || !applied.value || !p || !target) return;
   const reason = window.prompt(t("fops.reason"))?.trim();
   if (!reason) return;
   const token = session.value.token;
@@ -228,15 +243,17 @@ const k = (key: string) => t(key as ErpMessageKey);
         <section v-if="selected" class="mt-8 rounded-2xl border border-sts-border bg-sts-surface p-5" :aria-label="t('fops.set.statement')">
           <div class="flex flex-wrap items-end gap-3">
             <h2 class="me-auto text-xl font-semibold" dir="auto">{{ t('fops.set.statement') }} · {{ selected.name }}</h2>
-            <label class="grid gap-1 text-xs font-semibold text-sts-muted">{{ t('fops.from') }}<input v-model="from" type="date" :class="FIELD" dir="ltr"></label>
-            <label class="grid gap-1 text-xs font-semibold text-sts-muted">{{ t('fops.to') }}<input v-model="to" type="date" :class="FIELD" dir="ltr"></label>
-            <button type="button" class="rounded-lg border border-sts-border px-3 py-2 text-sm font-semibold" @click="loadStatement">{{ t('fops.apply') }}</button>
-            <NuxtLink v-if="canPay || canApprove" :to="printLink" class="rounded-lg bg-sts-ocean px-3 py-2 text-sm font-semibold text-white">{{ t('fops.set.print') }}</NuxtLink>
+            <CalendarDateField id="settlement-from" v-model="from" :label="t('fops.from')" required :disabled="busy" class="w-full sm:w-80" />
+            <CalendarDateField id="settlement-to" v-model="to" :label="t('fops.to')" required :disabled="busy" class="w-full sm:w-80" />
+            <button type="button" :disabled="busy" class="rounded-lg border border-sts-border px-3 py-2 text-sm font-semibold" @click="loadStatement">{{ t('fops.apply') }}</button>
+            <NuxtLink v-if="applied && (canPay || canApprove)" :to="printLink" class="rounded-lg bg-sts-ocean px-3 py-2 text-sm font-semibold text-white">{{ t('fops.set.print') }}</NuxtLink>
           </div>
           <p v-if="done" class="mt-3 text-sm font-semibold text-sts-success" role="status">{{ t('fops.saved') }}</p>
           <WegoAlert v-if="error" variant="danger" class="mt-3" role="alert">{{ t(error.key, error.params) }}</WegoAlert>
 
-          <template v-if="statement">
+          <p v-if="statementLoading" class="mt-3 text-sm text-sts-muted" role="status">{{ t('common.loading') }}</p>
+          <WegoAlert v-else-if="statement && !applied" variant="warning" class="mt-3" role="status">{{ t('inventory.applyDates') }}</WegoAlert>
+          <template v-if="applied && statement">
             <dl class="mt-4 grid gap-3 sm:grid-cols-2">
               <div v-for="b in statement.balances" :key="b.currency" class="rounded-xl border border-sts-border p-3 text-sm">
                 <dt class="font-semibold">{{ k(`fops.cur.${b.currency}`) }}</dt>
@@ -277,7 +294,7 @@ const k = (key: string) => t(key as ErpMessageKey);
             </template>
           </template>
 
-          <div class="mt-6 grid gap-4 lg:grid-cols-3">
+          <div v-if="applied" class="mt-6 grid gap-4 lg:grid-cols-3">
             <form v-if="canPay" id="pay-form" class="grid gap-2 rounded-xl border border-sts-border p-4" @submit.prevent="submitPay">
               <h3 class="font-semibold">{{ t('fops.set.pay') }}</h3>
               <p v-if="statement" id="paid-today" class="text-xs text-sts-muted">{{ t('fops.set.paidToday', { amount: statement.paidTodayEgp ?? '?', limit: MANAGER_LIMIT_EGP }) }}</p>
@@ -308,7 +325,7 @@ const k = (key: string) => t(key as ErpMessageKey);
               <label class="grid gap-1 text-sm">{{ t('fops.currency') }}<select v-model="adjust.currency" :class="FIELD"><option value="EGP">{{ t('fops.cur.EGP') }}</option><option value="EUR">{{ t('fops.cur.EUR') }}</option></select></label>
               <label class="grid gap-1 text-sm">{{ t('fops.amount') }}<input v-model="adjust.amount" inputmode="decimal" required :class="FIELD" dir="ltr"></label>
               <label class="grid gap-1 text-sm">{{ t('fops.set.slot') }}<input v-model="adjust.slotId" :class="FIELD" dir="ltr"></label>
-              <label v-if="!adjust.slotId" class="grid gap-1 text-sm">{{ t('fops.date') }}<input v-model="adjust.serviceDate" type="date" :class="FIELD" dir="ltr"></label>
+              <CalendarDateField v-if="!adjust.slotId" id="adjustment-service-date" v-model="adjust.serviceDate" :label="t('fops.date')" required />
               <label class="grid gap-1 text-sm">{{ t('fops.reason') }}<input v-model="adjust.reason" maxlength="500" required :class="FIELD" dir="auto"></label>
               <button type="submit" class="rounded-lg bg-sts-ocean px-4 py-2 text-sm font-semibold text-white disabled:opacity-60" :disabled="busy">{{ t('fops.set.adjust') }}</button>
             </form>

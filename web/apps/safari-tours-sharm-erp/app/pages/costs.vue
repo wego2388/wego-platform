@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CalendarDateField from "../components/CalendarDateField.vue";
 import { computed, onMounted, reactive, ref } from "vue";
 import { WegoAlert, WegoBadge } from "@wego/ui";
 import { clearAuthSession, hasPermission, readAuthSession, type AuthSession } from "../composables/useAuthSession";
@@ -222,9 +223,9 @@ const basis = (v: string) => t(`fops.basis.${v}` as ErpMessageKey);
           <label v-if="form.category === 'SUPPLIER'" class="grid gap-1 text-sm font-semibold">{{ t('fops.costs.supplier') }}
             <select v-model="form.supplierId" :class="FIELD"><option value="">{{ t('fops.costs.anySupplier') }}</option><option v-for="s in suppliers" :key="s.id" :value="s.id">{{ s.name }}</option></select>
           </label>
-          <label class="grid gap-1 text-sm font-semibold">{{ t('fops.costs.validFrom') }}<input id="cost-from" v-model="form.validFrom" type="date" required :class="FIELD" dir="ltr"></label>
+          <CalendarDateField id="cost-from" v-model="form.validFrom" :label="t('fops.costs.validFrom')" required />
           <p v-if="restatesPast" id="cost-past-warning" class="text-sm font-semibold text-sts-warning md:col-span-3" role="alert">{{ t('fops.costs.pastWarning') }}</p>
-          <label v-if="editing === 'new'" class="grid gap-1 text-sm font-semibold">{{ t('fops.costs.validUntil') }}<input v-model="form.validUntil" type="date" :class="FIELD" dir="ltr"></label>
+          <CalendarDateField v-if="editing === 'new'" id="cost-until" v-model="form.validUntil" :label="t('fops.costs.validUntil')" />
           <label class="grid gap-1 text-sm font-semibold md:col-span-3">{{ t('fops.note') }}<input v-model="form.note" maxlength="500" :class="FIELD" dir="auto"></label>
           <div class="flex flex-wrap gap-3 md:col-span-3">
             <button type="submit" class="rounded-lg bg-sts-ocean px-4 py-2 text-sm font-semibold text-white disabled:opacity-60" :disabled="saving">{{ saving ? t('fops.saving') : t('fops.save') }}</button>
@@ -235,7 +236,7 @@ const basis = (v: string) => t(`fops.basis.${v}` as ErpMessageKey);
 
         <form v-if="ending" class="mt-6 flex flex-wrap items-end gap-3 rounded-2xl border border-sts-border bg-sts-surface p-5" @submit.prevent="confirmEnd">
           <p class="w-full text-sm font-semibold" dir="auto">{{ ending.label }}</p>
-          <label class="grid gap-1 text-sm font-semibold">{{ t('fops.costs.lastDay') }}<input v-model="lastDay" type="date" required :class="FIELD" dir="ltr"></label>
+          <CalendarDateField id="cost-last-day" v-model="lastDay" :label="t('fops.costs.lastDay')" required />
           <button type="submit" class="rounded-lg bg-sts-ocean px-4 py-2 text-sm font-semibold text-white disabled:opacity-60" :disabled="saving">{{ t('fops.costs.end') }}</button>
           <button type="button" class="rounded-lg border border-sts-border px-4 py-2 text-sm font-semibold" @click="ending = null">{{ t('fops.cancel') }}</button>
           <WegoAlert v-if="error" variant="danger" class="w-full" role="alert">{{ t(error.key, error.params) }}</WegoAlert>
