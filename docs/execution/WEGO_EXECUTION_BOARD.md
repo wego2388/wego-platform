@@ -4856,6 +4856,17 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 - Local real fixture rerun and reviewer confirmation required before follow-up
   commit/new CI; rollout remains gated on final source CI.
 
+#### 2026-10-08 — Cross-Docker fixture compatibility follow-up
+
+- Run37713010127 on6cd50a2:backend/web/mobile/contracts/repository/audit PASS;
+  gateway startup now passed, then CI's older Docker rejected fixed--ip on an
+  auto-subnet network. Local Docker29 allowed it; production was not touched.
+- Test now keeps original edge endpoint occupying its address while creating
+  replacement (rename original to holder), asserts differentIP, then removes
+  original. No fixed subnet/IP, assertions unchanged; cache must recover without
+  gateway reload. Local real fixture PASS, reviewer ACCEPT/zero blockers;
+  final committed CI still required before rollout.
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE

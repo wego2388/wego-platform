@@ -79,12 +79,14 @@ request '/headers?hmac=GW_PRIVACY_SENTINEL' \
   -H 'X-Forwarded-For: 203.0.113.77' -H 'X-Forwarded-Proto: http' \
   -H 'Forwarded: for=spoof;proto=http' -H 'X-Forwarded-Prefix: /spoof' > "$temp/headers"
 jq -e '.host == "safaritourssharm.com" and .proto == "https" and .xff != "203.0.113.77" and .forwarded == "" and .xfprefix == ""' "$temp/headers" >/dev/null
-# Reserve the old edge address so replacement MUST obtain a different IP.
-docker rm -f "$edge" >/dev/null
-docker run -d --name "$holder" --network "$network" --ip "$first_ip" "$image" >/dev/null
+# Keep the original endpoint alive while creating its replacement, so its
+# address is still occupied. No --ip: older Docker versions only permit a
+# fixed address on explicitly subnet-configured networks, unlike Docker29.
+docker rename "$edge" "$holder"
 start_edge
 second_ip="$(docker inspect "$edge" --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')"
 [[ "$first_ip" != "$second_ip" ]]
+docker rm -f "$holder" >/dev/null
 for attempt in $(seq 1 15); do
   code="$(request /replacement -o /dev/null -w '%{http_code}')"
   [[ "$code" == 200 ]] && break
