@@ -55,7 +55,9 @@ fi
 
 # 3. Online sales switch (a pause is deliberate, but nobody should forget it).
 if status="$(curl -fsS --max-time 10 "$SAFARI_HEALTH_URL/api/v1/tours-operator/sales-status" 2>/dev/null)"; then
-  if grep -q '"bookingsOpen":false\|"paymentsOpen":false' <<<"$status"; then
+  if grep -q '"bookingMode":"ENQUIRY_ONLY"' <<<"$status"; then
+    ok "enquiry-only launch; online checkout disabled by design"
+  elif grep -q '"bookingsOpen":false\|"paymentsOpen":false' <<<"$status"; then
     warn "online sales are PAUSED (ERP → Online sales)"
   else
     ok "online sales open"
@@ -101,10 +103,15 @@ done
 
 # 6. TLS certificate expiry (only once a public domain exists).
 if [ -n "$SAFARI_PUBLIC_HOST" ]; then
-  end="$(echo | openssl s_client -servername "$SAFARI_PUBLIC_HOST" -connect "$SAFARI_PUBLIC_HOST:443" 2>/dev/null \
-    | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2)"
-  if [ -z "$end" ]; then
-    fail "cannot read TLS certificate of $SAFARI_PUBLIC_HOST"
+  # Expiry alone is not a TLS check: the pre-deploy Safari host was serving
+  # El Kheima's valid but WRONG certificate. Verify chain AND hostname with a
+  # bounded connection before accepting the certificate's expiry date.
+  if ! certificate="$(timeout 15s openssl s_client -verify_return_error \
+    -verify_hostname "$SAFARI_PUBLIC_HOST" -servername "$SAFARI_PUBLIC_HOST" \
+    -connect "$SAFARI_PUBLIC_HOST:443" </dev/null 2>/dev/null)" \
+    || ! end="$(printf '%s\n' "$certificate" | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2)" \
+    || [ -z "$end" ]; then
+    fail "TLS chain/hostname verification failed for $SAFARI_PUBLIC_HOST"
   else
     days=$(( ( $(date -d "$end" +%s) - $(date +%s) ) / 86400 ))
     if [ "$days" -lt "$SAFARI_CERT_MIN_DAYS" ]; then fail "TLS certificate expires in ${days} days"; else ok "TLS certificate valid ${days} more days"; fi

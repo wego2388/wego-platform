@@ -4778,6 +4778,73 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 - **Remains ACTIVE until:** owner GO + Codex executes the runbook. Claude does
   not deploy. Full-stack E2E relies on CI for the release SHA (local disk).
 
+#### 2026-10-08 — Codex authorized read-only VPS preflight; gateway change awaits specific GO
+
+- Owner asked to launch a fresh Claude deploy session, then explicitly
+  authorized deployment/access. The prior El Kheima no-touch requirement
+  remains: broad authorization does not waive the protected shared gateway.
+- New visible Claude session received the brief and admin identity, read the
+  references and is waiting for its owner inputs; no parallel deploy began.
+- Codex SSH with existing verified host key succeeded on `187.6.167.233`:
+  x86_64, two CPUs, 7935 MiB total / 5629 MiB available RAM, about 83G disk free,
+  Docker 29.8.1, Compose v5.5.1. No Safari production containers/volumes in
+  the scoped filters. No remote write/mutation performed.
+- Actual 80/443 owner is `resort-os-prod-nginx-1`, read-only with individually
+  mounted configuration files; not host Nginx. Existing El Kheima HTTPS returns
+  200 with valid strict TLS. Recorded container start times/restart counts.
+- Proposed dedicated gateway network plus Safari config mount requires
+  recreating El Kheima's Nginx container, not merely reloading. This can cause
+  an interruption and requires specific owner approval before execution.
+  Do not modify its application, database, certificates or other containers.
+- Final source read: `198959e`; CI run `37685772250` still in progress at this
+  check. Other release gates/owner decisions remain as in readiness manifest.
+- Evidence: `clients/safari-tours-sharm/deployment/evidence/2026-10-08_VPS_READONLY_PREFLIGHT_AR.md`.
+  NEXT: topology-change decision, then one coordinated deploy executor and
+  final gates. OPS2-G stays ACTIVE; no deployment or acceptance claimed.
+
+#### 2026-10-08 — Owner authorizes necessary shared-gateway work and release preparation
+
+- Owner explicitly superseded the prior El Kheima no-touch constraint for
+  necessary shared infrastructure: both projects and the VPS are in scope,
+  with independent data and no future deployment conflict as the priority.
+- Codex is the sole live deploy executor; the previously launched Claude
+  session is not a second deploy authority. No other product packet activated.
+- Final source CI `198959e`, run `37685772250`, completed SUCCESS.
+- Owner explicitly accepted EACH dependency exemption together, conditional
+  on runtime-image verification; accepted local off-server backup/key custody
+  and `mohamedwagdy2323@gmail.com` as certificate contact. Admin password is
+  still interactive, never generated as a default or put in chat.
+- Implementing containerized gateway extension with dynamic DNS, privacy-safe
+  logs, independent network, preserved Resort default network/mounts, and a
+  mandatory future-Resort deployment guard. Independent Tier-1 reviewer
+  `shared_gateway_tier1_review` is reviewing the changed boundary.
+- OPS2-G remains ACTIVE. Authorization and CI are not deployment evidence.
+
+#### 2026-10-08 — Prebuilt release gates and shared-gateway review fixes
+
+- Application source remains198959e; current changes are scoped infrastructure,
+  operations/privacy and documentation only. Owner explicitly authorizes saving
+  and pushing those changes on current branches, no main/other-Claude merge.
+- Final3 app images built locally; Debian/glibc Node24 runtime accepts the host
+  traced nativeSharp output. Materialized output hashes verified inside each
+  image; actual IPX returns200image/webp; node-forge/braces directories absent.
+- Optional SMTP health initially blocked otherwise valid enquiry-only startup;
+  production overlay now excludes optional mail indicator, retaining core DB/
+  booking readiness and notifications startup validation. All5 services healthy.
+- Real prebuilt-image enquiry E2E24/24 passed. Additional captured run23/24 had
+  ERR_NETWORK_CHANGED while Docker gateway bridges changed locally; retained
+  trace, then unchanged quiet-network rerun24/24 exit0. No retry/assertion weakening.
+- Gateway fixture PASS: missingSafariDNS, changededgeIP withoutreload, Resort
+  continuity, spoofedheaders, critical-error privacy,3 configuration variants.
+- Independent review discovered omission fallback; fixed with independent
+  root-owned shared-host-required marker OR wrapper OR overlay detection.
+  Resort guard7 and release-verifier14 PASS; actual resolved four-file Compose PASS.
+- Independent reviewer ACCEPT/zero blockers; final E2E log/trace corroborated,
+  verifier14 independently rerun. New committed CI/liveTLS/backuprestore remain
+  rollout gates. Actual container
+  runbook supersedes host-Nginx assumptions. No production mutation/commit yet.
+- Evidence: `clients/safari-tours-sharm/deployment/evidence/2026-10-08_PREDEPLOY_FIXES_AND_GATES_AR.md`.
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE

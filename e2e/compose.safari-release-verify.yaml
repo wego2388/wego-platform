@@ -1,0 +1,13 @@
+# Disposable LOCAL release-image verification only. Never use on the VPS.
+# Must be last after base + production + enquiry test overlays.
+name: safari-release-verify
+services:
+  postgres:
+    ports: !override ["127.0.0.1:55538:5432"]
+  edge:
+    ports: !override ["127.0.0.1:58108:8080"]
+volumes:
+  safari_media:
+    name: safari-release-verify-media
+  postgres_data:
+    name: safari-release-verify-postgres-data

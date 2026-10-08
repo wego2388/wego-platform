@@ -1,5 +1,11 @@
 # Safari Tours Sharm — production deploy package (WEGO-016-OPS2-G)
 
+> **Current VPS procedure, 2026-10-08:** actual HTTPS gateway is the Resort
+> Docker container, NOT host Nginx. Use [CONTAINER_GATEWAY_RUNBOOK_AR.md](CONTAINER_GATEWAY_RUNBOOK_AR.md).
+> Host-Nginx commands in the older runbook must NOT be executed on this VPS.
+> Owner authorized the necessary gateway-container recreation only; keep both
+> applications, databases, secrets, certificates and release lifecycles independent.
+
 Prepared by Claude on 2026-10-07 for Codex, who reviews and later executes the
 deploy after the owner's GO. **Nothing here has been run on a server.** No
 secrets are stored in this directory; every real value is a `CHANGE_ME_…` or

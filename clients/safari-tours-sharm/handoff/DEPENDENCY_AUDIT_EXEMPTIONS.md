@@ -13,9 +13,10 @@
     application code path or the built production output.
   - The vulnerable RSA signature verification is only exercised if the application explicitly
     calls node-forge's signature API, which this project does not.
-  - The package is present in the production `node_modules` of the ERP container image because
-    `nuxt` is listed as a runtime dependency. However, the vulnerability requires active invocation
-    of the affected API, not mere presence of the package.
+  - Correction (2026-10-08): the runtime Dockerfiles copy only the built Nuxt
+    `.output`, not workspace `node_modules`. A production dependency in the
+    workspace is NOT proof that the package ships in the runtime image.
+    Actual final-image inspection remains a required release gate.
   - No patched version exists upstream (confirmed 2026-10-05 against npm registry).
 - **Mitigation**: Upgrade `nuxt` when a version that replaces or patches `listhen`/`node-forge`
   is released. Track nuxt changelog for node-forge removal.
@@ -49,5 +50,17 @@ Done by Claude under the owner's instruction «هندل و صلح و ظبط» (2
 This is not the production-deploy acknowledgement below.
 
 ### Owner acknowledgements
-- [ ] GHSA-86w9-cpqp-85rv (node-forge): acknowledged by _________ on _________
-- [ ] GHSA-vfj7-8cjw-p6xm (braces): acknowledged by _________ on _________
+- [x] GHSA-86w9-cpqp-85rv (node-forge): Mohamed explicitly answered
+  «أقبل الاستثناءين مع التحقق والتوثيق والمتابعة» on 2026-10-08 in this
+  deployment conversation; acceptance is conditional on runtime-image verification.
+- [x] GHSA-vfj7-8cjw-p6xm (braces): same explicit acknowledgement and condition.
+
+## 2026-10-08 verification and follow-up
+
+Both [node-forge](https://github.com/advisories/GHSA-86w9-cpqp-85rv) and
+[braces](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) advisories were
+rechecked: no patched version is listed. This is NOT a clean unfiltered audit.
+Record actual image findings in the release evidence; do not infer absence
+from a successful filtered CI job. Recheck these advisories before each
+release and remove each ignore when its dependency path is fixed. Do not
+introduce either library into application cryptography or user-supplied globbing.

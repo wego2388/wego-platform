@@ -1,0 +1,24 @@
+# Host-owned infrastructure extension; not part of any application release.
+# Compose order: Resort base, domain, THIS extension, image-only overlay LAST.
+# Never replace the Resort default network or its original configuration mounts.
+services:
+  nginx:
+    volumes:
+      - type: bind
+        source: /srv/safari-tours-sharm/shared/gateway
+        target: /etc/nginx/vps-sites
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: /srv/safari-tours-sharm/shared/gateway-loader.conf
+        target: /etc/nginx/conf.d/safari-loader.conf
+        read_only: true
+        bind: {create_host_path: false}
+    networks:
+      default: {}
+      safari_gateway: {}
+
+networks:
+  safari_gateway:
+    external: true
+    name: safari-gateway

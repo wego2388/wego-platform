@@ -112,6 +112,14 @@ jobs:
       - run: pnpm --dir web install --frozen-lockfile
       - run: pnpm --dir web run check
 
+  safari-container-gateway:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Prove shared-gateway isolation, recovery and log privacy
+        run: bash scripts/safari-ops/test-container-gateway.sh
+
   infrastructure:
     runs-on: ubuntu-24.04
     steps:

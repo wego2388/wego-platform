@@ -1,0 +1,13 @@
+# Optional containerized shared-gateway integration. Only the Safari edge is
+# attached; database/backend/site/ERP stay on Safari's private network.
+services:
+  edge:
+    networks:
+      internal: {}
+      safari_gateway:
+        aliases: [safari-edge]
+
+networks:
+  safari_gateway:
+    external: true
+    name: safari-gateway

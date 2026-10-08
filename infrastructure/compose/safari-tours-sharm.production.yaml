@@ -65,6 +65,11 @@ services:
       # Customer e-mail notifications stay off until SMTP is supplied and
       # owner-approved; enabling without SPRING_MAIL_HOST fails startup.
       TOURS_OPERATOR_NOTIFICATIONS_ENABLED: ${TOURS_OPERATOR_NOTIFICATIONS_ENABLED:-false}
+      # SMTP is an optional outbox delivery dependency, NOT core booking/DB
+      # readiness. Empty launch SMTP settings otherwise auto-create a mail
+      # health indicator probing localhost and hold the entire stack DOWN.
+      # Monitor delivery failures through the outbox once mail is configured.
+      MANAGEMENT_HEALTH_MAIL_ENABLED: "false"
       TOURS_OPERATOR_NOTIFICATIONS_FROM: ${TOURS_OPERATOR_NOTIFICATIONS_FROM:-}
       TOURS_OPERATOR_NOTIFICATIONS_REPLY_TO: ${TOURS_OPERATOR_NOTIFICATIONS_REPLY_TO:-}
       TOURS_OPERATOR_SITE_BASE_URL: ${WEGO_SITE_PUBLIC_URL:?set WEGO_SITE_PUBLIC_URL=https://safaritourssharm.com}
@@ -85,6 +90,10 @@ services:
     build: !reset null
     image: ${SAFARI_ERP_IMAGE:?set SAFARI_ERP_IMAGE (reviewed release tag) in the env file}
     pull_policy: never
+    # Runtime may be Alpine source-build or reviewed Debian from-output build;
+    # Node is guaranteed in both, while wget is not.
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/login',{signal:AbortSignal.timeout(2000)}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
     logging: *default-logging
     deploy:
       resources:
@@ -97,6 +106,8 @@ services:
     build: !reset null
     image: ${SAFARI_SITE_IMAGE:?set SAFARI_SITE_IMAGE (reviewed release tag) in the env file}
     pull_policy: never
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3001/tours',{signal:AbortSignal.timeout(2000)}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
     environment:
       NUXT_PUBLIC_I18N_BASE_URL: ${WEGO_SITE_PUBLIC_URL:?set WEGO_SITE_PUBLIC_URL=https://safaritourssharm.com}
     logging: *default-logging
