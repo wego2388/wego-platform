@@ -121,6 +121,9 @@ async function request<T>(path: string, token: string, init: RequestInit = {}): 
   return (text ? JSON.parse(text) : undefined) as T;
 }
 
+/** Same authenticated transport/error contract for the dedicated request inbox. */
+export const staffRequest = request;
+
 // ── Tours ──────────────────────────────────────────────────────────────────
 
 export function listTours(

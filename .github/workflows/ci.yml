@@ -404,6 +404,12 @@ jobs:
           WEGO_STS_SITE_BASE_URL: http://127.0.0.1:58087
           WEGO_STS_STAFF_BASE_URL: http://staff.localhost:58087
         run: pnpm --dir e2e exec playwright test tests/safari-enquiry.spec.ts
+      - name: Website request to ERP confirmation (four guest locales, two staff locales)
+        env:
+          WEGO_STS_SITE_BASE_URL: http://127.0.0.1:58087
+          WEGO_STS_STAFF_BASE_URL: http://staff.localhost:58087
+          WEGO_SAFARI_REQUEST_E2E_CONFIRM: yes-this-is-a-disposable-request-stack
+        run: pnpm --dir e2e exec playwright test tests/safari-online-requests.spec.ts
       - name: Verify built enquiry backend refuses removing payment-history configuration
         env:
           COMPOSE_PROJECT_NAME: ci-safari-enquiry

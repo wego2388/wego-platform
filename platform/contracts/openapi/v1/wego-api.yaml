@@ -82,6 +82,170 @@ tags:
       and booking intake are explicitly unauthenticated; staff lifecycle and
       customer-list operations require namespaced tours-operator permissions.
 paths:
+  /api/v1/tours-operator/booking-requests:
+    post:
+      operationId: submitToursOperatorOnlineRequest
+      summary: Save a guest request without reserving seats or collecting money
+      description: Idempotent by clientRequestId and normalized body. Returns a reference only. No login, public PII read or WhatsApp handoff.
+      tags: [ToursOperator]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SubmitToursOperatorOnlineRequest" }
+      responses:
+        "201":
+          description: Saved durably, awaiting office confirmation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ToursOperatorOnlineRequestAcknowledgement" }
+        "200":
+          description: Same request replayed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ToursOperatorOnlineRequestAcknowledgement" }
+        "400": { description: Invalid fields or honeypot }
+        "409": { description: Idempotency key reused with different details }
+        "422": { description: "Invalid preferred date, inactive tour or invalid catalog pricing selection" }
+        "429": { description: Rate limited; Retry-After indicates delay }
+  /api/v1/tours-operator/staff/booking-requests:
+    get:
+      operationId: listToursOperatorOnlineRequests
+      security: [{ bearerAuth: [] }]
+      summary: Staff request inbox (booking:view)
+      tags: [ToursOperator]
+      parameters:
+        - { name: status, in: query, schema: { $ref: "#/components/schemas/ToursOperatorOnlineRequestStatus" } }
+        - { name: page, in: query, schema: { type: integer, minimum: 0, maximum: 10000, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+      responses:
+        "200":
+          description: Newest first; PII accessible to authorized staff only
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ToursOperatorOnlineRequest" }
+        "401": { description: Authentication required }
+        "403": { description: Permission required }
+  /api/v1/tours-operator/staff/booking-requests/open-count:
+    get:
+      operationId: countToursOperatorOpenRequests
+      security: [{ bearerAuth: [] }]
+      summary: Number of NEW and IN_PROGRESS website requests (booking:view)
+      tags: [ToursOperator]
+      responses:
+        "200":
+          description: No customer data
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [count]
+                properties:
+                  count: { type: integer, minimum: 0 }
+        "401": { description: Authentication required }
+        "403": { description: Permission required }
+  /api/v1/tours-operator/staff/booking-requests/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      operationId: getToursOperatorOnlineRequest
+      security: [{ bearerAuth: [] }]
+      summary: Read a website request (booking:view)
+      tags: [ToursOperator]
+      responses:
+        "200":
+          description: Staff-only request details
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ToursOperatorOnlineRequest" }
+        "401": { description: Authentication required }
+        "403": { description: Permission required }
+        "404": { description: Not found }
+  /api/v1/tours-operator/staff/booking-requests/{id}/history:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      operationId: getToursOperatorOnlineRequestHistory
+      security: [{ bearerAuth: [] }]
+      summary: Request status and actor audit (booking:view)
+      tags: [ToursOperator]
+      responses:
+        "200":
+          description: Append-only transitions, no customer PII in audit
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ToursOperatorOnlineRequestAudit" }
+        "401": { description: Authentication required }
+        "403": { description: Permission required }
+  /api/v1/tours-operator/staff/booking-requests/{id}/follow-up:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: followUpToursOperatorOnlineRequest
+      security: [{ bearerAuth: [] }]
+      summary: Start follow-up or close a request (booking:view and booking:create-office)
+      tags: [ToursOperator]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [expectedRevision, status]
+              properties:
+                expectedRevision: { type: integer, minimum: 0 }
+                status: { type: string, enum: [IN_PROGRESS, CLOSED] }
+      responses:
+        "200":
+          description: Updated or replayed transition
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ToursOperatorOnlineRequest" }
+        "400": { description: Invalid fields }
+        "401": { description: Authentication required }
+        "403": { description: Permissions required }
+        "404": { description: Not found }
+        "409": { description: Stale revision or request no longer open }
+        "422": { description: Invalid target status }
+  /api/v1/tours-operator/staff/booking-requests/{id}/convert:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: convertToursOperatorOnlineRequest
+      security: [{ bearerAuth: [] }]
+      summary: Atomically confirm a request using office booking rules (booking:view and booking:create-office)
+      description: Locks the request before the existing slot lock. Confirms a real departure, rechecks catalog price against expectedTotalCents, reserves capacity once, leaves payment UNPAID. Booking source stays linked to the website request; OFFICE is its collection lifecycle, not a Paymob purchase.
+      tags: [ToursOperator]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [expectedRevision, slotId, expectedTotalCents]
+              properties:
+                expectedRevision: { type: integer, minimum: 0 }
+                slotId: { type: string, format: uuid }
+                expectedTotalCents: { type: integer, format: int64, minimum: 0 }
+      responses:
+        "200":
+          description: Converted or exact replay, with bookingId
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ToursOperatorOnlineRequest" }
+        "400": { description: Invalid fields }
+        "401": { description: Authentication required }
+        "403": { description: Permissions required }
+        "404": { description: Request or slot not found }
+        "409": { description: "Stale request, unavailable slot, wrong tour, price changed or different conversion already performed" }
+        "422": { description: Catalog selection no longer valid }
   /actuator/health:
     get:
       operationId: getHealth
@@ -6346,6 +6510,72 @@ components:
         type: string
         format: uuid
   schemas:
+    ToursOperatorOnlineRequestStatus:
+      type: string
+      enum: [NEW, IN_PROGRESS, CONVERTED, CLOSED]
+    SubmitToursOperatorOnlineRequest:
+      type: object
+      additionalProperties: false
+      required: [clientRequestId, tourId, preferredDate, adultsCount, childrenCount, customer, hotelName, locale]
+      properties:
+        clientRequestId: { type: string, format: uuid }
+        tourId: { type: string, format: uuid }
+        preferredDate: { type: string, format: date, description: "Preferred Cairo-local day within 365 days; not a reserved departure" }
+        preferredTime: { $ref: "#/components/schemas/ToursOperatorTimeSlot" }
+        adultsCount: { type: integer, minimum: 1, maximum: 50 }
+        childrenCount: { type: integer, minimum: 0, maximum: 50 }
+        priceOptionCode: { type: string, pattern: "^[a-z0-9][a-z0-9-]{0,39}$" }
+        unitCount: { type: integer, minimum: 1, maximum: 50 }
+        customer: { $ref: "#/components/schemas/ToursOperatorCustomerRequest" }
+        hotelName: { type: string, minLength: 1, maxLength: 200 }
+        specialRequests: { type: string, maxLength: 2000 }
+        locale: { type: string, enum: [en, ar, ru, it] }
+        website: { type: [string, "null"], maxLength: 0, default: null, description: "Honeypot, never persisted" }
+    ToursOperatorOnlineRequestAcknowledgement:
+      type: object
+      additionalProperties: false
+      required: [reference]
+      properties:
+        reference: { type: string, pattern: "^STQ-[0-9A-F]{32}$" }
+    ToursOperatorOnlineRequest:
+      type: object
+      additionalProperties: false
+      required: [id, reference, tourId, tour, preferredDate, preferredTime, adultsCount, childrenCount, priceOptionCode, unitCount, customer, hotelName, specialRequests, locale, estimatedTotal, status, revision, bookingId, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        reference: { type: string }
+        tourId: { type: string, format: uuid }
+        tour:
+          anyOf:
+            - { $ref: "#/components/schemas/ToursOperatorTourResponse" }
+            - { type: "null" }
+        preferredDate: { type: string, format: date }
+        preferredTime:
+          anyOf:
+            - { $ref: "#/components/schemas/ToursOperatorTimeSlot" }
+            - { type: "null" }
+        adultsCount: { type: integer }
+        childrenCount: { type: integer }
+        priceOptionCode: { type: [string, "null"] }
+        unitCount: { type: [integer, "null"] }
+        customer: { $ref: "#/components/schemas/ToursOperatorCustomerResponse" }
+        hotelName: { type: string }
+        specialRequests: { type: [string, "null"] }
+        locale: { type: string, enum: [en, ar, ru, it] }
+        estimatedTotal: { $ref: "#/components/schemas/Money" }
+        status: { $ref: "#/components/schemas/ToursOperatorOnlineRequestStatus" }
+        revision: { type: integer, minimum: 0 }
+        bookingId: { type: [string, "null"], format: uuid }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    ToursOperatorOnlineRequestAudit:
+      type: object
+      additionalProperties: false
+      required: [status, actorUserId, occurredAt]
+      properties:
+        status: { $ref: "#/components/schemas/ToursOperatorOnlineRequestStatus" }
+        actorUserId: { type: [string, "null"], format: uuid }
+        occurredAt: { type: string, format: date-time }
     ToursOperatorMediaUploadResponse:
       type: object
       additionalProperties: false

@@ -11,7 +11,7 @@ import { useSalesStatus } from "../../composables/useSalesStatus";
 import { useAnalytics } from "../../composables/useAnalytics";
 import { enquiryCopy } from "../../content/enquiry";
 import { checkoutCopy } from "../../content/checkout";
-import { onlineSalesAvailable, tripEnquiryUrl, validPreferredDate } from "../../utils/enquiry";
+import { onlineSalesAvailable, validPreferredDate } from "../../utils/enquiry";
 
 /**
  * Date → time → guests → total → continue. Availability is always read live
@@ -42,6 +42,7 @@ const selectedSlotId = ref<string | null>(null);
 const preferredTime = ref<TimeSlot | null>(null);
 const adults = ref(1);
 const children = ref(0);
+const requestLocked = ref(false);
 
 async function load() {
   if (!online.value) return;
@@ -136,14 +137,6 @@ function proceed() {
   });
 }
 
-const whatsappLink = computed(() => {
-  if (!online.value) return tripEnquiryUrl(locale.value, props.tour, {
-    date: preferredDateValid.value ? selectedDate.value : null, timeSlot: preferredTime.value, adults: adults.value,
-    children: childrenBookable.value ? children.value : 0, optionCode: option.value?.code, units: units.value,
-  });
-  const text = copy.value.whatsappMessage(props.tourName, selectedDate.value, adults.value, children.value);
-  return `${whatsappUrl}?text=${encodeURIComponent(text)}`;
-});
 </script>
 
 <template>
@@ -159,10 +152,12 @@ const whatsappLink = computed(() => {
 
     <p v-if="tour.pricingNote" class="rounded-[var(--sts-radius-control)] bg-sts-sand-soft p-3 text-sm" lang="en">{{ tour.pricingNote }}</p>
 
+    <fieldset :disabled="requestLocked" class="contents">
+    <legend class="sr-only">{{ copy.heading }}</legend>
     <section v-if="!online" :aria-label="enquiry.dateLabel">
       <label :for="`preferred-date-${tour.id}`" class="mb-2 block text-sm font-bold">{{ enquiry.dateLabel }}</label>
       <input
-        :id="`preferred-date-${tour.id}`" v-model="selectedDate" data-preferred-date type="date" :min="today" required
+        :id="`preferred-date-${tour.id}`" v-model="selectedDate" data-preferred-date type="date" :min="today" :max="addDays(today, 365)" required
         :aria-describedby="`preferred-date-help-${tour.id}`" :aria-invalid="!!selectedDate && !preferredDateValid"
         class="min-h-12 w-full min-w-0 rounded-[var(--sts-radius-control)] border border-sts-border bg-sts-surface px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sts-ocean-bright"
       >
@@ -258,14 +253,21 @@ const whatsappLink = computed(() => {
       </p>
     </div>
 
+    </fieldset>
     <div class="grid gap-2">
       <UiButton v-if="online" size="lg" block :disabled="!canContinue" icon-end="lucide:arrow-right" @click="proceed">{{ copy.continue }}</UiButton>
       <template v-else>
-        <p class="rounded-[var(--sts-radius-control)] bg-sts-sand-soft p-3 text-sm" data-enquiry-notice>{{ sales?.bookingMode === 'ENQUIRY_ONLY' ? enquiry.notice : sales ? checkoutCopy[locale].errors.salesPaused : enquiry.unknown }}</p>
-        <UiButton :href="whatsappLink" :disabled="!canRequest" size="lg" block icon="lucide:message-circle" data-trip-enquiry @click="analytics.track('whatsapp_click', { placement: 'tour_enquiry', item_id: tour.slug })">{{ enquiry.cta }}</UiButton>
+        <TourRequestForm
+v-if="sales?.bookingMode === 'ENQUIRY_ONLY'" :valid="canRequest" :selection="{
+          tourId: tour.id, preferredDate: selectedDate ?? '', adultsCount: adults,
+          childrenCount: childrenBookable ? children : 0,
+          ...(preferredTime ? { preferredTime } : {}),
+          ...(perUnit && option ? { priceOptionCode: option.code, unitCount: units } : {}),
+        }" @locked="requestLocked = $event" />
+        <p v-else class="rounded-[var(--sts-radius-control)] bg-sts-sand-soft p-3 text-sm" data-enquiry-notice>{{ sales ? checkoutCopy[locale].errors.salesPaused : enquiry.unknown }}</p>
       </template>
       <p v-if="online && selectedDate && !selectedSlot" class="text-center text-xs text-sts-muted">{{ copy.pickTime }}</p>
-      <UiButton v-if="online" :href="whatsappLink" variant="ghost" block icon="lucide:message-circle">{{ copy.askWhatsapp }}</UiButton>
+      <UiButton :href="whatsappUrl" variant="ghost" block icon="lucide:message-circle" @click="analytics.track('whatsapp_click', { placement: 'tour_questions', item_id: tour.slug })">{{ copy.askWhatsapp }}</UiButton>
     </div>
   </div>
 </template>

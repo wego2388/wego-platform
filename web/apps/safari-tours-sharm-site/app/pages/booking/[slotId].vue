@@ -16,7 +16,7 @@ import { whatsappUrl } from "../../content/locales";
 import { tourPageCopy } from "../../content/tourPage";
 import { useSalesStatus } from "../../composables/useSalesStatus";
 import { enquiryCopy } from "../../content/enquiry";
-import { onlineSalesAvailable, tripEnquiryUrl } from "../../utils/enquiry";
+import { onlineSalesAvailable } from "../../utils/enquiry";
 
 /**
  * Checkout: details → review → pay. Everything shown here is a preview; the
@@ -84,10 +84,6 @@ const unitLabel = computed(() =>
     : null,
 );
 const tourLink = computed(() => (tour.value ? `/tour/${tour.value.slug}` : "/tours"));
-const enquiryLink = computed(() => tripEnquiryUrl(locale.value, tour.value, {
-  date: tourDate.value, timeSlot: timeSlot.value, adults: adults.value, children: children.value,
-  optionCode: optionCode.value, units: units.value,
-}));
 
 // ── Form ───────────────────────────────────────────────────────────────────
 type Field = "fullName" | "phone" | "nationality" | "email" | "hotelName";
@@ -296,7 +292,7 @@ async function pay() {
     <div v-else-if="!online" class="mt-8 grid gap-3 rounded-[var(--sts-radius-card)] border border-sts-border bg-sts-sand-soft p-4 text-sm" :role="sales?.bookingMode === 'ONLINE_PAYMENT' ? 'alert' : 'status'" data-enquiry-notice>
       <p>{{ sales?.bookingMode === 'ENQUIRY_ONLY' ? enquiry.notice : sales ? copy.errors.salesPaused : enquiry.unknown }}</p>
       <div class="flex flex-wrap gap-2">
-        <UiButton :href="enquiryLink" variant="secondary" size="sm" icon="lucide:message-circle" data-trip-enquiry @click="analytics.track('whatsapp_click', { placement: 'booking_enquiry', item_id: tour?.slug })">{{ enquiry.cta }}</UiButton>
+        <UiButton :to="tourLink" variant="secondary" size="sm" icon="lucide:send" data-trip-enquiry>{{ enquiry.cta }}</UiButton>
         <UiButton :to="tourLink" variant="ghost" size="sm">{{ discovery.category.all }}</UiButton>
       </div>
     </div>

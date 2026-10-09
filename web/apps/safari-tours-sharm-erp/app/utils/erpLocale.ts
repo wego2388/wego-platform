@@ -5,7 +5,7 @@ import { workspaceAr, workspaceEn } from "./workspaceMessages";
 
 export type ErpLocale = "en" | "ar";
 export const ERP_LOCALE_COOKIE = "sts_staff_locale";
-export const LOCALIZED_ERP_ROUTES = ["/", "/login", "/today", "/bookings", "/tours", "/categories", "/notifications", "/reviews", "/sales", "/settings", "/customers", "/finance", "/staff", "/suppliers", "/drivers", "/vehicles", "/costs", "/profitability", "/settlements", "/cash-box"] as const;
+export const LOCALIZED_ERP_ROUTES = ["/", "/login", "/today", "/requests", "/bookings", "/tours", "/categories", "/notifications", "/reviews", "/sales", "/settings", "/customers", "/finance", "/staff", "/suppliers", "/drivers", "/vehicles", "/costs", "/profitability", "/settlements", "/cash-box"] as const;
 
 export const en = {
   ...financeOpsEn,
@@ -24,6 +24,7 @@ export const en = {
   "nav.overview": "Overview",
   "nav.today": "Today",
   "nav.bookings": "Bookings",
+  "nav.requests": "Website requests",
   "nav.tours": "Tours",
   "nav.finance": "Finance",
   "nav.customers": "Customers",
@@ -269,7 +270,7 @@ export const en = {
   "sales.bookingsPaused": "New online bookings are paused.",
   "sales.paymentsPaused": "Online payments are paused.",
   "sales.open": "Online sales are open.",
-  "sales.enquiryMode": "Enquiry-only deployment: the site takes WhatsApp requests that need office confirmation; it creates no bookings or seat holds. These emergency switches cannot enable online checkout. Existing real payments still reconcile when Paymob is configured. Change deployment mode only after the payment readiness gate.",
+  "sales.enquiryMode": "The website saves requests directly to the request inbox, without reserving seats or collecting payment. Staff confirm a real departure and agreed catalog price. WhatsApp is for questions only. These emergency switches cannot enable Paymob; deployment mode changes require the payment readiness gate.",
   "sales.onlineUnavailable": "Online booking and payment are unavailable in this deployment mode, regardless of the saved pause switches.",
   "sales.lastChanged": "Last changed {date}",
   "sales.pauseBookings": "Pause new online bookings",
@@ -683,6 +684,7 @@ export const ar: Record<ErpMessageKey, string> = {
   "nav.overview": "الرئيسية",
   "nav.today": "اليوم",
   "nav.bookings": "الحجوزات",
+  "nav.requests": "طلبات الموقع",
   "nav.tours": "الرحلات",
   "nav.finance": "المالية",
   "nav.customers": "العملاء",
@@ -928,7 +930,7 @@ export const ar: Record<ErpMessageKey, string> = {
   "sales.bookingsPaused": "الحجوزات الجديدة عبر الموقع متوقفة.",
   "sales.paymentsPaused": "الدفع عبر الموقع متوقف.",
   "sales.open": "البيع عبر الموقع متاح.",
-  "sales.enquiryMode": "التشغيل الحالي للاستفسارات فقط: الموقع يستقبل طلبات واتساب تحتاج تأكيد المكتب، دون إنشاء حجوزات أو حجز سعة. مفاتيح الطوارئ لا تفعّل الدفع الإلكتروني. المدفوعات الحقيقية السابقة تظل قابلة للتسوية عند ضبط Paymob. تغيير وضع التشغيل يحتاج اجتياز اختبار جاهزية الدفع.",
+  "sales.enquiryMode": "الموقع يحفظ الطلبات مباشرة في قسم طلبات الموقع، دون حجز مقاعد أو تحصيل دفع. الموظف يؤكد انطلاقًا حقيقيًا وسعر الكتالوج المتفق عليه. واتساب للاستفسارات فقط. مفاتيح الطوارئ لا تفعّل Paymob؛ تغيير وضع الدفع يحتاج اجتياز بوابة جاهزية الدفع.",
   "sales.onlineUnavailable": "الحجز والدفع الإلكتروني غير متاحين في وضع التشغيل الحالي، بصرف النظر عن مفاتيح الإيقاف المحفوظة.",
   "sales.lastChanged": "آخر تعديل {date}",
   "sales.pauseBookings": "إيقاف الحجوزات الجديدة عبر الموقع",
@@ -1332,6 +1334,7 @@ export function isLocalizedErpRoute(path: string): boolean {
   const normalized = path.replace(/\/+$/, "") || "/";
   return LOCALIZED_ERP_ROUTES.some((route) => route === normalized)
     || /^\/bookings\/[^/]+$/.test(normalized)
+    || /^\/requests\/[^/]+$/.test(normalized)
     || /^\/documents\/[a-z-]+\/[^/]+$/.test(normalized)
     || normalized === "/tours/new"
     || /^\/tours\/[^/]+\/(slots|content)$/.test(normalized);

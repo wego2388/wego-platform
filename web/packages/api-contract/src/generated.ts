@@ -4,6 +4,139 @@
  */
 
 export interface paths {
+    "/api/v1/tours-operator/booking-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Save a guest request without reserving seats or collecting money
+         * @description Idempotent by clientRequestId and normalized body. Returns a reference only. No login, public PII read or WhatsApp handoff.
+         */
+        post: operations["submitToursOperatorOnlineRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/booking-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Staff request inbox (booking:view) */
+        get: operations["listToursOperatorOnlineRequests"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/booking-requests/open-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Number of NEW and IN_PROGRESS website requests (booking:view) */
+        get: operations["countToursOperatorOpenRequests"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/booking-requests/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        /** Read a website request (booking:view) */
+        get: operations["getToursOperatorOnlineRequest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/booking-requests/{id}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        /** Request status and actor audit (booking:view) */
+        get: operations["getToursOperatorOnlineRequestHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/booking-requests/{id}/follow-up": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start follow-up or close a request (booking:view and booking:create-office) */
+        post: operations["followUpToursOperatorOnlineRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/booking-requests/{id}/convert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Atomically confirm a request using office booking rules (booking:view and booking:create-office)
+         * @description Locks the request before the existing slot lock. Confirms a real departure, rechecks catalog price against expectedTotalCents, reserves capacity once, leaves payment UNPAID. Booking source stays linked to the website request; OFFICE is its collection lifecycle, not a Paymob purchase.
+         */
+        post: operations["convertToursOperatorOnlineRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/actuator/health": {
         parameters: {
             query?: never;
@@ -3168,6 +3301,73 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @enum {string} */
+        ToursOperatorOnlineRequestStatus: "NEW" | "IN_PROGRESS" | "CONVERTED" | "CLOSED";
+        SubmitToursOperatorOnlineRequest: {
+            /** Format: uuid */
+            clientRequestId: string;
+            /** Format: uuid */
+            tourId: string;
+            /**
+             * Format: date
+             * @description Preferred Cairo-local day within 365 days; not a reserved departure
+             */
+            preferredDate: string;
+            preferredTime?: components["schemas"]["ToursOperatorTimeSlot"];
+            adultsCount: number;
+            childrenCount: number;
+            priceOptionCode?: string;
+            unitCount?: number;
+            customer: components["schemas"]["ToursOperatorCustomerRequest"];
+            hotelName: string;
+            specialRequests?: string;
+            /** @enum {string} */
+            locale: "en" | "ar" | "ru" | "it";
+            /**
+             * @description Honeypot, never persisted
+             * @default null
+             */
+            website: string | null;
+        };
+        ToursOperatorOnlineRequestAcknowledgement: {
+            reference: string;
+        };
+        ToursOperatorOnlineRequest: {
+            /** Format: uuid */
+            id: string;
+            reference: string;
+            /** Format: uuid */
+            tourId: string;
+            tour: components["schemas"]["ToursOperatorTourResponse"] | null;
+            /** Format: date */
+            preferredDate: string;
+            preferredTime: components["schemas"]["ToursOperatorTimeSlot"] | null;
+            adultsCount: number;
+            childrenCount: number;
+            priceOptionCode: string | null;
+            unitCount: number | null;
+            customer: components["schemas"]["ToursOperatorCustomerResponse"];
+            hotelName: string;
+            specialRequests: string | null;
+            /** @enum {string} */
+            locale: "en" | "ar" | "ru" | "it";
+            estimatedTotal: components["schemas"]["Money"];
+            status: components["schemas"]["ToursOperatorOnlineRequestStatus"];
+            revision: number;
+            /** Format: uuid */
+            bookingId: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ToursOperatorOnlineRequestAudit: {
+            status: components["schemas"]["ToursOperatorOnlineRequestStatus"];
+            /** Format: uuid */
+            actorUserId: string | null;
+            /** Format: date-time */
+            occurredAt: string;
+        };
         ToursOperatorMediaUploadResponse: {
             /** Format: uuid */
             assetId: string;
@@ -5560,6 +5760,366 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    submitToursOperatorOnlineRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitToursOperatorOnlineRequest"];
+            };
+        };
+        responses: {
+            /** @description Same request replayed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOnlineRequestAcknowledgement"];
+                };
+            };
+            /** @description Saved durably, awaiting office confirmation */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOnlineRequestAcknowledgement"];
+                };
+            };
+            /** @description Invalid fields or honeypot */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Idempotency key reused with different details */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid preferred date, inactive tour or invalid catalog pricing selection */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limited; Retry-After indicates delay */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listToursOperatorOnlineRequests: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["ToursOperatorOnlineRequestStatus"];
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Newest first; PII accessible to authorized staff only */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOnlineRequest"][];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    countToursOperatorOpenRequests: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No customer data */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        count: number;
+                    };
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getToursOperatorOnlineRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Staff-only request details */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOnlineRequest"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getToursOperatorOnlineRequestHistory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Append-only transitions, no customer PII in audit */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOnlineRequestAudit"][];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    followUpToursOperatorOnlineRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    expectedRevision: number;
+                    /** @enum {string} */
+                    status: "IN_PROGRESS" | "CLOSED";
+                };
+            };
+        };
+        responses: {
+            /** @description Updated or replayed transition */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOnlineRequest"];
+                };
+            };
+            /** @description Invalid fields */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permissions required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale revision or request no longer open */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid target status */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    convertToursOperatorOnlineRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    expectedRevision: number;
+                    /** Format: uuid */
+                    slotId: string;
+                    /** Format: int64 */
+                    expectedTotalCents: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Converted or exact replay, with bookingId */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorOnlineRequest"];
+                };
+            };
+            /** @description Invalid fields */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permissions required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request or slot not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale request, unavailable slot, wrong tour, price changed or different conversion already performed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Catalog selection no longer valid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getHealth: {
         parameters: {
             query?: never;

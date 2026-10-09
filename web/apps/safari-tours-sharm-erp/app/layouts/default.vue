@@ -6,6 +6,7 @@ import { useErpLocale } from "../composables/useErpLocale";
 import { isLocalizedErpRoute } from "../utils/erpLocale";
 import ErpLanguageSwitch from "../components/ErpLanguageSwitch.vue";
 import StaffNavigation from "../components/StaffNavigation.vue";
+import { getOnlineRequestCount } from "../composables/useOnlineRequests";
 
 /**
  * One staff shell for every page: brand, permission-aware navigation and the
@@ -19,6 +20,12 @@ const session = ref<AuthSession | null>(null);
 const menuOpen = ref(false);
 const menuButton = ref<HTMLButtonElement | null>(null);
 const signOutFailed = ref(false);
+const openRequests = ref(0);
+let requestTimer: ReturnType<typeof setInterval> | undefined;
+async function refreshRequestCount() {
+  if (!session.value || !hasPermission(session.value, "tours-operator.booking:view")) { openRequests.value = 0; return; }
+  try { openRequests.value = (await getOnlineRequestCount(session.value.token)).count; } catch { /* Keep last known count; never imply no pending requests. */ }
+}
 
 // Every staff member sees when online sales are paused, so nobody wonders
 // why the website stopped taking bookings.
@@ -43,15 +50,19 @@ const onMenuKey = (event: KeyboardEvent) => {
 onMounted(() => {
   session.value = readAuthSession();
   void refreshSalesStatus();
+  void refreshRequestCount();
+  requestTimer = setInterval(() => { if (!document.hidden) void refreshRequestCount(); }, 20_000);
   window.addEventListener("sts:sales-control-changed", onSalesChanged);
   window.addEventListener("keydown", onMenuKey);
 });
 onBeforeUnmount(() => {
+  clearInterval(requestTimer);
   window.removeEventListener("sts:sales-control-changed", onSalesChanged);
   window.removeEventListener("keydown", onMenuKey);
 });
 watch(() => route.fullPath, () => {
   session.value = readAuthSession();
+  void refreshRequestCount();
   menuOpen.value = false;
   void refreshSalesStatus();
 });
@@ -61,6 +72,7 @@ const links = computed(() =>
     { to: "/", label: t("nav.overview"), show: true },
     { to: "/today", label: t("nav.today"), show: hasPermission(session.value, "tours-operator.booking:view") },
     { to: "/bookings", label: t("nav.bookings"), show: hasPermission(session.value, "tours-operator.booking:view") },
+    { to: "/requests", label: `${t("nav.requests")}${openRequests.value ? ` (${openRequests.value})` : ''}`, show: hasPermission(session.value, "tours-operator.booking:view") },
     { to: "/tours", label: t("nav.tours"), show: hasPermission(session.value, "tours-operator.tour:view") },
     { to: "/categories", label: t("nav.categories"), show: hasPermission(session.value, "tours-operator.tour:view") },
     { to: "/suppliers", label: t("nav.suppliers"), show: hasPermission(session.value, "tours-operator.supplier:manage") },

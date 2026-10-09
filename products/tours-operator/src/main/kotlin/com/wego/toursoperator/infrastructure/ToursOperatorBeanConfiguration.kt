@@ -230,6 +230,22 @@ class ToursOperatorBeanConfiguration {
 
     // ── Command services ─────────────────────────────────────────────────────
 
+    @Bean
+    fun onlineRequestService(
+        repository: com.wego.toursoperator.application.OnlineRequestRepository,
+        @Qualifier("stoTourRepositoryImpl") tours: TourRepository,
+        @Qualifier("stoTourSlotRepositoryImpl") slots: TourSlotRepository,
+        @Qualifier("stoBookingRepositoryImpl") bookings: BookingRepository,
+        createBooking: CreateBookingService,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): com.wego.toursoperator.application.OnlineRequestService =
+        com.wego.toursoperator.application
+            .OnlineRequestService(repository, tours, slots, bookings, createBooking, transactionRunner, clock)
+
+    @Bean
+    fun toursOperatorPublicOnlineRequestPrefix(): PublicApiPrefix = PublicApiPrefix("/api/v1/tours-operator/booking-requests")
+
     @Bean("stoCreateBookingService")
     fun createBookingService(
         @Qualifier("stoTourRepositoryImpl") tourRepository: TourRepository,

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { discoveryCopy } from "../app/content/discovery";
 import { infoCopy } from "../app/content/info";
-import { discoveryForSales, infoForSales, officeCopy } from "../app/content/salesAwareCopy";
+import { discoveryForSales, infoForSales, officeCopy, unavailableCopy } from "../app/content/salesAwareCopy";
 
 describe("marketing promises match effective sales capability", () => {
   for (const locale of ["en", "ar", "ru", "it"] as const) {
@@ -15,10 +15,12 @@ describe("marketing promises match effective sales capability", () => {
         const discovery = discoveryForSales(locale, status), info = infoForSales(locale, status);
         expect(discovery.hero.body).toBe(officeCopy[locale].hero);
         expect(JSON.stringify(discovery.why)).not.toContain("Paymob");
-        expect(discovery.faq.items[1]!.body).toBe(officeCopy[locale].confirmation);
-        expect(info.faq.items[1]!.body).toBe(officeCopy[locale].booking);
+        const current = status?.bookingMode === "ENQUIRY_ONLY" ? officeCopy[locale] : unavailableCopy[locale];
+        expect(discovery.faq.items[1]!.body).toBe(current.confirmation);
+        expect(info.faq.items[1]!.body).toBe(current.booking);
         expect(info.faq.items[2]!.body).toBe(officeCopy[locale].availability);
-        expect(info.faq.items[4]!.body).toBe(officeCopy[locale].confirmation);
+        expect(info.faq.items[4]!.body).toBe(current.confirmation);
+        expect(info.terms.sections[2]!.body[0]).toBe(current.booking);
         expect(JSON.stringify(info.terms)).not.toContain("Paymob");
         expect(info.privacy.sections[2]!.body).toEqual([officeCopy[locale].privacy]);
         expect(info.terms.sections[3]).toEqual(infoCopy[locale].terms.sections[3]);

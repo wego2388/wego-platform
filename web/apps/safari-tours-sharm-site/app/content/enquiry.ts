@@ -1,9 +1,10 @@
 import type { StsLocale } from "./locales";
+import { onlineRequestCopy } from "./onlineRequest";
 
 export const enquiryCopy = {
   en: {
     title: "Request your booking",
-    notice: "Online payment is not available right now. Send a WhatsApp enquiry: our office must confirm availability, the final price and payment arrangements. No places are reserved by sending a message.",
+    notice: onlineRequestCopy.en.notice,
     cta: "Send a booking request",
     dateLabel: "Preferred date", dateHint: "Choose your preferred date. Our office will confirm availability; this is not a reserved departure.",
     dateInvalid: "Choose today or a future date.", timeLabel: "Preferred departure", anyTime: "Confirm the time with the office", estimatedTotal: "Estimated total — subject to office confirmation",
@@ -13,7 +14,7 @@ export const enquiryCopy = {
   },
   ar: {
     title: "اطلب حجز رحلتك",
-    notice: "الدفع الإلكتروني غير متاح حاليًا. أرسل طلبًا عبر واتساب ليؤكد المكتب التوافر والسعر النهائي وطريقة الدفع. إرسال الرسالة لا يحجز أماكن.",
+    notice: onlineRequestCopy.ar.notice,
     cta: "أرسل طلب حجز",
     dateLabel: "التاريخ المطلوب", dateHint: "اختر التاريخ المناسب لك؛ المكتب يؤكد الإتاحة. اختيار التاريخ ليس حجزًا مؤكدًا لموعد انطلاق.",
     dateInvalid: "اختر تاريخ اليوم أو تاريخًا قادمًا.", timeLabel: "وقت الانطلاق المفضل", anyTime: "تأكيد الموعد مع المكتب", estimatedTotal: "الإجمالي التقديري — يحتاج تأكيد المكتب",
@@ -23,7 +24,7 @@ export const enquiryCopy = {
   },
   ru: {
     title: "Запросить бронирование",
-    notice: "Онлайн-оплата пока недоступна. Отправьте запрос в WhatsApp: офис должен подтвердить наличие мест, окончательную цену и способ оплаты. Сообщение не резервирует места.",
+    notice: onlineRequestCopy.ru.notice,
     cta: "Отправить запрос на бронирование",
     dateLabel: "Желаемая дата", dateHint: "Выберите удобную дату. Офис подтвердит наличие мест; дата не означает подтверждённый выезд.",
     dateInvalid: "Выберите сегодняшнюю или будущую дату.", timeLabel: "Желаемое время выезда", anyTime: "Уточнить время в офисе", estimatedTotal: "Предварительная сумма — требуется подтверждение офиса",
@@ -33,7 +34,7 @@ export const enquiryCopy = {
   },
   it: {
     title: "Richiedi la prenotazione",
-    notice: "Il pagamento online non è ancora disponibile. Invia una richiesta su WhatsApp: l’ufficio deve confermare disponibilità, prezzo finale e modalità di pagamento. Il messaggio non riserva posti.",
+    notice: onlineRequestCopy.it.notice,
     cta: "Invia una richiesta di prenotazione",
     dateLabel: "Data preferita", dateHint: "Scegli la data che preferisci. L’ufficio confermerà la disponibilità; la data non conferma una partenza.",
     dateInvalid: "Scegli oggi o una data futura.", timeLabel: "Partenza preferita", anyTime: "Conferma l’orario con l’ufficio", estimatedTotal: "Totale indicativo — soggetto alla conferma dell’ufficio",

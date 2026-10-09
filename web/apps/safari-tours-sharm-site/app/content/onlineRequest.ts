@@ -1,0 +1,48 @@
+import type { StsLocale } from "./locales";
+
+export const onlineRequestCopy = {
+  en: {
+    name: "Full name", phone: "Phone with country code", nationality: "Nationality", country: "Choose your country",
+    hotel: "Hotel / accommodation", email: "Email (optional)", notes: "Requests (optional)",
+    consent: "I have read the privacy policy and understand this request needs office confirmation.", privacy: "Privacy policy",
+    send: "Send booking request", sending: "Saving your request…", retry: "Retry the same request",
+    error: "We could not verify receipt. Your original details are kept for a safe retry; do not submit a new request.",
+    invalid: "Check your date, guest selection and contact details.", rejected: "The request was not saved. Check your selection and details, then try again.",
+    success: "Request received", reference: "Your request reference", next: "Our office will contact you to confirm availability, the final price and payment arrangements. No payment has been taken and no places are reserved yet.",
+    notice: "Send your request here: it goes directly to our office. Booking is confirmed after our team checks availability. WhatsApp is for questions only.",
+    select: "Choose your date and guests above before sending.",
+  },
+  ar: {
+    name: "الاسم بالكامل", phone: "الهاتف مع كود الدولة", nationality: "الجنسية", country: "اختر دولتك",
+    hotel: "الفندق / مكان الإقامة", email: "البريد الإلكتروني (اختياري)", notes: "طلبات خاصة (اختياري)",
+    consent: "قرأت سياسة الخصوصية وأفهم أن الطلب يحتاج تأكيد المكتب.", privacy: "سياسة الخصوصية",
+    send: "إرسال طلب الحجز", sending: "جارٍ حفظ طلبك…", retry: "إعادة إرسال نفس الطلب",
+    error: "تعذّر التأكد من استلام الطلب. احتفظنا ببيانات المحاولة لإعادتها بأمان؛ لا ترسل طلبًا جديدًا.",
+    invalid: "راجع التاريخ واختيار الضيوف وبيانات التواصل.", rejected: "لم يُحفظ الطلب. راجع الاختيارات والبيانات ثم حاول مرة أخرى.",
+    success: "تم استلام طلبك", reference: "رقم طلبك", next: "سيتواصل معك المكتب لتأكيد الإتاحة والسعر النهائي وطريقة الدفع. لم يتم تحصيل مبلغ أو حجز أماكن حتى الآن.",
+    notice: "أرسل طلبك هنا ليصل مباشرة إلى المكتب. يتأكد الحجز بعد مراجعة الإتاحة مع فريقنا. واتساب للاستفسارات فقط.",
+    select: "اختر التاريخ والضيوف بالأعلى قبل الإرسال.",
+  },
+  ru: {
+    name: "Имя и фамилия", phone: "Телефон с кодом страны", nationality: "Гражданство", country: "Выберите страну",
+    hotel: "Отель / место проживания", email: "Email (необязательно)", notes: "Пожелания (необязательно)",
+    consent: "Я прочитал(а) политику конфиденциальности и понимаю, что требуется подтверждение офиса.", privacy: "Конфиденциальность",
+    send: "Отправить запрос", sending: "Сохраняем запрос…", retry: "Повторить тот же запрос",
+    error: "Не удалось проверить получение. Исходные данные сохранены для безопасного повтора; не создавайте новый запрос.",
+    invalid: "Проверьте дату, количество гостей и контактные данные.", rejected: "Запрос не сохранён. Проверьте данные и повторите попытку.",
+    success: "Запрос получен", reference: "Номер вашего запроса", next: "Офис свяжется с вами для подтверждения мест, окончательной цены и оплаты. Деньги не списаны, места пока не зарезервированы.",
+    notice: "Отправьте запрос здесь — он поступит прямо в офис. Бронирование подтверждается после проверки мест. WhatsApp — только для вопросов.",
+    select: "Перед отправкой выберите дату и гостей выше.",
+  },
+  it: {
+    name: "Nome e cognome", phone: "Telefono con prefisso internazionale", nationality: "Nazionalità", country: "Scegli il paese",
+    hotel: "Hotel / alloggio", email: "Email (facoltativa)", notes: "Richieste (facoltative)",
+    consent: "Ho letto l’informativa sulla privacy e comprendo che serve la conferma dell’ufficio.", privacy: "Privacy",
+    send: "Invia richiesta di prenotazione", sending: "Salvataggio della richiesta…", retry: "Riprova la stessa richiesta",
+    error: "Non è stato possibile verificare la ricezione. I dati originali sono conservati per riprovare in sicurezza; non inviare una nuova richiesta.",
+    invalid: "Controlla la data, gli ospiti e i recapiti.", rejected: "Richiesta non salvata. Controlla i dati e riprova.",
+    success: "Richiesta ricevuta", reference: "Numero della richiesta", next: "L’ufficio ti contatterà per confermare disponibilità, prezzo finale e pagamento. Non è stato addebitato nulla e i posti non sono ancora riservati.",
+    notice: "Invia qui la richiesta: arriva direttamente in ufficio. La prenotazione viene confermata dopo la verifica della disponibilità. WhatsApp è solo per domande.",
+    select: "Scegli data e ospiti qui sopra prima di inviare.",
+  },
+} satisfies Record<StsLocale, Record<string, string>>;

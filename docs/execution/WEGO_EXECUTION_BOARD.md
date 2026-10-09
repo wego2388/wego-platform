@@ -5223,6 +5223,67 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   performance P1 and Resort producer-gateway adoption remain explicitly OPEN.
   [handoff](../../clients/safari-tours-sharm/handoff/2026-10-09_ADMIN_GUIDE_AND_DOCUMENTS_QA_HANDOFF_AR.md).
 
+#### 2026-10-10 — Owner-approved online request intake / OPS2-G acceptance expansion
+
+- OPS2-G remains the sole ACTIVE packet. Owner explicitly approved website
+  requests saved automatically to ERP, staff follow-up/confirmation, unchanged
+  office bookings, WhatsApp for questions only, and deployment after gates.
+- Bounded additive Tier1 scope: durable guest requests, idempotent public
+  submission, staff permissions/audit, atomic conversion through existing office
+  capacity/pricing/collection rules, four public locales and bilingual ERP.
+  No Paymob enablement, fake availability, auto-payment or Resort application change.
+- Acceptance and limits recorded in
+  `clients/safari-tours-sharm/handoff/2026-10-10_ONLINE_REQUESTS_EXECUTION_AR.md`.
+  Independent adversarial executable review is mandatory before commit/deploy.
+- Prior document fix exact-source CI37871156994 SUCCESS on f32245f; production
+  stillstr-2026.10.08-0004800. Candidate images remain forbidden for production.
+
+#### 2026-10-10 — Online request implementation and executable review remediation
+
+- Additive V34 request/audit tables; public reference-only POST, normalized
+  payload idempotency, real catalog estimate, Cairo date validation and contact
+  control-character rejection. No public PII lookup, seats, payment or outbox
+  from intake. Staff booking:view reads; booking:view + create-office writes.
+- Conversion locks the request then uses the existing office slot transaction,
+  price recheck/rollback, deterministic office key and immutable request link.
+  Concurrent staff/repeated requests/final-seat races, changed prices and audit
+  failure rollback proven against real PostgreSQL18.4. No invented departures.
+- Four-locale native request form, reference/pending outcome, explicit privacy
+  acknowledgment, international phone normalization, bilingual staff inbox,
+  follow-up/close/history, real departure selection and unpaid confirmation.
+  WhatsApp is questions-only. Existing office creation/collections unchanged.
+- Independent review fixes: R1 lost-success→429 now retains the same frozen
+  key/body in guest and staff retries; R2 booking-only staff no longer require
+  tour administration (embedded current catalog context); R3 old WhatsApp-only
+  FAQ/terms/fallback replaced and UNKNOWN/PAUSED copy remains fail-closed;
+  R4 each new staff page has a main landmark, without duplicating shell#main.
+- Final backend gates: Safari35suites/440tests and platform70suites/327tests,
+  zero failures/errors/skips; check/ktlint/bootJar PASS. Site163tests/18files,
+  ERP375/29files, eslint/typechecks/production builds, Foundry/OpenAPI/YAML
+  and deterministic generated contract PASS.
+- Candidate browser:60 distinct document/enquiry/office regressions PASS;
+  corrected final request8 + real operations cycle1 PASS(50.6sec), zero retries.
+  Mobile/desktop ×four guest locales and EN/AR ERP verified real201/replay200,
+  no hold at intake, CONFIRMED/OFFICE/UNPAID, one capacity increment and axe.
+  Earlier failures retained: consent test setup, missing main, unstable success
+  locator; no weakening financial/privacy assertions to conceal failures.
+- Reviewer real edge probe:32 empty request POSTs→21×400/11×429; every429 has
+  JSON rate_limited + Retry-After3. Public staff404/anonymous staff401 retained,
+  synthetic contact sentinels absent from all four application/edge logs.
+- Owner guide source updated; new19-page/12-section Arabic PDF,8renderer tests
+  PASS and page renders visually checked. Old PDF retained. No real client-data
+  used in rehearsals. New scope is not yet claimed deployed.
+- Predeploy encrypted bundle20261009T223444Z pulled offsite, restore PASS:
+  version33/43tables/427rows/20mediafiles. Old immutable production backend
+ 198959e independently starts/readinessUP on disposable version34: rollback is
+  app-only, never dropping requests/restoring an older database. Fresh guarded
+  upgrade preparation preserves all9Resort services +Safari PostgreSQL.
+- Final independent Tier1 reviewer online_requests_tier1_review:zero remaining
+  blockers in source and bounded deployment plan; R1–R4 resolved with executable
+  evidence. Exact-source CI/clean final images/live acceptance remain mandatory
+  before promotion. Other two clients' generated plans change only their shared
+  profile-catalog digest; no SharmToGo/Divers catalog or runtime implementation.
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE

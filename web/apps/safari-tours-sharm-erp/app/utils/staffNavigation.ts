@@ -2,7 +2,7 @@ import type { ErpMessageKey } from "./erpLocale";
 
 /** Organization only. The shell filters permission-gated links before grouping. */
 export const STAFF_GROUPS = [
-  { key: "workspace.operations", paths: ["/", "/today", "/bookings"] },
+  { key: "workspace.operations", paths: ["/", "/today", "/requests", "/bookings"] },
   { key: "workspace.catalog", paths: ["/tours", "/categories"] },
   { key: "workspace.finance", paths: ["/finance", "/profitability", "/costs", "/settlements", "/cash-box"] },
   { key: "workspace.relationships", paths: ["/suppliers", "/drivers", "/vehicles", "/customers"] },

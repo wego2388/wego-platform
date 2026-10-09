@@ -49,6 +49,7 @@ class ProductIsolationIntegrationTest(
                 "31",
                 "32",
                 "33",
+                "34",
             )
 
         postgres.createConnection("").use { connection ->
@@ -88,6 +89,8 @@ class ProductIsolationIntegrationTest(
                     "tours_operator_asset",
                     "tours_operator_asset_variant",
                     "tours_operator_category_media",
+                    "tours_operator_online_request",
+                    "tours_operator_online_request_audit",
                 ).noneMatch { it.startsWith("divers_") }
                 .noneMatch { it.startsWith("travel_") }
                 .noneMatch { it.startsWith("hr_") }

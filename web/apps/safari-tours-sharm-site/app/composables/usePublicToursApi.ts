@@ -126,6 +126,10 @@ export function createBooking(payload: CreateBookingPayload): Promise<BookingCon
   return post<BookingConfirmation>("/api/v1/tours-operator/bookings", payload);
 }
 
+export function submitOnlineRequest(payload: import("@wego/api-contract").SubmitOnlineRequestPayload): Promise<import("@wego/api-contract").OnlineRequestAcknowledgement> {
+  return post("/api/v1/tours-operator/booking-requests", payload);
+}
+
 // ── Payment endpoints ──────────────────────────────────────────────────────
 
 export interface InitiatePaymentResponse {
