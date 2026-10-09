@@ -27,6 +27,7 @@ const en = {
   "doc.units": "{count} × {label}",
   "doc.signature": "Signature",
   "doc.date": "Date",
+  "doc.tableScroll": "Scroll sideways or use the arrow keys to see all columns.",
 
   "doc.banner.cancelled": "CANCELLED — this is not a valid voucher",
   "doc.watermark.cancelled": "CANCELLED",
@@ -282,6 +283,7 @@ const ar: Record<DocumentMessageKey, string> = {
   "doc.units": "{count} × {label}",
   "doc.signature": "التوقيع",
   "doc.date": "التاريخ",
+  "doc.tableScroll": "مرّر الجدول أفقيًا أو استخدم أسهم لوحة المفاتيح لرؤية كل الأعمدة.",
 
   "doc.banner.cancelled": "ملغي — هذه ليست قسيمة صالحة",
   "doc.watermark.cancelled": "ملغي",

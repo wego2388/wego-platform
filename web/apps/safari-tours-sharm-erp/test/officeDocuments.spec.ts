@@ -225,6 +225,12 @@ describe.each([["en", "ltr"], ["ar", "rtl"]] as const)("documents in %s", (lang,
     expect(w.findAll("tbody tr")).toHaveLength(2);
     expect(w.findAll("th[scope='col']").length).toBeGreaterThan(0);
     expect(w.text()).toContain(docMessage(lang, "doc.run.dueYes"));
+    const scroll = w.get(".doc-table-scroll");
+    expect(scroll.attributes("role")).toBe("region");
+    expect(scroll.attributes("tabindex")).toBe("0");
+    expect(scroll.attributes("aria-label")).toBe(docMessage(lang, "doc.run.title"));
+    expect(scroll.find("table").exists()).toBe(true);
+    expect(w.get(".doc-table-hint").text()).toBe(docMessage(lang, "doc.tableScroll"));
   });
 
   it("pickup manifest: ordered rows with phones and blank driver and vehicle", () => {
@@ -235,6 +241,11 @@ describe.each([["en", "ltr"], ["ar", "rtl"]] as const)("documents in %s", (lang,
     expect(rows[1]).toContain("Zeta Hotel");
     expect(w.findAll(".doc-blank")).toHaveLength(2);
     expect(w.text()).toContain(docMessage(lang, "doc.pickup.privacy"));
+    const scroll = w.get(".doc-table-scroll");
+    expect(scroll.attributes("role")).toBe("region");
+    expect(scroll.attributes("tabindex")).toBe("0");
+    expect(scroll.attributes("aria-label")).toBe(docMessage(lang, "doc.pickup.title"));
+    expect(scroll.findAll("tbody tr")).toHaveLength(2);
   });
 
   it("customer paper shows staff initials, never an email; internal paper keeps the email", () => {

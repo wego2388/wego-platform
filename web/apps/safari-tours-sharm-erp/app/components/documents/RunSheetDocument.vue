@@ -5,6 +5,7 @@ import { docMessage, type DocumentLanguage } from "../../utils/documentMessages"
 import { docCount, docDate, docTourName } from "../../utils/documentFormat";
 import { erpMessage } from "../../utils/erpLocale";
 import DocumentSheet from "./DocumentSheet.vue";
+import DocumentTable from "./DocumentTable.vue";
 
 /** Daily run sheet: minimal personal data (name, hotel, room, guests) and no phone numbers. */
 const props = defineProps<{ doc: RunSheetDocument; lang: DocumentLanguage }>();
@@ -34,6 +35,7 @@ const d = computed(() => props.doc.data);
           <strong>{{ m("doc.run.hotels") }}:</strong>
           <span v-for="(h, i) in dep.hotels" :key="h.hotelName" dir="auto">{{ i ? " · " : " " }}{{ m("doc.run.hotelGuests", { hotel: h.hotelName, count: docCount(h.guests, lang) }) }}</span>
         </p>
+        <DocumentTable :lang="lang" :label="m('doc.run.title')">
         <table class="doc-table">
           <thead>
             <tr>
@@ -56,6 +58,7 @@ const d = computed(() => props.doc.data);
             </tr>
           </tbody>
         </table>
+        </DocumentTable>
         <p style="margin: 1.5mm 0 0"><strong>{{ m("doc.run.notes") }}:</strong>
           <span v-if="dep.notes.length === 0"> {{ m("doc.run.noNotes") }}</span>
         </p>

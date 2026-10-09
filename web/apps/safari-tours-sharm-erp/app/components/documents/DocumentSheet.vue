@@ -117,7 +117,7 @@ const printedLine = computed(() => m("doc.printed", { at: docInstant(props.stamp
   font-size: 56pt; font-weight: 800; letter-spacing: 0.06em; color: rgb(179 38 30 / 0.16); transform: rotate(-28deg); text-align: center; white-space: nowrap;
   -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
-.doc-body { position: relative; z-index: 1; margin-top: 3mm; margin-bottom: 4mm; }
+.doc-body { position: relative; z-index: 1; min-width: 0; margin-top: 3mm; margin-bottom: 4mm; }
 .doc-section { margin-top: 3mm; break-inside: avoid; }
 .doc-section > h2 { margin: 0 0 2mm; font-size: 11.5pt; color: var(--doc-accent); border-bottom: 1px solid var(--doc-line); padding-bottom: 1mm; }
 .doc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5mm 8mm; margin: 0; }

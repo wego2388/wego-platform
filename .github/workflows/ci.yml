@@ -290,6 +290,10 @@ jobs:
         env:
           WEGO_STS_SITE_BASE_URL: http://127.0.0.1:58080
         run: pnpm --dir e2e exec playwright test tests/safari-brand-shell.spec.ts --workers=1
+      - name: Safari operational document mobile tables and A4 print
+        env:
+          WEGO_STS_STAFF_BASE_URL: http://staff.localhost:58080
+        run: pnpm --dir e2e exec playwright test tests/safari-document-responsive.spec.ts --workers=1
       - name: Verify office customer data is absent from runtime logs
         run: |
           office_logs="$(docker compose --env-file .env.example -f infrastructure/compose/safari-tours-sharm.compose.yaml -f e2e/compose.safari-checkout.yaml logs --no-color)"

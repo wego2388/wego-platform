@@ -5,8 +5,9 @@ import { docMessage, type DocumentLanguage } from "../../utils/documentMessages"
 import { docCount, docDate, docTourName } from "../../utils/documentFormat";
 import { erpMessage } from "../../utils/erpLocale";
 import DocumentSheet from "./DocumentSheet.vue";
+import DocumentTable from "./DocumentTable.vue";
 
-/** Pickup manifest of one departure. It carries phone numbers; driver and vehicle stay blank until OPS2-E. */
+/** Confidential pickup manifest: guest phones and actual assigned transport. */
 const props = defineProps<{ doc: PickupManifestDocument; lang: DocumentLanguage }>();
 const m = (key: Parameters<typeof docMessage>[1], params?: Record<string, string | number>) => docMessage(props.lang, key, params);
 const d = computed(() => props.doc.data);
@@ -27,7 +28,8 @@ const d = computed(() => props.doc.data);
     </section>
 
     <p v-if="d.lines.length === 0" class="doc-note">{{ m("doc.pickup.empty") }}</p>
-    <table v-else class="doc-table">
+    <DocumentTable v-else :lang="lang" :label="m('doc.pickup.title')">
+    <table class="doc-table">
       <thead>
         <tr>
           <th scope="col">{{ m("doc.pickup.order") }}</th>
@@ -51,6 +53,7 @@ const d = computed(() => props.doc.data);
         </tr>
       </tbody>
     </table>
+    </DocumentTable>
 
     <div class="doc-sign-grid" style="grid-template-columns: 1fr 1fr 1fr">
       <div class="doc-sign" style="grid-column: 3">{{ m("doc.pickup.signature") }}</div>
