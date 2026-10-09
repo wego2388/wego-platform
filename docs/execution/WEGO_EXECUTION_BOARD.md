@@ -5155,6 +5155,36 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   Remaining: true partner mappings/licence dates/fleet/costs/fx/departures, owner
   photos/UAT, mobile-performance follow-up and separately gated payment/email.
 
+#### 2026-10-09 — Staff TLS incident restored; current Resort release protected
+
+- Owner reports Chrome hostname-mismatch on staff, then explicitly requests fix.
+  OPS2-G remains the sole ACTIVE packet. No new packet/business-data/API change.
+- Independently confirmed newer Resort dc266 nginx recreated19:41:44UTC without
+  Safari RO directory/loader/network; TLS presented the Resort certificate to
+  Safari. DNS/current Safari apps and three-name Safari certificate were correct.
+  Host wrapper/guard/overlay/marker hashes still matched the reviewed contract.
+- Current-release wrapper guard and disposable actual-nginx syntax preflight
+  PASS. Independent Tier1 `shared_gateway_tier1_review` READY/zero blockers.
+  Under repair lock + current/nginx/protected-service CAS, ONLY nginx recreated
+  through the installed wrapper, same current image, around00:41UTC(03:41Cairo).
+  Current Resort remains dc266; Safari remainsstr-2026.10.08-0004800. No app or
+  database rollback, DNS/certificate issuance, migrations, env or payment changes.
+- Thirteen protected services retain exact IDs/images/starts/restarts/health.
+  Required six RO mounts/two networks restored; only nginx + Safari edge share
+  the bridge. Safari apex EN/AR200, www301, staff/login200, four Resort origins200,
+  all TLS0. Original Resort certificate fingerprint unchanged; Safari valid until
+  2027-01-06. Private-public boundary404/401 retained; owner Chrome actual Safari
+  login renders without certificate bypass. Fresh safari-health.service00:43UTC
+  success/timers active. Independent post-restoration Tier1 ACCEPT/zero blockers.
+- **Recurrence OPEN:** dc266 release omits wrapper/guard and verifier host gate.
+  Its actual producer/executor must adopt the scoped reviewed contract before
+  another Resort deploy; installed wrapper cannot prevent a raw Compose bypass.
+  No takeover/main merge/old4983 application rollback conceals this finding.
+- Private evidence `/home/wego/safari-gateway-recovery-20261009.AZGiPm/`;
+  [incident/Claude handoff](../../clients/safari-tours-sharm/handoff/2026-10-09_STAFF_TLS_RECOVERY_CLAUDE_HANDOFF_AR.md).
+  Source builds/fullappCI not rerun: this is runtimegateway restoration plus docs,
+  not a new application release. No zero-downtime claim for nginx replacement.
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE
