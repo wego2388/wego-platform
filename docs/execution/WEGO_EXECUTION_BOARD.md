@@ -5284,6 +5284,32 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   before promotion. Other two clients' generated plans change only their shared
   profile-catalog digest; no SharmToGo/Divers catalog or runtime implementation.
 
+#### 2026-10-10 — Exact-source CI media-throttle correction (no limiter weakening)
+
+- OPS2-G remains the sole ACTIVE packet. Source7120842 was committed/pushed
+  after independent review, but full CI38000912503 FAILED; deployment remained
+  blocked. Backend/web/mobile/contracts/repository/security/gateway jobs passed.
+- Local clean-image regression run:69 browser cases PASS(4.9min). Faster CI
+  exposed a pre-existing office media test timing defect:8 uploads from one IP
+  in14sec exceeded the real10/minute +burst3 edge bucket. Both Arabic cases'
+  second upload returned429 HTML, then the test obscured it as a JSON error.
+  Independent reviewer confirmed the exact timestamps/statuses in CI logs and
+  reproduced the HTML429/missing Retry-After in isolated nginx containers.
+- Correction preserves rate10/minute, burst3, all8 real photos and all4
+  locale/viewport cases. Serial submissions are paced >=6100ms across cases;
+  HTTP200 is asserted before parsing receipts, without retries or IP spoofing.
+- Staff media429 now has JSON rate_limited, Retry-After6 and the existing
+  security headers. A final real-edge regression uses empty unauthenticated
+  POSTs (no asset writes) to prove429 without weakening authentication.
+- Corrected real-browser gate:5PASS(1.3min), zero retries. Independent Tier1
+  reviewer online_requests_tier1_review reports zero blockers: isolated nginx
+  syntax/rapid tour+category probes verify JSON429/Retry-After6/all7 headers,
+  public staff404, and executable pacing proof has minimum6100ms across8
+  attempts. No shared verification bucket or production data touched by review.
+- Exact-source successful full CI, final clean-image browser acceptance,
+  independent review and guarded production upgrade remain release gates.
+  Failed CI evidence is retained, not relabeled as a successful launch.
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE

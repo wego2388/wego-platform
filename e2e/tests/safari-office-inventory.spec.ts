@@ -2,12 +2,21 @@
 import { AxeBuilder } from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
+import { setTimeout as delay } from "node:timers/promises";
 import { E2E_STAFF_EMAIL, E2E_STAFF_PASSWORD } from "../seed.mjs";
 
 const SITE = process.env.WEGO_STS_SITE_BASE_URL ?? "http://127.0.0.1:58080";
 const STAFF = process.env.WEGO_STS_STAFF_BASE_URL ?? "http://staff.localhost:58080";
 let auth: { token: string; email: string; roles: string[]; permissions: string[] };
 const day = "2028-02-29";
+// The real edge allows 10 media uploads/minute per IP, across all tour IDs.
+// Keep this serial suite within that contract even on fast CI runners. Do not
+// weaken the production limiter or retry an upload with an uncertain outcome.
+let lastPhotoSubmittedAt = 0;
+async function pacePhotoSubmission() {
+  const wait = 6100 - (Date.now() - lastPhotoSubmittedAt);
+  if (wait > 0) await delay(wait);
+}
 test.beforeAll(async ({ request }) => {
   if (process.env.WEGO_SAFARI_OFFICE_E2E_CONFIRM !== "yes-this-is-a-disposable-office-stack" || !["127.0.0.1", "localhost"].includes(new URL(SITE).hostname) || new URL(STAFF).hostname !== "staff.localhost") throw new Error("Refusing office inventory mutations without explicit disposable localhost confirmation");
   const response = await request.post(`${SITE}/api/v1/identity/login`, { headers: { Host: new URL(STAFF).host }, data: { email: E2E_STAFF_EMAIL, password: E2E_STAFF_PASSWORD } });
@@ -68,9 +77,13 @@ for (const locale of ["en", "ar"] as const) for (const width of [360, 1440]) {
       await page.locator("#photo-file").setInputFiles({ name: `synthetic-office-test-${photoIndex}.png`, mimeType: "image/png", buffer: Buffer.from(png, "base64") });
       await page.locator("#upload-alt-en").fill(`Synthetic solid-color E2E test image ${photoIndex}`);
       await page.locator("#upload-photo-rights").check();
+      await pacePhotoSubmission();
       const photoResponse = page.waitForResponse(r => r.request().method() === "POST" && new URL(r.url()).pathname.endsWith("/media/upload"));
       await page.getByRole("button", { name: label("Upload & approve photo", "رفع واعتماد الصورة"), exact: true }).click();
-      const uploaded = await (await photoResponse).json(); expect(uploaded.mediaId).toBeTruthy();
+      lastPhotoSubmittedAt = Date.now();
+      const uploadResponse = await photoResponse;
+      expect(uploadResponse.status(), "The real media upload must succeed before parsing its receipt").toBe(200);
+      const uploaded = await uploadResponse.json(); expect(uploaded.mediaId).toBeTruthy();
       await expect(page.getByRole("status").filter({ hasText: label("Photo uploaded, rights approved and verified", "تم رفع الصورة واعتماد حقوقها والتحقق منها") })).toBeVisible();
       await expect(page.locator(`#tour-photo-${uploaded.mediaId}`)).toContainText(label("Rights approved", "الحقوق معتمدة"));
       }
@@ -147,3 +160,22 @@ for (const locale of ["en", "ar"] as const) for (const width of [360, 1440]) {
     }
   });
 }
+
+test("staff media upload throttling returns JSON and a safe retry interval", async ({ request }) => {
+  // Unauthenticated, empty requests cannot create assets. Keep this after the
+  // real-photo cases, since the per-IP bucket is intentionally shared.
+  const path = "/api/v1/tours-operator/staff/tours/00000000-0000-4000-8000-000000000000/media/upload";
+  const responses = await Promise.all(Array.from({ length: 12 }, () =>
+    request.post(`${SITE}${path}`, { headers: { Host: new URL(STAFF).host }, data: "" })));
+  expect(responses.every(response => [401, 429].includes(response.status()))).toBe(true);
+  const limited = responses.filter(response => response.status() === 429);
+  expect(limited.length).toBeGreaterThan(0);
+  for (const response of limited) {
+    expect(response.headers()["content-type"]).toContain("application/json");
+    expect(response.headers()["retry-after"]).toBe("6");
+    expect(response.headers()["x-content-type-options"]).toBe("nosniff");
+    expect(response.headers()["x-frame-options"]).toBe("DENY");
+    expect(response.headers()["content-security-policy"]).toBe("default-src 'none'");
+    expect(await response.json()).toEqual({ error: "rate_limited" });
+  }
+});
