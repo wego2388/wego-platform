@@ -5492,3 +5492,30 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 - WEGO-016-F is now the sole ACTIVE implementation packet. Its first required
   correction is to derive finance from the immutable payment ledger
   (`PAID - REFUNDED`) instead of booking status totals.
+
+#### 2026-10-10 — OPS2-G production promotion and owner handoff
+
+- OPS2-G remains the sole ACTIVE packet for owner UAT; the bounded implementation
+  is now deployed, but packet closure waits for the manual commercial/content
+  actions listed in the Safari handoff.
+- Exact source `1d5a6b6dfb84d0bd1b16b4f6d64b34687f23ed74` passed full CI
+  `38016324805`; clean immutable images and the manifest were independently
+  reviewed with zero blockers. The runtime archive was re-transferred and
+  verified at both ends with SHA-256
+  `1aecd6bdfd9fb52262c2bf7486556e5d534c7dbe2f5ee20b0f6a662a5a156ef2`.
+- The guarded upgrade initially stopped on a real edge-file mode issue; rollback
+  restored the old apps and current pointer successfully. A narrowly scoped mode
+  fix for public Compose/nginx files (`0755/0644`) was independently reviewed,
+  then the upgrade and promotion completed. No database restore/drop or Resort
+  service replacement occurred.
+- Production now points to `str-2026.10.10-1d5a6b6`; five Safari services are
+  healthy, Flyway is `34|0`, sales status is `ENQUIRY_ONLY`, TLS is valid, and
+  the gateway/Resort current fingerprints match the pre-deploy baseline.
+- Read-only live browser acceptance passed 34/34 page checks across EN/AR/RU/IT
+  and mobile/desktop, with AXE0, no API writes, no trackers, and no E2E catalog
+  records. Post-promotion health passed; latest encrypted bundle backup
+  `20261010T024958Z.bundle` passed DB/media cross-check (20 media files).
+- Owner actions still required: real tour/departure/media/content UAT, supplier/
+  driver/cost/settlement data, any future payment/analytics credentials, and
+  performance follow-up. No fake prices, availability, reviews, or credentials
+  were introduced.
