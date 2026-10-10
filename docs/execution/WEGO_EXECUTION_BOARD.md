@@ -1706,6 +1706,45 @@ provider constraints are revalidated against the implemented repository.
   checks pass. Test infrastructure is disposable and separate from Safari
   and all shared systems. No commit, push, deploy or production operation.
 
+### 2026-10-10 — STG-SALES-CONTROL + STG-CATALOG-RECOVERY + STG-MOBILE-REQUEST-CLEARANCE committed and pushed (`3a468a6`)
+
+- **Why now:** all three slices above (sales kill switch, catalog-import
+  recovery, mobile request-form clearance) had been implemented and
+  verified locally by a prior session in this same worktree but never
+  committed — a real risk for uncommitted, reviewed work sitting only in
+  a working tree. The owner's explicit instruction this session ("افتح
+  المشروع و هندل... و ظبط مهامك المقبله") included handling this.
+- **Independent re-verification before committing, not a blind trust of
+  the prior session's own log:** read the actual diffs directly (lock
+  ordering in `CreateTravelRequestService`, the idempotency-key recheck
+  after acquiring the sales-control shared lock, the V9 migration, the
+  `ProductIsolationIntegrationTest` version-list update) and then ran
+  `bash scripts/sharm-to-go-check.sh` fresh end to end from this session:
+  backend+mobile Gradle `BUILD SUCCESSFUL`, site 101/101 Vitest, ERP
+  87/87 Vitest, both frontends' lint/typecheck/build clean, Foundry
+  manifest/OpenAPI/repository-YAML validation clean — script's own final
+  line: "Sharm To Go quality gate passed." Matches the implementing
+  session's own claimed numbers exactly; nothing had silently regressed
+  between implementation and this commit.
+- **Committed:** `3a468a6`, 43 files. Pushed to this packet's own backup
+  branch, `origin/wego-010a-sharm-to-go` — not `main`. No deploy, no
+  production access, no secret or credential involved.
+- **Separately corrected the record:** an earlier research pass this
+  session had told the owner Safari Tours Sharm has no real photo-upload
+  mechanism anywhere in this monorepo. That was checked only against the
+  main `/home/wego/wego-platform` checkout; a separate, more advanced
+  Safari checkout at `/home/wego/wego-safari-hardening` does have real
+  upload/storage/rights-approval handling. Correction recorded in
+  `clients/sharm-to-go/ROADMAP_AR.md`'s "مطلوب من محمد" section and this
+  session's own memory, so it isn't repeated.
+- **Next:** `clients/sharm-to-go/ROADMAP_AR.md` is current as of this
+  entry. Remaining open items are all owner-gated (domain/hosting, real
+  photos, SMTP, legal entity, payment gateway, analytics/consent, alert
+  channel) or deliberately deferred (RU/IT translation, mobile Lighthouse
+  LCP, Playwright-in-CI wiring, Phase 4 mobile API wiring, Phase 5
+  vertical expansion, Phase 6 pre-payment security review) — see that
+  file for the full current list rather than duplicating it here.
+
 ## WEGO-003 — Reliable integration delivery and replay
 
 - **Status:** NOT AUTHORIZED — roadmap only; WEGO-002 must close first and owner activation is still required.
