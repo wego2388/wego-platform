@@ -5310,6 +5310,38 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   independent review and guarded production upgrade remain release gates.
   Failed CI evidence is retained, not relabeled as a successful launch.
 
+#### 2026-10-10 — Request fixture login-limit correction and guarded rollback
+
+- OPS2-G remains the sole ACTIVE packet; no deployment occurred. Exact-source
+  CI38006358471 on8cecc9d passed every other job and the repaired office/media
+  gate, then failed the final two Italian request cases on login429:8 rapid
+  synthetic staff logins exceeded the unchanged5/minute +burst6 bucket.
+- The serial request suite now establishes one guarded disposable staff session
+  in beforeAll, asserts the required permissions, and logs out once in afterAll.
+  All8 fresh guest contexts, real-edge routing, capacity/privacy/price assertions
+  and no-retry business checks remain. Focused real-browser run:8PASS(42.4sec).
+  Exact-source successful full CI remains mandatory; failures are retained.
+- Clean8cecc9d images completed70 browser cases(5.2min), zero retries. The prior
+  attempt ended69PASS/1ENOSPC while closing a context/writing output. Reproducible
+  temporary build copies were moved recoverably to/var/tmp; no owner data,
+  image/volume, backup or production resource was deleted or changed.
+- Fresh encrypted pre-upgrade offsite bundle20261009T235134Z restored in an
+  isolated drill:V33,43tables,427rows,20media hashes. Decryption key stays local.
+- Independent review found a false-success risk in the private rollback helper:
+  an OR-list caller suppresses implicit Bash errexit in the function. Every
+  rollback mutation now returns explicitly on failure; success additionally
+  requires the exact previous immutable app IDs/references and old edge mount,
+  then TLS/protected-service checks, before any current-pointer switch. Updated
+  executable independent review is required before deployment. No schema or
+  customer data rollback is permitted; V34 remains forward-only.
+- Independent Tier1 online_requests_tier1_review accepted both fixes with zero
+  blocking findings after executing the actual rollback/image-verification
+  bodies with stubbed commands:16 scenarios,14 failures, no false success or
+  pointer switch on failure; prior immutable image IDs match. Shared-session
+  focused8PASS, syntax and diff checks passed. Commit/push is now eligible under
+  owner authorization; successful exact-source full CI/clean images/manifest
+  and independent live acceptance remain mandatory before release promotion.
+
 ## WEGO-017 — Foundry executable isolated client releases
 
 - **Status:** COMPLETE

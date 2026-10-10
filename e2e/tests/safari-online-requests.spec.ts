@@ -10,10 +10,25 @@ const SITE = (process.env.WEGO_STS_SITE_BASE_URL ?? "http://127.0.0.1:58087").re
 const STAFF = (process.env.WEGO_STS_STAFF_BASE_URL ?? "http://staff.localhost:58087").replace(/\/+$/, "");
 const STAFF_HOST = new URL(STAFF).host;
 const SLUG = "e2e-desert-quad-safari";
-test.beforeAll(() => {
+let auth: { token: string; email: string; roles: string[]; permissions: string[] } | undefined;
+test.beforeAll(async ({ request }) => {
   if (process.env.WEGO_SAFARI_REQUEST_E2E_CONFIRM !== "yes-this-is-a-disposable-request-stack"
     || new URL(SITE).hostname !== "127.0.0.1" || new URL(STAFF).hostname !== "staff.localhost") {
     throw new Error("Online request E2E may mutate only an explicitly confirmed disposable local stack.");
+  }
+  // One synthetic staff session for this serial suite, not eight rapid logins.
+  // Respect the real edge's 5/minute +burst6 login limit on fast CI runners.
+  const login = await request.post(`${SITE}/api/v1/identity/login`, { headers: { Host: STAFF_HOST }, data: { email: E2E_STAFF_EMAIL, password: E2E_STAFF_PASSWORD } });
+  expect(login.status()).toBe(200); const session = await login.json();
+  const me = await request.get(`${SITE}/api/v1/identity/me`, { headers: { Host: STAFF_HOST, Authorization: `Bearer ${session.token}` } });
+  expect(me.status()).toBe(200); auth = { ...await me.json(), token: session.token };
+  expect(auth!.permissions).toContain("tours-operator.booking:view");
+  expect(auth!.permissions).toContain("tours-operator.booking:create-office");
+});
+test.afterAll(async ({ request }) => {
+  if (auth) {
+    const logout = await request.post(`${SITE}/api/v1/identity/logout`, { headers: { Host: STAFF_HOST, Authorization: `Bearer ${auth.token}` } });
+    expect(logout.status()).toBe(204);
   }
 });
 
@@ -22,11 +37,8 @@ for (const [localeIndex, locale] of (["en", "ar", "ru", "it"] as const).entries(
     test(`${locale} ${width}px: guest request appears in bilingual ERP and confirms once, unpaid`, async ({ page, request }) => {
       test.setTimeout(90_000);
       await page.setViewportSize({ width, height: 900 });
-      const login = await request.post(`${SITE}/api/v1/identity/login`, { headers: { Host: STAFF_HOST }, data: { email: E2E_STAFF_EMAIL, password: E2E_STAFF_PASSWORD } });
-      expect(login.status()).toBe(200); const session = await login.json();
-      const staffHeaders = { Host: STAFF_HOST, Authorization: `Bearer ${session.token}` };
-      const me = await request.get(`${SITE}/api/v1/identity/me`, { headers: staffHeaders });
-      expect(me.status()).toBe(200); const auth = { ...await me.json(), token: session.token };
+      if (!auth) throw new Error("Synthetic staff session was not established");
+      const staffHeaders = { Host: STAFF_HOST, Authorization: `Bearer ${auth.token}` };
       const tour = await (await request.get(`${SITE}/api/v1/tours-operator/tours/by-slug?slug=${SLUG}`)).json();
       expect(tour.id).toBeTruthy();
       const date = new Date(Date.now() + (90 + localeIndex * 2 + widthIndex) * 86400000).toISOString().slice(0, 10);
@@ -94,7 +106,6 @@ for (const [localeIndex, locale] of (["en", "ar", "ru", "it"] as const).entries(
       const axe = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
       expect(axe.violations.map(v => ({ id: v.id, target: v.nodes.map(n => n.target) }))).toEqual([]);
       await page.screenshot({ path: test.info().outputPath(`request-${locale}-${width}.png`), fullPage: true });
-      await request.post(`${SITE}/api/v1/identity/logout`, { headers: staffHeaders });
     });
   }
 }
