@@ -300,8 +300,16 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: pnpm
-          cache-dependency-path: e2e/pnpm-lock.yaml
+          cache-dependency-path: |
+            e2e/pnpm-lock.yaml
+            web/pnpm-lock.yaml
       - run: pnpm --dir e2e install --frozen-lockfile
+      # Real first CI run of this job caught this: building the site below
+      # needs the site's own node_modules (nuxt itself included), not just
+      # e2e's — missed locally because this session's own dev box already
+      # had web/ installed from earlier work, so a fresh-runner-only gap
+      # never surfaced until the real run did.
+      - run: pnpm --dir web --filter @wego/sharm-to-go-site install --frozen-lockfile
       - name: Seed the Sharm To Go E2E staff account
         run: pnpm --dir e2e run seed:sharm-to-go
       - name: Import the real 41-service catalog (create -> submit -> approve)
