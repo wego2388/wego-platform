@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "seed": "node seed.mjs",
-    "test": "playwright test"
+    "seed:sharm-to-go": "node seed-sharm-to-go.mjs",
+    "test": "playwright test",
+    "test:sharm-to-go-accessibility": "playwright test tests/sharm-to-go-accessibility.spec.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
