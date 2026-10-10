@@ -4,6 +4,7 @@ import GuestStepper from "../../../components/GuestStepper.vue";
 import SiteSubHeader from "../../../components/SiteSubHeader.vue";
 import { whatsappLink } from "../../../content/contact";
 import { useSiteLocale } from "../../../composables/useSiteLocale";
+import { useSalesStatus, salesCopy } from "../../../composables/useSalesStatus";
 import {
   approximateUsdPrice,
   getPublicService,
@@ -23,6 +24,10 @@ const route = useRoute();
 const serviceId = String(route.params.id);
 
 const { locale, copy, direction, toggleLocale } = useSiteLocale();
+const { requestsOpen, loading: salesLoading, refresh: refreshSales, markPaused } = useSalesStatus();
+// A lost response may hide a committed request. Permit retrying that exact
+// attempt during a pause; the server returns its existing reference safely.
+const attempted = ref(false);
 
 useHead(() => ({
   title: locale.value === "ar" ? "اطلب التجربة · Sharm To Go" : "Request experience · Sharm To Go",
@@ -130,11 +135,14 @@ function goToReview() {
   }
   contactError.value = "";
   idempotencyKey.value = newIdempotencyKey();
+  attempted.value = false;
   step.value = "review";
 }
 
 async function submit() {
   if (!service.value || !selectedOption.value) return;
+  if (submitState.value === "submitting" || (requestsOpen.value !== true && !attempted.value)) return;
+  attempted.value = true;
   submitState.value = "submitting";
   submitErrorCode.value = "";
   try {
@@ -165,6 +173,10 @@ async function submit() {
   } catch (error) {
     submitState.value = "error";
     submitErrorCode.value = error instanceof TravelRequestError ? error.errorCode : "generic";
+    if (submitErrorCode.value === "requests_paused") {
+      attempted.value = false;
+      markPaused();
+    }
     if (submitErrorCode.value === "price_changed") {
       // Refetch so the review screen (bound to `selectedOption`, derived
       // from `service`) shows the real current price before the visitor
@@ -176,6 +188,7 @@ async function submit() {
 }
 
 function errorMessage(code: string): string {
+  if (code === "requests_paused") return salesCopy[locale.value].paused;
   if (code === "service_not_found") return copy.value.request.errorServiceNotFound;
   if (code === "option_not_found") return copy.value.request.errorOptionNotFound;
   if (code === "party_size_exceeds_capacity") return copy.value.request.errorPartyTooLarge;
@@ -203,7 +216,7 @@ async function copySummary() {
 </script>
 
 <template>
-  <main id="main-content" :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas px-6 py-8 text-sharm-ink lg:px-10">
+  <main id="main-content" :dir="direction" :lang="locale" class="min-h-screen bg-sharm-canvas px-6 py-8 pb-24 text-sharm-ink sm:pb-8 lg:px-10">
     <div class="mx-auto max-w-2xl">
       <SiteSubHeader
         :back-label="copy.request.backToService"
@@ -228,6 +241,12 @@ async function copySummary() {
 
       <div v-else-if="service" class="rounded-[2rem] border border-black/5 bg-sharm-surface p-6 shadow-sm sm:p-8">
         <h1 class="font-display text-2xl font-semibold tracking-tight">{{ service.name[locale] }}</h1>
+
+        <div v-if="step !== 'success' && requestsOpen !== true" role="status" class="mt-6 rounded-xl bg-sharm-lagoon p-4 text-sm text-sharm-action">
+          <p>{{ requestsOpen === false ? salesCopy[locale].paused : salesCopy[locale].unknown }}</p>
+          <button type="button" :disabled="salesLoading" class="mt-3 min-h-11 font-semibold underline disabled:opacity-60" @click="refreshSales">{{ salesCopy[locale].refresh }}</button>
+          <a :href="whatsappLink(salesCopy[locale].contact)" target="_blank" rel="noopener" class="ms-4 font-semibold underline">{{ salesCopy[locale].contact }}</a>
+        </div>
 
         <!-- Step indicator -->
         <ol v-if="step !== 'success'" class="mt-6 grid grid-cols-3 gap-2" :aria-label="copy.request.steps.partyDate">
@@ -397,7 +416,7 @@ async function copySummary() {
             <button type="button" class="min-h-12 rounded-full border border-sharm-border px-6 font-semibold" :disabled="submitState === 'submitting'" @click="step = 'contact'">
               {{ copy.request.backButton }}
             </button>
-            <button type="button" class="flex-1 min-h-12 rounded-full bg-sharm-action font-semibold text-white disabled:opacity-60" :disabled="submitState === 'submitting'" @click="submit">
+            <button type="button" class="flex-1 min-h-12 rounded-full bg-sharm-action font-semibold text-white disabled:opacity-60" :disabled="submitState === 'submitting' || (requestsOpen !== true && !attempted)" @click="submit">
               {{ submitState === "submitting" ? copy.request.submittingButton : copy.request.submitButton }}
             </button>
           </div>

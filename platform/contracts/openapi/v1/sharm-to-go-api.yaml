@@ -49,7 +49,87 @@ tags:
       confirmed, cancelled). Requires `travel-notification:manage`. Responses
       carry the request reference and delivery state only - never a recipient
       address or a message body, which are not stored.
+  - name: SalesControl
+    description: Public request availability and private staff intake control.
 paths:
+  /api/v1/travel-marketplace/public/sales-status:
+    get:
+      operationId: getPublicSalesStatus
+      summary: Read new request availability
+      description: No-store. Never exposes a staff reason or actor.
+      tags: [SalesControl]
+      security: []
+      responses:
+        "200":
+          description: Current availability.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicSalesStatus"
+  /api/v1/travel-marketplace/sales-control:
+    get:
+      operationId: getSalesControl
+      summary: Read private request intake status
+      description: Requires travel-sales:manage. No-store.
+      tags: [SalesControl]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Private status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SalesControl"
+        "401":
+          description: Authentication required.
+        "403":
+          description: Missing travel-sales:manage.
+    put:
+      operationId: updateSalesControl
+      summary: Pause or resume new public travel requests
+      description: >-
+        Requires travel-sales:manage. No-store. A successful pause waits for
+        in-flight creates to finish. No new request commits after it succeeds
+        until resumed. Existing idempotent retries and staff lifecycle remain
+        available. Expected version prevents stale edits; changes are audited
+        atomically. No payment or slot-capacity behavior is changed.
+      tags: [SalesControl]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSalesControlRequest"
+      responses:
+        "200":
+          description: Saved status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SalesControl"
+        "400":
+          description: Missing flag/version or invalid version/note.
+        "401":
+          description: Authentication required.
+        "403":
+          description: Missing travel-sales:manage.
+        "409":
+          description: Stale version. Reload before retrying.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error, currentVersion]
+                properties:
+                  error:
+                    type: string
+                    const: version_conflict
+                  currentVersion:
+                    type: integer
+                    format: int64
   /actuator/health:
     get:
       operationId: getHealth
@@ -843,6 +923,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TravelRequestErrorResponse"
+        "503":
+          description: New requests are paused (requests_paused). Existing idempotent retries still return 200.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelRequestErrorResponse"
   /api/v1/travel-marketplace/public/requests/{reference}:
     get:
       operationId: getTravelRequestByReference
@@ -1198,6 +1284,45 @@ components:
           schema:
             $ref: "#/components/schemas/ValidationErrorResponse"
   schemas:
+    PublicSalesStatus:
+      type: object
+      additionalProperties: false
+      required: [requestsOpen]
+      properties:
+        requestsOpen:
+          type: boolean
+    SalesControl:
+      type: object
+      required: [requestsPaused, version]
+      properties:
+        requestsPaused:
+          type: boolean
+        version:
+          type: integer
+          format: int64
+          minimum: 0
+        reason:
+          type: [string, "null"]
+          maxLength: 300
+        updatedByUserId:
+          type: [string, "null"]
+          format: uuid
+        updatedAt:
+          type: [string, "null"]
+          format: date-time
+    UpdateSalesControlRequest:
+      type: object
+      required: [requestsPaused, expectedVersion]
+      properties:
+        requestsPaused:
+          type: boolean
+        expectedVersion:
+          type: integer
+          format: int64
+          minimum: 0
+        reason:
+          type: [string, "null"]
+          maxLength: 300
     Health:
       type: object
       additionalProperties: false
@@ -1905,6 +2030,7 @@ components:
             - option_not_found
             - party_size_exceeds_capacity
             - price_changed
+            - requests_paused
             - invalid_transition
             - already_terminal
             - request_state_changed

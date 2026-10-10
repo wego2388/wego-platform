@@ -75,6 +75,7 @@ describe("real request flow", () => {
     withRoute(serviceId);
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = new URL(String(input), "http://localhost");
+        if (url.pathname === "/api/sales-status") return new Response(JSON.stringify({ requestsOpen: true }), { status: 200 });
       if (url.pathname === `/api/catalog/services/${serviceId}`) {
         return new Response(JSON.stringify(sampleService()), { status: 200 });
       }
@@ -137,6 +138,7 @@ describe("real request flow", () => {
       "fetch",
       vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
         const url = new URL(String(input), "http://localhost");
+        if (url.pathname === "/api/sales-status") return new Response(JSON.stringify({ requestsOpen: true }), { status: 200 });
         if (url.pathname === `/api/catalog/services/${serviceId}`) {
           serviceFetchCount += 1;
           // Second fetch (the post-rejection refresh) returns the real new price.
@@ -173,6 +175,7 @@ describe("real request flow", () => {
       "fetch",
       vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
         const url = new URL(String(input), "http://localhost");
+        if (url.pathname === "/api/sales-status") return new Response(JSON.stringify({ requestsOpen: true }), { status: 200 });
         if (url.pathname === `/api/catalog/services/${serviceId}`) {
           return new Response(JSON.stringify(sampleService({ confirmationType: "STAFF_REVIEW" })), { status: 200 });
         }
@@ -258,6 +261,7 @@ describe("real request flow", () => {
     withRoute(serviceId);
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = new URL(String(input), "http://localhost");
+        if (url.pathname === "/api/sales-status") return new Response(JSON.stringify({ requestsOpen: true }), { status: 200 });
       if (url.pathname === `/api/catalog/services/${serviceId}`) return new Response(JSON.stringify(sampleService()), { status: 200 });
       throw new Error(`Unexpected fetch: ${url.pathname}`);
     });
@@ -274,13 +278,15 @@ describe("real request flow", () => {
 
     expect(wrapper.text()).toContain("doesn't look like a valid phone number");
     expect(wrapper.text()).not.toContain("Review your request");
-    expect(fetchMock).toHaveBeenCalledTimes(1); // only the service load, never a request POST
+    expect(fetchMock).toHaveBeenCalledTimes(2); // service + availability reads, never a request POST
+    expect(fetchMock.mock.calls.some(call => String(call[0]).endsWith("/api/requests"))).toBe(false);
   });
 
   it("blocks continuing past the contact step without checking the consent box, before ever calling the backend", async () => {
     withRoute(serviceId);
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = new URL(String(input), "http://localhost");
+        if (url.pathname === "/api/sales-status") return new Response(JSON.stringify({ requestsOpen: true }), { status: 200 });
       if (url.pathname === `/api/catalog/services/${serviceId}`) return new Response(JSON.stringify(sampleService()), { status: 200 });
       throw new Error(`Unexpected fetch: ${url.pathname}`);
     });
@@ -298,7 +304,8 @@ describe("real request flow", () => {
 
     expect(wrapper.text()).toContain("Please confirm you agree to the Privacy Policy");
     expect(wrapper.text()).not.toContain("Review your request");
-    expect(fetchMock).toHaveBeenCalledTimes(1); // only the service load, never a request POST
+    expect(fetchMock).toHaveBeenCalledTimes(2); // service + availability reads, never a request POST
+    expect(fetchMock.mock.calls.some(call => String(call[0]).endsWith("/api/requests"))).toBe(false);
   });
 
   it("maps a backend 409 (party size exceeds capacity) to the honest error message, not a raw one", async () => {
@@ -307,6 +314,7 @@ describe("real request flow", () => {
       "fetch",
       vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
         const url = new URL(String(input), "http://localhost");
+        if (url.pathname === "/api/sales-status") return new Response(JSON.stringify({ requestsOpen: true }), { status: 200 });
         if (url.pathname === `/api/catalog/services/${serviceId}`) {
           return new Response(JSON.stringify(sampleService()), { status: 200 });
         }
@@ -334,6 +342,7 @@ describe("real request flow", () => {
       "fetch",
       vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
         const url = new URL(String(input), "http://localhost");
+        if (url.pathname === "/api/sales-status") return new Response(JSON.stringify({ requestsOpen: true }), { status: 200 });
         if (url.pathname === `/api/catalog/services/${serviceId}`) {
           return new Response(JSON.stringify(sampleService()), { status: 200 });
         }
@@ -367,6 +376,7 @@ describe("real request flow", () => {
       "fetch",
       vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
         const url = new URL(String(input), "http://localhost");
+        if (url.pathname === "/api/sales-status") return new Response(JSON.stringify({ requestsOpen: true }), { status: 200 });
         if (url.pathname === `/api/catalog/services/${serviceId}`) {
           return new Response(JSON.stringify(sampleService()), { status: 200 });
         }

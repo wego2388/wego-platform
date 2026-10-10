@@ -62,6 +62,13 @@ class PublicTravelRequestController(
                 expectedPrice = Money(request.expectedPriceAmount.setScale(2), request.expectedPriceCurrency),
             )
         return when (val result = createTravelRequestService.create(command)) {
+            CreateTravelRequestResult.RequestsPaused ->
+                ResponseEntity
+                    .status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .cacheControl(
+                        org.springframework.http.CacheControl
+                            .noStore(),
+                    ).body(TravelRequestErrorResponse("requests_paused"))
             is CreateTravelRequestResult.Created -> ResponseEntity.status(HttpStatus.CREATED).body(result.request.toPublicResponse())
             is CreateTravelRequestResult.AlreadyExists -> ResponseEntity.ok(result.request.toPublicResponse())
             CreateTravelRequestResult.ServiceNotFound ->

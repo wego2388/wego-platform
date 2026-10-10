@@ -61,6 +61,8 @@ sealed interface CreateTravelRequestResult {
 
     data object OptionNotFound : CreateTravelRequestResult
 
+    data object RequestsPaused : CreateTravelRequestResult
+
     data class PartySizeExceedsCapacity(
         val maxParticipants: Int,
     ) : CreateTravelRequestResult
@@ -96,6 +98,7 @@ class CreateTravelRequestService(
     private val notificationRepository: NotificationRepository,
     private val transactionRunner: TransactionRunner,
     private val clock: Clock,
+    private val salesControlRepository: SalesControlRepository,
 ) {
     fun create(command: CreateTravelRequestCommand): CreateTravelRequestResult =
         try {
@@ -121,6 +124,14 @@ class CreateTravelRequestService(
             requestRepository.findByIdempotencyKey(command.idempotencyKey)?.let {
                 return@runInTransaction CreateTravelRequestResult.AlreadyExists(it)
             }
+
+            val sales = salesControlRepository.lockForRequest()
+            // A winning retry may have committed while this call waited for a
+            // concurrent pause. Replays are allowed even when intake is closed.
+            requestRepository.findByIdempotencyKey(command.idempotencyKey)?.let {
+                return@runInTransaction CreateTravelRequestResult.AlreadyExists(it)
+            }
+            if (sales.requestsPaused) return@runInTransaction CreateTravelRequestResult.RequestsPaused
 
             val service =
                 serviceRepository.findPublishedById(command.serviceId)

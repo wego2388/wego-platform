@@ -1471,9 +1471,12 @@ provider constraints are revalidated against the implemented repository.
     staff API (create → submit-for-review → approve) from a generated
     manifest. Verified live: 41/41 services created with 0 failures,
     idempotent re-run confirmed, 0 services visible on the public endpoint
-    (publish is deliberately never called — every service still carries
-    placeholder media, which the real `PublishServiceService.media.isEmpty()`
-    check requires before publish; no change made to that check).
+    (publish is deliberately never called because every service still carries
+    placeholder media and pending rights. **Correction, 2026-10-07:**
+    `PublishServiceService.media.isEmpty()` rejects an empty media collection
+    only; a non-empty placeholder record passes that check. The verification
+    proves the importer stopped at APPROVED, not that the backend enforced
+    real-photo or rights approval; no change made to that check).
   - `4996648` — ERP brand identity: the ERP still imported the generic
     shared `@wego/design-tokens` palette, not Sharm To Go's own tokens —
     this is the concrete, literal cause of the owner's original design
@@ -1550,6 +1553,158 @@ provider constraints are revalidated against the implemented repository.
   occurred beyond pushing to this packet's own
   `origin/wego-010a-sharm-to-go` backup branch, consistent with every
   prior round.
+
+### 2026-10-07 — Catalog publication evidence correction (owner requested)
+
+- **Scope:** correct the roadmap, execution evidence, catalog handoff,
+  reviewer briefing, importer documentation and manifest descriptions.
+- **Finding:** placeholder media does not itself block publication. The
+  current publish use case checks only that options and media are non-empty;
+  `ServiceMedia` requires non-blank rights text, not an approved-rights state.
+  The 41-service rehearsal stayed unpublished because the importer never
+  called publish and deliberately stopped at APPROVED.
+- **Correction:** pending media rights remain clearly pending; remove claims
+  of a backend-enforced real-photo gate. No publication, API, permission,
+  schema, price, policy or importer control-flow change is part of this edit.
+- **Verification:** descriptions reconciled with the current publish use
+  case and media domain validation. Python assertions passed: importer AST
+  unchanged except its module docstring; manifest unchanged except its note
+  and 41 pending-rights descriptions. `bash scripts/repository-check.sh`
+  and `git diff --check` passed. This is not a new publication-gate test
+  or a claim that a photo workflow is implemented.
+- **Next scope:** explain the sales-pause behavior before implementation,
+  as requested by the owner. No sales-pause code is built in this correction.
+
+
+### 2026-10-07 — STG-SALES: public request intake control (Tier 1, ACTIVE slice of WEGO-010-A)
+
+- **Authorization:** owner «ابداء بطريقتك في المشروع انا موفقك» after the
+  Safari comparison, with the explicit constraint to preserve Sharm To Go's
+  intermediary/travel-companion identity and current confirmation rules.
+- **Scope:** seeded V9 singleton + private change history; dedicated
+  `travel-sales:manage`; public no-store status; server-enforced pause of new
+  WEBSITE/MOBILE requests; branded EN/AR public notice and ERP control/banner.
+- **Acceptance:** after pause succeeds no new request may commit until resume;
+  existing idempotent retries still return their request; catalog, tracking
+  and existing staff lifecycle remain usable; stale manager edits conflict;
+  rejected creates add no request/audit/notification; private reason/actor
+  never appear in public status; real PostgreSQL concurrent tests and focused
+  UI/contract/build gates pass; independent fresh-context Tier 1 review.
+- **Boundaries:** no slot inventory, payment integration, financial module,
+  document center, photo import, translation expansion or production action.
+  Other packets remain inactive. No commit/push/deploy authorized by this slice.
+- **Evidence:** implementation and verification in progress; no completion
+  claim yet. Existing documentation corrections are preserved separately.
+
+### 2026-10-07 — STG-SALES implementation and independent review complete locally
+
+- **Status:** STG-SALES slice complete; WEGO-010-A remains ACTIVE. No commit,
+  push, deployment or production action.
+- **Changes:** V9 seeded singleton + transactional private history, dedicated
+  permission, shared/exclusive locking and stale-version conflict handling;
+  no-store public status; server pause enforcement on WEBSITE/MOBILE creates
+  with existing idempotent replay preserved; branded EN/AR notices and ERP
+  control. Existing eight ERP template-root lint errors were repaired without
+  changing their behavior. Site locale now uses request-scoped shared state.
+- **Independent review:** fresh-context `/root/sales_review`, following
+  AGENT_COLLABORATION. One NON-BLOCKING finding at request.vue:178: a delayed
+  open-status GET could override a newer POST pause rejection. Fixed by
+  generation invalidation in markPaused; same executable probe failed before
+  and passed after, with permanent regression coverage. Final verdict: zero
+  open BLOCKING or NON-BLOCKING findings. Independent PostgreSQL probes 11/11
+  and UI probes 10/10 passed; both frontends' lint/typecheck/tests passed.
+- **Evidence:** `bash scripts/sharm-to-go-check.sh` passed (backend + mobile,
+  site 101 tests, ERP 87 tests, builds, contracts, repository and diff gates).
+  Real PostgreSQL integration proves cutoff races, rollback, permission
+  denial, replay, no rejected-create side effects and V8-to-V9 upgrade.
+  CUA-controlled Chrome through local Nginx verified EN/AR ERP pause/resume,
+  preserved form details, disabled/re-enabled submit and private-reason
+  exclusion. `handoff/2026-10-07_SALES_CONTROL_REVIEW.md` records commands,
+  reviewer evidence and limits; `/tmp/stg-sales-quality-gate.log` is the gate log.
+- **Catalog baseline:** real API import created 41, repeat skipped 41, zero
+  failures; all owner catalog entries stopped at APPROVED. This proves a clean
+  run/repeat, not crash-safe recovery. Only synthetic local test content was
+  published for browser verification.
+- **Reference correction:** advanced `/home/wego/wego-safari-hardening` has
+  actual validated upload/private storage/rights approval/image variants.
+  Corrected current roadmap/briefing; historical entries above are retained.
+  Sharm To Go itself still lacks that workflow and actual owner photos.
+- **Next:** owner explicitly asked to complete catalog gaps while working.
+  Proceed with the bounded importer-recovery slice below; no financial,
+  document-center, payment or fixed-slot model expansion in STG-SALES.
+
+### 2026-10-07 — STG-CATALOG-RECOVERY (Tier 2, ACTIVE slice of WEGO-010-A)
+
+- **Authorization:** owner «شوف لو في عوائق للكتالوكل او نواقص ... كملها».
+- **Finding/scope:** importer records IDs only after approve, so a failure
+  between create and approve can create duplicates on retry; it also has no
+  bounded HTTP wait and shares its default state path across API targets.
+  Harden local checkpoints and recovery, validate input before writes, and
+  report uncertain create outcomes without blindly repeating them. No new
+  backend schema/auth/API or production catalog operation.
+- **Acceptance:** a known created ID resumes its actual DRAFT/REVIEW state;
+  already APPROVED skips; a lost create response cannot silently create twice;
+  a state file from a different target cannot cause false skips; invalid input
+  performs no writes; failures exit nonzero; real HTTP interruption/replay
+  evidence and Python verification pass. Importer still never publishes.
+- **Evidence:** implementation pending; STG-SALES acceptance recorded above.
+
+### 2026-10-07 — STG-CATALOG-RECOVERY complete locally (Tier 2)
+
+- **Status:** slice complete; WEGO-010-A stays ACTIVE with no other active
+  implementation packet. No commit/push/deploy/production action.
+- **Fix:** checkpoint create intent, returned ID and each review/approval step
+  with atomic replacement/fsync; lock state file; bind it to API target and
+  payload digests; validate manifest before HTTP, verify existing content and
+  actual lifecycle on resume, and fail nonzero on errors. Connect/read waits
+  are bounded. An uncertain create response stops blind retry; explicit
+  verified recovery or confirmed-uncreated retry is available. Never publish.
+- **Evidence:** 14/14 Python failure tests with local HTTP server passed;
+  full seven-category/41-service/83-option manifest validates. Actual backend
+  and PostgreSQL rehearsal dropped successful create and approve responses:
+  each recovered with exactly one synthetic service, APPROVED/unpublished.
+  Migrated copied legacy state and verified all 41 actual records with zero
+  creates/resumes/failures. No commercial catalog facts changed.
+- **Review:** Tier 2 self-verification; no new migration, permission or backend
+  authentication behavior. See `handoff/2026-10-07_CATALOG_RECOVERY.md` for
+  commands, logs, operational reconciliation and limits. Official backend/UI/
+  mobile/contract gate had already passed before this importer-only slice;
+  focused Python and final repository/diff checks supplement it.
+- **Documentation:** roadmap, reviewer briefing and technical start pointer
+  now reflect current local state. Historical clean-repeat evidence remains
+  labelled as such; it no longer claims crash recovery or a photo gate.
+- **Remaining:** actual media/rights workflow and owner assets, SMTP activation,
+  mobile networking, mobile performance/accessibility CI and launch operations
+  retain roadmap status. Financial settlements and partner document workspace
+  remain future bounded product domains, not silently supplied by a sales flag
+  or the Safari reference. Owner identity and confirmation model preserved.
+- **Next:** no later implementation slice activated here; review current local
+  changes with owner before selecting the next bounded scope.
+
+### 2026-10-07 — STG-MOBILE-REQUEST-CLEARANCE (Tier 2, ACTIVE slice of WEGO-010-A)
+
+- **Scope:** CUA browser check at 390px revealed the fixed WhatsApp contact
+  overlaps the lower portion of the request submit area at page end. Reserve
+  enough bottom space on the mobile request page; preserve content, controls,
+  desktop layout and request behavior.
+- **Acceptance:** real mobile browser geometry/visual check shows no overlap
+  between final request controls and the floating contact; site focused gates
+  pass. No business, API, permission, schema or brand-model change.
+
+### 2026-10-07 — STG-MOBILE-REQUEST-CLEARANCE complete locally (Tier 2)
+
+- **Fix:** request page bottom padding 96px on small screens, original 32px
+  from sm upward. No API, permissions, request logic or brand change.
+- **Executable evidence:** CUA-controlled Chrome 390×844 at page end measured
+  submit/contact overlap=true before (10.8px vertical intersection) and false
+  after (submit bottom 722.8px, contact top 776px). Screenshot checked; content
+  width 375px, no horizontal overflow. Viewport override reset. Site lint,
+  typecheck, 101 tests and production build passed after the edit; log
+  `/tmp/stg-mobile-clearance-check.log`. Review handoff and roadmap updated.
+- **Status:** slice complete. No later implementation slice active here;
+  WEGO-010-A remains the one ACTIVE parent packet. Final repository/diff
+  checks pass. Test infrastructure is disposable and separate from Safari
+  and all shared systems. No commit, push, deploy or production operation.
 
 ## WEGO-003 — Reliable integration delivery and replay
 

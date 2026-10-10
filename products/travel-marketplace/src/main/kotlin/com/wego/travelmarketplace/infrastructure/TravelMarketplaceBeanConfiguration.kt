@@ -26,6 +26,8 @@ import com.wego.travelmarketplace.application.PublicCatalogQueryService
 import com.wego.travelmarketplace.application.PublishServiceService
 import com.wego.travelmarketplace.application.ResendNotificationService
 import com.wego.travelmarketplace.application.SMTP_TIMEOUT
+import com.wego.travelmarketplace.application.SalesControlRepository
+import com.wego.travelmarketplace.application.SalesControlService
 import com.wego.travelmarketplace.application.ServiceQueryService
 import com.wego.travelmarketplace.application.ServiceRepository
 import com.wego.travelmarketplace.application.StartTravelRequestReviewService
@@ -191,8 +193,24 @@ class TravelMarketplaceBeanConfiguration {
         notificationRepository: NotificationRepository,
         transactionRunner: TransactionRunner,
         clock: Clock,
+        salesControlRepository: SalesControlRepository,
     ): CreateTravelRequestService =
-        CreateTravelRequestService(serviceRepository, requestRepository, auditRecorder, notificationRepository, transactionRunner, clock)
+        CreateTravelRequestService(
+            serviceRepository,
+            requestRepository,
+            auditRecorder,
+            notificationRepository,
+            transactionRunner,
+            clock,
+            salesControlRepository,
+        )
+
+    @Bean
+    fun salesControlService(
+        repository: SalesControlRepository,
+        transactionRunner: TransactionRunner,
+        clock: Clock,
+    ): SalesControlService = SalesControlService(repository, transactionRunner, clock)
 
     @Bean
     fun startTravelRequestReviewService(

@@ -20,23 +20,25 @@ rebuild that.
 
 ## Why this file exists right now
 
-Nothing in this round needs your review today — everything built was Tier
-2 (no migration, no new permission, no auth/payment logic). This file
-exists so you have fast orientation **the next time** you're asked in,
-which the owner expects will be when the one deliberately-deferred Tier 1
-item below gets built.
+The earlier design/catalog round was Tier 2. The owner subsequently
+authorized the Tier 1 sales-pause implementation. It is now implemented
+and independently reviewed with no open findings; the evidence and
+operating behavior are recorded in `2026-10-07_SALES_CONTROL_REVIEW.md`.
+Changes are local and uncommitted; this is not a deployment record.
 
-## The one Tier 1 item waiting on you (not built yet)
+## Tier 1 sales-pause review — completed locally
 
-**A sales-pause "kill switch"** — a staff-toggleable flag that stops new
-customer requests platform-wide, with an ERP banner. This needs a new
-Flyway migration and a new permission check, which `docs/operations/
-REVIEW_INTENSITY.md` classifies Tier 1 on both counts. It was **not**
-built this round specifically because no independent reviewer was
-available to pair with this session — correctly left undone, not quietly
-merged solo. When it's built, that's your review: the migration, the
-permission gate, and the public request-creation endpoint's enforcement of
-it are the parts that matter most.
+**A sales-pause control** stops new WEBSITE/MOBILE requests while leaving
+catalog browsing, tracking and existing staff operations available. V9
+seeds the flag open, grants the dedicated `travel-sales:manage` permission
+to platform-admin, and stores private change history. The request path
+uses a shared database lock; manager changes use an exclusive lock and
+expected-version conflict checks. Existing idempotent retries still work.
+The public status exposes only `requestsOpen` with no-store caching.
+Independent review reproduced and verified one UI response-ordering fix;
+zero open BLOCKING or NON-BLOCKING findings remain. Read the review evidence
+before any commit/deployment decision; owner authorization is still needed
+for those actions under AGENTS.md.
 
 ## What changed this round (2026-10-06/07), if you need it for context
 
@@ -45,9 +47,11 @@ stack per change (never shared/production), each with its own evidence
 doc in `clients/sharm-to-go/handoff/` dated 2026-10-06:
 
 - Catalog merged to 41 real trips (24 Safari-approved + 17 kept from the
-  old 37), with an idempotent import pipeline
+  old 37), with a checkpointed import pipeline
   (`clients/sharm-to-go/scripts/import_catalog.py`) driving the real staff
-  API. See `2026-10-06_CATALOG_IMPORT_PIPELINE.md`.
+  API. See `2026-10-06_CATALOG_IMPORT_PIPELINE.md` and the interruption-safety
+  update `2026-10-07_CATALOG_RECOVERY.md`. State must be retained; a lost
+  create response is reconciled explicitly rather than blindly retried.
 - ERP given Sharm To Go's own brand identity (it was importing the generic
   shared platform palette — the literal cause of the owner's design
   complaint). See `2026-10-06_ERP_BRAND_IDENTITY.md`.
@@ -72,16 +76,25 @@ Phase 3D specifically. That file is the single source of truth for
 ordering and status — this briefing is orientation, not a replacement
 for it.
 
+**Publication evidence correction, 2026-10-07:** the importer deliberately
+stops at APPROVED and never calls publish. Placeholder media does not itself
+block the current backend publish operation: the check rejects an empty
+media collection, not a non-empty placeholder or pending-rights record.
+Real-photo/rights readiness remains an open owner/content decision. This
+correction adds no publication gate and does not expand the sales-pause
+review scope.
+
 ## Deliberately NOT done this round — don't flag these as missed
 
-- **Real photo upload.** Neither Safari Tours Sharm nor Sharm To Go has a
-  working file-upload/storage mechanism anywhere in this monorepo
-  (confirmed by a dedicated research pass — no S3/MinIO/Cloudinary
-  integration exists in any product). `ServiceMedia.assetReference` is an
-  opaque placeholder string by design at this phase. The owner was told
-  this honestly and chose not to decide yet between "paste externally-
-  hosted links" and "build real upload storage" (net-new work, not a
-  reuse of anything that already exists).
+- **Real photo upload.** Sharm To Go still has no managed upload workflow;
+  `ServiceMedia.assetReference` remains an opaque placeholder at this phase.
+  **Reference correction, 2026-10-07:** the advanced Safari worktree at
+  `/home/wego/wego-safari-hardening` does implement validated uploads,
+  private filesystem storage, image variants and explicit rights approval
+  (`MediaUploadService.kt`, `MediaController.kt`). Its design is useful
+  reference material; it is not installed in this client's product and
+  must be adapted rather than importing Safari's operating model. Actual
+  owner-supplied photos and usage-rights evidence remain pending.
 - **Russian/Italian UI translation.** Explicitly deferred by the owner
   (2026-10-06) over translation-quality risk — not started, not forgotten.
 - **Lighthouse mobile performance.** LCP is 4.4s on Lighthouse's throttled

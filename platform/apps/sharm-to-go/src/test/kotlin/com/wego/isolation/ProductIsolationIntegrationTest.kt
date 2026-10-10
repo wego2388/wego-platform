@@ -38,7 +38,7 @@ class ProductIsolationIntegrationTest(
 ) {
     @Test
     fun `boots and migrates only the shared platform, identity, and travel marketplace catalog foundation, never any Divers table`() {
-        assertThat(flyway.info().applied().map { it.version.toString() }).containsExactly("1", "2", "3", "4", "5", "6", "7", "8")
+        assertThat(flyway.info().applied().map { it.version.toString() }).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9")
 
         postgres.createConnection("").use { connection ->
             val tableNames =
@@ -63,6 +63,8 @@ class ProductIsolationIntegrationTest(
                     "travel_request",
                     "travel_request_audit_event",
                     "travel_request_notification",
+                    "travel_sales_control",
+                    "travel_sales_control_event",
                 ).noneMatch { it.startsWith("divers_") }
         }
     }

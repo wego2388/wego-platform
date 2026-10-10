@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from "vue";
-import { readAuthSession } from "../composables/useAuthSession";
+import { hasPermission, readAuthSession } from "../composables/useAuthSession";
+import SalesStatusNotice from "../components/SalesStatusNotice.vue";
 import { useTheme } from "../composables/useTheme";
 
 // Ported from web/apps/erp's own app-shell.vue (WEGO-014 Phase 4) with this
@@ -12,6 +13,7 @@ import { useTheme } from "../composables/useTheme";
 interface NavLink {
   to: string;
   label: string;
+  permission?: string;
 }
 interface NavGroup {
   label: string;
@@ -26,6 +28,7 @@ const navGroups: NavGroup[] = [
       { to: "/today", label: "Today" },
       { to: "/requests", label: "Requests" },
       { to: "/notifications", label: "Notifications" },
+      { to: "/sales", label: "Request availability", permission: "travel-sales:manage" },
     ],
   },
   {
@@ -122,7 +125,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", handleKeydown));
           <div v-for="group in navGroups" :key="group.label">
             <p class="px-2 text-xs font-semibold tracking-wide text-wego-muted uppercase">{{ group.label }}</p>
             <ul class="mt-1">
-              <li v-for="link in group.links" :key="link.to">
+              <li v-for="link in group.links.filter(item => !item.permission || hasPermission(session, item.permission))" :key="link.to">
                 <NuxtLink
                   :to="link.to"
                   class="block rounded-wego-control px-2 py-2 text-sm font-medium text-wego-ink hover:bg-wego-surface-hover"
@@ -155,6 +158,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", handleKeydown));
       </nav>
 
       <main id="main-content" tabindex="-1" class="min-w-0 flex-1 px-6 py-10 sm:px-10 lg:px-12">
+        <SalesStatusNotice v-if="session" />
         <slot />
       </main>
     </div>

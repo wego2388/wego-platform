@@ -186,6 +186,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="contents">
   <WegoPageHeader
     eyebrow="Sharm To Go"
     title="Providers"
@@ -282,4 +283,5 @@ onMounted(() => {
       </form>
     </WegoPanel>
   </template>
+  </div>
 </template>

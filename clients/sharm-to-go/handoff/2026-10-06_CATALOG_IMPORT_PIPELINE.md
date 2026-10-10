@@ -19,15 +19,23 @@ production unless explicitly authorized").
   No price, fact, or policy wording was invented: Safari prices use the
   owner's own locked EUR→EGP rate (59.80, 2026-09-20, rounded to EGP 50,
   no margin); legacy prices are copied verbatim from the intake sheets.
-- `clients/sharm-to-go/scripts/import_catalog.py` — idempotent importer
+- `clients/sharm-to-go/scripts/import_catalog.py` — checkpointed importer
   that logs into the real staff API, creates any missing categories, then
   for each service: `create` (DRAFT) → `submit-for-review` → `approve`.
-  It never calls `publish` — every service still carries placeholder media
-  (`rightsEvidence: "Pending real rights-cleared media from operator..."`),
-  which is the one remaining real gap per the 2026-10-02 handoff, and
-  `publish()` already refuses without real rights-cleared media. State is
-  tracked in a local JSON file (path given via `--state-file`, not
-  committed) so a re-run skips everything already created.
+  It deliberately never calls `publish` because every service still carries
+  placeholder media and pending rights. **Correction, 2026-10-07:** the
+  current publish use case rejects an empty media collection only; it does
+  not reject a non-empty placeholder record or verify rights approval.
+  The unpublished result proves the importer stopped at APPROVED, not that
+  the backend enforced a real-photo gate. State is tracked in a local JSON
+  file (path given via `--state-file`, not
+  committed) so a clean re-run skips approved entries. **Recovery update,
+  2026-10-07:** the earlier implementation saved only after approve and was
+  unsafe to retry after an interrupted create. The current tool checkpoints
+  each step, binds state to the API target, verifies saved records, and
+  requires explicit reconciliation of a lost create response. Read
+  `2026-10-07_CATALOG_RECOVERY.md` before running it. This remains local
+  checkpointing; the staff service-create API has no idempotency key.
 
 ## Category taxonomy
 
@@ -65,7 +73,8 @@ profile (not a SQL shortcut):
 1. `--dry-run` listed all 41 pending services correctly.
 2. A real run created 7 categories and all 41 services, each taken through
    `submit-for-review` → `approve` via live HTTP calls. **0 failures.**
-3. Re-running the same command skipped all 41 (idempotency confirmed).
+3. Re-running the same command skipped all 41 (clean-repeat behavior
+   confirmed; interrupted-run recovery was not tested in this original round).
 4. `GET /public/services` returned 0 results — confirming publish was
    correctly never called and nothing leaks to the public catalog before
    real media exists.

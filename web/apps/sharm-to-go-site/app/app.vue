@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import WhatsAppFab from "./components/WhatsAppFab.vue";
+import SalesStatusBanner from "./components/SalesStatusBanner.vue";
 import { useSiteLocale } from "./composables/useSiteLocale";
 
 const siteUrl = String(useRuntimeConfig().public.siteUrl).replace(/\/$/, "");
@@ -30,6 +31,7 @@ useHead({
   >
     {{ copy.skipToContent }}
   </a>
+  <SalesStatusBanner />
   <NuxtPage />
   <WhatsAppFab />
 </template>

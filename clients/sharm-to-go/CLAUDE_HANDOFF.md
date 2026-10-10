@@ -1,6 +1,6 @@
 # Sharm To Go — technical continuation handoff
 
-Status refreshed: 2026-09-30 (reactivation and reorganization).
+Status refreshed: 2026-10-07 (local sales control and catalog recovery).
 
 > **Superseded pointer:** [`ROADMAP_AR.md`](ROADMAP_AR.md) is now the
 > canonical status/order source (same pattern as Safari's own
@@ -10,9 +10,9 @@ Status refreshed: 2026-09-30 (reactivation and reorganization).
 
 ## Start here
 
-1. Read the [dated agent checkpoint](handoff/2026-09-29_NEW-AGENTS_START-HERE.md)
-   and [multi-account workflow](handoff/CHATGPT_AND_CLAUDE_MULTI_ACCOUNT_WORKFLOW.md)
-   before this technical history.
+1. Read [`ROADMAP_AR.md`](ROADMAP_AR.md) and the
+   [current review briefing](handoff/2026-10-07_CODEX_REVIEW_BRIEFING.md).
+   Older dated checkpoints below are history, not current authorization.
 2. Read [`delivery/README.md`](delivery/README.md) and
    [`delivery/00_CURRENT_STATE.md`](delivery/00_CURRENT_STATE.md), then read
    `AGENTS.md`, `docs/ENGINEERING_CONSTITUTION.md`, and the WEGO-010-A
@@ -26,7 +26,7 @@ Status refreshed: 2026-09-30 (reactivation and reorganization).
    implementation is not. After explicit reactivation, run
    `bash scripts/sharm-to-go-check.sh` before claiming the branch is green.
 
-## Implemented on this branch
+## Earlier implementation history on this branch
 
 - Packet 0R: a separate `platform/apps/sharm-to-go` Spring Boot application,
   product classpath, permission catalog, and Flyway location. Divers product
@@ -62,17 +62,25 @@ No production deployment, production customer data, live payment or external
 publication has occurred. Rights-cleared real photography and production
 availability remain launch gates.
 
-## Next scope after explicit reactivation
+## Current continuation state
 
-No implementation packet is authorized today. Once the owner explicitly
-reactivates WEGO-010, the next planned implementation packet is the
-request/booking foundation in
-[`delivery/01_REQUEST_AND_BOOKING.md`](delivery/01_REQUEST_AND_BOOKING.md): one
-durable public request/reference, safe lifecycle and immutable service/price
-snapshot, followed by the ERP queue, website conversion flow and mobile
-integration in checklist order. It must be implemented once in the backend and
-consumed by all three surfaces; WhatsApp stays a contextual human channel and
-never becomes the confirmation authority.
+WEGO-010-A is ACTIVE. The owner authorized improvement and repairs while
+preserving Sharm To Go's intermediary/travel-companion identity. The backend
+request foundation, ERP queue, website request/tracking flow and notification
+outbox already exist; do not reimplement them. Mobile networking remains
+pending. WhatsApp is the human contact path, not confirmation authority.
+
+On 2026-10-07, local uncommitted sales-pause code passed the official quality
+gate and independent Tier 1 review; importer recovery passed its focused
+failure tests and real API interruption rehearsal. See
+[`handoff/2026-10-07_SALES_CONTROL_REVIEW.md`](handoff/2026-10-07_SALES_CONTROL_REVIEW.md)
+and [`handoff/2026-10-07_CATALOG_RECOVERY.md`](handoff/2026-10-07_CATALOG_RECOVERY.md).
+No commit, push or production deployment is authorized by that implementation
+approval. Inspect the current execution-board slice before extending scope.
+
+The advanced Safari reference is `/home/wego/wego-safari-hardening`, read-only
+for this work. It has managed media and useful operations controls; do not
+copy its fixed-slot operator model into Sharm To Go.
 
 The owner subsequently requested text-only research from Egyptra's Sharm
 listings. Start at `clients/sharm-to-go/content-research/README.md`. The earlier

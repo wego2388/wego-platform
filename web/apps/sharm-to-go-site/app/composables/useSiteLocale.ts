@@ -1,11 +1,7 @@
-// The locale-ref/copy/direction/toggle pattern every page used to
-// duplicate inline. Starts "en" on every page (server and first client
-// render must match, or Vue warns on hydration) and, once mounted in the
-// browser, adopts a previously-chosen locale from localStorage — a
-// per-viewer convenience, not shared state between pages or visitors, so a
-// storage failure (private browsing, blocked site data) just means the
-// page falls back to "en" exactly like it always did before this existed.
-import { computed, onMounted, ref } from "vue";
+// Locale is shared by this visitor's page and global notices through Nuxt's
+// request-scoped state. First SSR/hydration render starts EN; storage is read
+// after mount, without sharing one visitor's language with another.
+import { computed, onMounted } from "vue";
 import { directionFor, type SharmLocale, siteCopy } from "../content/locales";
 
 const STORAGE_KEY = "sharm-to-go-locale";
@@ -28,7 +24,7 @@ function writeStoredLocale(value: SharmLocale) {
 }
 
 export function useSiteLocale() {
-  const locale = ref<SharmLocale>("en");
+  const locale = useState<SharmLocale>("stg-site-locale", () => "en");
   const copy = computed(() => siteCopy[locale.value]);
   const direction = computed(() => directionFor(locale.value));
 

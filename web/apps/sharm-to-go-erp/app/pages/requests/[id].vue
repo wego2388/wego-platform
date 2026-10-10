@@ -210,6 +210,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="contents">
   <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
     <p>You need to sign in to view this request.</p>
     <NuxtLink to="/login" class="mt-3 inline-block text-wego-accent underline">Sign in</NuxtLink>
@@ -401,4 +402,5 @@ onMounted(() => {
       </template>
     </template>
   </template>
+  </div>
 </template>

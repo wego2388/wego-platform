@@ -90,6 +90,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="contents">
   <WegoPageHeader eyebrow="Sharm To Go" title="Dashboard" description="Today's real catalog state." />
 
   <p v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6 text-wego-muted">
@@ -155,4 +156,5 @@ onMounted(() => {
       </p>
     </WegoPanel>
   </section>
+  </div>
 </template>

@@ -1,4 +1,5 @@
 import { beforeEach, vi } from "vitest";
+import { ref } from "vue";
 
 // Nitro's real auto-import — stubbed as identity so server/api/*.ts route
 // handlers can be imported and called directly in a plain Vitest test (see
@@ -8,6 +9,11 @@ import { beforeEach, vi } from "vitest";
 vi.stubGlobal("defineEventHandler", <T>(handler: T) => handler);
 
 beforeEach(() => {
+  const state = new Map<string, ReturnType<typeof ref>>();
+  vi.stubGlobal("useState", (key: string, init: () => unknown) => {
+    if (!state.has(key)) state.set(key, ref(init()));
+    return state.get(key);
+  });
   vi.stubGlobal("useHead", () => {});
   vi.stubGlobal("useRoute", () => ({ params: {}, query: {} }));
   vi.stubGlobal("useRouter", () => ({ push: () => {}, replace: () => {} }));

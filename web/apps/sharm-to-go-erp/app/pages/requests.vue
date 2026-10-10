@@ -97,6 +97,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="contents">
   <WegoPageHeader eyebrow="Sharm To Go" title="Requests" description="Every customer request, from receipt through confirmation or cancellation." />
 
   <div v-if="!session" class="mt-8 rounded-wego-card border border-wego-border bg-wego-surface p-6">
@@ -169,4 +170,5 @@ onMounted(() => {
       </template>
     </WegoPanel>
   </template>
+  </div>
 </template>
