@@ -304,12 +304,17 @@ jobs:
             e2e/pnpm-lock.yaml
             web/pnpm-lock.yaml
       - run: pnpm --dir e2e install --frozen-lockfile
-      # Real first CI run of this job caught this: building the site below
-      # needs the site's own node_modules (nuxt itself included), not just
-      # e2e's — missed locally because this session's own dev box already
-      # had web/ installed from earlier work, so a fresh-runner-only gap
-      # never surfaced until the real run did.
-      - run: pnpm --dir web --filter @wego/sharm-to-go-site install --frozen-lockfile
+      # Real CI runs caught two real gaps here, in order: (1) building the
+      # site needs web/'s own node_modules, not just e2e's — missed
+      # locally because this session's dev box already had web/ installed
+      # from earlier work; (2) a --filter-scoped install still runs
+      # web/package.json's own root "prepare" script, which unconditionally
+      # calls `nuxt prepare` for all four apps, not just the filtered one —
+      # so a scoped install still fails on the other three apps' missing
+      # node_modules. Matches the pre-existing `web` job's own plain
+      # `pnpm --dir web install` exactly, the already-proven pattern,
+      # instead of trying to be cleverly scoped.
+      - run: pnpm --dir web install --frozen-lockfile
       - name: Seed the Sharm To Go E2E staff account
         run: pnpm --dir e2e run seed:sharm-to-go
       - name: Import the real 41-service catalog (create -> submit -> approve)
