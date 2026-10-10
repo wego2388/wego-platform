@@ -5519,3 +5519,19 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   driver/cost/settlement data, any future payment/analytics credentials, and
   performance follow-up. No fake prices, availability, reviews, or credentials
   were introduced.
+
+#### 2026-10-10 — Network recovery / post-deploy offsite restore completed
+
+- Deployment handoff commit `a9758e79064113e246fcc9e178e63453618f9e83` is confirmed
+  on the authorized branch at GitHub. Runtime source remains `1d5a6b6`; no new
+  application image or deployment was needed.
+- The complete encrypted post-deploy bundle `20261010T024958Z.bundle` was pulled
+  onto the owner device; DB, media and manifest hashes match the VPS copy.
+- Existing restore tooling passed in a network-isolated temporary PostgreSQL
+  container: V34, 45 tables, 427 rows, 20 DB media keys and 20 verified files,
+  zero problems. Report: `bundle-drill-20261010T030605Z.json`; decryption key
+  remains on the owner device. Temporary restore container was cleaned up.
+- The scheduled device pull had failed during earlier disk pressure; rerunning
+  it now completed successfully (`ExecMainStatus=0`), with its timer active.
+  The earlier incomplete local transfer remains quarantined and is never used
+  as a backup. OPS2-G still awaits owner operating/content UAT.
