@@ -404,13 +404,9 @@ jobs:
           WEGO_STS_SITE_BASE_URL: http://127.0.0.1:58087
           WEGO_STS_STAFF_BASE_URL: http://staff.localhost:58087
         run: pnpm --dir e2e exec playwright test tests/safari-enquiry.spec.ts
-      - name: Website request to ERP confirmation (four guest locales, two staff locales)
-        env:
-          WEGO_STS_SITE_BASE_URL: http://127.0.0.1:58087
-          WEGO_STS_STAFF_BASE_URL: http://staff.localhost:58087
-          WEGO_SAFARI_REQUEST_E2E_CONFIRM: yes-this-is-a-disposable-request-stack
-        run: pnpm --dir e2e exec playwright test tests/safari-online-requests.spec.ts
       - name: Verify built enquiry backend refuses removing payment-history configuration
+        # Requires an empty commercial fixture and removes only its own two
+        # synthetic UUIDs. Run BEFORE request conversions create OFFICE bookings.
         env:
           COMPOSE_PROJECT_NAME: ci-safari-enquiry
           WEGO_POSTGRES_DB: safari_enquiry_e2e
@@ -418,6 +414,12 @@ jobs:
           WEGO_EDGE_PORT: 58087
           WEGO_E2E_SEED_CONFIRM: yes-this-is-a-disposable-e2e-database
         run: node e2e/verify-safari-enquiry-history-startup.mjs
+      - name: Website request to ERP confirmation (four guest locales, two staff locales)
+        env:
+          WEGO_STS_SITE_BASE_URL: http://127.0.0.1:58087
+          WEGO_STS_STAFF_BASE_URL: http://staff.localhost:58087
+          WEGO_SAFARI_REQUEST_E2E_CONFIRM: yes-this-is-a-disposable-request-stack
+        run: pnpm --dir e2e exec playwright test tests/safari-online-requests.spec.ts
       - name: Stop disposable Safari enquiry bundle
         if: always()
         env:

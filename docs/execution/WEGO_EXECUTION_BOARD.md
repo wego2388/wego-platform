@@ -5341,6 +5341,24 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   focused8PASS, syntax and diff checks passed. Commit/push is now eligible under
   owner authorization; successful exact-source full CI/clean images/manifest
   and independent live acceptance remain mandatory before release promotion.
+- Exact-source CI38008216984 onf052875 then failed only because its unchanged
+  historical-payment startup guard ran after the new request suite: all8
+  request-to-ERP cases passed and created intentional OFFICE test bookings,
+  so the guard correctly refused the no-commercial-record fixture. Production
+  remained untouched. The workflow now runs that strict guard immediately after
+  seed/SSR checks and before request conversions; no rows are deleted to hide
+  the ordering error. Foundry's YAML validation executable rejects old order,
+  missing guard, or optionalized guard. Fresh local rehearsal proved guard
+  PASS+exact UUID cleanup then8 request cases PASS(42.5sec); disposable stack
+  and volumes were stopped. Independent Tier1 re-review of this CI-order fix,
+  new exact-source green CI, final70 clean images and bounded live acceptance
+  remain required.
+- Independent Tier1 re-review accepted the scoped CI-order/validator fix with
+  zero blockers. It confirmed the strict history probe and UUID-only cleanup,
+  unchanged action pins/secrets/limits/permissions, and mandatory (non-optional)
+  ordering. Its only evidence note is that the named local startup log and the
+  guard PASS/cleanup output are separate files; this is non-blocking, but the
+  next exact-source CI must be green before release.
 
 ## WEGO-017 — Foundry executable isolated client releases
 
