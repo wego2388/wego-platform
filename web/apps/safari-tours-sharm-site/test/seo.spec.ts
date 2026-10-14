@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import { buildRobots, buildSitemap } from "../server/utils/sitemap";
+
+describe("fallback metadata", () => {
+  it("does not promise online checkout or live seats when the sales mode is enquiry-only", () => {
+    const config = readFileSync(`${process.cwd()}/nuxt.config.ts`, "utf8");
+    expect(config).toContain("Browse tour details, catalog prices and local travel information.");
+    expect(config).not.toContain("book direct online");
+    expect(config).not.toContain("live availability");
+  });
+});
 
 describe("sitemap", () => {
   const xml = buildSitemap("https://safaritourssharm.com/", ["sunset-quad-bike", "bad slug<script>"]);

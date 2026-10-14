@@ -5666,3 +5666,26 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
 - Next: preserve this checkpoint on the current Safari branch; verify real
   public-domain responses after the normal Safari release gate. Tour-level
   permanent redirects, gallery and owner-photo decisions remain pending.
+
+#### 2026-10-14 — SFM-04 truthful fallback metadata inside OPS2-G
+
+- OPS2-G remains sole ACTIVE. Bounded public-site SEO-copy correction only:
+  the global Nuxt fallback description/OG description still advertises live
+  availability and direct online booking, which are not true when the
+  production sales mode is `ENQUIRY_ONLY`. Replace those fallbacks with
+  mode-neutral, factual catalog/request language; retain page-specific SSR
+  descriptions and noindex rules. No commercial, booking or gateway change.
+- Acceptance: neither fallback promises checkout or live seats; source test,
+  Safari site tests/typecheck/lint/build and rendered-head check. No deployment
+  claim until normal release and production HTTP verification.
+
+#### 2026-10-14 — SFM-04 fallback metadata local evidence
+
+- Replaced global description and OG description with mode-neutral catalog
+  copy. The first new test run failed only because Vitest transforms
+  `import.meta.url` to a non-file scheme for the source read; corrected the
+  test to use the package cwd and reran the full site suite: 168/168 passed.
+- Site ESLint, Nuxt typecheck and production build passed. Served the built
+  Nitro app locally and checked `/en/terms` HTML: its emitted description and
+  OG description contain the new neutral texts, with no live-seat or online
+  checkout promise. This is not yet deployed or verified on the public domain.

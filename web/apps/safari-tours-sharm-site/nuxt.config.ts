@@ -54,7 +54,7 @@ export default defineNuxtConfig({
         {
           name: "description",
           content:
-            "Browse desert safaris, Red Sea activities and day trips in Sharm El Sheikh. See catalog prices, choose available dates and book direct online.",
+            "Explore desert safaris, Red Sea activities and day trips in Sharm El Sheikh. Browse tour details, catalog prices and local travel information.",
         },
         { property: "og:type", content: "website" },
         { property: "og:site_name", content: "Safari Tours Sharm" },
@@ -62,7 +62,7 @@ export default defineNuxtConfig({
         {
           property: "og:description",
           content:
-            "Desert safaris, Red Sea activities and day trips with catalog prices, live availability and local support in Sharm El Sheikh.",
+            "Desert safaris, Red Sea activities and day trips with catalog prices and local support in Sharm El Sheikh.",
         },
         { name: "twitter:card", content: "summary_large_image" },
       ],
