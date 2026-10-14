@@ -55,6 +55,14 @@ describe("trip finder", () => {
 });
 
 describe("information copy", () => {
+  it("uses the owner-confirmed office number in every language", () => {
+    for (const locale of ["en", "ar", "ru", "it"] as const) {
+      const address = infoCopy[locale].contact.officeBody;
+      expect(address).toMatch(/258|٢٥٨/);
+      expect(address).not.toMatch(/238|٢٣٨|167|١٦٧/);
+    }
+  });
+
   it("has the same shape in every language", () => {
     const shape = (value: unknown): unknown =>
       Array.isArray(value) ? value.map(shape) : value && typeof value === "object"
