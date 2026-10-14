@@ -1,0 +1,1431 @@
+[
+  {
+    "id": "luxor-columns",
+    "tour": "luxor-by-plane",
+    "isCover": true,
+    "alt": {
+      "en": "Ancient temple columns in Luxor.",
+      "ar": "أعمدة المعابد الأثرية في الأقصر.",
+      "ru": "Колонны древнего храма в Луксоре.",
+      "it": "Colonne di un antico tempio a Luxor."
+    },
+    "path": "/images/catalog/luxor-by-plane/luxor-columns-1024.webp",
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "path": "/images/catalog/luxor-by-plane/luxor-columns-480.webp",
+        "width": 480,
+        "height": 320
+      },
+      {
+        "path": "/images/catalog/luxor-by-plane/luxor-columns-960.webp",
+        "width": 960,
+        "height": 640
+      },
+      {
+        "path": "/images/catalog/luxor-by-plane/luxor-columns-1024.webp",
+        "width": 1024,
+        "height": 683
+      }
+    ],
+    "sourceSha256": "d8ed327672dc26c94503c100895f640f5e580b86ad76b4e7aabd2c94a92624f9"
+  },
+  {
+    "id": "dahab-coast",
+    "tour": "dahab-colored-canyon",
+    "isCover": true,
+    "alt": {
+      "en": "The coastline and mountains around Dahab.",
+      "ar": "الساحل والجبال المحيطة بدهب.",
+      "ru": "Побережье и горы вокруг Дахаба.",
+      "it": "La costa e le montagne intorno a Dahab."
+    },
+    "path": "/images/catalog/dahab-colored-canyon/dahab-coast-800.webp",
+    "width": 800,
+    "height": 450,
+    "variants": [
+      {
+        "path": "/images/catalog/dahab-colored-canyon/dahab-coast-480.webp",
+        "width": 480,
+        "height": 270
+      },
+      {
+        "path": "/images/catalog/dahab-colored-canyon/dahab-coast-800.webp",
+        "width": 800,
+        "height": 450
+      }
+    ],
+    "sourceSha256": "68746c971e8741361b34bfa0a3470dd6932f4157958a7f80f369d93558dd2737"
+  },
+  {
+    "id": "dahab-canyon",
+    "tour": "dahab-colored-canyon",
+    "isCover": false,
+    "alt": {
+      "en": "Visitors walking between colourful canyon walls.",
+      "ar": "زوار بين جدران الوادي الملونة.",
+      "ru": "Посетители среди разноцветных стен каньона.",
+      "it": "Visitatori tra le pareti colorate del canyon."
+    },
+    "path": "/images/catalog/dahab-colored-canyon/dahab-canyon-828.webp",
+    "width": 828,
+    "height": 1125,
+    "variants": [
+      {
+        "path": "/images/catalog/dahab-colored-canyon/dahab-canyon-480.webp",
+        "width": 480,
+        "height": 652
+      },
+      {
+        "path": "/images/catalog/dahab-colored-canyon/dahab-canyon-828.webp",
+        "width": 828,
+        "height": 1125
+      }
+    ],
+    "sourceSha256": "b035b6033f3863d905ac7ce3bed8c548436f095b5d663af435af4bc3ccdccc42"
+  },
+  {
+    "id": "banana-ride",
+    "tour": "banana-boat",
+    "isCover": true,
+    "alt": {
+      "en": "A group on an inflatable banana boat on the sea.",
+      "ar": "مجموعة على قارب الموز المطاطي في البحر.",
+      "ru": "Группа на надувном банане в море.",
+      "it": "Un gruppo su un banana boat gonfiabile in mare."
+    },
+    "path": "/images/catalog/banana-boat/banana-ride-1000.webp",
+    "width": 1000,
+    "height": 664,
+    "variants": [
+      {
+        "path": "/images/catalog/banana-boat/banana-ride-480.webp",
+        "width": 480,
+        "height": 319
+      },
+      {
+        "path": "/images/catalog/banana-boat/banana-ride-960.webp",
+        "width": 960,
+        "height": 637
+      },
+      {
+        "path": "/images/catalog/banana-boat/banana-ride-1000.webp",
+        "width": 1000,
+        "height": 664
+      }
+    ],
+    "sourceSha256": "4631d4b0127aaa14c16d65a0fc0957837221114156cbefb227f63299bb8aed1f"
+  },
+  {
+    "id": "banana-ride-closer",
+    "tour": "banana-boat",
+    "isCover": false,
+    "alt": {
+      "en": "Guests wearing life jackets on a banana boat.",
+      "ar": "ضيوف يرتدون سترات النجاة على قارب الموز.",
+      "ru": "Гости в спасательных жилетах на банане.",
+      "it": "Ospiti con giubbotti di salvataggio su un banana boat."
+    },
+    "path": "/images/catalog/banana-boat/banana-ride-closer-1000.webp",
+    "width": 1000,
+    "height": 664,
+    "variants": [
+      {
+        "path": "/images/catalog/banana-boat/banana-ride-closer-480.webp",
+        "width": 480,
+        "height": 319
+      },
+      {
+        "path": "/images/catalog/banana-boat/banana-ride-closer-960.webp",
+        "width": 960,
+        "height": 637
+      },
+      {
+        "path": "/images/catalog/banana-boat/banana-ride-closer-1000.webp",
+        "width": 1000,
+        "height": 664
+      }
+    ],
+    "sourceSha256": "0c86c83eb63f5f45a0d8592879deaf79c321355868e58aa49a99dd2271368198"
+  },
+  {
+    "id": "parasailing-boat",
+    "tour": "parasailing-adventure",
+    "isCover": true,
+    "alt": {
+      "en": "Guests preparing their parasailing harnesses on a boat.",
+      "ar": "ضيوف يستعدون بأحزمة الباراسيل على القارب.",
+      "ru": "Гости готовят страховочные системы для парасейлинга на лодке.",
+      "it": "Ospiti preparano le imbracature da parasailing sulla barca."
+    },
+    "path": "/images/catalog/parasailing-adventure/parasailing-boat-1600.webp",
+    "width": 1600,
+    "height": 1060,
+    "variants": [
+      {
+        "path": "/images/catalog/parasailing-adventure/parasailing-boat-480.webp",
+        "width": 480,
+        "height": 318
+      },
+      {
+        "path": "/images/catalog/parasailing-adventure/parasailing-boat-960.webp",
+        "width": 960,
+        "height": 636
+      },
+      {
+        "path": "/images/catalog/parasailing-adventure/parasailing-boat-1600.webp",
+        "width": 1600,
+        "height": 1060
+      }
+    ],
+    "sourceSha256": "4f4f280fcb0f6a2d61dc331b6a16431fe320ef7770031f40b8ce511852fc940f"
+  },
+  {
+    "id": "parasailing-flight",
+    "tour": "parasailing-adventure",
+    "isCover": false,
+    "alt": {
+      "en": "A colourful parasail canopy above the sea.",
+      "ar": "مظلة باراسيل ملونة فوق البحر.",
+      "ru": "Красочный парашют для парасейлинга над морем.",
+      "it": "Una vela colorata da parasailing sopra il mare."
+    },
+    "path": "/images/catalog/parasailing-adventure/parasailing-flight-853.webp",
+    "width": 853,
+    "height": 1280,
+    "variants": [
+      {
+        "path": "/images/catalog/parasailing-adventure/parasailing-flight-480.webp",
+        "width": 480,
+        "height": 720
+      },
+      {
+        "path": "/images/catalog/parasailing-adventure/parasailing-flight-853.webp",
+        "width": 853,
+        "height": 1280
+      }
+    ],
+    "sourceSha256": "1d6dd4896e3e60c880134763af58bc1a02568ec04b4120adb861e0c07e242530"
+  },
+  {
+    "id": "glass-boat-window",
+    "tour": "glass-bottom-boat",
+    "isCover": true,
+    "alt": {
+      "en": "Guests looking through underwater viewing windows.",
+      "ar": "ضيوف يشاهدون البحر عبر نوافذ الرؤية تحت الماء.",
+      "ru": "Гости смотрят через подводные смотровые окна.",
+      "it": "Ospiti osservano il mare dalle finestre subacquee."
+    },
+    "path": "/images/catalog/glass-bottom-boat/glass-boat-window-1280.webp",
+    "width": 1280,
+    "height": 640,
+    "variants": [
+      {
+        "path": "/images/catalog/glass-bottom-boat/glass-boat-window-480.webp",
+        "width": 480,
+        "height": 240
+      },
+      {
+        "path": "/images/catalog/glass-bottom-boat/glass-boat-window-960.webp",
+        "width": 960,
+        "height": 480
+      },
+      {
+        "path": "/images/catalog/glass-bottom-boat/glass-boat-window-1280.webp",
+        "width": 1280,
+        "height": 640
+      }
+    ],
+    "sourceSha256": "a22f4b824163c94cfbf96fd03275db8db89a2d8c1bdda56b6804283e17dedb0e"
+  },
+  {
+    "id": "glass-boat-exterior",
+    "tour": "glass-bottom-boat",
+    "isCover": false,
+    "alt": {
+      "en": "Illustrative photo: an example glass-bottom boat on the sea; the assigned boat may differ.",
+      "ar": "صورة توضيحية: نموذج لقارب ذي أرضية زجاجية في البحر؛ القارب المخصص قد يختلف.",
+      "ru": "Иллюстративное фото: пример лодки с прозрачным дном; назначенное судно может отличаться.",
+      "it": "Foto illustrativa: esempio di barca con fondo trasparente; l’imbarcazione assegnata può variare."
+    },
+    "path": "/images/catalog/glass-bottom-boat/glass-boat-exterior-1280.webp",
+    "width": 1280,
+    "height": 960,
+    "variants": [
+      {
+        "path": "/images/catalog/glass-bottom-boat/glass-boat-exterior-480.webp",
+        "width": 480,
+        "height": 360
+      },
+      {
+        "path": "/images/catalog/glass-bottom-boat/glass-boat-exterior-960.webp",
+        "width": 960,
+        "height": 720
+      },
+      {
+        "path": "/images/catalog/glass-bottom-boat/glass-boat-exterior-1280.webp",
+        "width": 1280,
+        "height": 960
+      }
+    ],
+    "sourceSha256": "9a3f8d5ff2bb37cf83605cb457b0512bd3c456530e4eba783617f204d319d247"
+  },
+  {
+    "id": "diving-underwater",
+    "tour": "diving-course",
+    "isCover": true,
+    "alt": {
+      "en": "Two scuba divers underwater.",
+      "ar": "غواصان تحت الماء بمعدات الغوص.",
+      "ru": "Два аквалангиста под водой.",
+      "it": "Due subacquei sott’acqua."
+    },
+    "path": "/images/catalog/diving-course/diving-underwater-1024.webp",
+    "width": 1024,
+    "height": 576,
+    "variants": [
+      {
+        "path": "/images/catalog/diving-course/diving-underwater-480.webp",
+        "width": 480,
+        "height": 270
+      },
+      {
+        "path": "/images/catalog/diving-course/diving-underwater-960.webp",
+        "width": 960,
+        "height": 540
+      },
+      {
+        "path": "/images/catalog/diving-course/diving-underwater-1024.webp",
+        "width": 1024,
+        "height": 576
+      }
+    ],
+    "sourceSha256": "b210a52fa58959ec823e3a625b804c9833d3ce6df27b0e025a3885c76153e7f9"
+  },
+  {
+    "id": "evening-lit-boat",
+    "tour": "evening-cruise",
+    "isCover": true,
+    "alt": {
+      "en": "An illuminated boat on the water at night.",
+      "ar": "قارب مضاء على الماء ليلًا.",
+      "ru": "Освещённая лодка на воде ночью.",
+      "it": "Una barca illuminata sull’acqua di notte."
+    },
+    "path": "/images/catalog/evening-cruise/evening-lit-boat-720.webp",
+    "width": 720,
+    "height": 554,
+    "variants": [
+      {
+        "path": "/images/catalog/evening-cruise/evening-lit-boat-480.webp",
+        "width": 480,
+        "height": 369
+      },
+      {
+        "path": "/images/catalog/evening-cruise/evening-lit-boat-720.webp",
+        "width": 720,
+        "height": 554
+      }
+    ],
+    "sourceSha256": "bb80ae1dd14e7ee0c30d5a78686ef55cad59fe03175172b623797c435094b8c2"
+  },
+  {
+    "id": "evening-guests",
+    "tour": "evening-cruise",
+    "isCover": false,
+    "alt": {
+      "en": "Guests enjoying an evening on board.",
+      "ar": "ضيوف يستمتعون بأمسية على متن القارب.",
+      "ru": "Гости проводят вечер на борту.",
+      "it": "Ospiti trascorrono una serata a bordo."
+    },
+    "path": "/images/catalog/evening-cruise/evening-guests-1000.webp",
+    "width": 1000,
+    "height": 750,
+    "variants": [
+      {
+        "path": "/images/catalog/evening-cruise/evening-guests-480.webp",
+        "width": 480,
+        "height": 360
+      },
+      {
+        "path": "/images/catalog/evening-cruise/evening-guests-960.webp",
+        "width": 960,
+        "height": 720
+      },
+      {
+        "path": "/images/catalog/evening-cruise/evening-guests-1000.webp",
+        "width": 1000,
+        "height": 750
+      }
+    ],
+    "sourceSha256": "043e8ff1b0f868071cde48bd42ca191b1876f2da7c116403d43982fdb4759b52"
+  },
+  {
+    "id": "ras-bus-gateway",
+    "tour": "ras-mohamed-by-bus",
+    "isCover": true,
+    "alt": {
+      "en": "The stone entrance gateway to Ras Mohammed.",
+      "ar": "بوابة الدخول الحجرية إلى رأس محمد.",
+      "ru": "Каменные въездные ворота Рас-Мохаммеда.",
+      "it": "Il portale d’ingresso in pietra di Ras Mohammed."
+    },
+    "path": "/images/catalog/ras-mohamed-by-bus/ras-bus-gateway-1200.webp",
+    "width": 1200,
+    "height": 1600,
+    "variants": [
+      {
+        "path": "/images/catalog/ras-mohamed-by-bus/ras-bus-gateway-480.webp",
+        "width": 480,
+        "height": 640
+      },
+      {
+        "path": "/images/catalog/ras-mohamed-by-bus/ras-bus-gateway-960.webp",
+        "width": 960,
+        "height": 1280
+      },
+      {
+        "path": "/images/catalog/ras-mohamed-by-bus/ras-bus-gateway-1200.webp",
+        "width": 1200,
+        "height": 1600
+      }
+    ],
+    "sourceSha256": "91347d631cc0cf57b544e22c36e4e0a0cad9529c3e01c8b98929083af218505e"
+  },
+  {
+    "id": "ras-white-water",
+    "tour": "ras-mohamed-white-island-boat",
+    "isCover": true,
+    "alt": {
+      "en": "Boats resting on clear turquoise water.",
+      "ar": "قوارب على مياه فيروزية صافية.",
+      "ru": "Лодки на прозрачной бирюзовой воде.",
+      "it": "Barche su acque turchesi e limpide."
+    },
+    "path": "/images/catalog/ras-mohamed-white-island-boat/ras-white-water-1152.webp",
+    "width": 1152,
+    "height": 768,
+    "variants": [
+      {
+        "path": "/images/catalog/ras-mohamed-white-island-boat/ras-white-water-480.webp",
+        "width": 480,
+        "height": 320
+      },
+      {
+        "path": "/images/catalog/ras-mohamed-white-island-boat/ras-white-water-960.webp",
+        "width": 960,
+        "height": 640
+      },
+      {
+        "path": "/images/catalog/ras-mohamed-white-island-boat/ras-white-water-1152.webp",
+        "width": 1152,
+        "height": 768
+      }
+    ],
+    "sourceSha256": "b9c9096cc67ec22ca40e27a5ff6d74837a6546c4db55617e425d4a761a73df0e"
+  },
+  {
+    "id": "ras-snorkel-group",
+    "tour": "ras-mohamed-white-island-boat",
+    "isCover": false,
+    "alt": {
+      "en": "A group snorkelling together in the sea.",
+      "ar": "مجموعة تمارس السنوركلينج معًا في البحر.",
+      "ru": "Группа занимается сноркелингом в море.",
+      "it": "Un gruppo fa snorkeling insieme in mare."
+    },
+    "path": "/images/catalog/ras-mohamed-white-island-boat/ras-snorkel-group-1152.webp",
+    "width": 1152,
+    "height": 768,
+    "variants": [
+      {
+        "path": "/images/catalog/ras-mohamed-white-island-boat/ras-snorkel-group-480.webp",
+        "width": 480,
+        "height": 320
+      },
+      {
+        "path": "/images/catalog/ras-mohamed-white-island-boat/ras-snorkel-group-960.webp",
+        "width": 960,
+        "height": 640
+      },
+      {
+        "path": "/images/catalog/ras-mohamed-white-island-boat/ras-snorkel-group-1152.webp",
+        "width": 1152,
+        "height": 768
+      }
+    ],
+    "sourceSha256": "df79c0292975100f15c889e1d888db020f913d38e7e208c5ac2a93f96106cac9"
+  },
+  {
+    "id": "ras-white-island",
+    "tour": "ras-mohamed-white-island-boat",
+    "isCover": false,
+    "alt": {
+      "en": "Visitors on the sand at White Island.",
+      "ar": "زوار على رمال الجزيرة البيضاء.",
+      "ru": "Посетители на песке Белого острова.",
+      "it": "Visitatori sulla sabbia dell’Isola Bianca."
+    },
+    "path": "/images/catalog/ras-mohamed-white-island-boat/ras-white-island-720.webp",
+    "width": 720,
+    "height": 477,
+    "variants": [
+      {
+        "path": "/images/catalog/ras-mohamed-white-island-boat/ras-white-island-480.webp",
+        "width": 480,
+        "height": 318
+      },
+      {
+        "path": "/images/catalog/ras-mohamed-white-island-boat/ras-white-island-720.webp",
+        "width": 720,
+        "height": 477
+      }
+    ],
+    "sourceSha256": "0f572c55514766d97063216a577528ee99b593f29ca1d88fdace12a8b8aa479f"
+  },
+  {
+    "id": "sinai-sailboat",
+    "tour": "sinai-dream-sailboat",
+    "isCover": true,
+    "alt": {
+      "en": "A sailing boat against a colourful sunset sky.",
+      "ar": "قارب شراعي أمام سماء الغروب الملونة.",
+      "ru": "Парусная лодка на фоне красочного закатного неба.",
+      "it": "Una barca a vela sullo sfondo del cielo al tramonto."
+    },
+    "path": "/images/catalog/sinai-dream-sailboat/sinai-sailboat-600.webp",
+    "width": 600,
+    "height": 333,
+    "variants": [
+      {
+        "path": "/images/catalog/sinai-dream-sailboat/sinai-sailboat-480.webp",
+        "width": 480,
+        "height": 266
+      },
+      {
+        "path": "/images/catalog/sinai-dream-sailboat/sinai-sailboat-600.webp",
+        "width": 600,
+        "height": 333
+      }
+    ],
+    "sourceSha256": "e76246db4c2ba7f7eaf7a784ab40a51b043c1f4c69d2ee19baf29a3032751d94"
+  },
+  {
+    "id": "speedboat-sea",
+    "tour": "speed-boat-adventure",
+    "isCover": true,
+    "alt": {
+      "en": "Guests on a speedboat at sea.",
+      "ar": "ضيوف على قارب سريع في البحر.",
+      "ru": "Гости на скоростной лодке в море.",
+      "it": "Ospiti su un motoscafo in mare."
+    },
+    "path": "/images/catalog/speed-boat-adventure/speedboat-sea-680.webp",
+    "width": 680,
+    "height": 452,
+    "variants": [
+      {
+        "path": "/images/catalog/speed-boat-adventure/speedboat-sea-480.webp",
+        "width": 480,
+        "height": 319
+      },
+      {
+        "path": "/images/catalog/speed-boat-adventure/speedboat-sea-680.webp",
+        "width": 680,
+        "height": 452
+      }
+    ],
+    "sourceSha256": "d1d91330622da3ebce9e00c0b13481becff15a806cb580956d6f863c0aacde57"
+  },
+  {
+    "id": "speedboat-coast",
+    "tour": "speed-boat-adventure",
+    "isCover": false,
+    "alt": {
+      "en": "A speedboat moving across coastal water.",
+      "ar": "قارب سريع يتحرك قرب الساحل.",
+      "ru": "Скоростная лодка движется вдоль побережья.",
+      "it": "Un motoscafo naviga vicino alla costa."
+    },
+    "path": "/images/catalog/speed-boat-adventure/speedboat-coast-680.webp",
+    "width": 680,
+    "height": 452,
+    "variants": [
+      {
+        "path": "/images/catalog/speed-boat-adventure/speedboat-coast-480.webp",
+        "width": 480,
+        "height": 319
+      },
+      {
+        "path": "/images/catalog/speed-boat-adventure/speedboat-coast-680.webp",
+        "width": 680,
+        "height": 452
+      }
+    ],
+    "sourceSha256": "60b73c5b6eb49a3e9f9b1dc447bd5176273945de2d392703a7c6b9ff05cd0b83"
+  },
+  {
+    "id": "submarine-window",
+    "tour": "submarine",
+    "isCover": true,
+    "alt": {
+      "en": "A child looking at the reef through an underwater window.",
+      "ar": "طفل يشاهد الشعاب عبر نافذة تحت الماء.",
+      "ru": "Ребёнок смотрит на риф через подводное окно.",
+      "it": "Un bambino osserva la barriera corallina da una finestra subacquea."
+    },
+    "path": "/images/catalog/submarine/submarine-window-1000.webp",
+    "width": 1000,
+    "height": 609,
+    "variants": [
+      {
+        "path": "/images/catalog/submarine/submarine-window-480.webp",
+        "width": 480,
+        "height": 292
+      },
+      {
+        "path": "/images/catalog/submarine/submarine-window-960.webp",
+        "width": 960,
+        "height": 585
+      },
+      {
+        "path": "/images/catalog/submarine/submarine-window-1000.webp",
+        "width": 1000,
+        "height": 609
+      }
+    ],
+    "sourceSha256": "60cbb14230930cacb5a82c373c2e786febbc631b8904233bd246d14fff9fe0a1"
+  },
+  {
+    "id": "submarine-families",
+    "tour": "submarine",
+    "isCover": false,
+    "alt": {
+      "en": "Visitors watching fish through a boat's underwater viewing windows.",
+      "ar": "زوار يشاهدون الأسماك عبر نوافذ القارب تحت الماء.",
+      "ru": "Посетители смотрят на рыб через подводные окна судна.",
+      "it": "Visitatori osservano i pesci dalle finestre subacquee della barca."
+    },
+    "path": "/images/catalog/submarine/submarine-families-761.webp",
+    "width": 761,
+    "height": 638,
+    "variants": [
+      {
+        "path": "/images/catalog/submarine/submarine-families-480.webp",
+        "width": 480,
+        "height": 402
+      },
+      {
+        "path": "/images/catalog/submarine/submarine-families-761.webp",
+        "width": 761,
+        "height": 638
+      }
+    ],
+    "sourceSha256": "7742a07729cf963942bbc47ec05c6e0fd1de2deed5aa9dc34d781691d068b7e3"
+  },
+  {
+    "id": "tiran-boat-water",
+    "tour": "tiran-island-boat-trip",
+    "isCover": true,
+    "alt": {
+      "en": "Boats and swimmers beside a rocky island.",
+      "ar": "قوارب وسباحون بجوار جزيرة صخرية.",
+      "ru": "Лодки и пловцы рядом со скалистым островом.",
+      "it": "Barche e nuotatori accanto a un’isola rocciosa."
+    },
+    "path": "/images/catalog/tiran-island-boat-trip/tiran-boat-water-1600.webp",
+    "width": 1600,
+    "height": 1051,
+    "variants": [
+      {
+        "path": "/images/catalog/tiran-island-boat-trip/tiran-boat-water-480.webp",
+        "width": 480,
+        "height": 315
+      },
+      {
+        "path": "/images/catalog/tiran-island-boat-trip/tiran-boat-water-960.webp",
+        "width": 960,
+        "height": 631
+      },
+      {
+        "path": "/images/catalog/tiran-island-boat-trip/tiran-boat-water-1600.webp",
+        "width": 1600,
+        "height": 1051
+      }
+    ],
+    "sourceSha256": "21e1dc5810fa469644eff94e403f8ec58797da0942d3a4357eaf26db90168be5"
+  },
+  {
+    "id": "tiran-reef-fish",
+    "tour": "tiran-island-boat-trip",
+    "isCover": false,
+    "alt": {
+      "en": "Butterflyfish swimming above a coral reef.",
+      "ar": "أسماك الفراشة تسبح فوق الشعاب المرجانية.",
+      "ru": "Рыбы-бабочки над коралловым рифом.",
+      "it": "Pesci farfalla nuotano sopra una barriera corallina."
+    },
+    "path": "/images/catalog/tiran-island-boat-trip/tiran-reef-fish-1600.webp",
+    "width": 1600,
+    "height": 1200,
+    "variants": [
+      {
+        "path": "/images/catalog/tiran-island-boat-trip/tiran-reef-fish-480.webp",
+        "width": 480,
+        "height": 360
+      },
+      {
+        "path": "/images/catalog/tiran-island-boat-trip/tiran-reef-fish-960.webp",
+        "width": 960,
+        "height": 720
+      },
+      {
+        "path": "/images/catalog/tiran-island-boat-trip/tiran-reef-fish-1600.webp",
+        "width": 1600,
+        "height": 1200
+      }
+    ],
+    "sourceSha256": "eca9ed52b93875bd2084a0cb389143a27da9400df8a9395b724862fba32aa1b3"
+  },
+  {
+    "id": "tube-action",
+    "tour": "tube-boat",
+    "isCover": true,
+    "alt": {
+      "en": "Guests riding a towable inflatable on the sea.",
+      "ar": "ضيوف على عوامة مطاطية تُسحب فوق البحر.",
+      "ru": "Гости на буксируемом надувном аттракционе в море.",
+      "it": "Ospiti su un gonfiabile trainato in mare."
+    },
+    "path": "/images/catalog/tube-boat/tube-action-1600.webp",
+    "width": 1600,
+    "height": 1067,
+    "variants": [
+      {
+        "path": "/images/catalog/tube-boat/tube-action-480.webp",
+        "width": 480,
+        "height": 320
+      },
+      {
+        "path": "/images/catalog/tube-boat/tube-action-960.webp",
+        "width": 960,
+        "height": 640
+      },
+      {
+        "path": "/images/catalog/tube-boat/tube-action-1600.webp",
+        "width": 1600,
+        "height": 1067
+      }
+    ],
+    "sourceSha256": "36e792b6d7dcbe0f1643ecf06151b2bf8a54ff184fb71eeab2982f55466265cd"
+  },
+  {
+    "id": "tube-guests",
+    "tour": "tube-boat",
+    "isCover": false,
+    "alt": {
+      "en": "A group seated on an inflatable water ride.",
+      "ar": "مجموعة تجلس على عوامة ألعاب مائية.",
+      "ru": "Группа сидит на надувном водном аттракционе.",
+      "it": "Un gruppo seduto su un gonfiabile acquatico."
+    },
+    "path": "/images/catalog/tube-boat/tube-guests-1000.webp",
+    "width": 1000,
+    "height": 664,
+    "variants": [
+      {
+        "path": "/images/catalog/tube-boat/tube-guests-480.webp",
+        "width": 480,
+        "height": 319
+      },
+      {
+        "path": "/images/catalog/tube-boat/tube-guests-960.webp",
+        "width": 960,
+        "height": 637
+      },
+      {
+        "path": "/images/catalog/tube-boat/tube-guests-1000.webp",
+        "width": 1000,
+        "height": 664
+      }
+    ],
+    "sourceSha256": "a9c9e51307486845f0908a46c66f1f12f6ea0373d95450e8938b64d9d6a89a12"
+  },
+  {
+    "id": "dolphin-swim",
+    "tour": "swimming-with-dolphins",
+    "isCover": true,
+    "alt": {
+      "en": "A guest beside a dolphin in a swimming pool.",
+      "ar": "ضيفة بجوار دولفين في حوض السباحة.",
+      "ru": "Гостья рядом с дельфином в бассейне.",
+      "it": "Un’ospite accanto a un delfino in piscina."
+    },
+    "path": "/images/catalog/swimming-with-dolphins/dolphin-swim-1600.webp",
+    "width": 1600,
+    "height": 1067,
+    "variants": [
+      {
+        "path": "/images/catalog/swimming-with-dolphins/dolphin-swim-480.webp",
+        "width": 480,
+        "height": 320
+      },
+      {
+        "path": "/images/catalog/swimming-with-dolphins/dolphin-swim-960.webp",
+        "width": 960,
+        "height": 640
+      },
+      {
+        "path": "/images/catalog/swimming-with-dolphins/dolphin-swim-1600.webp",
+        "width": 1600,
+        "height": 1067
+      }
+    ],
+    "sourceSha256": "40685f66a2917add682d1ac95b397c64f11b9754dcb4e8e47110e611b2f8b3e5"
+  },
+  {
+    "id": "dolphin-swim-group",
+    "tour": "swimming-with-dolphins",
+    "isCover": false,
+    "alt": {
+      "en": "Guests in a pool with dolphins.",
+      "ar": "ضيوف في حوض سباحة مع الدلافين.",
+      "ru": "Гости в бассейне с дельфинами.",
+      "it": "Ospiti in piscina con i delfini."
+    },
+    "path": "/images/catalog/swimming-with-dolphins/dolphin-swim-group-960.webp",
+    "width": 960,
+    "height": 637,
+    "variants": [
+      {
+        "path": "/images/catalog/swimming-with-dolphins/dolphin-swim-group-480.webp",
+        "width": 480,
+        "height": 318
+      },
+      {
+        "path": "/images/catalog/swimming-with-dolphins/dolphin-swim-group-960.webp",
+        "width": 960,
+        "height": 637
+      }
+    ],
+    "sourceSha256": "e688186e531e11e1fc8ba4ebd64b884f57eb567533bd46fbcc4ca7b441cbcc91"
+  },
+  {
+    "id": "dolphin-show-jump",
+    "tour": "dolphin-show",
+    "isCover": true,
+    "alt": {
+      "en": "Dolphins jumping during a pool show.",
+      "ar": "دلافين تقفز أثناء عرض في الحوض.",
+      "ru": "Дельфины прыгают во время представления в бассейне.",
+      "it": "Delfini saltano durante uno spettacolo in piscina."
+    },
+    "path": "/images/catalog/dolphin-show/dolphin-show-jump-720.webp",
+    "width": 720,
+    "height": 477,
+    "variants": [
+      {
+        "path": "/images/catalog/dolphin-show/dolphin-show-jump-480.webp",
+        "width": 480,
+        "height": 318
+      },
+      {
+        "path": "/images/catalog/dolphin-show/dolphin-show-jump-720.webp",
+        "width": 720,
+        "height": 477
+      }
+    ],
+    "sourceSha256": "7be97f65f58d8962f885587cd28f03887edf4d74efcf6bb1057f0093e33f32f1"
+  },
+  {
+    "id": "dolphin-show-guests",
+    "tour": "dolphin-show",
+    "isCover": false,
+    "alt": {
+      "en": "Guests beside the dolphin show pool.",
+      "ar": "ضيوف بجوار حوض عرض الدلافين.",
+      "ru": "Гости возле бассейна с представлением дельфинов.",
+      "it": "Ospiti accanto alla piscina dello spettacolo dei delfini."
+    },
+    "path": "/images/catalog/dolphin-show/dolphin-show-guests-1600.webp",
+    "width": 1600,
+    "height": 901,
+    "variants": [
+      {
+        "path": "/images/catalog/dolphin-show/dolphin-show-guests-480.webp",
+        "width": 480,
+        "height": 270
+      },
+      {
+        "path": "/images/catalog/dolphin-show/dolphin-show-guests-960.webp",
+        "width": 960,
+        "height": 541
+      },
+      {
+        "path": "/images/catalog/dolphin-show/dolphin-show-guests-1600.webp",
+        "width": 1600,
+        "height": 901
+      }
+    ],
+    "sourceSha256": "7de870ceca9a6c596ece069d3f04f230a947d850d36e92dae7ff49cec7829681"
+  },
+  {
+    "id": "turkish-bath-interior",
+    "tour": "turkish-bath",
+    "isCover": true,
+    "alt": {
+      "en": "The interior of a traditional hammam.",
+      "ar": "التصميم الداخلي للحمام التركي.",
+      "ru": "Интерьер традиционного хаммама.",
+      "it": "L’interno di un hammam tradizionale."
+    },
+    "path": "/images/catalog/turkish-bath/turkish-bath-interior-668.webp",
+    "width": 668,
+    "height": 446,
+    "variants": [
+      {
+        "path": "/images/catalog/turkish-bath/turkish-bath-interior-480.webp",
+        "width": 480,
+        "height": 320
+      },
+      {
+        "path": "/images/catalog/turkish-bath/turkish-bath-interior-668.webp",
+        "width": 668,
+        "height": 446
+      }
+    ],
+    "sourceSha256": "c3b6b3692214a2312362012f96764674a1a1578101811571a17ab676aaf8773f"
+  },
+  {
+    "id": "turkish-bath-foam",
+    "tour": "turkish-bath",
+    "isCover": false,
+    "alt": {
+      "en": "A foam treatment in a hammam.",
+      "ar": "جلسة رغوة في الحمام التركي.",
+      "ru": "Пенный уход в хаммаме.",
+      "it": "Un trattamento con schiuma in un hammam."
+    },
+    "path": "/images/catalog/turkish-bath/turkish-bath-foam-669.webp",
+    "width": 669,
+    "height": 446,
+    "variants": [
+      {
+        "path": "/images/catalog/turkish-bath/turkish-bath-foam-480.webp",
+        "width": 480,
+        "height": 320
+      },
+      {
+        "path": "/images/catalog/turkish-bath/turkish-bath-foam-669.webp",
+        "width": 669,
+        "height": 446
+      }
+    ],
+    "sourceSha256": "7382bc8a2768bb92674a10f38e72f11922a0e1c01ea9977701721a75ac7ee52e"
+  },
+  {
+    "id": "transfer-van",
+    "tour": "sharm-airport-transfer",
+    "isCover": true,
+    "alt": {
+      "en": "Illustrative photo: a passenger minivan; assigned vehicle is confirmed by the office.",
+      "ar": "صورة توضيحية: ميني فان للركاب؛ المكتب يؤكد السيارة المخصصة.",
+      "ru": "Иллюстративное фото: пассажирский минивэн; автомобиль подтверждает офис.",
+      "it": "Foto illustrativa: un minivan; il veicolo assegnato viene confermato dall’ufficio."
+    },
+    "path": "/images/catalog/sharm-airport-transfer/transfer-van-1600.webp",
+    "width": 1600,
+    "height": 1200,
+    "variants": [
+      {
+        "path": "/images/catalog/sharm-airport-transfer/transfer-van-480.webp",
+        "width": 480,
+        "height": 360
+      },
+      {
+        "path": "/images/catalog/sharm-airport-transfer/transfer-van-960.webp",
+        "width": 960,
+        "height": 720
+      },
+      {
+        "path": "/images/catalog/sharm-airport-transfer/transfer-van-1600.webp",
+        "width": 1600,
+        "height": 1200
+      }
+    ],
+    "sourceSha256": "9d508a2d6bc4f820d23867a671b0a1323469b5ee735947939160390eb9eb0da5"
+  },
+  {
+    "id": "super-safari-quad-cover",
+    "tour": "super-safari-adventure",
+    "isCover": true,
+    "alt": {
+      "en": "Quad riders crossing the open desert in a line.",
+      "ar": "مجموعة تقود الدراجات الرباعية في صف عبر الصحراء.",
+      "ru": "Группа участников едет на квадроциклах по пустыне.",
+      "it": "Un gruppo attraversa il deserto in fila sui quad."
+    },
+    "path": "/images/catalog/super-safari-adventure/super-safari-quad-cover-1600.webp",
+    "width": 1600,
+    "height": 864,
+    "variants": [
+      {
+        "path": "/images/catalog/super-safari-adventure/super-safari-quad-cover-480.webp",
+        "width": 480,
+        "height": 259
+      },
+      {
+        "path": "/images/catalog/super-safari-adventure/super-safari-quad-cover-960.webp",
+        "width": 960,
+        "height": 518
+      },
+      {
+        "path": "/images/catalog/super-safari-adventure/super-safari-quad-cover-1600.webp",
+        "width": 1600,
+        "height": 864
+      }
+    ],
+    "sourceSha256": "9823c1c3bf60b0d2ef0266699d82a91b45094f3372e448ed0a2adf3c92fca55c"
+  },
+  {
+    "id": "super-safari-bedouin-gallery",
+    "tour": "super-safari-adventure",
+    "isCover": false,
+    "alt": {
+      "en": "Guests seated together inside a colourful Bedouin tent.",
+      "ar": "ضيوف يجلسون معًا داخل خيمة بدوية بأقمشة ملونة.",
+      "ru": "Гости сидят вместе в красочном бедуинском шатре.",
+      "it": "Ospiti seduti insieme in una colorata tenda beduina."
+    },
+    "path": "/images/catalog/super-safari-adventure/super-safari-bedouin-gallery-1600.webp",
+    "width": 1600,
+    "height": 1200,
+    "variants": [
+      {
+        "path": "/images/catalog/super-safari-adventure/super-safari-bedouin-gallery-480.webp",
+        "width": 480,
+        "height": 360
+      },
+      {
+        "path": "/images/catalog/super-safari-adventure/super-safari-bedouin-gallery-960.webp",
+        "width": 960,
+        "height": 720
+      },
+      {
+        "path": "/images/catalog/super-safari-adventure/super-safari-bedouin-gallery-1600.webp",
+        "width": 1600,
+        "height": 1200
+      }
+    ],
+    "sourceSha256": "a39b054dc05965697efd1418fb91e5bf10ad4497b6f02783f73c39275084bb41"
+  },
+  {
+    "id": "sunset-quad-rider-cover",
+    "tour": "sunset-quad-bike",
+    "isCover": true,
+    "alt": {
+      "en": "A quad rider on a desert track with mountains behind.",
+      "ar": "قيادة دراجة رباعية على طريق صحراوي وخلفها الجبال.",
+      "ru": "Поездка на квадроцикле по пустынной дороге на фоне гор.",
+      "it": "Un quad su una pista nel deserto con le montagne sullo sfondo."
+    },
+    "path": "/images/catalog/sunset-quad-bike/sunset-quad-rider-cover-1600.webp",
+    "width": 1600,
+    "height": 1003,
+    "variants": [
+      {
+        "path": "/images/catalog/sunset-quad-bike/sunset-quad-rider-cover-480.webp",
+        "width": 480,
+        "height": 301
+      },
+      {
+        "path": "/images/catalog/sunset-quad-bike/sunset-quad-rider-cover-960.webp",
+        "width": 960,
+        "height": 602
+      },
+      {
+        "path": "/images/catalog/sunset-quad-bike/sunset-quad-rider-cover-1600.webp",
+        "width": 1600,
+        "height": 1003
+      }
+    ],
+    "sourceSha256": "2257ed9459c03981fc7a8069a78b8489ab39f9971f78322e3b86d5d0fbe0903c"
+  },
+  {
+    "id": "sunset-quad-line-gallery",
+    "tour": "sunset-quad-bike",
+    "isCover": false,
+    "alt": {
+      "en": "A line of quad bikes parked among desert mountains.",
+      "ar": "صف من الدراجات الرباعية بين الجبال الصحراوية.",
+      "ru": "Ряд квадроциклов среди пустынных гор.",
+      "it": "Una fila di quad parcheggiati tra le montagne del deserto."
+    },
+    "path": "/images/catalog/sunset-quad-bike/sunset-quad-line-gallery-720.webp",
+    "width": 720,
+    "height": 451,
+    "variants": [
+      {
+        "path": "/images/catalog/sunset-quad-bike/sunset-quad-line-gallery-480.webp",
+        "width": 480,
+        "height": 301
+      },
+      {
+        "path": "/images/catalog/sunset-quad-bike/sunset-quad-line-gallery-720.webp",
+        "width": 720,
+        "height": 451
+      }
+    ],
+    "sourceSha256": "aa5f3aa2c480e3ad5753a13c18da4d19c49d9092952da4ae45eea6cefe137cf9"
+  },
+  {
+    "id": "double-buggy-desert-cover",
+    "tour": "double-buggy-camel-ride",
+    "isCover": true,
+    "alt": {
+      "en": "A dune buggy on a sandy desert track beside rocky mountains.",
+      "ar": "سيارة باجي على مسار رملي بجوار الجبال الصخرية.",
+      "ru": "Багги на песчаной дороге рядом со скалистыми горами.",
+      "it": "Un buggy su una pista sabbiosa accanto a montagne rocciose."
+    },
+    "path": "/images/catalog/double-buggy-camel-ride/double-buggy-desert-cover-720.webp",
+    "width": 720,
+    "height": 480,
+    "variants": [
+      {
+        "path": "/images/catalog/double-buggy-camel-ride/double-buggy-desert-cover-480.webp",
+        "width": 480,
+        "height": 320
+      },
+      {
+        "path": "/images/catalog/double-buggy-camel-ride/double-buggy-desert-cover-720.webp",
+        "width": 720,
+        "height": 480
+      }
+    ],
+    "sourceSha256": "ac0f7e4c6438ce8d628db4962f7bf42c71e59715730dd4ac9c2e79997a217138"
+  },
+  {
+    "id": "bedouin-tent-cover",
+    "tour": "bedouin-dinner-camel-ride",
+    "isCover": true,
+    "alt": {
+      "en": "Guests gathered around a low table in a Bedouin tent.",
+      "ar": "ضيوف حول طاولة منخفضة داخل خيمة بدوية.",
+      "ru": "Гости за низким столиком в бедуинском шатре.",
+      "it": "Ospiti intorno a un tavolino basso in una tenda beduina."
+    },
+    "path": "/images/catalog/bedouin-dinner-camel-ride/bedouin-tent-cover-1600.webp",
+    "width": 1600,
+    "height": 1200,
+    "variants": [
+      {
+        "path": "/images/catalog/bedouin-dinner-camel-ride/bedouin-tent-cover-480.webp",
+        "width": 480,
+        "height": 360
+      },
+      {
+        "path": "/images/catalog/bedouin-dinner-camel-ride/bedouin-tent-cover-960.webp",
+        "width": 960,
+        "height": 720
+      },
+      {
+        "path": "/images/catalog/bedouin-dinner-camel-ride/bedouin-tent-cover-1600.webp",
+        "width": 1600,
+        "height": 1200
+      }
+    ],
+    "sourceSha256": "a39b054dc05965697efd1418fb91e5bf10ad4497b6f02783f73c39275084bb41"
+  },
+  {
+    "id": "bedouin-camel-gallery",
+    "tour": "bedouin-dinner-camel-ride",
+    "isCover": false,
+    "alt": {
+      "en": "A group riding camels along a desert route.",
+      "ar": "مجموعة تركب الجمال على طريق صحراوي.",
+      "ru": "Группа на верблюдах на пустынном маршруте.",
+      "it": "Un gruppo a dorso di cammello su un percorso nel deserto."
+    },
+    "path": "/images/catalog/bedouin-dinner-camel-ride/bedouin-camel-gallery-1600.webp",
+    "width": 1600,
+    "height": 1067,
+    "variants": [
+      {
+        "path": "/images/catalog/bedouin-dinner-camel-ride/bedouin-camel-gallery-480.webp",
+        "width": 480,
+        "height": 320
+      },
+      {
+        "path": "/images/catalog/bedouin-dinner-camel-ride/bedouin-camel-gallery-960.webp",
+        "width": 960,
+        "height": 640
+      },
+      {
+        "path": "/images/catalog/bedouin-dinner-camel-ride/bedouin-camel-gallery-1600.webp",
+        "width": 1600,
+        "height": 1067
+      }
+    ],
+    "sourceSha256": "6e0cb2a7bd5d498871750f34c45119ad88a025048386da822c0752a468426463"
+  },
+  {
+    "id": "horse-riders-cover",
+    "tour": "camel-horse-ride",
+    "isCover": true,
+    "alt": {
+      "en": "Two riders on horseback on a sandy trail.",
+      "ar": "راكبتان على ظهر الخيل في مسار رملي.",
+      "ru": "Две участницы верхом на лошадях на песчаной тропе.",
+      "it": "Due persone a cavallo su un sentiero sabbioso."
+    },
+    "path": "/images/catalog/camel-horse-ride/horse-riders-cover-1280.webp",
+    "width": 1280,
+    "height": 853,
+    "variants": [
+      {
+        "path": "/images/catalog/camel-horse-ride/horse-riders-cover-480.webp",
+        "width": 480,
+        "height": 320
+      },
+      {
+        "path": "/images/catalog/camel-horse-ride/horse-riders-cover-960.webp",
+        "width": 960,
+        "height": 640
+      },
+      {
+        "path": "/images/catalog/camel-horse-ride/horse-riders-cover-1280.webp",
+        "width": 1280,
+        "height": 853
+      }
+    ],
+    "sourceSha256": "a174ea3dc266c53a1373e66bc28ffffc81d4bf765032f929565a0b041fbe1ddb"
+  },
+  {
+    "id": "cairo-bus-pyramids-cover",
+    "tour": "cairo-by-bus",
+    "isCover": true,
+    "alt": {
+      "en": "A group of visitors in front of the pyramids of Giza.",
+      "ar": "مجموعة زوار أمام أهرامات الجيزة.",
+      "ru": "Группа посетителей перед пирамидами Гизы.",
+      "it": "Un gruppo di visitatori davanti alle piramidi di Giza."
+    },
+    "path": "/images/catalog/cairo-by-bus/cairo-bus-pyramids-cover-1600.webp",
+    "width": 1600,
+    "height": 702,
+    "variants": [
+      {
+        "path": "/images/catalog/cairo-by-bus/cairo-bus-pyramids-cover-480.webp",
+        "width": 480,
+        "height": 211
+      },
+      {
+        "path": "/images/catalog/cairo-by-bus/cairo-bus-pyramids-cover-960.webp",
+        "width": 960,
+        "height": 421
+      },
+      {
+        "path": "/images/catalog/cairo-by-bus/cairo-bus-pyramids-cover-1600.webp",
+        "width": 1600,
+        "height": 702
+      }
+    ],
+    "sourceSha256": "7a326da94ed0084644cee9d57f329a298a2a92684597d2a9609387d4eb6da004"
+  },
+  {
+    "id": "cairo-bus-sphinx-gallery",
+    "tour": "cairo-by-bus",
+    "isCover": false,
+    "alt": {
+      "en": "A visitor looking towards the Great Sphinx at Giza.",
+      "ar": "زائر ينظر إلى تمثال أبي الهول في الجيزة.",
+      "ru": "Посетитель смотрит на Большого сфинкса в Гизе.",
+      "it": "Un visitatore osserva la Grande Sfinge a Giza."
+    },
+    "path": "/images/catalog/cairo-by-bus/cairo-bus-sphinx-gallery-1000.webp",
+    "width": 1000,
+    "height": 750,
+    "variants": [
+      {
+        "path": "/images/catalog/cairo-by-bus/cairo-bus-sphinx-gallery-480.webp",
+        "width": 480,
+        "height": 360
+      },
+      {
+        "path": "/images/catalog/cairo-by-bus/cairo-bus-sphinx-gallery-960.webp",
+        "width": 960,
+        "height": 720
+      },
+      {
+        "path": "/images/catalog/cairo-by-bus/cairo-bus-sphinx-gallery-1000.webp",
+        "width": 1000,
+        "height": 750
+      }
+    ],
+    "sourceSha256": "61127a0cebff8bbd3913faad3c221593288af794c7c36afff968c56b268bb468"
+  },
+  {
+    "id": "cairo-plane-pyramids-cover",
+    "tour": "cairo-by-plane",
+    "isCover": true,
+    "alt": {
+      "en": "Two visitors with the pyramids of Giza behind them.",
+      "ar": "زائران وخلفهما أهرامات الجيزة.",
+      "ru": "Два посетителя на фоне пирамид Гизы.",
+      "it": "Due visitatori con le piramidi di Giza sullo sfondo."
+    },
+    "path": "/images/catalog/cairo-by-plane/cairo-plane-pyramids-cover-1600.webp",
+    "width": 1600,
+    "height": 716,
+    "variants": [
+      {
+        "path": "/images/catalog/cairo-by-plane/cairo-plane-pyramids-cover-480.webp",
+        "width": 480,
+        "height": 215
+      },
+      {
+        "path": "/images/catalog/cairo-by-plane/cairo-plane-pyramids-cover-960.webp",
+        "width": 960,
+        "height": 430
+      },
+      {
+        "path": "/images/catalog/cairo-by-plane/cairo-plane-pyramids-cover-1600.webp",
+        "width": 1600,
+        "height": 716
+      }
+    ],
+    "sourceSha256": "0b807c4232f66381a5eed0de7c9f18cffbcc361c3ee42f9e2deeaa8dbca7c4aa"
+  },
+  {
+    "id": "sinai-sunrise-cover",
+    "tour": "mount-sinai-st-catherine",
+    "isCover": true,
+    "alt": {
+      "en": "Visitors watching sunrise over the mountains of Sinai.",
+      "ar": "زوار يشاهدون شروق الشمس فوق جبال سيناء.",
+      "ru": "Посетители наблюдают восход солнца над горами Синая.",
+      "it": "Visitatori osservano l’alba sulle montagne del Sinai."
+    },
+    "path": "/images/catalog/mount-sinai-st-catherine/sinai-sunrise-cover-1000.webp",
+    "width": 1000,
+    "height": 667,
+    "variants": [
+      {
+        "path": "/images/catalog/mount-sinai-st-catherine/sinai-sunrise-cover-480.webp",
+        "width": 480,
+        "height": 320
+      },
+      {
+        "path": "/images/catalog/mount-sinai-st-catherine/sinai-sunrise-cover-960.webp",
+        "width": 960,
+        "height": 640
+      },
+      {
+        "path": "/images/catalog/mount-sinai-st-catherine/sinai-sunrise-cover-1000.webp",
+        "width": 1000,
+        "height": 667
+      }
+    ],
+    "sourceSha256": "e20a8567c3bc8a889870343cf3e8fcdbc2fff100148481910f531a2d31d56b21"
+  },
+  {
+    "id": "sinai-monastery-gallery",
+    "tour": "mount-sinai-st-catherine",
+    "isCover": false,
+    "alt": {
+      "en": "St Catherine’s Monastery at the foot of rocky Sinai mountains.",
+      "ar": "دير سانت كاترين عند سفح جبال سيناء الصخرية.",
+      "ru": "Монастырь Святой Екатерины у подножия скалистых гор Синая.",
+      "it": "Il monastero di Santa Caterina ai piedi delle montagne rocciose del Sinai."
+    },
+    "path": "/images/catalog/mount-sinai-st-catherine/sinai-monastery-gallery-1000.webp",
+    "width": 1000,
+    "height": 667,
+    "variants": [
+      {
+        "path": "/images/catalog/mount-sinai-st-catherine/sinai-monastery-gallery-480.webp",
+        "width": 480,
+        "height": 320
+      },
+      {
+        "path": "/images/catalog/mount-sinai-st-catherine/sinai-monastery-gallery-960.webp",
+        "width": 960,
+        "height": 640
+      },
+      {
+        "path": "/images/catalog/mount-sinai-st-catherine/sinai-monastery-gallery-1000.webp",
+        "width": 1000,
+        "height": 667
+      }
+    ],
+    "sourceSha256": "b6f1f04ceefc8fdd96859b115efb6ac733de348c472936890f163b319642727b"
+  },
+  {
+    "id": "st-catherine-monastery-cover",
+    "tour": "st-catherine-dahab",
+    "isCover": true,
+    "alt": {
+      "en": "The walls and buildings of St Catherine’s Monastery in Sinai.",
+      "ar": "أسوار ومباني دير سانت كاترين في سيناء.",
+      "ru": "Стены и здания монастыря Святой Екатерины на Синае.",
+      "it": "Le mura e gli edifici del monastero di Santa Caterina nel Sinai."
+    },
+    "path": "/images/catalog/st-catherine-dahab/st-catherine-monastery-cover-1600.webp",
+    "width": 1600,
+    "height": 1066,
+    "variants": [
+      {
+        "path": "/images/catalog/st-catherine-dahab/st-catherine-monastery-cover-480.webp",
+        "width": 480,
+        "height": 320
+      },
+      {
+        "path": "/images/catalog/st-catherine-dahab/st-catherine-monastery-cover-960.webp",
+        "width": 960,
+        "height": 640
+      },
+      {
+        "path": "/images/catalog/st-catherine-dahab/st-catherine-monastery-cover-1600.webp",
+        "width": 1600,
+        "height": 1066
+      }
+    ],
+    "sourceSha256": "4954f6b1bd725911b76e809931b5d7a239b2218731d5e96210d460491443771f"
+  },
+  {
+    "id": "st-catherine-church-gallery",
+    "tour": "st-catherine-dahab",
+    "isCover": false,
+    "alt": {
+      "en": "The decorated interior of the church at St Catherine’s Monastery.",
+      "ar": "الزخارف الداخلية لكنيسة دير سانت كاترين.",
+      "ru": "Украшенный интерьер церкви монастыря Святой Екатерины.",
+      "it": "L’interno decorato della chiesa del monastero di Santa Caterina."
+    },
+    "path": "/images/catalog/st-catherine-dahab/st-catherine-church-gallery-1024.webp",
+    "width": 1024,
+    "height": 768,
+    "variants": [
+      {
+        "path": "/images/catalog/st-catherine-dahab/st-catherine-church-gallery-480.webp",
+        "width": 480,
+        "height": 360
+      },
+      {
+        "path": "/images/catalog/st-catherine-dahab/st-catherine-church-gallery-960.webp",
+        "width": 960,
+        "height": 720
+      },
+      {
+        "path": "/images/catalog/st-catherine-dahab/st-catherine-church-gallery-1024.webp",
+        "width": 1024,
+        "height": 768
+      }
+    ],
+    "sourceSha256": "9e57ee243d3fbb291ae47d7d25e97004f6cf65cb32fb257f8d9baac29bb5da97"
+  }
+]

@@ -11,6 +11,12 @@ set -euo pipefail
 log() { printf '%s %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >&2; }
 die() { log "ERROR: $*"; exit 1; }
 
+# Consume the complete input. A printf | grep -q pipeline can SIGPIPE the
+# writer on large inventories and look like a missing file under pipefail.
+archive_contains_key() {
+  grep -xF -- "$2" <<< "$1" > /dev/null
+}
+
 postgres_container() {
   local id
   id="$(docker ps -q \

@@ -6,6 +6,7 @@ import { infoCopy } from "../content/info";
 import { useConsent } from "../composables/useConsent";
 import { useSiteLocale } from "../composables/useSiteLocale";
 import { CATEGORY_ORDER } from "../composables/useCatalog";
+import { galleryCopy } from "../content/gallery";
 
 const copy = useDiscoveryCopy();
 const locale = useSiteLocale();
@@ -33,6 +34,7 @@ function changeCookies() {
           <h2 class="text-xs font-bold tracking-[0.12em] text-sts-sand uppercase">{{ copy.footer.explore }}</h2>
           <ul class="mt-4 grid gap-2 text-sm">
             <li><NuxtLinkLocale to="/tours" class="text-white/75 hover:text-white">{{ copy.category.all }}</NuxtLinkLocale></li>
+            <li><NuxtLinkLocale to="/gallery" class="text-white/75 hover:text-white">{{ galleryCopy[locale].title }}</NuxtLinkLocale></li>
             <li v-for="cat in CATEGORY_ORDER" :key="cat">
               <NuxtLinkLocale :to="`/category/${categoryMeta[cat].slug}`" class="text-white/75 hover:text-white">
                 {{ siteCopy[locale].categories[cat].name }}

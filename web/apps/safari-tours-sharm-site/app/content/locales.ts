@@ -107,8 +107,8 @@ export const siteCopy: Record<StsLocale, SiteCopy> = {
       DESERT:    { name: "Desert & Safari",       description: "Quad bikes, camel rides, Bedouin dinner & stargazing in the Sinai desert." },
       SEA:       { name: "Sea & Water Activities", description: "Snorkeling, boat trips, diving and island hopping on the Red Sea." },
       CULTURAL:  { name: "Cultural & Historical",  description: "Cairo, Luxor, Mount Sinai, Saint Catherine and more." },
-      SHOWS:     { name: "Shows & Relax",           description: "Dolphin show, Alf Leila, relaxation trips and entertainment." },
-      TRANSFERS: { name: "Transfers & Rooms",       description: "Airport transfers, hotel bookings and car rental." },
+      SHOWS:     { name: "Shows & Relax",           description: "Dolphin shows, swimming with dolphins and traditional hammam experiences." },
+      TRANSFERS: { name: "Airport Transfers",       description: "Sharm El Sheikh airport transfers, with pickup and vehicle details confirmed by the office." },
     },
     howHeading: "How it works",
     howSteps: [
@@ -159,8 +159,8 @@ export const siteCopy: Record<StsLocale, SiteCopy> = {
       DESERT:    { name: "Сафари и пустыня",       description: "Квадроциклы, верблюды, ужин у бедуинов и звёздное небо Синая." },
       SEA:       { name: "Море и вода",             description: "Снорклинг, морские прогулки, дайвинг и острова Красного моря." },
       CULTURAL:  { name: "Культура и история",      description: "Каир, Луксор, гора Синай, монастырь Святой Екатерины." },
-      SHOWS:     { name: "Шоу и отдых",             description: "Шоу дельфинов, Альф Лейла, развлечения и релакс-туры." },
-      TRANSFERS: { name: "Трансферы и номера",      description: "Трансферы в аэропорт, бронирование отелей и аренда авто." },
+      SHOWS:     { name: "Шоу и отдых",             description: "Шоу дельфинов, плавание с дельфинами и традиционный хаммам." },
+      TRANSFERS: { name: "Трансферы из аэропорта",  description: "Трансферы в аэропорт Шарм-эль-Шейха и обратно. Место встречи и автомобиль подтверждает офис." },
     },
     howHeading: "Как это работает",
     howSteps: [
@@ -211,8 +211,8 @@ export const siteCopy: Record<StsLocale, SiteCopy> = {
       DESERT:    { name: "سفاري الصحراء",          description: "دراجات رباعية، ركوب الجمال، عشاء بدوي ومشاهدة النجوم في سيناء." },
       SEA:       { name: "البحر والأنشطة المائية", description: "الغطس، رحلات القوارب، الغوص والجزر في البحر الأحمر." },
       CULTURAL:  { name: "الجولات الثقافية",       description: "القاهرة، الأقصر، جبل سيناء ودير سانت كاترين." },
-      SHOWS:     { name: "العروض والاسترخاء",      description: "عروض الدلافين، ألف ليلة، رحلات الاسترخاء والترفيه." },
-      TRANSFERS: { name: "النقل والغرف",           description: "نقل المطار، حجز الفنادق وتأجير السيارات." },
+      SHOWS:     { name: "العروض والاسترخاء",      description: "عروض الدلافين والسباحة معها وتجربة الحمام التركي." },
+      TRANSFERS: { name: "انتقالات المطار",        description: "انتقالات مطار شرم الشيخ، مع تأكيد تفاصيل الاستلام والسيارة من المكتب." },
     },
     howHeading: "كيف يعمل الحجز؟",
     howSteps: [
@@ -263,8 +263,8 @@ export const siteCopy: Record<StsLocale, SiteCopy> = {
       DESERT:    { name: "Safari e Deserto",       description: "Quad, dromedari, cena beduina e cielo stellato nel deserto del Sinai." },
       SEA:       { name: "Mare e Attività Acquatiche", description: "Snorkeling, gite in barca, immersioni e isole nel Mar Rosso." },
       CULTURAL:  { name: "Tour Culturali e Storici", description: "Cairo, Luxor, Monte Sinai e il monastero di Santa Caterina." },
-      SHOWS:     { name: "Spettacoli e Relax",      description: "Spettacolo dei delfini, Alf Leila, gite relax e intrattenimento." },
-      TRANSFERS: { name: "Trasferimenti e Camere",  description: "Trasferimenti aeroporto, prenotazioni hotel e noleggio auto." },
+      SHOWS:     { name: "Spettacoli e Relax",      description: "Spettacoli di delfini, nuoto con i delfini e hammam tradizionale." },
+      TRANSFERS: { name: "Trasferimenti Aeroporto", description: "Trasferimenti da e per l’aeroporto di Sharm El Sheikh. Ritiro e veicolo vengono confermati dall’ufficio." },
     },
     howHeading: "Come funziona",
     howSteps: [

@@ -8,6 +8,7 @@ import { siteCopy } from "../content/locales";
 import { tourPageCopy } from "../content/tourPage";
 import { CATEGORY_VISUAL } from "../utils/categoryVisual";
 import { formatDuration } from "../utils/tourDuration";
+import { curatedCover } from "../utils/curatedMedia";
 import { illustrativePhotoLabel, isIllustrativeTourPhoto } from "../utils/tourPhotoDisclosure";
 
 /**
@@ -23,6 +24,7 @@ const props = withDefaults(defineProps<{ entry: CatalogTour; priority?: boolean;
 const copy = useDiscoveryCopy();
 const locale = useSiteLocale();
 const tour = computed(() => props.entry.tour);
+const cover = computed(() => tour.value.cover ?? curatedCover(tour.value.slug, locale.value));
 const visual = computed(() => CATEGORY_VISUAL[tour.value.category]);
 const categoryName = computed(() => siteCopy[locale.value].categories[tour.value.category].name);
 const duration = computed(() => formatDuration(tour.value.durationText, locale.value));
@@ -40,16 +42,16 @@ const onRequest = computed(() => tour.value.tourType === "REQUEST_ONLY");
   <article class="group relative flex h-full flex-col overflow-hidden rounded-[var(--sts-radius-card)] border border-sts-border bg-sts-surface shadow-sts-base transition-[transform,box-shadow] duration-[var(--sts-dur-base)] ease-[var(--sts-ease)] hover:-translate-y-1 hover:shadow-sts-raised focus-within:-translate-y-1 focus-within:shadow-sts-raised">
     <div class="relative overflow-hidden" :style="{ viewTransitionName: `tour-media-${tour.slug}` }">
       <BrandTourMedia
-        :src="tour.cover?.path"
-        :alt="tour.cover?.alt ?? ''"
-        :width="tour.cover?.width"
-        :height="tour.cover?.height"
+        :src="cover?.path"
+        :alt="cover?.alt ?? ''"
+        :width="cover?.width"
+        :height="cover?.height"
         :category="tour.category"
         :priority="priority"
         ratio="4 / 3"
         class="!rounded-none transition-transform duration-[var(--sts-dur-reveal)] ease-[var(--sts-ease)] group-hover:scale-[1.03]"
       />
-      <span v-if="isIllustrativeTourPhoto(tour.cover?.alt)" class="absolute bottom-3 start-3 rounded-full bg-sts-ocean/95 px-3 py-1 text-xs font-semibold text-white">
+      <span v-if="isIllustrativeTourPhoto(cover?.alt)" class="absolute bottom-3 start-3 rounded-full bg-sts-ocean/95 px-3 py-1 text-xs font-semibold text-white">
         {{ illustrativePhotoLabel[locale] }}
       </span>
     </div>

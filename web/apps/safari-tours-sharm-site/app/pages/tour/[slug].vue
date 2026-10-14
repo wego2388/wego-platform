@@ -14,6 +14,7 @@ import { useSalesStatus } from "../../composables/useSalesStatus";
 import { onlineSalesAvailable } from "../../utils/enquiry";
 import { enquiryCopy } from "../../content/enquiry";
 import { illustrativePhotoLabel, isIllustrativeTourPhoto } from "../../utils/tourPhotoDisclosure";
+import { resolveTourMedia } from "../../utils/curatedMedia";
 
 const route = useRoute();
 const locale = useSiteLocale();
@@ -46,7 +47,8 @@ const onRequest = computed(() => tour.value.tourType === "REQUEST_ONLY");
 const perUnit = computed(() => tour.value.priceBasis === "PER_UNIT");
 const firstOption = computed(() => tour.value.priceOptions[0]);
 
-const media = computed(() => content.value?.media ?? []);
+const media = computed(() => resolveTourMedia(tour.value.slug, locale.value,
+  content.value?.media?.length ? content.value.media : tour.value.cover ? [tour.value.cover] : undefined));
 const cover = computed(() => media.value.find((m) => m.isCover) ?? media.value[0] ?? null);
 const facts = computed(() => content.value?.facts ?? null);
 const stops = computed(() => (content.value?.stops ?? []).filter((stop) => stop.kind === "STOP"));
@@ -115,6 +117,11 @@ useSeoMeta({
   description: () => summary.value ?? `${name.value} · ${categoryName.value} · ${duration.value} · ${discovery.value.card.from} ${formatMoney(tour.value.priceAdult)}`,
   ogTitle: () => name.value,
   ogDescription: () => summary.value ?? undefined,
+  ogImage: () => cover.value ? `${siteWebsite}${cover.value.path}` : `${siteWebsite}/og-default.png`,
+  ogImageWidth: () => cover.value?.width ?? 1200,
+  ogImageHeight: () => cover.value?.height ?? 630,
+  ogImageAlt: () => cover.value?.alt ?? name.value,
+  twitterImage: () => cover.value ? `${siteWebsite}${cover.value.path}` : `${siteWebsite}/og-default.png`,
   ogType: "website",
 });
 useHead(() => ({
@@ -129,6 +136,7 @@ useHead(() => ({
           description: summary.value ?? undefined,
           inLanguage: textLang.value,
           touristType: categoryName.value,
+          image: cover.value ? `${siteWebsite}${cover.value.path}` : undefined,
           provider: { "@type": "TravelAgency", name: "Safari Tours Sharm", url: siteWebsite },
           ...(onRequest.value
             ? {}

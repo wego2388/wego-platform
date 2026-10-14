@@ -5756,3 +5756,64 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   for inactive-tour/supplier confirmation. See
   `clients/safari-tours-sharm/handoff/2026-10-14_MEDIA_CURATION_AND_PUBLICATION_AR.md`.
   No other live media publication or site-code deployment is claimed.
+
+#### 2026-10-15 — SFM-02 owner-approved bundled media and hero
+
+- Owner confirmed commercial rights and identifiable-person consent for the
+  supplied photo library, then explicitly requested code-bundled images instead
+  of individual browser uploads. Extend this same ACTIVE OPS2-G scope: curated,
+  optimized static cover/gallery defaults, four-locale captions and category
+  imagery. Approved dashboard media takes precedence; catalog activity, prices,
+  availability and booking authority stay unchanged. Originals stay on HDD.
+- Owner also requests a Safari hero video using the supplied footage. Assemble
+  a short silent loop with poster, pause control, reduced-motion/data-saving
+  fallback and local-only assets. No third-party video player or tracking.
+- Tier 2 UI/asset work. Acceptance: provenance/selection ledger, bounded image
+  and video sizes, fallback/override tests, site tests/lint/typecheck/build,
+  responsive browser inspection, clean source and successful release gates.
+  Nothing here claims deployment. CI additionally exposed a stale Safari V35
+  release-profile allowlist; synchronize it with the already-reviewed app list
+  and regenerate plans (other clients change digest only, not migrations).
+
+#### 2026-10-15 — SFM-02 release gate found backup false negative
+
+- Scheduled backup manually invoked before the media release failed, without
+  changing live data. Journal shows `printf: Broken pipe` at bundle-backup109
+  followed by a false MISSING key. `printf "$large_inventory" | grep -q` can
+  SIGPIPE its writer after an early match; pipefail treats that as a missing key.
+- Bounded corrective scope: exact fixed-string full-line inventory lookup via
+  here-string and non-early-exit grep; retain failure on genuinely missing keys,
+  encryption, archive hashes, source DB and full isolated restore verification.
+  Synthetic large-inventory regression, fresh-context independent Tier-1 review
+  (backup handles real customer data), then rerun encrypted offsite restore
+  gate. No production script replacement, commit or release before review.
+
+#### 2026-10-15 — Independent Tier-1 backup inventory review round
+
+- Fresh-context independent reviewer `/root/backup_inventory_review` examined
+  only `scripts/safari-ops/{lib.sh,bundle-backup.sh,test-backup-inventory.sh}`
+  against the current OPS2-G scope and protocol. Verdict: **READY — zero
+  BLOCKING and zero NON-BLOCKING findings**. No edits or production access.
+- Executable evidence: independently reproduced the original 20,000-entry
+  `printf | grep -q` pipeline exit 141; new regression passed. The actual
+  bundle validation loop accepts first/last inventory keys and rejects a
+  missing key with exit 1. Injected `grep` error also aborts with exit 1.
+  Literal spaces, backslashes, leading dashes and regex metacharacters match;
+  substrings and regex lookalikes do not. `bash -n` and scoped diff check pass.
+- Encryption, hashes and restore code are unchanged. A fresh encrypted backup,
+  off-VPS copy and isolated restore remain mandatory **before deployment**;
+  this code review is not that operational proof. Owner requested deployment
+  only at the end of the remaining site work.
+
+#### 2026-10-15 — SFM-02 owner-approved photo-led gallery
+
+- Owner invited useful additional Safari pages but asked to avoid unnecessary
+  pages. The historical `/gallery/` is a current 404; the owner has now
+  confirmed commercial/guest-photo rights and approved the curated bundled
+  Safari media. Add one locale-aware `/gallery` page with photos tied to
+  currently active API tours, then a fixed one-to-one 301 from `/gallery/`
+  to `/en/gallery`. No separate booking authority or unverified claims.
+- Tier 2 public UI/SEO work. Acceptance: four-language copy and semantics,
+  catalog-active filtering, real-image disclosure, mobile-safe lazy images,
+  sitemap/redirect tests, browser pass and build. No deployment before the
+  final release gate and independent Tier-1 backup review.

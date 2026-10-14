@@ -106,7 +106,7 @@ archive_keys="$(cut -f3 "$files_tsv")"
 missing_count=0
 while IFS= read -r key; do
   [ -z "$key" ] && continue
-  if ! printf '%s\n' "$archive_keys" | grep -qxF -- "$key"; then
+  if ! archive_contains_key "$archive_keys" "$key"; then
     log "MISSING in archive: $key"
     (( missing_count++ )) || true
   fi

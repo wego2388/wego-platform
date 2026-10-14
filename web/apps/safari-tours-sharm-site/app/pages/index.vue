@@ -6,6 +6,7 @@ import { useDiscoveryCopy } from "../composables/useDiscoveryCopy";
 import { useSiteLocale } from "../composables/useSiteLocale";
 import { siteCopy, siteEmail, siteWebsite, whatsappPhone, whatsappUrl } from "../content/locales";
 import { CATEGORY_VISUAL } from "../utils/categoryVisual";
+import { galleryCopy } from "../content/gallery";
 
 const copy = useDiscoveryCopy();
 const locale = useSiteLocale();
@@ -57,7 +58,7 @@ useHead(() => ({
 <template>
   <main id="main-content" tabindex="-1">
     <section class="sts-hero relative isolate overflow-hidden" aria-labelledby="hero-heading">
-      <BrandArtwork kind="hero" priority />
+      <BrandHeroMedia />
       <div class="pointer-events-none absolute inset-0 bg-gradient-to-r from-sts-ocean/95 via-sts-ocean/80 to-sts-ocean/25 rtl:bg-gradient-to-l" aria-hidden="true" />
       <div class="relative z-10 mx-auto max-w-7xl px-4 pt-14 pb-20 sm:px-6 lg:px-10 lg:pt-24 lg:pb-28">
         <div class="max-w-3xl">
@@ -125,6 +126,10 @@ useHead(() => ({
       <BrandSectionBackdrop tone="sea" />
       <div class="relative z-10">
       <h2 id="why-heading" class="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{{ copy.why.heading }}</h2>
+      <BrandPhotoMosaic class="mt-8" />
+      <NuxtLinkLocale to="/gallery" class="mt-5 inline-flex items-center gap-2 font-semibold text-sts-ocean-bright underline underline-offset-4">
+        {{ galleryCopy[locale].title }} <Icon name="lucide:arrow-up-right" class="size-4 rtl:-scale-x-100" aria-hidden="true" />
+      </NuxtLinkLocale>
       <ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <li v-for="item in copy.why.items" :key="item.title" class="rounded-[var(--sts-radius-card)] border border-sts-border bg-sts-surface p-6">
           <span class="grid size-11 place-items-center rounded-xl bg-sts-ocean text-sts-sand" aria-hidden="true">

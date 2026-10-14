@@ -1,0 +1,31 @@
+{
+  "source": "Owner-supplied Safari media library; owner requested hero assembly in conversation 2026-10-15",
+  "edits": "11-second silent montage; sea/desert/parasailing; crossfades, size compression, stripped metadata; originals preserved",
+  "clips": [
+    {
+      "source": "assets/videos/video-24.mp4",
+      "startSeconds": 1,
+      "durationSeconds": 4,
+      "ignoreRotationMetadata": false,
+      "sha256": "f0953198cb191557549eedb3ee2bba5ea6c87c0516877455dae67d815ffff2db"
+    },
+    {
+      "source": "assets/videos/video-23.mp4",
+      "startSeconds": 50,
+      "durationSeconds": 4,
+      "ignoreRotationMetadata": true,
+      "sha256": "ff740ac7ab78f578f91152e125f4a85543f3cd1c15b3f6e04ceb698f3b3945ff"
+    },
+    {
+      "source": "assets/videos/video-16.mp4",
+      "startSeconds": 3,
+      "durationSeconds": 4,
+      "ignoreRotationMetadata": false,
+      "sha256": "2573e6568bd22d445c9e4f8815065ad55ca3a64917c5c0f9e2e15b4d666e9d2b"
+    }
+  ],
+  "output": "/videos/safari-hero-20261015.mp4",
+  "bytes": 2553815,
+  "sha256": "f5e745b9486de17383be5ba03fa309b1092d951bda0ca4c71329610aaf7eadcc",
+  "audio": false
+}

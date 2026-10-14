@@ -12,6 +12,13 @@ function source(relativePath: string): string {
 }
 
 describe("commercial content truth", () => {
+  it("only advertises services represented in the active category catalog", () => {
+    expect(siteCopy.en.categories.TRANSFERS.name).toBe("Airport Transfers");
+    for (const copy of Object.values(siteCopy)) {
+      const categories = JSON.stringify([copy.categories.TRANSFERS, copy.categories.SHOWS]);
+      expect(categories).not.toMatch(/Alf Leila|ألف ليلة|Альф Лейла|hotel bookings|حجز الفنادق|бронирование отелей|prenotazioni hotel/i);
+    }
+  });
   it("uses the owner-supplied review destinations without embedding third-party tracking or fake ratings", () => {
     expect(googleReviewUrl).toBe("https://g.page/r/Cd4uOnKD1ldBEBM/review");
     expect(tripadvisorUrl).toBe("https://www.tripadvisor.com/Attraction_Review-g297555-d34123701-Reviews-Safari_Tours_Sharm-Sharm_El_Sheikh_South_Sinai_Red_Sea_and_Sinai.html");

@@ -2,10 +2,12 @@
 
 Source: preserved `content-research/legacy-wordpress-export.json` (13 pages),
 checked against the current Nuxt routes and owner-approved catalog. The
-runtime table for the seven `301` rows lives in
+runtime table for the eight `301` rows lives in
 `web/apps/safari-tours-sharm-site/server/utils/legacyWordpressRedirect.ts`.
 Targets are fixed English canonicals; a visitor can switch language there.
-The old query string is discarded, so obsolete parameters and possible PII
+The gallery mapping was added 15 October after the owner approved the photo
+library and the four-language gallery page was implemented. The old query
+string is discarded, so obsolete parameters and possible PII
 cannot leak into a permanent redirect. This table does not approve old page
 copy, images or commercial claims for publication.
 
@@ -19,7 +21,7 @@ copy, images or commercial claims for publication.
 | `/shows-relax-trips/` | `301` → `/en/category/shows` | Equivalent current category. |
 | `/about-us/` | `301` → `/en/about` | Equivalent current About page. |
 | `/contact/` | `301` → `/en/contact` | Equivalent current Contact page. |
-| `/gallery/` | No redirect; current 404 | No rights-approved, equivalent gallery. Revisit after owner-approved photos. |
+| `/gallery/` | `301` → `/en/gallery` in the pending site release | Owner-approved gallery now ties curated photos to current active tours; verify the public 301 after release. |
 | `/booking/` | No redirect; current 404 | Old generic WhatsApp form is not a checkout. Direct customers to actual tour pages via navigation; do not redirect to non-existent `/en/booking`. |
 | `/booking-room-rent-car/` | No redirect; current 404 | Room/rental services are not verified in the tour catalog. |
 | `/qr-code/` | No redirect; current 404 | No verified replacement. Consider 410 after owner confirms retirement. |

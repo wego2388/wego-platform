@@ -2,6 +2,7 @@ import { computed } from "vue";
 import type { PublicCategoryCover, TourCategory } from "@wego/api-contract";
 import { apiFetch } from "./useCatalog";
 import { useSiteLocale } from "./useSiteLocale";
+import { curatedCategoryCovers } from "../utils/curatedMedia";
 
 /** SSR metadata only. Image bytes always re-check approval at the backend. */
 export function useCategoryCovers() {
@@ -11,6 +12,6 @@ export function useCategoryCovers() {
     watch: [locale],
     default: () => [] as PublicCategoryCover[],
   });
-  const covers = computed(() => Object.fromEntries((result.data.value ?? []).map((item) => [item.category, item])) as Partial<Record<TourCategory, PublicCategoryCover>>);
+  const covers = computed(() => ({ ...curatedCategoryCovers(locale.value), ...Object.fromEntries((result.data.value ?? []).map((item) => [item.category, item])) }) as Partial<Record<TourCategory, PublicCategoryCover>>);
   return { ...result, covers };
 }

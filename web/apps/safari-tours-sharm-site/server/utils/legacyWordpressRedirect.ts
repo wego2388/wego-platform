@@ -13,6 +13,7 @@ export const LEGACY_WORDPRESS_REDIRECTS = {
   "/cultural-historical": "/en/category/cultural",
   "/shows-relax-trips": "/en/category/shows",
   "/contact": "/en/contact",
+  "/gallery": "/en/gallery",
 } as const;
 
 export function legacyWordpressRedirectTarget(path: string): string | null {

@@ -18,13 +18,14 @@ describe("sitemap", () => {
     expect(xml).toContain("<loc>https://safaritourssharm.com/ar/tour/sunset-quad-bike</loc>");
     expect(xml).toContain('hreflang="ru" href="https://safaritourssharm.com/ru/category/desert"');
     expect(xml).toContain('hreflang="x-default" href="https://safaritourssharm.com/en/trip-finder"');
+    expect(xml).toContain('hreflang="ar" href="https://safaritourssharm.com/ar/gallery"');
     expect(xml).toContain("<loc>https://safaritourssharm.com/it</loc>");
   });
 
   it("drops anything that is not a clean slug and never lists private pages", () => {
     expect(xml).not.toContain("script");
     expect(xml).not.toMatch(/booking|my-booking|design-system/);
-    expect((xml.match(/<url>/g) ?? []).length).toBe((8 + 5 + 1) * 4);
+    expect((xml.match(/<url>/g) ?? []).length).toBe((9 + 5 + 1) * 4);
   });
 });
 

@@ -9,6 +9,7 @@ useSeoMeta({ title: () => `${copy.value.title} — Safari Tours Sharm`, descript
 
 <template>
   <InfoDocument :title="copy.title" :intro="copy.intro" :sections="copy.sections">
+    <template #lead><BrandPhotoMosaic /></template>
     <UiButton to="/tours" size="lg" icon-end="lucide:arrow-right" class="justify-self-start">{{ copy.cta }}</UiButton>
   </InfoDocument>
 </template>

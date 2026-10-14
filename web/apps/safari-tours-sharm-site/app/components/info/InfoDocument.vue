@@ -15,6 +15,7 @@ defineProps<{ title: string; intro?: string; updatedLabel?: string; updated?: st
       </div>
     </BrandPageBanner>
     <article class="mx-auto grid max-w-3xl gap-8 px-4 py-12 sm:px-6">
+      <slot name="lead" />
       <section v-for="(section, i) in sections" :id="`section-${i + 1}`" :key="section.heading" class="scroll-mt-24" :aria-labelledby="`section-${i + 1}-heading`">
         <h2 :id="`section-${i + 1}-heading`" class="text-xl font-semibold">{{ section.heading }}</h2>
         <p v-for="paragraph in section.body" :key="paragraph" class="mt-3 leading-7 text-sts-ink/85">{{ paragraph }}</p>

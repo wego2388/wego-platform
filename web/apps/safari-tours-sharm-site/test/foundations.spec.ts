@@ -11,7 +11,7 @@ import { LEGACY_WORDPRESS_REDIRECTS, legacyWordpressRedirectTarget } from "../se
 
 describe("verified WordPress URL migration", () => {
   it("maps each verified old page to a fixed same-site canonical equivalent", () => {
-    expect(Object.keys(LEGACY_WORDPRESS_REDIRECTS)).toHaveLength(7);
+    expect(Object.keys(LEGACY_WORDPRESS_REDIRECTS)).toHaveLength(8);
     for (const [oldPath, target] of Object.entries(LEGACY_WORDPRESS_REDIRECTS)) {
       expect(legacyWordpressRedirectTarget(oldPath)).toBe(target);
       expect(legacyWordpressRedirectTarget(`${oldPath}/`)).toBe(target);
@@ -19,7 +19,7 @@ describe("verified WordPress URL migration", () => {
     }
   });
   it("does not map unrelated, sensitive, or commercially unmatched URLs", () => {
-    for (const path of ["/", "/booking", "/booking/", "/booking/payment-result", "/gallery/", "/booking-room-rent-car/", "/qr-code/", "/elementor-9/", "/tour/private-boat/", "/about-us/extra", "//evil.com", "/wp-admin/"]) {
+    for (const path of ["/", "/booking", "/booking/", "/booking/payment-result", "/booking-room-rent-car/", "/qr-code/", "/elementor-9/", "/tour/private-boat/", "/about-us/extra", "//evil.com", "/wp-admin/"]) {
       expect(legacyWordpressRedirectTarget(path)).toBeNull();
     }
   });

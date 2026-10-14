@@ -39,7 +39,7 @@ useSeoMeta({
 
 <template>
   <main id="main-content" tabindex="-1">
-    <BrandPageBanner :kind="categoryArtwork(category!) ?? 'hero'" :style="{ '--tile': `var(${visual.colorVar})` }">
+    <BrandPageBanner :kind="categoryArtwork(category!) ?? 'hero'" :photo="covers[category!]" :style="{ '--tile': `var(${visual.colorVar})` }">
       <div class="mx-auto max-w-7xl">
         <NuxtLinkLocale to="/tours" class="inline-flex items-center gap-1 text-sm font-semibold text-white/75 hover:text-white">
           <Icon name="lucide:arrow-left" class="size-4 rtl:-scale-x-100" aria-hidden="true" />{{ copy.category.all }}
