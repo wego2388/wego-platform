@@ -35,12 +35,12 @@ async function submit() {
     const f = form.value;
     if (!props.valid || !consent.value || !f.fullName.trim() || !f.hotelName.trim()
       || !ALL_NATIONALITIES.includes(f.nationality) || !/^\+[1-9][0-9]{6,14}$/.test(normalizePhone(f.phone))
-      || (f.email.trim() && !isPlausibleEmail(f.email.trim()))) {
+      || !isPlausibleEmail(f.email.trim())) {
       error.value = "invalid"; return;
     }
     attempt = {
       ...props.selection, clientRequestId: crypto.randomUUID(), locale: locale.value,
-      customer: { fullName: f.fullName.trim(), phone: normalizePhone(f.phone), nationality: f.nationality, ...(f.email.trim() ? { email: f.email.trim() } : {}) },
+      customer: { fullName: f.fullName.trim(), phone: normalizePhone(f.phone), nationality: f.nationality, email: f.email.trim() },
       hotelName: f.hotelName.trim(), ...(f.specialRequests.trim() ? { specialRequests: f.specialRequests.trim() } : {}), website: f.website,
     };
   }
@@ -74,7 +74,7 @@ async function submit() {
       <label class="grid min-w-0 gap-1 text-sm font-semibold">{{ c.phone }}<input v-model="form.phone" name="phone" type="tel" dir="ltr" autocomplete="tel" :class="control" maxlength="32" required></label>
       <label class="grid min-w-0 gap-1 text-sm font-semibold">{{ c.nationality }}<select v-model="form.nationality" name="nationality" :class="control" required><option value="">{{ c.country }}</option><option v-for="country in countries" :key="country.code" :value="country.code">{{ country.label }}</option></select></label>
       <label class="grid min-w-0 gap-1 text-sm font-semibold">{{ c.hotel }}<input v-model="form.hotelName" name="hotelName" :class="control" maxlength="200" required></label>
-      <label class="grid min-w-0 gap-1 text-sm font-semibold">{{ c.email }}<input v-model="form.email" name="email" type="email" autocomplete="email" dir="ltr" :class="control" maxlength="320"></label>
+      <label class="grid min-w-0 gap-1 text-sm font-semibold">{{ c.email }}<input v-model="form.email" name="email" type="email" autocomplete="email" dir="ltr" :class="control" maxlength="320" required></label>
       <label class="grid min-w-0 gap-1 text-sm font-semibold">{{ c.notes }}<textarea v-model="form.specialRequests" name="specialRequests" :class="control" rows="2" maxlength="2000" /></label>
       <label class="hidden" aria-hidden="true">Website<input v-model="form.website" name="website" tabindex="-1" autocomplete="off"></label>
       <label class="flex items-start gap-2 text-xs leading-relaxed"><input v-model="consent" type="checkbox" name="privacy" class="mt-1 size-4 shrink-0" required><span>{{ c.consent }} <NuxtLink :to="localePath('/privacy')" class="underline">{{ c.privacy }}</NuxtLink></span></label>

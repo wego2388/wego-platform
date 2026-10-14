@@ -69,4 +69,15 @@ describe("website request is saved here, never handed off to WhatsApp", () => {
     expect(vi.mocked(submitOnlineRequest).mock.calls[0]![0].customer.phone).toBe("+201000000001");
     wrapper.unmount();
   });
+  it("requires a plausible email for the later office confirmation", async () => {
+    const wrapper = make(); await fill(wrapper);
+    await wrapper.find('[name="email"]').setValue("");
+    await wrapper.find("form").trigger("submit"); await flushPromises();
+    expect(submitOnlineRequest).not.toHaveBeenCalled();
+    expect(wrapper.text()).toContain(onlineRequestCopy.en.invalid);
+    await wrapper.find('[name="email"]').setValue("invalid-email");
+    await wrapper.find("form").trigger("submit"); await flushPromises();
+    expect(submitOnlineRequest).not.toHaveBeenCalled();
+    wrapper.unmount();
+  });
 });

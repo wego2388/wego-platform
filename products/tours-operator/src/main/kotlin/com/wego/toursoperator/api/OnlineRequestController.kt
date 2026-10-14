@@ -112,6 +112,9 @@ class OnlineRequestController(
         if (!c.phone.trim().matches(Regex("^\\+[1-9][0-9]{6,14}$"))) {
             return ResponseEntity.unprocessableEntity().body(ErrorResponse("invalid_phone"))
         }
+        if (c.email.isNullOrBlank()) {
+            return ResponseEntity.unprocessableEntity().body(ErrorResponse("email_required"))
+        }
         val details =
             OnlineRequestDetails(
                 TourId(request.tourId),
@@ -121,7 +124,7 @@ class OnlineRequestController(
                 request.childrenCount,
                 request.priceOptionCode,
                 request.unitCount,
-                CustomerContact(c.fullName.trim(), c.phone.trim(), c.nationality, c.email?.trim()?.takeIf(String::isNotEmpty)),
+                CustomerContact(c.fullName.trim(), c.phone.trim(), c.nationality, c.email.trim()),
                 request.hotelName.trim(),
                 request.specialRequests?.trim()?.takeIf(String::isNotEmpty),
                 request.locale,

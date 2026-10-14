@@ -107,7 +107,7 @@ paths:
               schema: { $ref: "#/components/schemas/ToursOperatorOnlineRequestAcknowledgement" }
         "400": { description: Invalid fields or honeypot }
         "409": { description: Idempotency key reused with different details }
-        "422": { description: "Invalid preferred date, inactive tour or invalid catalog pricing selection" }
+        "422": { description: "Missing/blank customer email, invalid contact or preferred date, inactive tour, or invalid catalog pricing selection" }
         "429": { description: Rate limited; Retry-After indicates delay }
   /api/v1/tours-operator/staff/booking-requests:
     get:
@@ -6516,6 +6516,7 @@ components:
     SubmitToursOperatorOnlineRequest:
       type: object
       additionalProperties: false
+      description: A website request requires a customer email for the later office confirmation. Older stored requests may still have no email.
       required: [clientRequestId, tourId, preferredDate, adultsCount, childrenCount, customer, hotelName, locale]
       properties:
         clientRequestId: { type: string, format: uuid }
@@ -6526,7 +6527,7 @@ components:
         childrenCount: { type: integer, minimum: 0, maximum: 50 }
         priceOptionCode: { type: string, pattern: "^[a-z0-9][a-z0-9-]{0,39}$" }
         unitCount: { type: integer, minimum: 1, maximum: 50 }
-        customer: { $ref: "#/components/schemas/ToursOperatorCustomerRequest" }
+        customer: { $ref: "#/components/schemas/ToursOperatorOnlineRequestCustomer" }
         hotelName: { type: string, minLength: 1, maxLength: 200 }
         specialRequests: { type: string, maxLength: 2000 }
         locale: { type: string, enum: [en, ar, ru, it] }
@@ -8669,6 +8670,31 @@ components:
           type: string
           format: email
           maxLength: 320
+    ToursOperatorOnlineRequestCustomer:
+      type: object
+      additionalProperties: false
+      required:
+        - fullName
+        - phone
+        - nationality
+        - email
+      properties:
+        fullName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 32
+        nationality:
+          type: string
+          pattern: "^[A-Z]{2}$"
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 320
     ToursOperatorCustomerResponse:
       type: object
       additionalProperties: false
@@ -9289,6 +9315,7 @@ components:
           type: string
           enum:
             - BOOKING_CONFIRMED
+            - OFFICE_REQUEST_CONFIRMED
             - BOOKING_CANCELLED
             - REVIEW_REQUEST
         status:

@@ -237,11 +237,12 @@ class ToursOperatorBeanConfiguration {
         @Qualifier("stoTourSlotRepositoryImpl") slots: TourSlotRepository,
         @Qualifier("stoBookingRepositoryImpl") bookings: BookingRepository,
         createBooking: CreateBookingService,
+        @Qualifier("stoNotificationRepositoryImpl") notifications: NotificationRepository,
         transactionRunner: TransactionRunner,
         clock: Clock,
     ): com.wego.toursoperator.application.OnlineRequestService =
         com.wego.toursoperator.application
-            .OnlineRequestService(repository, tours, slots, bookings, createBooking, transactionRunner, clock)
+            .OnlineRequestService(repository, tours, slots, bookings, createBooking, notifications, transactionRunner, clock)
 
     @Bean
     fun toursOperatorPublicOnlineRequestPrefix(): PublicApiPrefix = PublicApiPrefix("/api/v1/tours-operator/booking-requests")

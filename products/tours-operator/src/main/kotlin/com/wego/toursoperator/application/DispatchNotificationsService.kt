@@ -100,7 +100,7 @@ class DispatchNotificationsService(
     ): String? {
         if (booking == null) return "booking_missing"
         if (booking.status != notification.kind.requiredBookingStatus) return "booking_state_changed"
-        if (notification.kind == NotificationKind.BOOKING_CONFIRMED &&
+        if (notification.kind in setOf(NotificationKind.BOOKING_CONFIRMED, NotificationKind.OFFICE_REQUEST_CONFIRMED) &&
             booking.tourDate.isBefore(LocalDate.ofInstant(now, REPORTING_ZONE))
         ) {
             return "tour_already_past"
@@ -118,6 +118,7 @@ class DispatchNotificationsService(
         now: Instant,
     ) {
         val tour = tourRepository.findById(booking.tourId)
+        val language = booking.locale.lowercase().takeIf { it in NotificationTemplates.SUPPORTED_LOCALES } ?: "en"
         val rendered =
             NotificationTemplates.render(
                 kind = notification.kind,
@@ -133,7 +134,7 @@ class DispatchNotificationsService(
                         totalEur =
                             booking.pricing.totalEur.amount
                                 .toPlainString(),
-                        myBookingUrl = settings.siteBaseUrl.trimEnd('/') + "/my-booking",
+                        myBookingUrl = settings.siteBaseUrl.trimEnd('/') + "/$language/my-booking",
                         reviewUrl = settings.reviewUrl,
                     ),
             )

@@ -2,6 +2,8 @@ package com.wego.toursoperator
 
 import com.jayway.jsonpath.JsonPath
 import com.wego.generated.jooq.tables.ToursOperatorBooking.TOURS_OPERATOR_BOOKING
+import com.wego.generated.jooq.tables.ToursOperatorNotification.TOURS_OPERATOR_NOTIFICATION
+import com.wego.generated.jooq.tables.ToursOperatorOnlineRequest.TOURS_OPERATOR_ONLINE_REQUEST
 import com.wego.generated.jooq.tables.ToursOperatorOnlineRequestAudit.TOURS_OPERATOR_ONLINE_REQUEST_AUDIT
 import com.wego.generated.jooq.tables.ToursOperatorPayment.TOURS_OPERATOR_PAYMENT
 import com.wego.generated.jooq.tables.ToursOperatorTour.TOURS_OPERATOR_TOUR
@@ -15,6 +17,7 @@ import com.wego.identity.domain.UserId
 import com.wego.identity.domain.UserStatus
 import com.wego.toursoperator.application.BookingRepository
 import com.wego.toursoperator.application.CreateBookingService
+import com.wego.toursoperator.application.NotificationRepository
 import com.wego.toursoperator.application.OnlineRequestRepository
 import com.wego.toursoperator.application.OnlineRequestService
 import com.wego.toursoperator.application.TourRepository
@@ -85,6 +88,8 @@ class ToursOperatorOnlineRequestHttpTest {
     @Autowired private lateinit var bookings: BookingRepository
 
     @Autowired private lateinit var createBooking: CreateBookingService
+
+    @Autowired private lateinit var notifications: NotificationRepository
 
     @Autowired private lateinit var transactions: TransactionRunner
 
@@ -215,6 +220,8 @@ class ToursOperatorOnlineRequestHttpTest {
 
     private fun countBookings() = dsl.fetchCount(TOURS_OPERATOR_BOOKING)
 
+    private fun countNotifications() = dsl.fetchCount(TOURS_OPERATOR_NOTIFICATION)
+
     private fun countAudit() = dsl.fetchCount(TOURS_OPERATOR_ONLINE_REQUEST_AUDIT)
 
     private fun countOutbox() =
@@ -247,6 +254,7 @@ class ToursOperatorOnlineRequestHttpTest {
         val (tour, slot) = seed()
         val id = UUID.randomUUID()
         val before = countBookings()
+        val beforeNotifications = countNotifications()
         val payments = dsl.fetchCount(TOURS_OPERATOR_PAYMENT)
         val response = submit(body(id, tour))
         assertThat(response.status).isEqualTo(201)
@@ -254,6 +262,7 @@ class ToursOperatorOnlineRequestHttpTest {
         assertThat(response.contentAsString).matches("""\{"reference":"STQ-[A-F0-9]{32}"}""")
         assertThat(seats(slot)).isZero()
         assertThat(countBookings()).isEqualTo(before)
+        assertThat(countNotifications()).isEqualTo(beforeNotifications)
         assertThat(dsl.fetchCount(TOURS_OPERATOR_PAYMENT)).isEqualTo(payments)
         assertThat(
             repository
@@ -311,6 +320,16 @@ class ToursOperatorOnlineRequestHttpTest {
         assertThat(submit(body(UUID.randomUUID(), tour, extra = ",\"website\":\"spam\"")).status).isEqualTo(400)
         assertThat(submit(body(UUID.randomUUID(), tour, extra = ",\"priceOptionCode\":\"invented\",\"unitCount\":1")).status).isEqualTo(422)
         assertThat(seats(slot)).isZero()
+    }
+
+    @Test fun `website request requires a valid email before saving intent`() {
+        val (tour, _) = seed()
+        val id = UUID.randomUUID()
+        val original = body(id, tour)
+        assertThat(submit(original.replace(",\"email\":\"guest@example.com\"", "")).status).isEqualTo(422)
+        assertThat(submit(original.replace("guest@example.com", "")).status).isEqualTo(422)
+        assertThat(submit(original.replace("guest@example.com", "not-an-email")).status).isEqualTo(400)
+        assertThat(repository.find(id)).isNull()
     }
 
     @Test fun `staff list detail count history and writes deny anonymous and unprivileged`() {
@@ -427,6 +446,7 @@ class ToursOperatorOnlineRequestHttpTest {
         val (_, a) = user()
         val (_, b) = user()
         val before = countBookings()
+        val beforeNotifications = countNotifications()
         val results = parallel(listOf({ convert(id, slot, a) }, { convert(id, slot, b) }))
         assertThat(results.map { it.status }).containsOnly(200)
         assertThat(results.map { JsonPath.read<String>(it.contentAsString, "$.bookingId") }.distinct()).hasSize(1)
@@ -436,6 +456,11 @@ class ToursOperatorOnlineRequestHttpTest {
         assertThat(booking.channel.name).isEqualTo("OFFICE")
         assertThat(booking.status.name).isEqualTo("CONFIRMED")
         assertThat(dsl.fetchCount(TOURS_OPERATOR_PAYMENT, TOURS_OPERATOR_PAYMENT.BOOKING_ID.eq(booking.id.value))).isZero()
+        assertThat(countNotifications()).isEqualTo(beforeNotifications + 1)
+        val notices = dsl.selectFrom(TOURS_OPERATOR_NOTIFICATION).where(TOURS_OPERATOR_NOTIFICATION.BOOKING_ID.eq(booking.id.value)).fetch()
+        assertThat(notices).hasSize(1)
+        assertThat(notices.single().kind).isEqualTo("OFFICE_REQUEST_CONFIRMED")
+        assertThat(notices.single().status).isEqualTo("PENDING")
         assertThat(repository.history(id).map { it.status }).containsExactly(OnlineRequestStatus.NEW, OnlineRequestStatus.CONVERTED)
     }
 
@@ -446,12 +471,30 @@ class ToursOperatorOnlineRequestHttpTest {
         submit(body(a, tour))
         submit(body(b, tour))
         val (_, token) = user()
+        val beforeNotifications = countNotifications()
         val responses = parallel(listOf({ convert(a, slot, token) }, { convert(b, slot, token) }))
         assertThat(responses.map { it.status }.sorted()).containsExactly(200, 409)
         assertThat(seats(slot)).isEqualTo(1)
+        assertThat(countNotifications()).isEqualTo(beforeNotifications + 1)
         assertThat(
             listOf(repository.find(a)!!.status, repository.find(b)!!.status),
         ).containsExactlyInAnyOrder(OnlineRequestStatus.NEW, OnlineRequestStatus.CONVERTED)
+    }
+
+    @Test fun `legacy request without email still converts without queuing an undeliverable message`() {
+        val (tour, slot) = seed()
+        val id = UUID.randomUUID()
+        assertThat(submit(body(id, tour)).status).isEqualTo(201)
+        dsl
+            .update(TOURS_OPERATOR_ONLINE_REQUEST)
+            .setNull(TOURS_OPERATOR_ONLINE_REQUEST.EMAIL)
+            .where(TOURS_OPERATOR_ONLINE_REQUEST.ID.eq(id))
+            .execute()
+        val (_, token) = user()
+        val beforeNotifications = countNotifications()
+        assertThat(convert(id, slot, token).status).isEqualTo(200)
+        assertThat(countNotifications()).isEqualTo(beforeNotifications)
+        assertThat(repository.find(id)!!.status).isEqualTo(OnlineRequestStatus.CONVERTED)
     }
 
     @Test fun `price mismatch rolls back booking seats audit outbox and request state`() {
@@ -460,10 +503,12 @@ class ToursOperatorOnlineRequestHttpTest {
         submit(body(id, tour))
         val (_, token) = user()
         val before = listOf(countBookings(), countAudit(), countOutbox())
+        val beforeNotifications = countNotifications()
         val response = convert(id, slot, token, 3400)
         assertThat(response.status).isEqualTo(409)
         assertThat(response.contentAsString).contains("price_changed")
         assertThat(listOf(countBookings(), countAudit(), countOutbox())).isEqualTo(before)
+        assertThat(countNotifications()).isEqualTo(beforeNotifications)
         assertThat(seats(slot)).isZero()
         assertThat(repository.find(id)!!.status).isEqualTo(OnlineRequestStatus.NEW)
         assertThat(convert(id, slot, token).status).isEqualTo(200)
@@ -485,7 +530,7 @@ class ToursOperatorOnlineRequestHttpTest {
                     repository.audit(request, actorUserId)
                 }
             }
-        val service = OnlineRequestService(failing, tours, slots, bookings, createBooking, transactions, clock)
+        val service = OnlineRequestService(failing, tours, slots, bookings, createBooking, notifications, transactions, clock)
         assertThatThrownBy {
             service.convert(id, 0, TourSlotId(slot), Money.fromCents(3500), actor, null)
         }.hasMessageContaining("simulated audit failure")

@@ -3303,6 +3303,7 @@ export interface components {
     schemas: {
         /** @enum {string} */
         ToursOperatorOnlineRequestStatus: "NEW" | "IN_PROGRESS" | "CONVERTED" | "CLOSED";
+        /** @description A website request requires a customer email for the later office confirmation. Older stored requests may still have no email. */
         SubmitToursOperatorOnlineRequest: {
             /** Format: uuid */
             clientRequestId: string;
@@ -3318,7 +3319,7 @@ export interface components {
             childrenCount: number;
             priceOptionCode?: string;
             unitCount?: number;
-            customer: components["schemas"]["ToursOperatorCustomerRequest"];
+            customer: components["schemas"]["ToursOperatorOnlineRequestCustomer"];
             hotelName: string;
             specialRequests?: string;
             /** @enum {string} */
@@ -4101,6 +4102,13 @@ export interface components {
             nationality: string;
             /** Format: email */
             email?: string;
+        };
+        ToursOperatorOnlineRequestCustomer: {
+            fullName: string;
+            phone: string;
+            nationality: string;
+            /** Format: email */
+            email: string;
         };
         ToursOperatorCustomerResponse: {
             fullName: string;
@@ -4968,7 +4976,7 @@ export interface components {
             bookingId: string;
             bookingReference: string;
             /** @enum {string} */
-            kind: "BOOKING_CONFIRMED" | "BOOKING_CANCELLED" | "REVIEW_REQUEST";
+            kind: "BOOKING_CONFIRMED" | "OFFICE_REQUEST_CONFIRMED" | "BOOKING_CANCELLED" | "REVIEW_REQUEST";
             status: components["schemas"]["ToursOperatorNotificationStatus"];
             attemptCount: number;
             lastError?: string | null;
@@ -5805,7 +5813,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Invalid preferred date, inactive tour or invalid catalog pricing selection */
+            /** @description Missing/blank customer email, invalid contact or preferred date, inactive tour, or invalid catalog pricing selection */
             422: {
                 headers: {
                     [name: string]: unknown;

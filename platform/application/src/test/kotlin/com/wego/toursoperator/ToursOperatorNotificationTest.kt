@@ -1,5 +1,6 @@
 package com.wego.toursoperator
 
+import com.wego.generated.jooq.tables.ToursOperatorBooking.TOURS_OPERATOR_BOOKING
 import com.wego.generated.jooq.tables.ToursOperatorNotification.TOURS_OPERATOR_NOTIFICATION
 import com.wego.generated.jooq.tables.ToursOperatorPayment.TOURS_OPERATOR_PAYMENT
 import com.wego.generated.jooq.tables.ToursOperatorTour.TOURS_OPERATOR_TOUR
@@ -223,6 +224,64 @@ class ToursOperatorNotificationTest {
     }
 
     // ── tests ─────────────────────────────────────────────────────────────────
+
+    @Test
+    fun `staff conversion of a website request sends one unpaid confirmation in the customer's language`(output: CapturedOutput) {
+        val slotId = seedSlot()
+        val tourId =
+            dsl
+                .select(TOURS_OPERATOR_TOUR_SLOT.TOUR_ID)
+                .from(TOURS_OPERATOR_TOUR_SLOT)
+                .where(TOURS_OPERATOR_TOUR_SLOT.ID.eq(slotId))
+                .fetchOne(TOURS_OPERATOR_TOUR_SLOT.TOUR_ID)!!
+        val requestId = UUID.randomUUID()
+        mockMvc
+            .post("/api/v1/tours-operator/booking-requests") {
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    """
+                    {"clientRequestId":"$requestId","tourId":"$tourId","preferredDate":"2027-07-01",
+                     "adultsCount":1,"childrenCount":0,
+                     "customer":{"fullName":"Notify Guest","phone":"+201000000777",
+                                 "nationality":"EG","email":"$customerEmail"},
+                     "hotelName":"Test Hotel","locale":"ar"}
+                    """.trimIndent()
+            }.andExpect { status { isCreated() } }
+
+        val response =
+            mockMvc
+                .post("/api/v1/tours-operator/staff/booking-requests/$requestId/convert") {
+                    header("Authorization", "Bearer ${login(adminEmail, adminPassword)}")
+                    contentType = MediaType.APPLICATION_JSON
+                    content = """{"expectedRevision":0,"slotId":"$slotId","expectedTotalCents":3500}"""
+                }.andExpect { status { isOk() } }
+                .andReturn()
+                .response.contentAsString
+        val bookingId = Regex(""""bookingId"\s*:\s*"([^"]+)"""").find(response)!!.groupValues[1]
+        val reference =
+            dsl
+                .select(TOURS_OPERATOR_BOOKING.REFERENCE)
+                .from(TOURS_OPERATOR_BOOKING)
+                .where(TOURS_OPERATOR_BOOKING.ID.eq(UUID.fromString(bookingId)))
+                .fetchOne(TOURS_OPERATOR_BOOKING.REFERENCE)!!
+        mockMvc
+            .post("/api/v1/tours-operator/bookings/lookup") {
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"reference":"$reference","phone":"+201000000777"}"""
+            }.andExpect { status { isOk() } }
+
+        assertThat(notificationRows(bookingId)).hasSize(1)
+        assertThat(notificationRows(bookingId).single().kind).isEqualTo("OFFICE_REQUEST_CONFIRMED")
+        assertThat(dispatcher.dispatchDue(100)).isEqualTo(1)
+        val sent = sentMessages(1).single()
+        assertThat(sent.to).isEqualTo(customerEmail)
+        assertThat(sent.subject).contains("تم تأكيد حجز الرحلة")
+        assertThat(sent.body).contains("€35.00", "/ar/my-booking", "هذه الرسالة ليست إيصال دفع")
+        assertThat(sent.body).doesNotContain("تم استلام الدفع", customerEmail)
+        assertThat(notificationRows(bookingId).single().status).isEqualTo("SENT")
+        assertThat(dispatcher.dispatchDue(100)).isZero()
+        assertThat(output.all).doesNotContain(customerEmail)
+    }
 
     @Test
     fun `a confirmed booking queues one confirmation that is sent exactly once`(output: CapturedOutput) {

@@ -5535,3 +5535,97 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   it now completed successfully (`ExecMainStatus=0`), with its timer active.
   The earlier incomplete local transfer remains quarantined and is never used
   as a backup. OPS2-G still awaits owner operating/content UAT.
+
+#### 2026-10-13 — Codex marketing/customer-journey execution handoff (documentation)
+
+- OPS2-G remains the sole ACTIVE packet; no packet was opened or closed by
+  this documentation update. Owner approved an email after staff confirmation
+  of a website request, requested a complete Codex execution handoff covering
+  code and browser/account work, and delegated useful routine improvements.
+- Added `clients/safari-tours-sharm/handoff/2026-10-13_CODEX_MARKETING_AND_CUSTOMER_JOURNEY_EXECUTION_AR.md`:
+  ordered SFM-00–SFM-10 backlog, task marks, dependencies, exact implementation
+  entry points, owner inputs, account verification, Tier1 triggers and release gates.
+- Read-only audit: 27 active tours, 108 published content responses matching
+  EN/AR/RU/IT, one tour with managed published media and no multi-image gallery;
+  sitemap160 URLs, homepage canonical/hreflang present, old about-us and
+  cancellation-policy404, sample tour redirect302, sample share images generic.
+- Production backend environment check returned notifications=false and no
+  configured SMTP/from/reply-to. Source conversion uses unpaid OFFICE rules
+  without a confirmation notification; current confirmation template assumes
+  captured payment. The plan explicitly requires truthful payment wording,
+  durable enqueue after successful conversion, retries and independent review.
+- Public runtime GA4/Meta IDs are blank; request-form success has no analytics
+  event in the inspected source. Account facts from October1/5 remain historical,
+  not freshly authenticated. No account edits, emails, runtime code, credentials,
+  deployments, DNS changes, commits or pushes were performed for this handoff.
+- Updated client/handoff entry points to distinguish the deployed October state
+  from the preserved September/predeploy history. Future implementation must
+  record a bounded scope and acceptance evidence before changing runtime code.
+
+#### 2026-10-14 — Owner-approved SFM-01 extension inside OPS2-G
+
+- OPS2-G remains the sole ACTIVE packet. Owner explicitly asked Codex to keep
+  executing all Safari tasks that do not need his pending email accounts or
+  tour photos. First bounded change: after staff atomically converts a saved
+  website request to a confirmed, unpaid office booking, queue one truthful
+  customer email intent in that same transaction. Existing office booking
+  creation and Paymob-confirmed mail behavior retain their own semantics.
+- Scope: new notification kind and forward-only database constraint migration,
+  four-locale unpaid-confirmation template, website-request email validation,
+  existing staff notification display, OpenAPI/generated types and focused
+  PostgreSQL/browser tests. SMTP and production delivery remain disabled until
+  an owner-controlled sender and one controlled delivery test are available.
+- Acceptance: no notification for mere intake or failed conversion; exactly
+  one intent on replay/race; no paid claim; old requests without email are
+  handled truthfully; no customer address/body in logs; old online paid email
+  and ordinary office booking tests stay green. This is Tier 1 (PII, migration,
+  booking transaction); independent executable review required before commit.
+
+#### 2026-10-14 — SFM-01 Tier-1 review round 1 and executable evidence
+
+- Implemented `OFFICE_REQUEST_CONFIRMED` as a distinct notification kind,
+  forward-only V35 check constraint, and enqueue under the website-request
+  conversion transaction. The old Paymob `BOOKING_CONFIRMED` remains the paid
+  message; direct office booking creation does not enqueue the new kind.
+  Public website requests now require a syntactically valid email; legacy
+  stored requests with no email remain convertible without an undeliverable
+  notification. The four locale templates explicitly say the office handles
+  payment separately and the message is not a receipt. The My Booking URL
+  includes the verified booking locale and no PII.
+- PostgreSQL-backed focused run: `:platform:apps:safari-tours-sharm:test`
+  filtered to OnlineRequest (17), Notification (8), Templates (6): 31 tests,
+  zero failures and zero skips; includes concurrent conversion, no-notification
+  rollback, real dispatch of the new kind and Arabic content. Web test runs:
+  Safari site 164, ERP 375 and generated API contract 8 pass; site/ERP/API
+  typecheck and site/ERP lint pass; Kotlin ktlint, repository-check and
+  `git diff --check` pass at the recorded checkpoint.
+- Independent Tier-1 reviewer used fresh context/read-only trace against the
+  actual diff and executable evidence: zero BLOCKING. One NON-BLOCKING issue
+  at OpenAPI 422 description omitted the new `email_required`; fixed in the
+  same round and API contract regenerated/tested. Follow-up review found zero
+  findings. Reviewer did not change source or claim its interrupted concurrent
+  Gradle attempt as evidence.
+- First unfiltered Safari test run: 444 tests, one failure in the isolation
+  test's expected migration-version list (ended at 34). Added expected V35 and
+  a converted-booking reference+phone lookup assertion; unfiltered `check`
+  (including ktlint and full tests) is being rerun. Do not describe this as
+  a full-suite pass until its final result is recorded. No production email,
+  account change, deployment, commit or push in this round.
+
+#### 2026-10-14 — SFM-01 safe source checkpoint after review
+
+- Sequential rerun `:platform:apps:safari-tours-sharm:check` passed: 444 real
+  tests, zero failures/errors/skips (including PostgreSQL/Testcontainers and
+  the corrected V35 isolation assertion); Kotlin ktlint passed. The new
+  website-request booking reference was looked up through the public
+  reference+phone endpoint before actual Arabic mail dispatch in the test.
+- `pnpm run generate:api-contract`, API contract typecheck/8 tests, Safari
+  site typecheck/164 tests/lint/build and Safari ERP typecheck/375 tests/lint/
+  build all passed. `bash scripts/repository-check.sh` and `git diff --check`
+  passed. Independent Tier-1 follow-up found zero blocking or non-blocking
+  findings after the 422 description and migration-list fixes.
+- The source is ready to save on the Safari branch. It is not an operational
+  email launch: production notifications remain disabled. Before any enable,
+  the owner-controlled sender, reply inbox, SPF/DKIM/DMARC, PENDING backlog
+  inspection and one controlled four-locale delivery exercise are required.
+  No business account, DNS, production data or deployment changed here.

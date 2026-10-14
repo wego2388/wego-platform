@@ -3,6 +3,7 @@ package com.wego.toursoperator.application
 import com.wego.toursoperator.domain.Booking
 import com.wego.toursoperator.domain.BookingPricing
 import com.wego.toursoperator.domain.Money
+import com.wego.toursoperator.domain.NotificationKind
 import com.wego.toursoperator.domain.OnlineRequest
 import com.wego.toursoperator.domain.OnlineRequestAudit
 import com.wego.toursoperator.domain.OnlineRequestDetails
@@ -41,6 +42,7 @@ class OnlineRequestService(
     private val slots: TourSlotRepository,
     private val bookings: BookingRepository,
     private val createBooking: CreateBookingService,
+    private val notifications: NotificationRepository,
     private val transactions: TransactionRunner,
     private val clock: Clock,
 ) {
@@ -198,6 +200,12 @@ class OnlineRequestService(
                     )
                 repository.save(changed)
                 repository.audit(changed, actor)
+                // The request/booking/notification intent commit together. SMTP
+                // dispatch is separate and cannot undo a confirmed booking.
+                if (!booking.customer.email.isNullOrBlank()) {
+                    val now = Instant.now(clock)
+                    notifications.enqueueOnce(booking.id, NotificationKind.OFFICE_REQUEST_CONFIRMED, now, now)
+                }
                 OnlineRequestResult.Converted(changed, booking)
             }
         } catch (_: PriceChanged) {

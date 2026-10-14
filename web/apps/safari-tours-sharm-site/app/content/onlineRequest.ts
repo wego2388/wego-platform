@@ -3,7 +3,7 @@ import type { StsLocale } from "./locales";
 export const onlineRequestCopy = {
   en: {
     name: "Full name", phone: "Phone with country code", nationality: "Nationality", country: "Choose your country",
-    hotel: "Hotel / accommodation", email: "Email (optional)", notes: "Requests (optional)",
+    hotel: "Hotel / accommodation", email: "Email for booking confirmation", notes: "Requests (optional)",
     consent: "I have read the privacy policy and understand this request needs office confirmation.", privacy: "Privacy policy",
     send: "Send booking request", sending: "Saving your request…", retry: "Retry the same request",
     error: "We could not verify receipt. Your original details are kept for a safe retry; do not submit a new request.",
@@ -14,7 +14,7 @@ export const onlineRequestCopy = {
   },
   ar: {
     name: "الاسم بالكامل", phone: "الهاتف مع كود الدولة", nationality: "الجنسية", country: "اختر دولتك",
-    hotel: "الفندق / مكان الإقامة", email: "البريد الإلكتروني (اختياري)", notes: "طلبات خاصة (اختياري)",
+    hotel: "الفندق / مكان الإقامة", email: "البريد الإلكتروني لاستلام تأكيد الحجز", notes: "طلبات خاصة (اختياري)",
     consent: "قرأت سياسة الخصوصية وأفهم أن الطلب يحتاج تأكيد المكتب.", privacy: "سياسة الخصوصية",
     send: "إرسال طلب الحجز", sending: "جارٍ حفظ طلبك…", retry: "إعادة إرسال نفس الطلب",
     error: "تعذّر التأكد من استلام الطلب. احتفظنا ببيانات المحاولة لإعادتها بأمان؛ لا ترسل طلبًا جديدًا.",
@@ -25,7 +25,7 @@ export const onlineRequestCopy = {
   },
   ru: {
     name: "Имя и фамилия", phone: "Телефон с кодом страны", nationality: "Гражданство", country: "Выберите страну",
-    hotel: "Отель / место проживания", email: "Email (необязательно)", notes: "Пожелания (необязательно)",
+    hotel: "Отель / место проживания", email: "Email для подтверждения бронирования", notes: "Пожелания (необязательно)",
     consent: "Я прочитал(а) политику конфиденциальности и понимаю, что требуется подтверждение офиса.", privacy: "Конфиденциальность",
     send: "Отправить запрос", sending: "Сохраняем запрос…", retry: "Повторить тот же запрос",
     error: "Не удалось проверить получение. Исходные данные сохранены для безопасного повтора; не создавайте новый запрос.",
@@ -36,7 +36,7 @@ export const onlineRequestCopy = {
   },
   it: {
     name: "Nome e cognome", phone: "Telefono con prefisso internazionale", nationality: "Nazionalità", country: "Scegli il paese",
-    hotel: "Hotel / alloggio", email: "Email (facoltativa)", notes: "Richieste (facoltative)",
+    hotel: "Hotel / alloggio", email: "Email per la conferma della prenotazione", notes: "Richieste (facoltative)",
     consent: "Ho letto l’informativa sulla privacy e comprendo che serve la conferma dell’ufficio.", privacy: "Privacy",
     send: "Invia richiesta di prenotazione", sending: "Salvataggio della richiesta…", retry: "Riprova la stessa richiesta",
     error: "Non è stato possibile verificare la ricezione. I dati originali sono conservati per riprovare in sicurezza; non inviare una nuova richiesta.",

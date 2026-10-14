@@ -29,6 +29,12 @@ class NotificationTemplatesTest {
                 val email = NotificationTemplates.render(kind, locale, context)
                 assertTrue(email.subject.isNotBlank(), "$locale/$kind subject")
                 when (kind) {
+                    NotificationKind.OFFICE_REQUEST_CONFIRMED -> {
+                        assertTrue(email.subject.contains("STR-2027-0042"))
+                        assertTrue(email.body.contains("€87.50"), "$locale total")
+                        assertTrue(email.body.contains("https://site.example/my-booking"), "$locale link")
+                        assertTrue(email.body.contains("Desert Quad Safari"))
+                    }
                     NotificationKind.BOOKING_CONFIRMED -> {
                         assertTrue(email.subject.contains("STR-2027-0042"))
                         assertTrue(email.body.contains("€87.50"), "$locale total")
@@ -54,6 +60,15 @@ class NotificationTemplatesTest {
         val email = NotificationTemplates.render(NotificationKind.BOOKING_CONFIRMED, "ar", context)
         assertTrue(email.subject.startsWith("تم تأكيد الحجز"))
         assertTrue(email.body.contains("غروب الشمس"))
+    }
+
+    @Test
+    fun `office request confirmation never claims payment was received`() {
+        val paidClaims = listOf("payment was received", "تم استلام الدفع", "оплата получена", "ricevuto il pagamento")
+        for (locale in NotificationTemplates.SUPPORTED_LOCALES) {
+            val message = NotificationTemplates.render(NotificationKind.OFFICE_REQUEST_CONFIRMED, locale, context)
+            assertTrue(paidClaims.none { message.body.contains(it, ignoreCase = true) }, "$locale paid claim")
+        }
     }
 
     @Test

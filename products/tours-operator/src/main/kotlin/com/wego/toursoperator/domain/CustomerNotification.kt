@@ -18,6 +18,7 @@ enum class NotificationKind(
     val requiredBookingStatus: BookingStatus,
 ) {
     BOOKING_CONFIRMED(BookingStatus.CONFIRMED),
+    OFFICE_REQUEST_CONFIRMED(BookingStatus.CONFIRMED),
     BOOKING_CANCELLED(BookingStatus.CANCELLED),
     REVIEW_REQUEST(BookingStatus.COMPLETED),
 }
