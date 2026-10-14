@@ -5689,3 +5689,40 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   Nitro app locally and checked `/en/terms` HTML: its emitted description and
   OG description contain the new neutral texts, with no live-seat or online
   checkout promise. This is not yet deployed or verified on the public domain.
+
+#### 2026-10-14 — SFM-03 backend-acknowledged request event inside OPS2-G
+
+- OPS2-G stays the only ACTIVE packet. Bounded site-only analytics change:
+  emit a custom `request_submitted` event only after the public API returns a
+  saved website-request acknowledgement, not on button click, validation,
+  timeout, or an unconfirmed retry. This is an enquiry conversion, never a
+  `purchase` or revenue. The event contains only an approved catalog tour ID,
+  not request reference, customer PII, notes, date or value.
+- Existing analytics plugin remains inert without provider IDs and visitor
+  consent; no production ID or account change. Acceptance: unit/source and
+  component behavior tests for success/failure/retry, no PII event payload,
+  site gates and independent Tier1 review because of tracking/privacy.
+- Review extension before acceptance: the pre-existing plugin kept `ready`
+  true after a visitor withdrew consent, so later SPA page views/events could
+  still be emitted. Include a runtime consent check on every event/page view
+  and a grant→deny test in this same privacy boundary; consent code already
+  clears first-party tracking cookies. Do not claim provider-side deletion of
+  previously received events or script unloading.
+
+#### 2026-10-14 — SFM-03 local Tier-1 acceptance evidence
+
+- `request_submitted` now fires only after successful API acknowledgement and
+  contains only catalog `tourId`; GA receives a custom event, Meta receives
+  `Lead`, never `Purchase`. Uncertain retries and double-submit each emit once
+  when a saved response is finally received. Provider exception cannot hide
+  the saved-request confirmation from the customer.
+- The real analytics plugin is tested for denied consent, configured-no-ID,
+  consented GA+Meta payloads and grant→deny suppression of subsequent events
+  and SPA page views. No external provider script was fetched in tests.
+- Safari site full suite 173/173 passed, ESLint/typecheck/production build
+  passed, repository-check and `git diff --check` passed. Independent Tier-1
+  reviewer reran focused plugin/form tests (14/14) and returned zero BLOCKING,
+  zero NONBLOCKING after the test-gap and withdrawal fix. Production IDs stay
+  unset; no live analytics receipt, account change, deployment or provider-side
+  deletion is claimed. Cross-tab/reload deduplication and server-confirmed paid
+  purchase attribution remain separate follow-ups.

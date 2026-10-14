@@ -4,6 +4,7 @@ import type { OnlineRequestAcknowledgement, SubmitOnlineRequestPayload } from "@
 import { ALL_NATIONALITIES, isPlausibleEmail, normalizePhone } from "../../content/checkout";
 import { onlineRequestCopy } from "../../content/onlineRequest";
 import { useSiteLocale } from "../../composables/useSiteLocale";
+import { useAnalytics } from "../../composables/useAnalytics";
 import { PublicApiError, submitOnlineRequest } from "../../composables/usePublicToursApi";
 
 const props = defineProps<{
@@ -12,6 +13,7 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{ locked: [value: boolean] }>();
 const locale = useSiteLocale();
+const analytics = useAnalytics();
 const localePath = useLocalePath();
 const c = computed(() => onlineRequestCopy[locale.value]);
 const form = ref({ fullName: "", phone: "", nationality: "", hotelName: "", email: "", specialRequests: "", website: "" });
@@ -48,6 +50,14 @@ async function submit() {
   try {
     saved.value = await submitOnlineRequest(attempt);
     uncertain.value = false;
+    // A saved request is a lead, never a paid booking or purchase. Only the
+    // catalog ID leaves this component; the reference and customer form stay local.
+    try {
+      analytics.track("request_submitted", { item_id: props.selection.tourId });
+    } catch {
+      // Tracking is best-effort; a provider failure must not undo or obscure
+      // the server-acknowledged request shown to the customer.
+    }
   } catch (e) {
     // A 5xx/network/lost response may follow a successful commit. Never change its key/body.
     uncertain.value = uncertain.value || !(e instanceof PublicApiError && e.status >= 400 && e.status < 500);

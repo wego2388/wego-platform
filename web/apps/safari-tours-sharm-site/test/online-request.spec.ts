@@ -5,8 +5,9 @@ import TourRequestForm from "../app/components/tour/TourRequestForm.vue";
 import { onlineRequestCopy } from "../app/content/onlineRequest";
 import { PublicApiError, submitOnlineRequest } from "../app/composables/usePublicToursApi";
 
-const state = vi.hoisted(() => ({ locale: "en" as "en" | "ar" | "ru" | "it" }));
+const state = vi.hoisted(() => ({ locale: "en" as "en" | "ar" | "ru" | "it", track: vi.fn() }));
 vi.mock("../app/composables/useSiteLocale", () => ({ useSiteLocale: () => ref(state.locale) }));
+vi.mock("../app/composables/useAnalytics", () => ({ useAnalytics: () => ({ track: state.track }) }));
 vi.mock("../app/composables/usePublicToursApi", async () => ({ ...await vi.importActual("../app/composables/usePublicToursApi"), submitOnlineRequest: vi.fn() }));
 const selection = { tourId: "00000000-0000-4000-8000-000000000001", preferredDate: "2027-01-01", adultsCount: 2, childrenCount: 0 };
 function make(valid = true) {
@@ -30,6 +31,8 @@ describe("website request is saved here, never handed off to WhatsApp", () => {
     expect(wrapper.text()).toContain(onlineRequestCopy[locale].next);
     expect(wrapper.find('a[href*="wa.me"]').exists()).toBe(false);
     expect(vi.mocked(submitOnlineRequest).mock.calls[0]![0]).toMatchObject({ ...selection, locale, customer: { fullName: "Test Guest" } });
+    expect(state.track).toHaveBeenCalledExactlyOnceWith("request_submitted", { item_id: selection.tourId });
+    expect(JSON.stringify(state.track.mock.calls)).not.toMatch(/guest@example.com|Test Guest|Test Hotel|STQ-|201000000001|2027-01-01/);
     expect(wrapper.emitted("locked")?.at(-1)).toEqual([true]); wrapper.unmount();
   });
   it("lost response then 429 then success retains exact body/key and never says not saved", async () => {
@@ -39,19 +42,33 @@ describe("website request is saved here, never handed off to WhatsApp", () => {
     const wrapper = make(); await fill(wrapper);
     await wrapper.find("form").trigger("submit"); await flushPromises();
     expect(wrapper.text()).toContain(onlineRequestCopy.en.error);
+    expect(state.track).not.toHaveBeenCalled();
     expect(wrapper.find("fieldset").attributes("disabled")).toBeDefined();
     await wrapper.find("form").trigger("submit"); await flushPromises();
     expect(wrapper.text()).toContain(onlineRequestCopy.en.error); expect(wrapper.text()).not.toContain(onlineRequestCopy.en.rejected);
+    expect(state.track).not.toHaveBeenCalled();
     await wrapper.find("form").trigger("submit"); await flushPromises();
     const calls = vi.mocked(submitOnlineRequest).mock.calls;
     expect(calls).toHaveLength(3); expect(calls[1]![0]).toEqual(calls[0]![0]); expect(calls[2]![0]).toEqual(calls[0]![0]);
     expect(wrapper.find("[data-online-request-success]").exists()).toBe(true); wrapper.unmount();
+    expect(state.track).toHaveBeenCalledExactlyOnceWith("request_submitted", { item_id: selection.tourId });
   });
   it("double submit while saving creates one request", async () => {
     let resolve!: (value: { reference: string }) => void;
     vi.mocked(submitOnlineRequest).mockImplementation(() => new Promise(done => { resolve = done; }));
     const wrapper = make(); await fill(wrapper); await wrapper.find("form").trigger("submit"); await wrapper.find("form").trigger("submit");
     expect(submitOnlineRequest).toHaveBeenCalledTimes(1); resolve({ reference: `STQ-${"C".repeat(32)}` }); await flushPromises(); wrapper.unmount();
+    expect(state.track).toHaveBeenCalledExactlyOnceWith("request_submitted", { item_id: selection.tourId });
+  });
+  it("keeps the saved request visible if an analytics adapter throws", async () => {
+    vi.mocked(submitOnlineRequest).mockResolvedValue({ reference: `STQ-${"E".repeat(32)}` });
+    state.track.mockImplementationOnce(() => { throw new Error("provider unavailable"); });
+    const wrapper = make(); await fill(wrapper);
+    await wrapper.find("form").trigger("submit"); await flushPromises();
+    expect(wrapper.find("[data-online-request-success]").exists()).toBe(true);
+    expect(wrapper.find("[role=alert]").exists()).toBe(false);
+    expect(state.track).toHaveBeenCalledTimes(1);
+    wrapper.unmount();
   });
   it("invalid selection or absent consent cannot send PII", async () => {
     const wrapper = make(false); await fill(wrapper); await wrapper.find("form").trigger("submit");

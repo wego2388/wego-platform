@@ -2,7 +2,7 @@
  * Analytics events (owner hub list). A no-op unless consent was granted and
  * an ID is configured; never pass personal data (names, phones, emails).
  */
-export type AnalyticsEvent = "view_item" | "begin_checkout" | "purchase" | "whatsapp_click" | "search" | "language_switch" | "booking_lookup";
+export type AnalyticsEvent = "view_item" | "begin_checkout" | "request_submitted" | "purchase" | "whatsapp_click" | "search" | "language_switch" | "booking_lookup";
 
 export function useAnalytics() {
   const nuxtApp = useNuxtApp();

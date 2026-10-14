@@ -17,6 +17,7 @@ type Win = Window & { dataLayer?: unknown[]; gtag?: (...args: unknown[]) => void
 const META_EVENT: Partial<Record<AnalyticsEvent, string>> = {
   view_item: "ViewContent",
   begin_checkout: "InitiateCheckout",
+  request_submitted: "Lead",
   purchase: "Purchase",
   whatsapp_click: "Contact",
   search: "Search",
@@ -83,13 +84,13 @@ export default defineNuxtPlugin((nuxtApp) => {
   }
 
   function pageView() {
-    if (!ready) return;
+    if (!ready || !consent.granted.value) return;
     w.gtag?.("event", "page_view", location());
     w.fbq?.("track", "PageView");
   }
 
   function track(event: AnalyticsEvent, params: Params) {
-    if (!ready) return;
+    if (!ready || !consent.granted.value) return;
     w.gtag?.("event", event, { ...params, ...location() });
     const metaEvent = META_EVENT[event];
     if (metaEvent) {
