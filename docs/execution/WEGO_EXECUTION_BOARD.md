@@ -5817,3 +5817,20 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   catalog-active filtering, real-image disclosure, mobile-safe lazy images,
   sitemap/redirect tests, browser pass and build. No deployment before the
   final release gate and independent Tier-1 backup review.
+
+#### 2026-10-15 — SFM-06 truthful review request placement
+
+- Owner supplied a Google Business review link screenshot and a Tripadvisor
+  review QR, and asked for an appropriate website placement. The QR was decoded
+  locally to `www.tripadvisor.com.eg/UserReviewEdit-d34123701?m=68676`;
+  decoding establishes the URL, not account ownership. The historical second
+  Tripadvisor listing ID still requires owner reconciliation before release.
+- Within the same ACTIVE OPS2-G packet, add a neutral, localized review request
+  on Contact and after a customer self-lookup returns `COMPLETED`; no request on
+  `CONFIRMED`, no fabricated rating/review, no incentives or sentiment filter.
+  This is a static outbound link only, with no email/WhatsApp send or booking
+  status mutation. Any automated post-trip outreach remains separately gated.
+- Tier 2 content/UI with a privacy check. Local evidence: 190 site tests pass,
+  lint/typecheck/build pass, loopback-browser gate checks four Contact locales
+  and both booking states, with phone absent from the URL. Source remains
+  un-deployed pending the final release gate.

@@ -115,6 +115,7 @@ const whatsappLink = computed(() =>
         <UiButton :href="whatsappLink" icon="lucide:message-circle">{{ copy.whatsapp }}</UiButton>
         <UiButton variant="secondary" @click="reset">{{ copy.another }}</UiButton>
       </div>
+      <ReviewRequest v-if="booking.status === 'COMPLETED'" class="mt-8" />
     </section>
   </main>
 </template>

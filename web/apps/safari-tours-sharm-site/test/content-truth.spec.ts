@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
-import { googleReviewUrl, siteCopy, tripadvisorUrl } from "../app/content/locales";
+import { googleReviewUrl, siteCopy, tripadvisorReviewUrl, tripadvisorUrl } from "../app/content/locales";
 import { infoCopy } from "../app/content/info";
 
 const appRoot = process.cwd();
@@ -21,10 +21,17 @@ describe("commercial content truth", () => {
   });
   it("uses the owner-supplied review destinations without embedding third-party tracking or fake ratings", () => {
     expect(googleReviewUrl).toBe("https://g.page/r/Cd4uOnKD1ldBEBM/review");
+    expect(tripadvisorReviewUrl).toBe("https://www.tripadvisor.com.eg/UserReviewEdit-d34123701?m=68676");
     expect(tripadvisorUrl).toBe("https://www.tripadvisor.com/Attraction_Review-g297555-d34123701-Reviews-Safari_Tours_Sharm-Sharm_El_Sheikh_South_Sinai_Red_Sea_and_Sinai.html");
     const footer = source("app/components/SiteFooter.vue");
     expect(footer).toContain('data-tripadvisor-link');
     expect(footer).not.toMatch(/jscache|tacdn|AggregateRating|TA_cds/);
+    const request = source("app/components/ReviewRequest.vue");
+    expect(request).toContain("googleReviewUrl");
+    expect(request).toContain("tripadvisorReviewUrl");
+    expect(request).not.toMatch(/AggregateRating|ReviewCount|incentive|discount/i);
+    expect(source("app/pages/contact.vue")).toContain("<ReviewRequest />");
+    expect(source("app/pages/my-booking.vue")).toContain('v-if="booking.status === \'COMPLETED\'"');
   });
   it("keeps the approved cancellation tiers consistent in every locale and the terms page", () => {
     for (const copy of Object.values(siteCopy)) {

@@ -71,6 +71,8 @@ const phoneDisplay = "+20 111 129 2690";
         </div>
         <UiButton to="/my-booking" variant="secondary" icon="lucide:ticket">{{ copy.booking }}</UiButton>
       </section>
+
+      <ReviewRequest />
     </div>
   </main>
 </template>
