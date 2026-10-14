@@ -7,6 +7,23 @@ import Stepper from "../app/components/ui/Stepper.vue";
 import ErrorSummary from "../app/components/ui/ErrorSummary.vue";
 import TourMedia from "../app/components/brand/TourMedia.vue";
 import { localeRedirectTarget } from "../server/utils/localeRedirect";
+import { LEGACY_WORDPRESS_REDIRECTS, legacyWordpressRedirectTarget } from "../server/utils/legacyWordpressRedirect";
+
+describe("verified WordPress URL migration", () => {
+  it("maps each verified old page to a fixed same-site canonical equivalent", () => {
+    expect(Object.keys(LEGACY_WORDPRESS_REDIRECTS)).toHaveLength(7);
+    for (const [oldPath, target] of Object.entries(LEGACY_WORDPRESS_REDIRECTS)) {
+      expect(legacyWordpressRedirectTarget(oldPath)).toBe(target);
+      expect(legacyWordpressRedirectTarget(`${oldPath}/`)).toBe(target);
+      expect(target).toMatch(/^\/en\//);
+    }
+  });
+  it("does not map unrelated, sensitive, or commercially unmatched URLs", () => {
+    for (const path of ["/", "/booking", "/booking/", "/booking/payment-result", "/gallery/", "/booking-room-rent-car/", "/qr-code/", "/elementor-9/", "/tour/private-boat/", "/about-us/extra", "//evil.com", "/wp-admin/"]) {
+      expect(legacyWordpressRedirectTarget(path)).toBeNull();
+    }
+  });
+});
 
 // Nuxt auto-registered components are stubbed in unit tests.
 const stubs = {
@@ -19,6 +36,10 @@ describe("language-less URL redirect", () => {
   it("keeps the payment return URL working, query included", () => {
     expect(localeRedirectTarget("/booking/payment-result", "?provider=mock&id=1", undefined))
       .toBe("/en/booking/payment-result?provider=mock&id=1");
+  });
+  it("does not redirect the obsolete generic WordPress booking root to a missing checkout page", () => {
+    expect(localeRedirectTarget("/booking", "", "ar")).toBeNull();
+    expect(localeRedirectTarget("/booking/", "?email=private@example.test", "ar")).toBeNull();
   });
   it("uses the remembered language and ignores unknown ones", () => {
     expect(localeRedirectTarget("/tours", "", "ar")).toBe("/ar/tours");

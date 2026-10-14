@@ -5629,3 +5629,40 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   the owner-controlled sender, reply inbox, SPF/DKIM/DMARC, PENDING backlog
   inspection and one controlled four-locale delivery exercise are required.
   No business account, DNS, production data or deployment changed here.
+
+#### 2026-10-14 — Owner-approved SFM-04 legacy URL repair inside OPS2-G
+
+- OPS2-G remains the sole ACTIVE packet. Owner asks Codex to continue work
+  independent of pending email accounts and photographs. Bounded scope:
+  deterministic permanent redirects for verified old WordPress pages with
+  true current equivalents, an explicit OLD→NEW/hold inventory, and tests.
+  The public-domain nginx catch-all already forwards these paths to the
+  Safari Nuxt site; no shared gateway, El Kheima or production setting changes.
+- Cancellation content currently exists in the four-locale Terms page. Its
+  dedicated historical URL may point to that policy section, but must not
+  imply a new legal promise. `/booking/`, gallery, room/car rental, QR and
+  Elementor paths have no verified one-to-one replacement; no homepage blanket
+  redirect or invented inventory. The old `/booking/` root must not redirect
+  to a non-existent new checkout root. Scope is site route logic and tests,
+  marketing inventory and this Board; no catalog/pricing/booking mutation.
+- Acceptance: 301 only for exact mapped legacy paths, static canonical EN
+  targets independent of cookies, unknown paths remain 404, no open redirect,
+  no query/PII propagation, no regression of payment-return localization.
+  Site tests/typecheck/lint/build and repository check required; no deployment
+  claim without a separate release verification.
+
+#### 2026-10-14 — SFM-04 local acceptance evidence
+
+- Added fixed 301 mapping for seven verified page paths and a repo-owned
+  13-page OLD→NEW/hold inventory. The prior 302 locale behavior remains for
+  real booking subroutes, while obsolete generic `/booking/` now reaches 404
+  rather than a non-existent checkout root. No Nginx/shared gateway changes.
+- Safari site Vitest: 167/167 passed; ESLint, Nuxt typecheck and production
+  build passed; repository-check and `git diff --check` passed. Served the
+  newly built Nitro app locally: all seven legacy paths returned 301 to the
+  fixed expected locations, all seven target pages returned 200, `/booking/`
+  and `/gallery/` returned 404, `/booking/payment-result` retained 302. This
+  is local HTTP evidence only, not a production crawl or deployment.
+- Next: preserve this checkpoint on the current Safari branch; verify real
+  public-domain responses after the normal Safari release gate. Tour-level
+  permanent redirects, gallery and owner-photo decisions remain pending.

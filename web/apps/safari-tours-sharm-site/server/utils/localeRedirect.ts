@@ -22,6 +22,9 @@ export function localeRedirectTarget(path: string, search: string, rememberedLoc
     // Correct case already: nothing to do. Wrong case (/EN/…): normalise.
     return segments[1] === first ? null : `/${first}/${segments.slice(2).join("/")}${search}`;
   }
+  // The old WordPress /booking/ was a generic form. There is no equivalent
+  // checkout root in Nuxt; only specific slot/payment routes can be localized.
+  if (first === "booking" && (path === "/booking" || path === "/booking/")) return null;
   if (!LEGACY_ROOTS.includes(first)) return null;
   return `/${locale}${path}${search}`;
 }
