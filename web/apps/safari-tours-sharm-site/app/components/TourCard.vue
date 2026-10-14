@@ -8,6 +8,7 @@ import { siteCopy } from "../content/locales";
 import { tourPageCopy } from "../content/tourPage";
 import { CATEGORY_VISUAL } from "../utils/categoryVisual";
 import { formatDuration } from "../utils/tourDuration";
+import { illustrativePhotoLabel, isIllustrativeTourPhoto } from "../utils/tourPhotoDisclosure";
 
 /**
  * One tour in a list. The picture carries a view-transition name so it
@@ -37,7 +38,7 @@ const onRequest = computed(() => tour.value.tourType === "REQUEST_ONLY");
 
 <template>
   <article class="group relative flex h-full flex-col overflow-hidden rounded-[var(--sts-radius-card)] border border-sts-border bg-sts-surface shadow-sts-base transition-[transform,box-shadow] duration-[var(--sts-dur-base)] ease-[var(--sts-ease)] hover:-translate-y-1 hover:shadow-sts-raised focus-within:-translate-y-1 focus-within:shadow-sts-raised">
-    <div class="overflow-hidden" :style="{ viewTransitionName: `tour-media-${tour.slug}` }">
+    <div class="relative overflow-hidden" :style="{ viewTransitionName: `tour-media-${tour.slug}` }">
       <BrandTourMedia
         :src="tour.cover?.path"
         :alt="tour.cover?.alt ?? ''"
@@ -48,6 +49,9 @@ const onRequest = computed(() => tour.value.tourType === "REQUEST_ONLY");
         ratio="4 / 3"
         class="!rounded-none transition-transform duration-[var(--sts-dur-reveal)] ease-[var(--sts-ease)] group-hover:scale-[1.03]"
       />
+      <span v-if="isIllustrativeTourPhoto(tour.cover?.alt)" class="absolute bottom-3 start-3 rounded-full bg-sts-ocean/95 px-3 py-1 text-xs font-semibold text-white">
+        {{ illustrativePhotoLabel[locale] }}
+      </span>
     </div>
     <div class="flex flex-1 flex-col gap-3 p-5">
       <div class="flex flex-wrap items-center gap-2 text-xs font-semibold">

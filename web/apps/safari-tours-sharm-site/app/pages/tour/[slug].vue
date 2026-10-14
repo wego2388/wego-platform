@@ -13,6 +13,7 @@ import { formatDuration } from "../../utils/tourDuration";
 import { useSalesStatus } from "../../composables/useSalesStatus";
 import { onlineSalesAvailable } from "../../utils/enquiry";
 import { enquiryCopy } from "../../content/enquiry";
+import { illustrativePhotoLabel, isIllustrativeTourPhoto } from "../../utils/tourPhotoDisclosure";
 
 const route = useRoute();
 const locale = useSiteLocale();
@@ -176,7 +177,7 @@ function jsonLd(value: unknown): string {
 
     <div class="mx-auto grid max-w-7xl gap-10 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_24rem] lg:px-10">
       <article class="min-w-0">
-        <div class="overflow-hidden rounded-[var(--sts-radius-media)]" :style="{ viewTransitionName: `tour-media-${tour.slug}` }">
+        <div class="relative overflow-hidden rounded-[var(--sts-radius-media)]" :style="{ viewTransitionName: `tour-media-${tour.slug}` }">
           <BrandTourMedia
             :src="cover?.path ?? null"
             :width="cover?.width"
@@ -187,7 +188,11 @@ function jsonLd(value: unknown): string {
             priority
             sizes="(max-width: 1024px) 100vw, 60vw"
           />
+          <span v-if="isIllustrativeTourPhoto(cover?.alt)" class="absolute bottom-3 start-3 rounded-full bg-sts-ocean/95 px-3 py-1 text-xs font-semibold text-white">
+            {{ illustrativePhotoLabel[locale] }}
+          </span>
         </div>
+        <p v-if="cover?.alt" class="mt-2 text-xs leading-5 text-sts-muted">{{ cover.alt }}</p>
 
         <header class="mt-6">
           <div class="flex flex-wrap items-center gap-2 text-sm">

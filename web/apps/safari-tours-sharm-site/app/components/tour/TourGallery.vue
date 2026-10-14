@@ -4,6 +4,7 @@ import type { PublicTourContent } from "@wego/api-contract";
 import { useSiteLocale } from "../../composables/useSiteLocale";
 import { tourPageCopy } from "../../content/tourPage";
 import { galleryStep, gallerySwipe } from "../../utils/galleryNavigation";
+import { illustrativePhotoLabel, isIllustrativeTourPhoto } from "../../utils/tourPhotoDisclosure";
 
 /** Approved photos: a scroll-snap strip and a keyboard-friendly lightbox. */
 const props = defineProps<{ media: PublicTourContent["media"] }>();
@@ -50,7 +51,9 @@ function onKey(event: KeyboardEvent) {
         <button type="button" class="relative block w-full overflow-hidden rounded-[var(--sts-radius-media)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-sts-ocean" :aria-label="copy.open(i + 1)" @click="show(i)">
           <BrandSafeTourImage :src="item.path" :alt="item.alt" :width="item.width" :height="item.height" sizes="288px" loading="lazy" class="aspect-[4/3] w-full object-cover transition-transform hover:scale-[1.03]" />
           <span class="absolute bottom-2 end-2 rounded-full bg-sts-ocean/95 px-2 py-1 text-xs text-white" aria-hidden="true">{{ copy.counter(i + 1, media.length) }}</span>
+          <span v-if="isIllustrativeTourPhoto(item.alt)" class="absolute bottom-2 start-2 rounded-full bg-sts-ocean/95 px-2 py-1 text-xs text-white">{{ illustrativePhotoLabel[locale] }}</span>
         </button>
+        <p v-if="item.alt" class="mt-1 line-clamp-2 text-xs leading-5 text-sts-muted">{{ item.alt }}</p>
       </li>
     </ul>
     <UiDialog v-model:open="open" :title="copy.heading" :close-label="copy.close">

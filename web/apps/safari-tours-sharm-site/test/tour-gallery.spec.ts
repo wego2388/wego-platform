@@ -42,4 +42,12 @@ describe("approved multi-photo tour gallery", () => {
     expect(wrapper.findAll('[role="dialog"] button').every(button => button.attributes("disabled") !== undefined)).toBe(true);
     expect(wrapper.find('[role="dialog"]').text()).toContain(media[0]!.alt); wrapper.unmount();
   });
+  it("shows illustrative disclosure and visible photo description without opening the lightbox", async () => {
+    const wrapper = make();
+    const illustrative = { ...media[0]!, alt: "Illustrative photo of a speedboat; not the booked vessel." };
+    await wrapper.setProps({ media: [illustrative] });
+    expect(wrapper.text()).toContain("Illustrative photo of a speedboat");
+    expect(wrapper.text()).toContain("Illustrative photo");
+    wrapper.unmount();
+  });
 });

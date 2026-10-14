@@ -1,0 +1,132 @@
+{
+  "reviewedOn": "2026-10-14",
+  "status": "SOURCE_CANDIDATES_SEE_SELECTION_FOR_PUBLICATION",
+  "notes": "Editorial source selection. Download and inspect before approval. Public attribution is mandatory for CC BY/SA assets. Stock vessels/vehicles are illustrative, not evidence of Safari ownership, fleet, supplier or exact boat. Keep intro-diving inactive.",
+  "images": [
+    {
+      "id": "red-sea-sailboat-kora27",
+      "tour": "sea/sinai-dream-sailboat",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Segelboot_auf_dem_Roten_Meer...EgDez2011_1850WI.jpg",
+      "author": "Kora27",
+      "license": "CC-BY-SA-4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "usage": "Illustrative sailing boat photographed off Sharm. NOT verified as Sinai Dream; visible illustration caption required. Attribution and same-license image derivatives required."
+    },
+    {
+      "id": "scuba-reef-pexels-1540108",
+      "tour": "sea/diving-course",
+      "sourcePage": "https://www.pexels.com/photo/three-people-diving-on-body-of-water-1540108/",
+      "downloadUrl": "https://images.pexels.com/photos/1540108/pexels-photo-1540108.jpeg?cs=srgb&dl=pexels-freestockpro-1540108.jpg&fm=jpg",
+      "author": "Atlantic Ambience",
+      "license": "Pexels",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "usage": "Illustrative scuba scene; not Safari guests or staff. Page location metadata is contradictory (inland Kharga); do not label as a verified Sharm dive site."
+    },
+    {
+      "id": "speedboat-pexels-19334667",
+      "tour": "sea/speed-boat-adventure",
+      "sourcePage": "https://www.pexels.com/photo/speedboat-on-ocean-19334667/",
+      "downloadUrl": "https://images.pexels.com/photos/19334667/pexels-photo-19334667.jpeg?cs=srgb&dl=pexels-aqin-19334667.jpg&fm=jpg",
+      "author": "安惠 青",
+      "license": "Pexels",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "usage": "Illustrative activity image, not the actual supplied boat or verified Sharm location."
+    },
+    {
+      "id": "giza-pyramids-matzinger",
+      "tour": "cultural/cairo-by-plane",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Pyramids_from_Giza.jpg",
+      "author": "Simon Matzinger",
+      "license": "CC-BY-4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "usage": "Verified destination photo of Giza pyramids. Publish author, source and license link; disclose resizing/cropping."
+    },
+    {
+      "id": "karnak-pexels-37559115",
+      "tour": "cultural/luxor-by-plane",
+      "sourcePage": "https://www.pexels.com/photo/majestic-ancient-columns-of-karnak-temple-luxor-37559115/",
+      "downloadUrl": "https://images.pexels.com/photos/37559115/pexels-photo-37559115.jpeg?cs=srgb&dl=pexels-mfbeki-37559115.jpg&fm=jpg",
+      "author": "Muhammed Fatih Beki",
+      "license": "Pexels",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "usage": "Verified destination photo: Karnak, Luxor. Do not place under Cairo."
+    },
+    {
+      "id": "minivan-pexels-12960352",
+      "tour": "transfers/sharm-airport-transfer",
+      "sourcePage": "https://www.pexels.com/photo/white-car-on-the-street-12960352/",
+      "downloadUrl": "https://images.pexels.com/photos/12960352/pexels-photo-12960352.jpeg?cs=srgb&dl=pexels-freestockpro-12960352.jpg&fm=jpg",
+      "author": "Atlantic Ambience",
+      "license": "Pexels",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "usage": "Illustrative minivan only. Not the operator vehicle, airport or guaranteed model/capacity. Visible illustration caption required."
+    },
+    {
+      "id": "sinai-diver-pexels-32522839",
+      "tour": "sea/intro-diving",
+      "sourcePage": "https://www.pexels.com/photo/scuba-diver-exploring-coral-in-red-sea-32522839/",
+      "downloadUrl": "https://images.pexels.com/photos/32522839/pexels-photo-32522839.jpeg?cs=srgb&dl=pexels-mjlo-32522839.jpg&fm=jpg",
+      "author": "Mido Makasardi ©️",
+      "license": "Pexels",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "usage": "Scuba diver in South Sinai, not snorkeling. Illustrative guest, no claimed affiliation. Asset preparation does not activate inactive intro-diving."
+    },
+    {
+      "id": "ras-mohammed-reef-sovernigo",
+      "tour": "sea/ras-mohamed-by-bus",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Ras_Mohammed_coral_reefs.jpg",
+      "author": "Sovernigo",
+      "license": "CC-BY-SA-4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "usage": "Verified Ras Mohammed coral reef. Attribution and same-license image derivatives required; not a promise of a specific wildlife sighting."
+    },
+    {
+      "id": "sunset-yacht-pexels-13244467",
+      "tour": "sea/evening-cruise",
+      "sourcePage": "https://www.pexels.com/photo/people-on-motor-yacht-at-sunset-13244467/",
+      "downloadUrl": "https://images.pexels.com/photos/13244467/pexels-photo-13244467.jpeg?cs=srgb&dl=pexels-wendywei-13244467.jpg&fm=jpg",
+      "author": "Wendy Wei",
+      "license": "Pexels",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "usage": "Illustrative sunset cruising, not the actual supplied yacht or verified Sharm location."
+    },
+    {
+      "id": "submarine-reference-01",
+      "tour": "sea/submarine",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:يونايتد_صبمارينز_01.jpg",
+      "author": "ديفيد عادل وهبة خليل 2",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "usage": "Candidate from United Submarines, Sharm. Inspect subject and signage. No implied supplier partnership. May be rejected or illustration-only."
+    },
+    {
+      "id": "submarine-reference-19",
+      "tour": "sea/submarine",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:يونايتد_صبمارينز_19.jpg",
+      "author": "ديفيد عادل وهبة خليل 2",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "usage": "REJECTED: life-jacket storage box is not a suitable tour photograph. Retained in provenance history, not in upload selection."
+    },
+    {
+      "id": "submarine-sharm-20",
+      "tour": "sea/submarine",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:يونايتد_صبمارينز_20.jpg",
+      "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e4/%D9%8A%D9%88%D9%86%D8%A7%D9%8A%D8%AA%D8%AF_%D8%B5%D8%A8%D9%85%D8%A7%D8%B1%D9%8A%D9%86%D8%B2_20.jpg",
+      "author": "ديفيد عادل وهبة خليل 2",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "usage": "Documentary exterior of a semi-submarine in Sharm (2017). Illustration-only: no verified current operator partnership or exact supplied vessel. Do not claim fully submersible craft."
+    },
+    {
+      "id": "speedboat-pexels-36324837",
+      "tour": "sea/speed-boat-adventure",
+      "sourcePage": "https://www.pexels.com/photo/aerial-view-of-speedboat-on-blue-ocean-water-36324837/",
+      "downloadUrl": "https://images.pexels.com/photos/36324837/pexels-photo-36324837.jpeg?cs=srgb&dl=pexels-cigdemeyce-36324837.jpg&fm=jpg",
+      "author": "ÇİĞDEM EYCE",
+      "license": "Pexels",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "usage": "Landscape-format illustrative speedboat activity image. Exact boat/location not verified as Safari/Sharm."
+    }
+  ]
+}

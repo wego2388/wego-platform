@@ -1,0 +1,148 @@
+{
+  "reviewedOn": "2026-10-14",
+  "publicationStatus": "PARTIAL",
+  "selected": [
+    {
+      "id": "red-sea-sailboat-kora27",
+      "reviewStatus": "VISUALLY_REVIEWED",
+      "role": "illustrative-gallery",
+      "publicationStatus": "NEEDS_VISIBLE_CREDIT_AND_ILLUSTRATION_LABEL",
+      "publicationConditions": ["Public Kora27 / source / CC BY-SA 4.0 credit and edit notice", "Not verified as Sinai Dream; no exact-vessel claim", "Keep derivative image under CC BY-SA 4.0"],
+      "alt": {
+        "en": "Illustrative photo of a sailing boat off Sharm El Sheikh; not a confirmed photo of Sinai Dream.",
+        "ar": "صورة توضيحية لمركب شراعي قبالة شرم الشيخ، وليست صورة مؤكدة لمركب سيناء دريم.",
+        "ru": "Иллюстративное фото парусной лодки у Шарм-эль-Шейха; судно Sinai Dream не подтверждено.",
+        "it": "Foto illustrativa di una barca a vela al largo di Sharm El Sheikh; non confermata come Sinai Dream."
+      }
+    },
+    {
+      "id": "scuba-reef-pexels-1540108",
+      "reviewStatus": "VISUALLY_REVIEWED",
+      "role": "illustrative-cover",
+      "publicationStatus": "NEEDS_VISIBLE_ILLUSTRATION_LABEL",
+      "publicationConditions": ["No claim that depicted divers are Safari customers or staff", "No exact dive-site claim; source location metadata conflicts"],
+      "alt": {
+        "en": "Illustrative scuba-diving photo with divers, fish and a coral reef.",
+        "ar": "صورة توضيحية للغوص بالأسطوانات بين الأسماك والشعاب المرجانية.",
+        "ru": "Иллюстративное фото аквалангистов, рыб и кораллового рифа.",
+        "it": "Foto illustrativa di subacquei con bombole tra pesci e barriera corallina."
+      }
+    },
+    {
+      "id": "speedboat-pexels-36324837",
+      "reviewStatus": "VISUALLY_REVIEWED",
+      "role": "illustrative-cover",
+      "publicationStatus": "NEEDS_VISIBLE_ILLUSTRATION_LABEL",
+      "publicationConditions": ["Illustrative activity only; boat model and location are not verified as the booked service"],
+      "alt": {
+        "en": "Illustrative aerial view of a speedboat leaving a white wake on blue water.",
+        "ar": "صورة توضيحية من أعلى لقارب سريع يترك أثرًا أبيض على المياه الزرقاء.",
+        "ru": "Иллюстративный вид сверху на скоростной катер с белым следом на синей воде.",
+        "it": "Vista aerea illustrativa di un motoscafo che lascia una scia bianca sull’acqua blu."
+      }
+    },
+    {
+      "id": "giza-pyramids-matzinger",
+      "reviewStatus": "VISUALLY_REVIEWED",
+      "role": "destination-cover",
+      "publicationStatus": "NEEDS_VISIBLE_CREDIT",
+      "publicationConditions": ["Public Simon Matzinger / source / CC BY 4.0 credit and edit notice", "Destination view does not promise a camel ride inclusion"],
+      "alt": {
+        "en": "The pyramids of Giza with a camel in the foreground.",
+        "ar": "أهرامات الجيزة وجمل في مقدمة المشهد.",
+        "ru": "Пирамиды Гизы и верблюд на переднем плане.",
+        "it": "Le piramidi di Giza con un cammello in primo piano."
+      }
+    },
+    {
+      "id": "karnak-pexels-37559115",
+      "reviewStatus": "VISUALLY_REVIEWED",
+      "role": "destination-cover",
+      "publicationStatus": "PUBLISHED_AND_VERIFIED",
+      "publicationEvidence": {
+        "date": "2026-10-14",
+        "tourSlug": "luxor-by-plane",
+        "staffMediaPath": "/media/tours/luxor-by-plane/d9afb1b3-ba93-4a4a-bd71-6528e4f1e299.jpg",
+        "publicUrl": "https://safaritourssharm.com/ar/tour/luxor-by-plane",
+        "approval": "ERP showed rights approved; public tour displayed localized Karnak image"
+      },
+      "publicationConditions": ["Use for Luxor, not Cairo; existing catalog remains the itinerary authority"],
+      "alt": {
+        "en": "Ancient columns and carved stone lintels at Karnak Temple in Luxor.",
+        "ar": "أعمدة أثرية وعتبات حجرية منقوشة في معبد الكرنك بالأقصر.",
+        "ru": "Древние колонны и резные каменные перекрытия Карнакского храма в Луксоре.",
+        "it": "Colonne antiche e architravi scolpiti del tempio di Karnak a Luxor."
+      }
+    },
+    {
+      "id": "minivan-pexels-12960352",
+      "reviewStatus": "VISUALLY_REVIEWED",
+      "role": "illustrative-gallery",
+      "publicationStatus": "NEEDS_VISIBLE_ILLUSTRATION_LABEL",
+      "publicationConditions": ["Not Safari fleet or a photo of Sharm airport", "Do not guarantee vehicle brand, model, seats or luggage capacity from the photo"],
+      "alt": {
+        "en": "Illustrative white passenger minivan; the vehicle used for a transfer may differ.",
+        "ar": "صورة توضيحية لسيارة ركاب ميني فان بيضاء؛ قد تختلف السيارة المستخدمة في الانتقال.",
+        "ru": "Иллюстративное фото белого пассажирского минивэна; автомобиль для трансфера может отличаться.",
+        "it": "Foto illustrativa di un minivan bianco; il veicolo del trasferimento può essere diverso."
+      }
+    },
+    {
+      "id": "sinai-diver-pexels-32522839",
+      "reviewStatus": "VISUALLY_REVIEWED",
+      "role": "illustrative-gallery",
+      "publicationStatus": "HOLD_INACTIVE_TOUR",
+      "publicationConditions": ["Keep intro-diving inactive; asset is staged only", "This is scuba diving, not snorkeling", "Illustrative participant; no Safari affiliation claim"],
+      "alt": {
+        "en": "Illustrative scuba diver beside coral formations in South Sinai’s Red Sea.",
+        "ar": "صورة توضيحية لغواص بالأسطوانات بجوار الشعاب المرجانية في البحر الأحمر بجنوب سيناء.",
+        "ru": "Иллюстративное фото аквалангиста у кораллов Красного моря в Южном Синае.",
+        "it": "Foto illustrativa di un subacqueo con bombole vicino ai coralli del Mar Rosso nel Sinai meridionale."
+      }
+    },
+    {
+      "id": "ras-mohammed-reef-sovernigo",
+      "reviewStatus": "VISUALLY_REVIEWED",
+      "role": "destination-gallery",
+      "publicationStatus": "NEEDS_VISIBLE_CREDIT",
+      "publicationConditions": ["Public Sovernigo / source / CC BY-SA 4.0 credit and edit notice; use exact author from source manifest", "Keep derivative image under CC BY-SA 4.0", "No guarantee of a particular wildlife sighting"],
+      "alt": {
+        "en": "Coral reef beneath the clear water of Ras Mohammed National Park.",
+        "ar": "شعاب مرجانية تحت المياه الصافية في محمية رأس محمد.",
+        "ru": "Коралловый риф под прозрачной водой национального парка Рас-Мохаммед.",
+        "it": "Barriera corallina sotto le acque limpide del parco nazionale di Ras Mohammed."
+      }
+    },
+    {
+      "id": "sunset-yacht-pexels-13244467",
+      "reviewStatus": "VISUALLY_REVIEWED",
+      "role": "illustrative-gallery",
+      "publicationStatus": "NEEDS_VISIBLE_ILLUSTRATION_LABEL",
+      "publicationConditions": ["Illustrative sunset-cruise mood, not a verified Sharm boat or route", "No implied affiliation with passengers or photographer"],
+      "alt": {
+        "en": "Illustrative motor yacht on the water beneath a golden sunset sky.",
+        "ar": "صورة توضيحية ليخت على المياه تحت سماء ذهبية وقت الغروب.",
+        "ru": "Иллюстративное фото моторной яхты на воде под золотистым закатным небом.",
+        "it": "Foto illustrativa di uno yacht a motore sull’acqua sotto un cielo dorato al tramonto."
+      }
+    },
+    {
+      "id": "submarine-sharm-20",
+      "reviewStatus": "VISUALLY_REVIEWED",
+      "role": "supplier-reference-only",
+      "publicationStatus": "HOLD_SUPPLIER_CONFIRMATION",
+      "publicationConditions": ["Shows United Submarines / Royal Seascope branding; do not publish as a confirmed Safari supplier without verification", "Photographed in 2017; not proof of current vessel condition", "Do not erase branding or imply the boat fully submerges"],
+      "alt": {
+        "en": "Reference photo of a Royal Seascope semi-submarine moored in Sharm El Sheikh in 2017.",
+        "ar": "صورة مرجعية لمركب رويال سي سكوب ذي نوافذ تحت الماء، راسٍ في شرم الشيخ عام 2017.",
+        "ru": "Справочное фото полуподводного судна Royal Seascope у причала в Шарм-эль-Шейхе в 2017 году.",
+        "it": "Foto di riferimento del semisommergibile Royal Seascope ormeggiato a Sharm El Sheikh nel 2017."
+      }
+    }
+  ],
+  "rejected": [
+    {"id": "submarine-reference-01", "reason": "Cockpit ceiling and controls, not a useful tour image"},
+    {"id": "submarine-reference-19", "reason": "Life-jacket storage box, not the experience"},
+    {"id": "speedboat-pexels-19334667", "reason": "Weaker square composition; subject likely cropped out of 16:9 cover"}
+  ]
+}

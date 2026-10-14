@@ -5726,3 +5726,33 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   unset; no live analytics receipt, account change, deployment or provider-side
   deletion is claimed. Cross-tab/reload deduplication and server-confirmed paid
   purchase attribution remain separate follow-ups.
+
+#### 2026-10-14 — Owner-provided media curation inside OPS2-G / SFM-02
+
+- Owner supplied `/home/wego/HDD/safari-tours-sharm` and asked Codex to inspect
+  and professionally use its contents. OPS2-G remains the sole ACTIVE packet.
+  First scope: read-only original inventory, dimensions/duplicates/provenance
+  checks, visual contact sheets, curated covers/gallery ordering, four-locale
+  alt copy and an explicit publication plan using existing managed-media APIs.
+- The supplied index lists 30 tours, 267 images and four catalog videos; its
+  `readyForSite` labels and first-file covers are candidates, not evidence of
+  image quality or commercial correctness. Its README and handoff counts
+  differ; actual files and current catalog will determine the result.
+- Preserve originals and source manifests. Put derived previews/optimized
+  imports on the HDD, outside Git; keep small reusable scripts and decisions
+  in the Safari repo. Do not infer tour inclusions/prices from photographs or
+  publish recognizable competitor/stock-watermarked media as Safari originals.
+- Use existing managed upload/revision/publish workflows for approved curated
+  assets; inspect current records before replacement. Tier 2 for curation/UI;
+  escalate any authentication, PII, API boundary or migration change to Tier 1.
+  Verify actual published linkage/bytes and mobile/desktop presentation before
+  claiming live completion. Hero video remains a separate assessed scope.
+- Media curation checkpoint: the source inventory is 447/370 unique with 74
+  duplicate groups and no read errors. 13 individually licensed web candidates
+  were downloaded, 10 visually selected/packaged, three rejected; only the
+  Pexels Karnak photo for `luxor-by-plane` is approved and verified on the
+  production public page. Four stock illustrations await a visibly labeled
+  site release; three CC BY/SA photos await public attribution; two remain held
+  for inactive-tour/supplier confirmation. See
+  `clients/safari-tours-sharm/handoff/2026-10-14_MEDIA_CURATION_AND_PUBLICATION_AR.md`.
+  No other live media publication or site-code deployment is claimed.
