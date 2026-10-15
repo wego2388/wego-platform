@@ -5908,3 +5908,14 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   xtrace. Re-review reported zero remaining BLOCKING findings. A non-blocking
   self-test owner check was added; effective Compose/runtime state and actual
   delivery remain operational gates. `bash -n` and Python AST parsing pass.
+
+#### 2026-10-15 — SFM-02 catalog factual-field follow-up
+
+- Re-read the 27 active tour content projections from the live Safari API,
+  read-only, and reconciled with the approved 30-tour source. Exactly seven
+  have structured exclusions, only `cairo-by-plane` has structured guide
+  languages, and no active tour has structured itinerary stops. This is a
+  verification queue, not proof the other 20 tours have no exclusions or that
+  their narrative descriptions are empty. The three inactive historical
+  tours remain inactive. Updated the owner-facing catalog readiness report
+  with exact slugs and clear no-invention boundaries; no catalog mutation.
