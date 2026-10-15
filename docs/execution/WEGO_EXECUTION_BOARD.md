@@ -5935,3 +5935,39 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   new-site/old-backend request-to-ERP rehearsal, read-only mobile/desktop/media
   verification, encrypted off-VPS backup/restore, guarded single-site update
   and read-only production acceptance before current promotion.
+
+#### 2026-10-15 — Safari site-only release and owner test-request cleanup accepted
+
+- OPS2-G remains the sole ACTIVE packet for owner operating UAT and the separately
+  gated mail/backend release. Owner authorized deployment and confirmed that all
+  12 existing 10–11 October online requests were their own tests; no real booking
+  row existed. No other packet was activated or closed.
+- Exact-source [CI 38745494917](https://github.com/wego2388/wego-platform/actions/runs/38745494917)
+  passed at `36e8291fa7dd3a377641180dc411580fe5b4974c`, including the fresh
+  non-mock Safari public request → bilingual ERP → confirmed unpaid OFFICE booking
+  E2E across four guest locales and mobile/desktop. The earlier two failed CI
+  attempts were not treated as release proof: one hit public ECR rate limiting,
+  the next exposed an overstrict decorative-image assertion, which was fixed.
+- The site image `safari-tours-sharm-site:str-2026.10.15-36e8291` was built from
+  verified Nuxt output, with image ID `sha256:071076badbd39e100c41af0b12ff4a67be0a3b0c238d5ee3f93fe40d7262065d`.
+  The encrypted `20261015T122917Z.bundle` was copied off-VPS and independently
+  restored (Flyway34, 45 tables, 40/40 media). The guarded site-only update
+  passed protected-container drift checks, Safari 5/5 health, four Resort HTTPS
+  endpoints, live catalog and enquiry-only sales-boundary checks.
+- Read-only production browser acceptance passed `/en`, `/ar`, `/ru`, `/it` at
+  360/1440px, 16 gallery cards/17 loaded images, no horizontal overflow or
+  JavaScript errors. Tours, tour detail, contact, sitemap, robots, staff login
+  and Resort endpoints returned HTTPS 200. Current Safari release now points to
+  `str-2026.10.15-36e8291-site`; backend, ERP, edge, Flyway34 and Resort release
+  remained unchanged. Production acceptance and source proof are in its release
+  manifest. Customer notification dispatch stays `false`; SMTP self-test to the
+  Safari mailbox does not imply live confirmation emails.
+- For the owner-confirmed test data, a bounded SQL transaction required exactly
+  12 requests (8 NEW/2 IN_PROGRESS/2 CLOSED), 18 audit rows, 10–11 October dates,
+  zero linked/other bookings, and locks on booking/request/audit tables. Independent
+  Tier-1 review found zero blockers after the locking fix. A `finalize=false`
+  rehearsal ended in ROLLBACK with counts unchanged; `finalize=true` then COMMITted
+  exactly 12 request and 18 audit deletions. Postcheck: 0 requests, 0 audits,
+  0 bookings, 27 active tours, Flyway34, Safari 5/5 healthy, Resort unchanged.
+  Recovery source is the tested pre-cleanup encrypted off-VPS backup. Evidence and
+  remaining gates: [Safari release/booking handoff](../../clients/safari-tours-sharm/handoff/2026-10-15_SITE_RELEASE_AND_BOOKING_ACCEPTANCE_AR.md).
