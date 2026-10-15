@@ -60,7 +60,7 @@ async function preventExternalTracking(page: Page) {
 
 for (const locale of ["en", "ar", "ru", "it"] as const) {
   for (const width of [360, 1440]) {
-    test(`${locale} ${width}px: responsive brand art loads with truthful disclosure and no third-party widget`, async ({ page }) => {
+    test(`${locale} ${width}px: responsive brand media loads with truthful disclosure and no third-party widget`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await preventExternalTracking(page);
       const errors: string[] = [], widgets: string[] = [];
@@ -69,20 +69,29 @@ for (const locale of ["en", "ar", "ru", "it"] as const) {
       await page.goto(`${SITE}/${locale}`, { waitUntil: "networkidle" });
       await expect(page.locator("main")).toContainText(officeCopy[locale].hero);
       await expect(page.locator("main")).not.toContainText("Paymob");
-      const hero = page.locator('[data-brand-art="hero"]');
-      await expect(hero.locator("img")).toHaveAttribute("alt", ""); // Decorative, not a documentary tour photo.
-      await expect(hero.locator("img")).toHaveAttribute("aria-hidden", "true");
-      await expect(hero.locator("img")).toHaveAttribute("fetchpriority", "high");
-      await expect(hero.locator("figcaption")).toHaveText(brandArtworkCopy[locale]);
-      for (const kind of ["hero", "desert", "sea"]) {
-        const image = page.locator(`[data-brand-art="${kind}"] img`);
+      const hero = page.locator(".sts-hero");
+      const poster = hero.locator('img[src="/videos/safari-hero-poster.webp"]');
+      await expect(poster).toHaveAttribute("alt", ""); // Decorative background; real tour images have their own alt text.
+      await expect(poster).toHaveAttribute("aria-hidden", "true");
+      await expect(poster).toHaveAttribute("fetchpriority", "high");
+      await expect.poll(() => poster.evaluate((element) => {
+        const img = element as HTMLImageElement;
+        return img.complete && img.naturalWidth > 0 && /\/videos\/safari-hero-poster(?:-640)?\.webp$/.test(img.currentSrc);
+      })).toBe(true);
+      await expect(hero).not.toContainText(brandArtworkCopy[locale]);
+      const categoryImages = page.locator('main a[href*="/category/"] img');
+      expect(await categoryImages.count()).toBeGreaterThanOrEqual(2);
+      for (const image of await categoryImages.all()) {
         await image.scrollIntoViewIfNeeded();
         await expect.poll(() => image.evaluate((element) => {
           const img = element as HTMLImageElement;
-          return img.complete && img.naturalWidth > 0 && /\/images\/brand\/.*\.webp$/.test(img.currentSrc);
+          return img.complete && img.naturalWidth > 0;
         })).toBe(true);
         await expect(image).toHaveAttribute("width", /^\d+$/);
         await expect(image).toHaveAttribute("height", /^\d+$/);
+      }
+      for (const artwork of await page.locator("[data-brand-art]").all()) {
+        await expect(artwork.locator("figcaption")).toHaveText(brandArtworkCopy[locale]);
       }
       await expect(page.locator("[data-tripadvisor-link]")).toHaveAttribute("href", tripadvisorUrl);
       await accessibility(page);
