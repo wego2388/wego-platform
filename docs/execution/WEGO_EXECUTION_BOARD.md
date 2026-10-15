@@ -5919,3 +5919,19 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   their narrative descriptions are empty. The three inactive historical
   tours remain inactive. Updated the owner-facing catalog readiness report
   with exact slugs and clear no-invention boundaries; no catalog mutation.
+
+#### 2026-10-15 — Owner-authorized website release preparation
+
+- Owner explicitly requested deployment. Execute the media handoff's bounded
+  site-only release: new site image, existing backend/ERP/edge and Flyway34.
+  Gmail delivery stays gated separately. Neutral email labels in four locales
+  collect the contact address without promising disabled automated delivery.
+- Independent Tier-1 release inspection confirmed the new site's payload and
+  public API usage are compatible with deployed backend 1d5a6b6. The full V35
+  mail release needs its own rollback strategy: older backend cannot parse
+  OFFICE_REQUEST_CONFIRMED rows after a new backend queues one. Do not deploy
+  V35 or claim old-image compatibility merely because dispatch is disabled.
+- Required site release gates: exact-source CI, immutable site build, isolated
+  new-site/old-backend request-to-ERP rehearsal, read-only mobile/desktop/media
+  verification, encrypted off-VPS backup/restore, guarded single-site update
+  and read-only production acceptance before current promotion.
