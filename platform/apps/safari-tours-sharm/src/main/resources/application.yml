@@ -30,6 +30,14 @@ spring:
   modulith:
     runtime:
       verification-enabled: true
+  mail:
+    # Keep JavaMail's dotted property names intact. Production Compose enables
+    # authenticated, mandatory STARTTLS; local SMTP tests may opt out.
+    properties:
+      "[mail.smtp.auth]": ${SAFARI_MAIL_SMTP_AUTH:false}
+      "[mail.smtp.starttls.enable]": ${SAFARI_MAIL_SMTP_STARTTLS_ENABLE:false}
+      "[mail.smtp.starttls.required]": ${SAFARI_MAIL_SMTP_STARTTLS_REQUIRED:false}
+      "[mail.smtp.ssl.checkserveridentity]": ${SAFARI_MAIL_SMTP_VERIFY_HOSTNAME:false}
 
 server:
   shutdown: graceful

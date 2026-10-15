@@ -63,7 +63,8 @@ services:
       TOURS_OPERATOR_BOOKING_MODE: ${TOURS_OPERATOR_BOOKING_MODE:?set TOURS_OPERATOR_BOOKING_MODE explicitly (launch is ENQUIRY_ONLY)}
       TOURS_OPERATOR_PAYMOB_MOCK_ENABLED: "false"
       # Customer e-mail notifications stay off until SMTP is supplied and
-      # owner-approved; enabling without SPRING_MAIL_HOST fails startup.
+      # Owner-approved only; host/from fail fast, but credentials need a
+      # separate delivery preflight before this flag becomes true.
       TOURS_OPERATOR_NOTIFICATIONS_ENABLED: ${TOURS_OPERATOR_NOTIFICATIONS_ENABLED:-false}
       # SMTP is an optional outbox delivery dependency, NOT core booking/DB
       # readiness. Empty launch SMTP settings otherwise auto-create a mail
@@ -78,6 +79,11 @@ services:
       SPRING_MAIL_PORT: ${SPRING_MAIL_PORT:-}
       SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME:-}
       SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD:-}
+      # Never authenticate to an unencrypted relay or skip TLS hostname checks.
+      SAFARI_MAIL_SMTP_AUTH: "true"
+      SAFARI_MAIL_SMTP_STARTTLS_ENABLE: "true"
+      SAFARI_MAIL_SMTP_STARTTLS_REQUIRED: "true"
+      SAFARI_MAIL_SMTP_VERIFY_HOSTNAME: "true"
     logging: *default-logging
     deploy:
       resources:

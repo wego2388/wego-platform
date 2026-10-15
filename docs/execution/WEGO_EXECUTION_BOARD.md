@@ -5830,6 +5830,34 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   branded `@safaritourssharm.com` mailbox is not yet configured; the existing
   Gmail account is not affected. No DNS changes made.
 
+#### 2026-10-15 — Safari owner chose existing Gmail for booking email
+
+- Owner explicitly rejected a domain mailbox and selected
+  `safaritourssharm@gmail.com` as sender and Reply-To. No DNS/email-provider
+  purchase or domain record change. Gmail 2-Step Verification is enabled but
+  Google requests owner reauthentication for App passwords; owner cannot do
+  that now. Never ask for the password in chat or bypass the challenge.
+- Within ACTIVE OPS2-G / SFM-01, prepare only the next Safari release's
+  authenticated mandatory-STARTTLS/hostname-verified SMTP config and a
+  credential-free activation runbook. Production remains at `1d5a6b6`,
+  `notifications=false`, SMTP fields empty. Read-only outbox count was 0 at
+  inspection, and VPS could reach `smtp.gmail.com:587`; neither proves login
+  or delivery. App Password, isolated delivery test, outbox recheck and actual
+  notification enablement remain gated. No booking email is sent yet.
+- Fresh-context Tier-1 review of the disabled Gmail configuration: READY,
+  zero BLOCKING. Production Compose resolves to `notifications=false` with
+  Gmail From/Reply-To/username, SMTP auth and mandatory STARTTLS plus TLS
+  hostname check; targeted `SmtpEmailSenderTest` passed. Reviewer noted that
+  startup checks host/from but not a blank or wrong password. Corrected the
+  misleading comment and made the credential/delivery preflight explicit;
+  a binding/integration check and any stronger fail-fast validation remain
+  work for the actual activation gate, not a claim of current delivery.
+- Final isolated `:platform:apps:safari-tours-sharm:check --offline
+  --no-configuration-cache` passed: 444 tests, zero failures/errors/skips,
+  ktlint and compilation green. The first full run collided with the
+  reviewer's concurrent targeted Gradle test and lost an in-progress results
+  file; clean solo rerun passed. No production app changes or customer sends.
+
 #### 2026-10-15 — SFM-02 owner-approved photo-led gallery
 
 - Owner invited useful additional Safari pages but asked to avoid unnecessary
