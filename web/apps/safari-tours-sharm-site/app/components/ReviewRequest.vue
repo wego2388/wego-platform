@@ -12,7 +12,7 @@ const copy = computed(() => reviewRequestCopy[locale.value]);
   <section data-review-request aria-labelledby="review-request-heading" class="overflow-hidden rounded-[var(--sts-radius-card)] border border-sts-border bg-sts-sand-soft shadow-sts-card">
     <div class="grid gap-6 p-6 sm:p-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
       <div>
-        <p class="text-xs font-bold tracking-[0.12em] text-sts-coral uppercase">{{ copy.eyebrow }}</p>
+        <p class="text-xs font-bold tracking-[0.12em] text-sts-ocean-bright uppercase">{{ copy.eyebrow }}</p>
         <h2 id="review-request-heading" class="mt-2 font-display text-2xl font-semibold text-sts-ocean">{{ copy.title }}</h2>
         <p class="mt-2 max-w-xl text-sts-muted">{{ copy.body }}</p>
         <p class="mt-3 max-w-xl text-sm text-sts-muted">{{ copy.note }}</p>

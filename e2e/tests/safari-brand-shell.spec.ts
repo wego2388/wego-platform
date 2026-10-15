@@ -19,7 +19,13 @@ for (const locale of ["en", "ar", "ru", "it"] as const) for (const width of [360
       await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       const banner = page.locator("[data-page-art]");
-      await expect(banner).toContainText(brandArtworkCopy[locale]);
+      // Curated photos now take precedence over generated artwork. Only the
+      // artwork fallback needs the AI disclosure; a real photo must not carry it.
+      if (await banner.locator('img[src*="/images/brand/"]').count()) {
+        await expect(banner).toContainText(brandArtworkCopy[locale]);
+      } else {
+        await expect(banner).not.toContainText(brandArtworkCopy[locale]);
+      }
       await expect(banner.locator("img")).toHaveAttribute("alt", "");
       await expect(banner.locator("img")).toHaveAttribute("aria-hidden", "true");
       await expect.poll(() => banner.locator("img").evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
