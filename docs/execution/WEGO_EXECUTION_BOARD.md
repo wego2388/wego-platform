@@ -5887,3 +5887,24 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   lint/typecheck/build pass, loopback-browser gate checks four Contact locales
   and both booking states, with phone absent from the URL. Source remains
   un-deployed pending the final release gate.
+
+#### 2026-10-15 — SFM-01 owner-assisted Gmail credential preflight
+
+- The owner reported completing Google's account challenge. No password was
+  received or inspected by Codex. Production remains on the prior application
+  release with `notifications=false` and a blank SMTP password at the last
+  read-only check; no customer mail was sent.
+- Added a Safari-only interactive installer that requires the protected env
+  file, exactly one disabled notification flag and each mail key, and a hidden
+  16-character App Password. It disables Bash xtrace before secret handling,
+  writes a mode-600 same-directory temporary env file, atomically replaces the
+  Safari env only, and does not enable notifications. A separate self-test can
+  send one technical message solely from/to Safari's Gmail with validated TLS,
+  without logging the credential. Acceptance still requires inbox receipt,
+  actual application/queue checks, four-language booking tests and final
+  release review; Gmail SMTP acceptance alone is insufficient.
+- Fresh independent Tier-1 review found and fixed two BLOCKING guards before
+  any remote staging: duplicate `NOTIFICATIONS_ENABLED` and inherited Bash
+  xtrace. Re-review reported zero remaining BLOCKING findings. A non-blocking
+  self-test owner check was added; effective Compose/runtime state and actual
+  delivery remain operational gates. `bash -n` and Python AST parsing pass.
