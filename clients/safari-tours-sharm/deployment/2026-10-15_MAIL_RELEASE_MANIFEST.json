@@ -1,0 +1,45 @@
+{
+  "releaseId": "str-2026.10.15-36e8291-mail",
+  "releaseType": "SAFARI_BACKEND_AND_GMAIL_NOTIFICATIONS",
+  "previousReleaseId": "str-2026.10.15-36e8291-site",
+  "sourceCommit": "36e8291fa7dd3a377641180dc411580fe5b4974c",
+  "ciRun": 38745494917,
+  "backend": {
+    "reference": "safari-tours-sharm-backend:str-2026.10.15-36e8291-mail",
+    "imageId": "sha256:5fabc6f320b7009045cd3b399005da33bfbe86096b32267a94b16c6103d80113",
+    "jarSha256": "f32f848659c8aaa72d2a142c49b37c41031696dbcd3ae002ff0fe027d620d794"
+  },
+  "unchangedImages": {
+    "site": "safari-tours-sharm-site:str-2026.10.15-36e8291",
+    "erp": "safari-tours-sharm-erp:str-2026.10.10-1d5a6b6",
+    "edge": "public.ecr.aws/docker/library/nginx:1.30.4-alpine"
+  },
+  "flywayBefore": 34,
+  "flywayAfter": 35,
+  "bookingMode": "ENQUIRY_ONLY",
+  "onlinePaymentEnabled": false,
+  "notificationsEnabled": true,
+  "gmailSender": "safaritourssharm@gmail.com",
+  "backup": {
+    "bundle": "20261015T183802Z.bundle",
+    "offVpsCopy": "/home/wego/Backups/safari-tours-sharm/20261015T183802Z.bundle",
+    "isolatedRestore": "PASS",
+    "restoreReport": "/home/wego/Backups/safari-tours-sharm/bundle-drill-20261015T183838Z.json",
+    "flywayVersion": 34,
+    "tablesChecked": 45,
+    "mediaFilesVerified": 40
+  },
+  "productionAcceptance": {
+    "ownerAuthorizedTestReference": "STR-2026-1",
+    "publicRequestCreated": true,
+    "staffConversion": "CONFIRMED_UNPAID",
+    "confirmationOutbox": "OFFICE_REQUEST_CONFIRMED_SENT_ATTEMPT_1",
+    "confirmationVisibleInOwnerGmail": true,
+    "testBookingCancelled": true,
+    "testSlotCapacityAfterCancel": "0/1",
+    "paymentCollected": false,
+    "resortDeploymentChanged": false
+  },
+  "knownGap": "Confirmed office bookings currently have no automatic cancellation email; staff must notify the guest manually until a reviewed follow-up fix ships.",
+  "safeMailRollback": "Keep V35 schema and backend; set TOURS_OPERATOR_NOTIFICATIONS_ENABLED=false and restart only Safari backend. Do not run an older backend over V35 notification kinds."
+}

@@ -5971,3 +5971,33 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   0 bookings, 27 active tours, Flyway34, Safari 5/5 healthy, Resort unchanged.
   Recovery source is the tested pre-cleanup encrypted off-VPS backup. Evidence and
   remaining gates: [Safari release/booking handoff](../../clients/safari-tours-sharm/handoff/2026-10-15_SITE_RELEASE_AND_BOOKING_ACCEPTANCE_AR.md).
+
+#### 2026-10-15 — Safari Gmail confirmation released and owner production test accepted
+
+- `WEGO-016-OPS2-G` remains the sole ACTIVE packet. The owner deferred online
+  payment and authorized a production test on their single test Diving Course
+  slot, followed by cancellation. No Resort service or deployment was changed.
+- Independent Tier-1 review gave a conditional GO for a two-stage V35 rollout:
+  first backend with notifications off, then Gmail self-test and empty-queue
+  verification, then notification activation. Post-V35 rollback must keep the
+  new backend schema/kinds and disable notifications, not revert to old code.
+- The release image `safari-tours-sharm-backend:str-2026.10.15-36e8291-mail`
+  (`sha256:5fabc6f320b7009045cd3b399005da33bfbe86096b32267a94b16c6103d80113`)
+  was built from the exact code of passed CI `38745494917` (`36e8291`). An
+  encrypted pre-upgrade backup `20261015T183802Z.bundle` exists on VPS and
+  off-VPS; isolated restore passed at Flyway34 with 45 tables and 40/40 media.
+  Flyway35 applied without failures; five Safari services healthy and the four
+  Resort HTTPS origins remained 200/TLS0. Gmail self-test reached the owner inbox.
+- One owner-authorized public request converted in staff to `STR-2026-1`
+  (`CONFIRMED`, `UNPAID`, EUR 400 catalog total). `OFFICE_REQUEST_CONFIRMED`
+  reached `SENT` on attempt 1 and the Arabic message was visible in the owner
+  Gmail inbox; it explicitly says payment is separate and it is not a receipt.
+  The test booking was cancelled in the UI with a recorded reason, no payment,
+  and the test slot returned to `booked_count=0` of capacity 1.
+- Remaining P1: `CancelBookingService` only enqueues cancellation mail for
+  `ONLINE` bookings. The newly confirmed `OFFICE` request booking therefore
+  produced no cancellation message. Staff must inform real customers manually
+  until a reviewed fix is released. Genuine-customer operating acceptance,
+  owner-approved catalog facts/photos and optional payment remain open. See
+  [mail release manifest](../../clients/safari-tours-sharm/deployment/2026-10-15_MAIL_RELEASE_MANIFEST.json)
+  and [handoff](../../clients/safari-tours-sharm/handoff/2026-10-15_SITE_RELEASE_AND_BOOKING_ACCEPTANCE_AR.md).
