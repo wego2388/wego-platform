@@ -72,7 +72,7 @@ for (const locale of ["en", "ar", "ru", "it"] as const) {
       const hero = page.locator(".sts-hero");
       const poster = hero.locator('img[src="/videos/safari-hero-poster.webp"]');
       await expect(poster).toHaveAttribute("alt", ""); // Decorative background; real tour images have their own alt text.
-      await expect(poster).toHaveAttribute("aria-hidden", "true");
+      await expect(poster.locator("..")).toHaveAttribute("aria-hidden", "true"); // The decorative media container, not each child, is hidden.
       await expect(poster).toHaveAttribute("fetchpriority", "high");
       await expect.poll(() => poster.evaluate((element) => {
         const img = element as HTMLImageElement;
