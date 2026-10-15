@@ -457,6 +457,17 @@ SAFARI_COMPOSE_PROJECT=safari-tours-sharm-prod SAFARI_HEALTH_URL=http://127.0.0.
 المكان: جهاز يملكه/يعتمده محمد عليه Docker وgpg والمفتاح الخاص (`[!]` اختيار الجهاز).
 لا يُنسخ المفتاح الخاص إلى الـVPS أبدًا.
 
+> تحديث تشغيلي 15 أكتوبر: النسخة المشفرة `20261015T010627Z.bundle` نُقلت
+> لجهاز المالك واستعيدت بنجاح (`bundle-drill-20261015T010758Z.json`، 40/40
+> ملفًا، Flyway 34). استخدم الاختبار صورة PostgreSQL من مشروع Safari محلي
+> قائم للقراءة فقط، ثم حاوية استرجاع مؤقتة `--network none` دون منفذ/حجم إنتاج؛
+> تقرير النجاح أُعيد للـVPS وخدمة health نجحت. على الـVPS يوجد override مؤقت
+> `safari-backup.service.d/10-inventory-hotfix.conf` لأن الإصدار الحالي يسبق
+> إصلاح جرد الملفات. عند نشر إصدار Safari يحتوي الإصلاح: تحقق من نسخة جديدة
+> واسترجاعها، ثم أزل هذا الـoverride المحدد فقط بعد التأكد أن
+> `current/scripts/safari-ops/bundle-backup.sh` يحمل الإصلاح، وأعد تشغيل
+> `daemon-reload` واختبر الخدمة والمؤقت. لا تمس المفتاح الخاص أو نسخ الخيمة.
+
 ```bash
 # على الجهاز الآمن
 BUNDLE=<STAMP>.bundle

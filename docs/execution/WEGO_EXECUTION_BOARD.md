@@ -5805,6 +5805,31 @@ commit/push is recorded above. `WEGO-016-C` is now the active packet below.
   this code review is not that operational proof. Owner requested deployment
   only at the end of the remaining site work.
 
+#### 2026-10-15 — Safari backup hotfix and off-VPS restore gate passed
+
+- With the independently reviewed inventory fix, staged only
+  `scripts/safari-ops/{lib,bundle-backup}.sh` in Safari's shared area and pointed
+  `safari-backup.service` at that staged script using a Safari-only systemd
+  drop-in. No app image, gateway, database volume, El Kheima service or DNS
+  configuration changed. The override is temporary until the next Safari
+  release contains the reviewed fix; see
+  `clients/safari-tours-sharm/deployment/safari-backup-inventory-hotfix.conf`.
+- Manual production backup service exited 0 and produced encrypted bundle
+  `20261015T010627Z.bundle` (Flyway 34, 40 DB media keys/40 archive files).
+  It was copied to the owner's workstation, encrypted checksums matched, and
+  `bundle-restore-drill.sh` restored it to an isolated, networkless throw-away
+  PostgreSQL container: `ok=true`, 45 tables checked, 503 rows restored,
+  40/40 media files verified, zero problems. Report
+  `bundle-drill-20261015T010758Z.json` was copied back to VPS; Safari health
+  service exited 0, backup timer remains active. Private decryption key stayed
+  off-VPS. The fresh backup/restore gate is **passed**, but the owner-requested
+  application/content release remains deferred until its separate final gates.
+- DNS read-only verification against 1.1.1.1 and 8.8.8.8: apex, `www` and
+  `staff` all resolve to `187.6.167.233`; HTTPS apex/staff return 200 and
+  `www` redirects to apex. No domain MX/SPF/DMARC records observed, so a
+  branded `@safaritourssharm.com` mailbox is not yet configured; the existing
+  Gmail account is not affected. No DNS changes made.
+
 #### 2026-10-15 — SFM-02 owner-approved photo-led gallery
 
 - Owner invited useful additional Safari pages but asked to avoid unnecessary
