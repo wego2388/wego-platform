@@ -4,20 +4,20 @@
 
 ## 1) قرارين مفتوحين
 
-1. الغواصة: الموقع شغال حاليًا بـ35 يورو. هل السعر الصح 40 يورو؟ (القارب الزجاجي 15 يورو).
+1. الغواصة: الموقع شغال حاليًا بـ35 يورو. هل السعر الصح 40 يورو؟ (القارب الزجاجي 15 يورو). 
 2. نقل المطار: نسيب سيارة SUV بـ20 يورو ولا نشيلها؟ (سيدان 15 / ميني باص 30).
 
 ## 2) أسئلة تنطبق على كل الرحلات
 
 1. ميعاد الاستلام من الفندق: إيه الفترة المعتادة لكل رحلة (مثلًا من كذا لكذا)؟ ولا بنقول "بنأكد على واتساب" وخلاص؟
 2. المرشد بيتكلم إيه في كل رحلة؟ (عربي / إنجليزي / روسي / إيطالي / ألماني). مكتوب بس إن مرشد القاهرة بالطيارة إنجليزي.
-3. الأطفال: فيه سعر مخفض أو مجاني؟ لحد سن كام؟ (مفيش سعر طفل متسجل في أي رحلة).
+3. الأطفال: فيه سعر مخفض أو مجاني؟ لحد سن كام؟ (مفيش سعر طفل متسجل في أي رحلة). من 1 الي4 سنوات مجاني و من 6 الي 9 نص تذكره حجز
 
 ## 3) أسئلة لرحلات معينة (الناقص بس)
 
-**ميعاد استلام / أيام التشغيل ناقصة** (الباقي مكتوب في الوصف): super-safari-adventure ، sunset-quad-bike ، double-buggy-camel-ride ، bedouin-dinner-camel-ride ، dahab-colored-canyon ، camel-horse-ride ، glass-bottom-boat ، diving-course ، sinai-dream-sailboat ، banana-boat ، parasailing-adventure ، speed-boat-adventure ، submarine ، tube-boat ، cairo-by-bus ، luxor-by-plane ، turkish-bath ، dolphin-show ، swimming-with-dolphins.
+**ميعاد استلام / أيام التشغيل ناقصة** (الباقي مكتوب في الوصف): super-safari-adventure ، sunset-quad-bike ، double-buggy-camel-ride ، bedouin-dinner-camel-ride ، dahab-colored-canyon ، camel-horse-ride ، glass-bottom-boat ، diving-course ، sinai-dream-sailboat ، banana-boat ، parasailing-adventure ، speed-boat-adventure ، submarine ، tube-boat ، cairo-by-bus ، luxor-by-plane ، turkish-bath ، dolphin-show ، swimming-with-dolphins. ايام التشغيل متاحه كل يوم
 
-**إيه اللي مش شامل** (مفيش استثناءات متسجلة): super-safari-adventure ، sunset-quad-bike ، double-buggy-camel-ride ، bedouin-dinner-camel-ride ، dahab-colored-canyon ، camel-horse-ride ، evening-cruise ، glass-bottom-boat ، diving-course ، sinai-dream-sailboat ، banana-boat ، parasailing-adventure ، submarine ، tube-boat ، cairo-by-bus ، mount-sinai-st-catherine ، st-catherine-dahab ، turkish-bath ، dolphin-show ، sharm-airport-transfer. المشروبات والأكل والصور والبقشيش ورسوم إضافية - إيه اللي مش بيدخل في السعر في كل رحلة؟
+**إيه اللي مش شامل** (مفيش استثناءات متسجلة): super-safari-adventure ، sunset-quad-bike ، double-buggy-camel-ride ، bedouin-dinner-camel-ride ، dahab-colored-canyon ، camel-horse-ride ، evening-cruise ، glass-bottom-boat ، diving-course ، sinai-dream-sailboat ، banana-boat ، parasailing-adventure ، submarine ، tube-boat ، cairo-by-bus ، mount-sinai-st-catherine ، st-catherine-dahab ، turkish-bath ، dolphin-show ، sharm-airport-transfer. المشروبات والأكل والصور والبقشيش ورسوم إضافية - إيه اللي مش بيدخل في السعر في كل رحلة؟ التصورير و الشال و النظاره غير شامل في اي رحله
 
 **حدود السن / الصحة ناقصة**: evening-cruise ، cairo-by-bus ، cairo-by-plane ، luxor-by-plane ، st-catherine-dahab ، sharm-airport-transfer.
 
@@ -37,4 +37,4 @@
 
 ## 4) الصور (للتنفيذ بعد موافقتك)
 
-منشور حاليًا صورة واحدة بس لـ`super-safari-adventure` و`luxor-by-plane`. باقي الـ25 رحلة من غير صور معتمدة على الموقع. موافق ننشر الصور المختارة اللي اتجهزت؟
+منشور حاليًا صورة واحدة بس لـ`super-safari-adventure` و`luxor-by-plane`. باقي الـ25 رحلة من غير صور معتمدة على الموقع. موافق ننشر الصور المختارة اللي اتجهزت؟ نعم انشرها
