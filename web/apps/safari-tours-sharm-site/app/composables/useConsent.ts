@@ -1,4 +1,4 @@
-import { computed } from "vue";
+import { computed, type Ref } from "vue";
 
 export type ConsentChoice = "granted" | "denied";
 
@@ -10,7 +10,13 @@ export type ConsentChoice = "granted" | "denied";
 export function useConsent() {
   const config = useRuntimeConfig().public;
   const secure = import.meta.client ? window.location.protocol === "https:" : useRequestURL().protocol === "https:";
-  const choice = useCookie<ConsentChoice | null>("sts_consent", { maxAge: 60 * 60 * 24 * 182, sameSite: "lax", secure, default: () => null });
+  // Nuxt creates separate useCookie refs per caller, synchronized asynchronously.
+  // Sharing ONE ref per app/request makes a footer withdrawal reach the analytics
+  // plugin immediately, rather than waiting for a CookieStore/BroadcastChannel.
+  // The startup plugin initializes this in its durable scope before components.
+  // Never store this ref at module scope: SSR requests must remain isolated.
+  const app = useNuxtApp() as ReturnType<typeof useNuxtApp> & { _stsConsentChoice?: Ref<ConsentChoice | null> };
+  const choice = app._stsConsentChoice ??= useCookie<ConsentChoice | null>("sts_consent", { maxAge: 60 * 60 * 24 * 182, sameSite: "lax", secure, default: () => null });
   const configured = computed(() => Boolean(config.ga4Id || config.metaPixelId));
   return {
     configured,

@@ -6,8 +6,8 @@ const consent = { granted: ref(false) };
 vi.mock("../app/composables/useConsent", () => ({ useConsent: () => consent }));
 
 type Track = (event: string, params: Record<string, string | number>) => void;
-type TrackingWindow = Window & { dataLayer?: unknown[]; gtag?: (...args: unknown[]) => void; fbq?: ((...args: unknown[]) => void) & { queue?: unknown[] } };
-const w = window as TrackingWindow;
+type TrackingWindow = Window & { dataLayer?: unknown[]; gtag?: (...args: unknown[]) => void; fbq?: ((...args: unknown[]) => void) & { queue?: unknown[]; callMethod?: (...args: unknown[]) => void } } & Partial<Record<`ga-disable-${string}`, boolean>>;
+const w = window as unknown as TrackingWindow;
 let scope = effectScope();
 let loadedScripts: string[] = [];
 let navigationHook: ((to: { path: string }, from: { path: string }) => void) | null = null;
@@ -18,6 +18,7 @@ beforeEach(() => {
   loadedScripts = [];
   navigationHook = null;
   delete w.dataLayer; delete w.gtag; delete w.fbq;
+  delete (w as Partial<TrackingWindow>)["ga-disable-G-TEST123"];
   // Capture insertions without asking happy-dom to fetch external JavaScript.
   vi.spyOn(document.head, "appendChild").mockImplementation((node) => {
     if (node instanceof HTMLScriptElement) loadedScripts.push(node.src);
@@ -80,15 +81,58 @@ describe("request lead provider adapters", () => {
     consent.granted.value = true;
     await flushPromises();
     track("request_submitted", { item_id: catalogId });
+    consent.granted.value = false;
+    // No nextTick gap in the provider kill switch.
+    expect(w["ga-disable-G-TEST123"]).toBe(true);
+    expect(Array.from(w.dataLayer!.at(-1) as ArrayLike<unknown>)).toEqual(["consent", "update", expect.objectContaining({ analytics_storage: "denied", ad_storage: "denied" })]);
+    expect(w.fbq!.queue!.at(-1)).toEqual(["consent", "revoke"]);
     const gaBefore = w.dataLayer?.length;
     const metaBefore = w.fbq?.queue?.length;
-    expect(gaBefore).toBeGreaterThan(0);
-    expect(metaBefore).toBeGreaterThan(0);
-    consent.granted.value = false;
     await flushPromises();
     track("request_submitted", { item_id: catalogId });
     navigationHook?.({ path: "/en/about" }, { path: "/en/tour/sunset-quad-bike" });
     expect(w.dataLayer).toHaveLength(gaBefore!);
     expect(w.fbq?.queue).toHaveLength(metaBefore!);
+  });
+
+  it("regrants loaded providers without reinitializing or loading duplicate tags", async () => {
+    await setup("G-TEST123", "123456789");
+    consent.granted.value = true;
+    await flushPromises();
+    consent.granted.value = false;
+    consent.granted.value = true;
+    await flushPromises();
+    expect(w["ga-disable-G-TEST123"]).toBe(false);
+    expect(loadedScripts).toHaveLength(2);
+    const calls = (w.dataLayer ?? []).map(call => Array.from(call as ArrayLike<unknown>));
+    expect(calls.filter(call => call[0] === "config")).toHaveLength(1);
+    expect(calls).toContainEqual(["consent", "update", { analytics_storage: "granted", ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied" }]);
+    expect(w.fbq!.queue).toContainEqual(["consent", "grant"]);
+    expect(w.fbq!.queue!.filter(call => (call as unknown[])[0] === "init")).toHaveLength(1);
+  });
+
+  it("does not emit a queued startup pageview after immediate withdrawal", async () => {
+    await setup("G-TEST123", "123456789");
+    consent.granted.value = true;
+    consent.granted.value = false;
+    await flushPromises();
+    const calls = (w.dataLayer ?? []).map(call => Array.from(call as ArrayLike<unknown>));
+    expect(calls.filter(call => call[0] === "event")).toEqual([]);
+    expect(w.fbq!.queue!.filter(call => (call as unknown[])[0] === "track")).toEqual([]);
+    expect(w["ga-disable-G-TEST123"]).toBe(true);
+  });
+
+  it("delivers revocation to an already loaded Meta provider, not only its startup queue", async () => {
+    const track = await setup("G-TEST123", "123456789");
+    consent.granted.value = true;
+    await flushPromises();
+    const provider = vi.fn();
+    w.fbq!.callMethod = provider;
+    consent.granted.value = false;
+    expect(provider).toHaveBeenCalledExactlyOnceWith("consent", "revoke");
+    track("request_submitted", { item_id: catalogId });
+    expect(provider).toHaveBeenCalledTimes(1);
+    consent.granted.value = true;
+    expect(provider).toHaveBeenCalledWith("consent", "grant");
   });
 });

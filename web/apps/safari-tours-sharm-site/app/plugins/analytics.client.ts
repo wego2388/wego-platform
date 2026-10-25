@@ -11,7 +11,7 @@ interface Fbq {
   version?: string;
   callMethod?: (...args: unknown[]) => void;
 }
-type Win = Window & { dataLayer?: unknown[]; gtag?: (...args: unknown[]) => void; fbq?: Fbq };
+type Win = Window & { dataLayer?: unknown[]; gtag?: (...args: unknown[]) => void; fbq?: Fbq } & Partial<Record<`ga-disable-${string}`, boolean>>;
 
 /** Meta standard events for our GA4 event names. */
 const META_EVENT: Partial<Record<AnalyticsEvent, string>> = {
@@ -38,8 +38,20 @@ export default defineNuxtPlugin((nuxtApp) => {
   const config = useRuntimeConfig().public;
   const consent = useConsent();
   const router = useRouter();
-  const w = window as Win;
+  const w = window as unknown as Win;
   let ready = false;
+
+  function providerConsent(granted: boolean) {
+    if (config.ga4Id) {
+      // The per-property kill switch also applies to provider-generated events.
+      w[`ga-disable-${String(config.ga4Id)}`] = !granted;
+      w.gtag?.("consent", "update", {
+        analytics_storage: granted ? "granted" : "denied",
+        ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied",
+      });
+    }
+    if (config.metaPixelId) w.fbq?.("consent", granted ? "grant" : "revoke");
+  }
 
   function start() {
     if (ready || !consent.granted.value) return;
@@ -50,10 +62,15 @@ export default defineNuxtPlugin((nuxtApp) => {
         // eslint-disable-next-line prefer-rest-params
         w.dataLayer!.push(arguments);
       };
+      w.gtag("consent", "default", {
+        analytics_storage: "denied", ad_storage: "denied",
+        ad_user_data: "denied", ad_personalization: "denied",
+      });
+      providerConsent(true);
       w.gtag("js", new Date());
       // Page views are sent by hand on navigation; turn off GA's own SPA
       // "history change" page views in the GA admin to avoid duplicates.
-      w.gtag("config", config.ga4Id, { send_page_view: false });
+      w.gtag("config", config.ga4Id, { send_page_view: false, ...location() });
       loadScript(`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(String(config.ga4Id))}`);
     }
     if (config.metaPixelId) {
@@ -68,6 +85,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       );
       fbq.push = fbq;
       w.fbq = fbq;
+      w.fbq("consent", "grant");
       loadScript("https://connect.facebook.net/en_US/fbevents.js");
       // No automatic advanced matching or auto-collected button/form data:
       // the checkout has names, phones and emails that must never reach Meta.
@@ -99,7 +117,13 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
   }
 
-  watch(consent.granted, (granted) => granted && start(), { immediate: true });
+  watch(consent.granted, (granted) => {
+    if (!granted) providerConsent(false);
+    else if (ready) {
+      providerConsent(true);
+      pageView();
+    } else start();
+  }, { immediate: true, flush: "sync" });
   router.afterEach((to, from) => {
     if (to.path !== from.path) pageView();
   });
