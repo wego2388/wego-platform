@@ -1,5 +1,23 @@
 # Wego Execution Board
 
+### 2026-10-25 — Release str-2026.10.25-50e35ea-mail deployed (SAF-01.03/04)
+
+- Backend-only image swap (site/ERP/edge config unchanged; edge recreated).
+  Source `19ed066` code (HEAD `50e35ea`, docs-only after); CI code jobs incl.
+  secrets/audit green; infra jobs again blocked by public ECR data limit.
+- Isolated E2E on the exact backend image + released site: enquiry 44/44, history
+  guard PASS, website request→ERP 8/8. Fresh encrypted bundle
+  `20261025T023814Z` (Flyway36) copied off-VPS, hashes verified.
+- Live: Flyway36/0 failed; backend healthy; Resort protected containers
+  identical; all six HTTPS origins 200; health-check OK; queue before first use:
+  OFFICE_REQUEST_CONFIRMED SENT2/SKIPPED1, no cancellation rows. Real mailbox
+  acceptance of a cancellation email awaits an owner-approved test booking.
+- Mail rollback unchanged: keep schema/backend, set
+  TOURS_OPERATOR_NOTIFICATIONS_ENABLED=false or run the release rollback script
+  (previous backend b98aa55; no schema change in this release).
+- Meta feed regenerated from the corrected live API (`50e35ea` commit): exactly the
+  five owner price/title changes; not imported — Commerce Manager step pending.
+
 ### 2026-10-25 — Release str-2026.10.25-b98aa55 deployed (SAF-01.07 / SAF-02.08)
 
 - Executor: Claude, single deploy executor. Scope: Safari backend + site images
