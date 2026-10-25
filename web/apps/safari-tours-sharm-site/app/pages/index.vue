@@ -4,7 +4,8 @@ import { CATEGORY_ORDER, useCatalog, type CatalogTour } from "../composables/use
 import { useCategoryCovers } from "../composables/useCategoryCovers";
 import { useDiscoveryCopy } from "../composables/useDiscoveryCopy";
 import { useSiteLocale } from "../composables/useSiteLocale";
-import { siteCopy, siteEmail, siteWebsite, whatsappPhone, whatsappUrl } from "../content/locales";
+import { siteCopy, whatsappUrl } from "../content/locales";
+import { homeGraph, jsonLd } from "../utils/structuredData";
 import { CATEGORY_VISUAL } from "../utils/categoryVisual";
 import { galleryCopy } from "../content/gallery";
 
@@ -37,21 +38,7 @@ useSeoMeta({
   ogDescription: () => copy.value.hero.body,
 });
 useHead(() => ({
-  script: [
-    {
-      type: "application/ld+json",
-      innerHTML: JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "TravelAgency",
-        name: "Safari Tours Sharm",
-        url: siteWebsite,
-        email: siteEmail,
-        telephone: whatsappPhone,
-        areaServed: "Sharm El Sheikh, Egypt",
-        currenciesAccepted: "EUR",
-      }),
-    },
-  ],
+  script: [{ type: "application/ld+json", innerHTML: jsonLd(homeGraph(locale.value)) }],
 }));
 </script>
 

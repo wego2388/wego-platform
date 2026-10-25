@@ -7,6 +7,8 @@ import { useDiscoveryCopy } from "../../composables/useDiscoveryCopy";
 import { useSiteLocale } from "../../composables/useSiteLocale";
 import { categoryMeta, siteCopy, whatsappUrl } from "../../content/locales";
 import { CATEGORY_VISUAL } from "../../utils/categoryVisual";
+import { breadcrumbList, jsonLd } from "../../utils/structuredData";
+import { tourPageCopy } from "../../content/tourPage";
 import { categoryArtwork } from "../../content/brandArtwork";
 
 const route = useRoute();
@@ -18,6 +20,7 @@ definePageMeta({
   validate: (to) => Object.values(categoryMeta).some((meta) => meta.slug === String(to.params.slug)),
 });
 
+const breadcrumbHome = computed(() => tourPageCopy[locale.value].breadcrumbHome);
 const category = computed<TourCategory | undefined>(() =>
   CATEGORY_ORDER.find((c) => categoryMeta[c].slug === String(route.params.slug)),
 );
@@ -31,10 +34,22 @@ const others = computed(() => CATEGORY_ORDER.filter((c) => c !== category.value)
 
 useSeoMeta({
   title: () => `${text.value.name} — Safari Tours Sharm`,
-  description: () => text.value.description,
+  description: () => `${text.value.description} ${copy.value.tours.body}`,
   ogTitle: () => text.value.name,
   ogDescription: () => text.value.description,
 });
+useHead(() => ({
+  script: [
+    {
+      type: "application/ld+json",
+      innerHTML: jsonLd(breadcrumbList([
+        { name: breadcrumbHome.value, path: `/${locale.value}` },
+        { name: copy.value.tours.title, path: `/${locale.value}/tours` },
+        { name: text.value.name, path: `/${locale.value}/category/${categoryMeta[category.value!].slug}` },
+      ])),
+    },
+  ],
+}));
 </script>
 
 <template>

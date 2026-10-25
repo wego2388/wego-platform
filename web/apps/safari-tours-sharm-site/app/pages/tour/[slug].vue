@@ -15,6 +15,7 @@ import { onlineSalesAvailable } from "../../utils/enquiry";
 import { enquiryCopy } from "../../content/enquiry";
 import { illustrativePhotoLabel, isIllustrativeTourPhoto } from "../../utils/tourPhotoDisclosure";
 import { resolveTourMedia } from "../../utils/curatedMedia";
+import { breadcrumbList, jsonLd, touristTrip } from "../../utils/structuredData";
 
 const route = useRoute();
 const locale = useSiteLocale();
@@ -111,7 +112,6 @@ const whatsappRequest = computed(() =>
   `${whatsappUrl}?text=${encodeURIComponent(copy.value.booking.whatsappMessage(name.value, null, 1, 0))}`,
 );
 
-const pageUrl = computed(() => `${siteWebsite}/${locale.value}/tour/${tour.value.slug}`);
 useSeoMeta({
   title: () => `${name.value} — Safari Tours Sharm`,
   description: () => summary.value ?? `${name.value} · ${categoryName.value} · ${duration.value} · ${discovery.value.card.from} ${formatMoney(tour.value.priceAdult)}`,
@@ -129,44 +129,24 @@ useHead(() => ({
     {
       type: "application/ld+json",
       innerHTML: jsonLd([
-        {
-          "@context": "https://schema.org",
-          "@type": "TouristTrip",
+        touristTrip({
           name: name.value,
-          description: summary.value ?? undefined,
+          description: summary.value,
           inLanguage: textLang.value,
           touristType: categoryName.value,
-          image: cover.value ? `${siteWebsite}${cover.value.path}` : undefined,
-          provider: { "@type": "TravelAgency", name: "Safari Tours Sharm", url: siteWebsite },
-          ...(onRequest.value
-            ? {}
-            : {
-                offers: {
-                  "@type": "Offer",
-                  price: tour.value.priceAdult.amount,
-                  priceCurrency: tour.value.priceAdult.currencyCode,
-                  url: pageUrl.value,
-                },
-              }),
-        },
-        {
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          itemListElement: [
-            { "@type": "ListItem", position: 1, name: copy.value.breadcrumbHome, item: `${siteWebsite}/${locale.value}` },
-            { "@type": "ListItem", position: 2, name: categoryName.value, item: `${siteWebsite}/${locale.value}/category/${categoryMeta[tour.value.category].slug}` },
-            { "@type": "ListItem", position: 3, name: name.value, item: pageUrl.value },
-          ],
-        },
+          path: `/${locale.value}/tour/${tour.value.slug}`,
+          imagePath: cover.value?.path,
+          price: onRequest.value ? null : tour.value.priceAdult,
+        }),
+        breadcrumbList([
+          { name: copy.value.breadcrumbHome, path: `/${locale.value}` },
+          { name: categoryName.value, path: `/${locale.value}/category/${categoryMeta[tour.value.category].slug}` },
+          { name: name.value, path: `/${locale.value}/tour/${tour.value.slug}` },
+        ]),
       ]),
     },
   ],
 }));
-
-/** JSON for a <script> tag: staff-written text can never close the tag. */
-function jsonLd(value: unknown): string {
-  return JSON.stringify(value).replace(/</g, "\\u003c");
-}
 </script>
 
 <template>

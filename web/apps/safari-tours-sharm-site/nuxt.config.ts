@@ -89,6 +89,15 @@ export default defineNuxtConfig({
   // Pre-compressed (gzip/brotli) copies of the client bundle, served by the
   // Nitro node server to browsers that accept them.
   nitro: { compressPublicAssets: true },
+  // Static files in /public are not content-hashed, so they get a 7-day
+  // (not immutable) cache. Built /_safari/** bundles are hashed and Nitro
+  // already serves them as immutable.
+  routeRules: {
+    "/images/**": { headers: { "cache-control": "public, max-age=604800" } },
+    "/brand/**": { headers: { "cache-control": "public, max-age=604800" } },
+    "/og-default.png": { headers: { "cache-control": "public, max-age=604800" } },
+    "/favicon.svg": { headers: { "cache-control": "public, max-age=604800" } },
+  },
   typescript: { strict: true, typeCheck: true },
   vite: {
     plugins: [tailwindcss()],

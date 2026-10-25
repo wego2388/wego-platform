@@ -4,6 +4,8 @@ import { useCatalog } from "../composables/useCatalog";
 import { useDiscoveryCopy } from "../composables/useDiscoveryCopy";
 import { MAX_QUERY_LENGTH, SORTS, activeFilterCount, applyTourFilters, useTourFilters, type TourSort } from "../composables/useTourFilters";
 import { whatsappUrl } from "../content/locales";
+import { breadcrumbList, jsonLd } from "../utils/structuredData";
+import { tourPageCopy } from "../content/tourPage";
 import { infoCopy } from "../content/info";
 import { useSiteLocale } from "../composables/useSiteLocale";
 
@@ -37,6 +39,17 @@ useSeoMeta({
   ogTitle: () => copy.value.tours.title,
   ogDescription: () => copy.value.tours.body,
 });
+useHead(() => ({
+  script: [
+    {
+      type: "application/ld+json",
+      innerHTML: jsonLd(breadcrumbList([
+        { name: tourPageCopy[siteLocale.value].breadcrumbHome, path: `/${siteLocale.value}` },
+        { name: copy.value.tours.title, path: `/${siteLocale.value}/tours` },
+      ])),
+    },
+  ],
+}));
 </script>
 
 <template>

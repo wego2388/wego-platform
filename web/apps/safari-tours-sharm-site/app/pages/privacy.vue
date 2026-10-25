@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { LEGAL_UPDATED } from "../content/info";
+import { privacyDescription } from "../utils/seoDescriptions";
 import { useInfoCopy } from "../composables/useInfoCopy";
 import { useConsent } from "../composables/useConsent";
 
@@ -17,7 +18,7 @@ const copy = computed(() => {
     ),
   };
 });
-useSeoMeta({ title: () => `${copy.value.title} — Safari Tours Sharm` });
+useSeoMeta({ title: () => `${copy.value.title} — Safari Tours Sharm`, description: () => privacyDescription(info.value.privacy) });
 </script>
 
 <template>

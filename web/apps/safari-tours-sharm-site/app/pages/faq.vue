@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { faqDescription } from "../utils/seoDescriptions";
 import { useInfoCopy } from "../composables/useInfoCopy";
 import { whatsappUrl } from "../content/locales";
 
@@ -8,7 +9,7 @@ const copy = computed(() => info.value.faq);
 const contact = computed(() => info.value.contact);
 const items = computed(() => copy.value.items.map((item, i) => ({ value: `faq-${i}`, ...item })));
 
-useSeoMeta({ title: () => `${copy.value.title} — Safari Tours Sharm`, description: () => copy.value.intro });
+useSeoMeta({ title: () => `${copy.value.title} — Safari Tours Sharm`, description: () => faqDescription(copy.value, contact.value) });
 useHead(() => ({
   script: [
     {
