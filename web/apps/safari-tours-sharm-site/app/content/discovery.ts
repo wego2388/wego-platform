@@ -71,7 +71,7 @@ const en: DiscoveryCopy = {
     items: [
       { title: "Is hotel pickup included?", body: "Most tours include pickup and drop-off at hotels in Sharm El Sheikh; each tour page says exactly what is included." },
       { title: "When is my booking confirmed?", body: "As soon as your payment is verified. You can check your booking any time on the My booking page." },
-      { title: "Can I cancel?", body: "Yes. Cancel at least 48 hours before the tour for a full refund, 24–48 hours before for 50%. Later cancellations and no-shows are non-refundable." },
+      { title: "Can I cancel?", body: "Standard terms: cancel at least 48 hours before the tour for a full refund, 24–48 hours before for 50%. Later cancellations and no-shows are non-refundable. Some tours have different or non-refundable terms; check the tour page before booking." },
     ],
   },
   cta: { title: "Not sure which trip to choose?", body: "Tell us what you like and we will suggest the right tour.", primary: "Browse all tours", secondary: "Chat on WhatsApp" },
@@ -135,7 +135,7 @@ const ar: DiscoveryCopy = {
     items: [
       { title: "هل الاستلام من الفندق مشمول؟", body: "معظم الرحلات تشمل الاستلام والتوصيل من فنادق شرم الشيخ، وصفحة كل رحلة توضّح بالضبط ما هو مشمول." },
       { title: "متى يتأكد حجزي؟", body: "بمجرد التحقق من الدفع. ويمكنك متابعة حجزك في أي وقت من صفحة «حجزي»." },
-      { title: "هل يمكنني الإلغاء؟", body: "نعم. الإلغاء قبل الرحلة بـ48 ساعة أو أكثر يعيد المبلغ كاملًا، وبين 24 و48 ساعة يعيد 50%. الإلغاء المتأخر أو عدم الحضور بلا استرداد." },
+      { title: "هل يمكنني الإلغاء؟", body: "السياسة القياسية: الإلغاء قبل الرحلة بـ48 ساعة أو أكثر يعيد المبلغ كاملًا، وبين 24 و48 ساعة يعيد 50%. الإلغاء المتأخر أو عدم الحضور بلا استرداد. بعض الرحلات لها شروط مختلفة أو غير قابلة للاسترداد؛ راجع صفحة الرحلة قبل الحجز." },
     ],
   },
   cta: { title: "محتار تختار أي رحلة؟", body: "قل لنا ما تحب، ونقترح عليك الرحلة المناسبة.", primary: "تصفّح كل الرحلات", secondary: "راسلنا على واتساب" },
@@ -199,7 +199,7 @@ const ru: DiscoveryCopy = {
     items: [
       { title: "Трансфер из отеля включён?", body: "Большинство туров включают трансфер из отелей Шарм-эль-Шейха; на странице тура указано, что именно входит." },
       { title: "Когда бронирование подтверждается?", body: "Сразу после проверки оплаты. Статус можно посмотреть в любое время на странице «Моё бронирование»." },
-      { title: "Можно ли отменить?", body: "Да. Полный возврат при отмене не позднее чем за 48 часов, 50% — за 24–48 часов. Более поздняя отмена и неявка не возвращаются." },
+      { title: "Можно ли отменить?", body: "Стандартные условия: полный возврат при отмене не позднее чем за 48 часов, 50% — за 24–48 часов. Более поздняя отмена и неявка не возвращаются. У некоторых туров другие условия или нет возврата; проверьте страницу тура до бронирования." },
     ],
   },
   cta: { title: "Не знаете, что выбрать?", body: "Расскажите, что вам нравится, — мы подскажем подходящий тур.", primary: "Все туры", secondary: "Написать в WhatsApp" },
@@ -263,7 +263,7 @@ const it: DiscoveryCopy = {
     items: [
       { title: "Il transfer dall'hotel è incluso?", body: "La maggior parte delle escursioni include il transfer dagli hotel di Sharm El Sheikh; ogni pagina indica cosa è incluso." },
       { title: "Quando è confermata la prenotazione?", body: "Appena il pagamento è verificato. Puoi controllarla in qualsiasi momento nella pagina «La mia prenotazione»." },
-      { title: "Posso cancellare?", body: "Sì. Rimborso totale se cancelli almeno 48 ore prima, 50% tra 24 e 48 ore. Cancellazioni successive e mancate presentazioni non sono rimborsabili." },
+      { title: "Posso cancellare?", body: "Condizioni standard: rimborso totale se cancelli almeno 48 ore prima, 50% tra 24 e 48 ore. Cancellazioni successive e mancate presentazioni non sono rimborsabili. Alcune escursioni hanno condizioni diverse o non rimborsabili; verifica la pagina prima di prenotare." },
     ],
   },
   cta: { title: "Non sai quale escursione scegliere?", body: "Dicci cosa ti piace e ti suggeriamo l'escursione giusta.", primary: "Tutte le escursioni", secondary: "Scrivici su WhatsApp" },

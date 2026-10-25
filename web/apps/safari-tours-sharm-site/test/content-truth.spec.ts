@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { googleReviewUrl, siteCopy, tripadvisorReviewUrl, tripadvisorUrl } from "../app/content/locales";
 import { infoCopy } from "../app/content/info";
+import { discoveryCopy } from "../app/content/discovery";
 
 const appRoot = process.cwd();
 
@@ -48,6 +49,17 @@ describe("commercial content truth", () => {
       expect(cancellation).toContain("50%");
     }
     expect(infoCopy.en.terms.sections[3]!.body.join(" ")).toMatch(/At least 48 hours.*full refund.*24 and 48 hours.*50% refund.*do not show up: no refund/);
+  });
+
+  it("does not promise the standard refund policy for every homepage tour", () => {
+    const markers = { en: /Some tours.*non-refundable.*tour page/, ar: /بعض الرحلات.*غير قابلة للاسترداد.*صفحة الرحلة/, ru: /некоторых туров.*нет возврата.*страницу тура/, it: /Alcune escursioni.*non rimborsabili.*pagina/ };
+    for (const locale of ["en", "ar", "ru", "it"] as const) {
+      const answer = discoveryCopy[locale].faq.items[2]!.body;
+      expect(answer).toContain("48");
+      expect(answer).toContain("24");
+      expect(answer).toContain("50%");
+      expect(answer).toMatch(markers[locale]);
+    }
   });
 
   it("does not publish placeholder social proof, payment methods, or universal inclusions", () => {
