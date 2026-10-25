@@ -30,6 +30,7 @@ sed \
   -e '/^[[:space:]]*error_log /d' \
   -e '/^server {/a\    access_log /dev/stdout safari_private;\n    error_log /dev/null crit;\n    server_tokens off;\n    ssl_protocols TLSv1.2 TLSv1.3;\n    ssl_session_tickets off;' \
   -e 's@/var/www/safari-tours-sharm-acme@/var/www/certbot@g' \
+  -e 's@/srv/safari-tours-sharm/shared/gateway/@/etc/nginx/vps-sites/@g' \
   -e 's@/etc/nginx/snippets/safari-tours-sharm-proxy.inc@/etc/nginx/vps-sites/proxy.inc@g' \
   -e 's@/srv/safari-tours-sharm/shared/maintenance@/etc/nginx/vps-sites/maintenance@g' \
   "$template"

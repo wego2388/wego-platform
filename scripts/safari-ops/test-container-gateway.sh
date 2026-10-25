@@ -28,6 +28,7 @@ openssl req -x509 -newkey rsa:2048 -nodes -days 1 \
 bash "$root/scripts/safari-ops/render-container-gateway.sh" proxy > "$temp/gateway/proxy.inc"
 bash "$root/scripts/safari-ops/render-container-gateway.sh" live > "$temp/gateway/safari.conf"
 cp "$root/clients/safari-tours-sharm/deployment/nginx/maintenance/index.html" "$temp/gateway/maintenance/index.html"
+cp "$root/clients/safari-tours-sharm/deployment/google-site-verification/googlee21c400d256cf31d.html" "$temp/gateway/googlee21c400d256cf31d.html"
 docker network create "$network" >/dev/null
 docker run -d --name "$gateway" --network "$network" --read-only \
   --tmpfs /var/cache/nginx --tmpfs /run \
@@ -62,6 +63,9 @@ for attempt in $(seq 1 15); do
   sleep 1
 done
 [[ "$ready" == true ]] || { echo 'FAIL: gateway did not become ready' >&2; exit 1; }
+# Search Console proof stays available independently of the Safari upstream.
+[[ "$(request /googlee21c400d256cf31d.html)" == 'google-site-verification: googlee21c400d256cf31d.html' ]]
+[[ "$(request /googlee21c400d256cf31d.html/extra -o /dev/null -w '%{http_code}')" == 502 ]]
 [[ "$(request '/absent?hmac=GW_PRIVACY_SENTINEL' -H 'Referer: https://example.test/?token=GW_PRIVACY_SENTINEL' -o /dev/null -w '%{http_code}')" == 502 ]]
 start_edge() {
   docker run -d --name "$edge" --network "$network" --network-alias safari-edge \
