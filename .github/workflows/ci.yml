@@ -224,6 +224,18 @@ jobs:
             --data '{"reference":"STR-2026-1","phone":"+201000000000"}' \
             http://staff.localhost:58080/api/v1/tours-operator/bookings/lookup)"
           test "$staff_lookup_status" = "404"
+          # Public customer write endpoints are not reachable through the staff
+          # origin (no second, unthrottled door; security review 2026-10-25 H1).
+          for path in booking-requests bookings bookings/00000000-0000-0000-0000-000000000000/pay payments/paymob-callback; do
+            status="$(curl --silent --resolve staff.localhost:58080:127.0.0.1 --output /dev/null --write-out '%{http_code}' \
+              -X POST -H 'Content-Type: application/json' --data '{}' \
+              "http://staff.localhost:58080/api/v1/tours-operator/$path")"
+            test "$status" = "404"
+          done
+          # Staff still list bookings through the staff origin (auth enforced by the backend).
+          staff_list_status="$(curl --silent --resolve staff.localhost:58080:127.0.0.1 --output /dev/null --write-out '%{http_code}' \
+            http://staff.localhost:58080/api/v1/tours-operator/bookings)"
+          test "$staff_list_status" = "401"
           # The customer origin exposes only the public site's API: no login,
           # no staff routes.
           public_login_status="$(curl --silent --output /dev/null --write-out '%{http_code}' \
