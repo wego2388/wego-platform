@@ -1,0 +1,15 @@
+{
+  "result": "PASS",
+  "localizedFieldsCompared": 236,
+  "documents": 108,
+  "languages": [
+    "en",
+    "ar",
+    "ru",
+    "it"
+  ],
+  "comparison": "exact approved after values",
+  "customerDataRead": false,
+  "transport": "VPS public edge loopback with canonical Host; no staff or private booking data",
+  "publicHttpsLocaleSmoke": "separately passed before loopback comparison"
+}

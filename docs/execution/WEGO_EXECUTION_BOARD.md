@@ -1,5 +1,43 @@
 # Wego Execution Board
 
+### 2026-10-26 — WAGDIO browser check and one published contact correction
+
+- Current WAGDIO session can edit Safari page content. Corrected existing post1684792680324741
+  (19October) from old customer number to website booking-request link and canonical WhatsApp
+  enquiries+201111292690; publish completed and the same post row read back with the new text.
+  No new post, story, paid ad or customer message. Other old crossposts need their own review.
+- WhatsApp/Messaging asset lists in WAGDIO are empty; owner Safari portfolio settings unavailable
+  to this session. This does not prove indirect Page Inbox access is impossible; it remains unverified.
+  Owner-account browser access requested before catalog import/link changes.
+- `2026-10-26_META_WHATSAPP_CHECKPOINT_AR.md` records exact observed vs pending states.
+
+### 2026-10-26 — Owner-confirmed V37 catalog deployed and checked live
+
+- Source `0a93fbb` committed/pushed after independent Tier1 code review,481backend tests,
+  ktlint,10content/export/feed tests, repository/Foundry checks and restored-production rehearsal.
+  Code CI jobs (backend/web/mobile/contracts/repository/secrets/gateway) passed; infrastructure
+  failed on public ECR `Data limit exceeded`, the documented external quota constraint.
+- Exact-image local gates: enquiry44+requests8 passed; historical-payment startup guard passed.
+  Checkout/site/launch/office/cycle/documents initial46pass/1fail (Arabic360gallery did not open
+  after a click). Full office-inventory recheck5/5 passed including that case. No runtime edit
+  or silent retry hid the initial failure; preserve it as a follow-up if the issue repeats.
+- Deployed backend `str-2026.10.26-0a93fbb-catalog`; existing site/ERP images remain the reviewed
+  security release. Stopped backend before migration to close the retired-SUV write race;
+  recreated edge after backend healthy. New absolute current pointer, Flyway37/0failed.
+- Live price fingerprints and Resort container image/start identities unchanged; all six HTTPS
+  origins200. Public API course titles/duration and sedan/Hiace-only options checked in4locales.
+  Compared236approved localized fields exactly over108public tour/locale documents using the
+  VPS public edge loopback+canonical Host after transient local TLS timeouts.
+- Fresh encrypted pre-V37 bundle `20261025T223514Z` copied offsite and hashes verified;
+  post-V37 backup `20261025T223907Z` created. Health success; old encrypted restore drill WARN remains.
+- Manifest: `clients/safari-tours-sharm/deployment/2026-10-26_OWNER_CATALOG_RELEASE_MANIFEST.json`.
+  Regenerated27item Meta feed from live facts, images verified27/27; NOT_IMPORTED.
+  Current WAGDIO browser shows Safari page/Instagram but no WhatsApp/Messaging accounts;
+  owner portfolio settings unavailable to this session. Await owner-account browser access;
+  no new catalog/account, permission grant, detach or real customer message performed.
+- Child-age pricing/refund approvals/cost close/role assignments remain follow-ups described in
+  `2026-10-26_CHILD_FINANCE_ROLE_EXECUTION_SPEC_AR.md`. OPS2-G remains ACTIVE; Codex sole deploy executor.
+
 ### 2026-10-26 — Codex deployed reviewed security/reports release and streamed backup
 
 - Deployed `str-2026.10.25-df846c1-sec` using the handed-off exact images after SHA256 checks,

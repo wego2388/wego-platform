@@ -1,5 +1,15 @@
 # Safari social catalog — verified review source
 
+> **26 October — latest live source after V37:** snapshot `2026-10-25T22-40-44.084Z.json`
+> (UTC capture date;26October Cairo), feed `2026-10-26_meta-reviewed-visible.xml`.
+>27active tours,27verified image sets,3per-unit. Includes approved beginner PADI course,
+> fixed daily dolphin show, transfer waiting terms, optional tips and retired SUV removal.
+> **NOT IMPORTED**: update the existing Meta source1808922023592263 after owner access is available;
+> do not create another catalog. Current WAGDIO session has page/Instagram access but no
+> WhatsApp/Messaging accounts listed and cannot open the owner portfolio settings.
+> Public-edge loopback with canonical Host verified all images/content after local TLS timeouts;
+> public HTTPS smoke was independently successful. Website booking remains request/confirmation.
+
 > **25 October 2026 — owner correction follow-up:** the October20 XML files
 > are historical imported sources, not current-price update files once the new
 > catalog revision is deployed. Review

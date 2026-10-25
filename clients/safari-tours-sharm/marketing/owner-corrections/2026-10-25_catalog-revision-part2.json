@@ -3705,5 +3705,11 @@
       "before": "2–3 days",
       "after": "3 days"
     }
-  ]
+  ],
+  "deploymentRecord": {
+    "status": "DEPLOYED_VERIFIED",
+    "release": "str-2026.10.26-0a93fbb-catalog",
+    "manifest": "../../deployment/2026-10-26_OWNER_CATALOG_RELEASE_MANIFEST.json",
+    "note": "Top-level PREPARED_NOT_DEPLOYED is the frozen authoring-stage snapshot. Current deployment is recorded here and in Board. V37 is now applied and its SQL must never be edited."
+  }
 }

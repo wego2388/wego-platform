@@ -1,0 +1,87 @@
+{
+  "release": "str-2026.10.26-0a93fbb-catalog",
+  "recordedAtUTC": "2026-10-25T22:41:36.179150+00:00",
+  "status": "DEPLOYED_VERIFIED",
+  "sourceCommit": "0a93fbb066b108e65db41271d8bdb54596909727",
+  "previousRelease": "str-2026.10.25-df846c1-sec",
+  "executor": "Codex",
+  "scope": "Owner-confirmed multilingual V37 catalog data; backend image only plus edge recreation",
+  "live": {
+    "current": "/srv/safari-tours-sharm/releases/str-2026.10.26-0a93fbb-catalog",
+    "flyway": "37|0",
+    "resortUnchanged": true,
+    "pricesUnchanged": true,
+    "https": [
+      "https://safaritourssharm.com/en 200",
+      "https://staff.safaritourssharm.com/ 200",
+      "https://elkheima.com/ 200",
+      "https://www.elkheima.com/ 200",
+      "https://app.elkheima.com/ 200",
+      "https://owner.elkheima.com/ 200"
+    ],
+    "backendImageId": "sha256:58de1f00a9daf5e0d7d6b8b2cfe1e29731989ad44a4338d359342e5a23668250",
+    "approvedContentComparison": {
+      "fields": 236,
+      "documents": 108,
+      "evidence": "handoff/evidence/2026-10-26_v37-live-content.json"
+    }
+  },
+  "jarSha256": "0d5e6da862b7c0d5754c2a4f1b49004273553c612572b120dbe56dcb53df70d0",
+  "migrationSha256": "29d8f21159c9af773de658c266f308df96cb8f00fd54d45cd37e8d986442859b",
+  "guards": {
+    "backendStoppedBeforeMigration": true,
+    "freshEncryptedOffsiteBackup": "20261025T223514Z",
+    "sourceAndImageChecksumsVerified": true,
+    "independentTier1": "2026-10-26_V37_TIER1_REVIEW.md",
+    "restoredProductionRehearsal": "41 non-catalog tables unchanged; source evidence in handoff/evidence"
+  },
+  "tests": {
+    "safariBackend": {
+      "tests": 481,
+      "failures": 0,
+      "skipped": 0
+    },
+    "contentExportFeed": 10,
+    "enquiryRequestsPlaywright": 52,
+    "checkoutSiteLaunchOfficeCycleDocuments": {
+      "initialPassed": 46,
+      "initialFailed": 1,
+      "failure": "Arabic360photo-gallery click did not open dialog; no runtime code changed in response",
+      "recheck": "complete office-inventory5/5 passed including Arabic360gallery; original failure retained"
+    },
+    "paymentHistoryStartupGuard": "PASS on exact built image",
+    "runtimeLogsFixturePiiAbsent": true,
+    "ciRun": 40239544644,
+    "ciCodeJobs": "backend/web/mobile/contracts/repository/secrets-and-node-dependencies/safari-container-gateway all passed; infrastructure failed on public ECR Data limit exceeded, compensated by exact-image local gates"
+  },
+  "knownRemaining": [
+    "Child-age pricing and office refund approval/cost freeze remain follow-up implementation",
+    "Meta feed prepared separately, not yet imported; owner portfolio access required",
+    "Encrypted restore drill needs owner private key locally",
+    "Single initial photo gallery UI failure did not reproduce in full5case recheck; follow-up hydration investigation if repeated"
+  ],
+  "rollback": "release rollback.sh restores previous reviewed backend/edge runtime and env; V37 data remains applied; no schema downgrade",
+  "backups": {
+    "before": {
+      "stamp": "20261025T223514Z",
+      "encrypted": true,
+      "flywayVersion": "36",
+      "offsiteHashesVerified": true,
+      "restored": false
+    },
+    "after": {
+      "stamp": "20261025T223907Z",
+      "encrypted": true,
+      "flywayVersion": "37",
+      "offsiteHashesVerified": true,
+      "restored": false
+    }
+  },
+  "metaFeed": {
+    "file": "marketing/social-catalog/2026-10-26_meta-reviewed-visible.xml",
+    "items": 27,
+    "withVerifiedImages": 27,
+    "perUnit": 3,
+    "imported": false
+  }
+}
