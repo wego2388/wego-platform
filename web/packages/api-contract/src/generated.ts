@@ -2117,8 +2117,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Recover a booking by reference and phone
-         * @description Public recovery endpoint. The reference and phone are knowledge factors, not a staff identity. They are accepted only in the JSON body so PII is not placed in URLs; the edge applies a dedicated per-IP rate limit to reduce enumeration attempts.
+         * Recover a booking or website request by reference and phone
+         * @description Public recovery endpoint. The reference and phone are knowledge factors, not a staff identity. They are accepted only in the JSON body so PII is not placed in URLs; the edge applies a dedicated per-IP rate limit to reduce enumeration attempts. STR returns the existing booking response; STQ returns a minimized website-request response, including its linked booking if converted. Both success and no-match are no-store.
          */
         post: operations["lookupToursOperatorBooking"];
         delete?: never;
@@ -4177,6 +4177,18 @@ export interface components {
             completedWithUnpaidBalance: boolean;
             /** @description Office payment state derived from the office ledger; null for online bookings. */
             officePayment: components["schemas"]["ToursOperatorOfficePayment"] | null;
+        };
+        /** @description Two-factor recovery. Request fields omit contact, hotel, notes, audit and internal IDs; an authorized linked booking retains the existing public booking projection, including its pickup hotel. Preferred dates and estimated totals are not a confirmed departure or payment. */
+        ToursOperatorPublicOnlineRequestLookupResponse: {
+            reference: string;
+            requestStatus: components["schemas"]["ToursOperatorOnlineRequestStatus"];
+            /** Format: date */
+            preferredDate: string;
+            preferredTime: components["schemas"]["ToursOperatorTimeSlot"] | null;
+            adultsCount: number;
+            childrenCount: number;
+            estimatedTotal: components["schemas"]["Money"];
+            booking: components["schemas"]["ToursOperatorPublicBookingLookupResponse"] | null;
         };
         ToursOperatorPublicBookingLookupResponse: {
             reference: string;
@@ -11112,13 +11124,13 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Matching booking. */
+            /** @description Matching booking or website request. Response is not cacheable. */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ToursOperatorPublicBookingLookupResponse"];
+                    "application/json": components["schemas"]["ToursOperatorPublicBookingLookupResponse"] | components["schemas"]["ToursOperatorPublicOnlineRequestLookupResponse"];
                 };
             };
             400: components["responses"]["ToursOperatorValidationResponse"];

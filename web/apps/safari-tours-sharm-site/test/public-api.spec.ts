@@ -4,6 +4,7 @@ import {
   createBooking,
   getTourBySlug,
   lookupBooking,
+  lookupReservation,
   peekLatestBookingConfirmation,
   readStoredBookingConfirmation,
   storeBookingConfirmation,
@@ -137,5 +138,15 @@ describe("public tours API contract", () => {
       }),
     );
     expect(fetchMock.mock.calls[0]?.[0]).not.toContain(BOOKING.customer.phone);
+  });
+
+  it("recovers an STQ request through the same POST without leaking factors to a URL", async () => {
+    const reference = "STQ-00112233445566778899AABBCCDDEEFF";
+    const response = { reference, requestStatus: "NEW", preferredDate: "2026-11-01", preferredTime: null, adultsCount: 1, childrenCount: 0, estimatedTotal: TOUR.priceAdult, booking: null };
+    const fetchMock = vi.fn().mockResolvedValue(okJson(response));
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(lookupReservation(reference, "+201000000001")).resolves.toEqual(response);
+    expect(fetchMock).toHaveBeenCalledWith("/api/v1/tours-operator/bookings/lookup", expect.objectContaining({ method: "POST", body: JSON.stringify({ reference, phone: "+201000000001" }) }));
+    expect(fetchMock.mock.calls[0]?.[0]).not.toContain(reference);
   });
 });

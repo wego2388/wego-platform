@@ -191,6 +191,13 @@ export function lookupBooking(
   });
 }
 
+export type PublicOnlineRequestLookup = import("@wego/api-contract").PublicOnlineRequestLookup;
+
+/** The same throttled POST accepts either STR or STQ, with both knowledge factors. */
+export function lookupReservation(reference: string, phone: string): Promise<PublicBookingLookup | PublicOnlineRequestLookup> {
+  return post("/api/v1/tours-operator/bookings/lookup", { reference, phone });
+}
+
 const CONFIRMATION_STORAGE_PREFIX = "sts.booking-confirmation.";
 export const LATEST_CONFIRMATION_STORAGE_KEY = "sts.booking-confirmation.latest";
 

@@ -299,7 +299,7 @@ data class ReverseCollectionRequest(
 data class LookupBookingRequest(
     @field:NotBlank
     @field:Size(max = 64)
-    @field:Pattern(regexp = "^[Ss][Tt][Rr]-[0-9]{4}-[0-9]+$")
+    @field:Pattern(regexp = "^(?:[Ss][Tt][Rr]-[0-9]{4}-[0-9]+|[Ss][Tt][Qq]-[0-9A-Fa-f]{32})$")
     val reference: String,
     @field:NotBlank
     @field:Size(max = 32)

@@ -97,6 +97,23 @@ class OnlineRequestService(
 
     fun find(id: UUID): OnlineRequest? = repository.find(id)
 
+    /** Both knowledge factors are required; never expose staff-only request details. */
+    fun lookup(
+        reference: String,
+        phone: String,
+    ): Pair<OnlineRequest, Booking?>? {
+        if (!reference.matches(Regex("^STQ-[0-9A-F]{32}$"))) return null
+        val hex = reference.removePrefix("STQ-")
+        val id =
+            UUID.fromString(
+                "${hex.take(8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}",
+            )
+        val request = repository.find(id) ?: return null
+        if (request.reference != reference || request.details.customer.phone != phone) return null
+        val booking = request.bookingId?.let(bookings::findById)?.takeIf { it.customer.phone == phone }
+        return request to booking
+    }
+
     /** Operational catalog context is authorized by booking:view, not tour administration. */
     fun tour(id: TourId): Tour? = tours.findById(id)
 

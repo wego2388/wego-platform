@@ -5257,12 +5257,14 @@ paths:
   /api/v1/tours-operator/bookings/lookup:
     post:
       operationId: lookupToursOperatorBooking
-      summary: Recover a booking by reference and phone
+      summary: Recover a booking or website request by reference and phone
       description: >-
         Public recovery endpoint. The reference and phone are knowledge
         factors, not a staff identity. They are accepted only in the JSON body
         so PII is not placed in URLs; the edge applies a dedicated per-IP rate
-        limit to reduce enumeration attempts.
+        limit to reduce enumeration attempts. STR returns the existing booking
+        response; STQ returns a minimized website-request response, including
+        its linked booking if converted. Both success and no-match are no-store.
       tags:
         - ToursOperator
       security: []
@@ -5274,11 +5276,13 @@ paths:
               $ref: "#/components/schemas/LookupToursOperatorBookingRequest"
       responses:
         "200":
-          description: Matching booking.
+          description: Matching booking or website request. Response is not cacheable.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ToursOperatorPublicBookingLookupResponse"
+                oneOf:
+                  - $ref: "#/components/schemas/ToursOperatorPublicBookingLookupResponse"
+                  - $ref: "#/components/schemas/ToursOperatorPublicOnlineRequestLookupResponse"
         "400":
           $ref: "#/components/responses/ToursOperatorValidationResponse"
         "404":
@@ -8778,7 +8782,7 @@ components:
           type: string
           minLength: 1
           maxLength: 64
-          pattern: "^[Ss][Tt][Rr]-[0-9]{4}-[0-9]+$"
+          pattern: "^(?:[Ss][Tt][Rr]-[0-9]{4}-[0-9]+|[Ss][Tt][Qq]-[0-9A-Fa-f]{32})$"
         phone:
           type: string
           minLength: 1
@@ -8906,6 +8910,26 @@ components:
           description: Office payment state derived from the office ledger; null for online bookings.
           anyOf:
             - $ref: "#/components/schemas/ToursOperatorOfficePayment"
+            - type: "null"
+    ToursOperatorPublicOnlineRequestLookupResponse:
+      type: object
+      additionalProperties: false
+      description: Two-factor recovery. Request fields omit contact, hotel, notes, audit and internal IDs; an authorized linked booking retains the existing public booking projection, including its pickup hotel. Preferred dates and estimated totals are not a confirmed departure or payment.
+      required: [reference, requestStatus, preferredDate, preferredTime, adultsCount, childrenCount, estimatedTotal, booking]
+      properties:
+        reference: { type: string, pattern: "^STQ-[0-9A-F]{32}$" }
+        requestStatus: { $ref: "#/components/schemas/ToursOperatorOnlineRequestStatus" }
+        preferredDate: { type: string, format: date }
+        preferredTime:
+          anyOf:
+            - $ref: "#/components/schemas/ToursOperatorTimeSlot"
+            - type: "null"
+        adultsCount: { type: integer, minimum: 1 }
+        childrenCount: { type: integer, minimum: 0 }
+        estimatedTotal: { $ref: "#/components/schemas/Money" }
+        booking:
+          anyOf:
+            - $ref: "#/components/schemas/ToursOperatorPublicBookingLookupResponse"
             - type: "null"
     ToursOperatorPublicBookingLookupResponse:
       type: object

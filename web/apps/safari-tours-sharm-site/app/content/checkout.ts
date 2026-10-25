@@ -201,7 +201,7 @@ export function isPlausiblePhone(value: string): boolean {
  * guest types it: separators dropped, a leading "00" becomes "+".
  */
 export function normalizePhone(value: string): string {
-  const trimmed = value.trim();
+  const trimmed = value.trim().replace(/[٠-٩۰-۹]/g, (digit) => String(digit.charCodeAt(0) - (digit <= "٩" ? 0x660 : 0x6f0)));
   const digits = trimmed.replace(/\D/g, "");
   if (trimmed.startsWith("+")) return `+${digits}`;
   if (digits.startsWith("00")) return `+${digits.slice(2)}`;

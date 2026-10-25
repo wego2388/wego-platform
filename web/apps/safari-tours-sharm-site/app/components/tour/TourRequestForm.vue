@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import type { OnlineRequestAcknowledgement, SubmitOnlineRequestPayload } from "@wego/api-contract";
 import { ALL_NATIONALITIES, isPlausibleEmail, normalizePhone } from "../../content/checkout";
 import { onlineRequestCopy } from "../../content/onlineRequest";
+import { myBookingCopy } from "../../content/myBooking";
 import { useSiteLocale } from "../../composables/useSiteLocale";
 import { useAnalytics } from "../../composables/useAnalytics";
 import { PublicApiError, submitOnlineRequest } from "../../composables/usePublicToursApi";
@@ -75,6 +76,7 @@ async function submit() {
     <p class="mt-3 text-sm">{{ c.reference }}</p>
     <p class="mt-1 break-all font-mono text-sm font-bold" dir="ltr" data-request-reference>{{ saved.reference }}</p>
     <p class="mt-3 text-sm leading-relaxed">{{ c.next }}</p>
+    <NuxtLink :to="localePath('/my-booking')" class="mt-4 inline-flex min-h-11 items-center font-semibold underline">{{ myBookingCopy[locale].title }}</NuxtLink>
   </section>
   <form v-else class="grid gap-3" data-online-request-form @submit.prevent="submit">
     <p class="rounded-xl bg-sts-sand-soft p-3 text-sm">{{ c.notice }}</p>

@@ -5,6 +5,7 @@ import { E2E_STAFF_EMAIL, E2E_STAFF_PASSWORD } from "../seed.mjs";
 import { onlineRequestCopy } from "../../web/apps/safari-tours-sharm-site/app/content/onlineRequest";
 import { infoCopy } from "../../web/apps/safari-tours-sharm-site/app/content/info";
 import { requestMessages } from "../../web/apps/safari-tours-sharm-erp/app/utils/onlineRequestMessages";
+import { myBookingCopy } from "../../web/apps/safari-tours-sharm-site/app/content/myBooking";
 
 const SITE = (process.env.WEGO_STS_SITE_BASE_URL ?? "http://127.0.0.1:58087").replace(/\/+$/, "");
 const STAFF = (process.env.WEGO_STS_STAFF_BASE_URL ?? "http://staff.localhost:58087").replace(/\/+$/, "");
@@ -79,6 +80,16 @@ for (const [localeIndex, locale] of (["en", "ar", "ru", "it"] as const).entries(
       expect(navigations.join(" ")).not.toMatch(/wa\.me|Request%20E2E|synthetic-request|201000000002/);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 
+      // One representative case keeps real edge recovery throttling intact.
+      if (locale === "ar" && width === 360) {
+        await page.goto(`${SITE}/ar/my-booking`);
+        await page.locator("#ref").fill(ack.reference);
+        await page.locator("#lookup-phone").fill("+201000000002");
+        await page.getByRole("button", { name: myBookingCopy.ar.submit, exact: true }).click();
+        await expect(page.locator("[data-request-lookup-result]")).toContainText(myBookingCopy.ar.request.statuses.NEW);
+        expect(page.url()).not.toMatch(/STQ-|201000000002/);
+      }
+
       const erpLocale = locale === "ar" || locale === "ru" ? "ar" : "en";
       await page.context().addCookies([{ name: "sts_staff_locale", value: erpLocale, url: STAFF, sameSite: "Lax" }]);
       await page.addInitScript(session => sessionStorage.setItem("wego_auth_session", JSON.stringify(session)), auth);
@@ -106,6 +117,16 @@ for (const [localeIndex, locale] of (["en", "ar", "ru", "it"] as const).entries(
       const axe = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
       expect(axe.violations.map(v => ({ id: v.id, target: v.nodes.map(n => n.target) }))).toEqual([]);
       await page.screenshot({ path: test.info().outputPath(`request-${locale}-${width}.png`), fullPage: true });
+      if (locale === "ar" && width === 360) {
+        await page.goto(`${SITE}/ar/my-booking`);
+        await page.locator("#ref").fill(ack.reference);
+        await page.locator("#lookup-phone").fill("+201000000002");
+        await page.getByRole("button", { name: myBookingCopy.ar.submit, exact: true }).click();
+        await expect(page.locator("[data-request-lookup-result]")).toContainText(myBookingCopy.ar.request.statuses.CONVERTED);
+        await expect(page.locator("main")).toContainText(confirmed.reference);
+        await expect(page.locator("main")).toContainText(myBookingCopy.ar.statuses.CONFIRMED);
+        expect(page.url()).not.toMatch(/STQ-|STR-|201000000002/);
+      }
     });
   }
 }

@@ -273,6 +273,80 @@ class ToursOperatorOnlineRequestHttpTest {
         assertThat(repository.history(id)).hasSize(1)
     }
 
+    private fun lookup(
+        reference: String,
+        phone: String = "+201000000001",
+    ) = mvc
+        .post("/api/v1/tours-operator/bookings/lookup") {
+            contentType = MediaType.APPLICATION_JSON
+            content = """{"reference":"$reference","phone":"$phone"}"""
+        }.andReturn()
+        .response
+
+    @Test fun `STQ recovery requires both factors and returns only minimized intent without side effects`() {
+        val (tour, slot) = seed()
+        val id = UUID.randomUUID()
+        val submitted = submit(body(id, tour))
+        val reference: String = JsonPath.read(submitted.contentAsString, "$.reference")
+        val before = countBookings()
+        val beforeNotifications = countNotifications()
+        val response = lookup(reference.lowercase())
+        assertThat(response.status).isEqualTo(200)
+        assertThat(response.getHeader("Cache-Control")).isEqualTo("no-store")
+        val fields: Map<String, Any?> = JsonPath.read(response.contentAsString, "$")
+        assertThat(fields.keys).containsExactlyInAnyOrder(
+            "reference",
+            "requestStatus",
+            "preferredDate",
+            "preferredTime",
+            "adultsCount",
+            "childrenCount",
+            "estimatedTotal",
+            "booking",
+        )
+        assertThat(fields["requestStatus"]).isEqualTo("NEW")
+        assertThat(fields["booking"]).isNull()
+        assertThat(response.contentAsString).doesNotContain("Test Guest", "Test Hotel", "guest@example.com", "+201000000001", id.toString())
+        val wrongPhone = lookup(reference, "+201000000999")
+        val missingReference = lookup("STQ-${UUID.randomUUID().toString().replace("-", "").uppercase()}")
+        assertThat(wrongPhone.status).isEqualTo(404)
+        assertThat(missingReference.status).isEqualTo(404)
+        assertThat(wrongPhone.contentAsString).isEqualTo(missingReference.contentAsString)
+        assertThat(wrongPhone.getHeader("Cache-Control")).isEqualTo("no-store")
+        assertThat(lookup(reference, "").status).isEqualTo(400)
+        assertThat(lookup("").status).isEqualTo(400)
+        assertThat(lookup("STQ-invalid").status).isEqualTo(400)
+        assertThat(countBookings()).isEqualTo(before)
+        assertThat(countNotifications()).isEqualTo(beforeNotifications)
+        assertThat(seats(slot)).isZero()
+    }
+
+    @Test fun `original STQ continues to show the current linked booking after conversion and cancellation`() {
+        val (tour, slot) = seed()
+        val id = UUID.randomUUID()
+        val reference: String = JsonPath.read(submit(body(id, tour)).contentAsString, "$.reference")
+        val (_, token) = user()
+        assertThat(convert(id, slot, token).status).isEqualTo(200)
+        val linked = repository.find(id)!!.bookingId!!
+        val booking = bookings.findById(linked)!!
+        val confirmed = lookup(reference)
+        assertThat(confirmed.status).isEqualTo(200)
+        assertThat(JsonPath.read<String>(confirmed.contentAsString, "$.requestStatus")).isEqualTo("CONVERTED")
+        assertThat(JsonPath.read<String>(confirmed.contentAsString, "$.booking.reference")).isEqualTo(booking.reference)
+        assertThat(JsonPath.read<String>(confirmed.contentAsString, "$.booking.status")).isEqualTo("CONFIRMED")
+        assertThat(lookup(booking.reference).status).isEqualTo(200)
+        assertThat(lookup(booking.reference, "+201000000999").status).isEqualTo(404)
+        mvc
+            .post("/api/v1/tours-operator/bookings/${linked.value}/cancel") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"reason":"Synthetic recovery test cancellation"}"""
+            }.andExpect { status { isOk() } }
+        val cancelled = lookup(reference)
+        assertThat(JsonPath.read<String>(cancelled.contentAsString, "$.booking.status")).isEqualTo("CANCELLED")
+        assertThat(seats(slot)).isZero()
+    }
+
     @Test fun `concurrent identical submissions save one request and one audit`() {
         val (tour, _) = seed()
         val id = UUID.randomUUID()

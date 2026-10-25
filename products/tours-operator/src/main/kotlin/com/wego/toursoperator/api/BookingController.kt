@@ -12,6 +12,7 @@ import com.wego.toursoperator.application.CreateBookingCommand
 import com.wego.toursoperator.application.CreateBookingResult
 import com.wego.toursoperator.application.CreateBookingService
 import com.wego.toursoperator.application.OfficeCollectionService
+import com.wego.toursoperator.application.OnlineRequestService
 import com.wego.toursoperator.domain.Booking
 import com.wego.toursoperator.domain.BookingChannel
 import com.wego.toursoperator.domain.BookingId
@@ -50,6 +51,7 @@ class BookingController(
     private val completeBookingService: CompleteBookingService,
     private val bookingQueryService: BookingQueryService,
     private val officeCollectionService: OfficeCollectionService,
+    private val onlineRequestService: OnlineRequestService,
 ) {
     /**
      * Public — no authentication. Creates a NEW booking and reserves one place
@@ -207,14 +209,36 @@ class BookingController(
     @PostMapping("/lookup")
     fun lookup(
         @Valid @RequestBody request: LookupBookingRequest,
-    ): ResponseEntity<PublicBookingLookupResponse> {
+    ): ResponseEntity<Any> {
+        val reference = request.reference.trim().uppercase()
+        if (reference.startsWith("STQ-")) {
+            val (onlineRequest, booking) =
+                onlineRequestService.lookup(reference, request.phone.trim())
+                    ?: return ResponseEntity.notFound().header("Cache-Control", "no-store").build()
+            val details = onlineRequest.details
+            return ResponseEntity
+                .ok()
+                .header("Cache-Control", "no-store")
+                .body(
+                    PublicOnlineRequestLookupResponse(
+                        onlineRequest.reference,
+                        onlineRequest.status,
+                        details.preferredDate,
+                        details.preferredTime,
+                        details.adultsCount,
+                        details.childrenCount,
+                        MoneyResponse(onlineRequest.estimatedTotal.amount.toPlainString()),
+                        booking?.toPublicLookupResponse(),
+                    ),
+                )
+        }
         val booking =
             bookingQueryService.findByReferenceAndPhone(
-                request.reference.trim().uppercase(),
+                reference,
                 request.phone.trim(),
             )
-                ?: return ResponseEntity.notFound().build()
-        return ResponseEntity.ok(booking.toPublicLookupResponse())
+                ?: return ResponseEntity.notFound().header("Cache-Control", "no-store").build()
+        return ResponseEntity.ok().header("Cache-Control", "no-store").body(booking.toPublicLookupResponse())
     }
 }
 

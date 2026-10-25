@@ -13,6 +13,7 @@ export type OnlineRequest = components["schemas"]["ToursOperatorOnlineRequest"];
 export type OnlineRequestStatus = components["schemas"]["ToursOperatorOnlineRequestStatus"];
 export type SubmitOnlineRequestPayload = components["schemas"]["SubmitToursOperatorOnlineRequest"];
 export type OnlineRequestAcknowledgement = components["schemas"]["ToursOperatorOnlineRequestAcknowledgement"];
+export type PublicOnlineRequestLookup = components["schemas"]["ToursOperatorPublicOnlineRequestLookupResponse"];
 export type PaymentLedgerEntry = components["schemas"]["ToursOperatorPaymentLedgerEntry"];
 export type ToursOperatorPaymentStatus = components["schemas"]["ToursOperatorPaymentStatus"];
 export type BookingHistoryEntry = components["schemas"]["ToursOperatorBookingHistoryEntry"];

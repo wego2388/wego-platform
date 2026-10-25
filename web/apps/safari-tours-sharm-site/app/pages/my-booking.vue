@@ -7,7 +7,7 @@ import { whatsappUrl } from "../content/locales";
 import { myBookingCopy } from "../content/myBooking";
 import { normalizePhone } from "../content/checkout";
 import { tourPageCopy } from "../content/tourPage";
-import { lookupBooking, PublicApiError, type PublicBookingLookup } from "../composables/usePublicToursApi";
+import { lookupReservation, PublicApiError, type PublicBookingLookup, type PublicOnlineRequestLookup } from "../composables/usePublicToursApi";
 
 /** Booking lookup by reference + phone. Both travel in a POST body, never the URL. */
 const locale = useSiteLocale();
@@ -20,6 +20,7 @@ useSeoMeta({ title: () => `${copy.value.title} — Safari Tours Sharm`, descript
 const reference = ref("");
 const phone = ref("");
 const booking = ref<PublicBookingLookup | null>(null);
+const requestResult = ref<PublicOnlineRequestLookup | null>(null);
 const state = ref<"idle" | "loading" | "loaded">("idle");
 const error = ref("");
 
@@ -32,12 +33,18 @@ async function lookup() {
   }
   state.value = "loading";
   booking.value = null;
+  requestResult.value = null;
   try {
-    booking.value = await lookupBooking(reference.value.trim().toUpperCase(), normalizePhone(phone.value));
+    const normalizedReference = reference.value.trim().toUpperCase().replace(/[٠-٩۰-۹]/g, (digit) => String(digit.charCodeAt(0) - (digit <= "٩" ? 0x660 : 0x6f0)));
+    const result = await lookupReservation(normalizedReference, normalizePhone(phone.value));
+    if ("requestStatus" in result) {
+      requestResult.value = result;
+      booking.value = result.booking;
+    } else booking.value = result;
     state.value = "loaded";
   } catch (err) {
     state.value = "idle";
-    if (err instanceof PublicApiError && err.status === 404) error.value = copy.value.notFound;
+    if (err instanceof PublicApiError && (err.status === 404 || err.status === 400 || err.status === 422)) error.value = copy.value.notFound;
     else if (err instanceof PublicApiError && err.status === 429) error.value = copy.value.tooMany;
     else error.value = copy.value.network;
   }
@@ -45,6 +52,7 @@ async function lookup() {
 
 function reset() {
   booking.value = null;
+  requestResult.value = null;
   state.value = "idle";
   reference.value = "";
   phone.value = "";
@@ -69,9 +77,9 @@ const unitLabel = computed(() => {
   const unit = booking.value?.unit;
   return unit ? tourCopy.value.unitLine(unit.unitCount, tourCopy.value.unitNames[unit.optionCode] ?? unit.optionLabel) : null;
 });
-const whatsappLink = computed(() =>
-  booking.value ? `${whatsappUrl}?text=${encodeURIComponent(`${copy.value.result.heading}: ${booking.value.reference}`)}` : whatsappUrl,
-);
+const requestDateLabel = computed(() => requestResult.value
+  ? new Intl.DateTimeFormat(intlLocale.value, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${requestResult.value.preferredDate}T00:00:00Z`))
+  : "");
 </script>
 
 <template>
@@ -90,7 +98,24 @@ const whatsappLink = computed(() =>
       <UiButton type="submit" size="lg" block :loading="state === 'loading'" icon="lucide:search">{{ copy.submit }}</UiButton>
     </form>
 
-    <section v-else-if="booking" class="mt-8" aria-labelledby="result-heading">
+    <section v-if="requestResult" class="mt-8 rounded-[var(--sts-radius-card)] border border-sts-border bg-sts-surface p-6" aria-labelledby="request-heading" data-request-lookup-result>
+      <h2 id="request-heading" class="text-lg font-semibold">{{ copy.request.heading }}</h2>
+      <p class="mt-2 break-all font-mono text-sm font-bold" dir="ltr">{{ requestResult.reference }}</p>
+      <UiBadge class="mt-3" :tone="requestResult.requestStatus === 'CONVERTED' ? 'success' : 'neutral'">{{ copy.request.statuses[requestResult.requestStatus] }}</UiBadge>
+      <p class="mt-3 text-sm">{{ copy.request.help[requestResult.requestStatus] }}</p>
+      <dl class="mt-5 grid gap-3 text-sm">
+        <div class="flex justify-between gap-3"><dt>{{ copy.request.date }}</dt><dd>{{ requestDateLabel }}</dd></div>
+        <div v-if="requestResult.preferredTime" class="flex justify-between gap-3"><dt>{{ copy.result.time }}</dt><dd>{{ discovery.tours.slots[requestResult.preferredTime] }}</dd></div>
+        <div class="flex justify-between gap-3"><dt>{{ copy.result.guests }}</dt><dd>{{ tourCopy.adultLine(requestResult.adultsCount) }}<span v-if="requestResult.childrenCount"> · {{ tourCopy.childLine(requestResult.childrenCount) }}</span></dd></div>
+        <div class="flex justify-between gap-3 border-t border-sts-border pt-3 font-semibold"><dt>{{ copy.request.total }}</dt><dd>{{ formatMoney(requestResult.estimatedTotal) }}</dd></div>
+      </dl>
+      <div v-if="!booking" class="mt-5 flex flex-wrap gap-3">
+        <UiButton :href="whatsappUrl" icon="lucide:message-circle">{{ copy.whatsapp }}</UiButton>
+        <UiButton variant="secondary" @click="reset">{{ copy.another }}</UiButton>
+      </div>
+    </section>
+
+    <section v-if="booking" class="mt-8" aria-labelledby="result-heading">
       <div class="overflow-hidden rounded-[var(--sts-radius-card)] border border-sts-border bg-sts-surface shadow-sts-raised">
         <div class="flex flex-wrap items-center justify-between gap-3 bg-sts-ocean px-6 py-5 text-white">
           <div>
@@ -112,7 +137,7 @@ const whatsappLink = computed(() =>
       </div>
       <p class="mt-6 text-sm text-sts-muted">{{ copy.help }}</p>
       <div class="mt-3 flex flex-wrap gap-3">
-        <UiButton :href="whatsappLink" icon="lucide:message-circle">{{ copy.whatsapp }}</UiButton>
+        <UiButton :href="whatsappUrl" icon="lucide:message-circle">{{ copy.whatsapp }}</UiButton>
         <UiButton variant="secondary" @click="reset">{{ copy.another }}</UiButton>
       </div>
       <ReviewRequest v-if="booking.status === 'COMPLETED'" class="mt-8" />

@@ -66,6 +66,18 @@ data class OnlineRequestAcknowledgement(
     val reference: String,
 )
 
+/** Request fields omit contact, hotel, notes, audit and IDs; linked booking uses the existing public projection. */
+data class PublicOnlineRequestLookupResponse(
+    val reference: String,
+    val requestStatus: OnlineRequestStatus,
+    val preferredDate: LocalDate,
+    val preferredTime: TimeSlot?,
+    val adultsCount: Int,
+    val childrenCount: Int,
+    val estimatedTotal: MoneyResponse,
+    val booking: PublicBookingLookupResponse?,
+)
+
 data class OnlineRequestResponse(
     val id: UUID,
     val reference: String,
