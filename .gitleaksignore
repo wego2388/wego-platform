@@ -15,3 +15,8 @@
 # describe the value instead of quoting it; this fingerprint covers the
 # already-pushed commit where the quote briefly existed.
 c673f2674f148711ace30aef63f4ea46f4c3656a:docs/execution/WEGO_EXECUTION_BOARD.md:generic-api-key:1919
+
+# generic-api-key false positive: SHA-256 file fingerprint (scopedFileSha256)
+# of the owner catalog-revision JSON in a local verification evidence record.
+# It is a content hash of a committed public file, not a credential. 2026-10-25.
+e083222ac5d1a8fdf1c824f2796b88aeed7152d9:clients/safari-tours-sharm/handoff/evidence/2026-10-25_owner-corrections-local-verification.json:generic-api-key:63
