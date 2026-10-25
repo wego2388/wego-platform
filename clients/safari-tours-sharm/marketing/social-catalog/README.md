@@ -7,6 +7,16 @@
 > After the corrected backend is verified, re-export its public API and review
 > the result before updating the same Meta source; do not re-import old prices
 > or camel inclusions, create a third catalog, or claim WhatsApp sync from code.
+>
+> **25 October 2026 — regenerated from the corrected live API (release
+> str-2026.10.25-b98aa55):** snapshot `2026-10-25T02-23-37.018Z.json` (27 tours,
+> 27 with verified images, 3 per-unit) and `2026-10-25_meta-reviewed-visible.xml`.
+> Diff against the 20 October source: exactly five items changed — Sunset Quad
+> Bike 15, Double Buggy 35 (title without camel), Bedouin Dinner 25, Dahab 30,
+> Evening Cruise 30 EUR. **NOT imported into Meta yet**: the owner/WAGDIO
+> operator updates the same source `1808922023592263` in Commerce Manager, then
+> reopens it to confirm 27 items and the new prices. Submarine/SUV remain unchanged
+> pending the owner's answer.
 
 Latest follow-up: the owner's phone screenshots and a fresh WhatsApp Manager
 reload confirm customer2690/account1452927319985281 now connects to this
