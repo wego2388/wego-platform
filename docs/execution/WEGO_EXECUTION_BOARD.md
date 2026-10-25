@@ -1,5 +1,24 @@
 # Wego Execution Board
 
+### 2026-10-25 — SAF-03 automated operations acceptance and SAF-07 GA4 activation
+
+- SAF-03: isolated disposable stack (project safari-ops-e2e) on the production
+  images (backend 50e35ea-mail, site b98aa55, ERP 1d5a6b6): checkout 13, site 11,
+  launch 5, office inventory 5, complete operating cycle 1, brand shell 8,
+  documents mobile/A4 12 — all PASS; runtime logs free of fixture PII; booking
+  lookup rate-limited after 7 attempts. Stack and volumes removed. Owner/staff
+  UAT on a real booking (SAF-03.06/SAF-10.08) remains open.
+- SAF-07.01/02: consent behaviour proven in a real browser with provider traffic
+  intercepted, locally and then on production: zero provider requests before an
+  answer and after decline; gtag loads only after Allow; footer withdrawal sets
+  `ga-disable-G-3JZT9JZRQE=true` immediately and no further requests follow.
+- Activated GA4 only (`WEGO_SITE_GA4_ID=G-3JZT9JZRQE`) by recreating safari-site
+  and edge; Meta Pixel stays empty; Resort container set unchanged; HTTPS 200.
+  Env backup `.env.production.before-ga4-20261025`; rollback = restore it and
+  recreate safari-site + edge. Realtime arrival in GA4 needs the owner's account.
+- Also: catalog readiness report + owner facts questionnaire (`4645b31`); staff
+  guide and PDF (19 pages) updated to the live behaviour (`87ec71c`).
+
 ### 2026-10-25 — Release str-2026.10.25-50e35ea-mail deployed (SAF-01.03/04)
 
 - Backend-only image swap (site/ERP/edge config unchanged; edge recreated).
