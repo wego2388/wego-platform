@@ -36,6 +36,19 @@
   Upgrade via pnpm override once a patch is available.
 - **Owner acknowledgement required before production deploy**: YES
 
+## Update 2026-10-25 (M3 of the security review)
+- Nuxt was upgraded 4.5.2 -> 4.6.2 in all six web apps. This closes GHSA-vjh5-4x84-xrqp,
+  GHSA-xfq5-w38q-pc2x, GHSA-jjm6-p2m9-9w4x and the incomplete-fix low (patched >=4.6.0/4.6.2).
+  `pnpm --dir web run check` (lint, typecheck, tests, build) passes.
+- Remaining `pnpm audit` items, all outside the Safari runtime images (only `.output` is copied):
+  - postcss-selector-parser (GHSA-rj75-hqrm-r3gf), via `apps/erp > @nuxt/eslint`: lint tooling only.
+  - @vitest/mocker (GHSA-qxg6-89mg-rqv8, GHSA-xp26-3454-mjgp), via `apps/erp > vitest`: test runner only;
+    needs a malicious mock path / Windows host, neither exists in CI (Linux, repo-owned tests).
+  - serialize-javascript (GHSA-m5mm-p8h7-m29v, low), via nitropack build plugin (@rollup/plugin-terser):
+    build-time only, input is our own bundle.
+- Known peer-dependency warning: Nuxt 4.6.2 prefers vite ^8.3.4; the apps pin vite 8.2.1 (override 8.2.4).
+  Build and tests pass; align the vite pin in a separate dependency packet.
+
 ## Gate status
 These exemptions do NOT constitute deployment authorization.
 Before production deployment, an explicit acknowledgement from the project owner (محمد)
