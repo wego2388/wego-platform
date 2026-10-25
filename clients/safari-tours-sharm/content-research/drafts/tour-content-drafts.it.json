@@ -23,7 +23,7 @@
           "Biglietti d'ingresso"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -56,7 +56,7 @@
           "Biglietti d'ingresso"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -89,7 +89,7 @@
           "Biglietti d'ingresso"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -123,7 +123,7 @@
           "Biglietti d'ingresso"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -153,7 +153,7 @@
           "Guida locale"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -182,7 +182,7 @@
           "Guida locale"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -215,7 +215,7 @@
         "excludes": [
           "Attrezzatura per lo snorkeling (noleggio disponibile con supplemento)",
           "Battesimo del mare (facoltativo, con supplemento)",
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -244,7 +244,7 @@
           "Musica e spettacolo"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -272,7 +272,7 @@
           "Biglietti d'ingresso"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -300,7 +300,7 @@
           "Diverse immersioni"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -379,7 +379,7 @@
           "Equipaggio professionale"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -411,7 +411,7 @@
         ],
         "excludes": [
           "Cibo e bevande",
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -438,7 +438,7 @@
           "Giubbotto di salvataggio e briefing di sicurezza"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -469,7 +469,7 @@
           "Equipaggio professionale"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -490,7 +490,7 @@
       "content": {
         "name": "Avventura in motoscafo",
         "shortDescription": "Un motoscafo privato per il tuo gruppo fino all'isola di Tiran: snorkeling sulle barriere, il relitto e, con un po' di fortuna, i delfini.",
-        "description": "Tre ore su un motoscafo RIB privato per un massimo di 5 persone, con un capitano esperto. Fai snorkeling sulle barriere dell'isola di Tiran, passi accanto allo storico relitto e tieni gli occhi aperti per vedere i delfini in libertà. A bordo ci sono giubbotti di salvataggio, maschere da snorkeling e una borsa frigo con bevande. Prenota con almeno 2 giorni di anticipo.",
+        "description": "Tre ore su un motoscafo RIB privato per un massimo di 5 persone, con un capitano esperto. Fai snorkeling sulle barriere dell'isola di Tiran, passi accanto allo storico relitto e tieni gli occhi aperti per vedere i delfini in libertà. A bordo ci sono giubbotti di salvataggio, maschere da snorkeling e una borsa frigo con bevande. Prenota con almeno 1 giorno di anticipo.",
         "includes": [
           "Transfer da e per l'hotel in minibus con aria condizionata",
           "Motoscafo privato con capitano",
@@ -501,7 +501,7 @@
         "excludes": [
           "Mance per il capitano",
           "Spese personali",
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -530,7 +530,7 @@
           "Biglietti d'ingresso"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -563,7 +563,7 @@
         "excludes": [
           "Attrezzatura per lo snorkeling (noleggio disponibile con supplemento)",
           "Battesimo del mare (facoltativo, con supplemento)",
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -590,7 +590,7 @@
           "Giubbotto di salvataggio e briefing di sicurezza"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -620,7 +620,7 @@
           "Pranzo e bevande"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -639,11 +639,11 @@
       "content": {
         "name": "Il Cairo in aereo",
         "shortDescription": "Vola al Cairo in giornata: il Museo Egizio, pranzo sul Nilo, le Piramidi e la Sfinge, poi il volo di ritorno.",
-        "description": "Un ritiro all'alba (verso le 4–5 del mattino) ti porta all'aeroporto di Sharm per il volo verso il Cairo, dove ti accoglie la tua guida in lingua inglese. Visiti il Museo Egizio, pranzi con vista sul Nilo, ti fermi in un laboratorio di profumi, esplori l'altopiano di Giza con le Piramidi e la Sfinge e visiti un istituto del papiro prima del volo di ritorno. Si svolge di domenica e di giovedì.",
+        "description": "Un ritiro all'alba (verso le 4–5 del mattino) ti porta all'aeroporto di Sharm per il volo verso il Cairo, dove ti accoglie la tua guida (in inglese, italiano o russo). Visiti il Museo Egizio, pranzi con vista sul Nilo, ti fermi in un laboratorio di profumi, esplori l'altopiano di Giza con le Piramidi e la Sfinge e visiti un istituto del papiro prima del volo di ritorno. Si svolge di domenica e di giovedì.",
         "includes": [
           "Transfer hotel–aeroporto a Sharm e tutti i trasferimenti al Cairo",
           "Voli di andata e ritorno Sharm–Il Cairo",
-          "Guida in lingua inglese",
+          "Guida (in inglese, italiano o russo)",
           "Biglietti d'ingresso ai siti del programma",
           "Pranzo al Cairo"
         ],
@@ -651,7 +651,7 @@
           "Bevande al ristorante",
           "Giro facoltativo in feluca sul Nilo",
           "Ingresso all'interno delle due piramidi più grandi",
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -677,7 +677,7 @@
           "Visita al Monastero di Santa Caterina"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -708,7 +708,7 @@
         "excludes": [
           "Tombe speciali, come quella di Tutankhamon",
           "Spese personali e mance",
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -734,11 +734,10 @@
           "Visita al Monastero di Santa Caterina",
           "Pranzo a Dahab",
           "Tempo libero a Dahab",
-          "Guida locale",
-          "Cena"
+          "Guida locale"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -766,7 +765,7 @@
           "Asciugamani"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],
@@ -791,7 +790,7 @@
           "Biglietto d'ingresso allo spettacolo"
         ],
         "excludes": [
-          "Foto e riprese",
+          "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
           "Occhiali da sole"
         ],

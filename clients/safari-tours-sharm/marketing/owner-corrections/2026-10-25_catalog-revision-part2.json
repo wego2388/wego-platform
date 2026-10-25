@@ -112,8 +112,8 @@
     "cairo-by-bus",
     "cairo-by-plane"
   ],
-  "mealsAdded": [
-    "st-catherine-dahab: Dinner (existing 'Lunch in Dahab' kept; owner to confirm)"
+  "mealsPending": [
+    "st-catherine-dahab: owner said dinner but legacy content says lunch in Dahab; NOT changed, owner to confirm lunch vs dinner"
   ],
   "suvOption": {
     "slug": "sharm-airport-transfer",
@@ -129,7 +129,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -160,7 +160,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -191,7 +191,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -224,7 +224,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -249,7 +249,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -280,7 +280,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -312,7 +312,7 @@
       "after": [
         "Snorkeling equipment (available to rent for an extra fee)",
         "Introductory dive (optional, extra charge)",
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -341,7 +341,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -370,7 +370,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -400,7 +400,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -428,7 +428,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -465,7 +465,7 @@
       ],
       "after": [
         "Food and drinks",
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -492,7 +492,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -522,7 +522,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -557,10 +557,17 @@
       "after": [
         "Tips for the captain",
         "Personal expenses",
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
+    },
+    {
+      "slug": "speed-boat-adventure",
+      "locale": "en",
+      "field": "description",
+      "before": "Three hours on your own private RIB speedboat for up to 5 people, with an experienced captain. Snorkel at Tiran Island's reefs, pass the historic shipwreck and keep an eye out for dolphins in the wild. Life jackets, snorkel masks and a cooler with drinks are on board. Book at least 2 days in advance.",
+      "after": "Three hours on your own private RIB speedboat for up to 5 people, with an experienced captain. Snorkel at Tiran Island's reefs, pass the historic shipwreck and keep an eye out for dolphins in the wild. Life jackets, snorkel masks and a cooler with drinks are on board. Book at least one day in advance."
     },
     {
       "slug": "speed-boat-adventure",
@@ -586,7 +593,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -621,7 +628,7 @@
       "after": [
         "Snorkeling equipment (available to rent for an extra fee)",
         "Introductory dive (optional, extra charge)",
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -648,7 +655,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -678,7 +685,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -712,10 +719,36 @@
         "Drinks at the restaurant",
         "Optional felucca ride on the Nile",
         "Entry inside the two larger pyramids",
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
+    },
+    {
+      "slug": "cairo-by-plane",
+      "locale": "en",
+      "field": "includes",
+      "before": [
+        "Hotel–airport transfers in Sharm and all transfers in Cairo",
+        "Return flights Sharm–Cairo",
+        "English-speaking guide",
+        "Entrance fees to the sites in the program",
+        "Lunch in Cairo"
+      ],
+      "after": [
+        "Hotel–airport transfers in Sharm and all transfers in Cairo",
+        "Return flights Sharm–Cairo",
+        "Guide (English, Italian or Russian)",
+        "Entrance fees to the sites in the program",
+        "Lunch in Cairo"
+      ]
+    },
+    {
+      "slug": "cairo-by-plane",
+      "locale": "en",
+      "field": "description",
+      "before": "An early pickup (around 4–5 am) takes you to Sharm airport for your flight to Cairo, where your English-speaking guide meets you. Visit the Egyptian Museum, have lunch with a view of the Nile, stop at a perfume workshop, explore the Giza Plateau with the Pyramids and the Sphinx, and visit a papyrus institute before your flight back. Runs on Sundays and Thursdays.",
+      "after": "An early pickup (around 4–5 am) takes you to Sharm airport for your flight to Cairo, where your guide (English, Italian or Russian) meets you. Visit the Egyptian Museum, have lunch with a view of the Nile, stop at a perfume workshop, explore the Giza Plateau with the Pyramids and the Sphinx, and visit a papyrus institute before your flight back. Runs on Sundays and Thursdays."
     },
     {
       "slug": "mount-sinai-st-catherine",
@@ -723,7 +756,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -739,7 +772,7 @@
       "after": [
         "Special tombs such as Tutankhamun's",
         "Personal expenses and tips",
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -766,31 +799,9 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
-      ]
-    },
-    {
-      "slug": "st-catherine-dahab",
-      "locale": "en",
-      "field": "includes",
-      "before": [
-        "Hotel pickup and drop-off",
-        "Air-conditioned transport",
-        "Visit to St. Catherine's Monastery",
-        "Lunch in Dahab",
-        "Free time in Dahab",
-        "Local guide"
-      ],
-      "after": [
-        "Hotel pickup and drop-off",
-        "Air-conditioned transport",
-        "Visit to St. Catherine's Monastery",
-        "Lunch in Dahab",
-        "Free time in Dahab",
-        "Local guide",
-        "Dinner"
       ]
     },
     {
@@ -799,7 +810,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -824,7 +835,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Photography",
+        "Photos and videos (sold separately)",
         "Headscarf",
         "Sunglasses"
       ]
@@ -892,7 +903,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -923,7 +934,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -954,7 +965,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -987,7 +998,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1012,7 +1023,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1043,7 +1054,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1075,7 +1086,7 @@
       "after": [
         "معدات السنوركل (متاحة للإيجار برسوم إضافية)",
         "الغطسة التعريفية (اختيارية، برسوم إضافية)",
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1104,7 +1115,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1133,7 +1144,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1163,7 +1174,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1191,7 +1202,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1228,7 +1239,7 @@
       ],
       "after": [
         "الطعام والمشروبات",
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1255,7 +1266,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1285,7 +1296,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1320,10 +1331,17 @@
       "after": [
         "إكرامية القبطان",
         "المصروفات الشخصية",
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
+    },
+    {
+      "slug": "speed-boat-adventure",
+      "locale": "ar",
+      "field": "description",
+      "before": "ثلاث ساعات على متن قارب سريع خاص من نوع RIB لما يصل إلى 5 أشخاص، مع قبطان ذي خبرة. تمارس السنوركل عند شعاب جزيرة تيران، وتمر بحطام السفينة التاريخي، وتترقب الدلافين في البحر. تتوفر على متن القارب سترات نجاة وأقنعة سنوركل وثلاجة محمولة بها مشروبات. يُرجى الحجز قبل يومين على الأقل.",
+      "after": "ثلاث ساعات على متن قارب سريع خاص من نوع RIB لما يصل إلى 5 أشخاص، مع قبطان ذي خبرة. تمارس السنوركل عند شعاب جزيرة تيران، وتمر بحطام السفينة التاريخي، وتترقب الدلافين في البحر. تتوفر على متن القارب سترات نجاة وأقنعة سنوركل وثلاجة محمولة بها مشروبات. يُرجى الحجز قبل الرحلة بيوم واحد على الأقل."
     },
     {
       "slug": "speed-boat-adventure",
@@ -1349,7 +1367,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1384,7 +1402,7 @@
       "after": [
         "معدات السنوركل (متاحة للإيجار برسوم إضافية)",
         "الغطسة التعريفية (اختيارية، برسوم إضافية)",
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1411,7 +1429,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1441,7 +1459,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1475,10 +1493,36 @@
         "المشروبات في المطعم",
         "رحلة فلوكة اختيارية على النيل",
         "الدخول إلى داخل الهرمين الأكبر",
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
+    },
+    {
+      "slug": "cairo-by-plane",
+      "locale": "ar",
+      "field": "includes",
+      "before": [
+        "التوصيل بين الفندق والمطار في شرم الشيخ وجميع التنقلات في القاهرة",
+        "تذاكر طيران ذهاب وعودة شرم الشيخ – القاهرة",
+        "مرشد ناطق بالإنجليزية",
+        "رسوم الدخول إلى المواقع المدرجة في البرنامج",
+        "الغداء في القاهرة"
+      ],
+      "after": [
+        "التوصيل بين الفندق والمطار في شرم الشيخ وجميع التنقلات في القاهرة",
+        "تذاكر طيران ذهاب وعودة شرم الشيخ – القاهرة",
+        "مرشد (بالإنجليزية أو الإيطالية أو الروسية)",
+        "رسوم الدخول إلى المواقع المدرجة في البرنامج",
+        "الغداء في القاهرة"
+      ]
+    },
+    {
+      "slug": "cairo-by-plane",
+      "locale": "ar",
+      "field": "description",
+      "before": "استقبال مبكر (حوالي 4–5 صباحًا) يأخذك إلى مطار شرم الشيخ لرحلتك إلى القاهرة، حيث يستقبلك مرشدك الناطق بالإنجليزية. تزور المتحف المصري، وتتناول الغداء مع إطلالة على النيل، وتتوقف عند ورشة عطور، وتستكشف هضبة الجيزة بالأهرامات وأبو الهول، وتزور معهد البردي قبل رحلة العودة بالطائرة. تُنظَّم الرحلة أيام الأحد والخميس.",
+      "after": "استقبال مبكر (حوالي 4–5 صباحًا) يأخذك إلى مطار شرم الشيخ لرحلتك إلى القاهرة، حيث يستقبلك مرشدك (بالإنجليزية أو الإيطالية أو الروسية). تزور المتحف المصري، وتتناول الغداء مع إطلالة على النيل، وتتوقف عند ورشة عطور، وتستكشف هضبة الجيزة بالأهرامات وأبو الهول، وتزور معهد البردي قبل رحلة العودة بالطائرة. تُنظَّم الرحلة أيام الأحد والخميس."
     },
     {
       "slug": "mount-sinai-st-catherine",
@@ -1486,7 +1530,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1502,7 +1546,7 @@
       "after": [
         "المقابر الخاصة مثل مقبرة توت عنخ آمون",
         "المصروفات الشخصية والإكراميات",
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1529,31 +1573,9 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
-      ]
-    },
-    {
-      "slug": "st-catherine-dahab",
-      "locale": "ar",
-      "field": "includes",
-      "before": [
-        "الاستقبال من الفندق والتوصيل إليه",
-        "مواصلات مكيفة",
-        "زيارة دير سانت كاترين",
-        "الغداء في دهب",
-        "وقت حر في دهب",
-        "مرشد محلي"
-      ],
-      "after": [
-        "الاستقبال من الفندق والتوصيل إليه",
-        "مواصلات مكيفة",
-        "زيارة دير سانت كاترين",
-        "الغداء في دهب",
-        "وقت حر في دهب",
-        "مرشد محلي",
-        "العشاء"
       ]
     },
     {
@@ -1562,7 +1584,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1587,7 +1609,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "التصوير",
+        "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
         "النظارة الشمسية"
       ]
@@ -1655,7 +1677,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -1686,7 +1708,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -1717,7 +1739,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -1750,7 +1772,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -1775,7 +1797,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -1806,7 +1828,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -1838,7 +1860,7 @@
       "after": [
         "Снаряжение для снорклинга (можно арендовать за дополнительную плату)",
         "Вводное погружение (по желанию, за дополнительную плату)",
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -1867,7 +1889,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -1896,7 +1918,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -1926,7 +1948,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -1954,7 +1976,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -1991,7 +2013,7 @@
       ],
       "after": [
         "Еда и напитки",
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -2018,7 +2040,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -2048,7 +2070,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -2083,10 +2105,17 @@
       "after": [
         "Чаевые капитану",
         "Личные расходы",
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
+    },
+    {
+      "slug": "speed-boat-adventure",
+      "locale": "ru",
+      "field": "description",
+      "before": "Три часа на собственном частном скоростном катере RIB, рассчитанном на группу до 5 человек с опытным капитаном. Вы займётесь снорклингом на рифах острова Тиран, проплывёте мимо исторического затонувшего корабля и будете высматривать диких дельфинов. На борту есть спасательные жилеты, маски для снорклинга и сумка-холодильник с напитками. Бронируйте минимум за 2 дня.",
+      "after": "Три часа на собственном частном скоростном катере RIB, рассчитанном на группу до 5 человек с опытным капитаном. Вы займётесь снорклингом на рифах острова Тиран, проплывёте мимо исторического затонувшего корабля и будете высматривать диких дельфинов. На борту есть спасательные жилеты, маски для снорклинга и сумка-холодильник с напитками. Бронируйте минимум за 1 день до поездки."
     },
     {
       "slug": "speed-boat-adventure",
@@ -2112,7 +2141,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -2147,7 +2176,7 @@
       "after": [
         "Снаряжение для снорклинга (можно арендовать за дополнительную плату)",
         "Вводное погружение (по желанию, за дополнительную плату)",
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -2174,7 +2203,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -2204,7 +2233,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -2238,10 +2267,36 @@
         "Напитки в ресторане",
         "Прогулка на фелуке по Нилу (по желанию)",
         "Вход внутрь двух больших пирамид",
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
+    },
+    {
+      "slug": "cairo-by-plane",
+      "locale": "ru",
+      "field": "includes",
+      "before": [
+        "Трансферы отель — аэропорт в Шарме и все трансферы в Каире",
+        "Авиабилеты Шарм — Каир и обратно",
+        "Англоговорящий гид",
+        "Входные билеты на объекты программы",
+        "Обед в Каире"
+      ],
+      "after": [
+        "Трансферы отель — аэропорт в Шарме и все трансферы в Каире",
+        "Авиабилеты Шарм — Каир и обратно",
+        "Гид (на английском, итальянском или русском языке)",
+        "Входные билеты на объекты программы",
+        "Обед в Каире"
+      ]
+    },
+    {
+      "slug": "cairo-by-plane",
+      "locale": "ru",
+      "field": "description",
+      "before": "Ранний трансфер (около 4–5 утра) доставит вас в аэропорт Шарма на рейс до Каира, где вас встретит англоговорящий гид. Вы посетите Египетский музей, пообедаете с видом на Нил, заглянете в мастерскую парфюмерии, осмотрите плато Гиза с пирамидами и Сфинксом и побываете в институте папируса, после чего вылетите обратно. Экскурсия проходит по воскресеньям и четвергам.",
+      "after": "Ранний трансфер (около 4–5 утра) доставит вас в аэропорт Шарма на рейс до Каира, где вас встретит гид (на английском, итальянском или русском языке). Вы посетите Египетский музей, пообедаете с видом на Нил, заглянете в мастерскую парфюмерии, осмотрите плато Гиза с пирамидами и Сфинксом и побываете в институте папируса, после чего вылетите обратно. Экскурсия проходит по воскресеньям и четвергам."
     },
     {
       "slug": "mount-sinai-st-catherine",
@@ -2249,7 +2304,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -2265,7 +2320,7 @@
       "after": [
         "Особые гробницы, например гробница Тутанхамона",
         "Личные расходы и чаевые",
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -2292,31 +2347,9 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
-      ]
-    },
-    {
-      "slug": "st-catherine-dahab",
-      "locale": "ru",
-      "field": "includes",
-      "before": [
-        "Трансфер из отеля и обратно в отель",
-        "Транспорт с кондиционером",
-        "Посещение монастыря Святой Екатерины",
-        "Обед в Дахабе",
-        "Свободное время в Дахабе",
-        "Местный гид"
-      ],
-      "after": [
-        "Трансфер из отеля и обратно в отель",
-        "Транспорт с кондиционером",
-        "Посещение монастыря Святой Екатерины",
-        "Обед в Дахабе",
-        "Свободное время в Дахабе",
-        "Местный гид",
-        "Ужин"
       ]
     },
     {
@@ -2325,7 +2358,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -2350,7 +2383,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Фото- и видеосъёмка",
+        "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
         "Солнцезащитные очки"
       ]
@@ -2418,7 +2451,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -2449,7 +2482,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -2480,7 +2513,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -2513,7 +2546,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -2538,7 +2571,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -2569,7 +2602,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -2601,7 +2634,7 @@
       "after": [
         "Attrezzatura per lo snorkeling (noleggio disponibile con supplemento)",
         "Battesimo del mare (facoltativo, con supplemento)",
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -2630,7 +2663,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -2659,7 +2692,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -2689,7 +2722,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -2717,7 +2750,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -2754,7 +2787,7 @@
       ],
       "after": [
         "Cibo e bevande",
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -2781,7 +2814,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -2811,7 +2844,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -2846,10 +2879,17 @@
       "after": [
         "Mance per il capitano",
         "Spese personali",
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
+    },
+    {
+      "slug": "speed-boat-adventure",
+      "locale": "it",
+      "field": "description",
+      "before": "Tre ore su un motoscafo RIB privato per un massimo di 5 persone, con un capitano esperto. Fai snorkeling sulle barriere dell'isola di Tiran, passi accanto allo storico relitto e tieni gli occhi aperti per vedere i delfini in libertà. A bordo ci sono giubbotti di salvataggio, maschere da snorkeling e una borsa frigo con bevande. Prenota con almeno 2 giorni di anticipo.",
+      "after": "Tre ore su un motoscafo RIB privato per un massimo di 5 persone, con un capitano esperto. Fai snorkeling sulle barriere dell'isola di Tiran, passi accanto allo storico relitto e tieni gli occhi aperti per vedere i delfini in libertà. A bordo ci sono giubbotti di salvataggio, maschere da snorkeling e una borsa frigo con bevande. Prenota con almeno 1 giorno di anticipo."
     },
     {
       "slug": "speed-boat-adventure",
@@ -2875,7 +2915,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -2910,7 +2950,7 @@
       "after": [
         "Attrezzatura per lo snorkeling (noleggio disponibile con supplemento)",
         "Battesimo del mare (facoltativo, con supplemento)",
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -2937,7 +2977,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -2967,7 +3007,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -3001,10 +3041,36 @@
         "Bevande al ristorante",
         "Giro facoltativo in feluca sul Nilo",
         "Ingresso all'interno delle due piramidi più grandi",
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
+    },
+    {
+      "slug": "cairo-by-plane",
+      "locale": "it",
+      "field": "includes",
+      "before": [
+        "Transfer hotel–aeroporto a Sharm e tutti i trasferimenti al Cairo",
+        "Voli di andata e ritorno Sharm–Il Cairo",
+        "Guida in lingua inglese",
+        "Biglietti d'ingresso ai siti del programma",
+        "Pranzo al Cairo"
+      ],
+      "after": [
+        "Transfer hotel–aeroporto a Sharm e tutti i trasferimenti al Cairo",
+        "Voli di andata e ritorno Sharm–Il Cairo",
+        "Guida (in inglese, italiano o russo)",
+        "Biglietti d'ingresso ai siti del programma",
+        "Pranzo al Cairo"
+      ]
+    },
+    {
+      "slug": "cairo-by-plane",
+      "locale": "it",
+      "field": "description",
+      "before": "Un ritiro all'alba (verso le 4–5 del mattino) ti porta all'aeroporto di Sharm per il volo verso il Cairo, dove ti accoglie la tua guida in lingua inglese. Visiti il Museo Egizio, pranzi con vista sul Nilo, ti fermi in un laboratorio di profumi, esplori l'altopiano di Giza con le Piramidi e la Sfinge e visiti un istituto del papiro prima del volo di ritorno. Si svolge di domenica e di giovedì.",
+      "after": "Un ritiro all'alba (verso le 4–5 del mattino) ti porta all'aeroporto di Sharm per il volo verso il Cairo, dove ti accoglie la tua guida (in inglese, italiano o russo). Visiti il Museo Egizio, pranzi con vista sul Nilo, ti fermi in un laboratorio di profumi, esplori l'altopiano di Giza con le Piramidi e la Sfinge e visiti un istituto del papiro prima del volo di ritorno. Si svolge di domenica e di giovedì."
     },
     {
       "slug": "mount-sinai-st-catherine",
@@ -3012,7 +3078,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -3028,7 +3094,7 @@
       "after": [
         "Tombe speciali, come quella di Tutankhamon",
         "Spese personali e mance",
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -3055,31 +3121,9 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
-      ]
-    },
-    {
-      "slug": "st-catherine-dahab",
-      "locale": "it",
-      "field": "includes",
-      "before": [
-        "Transfer da e per l'hotel",
-        "Trasporto con aria condizionata",
-        "Visita al Monastero di Santa Caterina",
-        "Pranzo a Dahab",
-        "Tempo libero a Dahab",
-        "Guida locale"
-      ],
-      "after": [
-        "Transfer da e per l'hotel",
-        "Trasporto con aria condizionata",
-        "Visita al Monastero di Santa Caterina",
-        "Pranzo a Dahab",
-        "Tempo libero a Dahab",
-        "Guida locale",
-        "Cena"
       ]
     },
     {
@@ -3088,7 +3132,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]
@@ -3113,7 +3157,7 @@
       "field": "excludes",
       "before": [],
       "after": [
-        "Foto e riprese",
+        "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
         "Occhiali da sole"
       ]

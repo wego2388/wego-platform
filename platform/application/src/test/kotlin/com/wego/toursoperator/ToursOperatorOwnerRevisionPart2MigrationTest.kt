@@ -72,6 +72,23 @@ class ToursOperatorOwnerRevisionPart2MigrationTest {
                 "INSERT INTO wego.tours_operator_tour_content(tour_id,locale,stage,document,updated_at) VALUES ($transfer,'en','$stage','$transferDocument'::jsonb,NOW())",
             )
         }
+        val speed = "(SELECT id FROM wego.tours_operator_tour WHERE slug='speed-boat-adventure')"
+        val speedDocument =
+            """{"name":"x","shortDescription":"x",
+            "description":"Three hours on your own private RIB speedboat for up to 5 people, with an experienced captain. Snorkel at Tiran Island's reefs, pass the historic shipwreck and keep an eye out for dolphins in the wild. Life jackets, snorkel masks and a cooler with drinks are on board. Book at least 2 days in advance.",
+            "includes":[],"excludes":["Tips for the captain","Personal expenses"],
+            "knowBeforeYouGo":["Book at least 2 days in advance.","Up to 5 people per boat; the price is per boat.","Not suitable for pregnant women or people with back or neck problems.","Subject to sea and weather conditions."]}"""
+        val speedSql = speedDocument.replace("'", "''")
+        val russianTransfer =
+            """{"name":"x","shortDescription":"x",
+            "description":"Наш водитель встретит вас на ресепшене отеля и отвезёт прямо в международный аэропорт Шарм-эль-Шейха или встретит вас по прилёте. Выберите транспорт под вашу компанию: седан (€15), внедорожник с высокой посадкой (€20) или микроавтобус Hiace (€30) — цена указана за автомобиль, а не за человека.",
+            "meetingPoint":"Ресепшен вашего отеля или зал прилёта в аэропорту Шарм-эль-Шейха."}"""
+        for (stage in listOf("DRAFT", "PUBLISHED")) {
+            execute(
+                "INSERT INTO wego.tours_operator_tour_content(tour_id,locale,stage,document,updated_at) VALUES ($speed,'en','$stage','$speedSql'::jsonb,NOW())",
+                "INSERT INTO wego.tours_operator_tour_content(tour_id,locale,stage,document,updated_at) VALUES ($transfer,'ru','$stage','$russianTransfer'::jsonb,NOW())",
+            )
+        }
         execute(
             "INSERT INTO wego.tours_operator_tour_facts(tour_id,stage,document,updated_at) VALUES ($saint,'DRAFT','{\"hotelPickup\":\"INCLUDED\",\"guideLanguages\":[\"en\"]}'::jsonb,NOW())",
             """INSERT INTO wego.tours_operator_tour_slot(id,tour_id,date,time_slot,capacity,booked_count,created_at)
@@ -94,6 +111,25 @@ class ToursOperatorOwnerRevisionPart2MigrationTest {
             query("SELECT document->'excludes' FROM wego.tours_operator_tour_content WHERE tour_id=$saint AND stage='DRAFT'").single(),
         ).isEqualTo("[]")
         execute("UPDATE wego.tours_operator_online_request SET status='CLOSED' WHERE id='$request'")
+
+        // 1b. An upcoming confirmed booking with the SUV option also blocks the removal.
+        val futureSlot = UUID.randomUUID()
+        val futureBooking = UUID.randomUUID()
+        execute(
+            """INSERT INTO wego.tours_operator_tour_slot(id,tour_id,date,time_slot,capacity,booked_count,created_at)
+            VALUES ('$futureSlot',$transfer,'2099-01-01','MORNING',10,4,NOW())""",
+            """INSERT INTO wego.tours_operator_booking(id,reference,tour_id,slot_id,tour_date,time_slot,
+            adults_count,children_count,price_adult_eur,total_eur,customer_full_name,customer_phone,customer_nationality,
+            hotel_name,locale,status,created_at,confirmed_at,channel,client_request_id,price_option_code,price_option_label,seats_per_unit,unit_count,unit_price_eur)
+            VALUES ('$futureBooking','STR-2099-778',$transfer,'$futureSlot','2099-01-01','MORNING',4,0,0,20,
+            'Upcoming SUV guest','+201000000004','EG','Synthetic hotel','en','CONFIRMED',NOW(),NOW(),'OFFICE','$futureBooking','suv','SUV',4,1,20)""",
+        )
+        assertThatThrownBy { flyway("37").migrate() }.hasMessageContaining("SUV option is still referenced")
+        assertThat(query("SELECT count(*) FROM wego.tours_operator_tour_price_option WHERE code='suv'").single()).isEqualTo("1")
+        execute(
+            "DELETE FROM wego.tours_operator_booking WHERE id='$futureBooking'",
+            "DELETE FROM wego.tours_operator_tour_slot WHERE id='$futureSlot'",
+        )
         val closed = salesFingerprint()
 
         // 2. Unreviewed edit of a targeted field: refuse atomically.
@@ -117,11 +153,11 @@ class ToursOperatorOwnerRevisionPart2MigrationTest {
                 query(
                     "SELECT document::text FROM wego.tours_operator_tour_content WHERE tour_id=$saint AND stage='$stage'",
                 ).single()
+            assertThat(content).doesNotContain("Dinner")
             assertThat(content)
                 .contains(
-                    "\"Dinner\"",
                     "\"Lunch in Dahab\"",
-                    "\"Photography\"",
+                    "\"Photos and videos (sold separately)\"",
                     "\"Headscarf\"",
                     "\"Sunglasses\"",
                     "Preserve this owner field",
@@ -132,10 +168,21 @@ class ToursOperatorOwnerRevisionPart2MigrationTest {
                 ).single(),
             ).isEqualTo("[\"en\", \"it\", \"ru\"]")
             val transferContent =
-                query("SELECT document::text FROM wego.tours_operator_tour_content WHERE tour_id=$transfer AND stage='$stage'").single()
+                query(
+                    "SELECT document::text FROM wego.tours_operator_tour_content " +
+                        "WHERE tour_id=$transfer AND locale='en' AND stage='$stage'",
+                ).single()
             assertThat(
                 transferContent,
             ).doesNotContain("SUV").contains("a Hiace minibus (€30)", "confirm your hotel pickup time on WhatsApp")
+        }
+        val speedStages = query("SELECT document::text FROM wego.tours_operator_tour_content WHERE tour_id=$speed ORDER BY stage")
+        assertThat(speedStages).hasSize(2)
+        speedStages.forEach {
+            assertThat(it).doesNotContain("2 days").contains("Book at least one day in advance.", "Photos and videos (sold separately)")
+        }
+        query("SELECT document::text FROM wego.tours_operator_tour_content WHERE tour_id=$transfer AND locale='ru'").forEach {
+            assertThat(it).doesNotContain("внедорожник").contains("микроавтобус Hiace (€30)", "WhatsApp")
         }
         assertThat(
             query("SELECT document->>'hotelPickup' FROM wego.tours_operator_tour_facts WHERE tour_id=$saint AND stage='DRAFT'").single(),

@@ -23,7 +23,7 @@
           "Entrance fees"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -66,7 +66,7 @@
           "Entrance fees"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -109,7 +109,7 @@
           "Entrance fees"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -153,7 +153,7 @@
           "Entrance fees"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -195,7 +195,7 @@
           "Local guide"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -233,7 +233,7 @@
           "Local guide"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -276,7 +276,7 @@
         "excludes": [
           "Snorkeling equipment (available to rent for an extra fee)",
           "Introductory dive (optional, extra charge)",
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -317,7 +317,7 @@
           "Music and show"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -354,7 +354,7 @@
           "Entrance fees"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -394,7 +394,7 @@
           "Multiple dives"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -491,7 +491,7 @@
           "Professional crew"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -533,7 +533,7 @@
         ],
         "excludes": [
           "Food and drinks",
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -570,7 +570,7 @@
           "Life jacket and safety briefing"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -611,7 +611,7 @@
           "Professional crew"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -642,7 +642,7 @@
       "content": {
         "name": "Speed Boat Adventure",
         "shortDescription": "A private speedboat for your group to Tiran Island: snorkel the reefs, pass the shipwreck and look out for dolphins.",
-        "description": "Three hours on your own private RIB speedboat for up to 5 people, with an experienced captain. Snorkel at Tiran Island's reefs, pass the historic shipwreck and keep an eye out for dolphins in the wild. Life jackets, snorkel masks and a cooler with drinks are on board. Book at least 2 days in advance.",
+        "description": "Three hours on your own private RIB speedboat for up to 5 people, with an experienced captain. Snorkel at Tiran Island's reefs, pass the historic shipwreck and keep an eye out for dolphins in the wild. Life jackets, snorkel masks and a cooler with drinks are on board. Book at least one day in advance.",
         "includes": [
           "Hotel pickup and drop-off by air-conditioned minibus",
           "Private speedboat with captain",
@@ -653,7 +653,7 @@
         "excludes": [
           "Tips for the captain",
           "Personal expenses",
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -693,7 +693,7 @@
           "Entrance fees"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -736,7 +736,7 @@
         "excludes": [
           "Snorkeling equipment (available to rent for an extra fee)",
           "Introductory dive (optional, extra charge)",
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -773,7 +773,7 @@
           "Life jacket and safety briefing"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -813,7 +813,7 @@
           "Lunch and drinks"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -843,11 +843,11 @@
       "content": {
         "name": "Cairo by Plane",
         "shortDescription": "Fly to Cairo for the day: the Egyptian Museum, lunch by the Nile, the Pyramids and the Sphinx, then fly back.",
-        "description": "An early pickup (around 4–5 am) takes you to Sharm airport for your flight to Cairo, where your English-speaking guide meets you. Visit the Egyptian Museum, have lunch with a view of the Nile, stop at a perfume workshop, explore the Giza Plateau with the Pyramids and the Sphinx, and visit a papyrus institute before your flight back. Runs on Sundays and Thursdays.",
+        "description": "An early pickup (around 4–5 am) takes you to Sharm airport for your flight to Cairo, where your guide (English, Italian or Russian) meets you. Visit the Egyptian Museum, have lunch with a view of the Nile, stop at a perfume workshop, explore the Giza Plateau with the Pyramids and the Sphinx, and visit a papyrus institute before your flight back. Runs on Sundays and Thursdays.",
         "includes": [
           "Hotel–airport transfers in Sharm and all transfers in Cairo",
           "Return flights Sharm–Cairo",
-          "English-speaking guide",
+          "Guide (English, Italian or Russian)",
           "Entrance fees to the sites in the program",
           "Lunch in Cairo"
         ],
@@ -855,7 +855,7 @@
           "Drinks at the restaurant",
           "Optional felucca ride on the Nile",
           "Entry inside the two larger pyramids",
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -892,7 +892,7 @@
           "Visit to St. Catherine's Monastery"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -935,7 +935,7 @@
         "excludes": [
           "Special tombs such as Tutankhamun's",
           "Personal expenses and tips",
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -972,11 +972,10 @@
           "Visit to St. Catherine's Monastery",
           "Lunch in Dahab",
           "Free time in Dahab",
-          "Local guide",
-          "Dinner"
+          "Local guide"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -1015,7 +1014,7 @@
           "Towels"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
@@ -1052,7 +1051,7 @@
           "Show entrance ticket"
         ],
         "excludes": [
-          "Photography",
+          "Photos and videos (sold separately)",
           "Headscarf",
           "Sunglasses"
         ],
