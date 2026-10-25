@@ -8,7 +8,8 @@
 #
 # Writes <stamp>.dump (pg_dump custom format, or .dump.gpg when a recipient is
 # set) plus <stamp>.json with checksum, size, Flyway version and per-table row
-# counts. The dump is verified with pg_restore --list before it is kept.
+# counts. Plaintext dumps are verified with pg_restore --list before they are
+# kept; encrypted dumps are streamed straight into gpg and proven by the drill.
 # Exit code is non-zero on any failure, so cron/monitoring can alert.
 
 source "$(dirname "$0")/lib.sh"
@@ -40,19 +41,24 @@ if [[ "$inventory" == *"table:tours_operator_asset="* ]]; then
   die "V29 managed media is present in this schema; database-only backup is unsafe. Use a verified database+media bundle (MEDIA restore gate is not complete yet)."
 fi
 
-docker exec "$container" sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc --no-owner' > "$tmp"
-[ -s "$tmp" ] || die "pg_dump produced an empty file"
-
-# The archive must be readable by pg_restore before it counts as a backup.
-docker exec -i "$container" pg_restore --list < "$tmp" > /dev/null || die "pg_restore cannot read the new dump"
-
 final="$SAFARI_BACKUP_DIR/${stamp}.dump"
 if [ -n "$SAFARI_BACKUP_GPG_RECIPIENT" ]; then
-  gpg --batch --yes --trust-model always --recipient "$SAFARI_BACKUP_GPG_RECIPIENT" --output "$tmp.gpg" --encrypt "$tmp"
+  # Stream pg_dump straight into gpg: no plaintext dump is ever written to disk.
+  # pg_restore --list needs plaintext (the private key is off this host), so
+  # integrity relies on pipefail + the non-empty check; the restore drill decrypts it.
   final="$final.gpg"
+  ( set -o pipefail
+    docker exec "$container" sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc --no-owner' \
+      | gpg --batch --yes --trust-model always --recipient "$SAFARI_BACKUP_GPG_RECIPIENT" --output "$tmp.gpg" --encrypt
+  ) || die "streamed pg_dump | gpg failed; backup aborted"
+  [ -s "$tmp.gpg" ] || die "encrypted pg_dump output is empty"
   mv "$tmp.gpg" "$final"
   encrypted=true
 else
+  docker exec "$container" sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc --no-owner' > "$tmp"
+  [ -s "$tmp" ] || die "pg_dump produced an empty file"
+  # The archive must be readable by pg_restore before it counts as a backup.
+  docker exec -i "$container" pg_restore --list < "$tmp" > /dev/null || die "pg_restore cannot read the new dump"
   log "WARNING: unencrypted dump kept on request (SAFARI_ALLOW_PLAIN_BACKUP=1, file mode 600 only)"
   mv "$tmp" "$final"
   encrypted=false

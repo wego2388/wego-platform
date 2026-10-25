@@ -59,15 +59,39 @@ db_asset_keys="$(printf '%s\n' \
    SELECT storage_key FROM wego.tours_operator_asset_variant
    ORDER BY 1" | container_psql "$container")" || die "failed to read asset keys from DB"
 
+# Build the bundle inside the private temp dir and move it into place only
+# when complete, so a failure never leaves an empty or partial *.bundle.
+stage_dir="$tmp_dir/bundle"
+mkdir -p "$stage_dir"
+chmod 700 "$stage_dir"
+
 # ── 2. DB dump.
 log "dumping database..."
-db_tmp="$tmp_dir/db.dump"
-docker exec "$container" sh -c \
-  'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc --no-owner' > "$db_tmp"
-[ -s "$db_tmp" ] || die "pg_dump produced an empty file"
-docker exec -i "$container" pg_restore --list < "$db_tmp" > /dev/null \
-  || die "pg_restore cannot read the new db dump"
-log "db dump ok ($(stat -c %s "$db_tmp") bytes)"
+if [ -n "$SAFARI_BACKUP_GPG_RECIPIENT" ]; then
+  # Stream pg_dump straight into gpg: no plaintext dump ever touches the disk.
+  # The dump is not re-read with pg_restore --list here (that needs plaintext;
+  # the private key stays off this host). Integrity relies on pipefail (a failed
+  # pg_dump or gpg fails the backup) plus the non-empty check; bundle-restore-drill.sh
+  # decrypts and restores it.
+  db_tmp="$stage_dir/db.dump.gpg"
+  ( set -o pipefail
+    docker exec "$container" sh -c \
+      'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc --no-owner' \
+      | gpg --batch --yes --trust-model always \
+          --recipient "$SAFARI_BACKUP_GPG_RECIPIENT" \
+          --output "$db_tmp" --encrypt
+  ) || die "streamed pg_dump | gpg failed; backup aborted"
+  [ -s "$db_tmp" ] || die "encrypted pg_dump output is empty"
+  log "db dump ok, encrypted in-stream ($(stat -c %s "$db_tmp") bytes)"
+else
+  db_tmp="$tmp_dir/db.dump"
+  docker exec "$container" sh -c \
+    'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc --no-owner' > "$db_tmp"
+  [ -s "$db_tmp" ] || die "pg_dump produced an empty file"
+  docker exec -i "$container" pg_restore --list < "$db_tmp" > /dev/null \
+    || die "pg_restore cannot read the new db dump"
+  log "db dump ok ($(stat -c %s "$db_tmp") bytes)"
+fi
 
 # ── 3. DB inventory for manifest row counts.
 inventory="$(inventory_sql | container_psql "$container")"
@@ -129,18 +153,13 @@ encrypt_file() {
   fi
 }
 
-# Build the bundle inside the private temp dir and move it into place only
-# when complete, so a failure never leaves an empty or partial *.bundle.
-stage_dir="$tmp_dir/bundle"
-mkdir -p "$stage_dir"
-chmod 700 "$stage_dir"
 final_db="$stage_dir/db.dump"
 final_media="$stage_dir/media.tar.gz"
 encrypted=false
 
 if [ -n "$SAFARI_BACKUP_GPG_RECIPIENT" ]; then
   log "encrypting..."
-  encrypt_file "$db_tmp"    "$stage_dir/db.dump.gpg"
+  # db.dump.gpg was already produced in-stream (step 2).
   encrypt_file "$media_tmp" "$stage_dir/media.tar.gz.gpg"
   final_db="$stage_dir/db.dump.gpg"
   final_media="$stage_dir/media.tar.gz.gpg"
