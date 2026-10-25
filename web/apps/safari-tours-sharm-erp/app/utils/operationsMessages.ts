@@ -16,6 +16,7 @@ export function notificationReasonMessage(code: CustomerNotification["lastError"
     case "review_link_not_configured": return { key: "messages.noReviewLink" };
     case "booking_missing": return { key: "messages.bookingMissing" };
     case "booking_state_changed": return { key: "messages.stateChanged" };
+    case "confirmation_never_sent": return { key: "messages.confirmationNeverSent" };
     case "tour_already_past": return { key: "messages.tourPast" };
     default: return { key: "messages.deliveryError", params: { code } };
   }

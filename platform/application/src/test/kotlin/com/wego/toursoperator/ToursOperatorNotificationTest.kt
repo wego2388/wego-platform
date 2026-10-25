@@ -218,6 +218,63 @@ class ToursOperatorNotificationTest {
             .where(TOURS_OPERATOR_NOTIFICATION.BOOKING_ID.eq(UUID.fromString(bookingId)))
             .fetch()
 
+    /** A website request converted by staff: OFFICE / CONFIRMED with an OFFICE_REQUEST_CONFIRMED intent. Returns (bookingId, slotId). */
+    private fun convertedRequest(locale: String = "ar"): Pair<String, UUID> {
+        val slotId = seedSlot()
+        val tourId =
+            dsl
+                .select(TOURS_OPERATOR_TOUR_SLOT.TOUR_ID)
+                .from(TOURS_OPERATOR_TOUR_SLOT)
+                .where(TOURS_OPERATOR_TOUR_SLOT.ID.eq(slotId))
+                .fetchOne(TOURS_OPERATOR_TOUR_SLOT.TOUR_ID)!!
+        val requestId = UUID.randomUUID()
+        mockMvc
+            .post("/api/v1/tours-operator/booking-requests") {
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    """
+                    {"clientRequestId":"$requestId","tourId":"$tourId","preferredDate":"2027-07-01",
+                     "adultsCount":1,"childrenCount":0,
+                     "customer":{"fullName":"Notify Guest","phone":"+201000000777",
+                                 "nationality":"EG","email":"$customerEmail"},
+                     "hotelName":"Test Hotel","locale":"$locale"}
+                    """.trimIndent()
+            }.andExpect { status { isCreated() } }
+        val response =
+            mockMvc
+                .post("/api/v1/tours-operator/staff/booking-requests/$requestId/convert") {
+                    header("Authorization", "Bearer ${login(adminEmail, adminPassword)}")
+                    contentType = MediaType.APPLICATION_JSON
+                    content = """{"expectedRevision":0,"slotId":"$slotId","expectedTotalCents":3500}"""
+                }.andExpect { status { isOk() } }
+                .andReturn()
+                .response.contentAsString
+        return Regex(""""bookingId"\s*:\s*"([^"]+)"""").find(response)!!.groupValues[1] to slotId
+    }
+
+    private fun cancelBooking(bookingId: String) =
+        mockMvc
+            .post("/api/v1/tours-operator/bookings/$bookingId/cancel") {
+                header("Authorization", "Bearer ${login(adminEmail, adminPassword)}")
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"reason":"Internal reason XYZ"}"""
+            }.andReturn()
+            .response
+
+    private fun makeDue(bookingId: String) {
+        dsl
+            .update(TOURS_OPERATOR_NOTIFICATION)
+            .set(TOURS_OPERATOR_NOTIFICATION.AVAILABLE_AT, OffsetDateTime.now(ZoneOffset.UTC).minusMinutes(1))
+            .where(TOURS_OPERATOR_NOTIFICATION.BOOKING_ID.eq(UUID.fromString(bookingId)))
+            .and(TOURS_OPERATOR_NOTIFICATION.STATUS.eq("PENDING"))
+            .execute()
+    }
+
+    private fun row(
+        bookingId: String,
+        kind: String,
+    ) = notificationRows(bookingId).single { it.kind == kind }
+
     private fun sentMessages(count: Int): List<EmailMessage> {
         assertThat(recorder.sent).hasSize(count)
         return recorder.sent.toList()
@@ -414,6 +471,231 @@ class ToursOperatorNotificationTest {
     }
 
     @Test
+    fun `cancelling a converted request after its confirmation was sent sends one cancellation in the customer's language`() {
+        val (bookingId, _) = convertedRequest(locale = "it")
+        dispatcher.dispatchDue(100)
+        assertThat(row(bookingId, "OFFICE_REQUEST_CONFIRMED").status).isEqualTo("SENT")
+        recorder.reset()
+
+        assertThat(cancelBooking(bookingId).status).isEqualTo(200)
+        // A repeated cancel command neither errors the data nor queues a second notice.
+        assertThat(cancelBooking(bookingId).status).isEqualTo(409)
+        assertThat(notificationRows(bookingId).filter { it.kind == "BOOKING_CANCELLED" }).hasSize(1)
+
+        dispatcher.dispatchDue(100)
+        dispatcher.dispatchDue(100)
+        val message = sentMessages(1).single()
+        assertThat(message.to).isEqualTo(customerEmail)
+        assertThat(message.subject).contains("annullata")
+        assertThat(message.body).doesNotContain("Internal reason XYZ")
+        assertThat(message.body.lowercase()).doesNotContain("rimbors", "pagament")
+        assertThat(row(bookingId, "BOOKING_CANCELLED").status).isEqualTo("SENT")
+    }
+
+    @Test
+    fun `cancelling a converted request while its confirmation is still pending sends nothing at all`() {
+        val (bookingId, _) = convertedRequest()
+        assertThat(cancelBooking(bookingId).status).isEqualTo(200)
+        assertThat(row(bookingId, "BOOKING_CANCELLED").status).isEqualTo("PENDING")
+
+        dispatcher.dispatchDue(100)
+
+        assertThat(recorder.sent).isEmpty()
+        assertThat(row(bookingId, "OFFICE_REQUEST_CONFIRMED").status).isEqualTo("SKIPPED")
+        val cancellation = row(bookingId, "BOOKING_CANCELLED")
+        assertThat(cancellation.status).isEqualTo("SKIPPED")
+        assertThat(cancellation.lastError).isEqualTo("confirmation_never_sent")
+    }
+
+    @Test
+    fun `a direct office booking cancelled while confirmed queues no cancellation`() {
+        val slotId = seedSlot()
+        val body =
+            mockMvc
+                .post("/api/v1/tours-operator/staff/bookings") {
+                    header("Authorization", "Bearer ${login(adminEmail, adminPassword)}")
+                    contentType = MediaType.APPLICATION_JSON
+                    content =
+                        """
+                        {"clientRequestId":"${UUID.randomUUID()}","slotId":"$slotId","adultsCount":1,"childrenCount":0,
+                         "customer":{"fullName":"Walk In","phone":"+201000000778","nationality":"EG","email":"$customerEmail"},
+                         "hotelName":"Test Hotel","locale":"en"}
+                        """.trimIndent()
+                }.andExpect { status { isCreated() } }
+                .andReturn()
+                .response.contentAsString
+        val bookingId = Regex(""""id"\s*:\s*"([^"]+)"""").find(body)!!.groupValues[1]
+        dsl
+            .update(TOURS_OPERATOR_BOOKING)
+            .set(TOURS_OPERATOR_BOOKING.STATUS, "CONFIRMED")
+            .set(TOURS_OPERATOR_BOOKING.CONFIRMED_AT, OffsetDateTime.now(ZoneOffset.UTC))
+            .where(TOURS_OPERATOR_BOOKING.ID.eq(UUID.fromString(bookingId)))
+            .execute()
+
+        assertThat(cancelBooking(bookingId).status).isEqualTo(200)
+
+        assertThat(notificationRows(bookingId)).isEmpty()
+        dispatcher.dispatchDue(100)
+        assertThat(recorder.sent).isEmpty()
+    }
+
+    @Test
+    fun `a mail outage never blocks the cancellation or the slot release, and the retry sends exactly once`() {
+        val (bookingId, slotId) = convertedRequest()
+        dispatcher.dispatchDue(100)
+        recorder.reset()
+        recorder.failWith = MailSendException("smtp down")
+
+        assertThat(cancelBooking(bookingId).status).isEqualTo(200)
+        dispatcher.dispatchDue(100)
+
+        val booking = dsl.fetchOne(TOURS_OPERATOR_BOOKING, TOURS_OPERATOR_BOOKING.ID.eq(UUID.fromString(bookingId)))!!
+        assertThat(booking.status).isEqualTo("CANCELLED")
+        assertThat(dsl.fetchOne(TOURS_OPERATOR_TOUR_SLOT, TOURS_OPERATOR_TOUR_SLOT.ID.eq(slotId))!!.bookedCount).isZero()
+        val failedOnce = row(bookingId, "BOOKING_CANCELLED")
+        assertThat(failedOnce.status).isEqualTo("PENDING")
+        assertThat(failedOnce.attemptCount).isEqualTo(1)
+
+        recorder.failWith = null
+        makeDue(bookingId)
+        dispatcher.dispatchDue(100)
+        dispatcher.dispatchDue(100)
+        assertThat(sentMessages(1).single().subject).contains("إلغاء")
+        assertThat(row(bookingId, "BOOKING_CANCELLED").status).isEqualTo("SENT")
+    }
+
+    @Test
+    fun `a cancellation that races a confirmation already being sent waits and is delivered after the confirmation`() {
+        val (bookingId, _) = convertedRequest(locale = "en")
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        recorder.hold = entered to release
+        val pool =
+            java.util.concurrent.Executors
+                .newFixedThreadPool(1)
+        try {
+            // The confirmation is claimed (row locked) and held inside the provider call.
+            val inFlight = pool.submit<Int> { dispatcher.dispatchDue(100) }
+            assertThat(entered.await(30, java.util.concurrent.TimeUnit.SECONDS)).isTrue()
+
+            // The cancel commits meanwhile; the cancellation sees a not-yet-sent confirmation.
+            assertThat(cancelBooking(bookingId).status).isEqualTo(200)
+            dispatcher.dispatchDue(100)
+            assertThat(row(bookingId, "BOOKING_CANCELLED").status).isEqualTo("PENDING")
+            assertThat(row(bookingId, "BOOKING_CANCELLED").attemptCount).isZero()
+            assertThat(recorder.sent).isEmpty()
+
+            release.countDown()
+            assertThat(inFlight.get(30, java.util.concurrent.TimeUnit.SECONDS)).isEqualTo(1)
+        } finally {
+            release.countDown()
+            pool.shutdownNow()
+        }
+        assertThat(row(bookingId, "OFFICE_REQUEST_CONFIRMED").status).isEqualTo("SENT")
+
+        makeDue(bookingId)
+        dispatcher.dispatchDue(100)
+        assertThat(recorder.sent.map { it.subject }).hasSize(2)
+        assertThat(recorder.sent[1].subject).contains("cancelled")
+        assertThat(row(bookingId, "BOOKING_CANCELLED").status).isEqualTo("SENT")
+    }
+
+    private fun resend(notificationId: UUID) =
+        mockMvc
+            .post("/api/v1/tours-operator/staff/notifications/$notificationId/resend") {
+                header("Authorization", "Bearer ${login(adminEmail, adminPassword)}")
+            }.andExpect { status { isAccepted() } }
+
+    @Test
+    fun `a resent confirmation that is cancelled before redelivery still gets exactly one cancellation`() {
+        val (bookingId, _) = convertedRequest(locale = "en")
+        dispatcher.dispatchDue(100)
+        assertThat(row(bookingId, "OFFICE_REQUEST_CONFIRMED").status).isEqualTo("SENT")
+        resend(row(bookingId, "OFFICE_REQUEST_CONFIRMED").id)
+        recorder.reset()
+
+        assertThat(cancelBooking(bookingId).status).isEqualTo(200)
+        dispatcher.dispatchDue(100)
+        makeDue(bookingId)
+        dispatcher.dispatchDue(100)
+
+        assertThat(row(bookingId, "OFFICE_REQUEST_CONFIRMED").status).isEqualTo("SKIPPED")
+        assertThat(sentMessages(1).single().subject).contains("cancelled")
+        assertThat(row(bookingId, "BOOKING_CANCELLED").status).isEqualTo("SENT")
+    }
+
+    @Test
+    fun `a confirmation that failed after an attempt may have reached the customer so the cancellation is sent`() {
+        val (bookingId, _) = convertedRequest(locale = "en")
+        recorder.failWith = MailSendException("smtp timeout")
+        dispatcher.dispatchDue(100)
+        makeDue(bookingId)
+        dispatcher.dispatchDue(100)
+        val confirmation = row(bookingId, "OFFICE_REQUEST_CONFIRMED")
+        assertThat(confirmation.status).isEqualTo("FAILED")
+        assertThat(confirmation.attemptCount).isEqualTo(2)
+        recorder.reset()
+
+        assertThat(cancelBooking(bookingId).status).isEqualTo(200)
+        dispatcher.dispatchDue(100)
+
+        assertThat(sentMessages(1).single().subject).contains("cancelled")
+    }
+
+    @Test
+    fun `a confirmation that failed without any attempt means the cancellation is skipped`() {
+        val (bookingId, _) = convertedRequest()
+        dsl
+            .update(TOURS_OPERATOR_NOTIFICATION)
+            .set(TOURS_OPERATOR_NOTIFICATION.STATUS, "FAILED")
+            .where(TOURS_OPERATOR_NOTIFICATION.BOOKING_ID.eq(UUID.fromString(bookingId)))
+            .execute()
+
+        assertThat(cancelBooking(bookingId).status).isEqualTo(200)
+        dispatcher.dispatchDue(100)
+
+        assertThat(recorder.sent).isEmpty()
+        assertThat(row(bookingId, "BOOKING_CANCELLED").lastError).isEqualTo("confirmation_never_sent")
+    }
+
+    @Test
+    fun `a cancellation claimed before its confirmation defers, then resolves once the confirmation is skipped`() {
+        val (bookingId, _) = convertedRequest()
+        assertThat(cancelBooking(bookingId).status).isEqualTo(200)
+        dsl
+            .update(TOURS_OPERATOR_NOTIFICATION)
+            .set(TOURS_OPERATOR_NOTIFICATION.AVAILABLE_AT, OffsetDateTime.now(ZoneOffset.UTC).plusHours(1))
+            .where(TOURS_OPERATOR_NOTIFICATION.BOOKING_ID.eq(UUID.fromString(bookingId)))
+            .and(TOURS_OPERATOR_NOTIFICATION.KIND.eq("OFFICE_REQUEST_CONFIRMED"))
+            .execute()
+
+        dispatcher.dispatchDue(100)
+        val deferred = row(bookingId, "BOOKING_CANCELLED")
+        assertThat(deferred.status).isEqualTo("PENDING")
+        assertThat(deferred.attemptCount).isZero()
+        assertThat(deferred.availableAt.toInstant()).isAfter(Instant.now())
+        assertThat(recorder.sent).isEmpty()
+
+        dsl
+            .update(TOURS_OPERATOR_NOTIFICATION)
+            .set(TOURS_OPERATOR_NOTIFICATION.AVAILABLE_AT, OffsetDateTime.now(ZoneOffset.UTC).minusMinutes(2))
+            .where(TOURS_OPERATOR_NOTIFICATION.BOOKING_ID.eq(UUID.fromString(bookingId)))
+            .and(TOURS_OPERATOR_NOTIFICATION.KIND.eq("OFFICE_REQUEST_CONFIRMED"))
+            .execute()
+        dsl
+            .update(TOURS_OPERATOR_NOTIFICATION)
+            .set(TOURS_OPERATOR_NOTIFICATION.AVAILABLE_AT, OffsetDateTime.now(ZoneOffset.UTC).minusMinutes(1))
+            .where(TOURS_OPERATOR_NOTIFICATION.BOOKING_ID.eq(UUID.fromString(bookingId)))
+            .and(TOURS_OPERATOR_NOTIFICATION.KIND.eq("BOOKING_CANCELLED"))
+            .execute()
+        dispatcher.dispatchDue(100)
+
+        assertThat(recorder.sent).isEmpty()
+        assertThat(row(bookingId, "OFFICE_REQUEST_CONFIRMED").status).isEqualTo("SKIPPED")
+        assertThat(row(bookingId, "BOOKING_CANCELLED").lastError).isEqualTo("confirmation_never_sent")
+    }
+
+    @Test
     fun `completing a booking schedules the review request for later`() {
         val token = login(adminEmail, adminPassword)
         val (bookingId, _) = createBooking()
@@ -499,8 +781,16 @@ class ToursOperatorNotificationTest {
 
         @Volatile var delay: Duration = Duration.ZERO
 
+        /** One-shot: the next send signals the first latch, then waits for the second. */
+        @Volatile var hold: Pair<java.util.concurrent.CountDownLatch, java.util.concurrent.CountDownLatch>? = null
+
         override fun send(message: EmailMessage) {
             failWith?.let { throw it }
+            hold?.let { (entered, release) ->
+                hold = null
+                entered.countDown()
+                release.await(30, java.util.concurrent.TimeUnit.SECONDS)
+            }
             if (!delay.isZero) Thread.sleep(delay.toMillis())
             sent += message
         }
@@ -509,6 +799,7 @@ class ToursOperatorNotificationTest {
             sent.clear()
             failWith = null
             delay = Duration.ZERO
+            hold = null
         }
     }
 

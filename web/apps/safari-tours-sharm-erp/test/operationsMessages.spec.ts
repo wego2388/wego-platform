@@ -10,7 +10,7 @@ describe("operations display contracts", () => {
     expect(message.key).not.toBe("tours.notFound");
     if (status >= 404) expect(message.params).toEqual({ code: "original_failure" });
   });
-  it.each(["no_customer_email", "review_link_not_configured", "booking_missing", "booking_state_changed", "tour_already_past"])("translates dispatcher reason %s", (code) => {
+  it.each(["no_customer_email", "review_link_not_configured", "booking_missing", "booking_state_changed", "tour_already_past", "confirmation_never_sent"])("translates dispatcher reason %s", (code) => {
     const message = notificationReasonMessage(code)!;
     expect(message.key).not.toBe("messages.deliveryError");
     expect(erpMessage("ar", message.key)).not.toContain(code);

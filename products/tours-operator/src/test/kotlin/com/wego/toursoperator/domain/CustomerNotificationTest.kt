@@ -23,6 +23,18 @@ class CustomerNotificationTest {
     }
 
     @Test
+    fun `deferring keeps the row pending and does not count an attempt`() {
+        val n = pending()
+        n.deferUntil(now.plus(Duration.ofMinutes(1)))
+        assertEquals(NotificationStatus.PENDING, n.status)
+        assertEquals(0, n.attemptCount)
+        assertEquals(now.plus(Duration.ofMinutes(1)), n.availableAt)
+        assertThrows<IllegalArgumentException> { n.deferUntil(now) }
+        n.markSent(now)
+        assertThrows<IllegalArgumentException> { n.deferUntil(now.plus(Duration.ofHours(1))) }
+    }
+
+    @Test
     fun `failures back off exponentially and stop at max attempts`() {
         val n = pending()
         n.markAttemptFailed("MailSendException", now, maxAttempts = 3)

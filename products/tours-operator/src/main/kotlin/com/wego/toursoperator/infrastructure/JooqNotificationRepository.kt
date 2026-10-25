@@ -3,6 +3,7 @@ package com.wego.toursoperator.infrastructure
 import com.wego.generated.jooq.tables.ToursOperatorBooking.TOURS_OPERATOR_BOOKING
 import com.wego.generated.jooq.tables.ToursOperatorNotification.TOURS_OPERATOR_NOTIFICATION
 import com.wego.generated.jooq.tables.records.ToursOperatorNotificationRecord
+import com.wego.toursoperator.application.ConfirmationFact
 import com.wego.toursoperator.application.NotificationListItem
 import com.wego.toursoperator.application.NotificationRepository
 import com.wego.toursoperator.domain.BookingId
@@ -42,6 +43,17 @@ class JooqNotificationRepository(
             .onConflict(t.BOOKING_ID, t.KIND)
             .doNothing()
             .execute() == 1
+    }
+
+    @Transactional(readOnly = true)
+    override fun confirmationFacts(bookingId: BookingId): List<ConfirmationFact> {
+        val t = TOURS_OPERATOR_NOTIFICATION
+        return dsl
+            .select(t.STATUS, t.ATTEMPT_COUNT, t.RESEND_COUNT)
+            .from(t)
+            .where(t.BOOKING_ID.eq(bookingId.value))
+            .and(t.KIND.`in`(NotificationKind.BOOKING_CONFIRMED.name, NotificationKind.OFFICE_REQUEST_CONFIRMED.name))
+            .fetch { ConfirmationFact(NotificationStatus.valueOf(it[t.STATUS]), it[t.ATTEMPT_COUNT], it[t.RESEND_COUNT]) }
     }
 
     @Transactional

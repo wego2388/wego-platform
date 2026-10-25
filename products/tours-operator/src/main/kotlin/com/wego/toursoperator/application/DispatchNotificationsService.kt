@@ -1,10 +1,13 @@
 package com.wego.toursoperator.application
 
 import com.wego.toursoperator.domain.Booking
+import com.wego.toursoperator.domain.BookingChannel
 import com.wego.toursoperator.domain.CustomerNotification
 import com.wego.toursoperator.domain.NotificationKind
+import com.wego.toursoperator.domain.NotificationStatus
 import org.slf4j.LoggerFactory
 import java.time.Clock
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -73,6 +76,21 @@ class DispatchNotificationsService(
                 notification.markSkipped(skipReason)
                 log.info("Notification {} ({}) skipped: {}", notification.id.value, notification.kind, skipReason)
                 return
+            }
+            if (notification.kind == NotificationKind.BOOKING_CANCELLED && booking?.channel != BookingChannel.ONLINE) {
+                // A cancellation only makes sense for a customer who was told the booking
+                // was confirmed. Wait while that confirmation may still go out.
+                val confirmations = notificationRepository.confirmationFacts(notification.bookingId)
+                if (confirmations.any { it.status == NotificationStatus.PENDING } || confirmations.none { it.possiblyAnnounced }) {
+                    if (confirmations.any { it.status == NotificationStatus.PENDING }) {
+                        notification.deferUntil(now.plus(CONFIRMATION_RECHECK))
+                        log.info("Notification {} ({}) deferred: confirmation still pending", notification.id.value, notification.kind)
+                    } else {
+                        notification.markSkipped("confirmation_never_sent")
+                        log.info("Notification {} ({}) skipped: confirmation_never_sent", notification.id.value, notification.kind)
+                    }
+                    return
+                }
             }
             send(notification, checkNotNull(booking), now)
         } catch (ex: Exception) {
@@ -144,6 +162,7 @@ class DispatchNotificationsService(
     }
 
     private companion object {
+        val CONFIRMATION_RECHECK: Duration = Duration.ofMinutes(1)
         val REPORTING_ZONE: ZoneId = ZoneId.of("Africa/Cairo")
     }
 }

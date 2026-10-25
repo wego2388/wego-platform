@@ -7,6 +7,7 @@ import com.wego.toursoperator.domain.BookingChannel
 import com.wego.toursoperator.domain.BookingId
 import com.wego.toursoperator.domain.BookingStatus
 import com.wego.toursoperator.domain.NotificationKind
+import com.wego.toursoperator.domain.NotificationStatus
 import tools.jackson.databind.ObjectMapper
 import java.time.Clock
 import java.time.Instant
@@ -66,16 +67,25 @@ class CancelBookingService(
 
             bookingRepository.save(booking)
             bookingAuditRecorder.recordCancelled(booking.id, fromStatus, reason, actorUserId, now, correlationId)
-            // Only a confirmed (paid) booking was ever announced to the customer;
-            // an unpaid NEW booking cancelled by staff gets no email.
-            // Office bookings never had an online confirmation; their documents come with OPS2-D.
-            if (fromStatus == BookingStatus.CONFIRMED && booking.channel == BookingChannel.ONLINE) {
+            // Only a confirmed booking may have been announced to the customer; an
+            // unpaid NEW booking cancelled by staff gets no email. Eligibility comes
+            // from the booking's notification facts: online bookings (paid
+            // confirmation) and any booking with a confirmation that was not
+            // skipped or was resent (a SENT, FAILED or resent one may have reached
+            // the customer), e.g. a website request converted by staff into an
+            // OFFICE booking. A direct office booking never had one and stays
+            // silent. The dispatcher re-checks the confirmation facts at send time.
+            if (fromStatus == BookingStatus.CONFIRMED && wasAnnounced(booking)) {
                 notificationRepository.enqueueOnce(booking.id, NotificationKind.BOOKING_CANCELLED, now, now)
             }
             outboxWriter.write(cancelledEnvelope(booking, now, correlationId))
 
             CancelBookingResult.Cancelled(booking)
         }
+
+    private fun wasAnnounced(booking: Booking): Boolean =
+        booking.channel == BookingChannel.ONLINE ||
+            notificationRepository.confirmationFacts(booking.id).any { it.status != NotificationStatus.SKIPPED || it.resendCount > 0 }
 
     private fun cancelledEnvelope(
         booking: Booking,

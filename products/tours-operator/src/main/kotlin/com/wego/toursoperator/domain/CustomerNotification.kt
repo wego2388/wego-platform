@@ -98,6 +98,17 @@ class CustomerNotification(
     }
 
     /**
+     * Not decidable yet (e.g. a cancellation waiting for the confirmation it
+     * follows to resolve): stay PENDING and look again at [retryAt]. This is not
+     * a delivery attempt, so the attempt counter is untouched.
+     */
+    fun deferUntil(retryAt: Instant) {
+        requirePending()
+        require(retryAt.isAfter(availableAt)) { "retryAt must be after the current availableAt" }
+        availableAt = retryAt
+    }
+
+    /**
      * A delivery attempt failed. Retries with exponential backoff until
      * [maxAttempts], then stays FAILED for a staff resend.
      */
