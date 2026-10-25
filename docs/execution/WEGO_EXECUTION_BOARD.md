@@ -1,5 +1,18 @@
 # Wego Execution Board
 
+### 2026-10-25 — Deploy executor handed from Claude to Codex (owner request)
+
+- Owner asked for a Codex handoff; from this entry Codex is the single deploy
+  executor and Claude stops deploying until handed back here.
+- Live: backend/site/ERP `str-2026.10.25-a728327-fin`, edge `e3559bc`, Flyway 36.
+- Ready, not deployed: `str-2026.10.25-df846c1-sec` (Slice B reports + security
+  L1/L2/L4/L5/M2/M3 + single Vue runtime); images and deploy/rollback scripts in
+  `/srv/safari-tours-sharm/incoming/str-2026.10.25-df846c1-sec/`; isolated E2E green.
+- Committed, not deployed: V37 owner catalog revision part 2 (`0c5680f`,
+  `158b1f0`), Tier1 follow-ups addressed; awaits owner confirmations + restored
+  production rehearsal. Child-age pricing is a separate Tier1 packet.
+- Handoff: `clients/safari-tours-sharm/handoff/2026-10-25_CLAUDE_TO_CODEX_STATE_HANDOFF_AR.md`.
+
 ### 2026-10-25 — Security review, H1 edge fix deployed; SAF-04 Slice B committed
 
 - Independent Opus security review (read-only, `2026-10-25_SECURITY_REVIEW.md`):
