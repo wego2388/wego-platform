@@ -86,6 +86,20 @@ class JooqOnlineRequestRepository(
     @Transactional(readOnly = true)
     override fun countOpen(): Int = dsl.fetchCount(t, t.STATUS.`in`("NEW", "IN_PROGRESS"))
 
+    @Transactional(readOnly = true)
+    override fun statusCounts(
+        fromInclusive: Instant,
+        toExclusive: Instant,
+    ): Map<OnlineRequestStatus, Int> =
+        dsl
+            .select(t.STATUS, DSL.count())
+            .from(t)
+            .where(t.CREATED_AT.ge(fromInclusive.offset()))
+            .and(t.CREATED_AT.lt(toExclusive.offset()))
+            .groupBy(t.STATUS)
+            .fetch()
+            .associate { OnlineRequestStatus.valueOf(checkNotNull(it.value1())) to (it.value2() ?: 0) }
+
     override fun save(request: OnlineRequest) {
         check(
             dsl

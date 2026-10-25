@@ -89,6 +89,10 @@ const links = computed(() =>
       to: "/cash-box", label: t("nav.cashBox"),
       show: ["tours-operator.cash-box:close", "tours-operator.cash-box:confirm", "tours-operator.payment:view"].some((p) => hasPermission(session.value, p)),
     },
+    {
+      to: "/reports", label: t("nav.reports"),
+      show: ["tours-operator.payment:view", "tours-operator.cash-box:confirm", "tours-operator.booking:view"].some((p) => hasPermission(session.value, p)),
+    },
     { to: "/customers", label: t("nav.customers"), show: hasPermission(session.value, "tours-operator.booking:view") },
     { to: "/reviews", label: t("nav.reviews"), show: hasPermission(session.value, "tours-operator.booking:view") },
     { to: "/notifications", label: t("nav.messages"), show: hasPermission(session.value, "tours-operator.notification:manage") },

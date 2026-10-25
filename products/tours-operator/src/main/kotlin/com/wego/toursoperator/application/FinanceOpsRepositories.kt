@@ -164,4 +164,19 @@ interface FinanceReadRepository {
 
     /** The most recently set rate, whatever its day. */
     fun latestRate(): BigDecimal?
+
+    /** SAF-04 Slice B: reversal rows recorded in [fromInclusive, toExclusive] across the four ledgers, each joined to the entry it reverses. */
+    fun reversals(
+        fromInclusive: Instant,
+        toExclusive: Instant,
+    ): List<ReversalEntry>
+
+    /** SAF-04 Slice B: every cash-box event of the business days from..to (inclusive), oldest first per day and currency. */
+    fun cashEvents(
+        from: LocalDate,
+        to: LocalDate,
+    ): List<CashBoxEvent>
+
+    /** SAF-04 Slice B: per booking and currency, office collections minus reversals minus refunds, native and as settled EUR. */
+    fun officeNetByCurrency(bookingIds: Collection<BookingId>): Map<BookingId, Map<PaidCurrency, NativeNet>>
 }

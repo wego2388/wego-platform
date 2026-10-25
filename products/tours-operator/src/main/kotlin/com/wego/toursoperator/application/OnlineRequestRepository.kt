@@ -22,6 +22,12 @@ interface OnlineRequestRepository {
 
     fun countOpen(): Int
 
+    /** SAF-04 Slice B: requests created in [fromInclusive, toExclusive] by their current status; no customer data. */
+    fun statusCounts(
+        fromInclusive: java.time.Instant,
+        toExclusive: java.time.Instant,
+    ): Map<OnlineRequestStatus, Int>
+
     fun save(request: OnlineRequest)
 
     fun audit(

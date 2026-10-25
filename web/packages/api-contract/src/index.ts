@@ -90,6 +90,11 @@ export type SettlementApproval = components["schemas"]["ToursOperatorSettlementA
 export type PayableAdjustment = components["schemas"]["ToursOperatorPayableAdjustment"];
 export type SettlementMethod = components["schemas"]["ToursOperatorSettlementMethod"];
 export type CashDay = components["schemas"]["ToursOperatorCashDay"];
+export type ReversalReport = components["schemas"]["ToursOperatorReversalReport"];
+export type ReversalLine = components["schemas"]["ToursOperatorReversalLine"];
+export type CashVarianceReport = components["schemas"]["ToursOperatorCashVarianceReport"];
+export type RequestConversionReport = components["schemas"]["ToursOperatorRequestConversion"];
+export type DepartureMoneyReport = components["schemas"]["ToursOperatorDepartureMoney"];
 export type CashBoxEvent = components["schemas"]["ToursOperatorCashBoxEvent"];
 export type SettlementStatementDocument = components["schemas"]["ToursOperatorSettlementStatementDocument"];
 

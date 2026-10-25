@@ -4,6 +4,7 @@ import com.wego.generated.jooq.tables.IdentityUser.IDENTITY_USER
 import com.wego.generated.jooq.tables.ToursOperatorBooking.TOURS_OPERATOR_BOOKING
 import com.wego.generated.jooq.tables.ToursOperatorCashBoxEvent.TOURS_OPERATOR_CASH_BOX_EVENT
 import com.wego.generated.jooq.tables.ToursOperatorCostComponent.TOURS_OPERATOR_COST_COMPONENT
+import com.wego.generated.jooq.tables.ToursOperatorDriver.TOURS_OPERATOR_DRIVER
 import com.wego.generated.jooq.tables.ToursOperatorFxRate.TOURS_OPERATOR_FX_RATE
 import com.wego.generated.jooq.tables.ToursOperatorOfficeCollection.TOURS_OPERATOR_OFFICE_COLLECTION
 import com.wego.generated.jooq.tables.ToursOperatorOfficeRefund.TOURS_OPERATOR_OFFICE_REFUND
@@ -14,12 +15,16 @@ import com.wego.generated.jooq.tables.ToursOperatorSettlementApproval.TOURS_OPER
 import com.wego.generated.jooq.tables.ToursOperatorSettlementPayment.TOURS_OPERATOR_SETTLEMENT_PAYMENT
 import com.wego.generated.jooq.tables.ToursOperatorSlotAssignment.TOURS_OPERATOR_SLOT_ASSIGNMENT
 import com.wego.generated.jooq.tables.ToursOperatorSlotAssignmentSupplier.TOURS_OPERATOR_SLOT_ASSIGNMENT_SUPPLIER
+import com.wego.generated.jooq.tables.ToursOperatorSupplier.TOURS_OPERATOR_SUPPLIER
 import com.wego.generated.jooq.tables.records.ToursOperatorBookingRecord
 import com.wego.toursoperator.application.CashBoxRepository
 import com.wego.toursoperator.application.CostComponentRepository
 import com.wego.toursoperator.application.FinanceReadRepository
+import com.wego.toursoperator.application.NativeNet
 import com.wego.toursoperator.application.OfficeMoneySummary
 import com.wego.toursoperator.application.OfficeRefundRepository
+import com.wego.toursoperator.application.ReversalEntry
+import com.wego.toursoperator.application.ReversalKind
 import com.wego.toursoperator.application.SettlementRepository
 import com.wego.toursoperator.domain.AdjustmentKind
 import com.wego.toursoperator.domain.BookingChannel
@@ -848,6 +853,297 @@ class JooqFinanceReadRepository(
             .limit(1)
             .fetchOne()
             ?.egpPerEur
+
+    @Transactional(readOnly = true)
+    override fun reversals(
+        fromInclusive: Instant,
+        toExclusive: Instant,
+    ): List<ReversalEntry> {
+        val start = fromInclusive.utc()
+        val end = toExclusive.utc()
+        val revBy = IDENTITY_USER.`as`("rev_user")
+        val origBy = IDENTITY_USER.`as`("orig_user")
+
+        val rc = c.`as`("rc")
+        val oc = c.`as`("oc")
+        val collections =
+            dsl
+                .select(
+                    rc.ID,
+                    rc.RECORDED_AT,
+                    rc.REASON,
+                    rc.CURRENCY_PAID,
+                    rc.AMOUNT_PAID,
+                    rc.AMOUNT_EUR,
+                    oc.RECORDED_AT,
+                    oc.METHOD,
+                    b.REFERENCE,
+                    revBy.EMAIL,
+                    origBy.EMAIL,
+                ).from(rc)
+                .join(oc)
+                .on(oc.ID.eq(rc.REVERSES_COLLECTION_ID))
+                .join(b)
+                .on(b.ID.eq(rc.BOOKING_ID))
+                .leftJoin(revBy)
+                .on(revBy.ID.eq(rc.RECORDED_BY_USER_ID))
+                .leftJoin(origBy)
+                .on(origBy.ID.eq(oc.RECORDED_BY_USER_ID))
+                .where(
+                    rc.KIND
+                        .eq("REVERSAL")
+                        .and(rc.RECORDED_AT.ge(start))
+                        .and(rc.RECORDED_AT.lt(end)),
+                ).fetch()
+                .map {
+                    ReversalEntry(
+                        kind = ReversalKind.COLLECTION,
+                        id = it.get(rc.ID),
+                        reversedAt = it.get(rc.RECORDED_AT).toInstant(),
+                        reversedBy = it.get(revBy.EMAIL),
+                        reason = it.get(rc.REASON).orEmpty(),
+                        originalAt = it.get(oc.RECORDED_AT).toInstant(),
+                        originalBy = it.get(origBy.EMAIL),
+                        currency = PaidCurrency.valueOf(it.get(rc.CURRENCY_PAID)),
+                        amount = it.get(rc.AMOUNT_PAID).setScale(2),
+                        amountEur = it.get(rc.AMOUNT_EUR).setScale(2),
+                        cash = it.get(oc.METHOD) in listOf("CASH_AT_OFFICE", "CASH_ON_PICKUP"),
+                        bookingReference = it.get(b.REFERENCE),
+                        partyType = null,
+                        partyName = null,
+                    )
+                }
+
+        val rr = r.`as`("rr")
+        val orf = r.`as`("orf")
+        val refunds =
+            dsl
+                .select(
+                    rr.ID,
+                    rr.RECORDED_AT,
+                    rr.REASON,
+                    rr.CURRENCY_PAID,
+                    rr.AMOUNT_PAID,
+                    rr.AMOUNT_EUR,
+                    orf.RECORDED_AT,
+                    orf.METHOD,
+                    b.REFERENCE,
+                    revBy.EMAIL,
+                    origBy.EMAIL,
+                ).from(rr)
+                .join(orf)
+                .on(orf.ID.eq(rr.REVERSES_REFUND_ID))
+                .join(b)
+                .on(b.ID.eq(rr.BOOKING_ID))
+                .leftJoin(revBy)
+                .on(revBy.ID.eq(rr.RECORDED_BY_USER_ID))
+                .leftJoin(origBy)
+                .on(origBy.ID.eq(orf.RECORDED_BY_USER_ID))
+                .where(
+                    rr.KIND
+                        .eq(OfficeRefundKind.REVERSAL.name)
+                        .and(rr.RECORDED_AT.ge(start))
+                        .and(rr.RECORDED_AT.lt(end)),
+                ).fetch()
+                .map {
+                    ReversalEntry(
+                        kind = ReversalKind.OFFICE_REFUND,
+                        id = it.get(rr.ID),
+                        reversedAt = it.get(rr.RECORDED_AT).toInstant(),
+                        reversedBy = it.get(revBy.EMAIL),
+                        reason = it.get(rr.REASON),
+                        originalAt = it.get(orf.RECORDED_AT).toInstant(),
+                        originalBy = it.get(origBy.EMAIL),
+                        currency = PaidCurrency.valueOf(it.get(rr.CURRENCY_PAID)),
+                        amount = it.get(rr.AMOUNT_PAID).setScale(2),
+                        amountEur = it.get(rr.AMOUNT_EUR).setScale(2),
+                        cash = it.get(orf.METHOD) == RefundMethod.CASH.name,
+                        bookingReference = it.get(b.REFERENCE),
+                        partyType = null,
+                        partyName = null,
+                    )
+                }
+
+        val sp = TOURS_OPERATOR_SETTLEMENT_PAYMENT.`as`("sp")
+        val op = TOURS_OPERATOR_SETTLEMENT_PAYMENT.`as`("op")
+        val supplier = TOURS_OPERATOR_SUPPLIER.`as`("sup")
+        val driver = TOURS_OPERATOR_DRIVER.`as`("drv")
+        val payments =
+            dsl
+                .select(
+                    sp.ID,
+                    sp.RECORDED_AT,
+                    sp.REASON,
+                    sp.CURRENCY,
+                    sp.AMOUNT,
+                    op.RECORDED_AT,
+                    op.METHOD,
+                    sp.PARTY_TYPE,
+                    supplier.NAME,
+                    driver.NAME,
+                    revBy.EMAIL,
+                    origBy.EMAIL,
+                ).from(sp)
+                .join(op)
+                .on(op.ID.eq(sp.REVERSES_PAYMENT_ID))
+                .leftJoin(supplier)
+                .on(supplier.ID.eq(sp.SUPPLIER_ID))
+                .leftJoin(driver)
+                .on(driver.ID.eq(sp.DRIVER_ID))
+                .leftJoin(revBy)
+                .on(revBy.ID.eq(sp.RECORDED_BY_USER_ID))
+                .leftJoin(origBy)
+                .on(origBy.ID.eq(op.RECORDED_BY_USER_ID))
+                .where(
+                    sp.KIND
+                        .eq(SettlementPaymentKind.REVERSAL.name)
+                        .and(sp.RECORDED_AT.ge(start))
+                        .and(sp.RECORDED_AT.lt(end)),
+                ).fetch()
+                .map {
+                    ReversalEntry(
+                        kind = ReversalKind.SETTLEMENT_PAYMENT,
+                        id = it.get(sp.ID),
+                        reversedAt = it.get(sp.RECORDED_AT).toInstant(),
+                        reversedBy = it.get(revBy.EMAIL),
+                        reason = it.get(sp.REASON).orEmpty(),
+                        originalAt = it.get(op.RECORDED_AT).toInstant(),
+                        originalBy = it.get(origBy.EMAIL),
+                        currency = PaidCurrency.valueOf(it.get(sp.CURRENCY)),
+                        amount = it.get(sp.AMOUNT).setScale(2),
+                        amountEur = null,
+                        cash = it.get(op.METHOD) == SettlementMethod.CASH.name,
+                        bookingReference = null,
+                        partyType = PartyType.valueOf(it.get(sp.PARTY_TYPE)),
+                        partyName = it.get(supplier.NAME) ?: it.get(driver.NAME),
+                    )
+                }
+
+        val ra = TOURS_OPERATOR_PAYABLE_ADJUSTMENT.`as`("ra")
+        val oa = TOURS_OPERATOR_PAYABLE_ADJUSTMENT.`as`("oa")
+        val adjustments =
+            dsl
+                .select(
+                    ra.ID,
+                    ra.RECORDED_AT,
+                    ra.REASON,
+                    ra.CURRENCY,
+                    ra.AMOUNT,
+                    oa.RECORDED_AT,
+                    ra.PARTY_TYPE,
+                    supplier.NAME,
+                    driver.NAME,
+                    revBy.EMAIL,
+                    origBy.EMAIL,
+                ).from(ra)
+                .join(oa)
+                .on(oa.ID.eq(ra.REVERSES_ADJUSTMENT_ID))
+                .leftJoin(supplier)
+                .on(supplier.ID.eq(ra.SUPPLIER_ID))
+                .leftJoin(driver)
+                .on(driver.ID.eq(ra.DRIVER_ID))
+                .leftJoin(revBy)
+                .on(revBy.ID.eq(ra.RECORDED_BY_USER_ID))
+                .leftJoin(origBy)
+                .on(origBy.ID.eq(oa.RECORDED_BY_USER_ID))
+                .where(
+                    ra.KIND
+                        .eq(AdjustmentKind.REVERSAL.name)
+                        .and(ra.RECORDED_AT.ge(start))
+                        .and(ra.RECORDED_AT.lt(end)),
+                ).fetch()
+                .map {
+                    ReversalEntry(
+                        kind = ReversalKind.ADJUSTMENT,
+                        id = it.get(ra.ID),
+                        reversedAt = it.get(ra.RECORDED_AT).toInstant(),
+                        reversedBy = it.get(revBy.EMAIL),
+                        reason = it.get(ra.REASON),
+                        originalAt = it.get(oa.RECORDED_AT).toInstant(),
+                        originalBy = it.get(origBy.EMAIL),
+                        currency = PaidCurrency.valueOf(it.get(ra.CURRENCY)),
+                        amount = it.get(ra.AMOUNT).setScale(2),
+                        amountEur = null,
+                        cash = false,
+                        bookingReference = null,
+                        partyType = PartyType.valueOf(it.get(ra.PARTY_TYPE)),
+                        partyName = it.get(supplier.NAME) ?: it.get(driver.NAME),
+                    )
+                }
+        return collections + refunds + payments + adjustments
+    }
+
+    @Transactional(readOnly = true)
+    override fun cashEvents(
+        from: LocalDate,
+        to: LocalDate,
+    ): List<CashBoxEvent> {
+        val e = TOURS_OPERATOR_CASH_BOX_EVENT
+        return dsl
+            .select(e.asterisk(), IDENTITY_USER.EMAIL)
+            .from(e)
+            .leftJoin(IDENTITY_USER)
+            .on(IDENTITY_USER.ID.eq(e.ACTOR_USER_ID))
+            .where(e.BUSINESS_DATE.between(from, to))
+            .orderBy(e.BUSINESS_DATE.asc(), e.CURRENCY.asc(), e.SEQUENCE.asc())
+            .fetch()
+            .map { row ->
+                CashBoxEvent(
+                    id = row.get(e.ID),
+                    businessDate = row.get(e.BUSINESS_DATE),
+                    currency = PaidCurrency.valueOf(row.get(e.CURRENCY)),
+                    sequence = row.get(e.SEQUENCE),
+                    kind = CashBoxEventKind.valueOf(row.get(e.KIND)),
+                    expected = row.get(e.EXPECTED)?.setScale(2),
+                    counted = row.get(e.COUNTED)?.setScale(2),
+                    difference = row.get(e.DIFFERENCE)?.setScale(2),
+                    note = if (row.get(e.KIND) == CashBoxEventKind.REOPEN.name) row.get(e.NOTE) else null,
+                    countEventId = row.get(e.COUNT_EVENT_ID),
+                    actorUserId = row.get(e.ACTOR_USER_ID),
+                    occurredAt = row.get(e.OCCURRED_AT).toInstant(),
+                    actorEmail = row.get(IDENTITY_USER.EMAIL),
+                )
+            }
+    }
+
+    @Transactional(readOnly = true)
+    override fun officeNetByCurrency(bookingIds: Collection<BookingId>): Map<BookingId, Map<PaidCurrency, NativeNet>> {
+        if (bookingIds.isEmpty()) return emptyMap()
+        val ids = bookingIds.map { it.value }
+        val collected =
+            dsl
+                .select(
+                    c.BOOKING_ID,
+                    c.CURRENCY_PAID,
+                    DSL.sum(DSL.`when`(c.KIND.eq("COLLECTION"), c.AMOUNT_PAID).otherwise(c.AMOUNT_PAID.neg())),
+                    DSL.sum(DSL.`when`(c.KIND.eq("COLLECTION"), c.AMOUNT_EUR).otherwise(c.AMOUNT_EUR.neg())),
+                ).from(c)
+                .where(c.BOOKING_ID.`in`(ids))
+                .groupBy(c.BOOKING_ID, c.CURRENCY_PAID)
+                .fetch()
+        val refunded =
+            dsl
+                .select(
+                    r.BOOKING_ID,
+                    r.CURRENCY_PAID,
+                    DSL.sum(DSL.`when`(r.KIND.eq(OfficeRefundKind.REFUND.name), r.AMOUNT_PAID).otherwise(r.AMOUNT_PAID.neg())),
+                    DSL.sum(DSL.`when`(r.KIND.eq(OfficeRefundKind.REFUND.name), r.AMOUNT_EUR).otherwise(r.AMOUNT_EUR.neg())),
+                ).from(r)
+                .where(r.BOOKING_ID.`in`(ids))
+                .groupBy(r.BOOKING_ID, r.CURRENCY_PAID)
+                .fetch()
+        val net = mutableMapOf<Pair<BookingId, PaidCurrency>, NativeNet>()
+        for (row in collected) {
+            val key = BookingId(checkNotNull(row.value1())) to PaidCurrency.valueOf(checkNotNull(row.value2()))
+            net[key] = NativeNet(row.value3().money2(), row.value4().money2())
+        }
+        for (row in refunded) {
+            val key = BookingId(checkNotNull(row.value1())) to PaidCurrency.valueOf(checkNotNull(row.value2()))
+            val before = net[key] ?: NativeNet(ZERO, ZERO)
+            net[key] = NativeNet(before.native.subtract(row.value3().money2()), before.eur.subtract(row.value4().money2()))
+        }
+        return net.entries.groupBy({ it.key.first }, { it.key.second to it.value }).mapValues { it.value.toMap() }
+    }
 
     private fun pricing(row: ToursOperatorBookingRecord): BookingPricing =
         BookingPricing(

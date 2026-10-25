@@ -4,7 +4,7 @@ import type { ErpMessageKey } from "./erpLocale";
 export const STAFF_GROUPS = [
   { key: "workspace.operations", paths: ["/", "/today", "/requests", "/bookings"] },
   { key: "workspace.catalog", paths: ["/tours", "/categories"] },
-  { key: "workspace.finance", paths: ["/finance", "/profitability", "/costs", "/settlements", "/cash-box"] },
+  { key: "workspace.finance", paths: ["/finance", "/profitability", "/costs", "/settlements", "/cash-box", "/reports"] },
   { key: "workspace.relationships", paths: ["/suppliers", "/drivers", "/vehicles", "/customers"] },
   { key: "workspace.admin", paths: ["/reviews", "/notifications", "/staff", "/sales", "/settings"] },
 ] satisfies { key: ErpMessageKey; paths: string[] }[];

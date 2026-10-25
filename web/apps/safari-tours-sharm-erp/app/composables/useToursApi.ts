@@ -40,6 +40,7 @@ import type {
   CostComponent, CostComponentRequest, ProfitReport, OfficeSummary, OfficeRefunds, OfficeRefundOutcome, RefundMethod,
   PartySummary, PartyStatement, SettlementPayment, SettlementApproval, PayableAdjustment, SettlementMethod, CashDay, CashBoxEvent,
   SettlementStatementDocument,
+  ReversalReport, CashVarianceReport, RequestConversionReport, DepartureMoneyReport,
 } from "@wego/api-contract";
 
 export type {
@@ -522,6 +523,19 @@ export function getProfitability(token: string, from: string, to: string, groupB
 export function getOfficeSummary(token: string, from: string, to: string): Promise<OfficeSummary> {
   const q = new URLSearchParams({ from, to });
   return request<OfficeSummary>(`${STAFF}/finance/office-summary?${q}`, token);
+}
+
+export type FinanceReportName = "reversals" | "cash-variances" | "request-conversion" | "departure-money";
+export const getReversalReport = (token: string, from: string, to: string) => request<ReversalReport>(`${STAFF}/reports/reversals?${new URLSearchParams({ from, to })}`, token);
+export const getCashVarianceReport = (token: string, from: string, to: string) => request<CashVarianceReport>(`${STAFF}/reports/cash-variances?${new URLSearchParams({ from, to })}`, token);
+export const getRequestConversionReport = (token: string, from: string, to: string) => request<RequestConversionReport>(`${STAFF}/reports/request-conversion?${new URLSearchParams({ from, to })}`, token);
+export const getDepartureMoneyReport = (token: string, from: string, to: string) => request<DepartureMoneyReport>(`${STAFF}/reports/departure-money?${new URLSearchParams({ from, to })}`, token);
+
+/** CSV of a report (UTF-8 with BOM, same permission as the report). Returns the file as a Blob. */
+export async function downloadReportCsv(token: string, report: FinanceReportName, from: string, to: string, lang: "en" | "ar"): Promise<Blob> {
+  const response = await fetch(`${STAFF}/reports/${report}.csv?${new URLSearchParams({ from, to, lang })}`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!response.ok) throw new ToursApiError(response.status, `http_${response.status}`, null);
+  return response.blob();
 }
 
 export const listRefunds = (token: string, bookingId: string) => request<OfficeRefunds>(`${STAFF}/bookings/${bookingId}/refunds`, token);

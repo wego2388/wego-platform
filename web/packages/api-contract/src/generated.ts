@@ -2993,6 +2993,166 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tours-operator/staff/reports/reversals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Reversal report
+         * @description Requires tours-operator.payment:view. Collections, office refunds, supplier/driver payments and adjustments reversed over the range (Cairo recorded day), native currency, with who, when and why. Never cached.
+         */
+        get: operations["getToursOperatorReversalReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/reports/reversals.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Reversal report (CSV)
+         * @description Requires tours-operator.payment:view. Collections, office refunds, supplier/driver payments and adjustments reversed over the range (Cairo recorded day), native currency, with who, when and why. CSV: UTF-8 with BOM, same permission as the report, no customer fields. Never cached.
+         */
+        get: operations["getToursOperatorReversalReportCsv"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/reports/cash-variances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Cash-box variance history
+         * @description Requires tours-operator.cash-box:confirm or tours-operator.payment:view. Per business day and currency: expected, counted, difference and who counted and confirmed. Never cached.
+         */
+        get: operations["getToursOperatorCashVarianceReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/reports/cash-variances.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Cash-box variance history (CSV)
+         * @description Requires tours-operator.cash-box:confirm or tours-operator.payment:view. Per business day and currency: expected, counted, difference and who counted and confirmed. CSV: UTF-8 with BOM, same permission as the report, no customer fields. Never cached.
+         */
+        get: operations["getToursOperatorCashVarianceReportCsv"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/reports/request-conversion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Website request conversion
+         * @description Requires tours-operator.booking:view. Requests created in the range by current status; no customer data. Never cached.
+         */
+        get: operations["getToursOperatorRequestConversion"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/reports/request-conversion.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Website request conversion (CSV)
+         * @description Requires tours-operator.booking:view. Requests created in the range by current status; no customer data. CSV: UTF-8 with BOM, same permission as the report, no customer fields. Never cached.
+         */
+        get: operations["getToursOperatorRequestConversionCsv"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/reports/departure-money": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Booked, collected and outstanding by tour day
+         * @description Requires tours-operator.payment:view. EUR booked value, EUR collected and outstanding, and money received per currency (EUR and EGP never mixed). Never cached.
+         */
+        get: operations["getToursOperatorDepartureMoney"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours-operator/staff/reports/departure-money.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Booked, collected and outstanding by tour day (CSV)
+         * @description Requires tours-operator.payment:view. EUR booked value, EUR collected and outstanding, and money received per currency (EUR and EGP never mixed). CSV: UTF-8 with BOM, same permission as the report, no customer fields. Never cached.
+         */
+        get: operations["getToursOperatorDepartureMoneyCsv"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tours-operator/staff/bookings/{bookingId}/refunds": {
         parameters: {
             query?: never;
@@ -4915,6 +5075,119 @@ export interface components {
         ToursOperatorSettlementStatementDocument: {
             document: components["schemas"]["ToursOperatorDocumentStamp"];
             data: components["schemas"]["ToursOperatorSettlementStatementData"];
+        };
+        /** @enum {string} */
+        ToursOperatorReversalKind: "COLLECTION" | "OFFICE_REFUND" | "SETTLEMENT_PAYMENT" | "ADJUSTMENT";
+        ToursOperatorReversalLine: {
+            kind: components["schemas"]["ToursOperatorReversalKind"];
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            reversedAt: string;
+            /** Format: date */
+            reversedOn: string;
+            reversedBy: string | null;
+            reason: string;
+            /** Format: date-time */
+            originalAt: string;
+            /** Format: date */
+            originalOn: string;
+            originalBy: string | null;
+            lagDays: number;
+            amount: components["schemas"]["ToursOperatorAmount"];
+            amountEur: components["schemas"]["ToursOperatorAmount"] | null;
+            cash: boolean;
+            crossedClosedDay: boolean;
+            bookingReference: string | null;
+            partyType: components["schemas"]["ToursOperatorPartyType"] | null;
+            partyName: string | null;
+        };
+        ToursOperatorReversalTotal: {
+            kind: components["schemas"]["ToursOperatorReversalKind"];
+            currency: components["schemas"]["ToursOperatorPaidCurrency"];
+            count: number;
+            amount: components["schemas"]["ToursOperatorAmount"];
+        };
+        ToursOperatorReversalReport: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            basis: string;
+            lines: components["schemas"]["ToursOperatorReversalLine"][];
+            totals: components["schemas"]["ToursOperatorReversalTotal"][];
+        };
+        ToursOperatorCashVarianceDay: {
+            /** Format: date */
+            date: string;
+            currency: components["schemas"]["ToursOperatorPaidCurrency"];
+            /** @enum {string} */
+            state: "OPEN" | "COUNTED" | "CLOSED";
+            expected: components["schemas"]["ToursOperatorAmount"];
+            counted: components["schemas"]["ToursOperatorAmount"];
+            difference: components["schemas"]["ToursOperatorAmount"];
+            countedBy: string | null;
+            /** Format: date-time */
+            countedAt: string;
+            confirmedBy: string | null;
+            confirmedAt: string | null;
+            countEvents: number;
+            reopenCount: number;
+        };
+        ToursOperatorCashVarianceTotal: {
+            currency: components["schemas"]["ToursOperatorPaidCurrency"];
+            closedDays: number;
+            daysWithVariance: number;
+            difference: components["schemas"]["ToursOperatorAmount"];
+        };
+        ToursOperatorCashVarianceReport: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            basis: string;
+            days: components["schemas"]["ToursOperatorCashVarianceDay"][];
+            totals: components["schemas"]["ToursOperatorCashVarianceTotal"][];
+        };
+        ToursOperatorRequestConversion: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            basis: string;
+            total: number;
+            new: number;
+            inProgress: number;
+            closed: number;
+            converted: number;
+            conversionPercent: string | null;
+        };
+        ToursOperatorReceivedAmount: {
+            currency: components["schemas"]["ToursOperatorPaidCurrency"];
+            amount: components["schemas"]["ToursOperatorAmount"];
+            settledEur: components["schemas"]["ToursOperatorAmount"];
+        };
+        ToursOperatorDepartureDayMoney: {
+            /** Format: date */
+            date: string;
+            liveBookings: number;
+            cancelledBookings: number;
+            booked: components["schemas"]["ToursOperatorAmount"];
+            collected: components["schemas"]["ToursOperatorAmount"];
+            outstanding: components["schemas"]["ToursOperatorAmount"];
+            retainedOnCancelled: components["schemas"]["ToursOperatorAmount"];
+            received: components["schemas"]["ToursOperatorReceivedAmount"][];
+            paymentsUnderReview: number;
+            refundsPending: number;
+        };
+        ToursOperatorDepartureMoney: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            basis: string;
+            days: components["schemas"]["ToursOperatorDepartureDayMoney"][];
+            totals: components["schemas"]["ToursOperatorDepartureDayMoney"] | null;
         };
         ToursOperatorErrorResponse: {
             error: string;
@@ -13187,6 +13460,218 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ToursOperatorOfficeSummary"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    getToursOperatorReversalReport: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorReversalReport"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    getToursOperatorReversalReportCsv: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+                lang?: "en" | "ar";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    getToursOperatorCashVarianceReport: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorCashVarianceReport"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    getToursOperatorCashVarianceReportCsv: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+                lang?: "en" | "ar";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    getToursOperatorRequestConversion: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorRequestConversion"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    getToursOperatorRequestConversionCsv: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+                lang?: "en" | "ar";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    getToursOperatorDepartureMoney: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorDepartureMoney"];
+                };
+            };
+            400: components["responses"]["ToursOperatorValidationResponse"];
+            401: components["responses"]["UnauthenticatedResponse"];
+            403: components["responses"]["ForbiddenResponse"];
+        };
+    };
+    getToursOperatorDepartureMoneyCsv: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+                lang?: "en" | "ar";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
                 };
             };
             400: components["responses"]["ToursOperatorValidationResponse"];

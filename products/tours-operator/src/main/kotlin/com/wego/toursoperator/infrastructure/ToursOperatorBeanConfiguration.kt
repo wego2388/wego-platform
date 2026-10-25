@@ -364,6 +364,14 @@ class ToursOperatorBeanConfiguration {
         clock: Clock,
     ): ProfitabilityService = ProfitabilityService(reads, costs, settlements, clock)
 
+    @Bean("stoFinanceReportService")
+    fun financeReportService(
+        @Qualifier("stoFinanceReadRepositoryImpl") reads: FinanceReadRepository,
+        requests: com.wego.toursoperator.application.OnlineRequestRepository,
+    ): com.wego.toursoperator.application.FinanceReportService =
+        com.wego.toursoperator.application
+            .FinanceReportService(reads, requests)
+
     @Bean("stoOfficeDocumentService")
     fun officeDocumentService(
         @Qualifier("stoBookingRepositoryImpl") bookingRepository: BookingRepository,

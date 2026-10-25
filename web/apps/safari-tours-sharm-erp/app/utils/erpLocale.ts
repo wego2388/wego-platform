@@ -1,14 +1,16 @@
 import { moneyToMinorUnits, type Money } from "@wego/api-contract";
 import { financeOpsAr, financeOpsEn } from "./financeOpsMessages";
 import { inventoryAr, inventoryEn } from "./inventoryMessages";
+import { reportsAr, reportsEn } from "./reportsMessages";
 import { workspaceAr, workspaceEn } from "./workspaceMessages";
 
 export type ErpLocale = "en" | "ar";
 export const ERP_LOCALE_COOKIE = "sts_staff_locale";
-export const LOCALIZED_ERP_ROUTES = ["/", "/login", "/today", "/requests", "/bookings", "/tours", "/categories", "/notifications", "/reviews", "/sales", "/settings", "/customers", "/finance", "/staff", "/suppliers", "/drivers", "/vehicles", "/costs", "/profitability", "/settlements", "/cash-box"] as const;
+export const LOCALIZED_ERP_ROUTES = ["/", "/login", "/today", "/requests", "/bookings", "/tours", "/categories", "/notifications", "/reviews", "/sales", "/settings", "/customers", "/finance", "/staff", "/suppliers", "/drivers", "/vehicles", "/costs", "/profitability", "/settlements", "/cash-box", "/reports"] as const;
 
 export const en = {
   ...financeOpsEn,
+  ...reportsEn,
   ...inventoryEn,
   ...workspaceEn,
   "shell.staff": "Staff",
@@ -673,6 +675,7 @@ export const ar: Record<ErpMessageKey, string> = {
   ...inventoryAr,
   ...workspaceAr,
   ...financeOpsAr,
+  ...reportsAr,
   "shell.staff": "الموظفون",
   "shell.skip": "انتقل إلى المحتوى",
   "shell.navigation": "التنقل الرئيسي",
