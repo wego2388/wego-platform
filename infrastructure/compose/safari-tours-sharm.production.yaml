@@ -36,9 +36,22 @@ x-logging: &default-logging
     max-size: ${SAFARI_LOG_MAX_SIZE:-10m}
     max-file: "${SAFARI_LOG_MAX_FILE:-5}"
 
+# L2 hardening (2026-10-25 review): no service can gain privileges, and every
+# service drops ALL Linux capabilities except the minimum listed per service.
+# App containers (backend, web, safari-site) and the edge already run as a
+# non-root user (10001 / nginx 101) on unprivileged ports, so they need none.
+# PostgreSQL's entrypoint starts as root, fixes data-dir ownership and drops
+# to `postgres` (gosu), which needs exactly CHOWN, DAC_OVERRIDE, FOWNER,
+# SETGID, SETUID.
+x-no-new-privileges: &no-new-privileges
+  - no-new-privileges:true
+
 services:
   postgres:
     ports: !reset []
+    security_opt: *no-new-privileges
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
     pull_policy: missing
     shm_size: 128m
     stop_grace_period: 60s
@@ -51,6 +64,8 @@ services:
           pids: 256
 
   backend:
+    security_opt: *no-new-privileges
+    cap_drop: [ALL]
     build: !reset null
     image: ${SAFARI_BACKEND_IMAGE:?set SAFARI_BACKEND_IMAGE (reviewed release tag) in the env file}
     pull_policy: never
@@ -93,6 +108,8 @@ services:
           pids: 512
 
   web:
+    security_opt: *no-new-privileges
+    cap_drop: [ALL]
     build: !reset null
     image: ${SAFARI_ERP_IMAGE:?set SAFARI_ERP_IMAGE (reviewed release tag) in the env file}
     pull_policy: never
@@ -109,6 +126,8 @@ services:
           pids: 128
 
   safari-site:
+    security_opt: *no-new-privileges
+    cap_drop: [ALL]
     build: !reset null
     image: ${SAFARI_SITE_IMAGE:?set SAFARI_SITE_IMAGE (reviewed release tag) in the env file}
     pull_policy: never
@@ -125,6 +144,8 @@ services:
           pids: 128
 
   edge:
+    security_opt: *no-new-privileges
+    cap_drop: [ALL]
     pull_policy: missing
     ports: !override
       - "127.0.0.1:${SAFARI_EDGE_PORT:-58080}:8080"
