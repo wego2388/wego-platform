@@ -1,0 +1,3982 @@
+{
+  "capturedAt": "2026-10-20T13:08:20.726Z",
+  "source": "https://safaritourssharm.com/api/v1/tours-operator/tours?locale=en",
+  "purpose": "Review/copy source, not a published provider feed or stock authority",
+  "publicationStatus": "NOT_IMPORTED",
+  "note": "Refresh commercial facts before import; do not map static capacity to available stock. Readiness issues block publication.",
+  "count": 27,
+  "items": [
+    {
+      "id": "a0000001-0000-0000-0000-000000000001",
+      "slug": "super-safari-adventure",
+      "category": "DESERT",
+      "durationText": "5–6 hours",
+      "price": {
+        "amount": "35.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/media/tours/super-safari-adventure/18e4d7d4-ac38-4f28-ae07-82a361d3d8c6.png",
+          "isCover": true,
+          "alt": "A rider on a quad bike on sandy terrain"
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Super Safari Adventure",
+          "description": "Quad bike through the Sinai dunes to the Valley of Echo, Bedouin tea in a tent and a camel ride.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/super-safari-adventure",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Air-conditioned transport",
+            "Quad bike ride",
+            "Camel ride",
+            "Stops at the Valley of Echo and a Bedouin tent",
+            "Bedouin tea",
+            "Sunset departure: VIP Bedouin dinner with Tanoura and fire show",
+            "Tour guide",
+            "Entrance fees"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Headscarf",
+            "Sunglasses",
+            "Comfortable closed shoes",
+            "Not suitable for pregnant women or people with back or heart problems.",
+            "Children under 10 ride only as passengers with an accompanying adult."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "مغامرة سوبر سفاري",
+          "description": "رحلة بدراجة الكواد عبر كثبان سيناء إلى وادي الصدى، مع شاي بدوي في خيمة وركوب الجمل.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/super-safari-adventure",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "مواصلات مكيفة",
+            "ركوب دراجة الكواد",
+            "ركوب الجمل",
+            "وقفات عند وادي الصدى وخيمة بدوية",
+            "الشاي البدوي",
+            "الرحلة المسائية وقت الغروب: عشاء بدوي VIP مع عرض تنورة وعرض نار",
+            "مرشد سياحي",
+            "رسوم الدخول"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "وشاح للرأس",
+            "نظارة شمسية",
+            "حذاء مريح مغلق",
+            "غير مناسبة للحوامل أو لمن يعانون من مشكلات في الظهر أو القلب.",
+            "الأطفال دون سن 10 سنوات يركبون كراكبين فقط برفقة شخص بالغ."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Супер-сафари",
+          "description": "Квадроцикл по дюнам Синая к Долине Эха, бедуинский чай в шатре и катание на верблюде.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/super-safari-adventure",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Транспорт с кондиционером",
+            "Поездка на квадроцикле",
+            "Катание на верблюде",
+            "Остановки в Долине Эха и у бедуинского шатра",
+            "Бедуинский чай",
+            "Выезд на закате: VIP-ужин у бедуинов с шоу танура и огня",
+            "Гид",
+            "Входные билеты"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Головной платок",
+            "Солнцезащитные очки",
+            "Удобная закрытая обувь",
+            "Не подходит беременным женщинам и людям с проблемами спины или сердца.",
+            "Дети до 10 лет едут только пассажирами в сопровождении взрослого."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Super Safari Adventure",
+          "description": "In quad tra le dune del Sinai fino alla Valle dell'Eco, tè beduino in una tenda e giro in cammello.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/super-safari-adventure",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Trasporto con aria condizionata",
+            "Giro in quad",
+            "Giro in cammello",
+            "Soste alla Valle dell'Eco e in una tenda beduina",
+            "Tè beduino",
+            "Partenza al tramonto: cena beduina VIP con spettacolo di Tanoura e di fuoco",
+            "Guida turistica",
+            "Biglietti d'ingresso"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Foulard per la testa",
+            "Occhiali da sole",
+            "Scarpe comode e chiuse",
+            "Non adatto a donne in gravidanza o a persone con problemi alla schiena o al cuore.",
+            "I bambini sotto i 10 anni salgono solo come passeggeri, con un adulto accompagnatore."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000002",
+      "slug": "sunset-quad-bike",
+      "category": "DESERT",
+      "durationText": "2–3 hours",
+      "price": {
+        "amount": "35.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/sunset-quad-bike/sunset-quad-rider-cover-1600.webp",
+          "isCover": true,
+          "alt": {
+            "en": "A quad rider on a desert track with mountains behind.",
+            "ar": "قيادة دراجة رباعية على طريق صحراوي وخلفها الجبال.",
+            "ru": "Поездка на квадроцикле по пустынной дороге на фоне гор.",
+            "it": "Un quad su una pista nel deserto con le montagne sullo sfondo."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/sunset-quad-bike/sunset-quad-line-gallery-720.webp",
+          "isCover": false,
+          "alt": {
+            "en": "A line of quad bikes parked among desert mountains.",
+            "ar": "صف من الدراجات الرباعية بين الجبال الصحراوية.",
+            "ru": "Ряд квадроциклов среди пустынных гор.",
+            "it": "Una fila di quad parcheggiati tra le montagne del deserto."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Sunset Quad Bike",
+          "description": "Ride a quad bike across the dunes as the desert turns gold, with the Valley of Echo, Bedouin tea and a camel ride at sunset.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/sunset-quad-bike",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Air-conditioned transport",
+            "Quad bike ride",
+            "Camel ride",
+            "Helmet and safety briefing",
+            "Stops at the Valley of Echo and a Bedouin tent",
+            "Bedouin tea",
+            "Tour guide",
+            "Entrance fees"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Headscarf",
+            "Sunglasses",
+            "Comfortable closed shoes",
+            "Not suitable for pregnant women or people with back or heart problems.",
+            "Children under 10 ride only as passengers with an accompanying adult."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "كواد وقت الغروب",
+          "description": "انطلق بدراجة الكواد عبر الكثبان بينما تتحول الصحراء إلى لون الذهب، مع وقفة عند وادي الصدى وشاي بدوي وركوب الجمل وقت الغروب.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/sunset-quad-bike",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "مواصلات مكيفة",
+            "ركوب دراجة الكواد",
+            "ركوب الجمل",
+            "خوذة وإرشادات السلامة",
+            "وقفات عند وادي الصدى وخيمة بدوية",
+            "الشاي البدوي",
+            "مرشد سياحي",
+            "رسوم الدخول"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "وشاح للرأس",
+            "نظارة شمسية",
+            "حذاء مريح مغلق",
+            "غير مناسبة للحوامل أو لمن يعانون من مشكلات في الظهر أو القلب.",
+            "الأطفال دون سن 10 سنوات يركبون كراكبين فقط برفقة شخص بالغ."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Квадроциклы на закате",
+          "description": "Поездка на квадроцикле по дюнам, пока пустыня золотится на закате, с остановкой в Долине Эха, бедуинским чаем и катанием на верблюде.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/sunset-quad-bike",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Транспорт с кондиционером",
+            "Поездка на квадроцикле",
+            "Катание на верблюде",
+            "Шлем и инструктаж по безопасности",
+            "Остановки в Долине Эха и у бедуинского шатра",
+            "Бедуинский чай",
+            "Гид",
+            "Входные билеты"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Головной платок",
+            "Солнцезащитные очки",
+            "Удобная закрытая обувь",
+            "Не подходит беременным женщинам и людям с проблемами спины или сердца.",
+            "Дети до 10 лет едут только пассажирами в сопровождении взрослого."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Quad al tramonto",
+          "description": "In quad tra le dune mentre il deserto si tinge d'oro, con Valle dell'Eco, tè beduino e giro in cammello al tramonto.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/sunset-quad-bike",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Trasporto con aria condizionata",
+            "Giro in quad",
+            "Giro in cammello",
+            "Casco e briefing di sicurezza",
+            "Soste alla Valle dell'Eco e in una tenda beduina",
+            "Tè beduino",
+            "Guida turistica",
+            "Biglietti d'ingresso"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Foulard per la testa",
+            "Occhiali da sole",
+            "Scarpe comode e chiuse",
+            "Non adatto a donne in gravidanza o a persone con problemi alla schiena o al cuore.",
+            "I bambini sotto i 10 anni salgono solo come passeggeri, con un adulto accompagnatore."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000003",
+      "slug": "double-buggy-camel-ride",
+      "category": "DESERT",
+      "durationText": "2–3 hours",
+      "price": {
+        "amount": "30.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_UNIT",
+      "priceOptions": [
+        {
+          "code": "buggy",
+          "label": "Two-seat buggy",
+          "seatsPerUnit": 2,
+          "price": {
+            "amount": "30.00",
+            "currencyCode": "EUR"
+          }
+        }
+      ],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/double-buggy-camel-ride/double-buggy-desert-cover-720.webp",
+          "isCover": true,
+          "alt": {
+            "en": "A dune buggy on a sandy desert track beside rocky mountains.",
+            "ar": "سيارة باجي على مسار رملي بجوار الجبال الصخرية.",
+            "ru": "Багги на песчаной дороге рядом со скалистыми горами.",
+            "it": "Un buggy su una pista sabbiosa accanto a montagne rocciose."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Double Buggy & Camel Ride",
+          "description": "Drive a two-seat sand buggy through the dunes, stop at the Valley of Echo and a Bedouin tent, then ride a camel.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/double-buggy-camel-ride",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Air-conditioned transport",
+            "Two-seat sand buggy",
+            "Camel ride",
+            "Stops at the Valley of Echo and a Bedouin tent",
+            "Bedouin tea",
+            "Safety equipment",
+            "Tour guide",
+            "Entrance fees"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Headscarf",
+            "Sunglasses",
+            "Comfortable closed shoes",
+            "Not suitable for pregnant women or people with back or heart problems.",
+            "Children under 10 ride only as passengers with an accompanying adult.",
+            "The price is per buggy, which seats two."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "بجي مزدوج وركوب الجمل",
+          "description": "قُد عربة بجي رملية بمقعدين عبر الكثبان، مع وقفة عند وادي الصدى وخيمة بدوية، ثم ركوب الجمل.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/double-buggy-camel-ride",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "مواصلات مكيفة",
+            "عربة بجي رملية بمقعدين",
+            "ركوب الجمل",
+            "وقفات عند وادي الصدى وخيمة بدوية",
+            "الشاي البدوي",
+            "معدات السلامة",
+            "مرشد سياحي",
+            "رسوم الدخول"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "وشاح للرأس",
+            "نظارة شمسية",
+            "حذاء مريح مغلق",
+            "غير مناسبة للحوامل أو لمن يعانون من مشكلات في الظهر أو القلب.",
+            "الأطفال دون سن 10 سنوات يركبون كراكبين فقط برفقة شخص بالغ.",
+            "السعر لكل عربة بجي، وتتسع لشخصين."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Двухместное багги и катание на верблюде",
+          "description": "Управляйте двухместным песчаным багги по дюнам, остановитесь в Долине Эха и у бедуинского шатра, а затем прокатитесь на верблюде.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/double-buggy-camel-ride",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Транспорт с кондиционером",
+            "Двухместное песчаное багги",
+            "Катание на верблюде",
+            "Остановки в Долине Эха и у бедуинского шатра",
+            "Бедуинский чай",
+            "Защитное снаряжение",
+            "Гид",
+            "Входные билеты"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Головной платок",
+            "Солнцезащитные очки",
+            "Удобная закрытая обувь",
+            "Не подходит беременным женщинам и людям с проблемами спины или сердца.",
+            "Дети до 10 лет едут только пассажирами в сопровождении взрослого.",
+            "Цена указана за одно багги, рассчитанное на двух человек."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Buggy doppio e giro in cammello",
+          "description": "Guida un buggy a due posti tra le dune, fermati alla Valle dell'Eco e in una tenda beduina, poi fai un giro in cammello.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/double-buggy-camel-ride",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Trasporto con aria condizionata",
+            "Buggy a due posti",
+            "Giro in cammello",
+            "Soste alla Valle dell'Eco e in una tenda beduina",
+            "Tè beduino",
+            "Attrezzatura di sicurezza",
+            "Guida turistica",
+            "Biglietti d'ingresso"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Foulard per la testa",
+            "Occhiali da sole",
+            "Scarpe comode e chiuse",
+            "Non adatto a donne in gravidanza o a persone con problemi alla schiena o al cuore.",
+            "I bambini sotto i 10 anni salgono solo come passeggeri, con un adulto accompagnatore.",
+            "Il prezzo è per buggy, che ha due posti."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000004",
+      "slug": "bedouin-dinner-camel-ride",
+      "category": "DESERT",
+      "durationText": "3–4 hours",
+      "price": {
+        "amount": "35.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/bedouin-dinner-camel-ride/bedouin-tent-cover-1600.webp",
+          "isCover": true,
+          "alt": {
+            "en": "Guests gathered around a low table in a Bedouin tent.",
+            "ar": "ضيوف حول طاولة منخفضة داخل خيمة بدوية.",
+            "ru": "Гости за низким столиком в бедуинском шатре.",
+            "it": "Ospiti intorno a un tavolino basso in una tenda beduina."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/bedouin-dinner-camel-ride/bedouin-camel-gallery-1600.webp",
+          "isCover": false,
+          "alt": {
+            "en": "A group riding camels along a desert route.",
+            "ar": "مجموعة تركب الجمال على طريق صحراوي.",
+            "ru": "Группа на верблюдах на пустынном маршруте.",
+            "it": "Un gruppo a dorso di cammello su un percorso nel deserto."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Bedouin Dinner & Camel Ride",
+          "description": "Ride a camel through the dunes at sunset, then enjoy a Bedouin barbecue dinner with fire and Tanoura shows.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/bedouin-dinner-camel-ride",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Air-conditioned transport",
+            "Camel ride",
+            "Barbecue Bedouin dinner (open buffet) in a private VIP tent",
+            "Bedouin tea",
+            "Fire show and Tanoura show",
+            "Tour guide",
+            "Entrance fees"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Comfortable clothes and shoes",
+            "A light jacket for the evening"
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "عشاء بدوي وركوب الجمل",
+          "description": "اركب الجمل عبر الكثبان وقت الغروب، ثم استمتع بعشاء بدوي مشوي مع عرض نار وعرض تنورة.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/bedouin-dinner-camel-ride",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "مواصلات مكيفة",
+            "ركوب الجمل",
+            "عشاء بدوي مشوي (بوفيه مفتوح) في خيمة VIP خاصة",
+            "الشاي البدوي",
+            "عرض نار وعرض تنورة",
+            "مرشد سياحي",
+            "رسوم الدخول"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "ملابس وأحذية مريحة",
+            "جاكيت خفيف لأمسية الصحراء"
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Бедуинский ужин и катание на верблюде",
+          "description": "Катание на верблюде по дюнам на закате, затем бедуинский ужин-барбекю с шоу огня и танура.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/bedouin-dinner-camel-ride",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Транспорт с кондиционером",
+            "Катание на верблюде",
+            "Бедуинский ужин-барбекю (открытый шведский стол) в отдельном VIP-шатре",
+            "Бедуинский чай",
+            "Шоу огня и шоу танура",
+            "Гид",
+            "Входные билеты"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Удобная одежда и обувь",
+            "Лёгкая куртка на вечер"
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Cena beduina e giro in cammello",
+          "description": "Giro in cammello tra le dune al tramonto, poi cena beduina al barbecue con spettacolo di fuoco e di Tanoura.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/bedouin-dinner-camel-ride",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Trasporto con aria condizionata",
+            "Giro in cammello",
+            "Cena beduina al barbecue (buffet a volontà) in una tenda VIP privata",
+            "Tè beduino",
+            "Spettacolo di fuoco e spettacolo di Tanoura",
+            "Guida turistica",
+            "Biglietti d'ingresso"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Abbigliamento e scarpe comodi",
+            "Una giacca leggera per la sera"
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000005",
+      "slug": "dahab-colored-canyon",
+      "category": "CULTURAL",
+      "durationText": "8–10 hours",
+      "price": {
+        "amount": "35.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/dahab-colored-canyon/dahab-coast-800.webp",
+          "isCover": true,
+          "alt": {
+            "en": "The coastline and mountains around Dahab.",
+            "ar": "الساحل والجبال المحيطة بدهب.",
+            "ru": "Побережье и горы вокруг Дахаба.",
+            "it": "La costa e le montagne intorno a Dahab."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/dahab-colored-canyon/dahab-canyon-828.webp",
+          "isCover": false,
+          "alt": {
+            "en": "Visitors walking between colourful canyon walls.",
+            "ar": "زوار بين جدران الوادي الملونة.",
+            "ru": "Посетители среди разноцветных стен каньона.",
+            "it": "Visitatori tra le pareti colorate del canyon."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Dahab 5×1 / Colored Canyon",
+          "description": "A full day from Sharm: the Colored Canyon by jeep, lunch by the sea, a coastal camel ride, snorkeling and Dahab's bazaar.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/dahab-colored-canyon",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Jeep to the Colored Canyon",
+            "Guided canyon walk",
+            "Lunch by the sea",
+            "Camel ride along the coast",
+            "Stop at the Three Pools",
+            "Free time in Dahab",
+            "Local guide"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Passport",
+            "Snorkeling gear",
+            "Drinking water",
+            "Comfortable shoes",
+            "Towel and swimwear"
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "دهب 5×1 / الكانيون الملون",
+          "description": "يوم كامل من شرم الشيخ: الكانيون الملون بسيارة جيب، وغداء على البحر، وركوب الجمل على الساحل، وسنوركل، وبازار دهب.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/dahab-colored-canyon",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "سيارة جيب إلى الكانيون الملون",
+            "جولة مشي مع مرشد داخل الكانيون",
+            "غداء على البحر",
+            "ركوب الجمل على طول الساحل",
+            "وقفة عند البرك الثلاث",
+            "وقت حر في دهب",
+            "مرشد محلي"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "جواز السفر",
+            "معدات السنوركل",
+            "مياه شرب",
+            "حذاء مريح",
+            "منشفة وملابس سباحة"
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Дахаб 5×1 / Цветной каньон",
+          "description": "Целый день из Шарма: Цветной каньон на джипе, обед у моря, катание на верблюде вдоль побережья, снорклинг и базар в Дахабе.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/dahab-colored-canyon",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Джип до Цветного каньона",
+            "Прогулка по каньону с гидом",
+            "Обед у моря",
+            "Катание на верблюде вдоль побережья",
+            "Остановка в «Трёх бассейнах»",
+            "Свободное время в Дахабе",
+            "Местный гид"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Паспорт",
+            "Снаряжение для снорклинга",
+            "Питьевая вода",
+            "Удобная обувь",
+            "Полотенце и купальник"
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Dahab 5×1 / Canyon Colorato",
+          "description": "Una giornata intera da Sharm: il Canyon Colorato in jeep, pranzo in riva al mare, giro in cammello lungo la costa, snorkeling e il bazar di Dahab.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/dahab-colored-canyon",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Jeep fino al Canyon Colorato",
+            "Passeggiata guidata nel canyon",
+            "Pranzo in riva al mare",
+            "Giro in cammello lungo la costa",
+            "Sosta alle Three Pools",
+            "Tempo libero a Dahab",
+            "Guida locale"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Passaporto",
+            "Attrezzatura per lo snorkeling",
+            "Acqua da bere",
+            "Scarpe comode",
+            "Telo mare e costume da bagno"
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000006",
+      "slug": "camel-horse-ride",
+      "category": "DESERT",
+      "durationText": "1 hour",
+      "price": {
+        "amount": "25.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/camel-horse-ride/horse-riders-cover-1280.webp",
+          "isCover": true,
+          "alt": {
+            "en": "Two riders on horseback on a sandy trail.",
+            "ar": "راكبتان على ظهر الخيل في مسار رملي.",
+            "ru": "Две участницы верхом на лошадях на песчаной тропе.",
+            "it": "Due persone a cavallo su un sentiero sabbioso."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Camel & Horse Ride",
+          "description": "Ride a camel across the golden Sinai sands, or take the horse trail into the mountains — simple, authentic and family-friendly.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/camel-horse-ride",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Camel ride in the desert or horse ride on the mountain trail",
+            "Photo stop",
+            "Local guide"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Comfortable clothes",
+            "Sun protection",
+            "Help is available to get on and off the camel."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "ركوب الجمل والخيل",
+          "description": "اركب الجمل عبر رمال سيناء الذهبية، أو اختر مسار الخيل في الجبال — تجربة بسيطة وأصيلة ومناسبة للعائلات.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/camel-horse-ride",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "ركوب الجمل في الصحراء أو ركوب الخيل على المسار الجبلي",
+            "وقفة للتصوير",
+            "مرشد محلي"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "ملابس مريحة",
+            "حماية من الشمس",
+            "تتوفر مساعدة للصعود على الجمل والنزول منه."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Катание на верблюде и лошади",
+          "description": "Прогулка на верблюде по золотым пескам Синая или на лошади по горной тропе — просто, аутентично и подходит всей семье.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/camel-horse-ride",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Катание на верблюде по пустыне или верховая прогулка на лошади по горной тропе",
+            "Остановка для фото",
+            "Местный гид"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Удобная одежда",
+            "Защита от солнца",
+            "Помощь при посадке на верблюда и при спуске."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Giro in cammello e a cavallo",
+          "description": "Un giro in cammello sulle sabbie dorate del Sinai, oppure a cavallo lungo il sentiero di montagna: semplice, autentico e adatto alle famiglie.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/camel-horse-ride",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Giro in cammello nel deserto o a cavallo sul sentiero di montagna",
+            "Sosta per le foto",
+            "Guida locale"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Abbigliamento comodo",
+            "Protezione solare",
+            "È disponibile aiuto per salire e scendere dal cammello."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000007",
+      "slug": "ras-mohamed-white-island-boat",
+      "category": "SEA",
+      "durationText": "8–9 hours",
+      "price": {
+        "amount": "40.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/ras-mohamed-white-island-boat/ras-white-water-1152.webp",
+          "isCover": true,
+          "alt": {
+            "en": "Boats resting on clear turquoise water.",
+            "ar": "قوارب على مياه فيروزية صافية.",
+            "ru": "Лодки на прозрачной бирюзовой воде.",
+            "it": "Barche su acque turchesi e limpide."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/ras-mohamed-white-island-boat/ras-snorkel-group-1152.webp",
+          "isCover": false,
+          "alt": {
+            "en": "A group snorkelling together in the sea.",
+            "ar": "مجموعة تمارس السنوركلينج معًا في البحر.",
+            "ru": "Группа занимается сноркелингом в море.",
+            "it": "Un gruppo fa snorkeling insieme in mare."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/ras-mohamed-white-island-boat/ras-white-island-720.webp",
+          "isCover": false,
+          "alt": {
+            "en": "Visitors on the sand at White Island.",
+            "ar": "زوار على رمال الجزيرة البيضاء.",
+            "ru": "Посетители на песке Белого острова.",
+            "it": "Visitatori sulla sabbia dell’Isola Bianca."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Ras Mohamed & White Island Boat Trip",
+          "description": "A full-day boat trip along the Sinai coast with two snorkeling stops in Ras Mohammed National Park and time on White Island.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/ras-mohamed-white-island-boat",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Air-conditioned transport",
+            "Ras Mohammed National Park entrance fees",
+            "Boat trip with two snorkeling stops",
+            "Snorkeling guide",
+            "Visit to White Island",
+            "Buffet lunch on board",
+            "Unlimited soft and hot drinks"
+          ],
+          "excludes": [
+            "Snorkeling equipment (available to rent for an extra fee)",
+            "Introductory dive (optional, extra charge)"
+          ],
+          "knowBeforeYouGo": [
+            "Sunglasses, sunscreen and a towel",
+            "Passport or ID (a copy is accepted)",
+            "Scuba diving is not suitable for children under 10 or pregnant women.",
+            "Plans may change with sea and weather conditions."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "رحلة بالقارب إلى رأس محمد والجزيرة البيضاء",
+          "description": "رحلة بحرية ليوم كامل على ساحل سيناء مع وقفتي سنوركل في محمية رأس محمد ووقت على الجزيرة البيضاء.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/ras-mohamed-white-island-boat",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "مواصلات مكيفة",
+            "رسوم دخول محمية رأس محمد الوطنية",
+            "رحلة بالقارب مع وقفتي سنوركل",
+            "مرشد سنوركل",
+            "زيارة الجزيرة البيضاء",
+            "غداء بوفيه على متن القارب",
+            "مشروبات غازية وساخنة غير محدودة"
+          ],
+          "excludes": [
+            "معدات السنوركل (متاحة للإيجار برسوم إضافية)",
+            "الغطسة التعريفية (اختيارية، برسوم إضافية)"
+          ],
+          "knowBeforeYouGo": [
+            "نظارة شمسية وواقٍ من الشمس ومنشفة",
+            "جواز السفر أو بطاقة الهوية (تُقبل نسخة منه)",
+            "الغوص بالأسطوانات غير مناسب للأطفال دون سن 10 سنوات أو للحوامل.",
+            "قد تتغير الخطة حسب أحوال البحر والطقس."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Рас-Мохаммед и Белый остров: поездка на лодке",
+          "description": "Целый день на лодке вдоль берега Синая с двумя остановками для снорклинга в национальном парке Рас-Мохаммед и отдыхом на Белом острове.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/ras-mohamed-white-island-boat",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Транспорт с кондиционером",
+            "Входные билеты в национальный парк Рас-Мохаммед",
+            "Поездка на лодке с двумя остановками для снорклинга",
+            "Гид по снорклингу",
+            "Посещение Белого острова",
+            "Обед шведским столом на борту",
+            "Безлимитные безалкогольные и горячие напитки"
+          ],
+          "excludes": [
+            "Снаряжение для снорклинга (можно арендовать за дополнительную плату)",
+            "Вводное погружение (по желанию, за дополнительную плату)"
+          ],
+          "knowBeforeYouGo": [
+            "Солнцезащитные очки, солнцезащитный крем и полотенце",
+            "Паспорт или удостоверение личности (подойдёт копия)",
+            "Дайвинг не подходит детям до 10 лет и беременным женщинам.",
+            "Программа может измениться из-за состояния моря и погоды."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Gita in barca a Ras Mohammed e Isola Bianca",
+          "description": "Gita in barca di un'intera giornata lungo la costa del Sinai, con due soste snorkeling nel Parco Nazionale di Ras Mohammed e tempo all'Isola Bianca.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/ras-mohamed-white-island-boat",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Trasporto con aria condizionata",
+            "Biglietti d'ingresso al Parco Nazionale di Ras Mohammed",
+            "Gita in barca con due soste snorkeling",
+            "Guida per lo snorkeling",
+            "Visita all'Isola Bianca",
+            "Pranzo a buffet a bordo",
+            "Bevande analcoliche e calde a volontà"
+          ],
+          "excludes": [
+            "Attrezzatura per lo snorkeling (noleggio disponibile con supplemento)",
+            "Battesimo del mare (facoltativo, con supplemento)"
+          ],
+          "knowBeforeYouGo": [
+            "Occhiali da sole, crema solare e telo mare",
+            "Passaporto o documento d'identità (è accettata una copia)",
+            "Le immersioni con bombole non sono adatte a bambini sotto i 10 anni né a donne in gravidanza.",
+            "Il programma può cambiare in base alle condizioni del mare e del meteo."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000008",
+      "slug": "evening-cruise",
+      "category": "SEA",
+      "durationText": "About 4 hours (18:00–22:00)",
+      "price": {
+        "amount": "35.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/evening-cruise/evening-lit-boat-720.webp",
+          "isCover": true,
+          "alt": {
+            "en": "An illuminated boat on the water at night.",
+            "ar": "قارب مضاء على الماء ليلًا.",
+            "ru": "Освещённая лодка на воде ночью.",
+            "it": "Una barca illuminata sull’acqua di notte."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/evening-cruise/evening-guests-1000.webp",
+          "isCover": false,
+          "alt": {
+            "en": "Guests enjoying an evening on board.",
+            "ar": "ضيوف يستمتعون بأمسية على متن القارب.",
+            "ru": "Гости проводят вечер на борту.",
+            "it": "Ospiti trascorrono una serata a bordo."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Evening Cruise",
+          "description": "An evening on the water with dinner on board, music and a Tanoura and oriental show.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/evening-cruise",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Evening boat cruise",
+            "Dinner on board",
+            "Soft drinks",
+            "Music and show"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Warm clothes in winter",
+            "Passport",
+            "Smart casual clothing is recommended.",
+            "Subject to weather conditions."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "رحلة بحرية مسائية",
+          "description": "أمسية على الماء مع عشاء على متن القارب وموسيقى وعرض تنورة وعرض شرقي.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/evening-cruise",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "رحلة بحرية مسائية بالقارب",
+            "عشاء على متن القارب",
+            "مشروبات غازية",
+            "موسيقى وعروض"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "ملابس دافئة في الشتاء",
+            "جواز السفر",
+            "يُنصح بملابس أنيقة غير رسمية.",
+            "تخضع الرحلة لأحوال الطقس."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Вечерний круиз",
+          "description": "Вечер на воде с ужином на борту, музыкой, шоу танура и восточными танцами.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/evening-cruise",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Вечерний круиз на лодке",
+            "Ужин на борту",
+            "Безалкогольные напитки",
+            "Музыка и шоу"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Тёплая одежда зимой",
+            "Паспорт",
+            "Рекомендуется стиль «смарт-кэжуал».",
+            "Программа зависит от погодных условий."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Crociera serale",
+          "description": "Una serata in mare con cena a bordo, musica e spettacolo di Tanoura e danza orientale.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/evening-cruise",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Crociera serale in barca",
+            "Cena a bordo",
+            "Bevande analcoliche",
+            "Musica e spettacolo"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Abiti caldi in inverno",
+            "Passaporto",
+            "Si consiglia un abbigliamento elegante ma casual.",
+            "Soggetto alle condizioni meteo."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000009",
+      "slug": "glass-bottom-boat",
+      "category": "SEA",
+      "durationText": "1.5 hours",
+      "price": {
+        "amount": "15.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/glass-bottom-boat/glass-boat-window-1280.webp",
+          "isCover": true,
+          "alt": {
+            "en": "Guests looking through underwater viewing windows.",
+            "ar": "ضيوف يشاهدون البحر عبر نوافذ الرؤية تحت الماء.",
+            "ru": "Гости смотрят через подводные смотровые окна.",
+            "it": "Ospiti osservano il mare dalle finestre subacquee."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/glass-bottom-boat/glass-boat-exterior-1280.webp",
+          "isCover": false,
+          "alt": {
+            "en": "Illustrative photo: an example glass-bottom boat on the sea; the assigned boat may differ.",
+            "ar": "صورة توضيحية: نموذج لقارب ذي أرضية زجاجية في البحر؛ القارب المخصص قد يختلف.",
+            "ru": "Иллюстративное фото: пример лодки с прозрачным дном; назначенное судно может отличаться.",
+            "it": "Foto illustrativa: esempio di barca con fondo trasparente; l’imbarcazione assegnata può variare."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Glass Bottom Boat",
+          "description": "See the Red Sea's coral reefs and fish through a glass floor — no swimming needed and ideal for all ages.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/glass-bottom-boat",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Air-conditioned transport",
+            "Glass-bottom boat trip",
+            "Entrance fees"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Sunglasses and water",
+            "Passport or ID (a copy is accepted)",
+            "Not wheelchair accessible; strollers are fine and infants sit on laps.",
+            "Subject to sea conditions."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "القارب ذو القاع الزجاجي",
+          "description": "شاهد الشعاب المرجانية والأسماك في البحر الأحمر من خلال أرضية زجاجية — دون الحاجة للسباحة، ومناسبة لجميع الأعمار.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/glass-bottom-boat",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "مواصلات مكيفة",
+            "رحلة بقارب ذي قاع زجاجي",
+            "رسوم الدخول"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "نظارة شمسية ومياه",
+            "جواز السفر أو بطاقة الهوية (تُقبل نسخة منه)",
+            "غير مهيأة للكراسي المتحركة؛ عربات الأطفال مسموحة، ويجلس الرضّع على الحِجر.",
+            "تخضع الرحلة لأحوال البحر."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Лодка со стеклянным дном",
+          "description": "Кораллы и рыбы Красного моря сквозь стеклянный пол — плавать не нужно, подходит для любого возраста.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/glass-bottom-boat",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Транспорт с кондиционером",
+            "Поездка на лодке со стеклянным дном",
+            "Входные билеты"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Солнцезащитные очки и вода",
+            "Паспорт или удостоверение личности (подойдёт копия)",
+            "Лодка не приспособлена для инвалидных колясок; детские коляски допускаются, младенцы сидят на руках.",
+            "Программа зависит от состояния моря."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Barca con fondo di vetro",
+          "description": "Scopri le barriere coralline e i pesci del Mar Rosso attraverso un pavimento di vetro: non serve nuotare, adatto a tutte le età.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/glass-bottom-boat",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Trasporto con aria condizionata",
+            "Gita in barca con fondo di vetro",
+            "Biglietti d'ingresso"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Occhiali da sole e acqua",
+            "Passaporto o documento d'identità (è accettata una copia)",
+            "Non accessibile a persone in sedia a rotelle; i passeggini sono ammessi e i neonati stanno in braccio.",
+            "Soggetto alle condizioni del mare."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000010",
+      "slug": "diving-course",
+      "category": "SEA",
+      "durationText": "2–3 days",
+      "price": {
+        "amount": "400.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "NON_REFUNDABLE",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/diving-course/diving-underwater-1024.webp",
+          "isCover": true,
+          "alt": {
+            "en": "Two scuba divers underwater.",
+            "ar": "غواصان تحت الماء بمعدات الغوص.",
+            "ru": "Два аквалангиста под водой.",
+            "it": "Due subacquei sott’acqua."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Diving Course",
+          "description": "Take your diving further with an advanced course in the Red Sea, guided by professional instructors.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/diving-course",
+          "includes": [
+            "Professional instructor at a leading Sharm El Sheikh dive center",
+            "Diving equipment",
+            "Multiple dives"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "An Open Water certification is required.",
+            "A medical declaration may be required.",
+            "Not suitable for beginners."
+          ],
+          "meetingPoint": "Pickup from your hotel or meeting at the dive center — confirmed on WhatsApp after booking.",
+          "facts": null
+        },
+        "ar": {
+          "title": "دورة غوص",
+          "description": "ارتقِ بغوصك بدورة متقدمة في البحر الأحمر مع مدربين محترفين.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/diving-course",
+          "includes": [
+            "مدرب محترف في أحد مراكز الغوص الرائدة في شرم الشيخ",
+            "معدات الغوص",
+            "عدة غطسات"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "شهادة Open Water مطلوبة.",
+            "قد يُطلب إقرار طبي.",
+            "غير مناسبة للمبتدئين."
+          ],
+          "meetingPoint": "الاستقبال من فندقك أو اللقاء في مركز الغوص — يُؤكَّد الموعد عبر واتساب بعد الحجز.",
+          "facts": null
+        },
+        "ru": {
+          "title": "Курс дайвинга",
+          "description": "Продолжите обучение дайвингу на углублённом курсе в Красном море под руководством профессиональных инструкторов.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/diving-course",
+          "includes": [
+            "Профессиональный инструктор в ведущем дайвинг-центре Шарм-эль-Шейха",
+            "Снаряжение для дайвинга",
+            "Несколько погружений"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Требуется сертификат Open Water.",
+            "Может потребоваться медицинская анкета.",
+            "Не подходит для начинающих."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля или встреча в дайвинг-центре — подтверждается в WhatsApp после бронирования.",
+          "facts": null
+        },
+        "it": {
+          "title": "Corso subacqueo",
+          "description": "Porta le tue immersioni a un livello superiore con un corso avanzato nel Mar Rosso, guidato da istruttori professionisti.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/diving-course",
+          "includes": [
+            "Istruttore professionista in un importante centro immersioni di Sharm El Sheikh",
+            "Attrezzatura per l'immersione",
+            "Diverse immersioni"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "È richiesto il brevetto Open Water.",
+            "Potrebbe essere richiesta una dichiarazione medica.",
+            "Non adatto ai principianti."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel oppure ci incontriamo al centro immersioni; tutto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": null
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000013",
+      "slug": "sinai-dream-sailboat",
+      "category": "SEA",
+      "durationText": "5–8 hours",
+      "price": {
+        "amount": "65.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/sinai-dream-sailboat/sinai-sailboat-600.webp",
+          "isCover": true,
+          "alt": {
+            "en": "A sailing boat against a colourful sunset sky.",
+            "ar": "قارب شراعي أمام سماء الغروب الملونة.",
+            "ru": "Парусная лодка на фоне красочного закатного неба.",
+            "it": "Una barca a vela sullo sfondo del cielo al tramonto."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Sinai Dream Sailboat",
+          "description": "A day on a comfortable sailboat with three snorkeling stops and a seafood buffet lunch.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/sinai-dream-sailboat",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Sailboat trip",
+            "Three snorkeling stops",
+            "Snorkeling equipment",
+            "Seafood buffet lunch",
+            "Soft drinks",
+            "Professional crew"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Swimwear",
+            "Towel",
+            "Sunscreen",
+            "Sunglasses",
+            "Limited number of guests on board.",
+            "Subject to weather and sea conditions."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "مركب سيناي دريم الشراعي",
+          "description": "يوم على مركب شراعي مريح مع ثلاث وقفات سنوركل وغداء بوفيه من المأكولات البحرية.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/sinai-dream-sailboat",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "رحلة بمركب شراعي",
+            "ثلاث وقفات سنوركل",
+            "معدات السنوركل",
+            "غداء بوفيه من المأكولات البحرية",
+            "مشروبات غازية",
+            "طاقم محترف"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "ملابس سباحة",
+            "منشفة",
+            "واقٍ من الشمس",
+            "نظارة شمسية",
+            "عدد الضيوف على متن المركب محدود.",
+            "تخضع الرحلة لأحوال الطقس والبحر."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Парусник Sinai Dream",
+          "description": "День на комфортабельном паруснике с тремя остановками для снорклинга и обедом из морепродуктов шведским столом.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/sinai-dream-sailboat",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Поездка на паруснике",
+            "Три остановки для снорклинга",
+            "Снаряжение для снорклинга",
+            "Обед из морепродуктов шведским столом",
+            "Безалкогольные напитки",
+            "Профессиональная команда"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Купальник",
+            "Полотенце",
+            "Солнцезащитный крем",
+            "Солнцезащитные очки",
+            "Количество гостей на борту ограничено.",
+            "Программа зависит от погоды и состояния моря."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Barca a vela Sinai Dream",
+          "description": "Una giornata su una comoda barca a vela con tre soste snorkeling e pranzo a buffet di pesce.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/sinai-dream-sailboat",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Gita in barca a vela",
+            "Tre soste snorkeling",
+            "Attrezzatura per lo snorkeling",
+            "Pranzo a buffet di pesce",
+            "Bevande analcoliche",
+            "Equipaggio professionale"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Costume da bagno",
+            "Telo mare",
+            "Crema solare",
+            "Occhiali da sole",
+            "Numero limitato di ospiti a bordo.",
+            "Soggetto alle condizioni meteo e del mare."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000014",
+      "slug": "ras-mohamed-by-bus",
+      "category": "SEA",
+      "durationText": "4–6 hours",
+      "price": {
+        "amount": "30.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/ras-mohamed-by-bus/ras-bus-gateway-1200.webp",
+          "isCover": true,
+          "alt": {
+            "en": "The stone entrance gateway to Ras Mohammed.",
+            "ar": "بوابة الدخول الحجرية إلى رأس محمد.",
+            "ru": "Каменные въездные ворота Рас-Мохаммеда.",
+            "it": "Il portale d’ingresso in pietra di Ras Mohammed."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Ras Mohamed by Bus",
+          "description": "A half day in Ras Mohammed National Park by road: snorkeling, mangroves, the Magic Lake and the Earth Crack.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/ras-mohamed-by-bus",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Air-conditioned bus",
+            "Snorkeling guide",
+            "Ras Mohammed National Park entrance fees"
+          ],
+          "excludes": [
+            "Food and drinks"
+          ],
+          "knowBeforeYouGo": [
+            "Snorkeling gear, swimwear and a towel",
+            "Snacks and water",
+            "Sunglasses, sunscreen and comfortable shoes"
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "رأس محمد بالحافلة",
+          "description": "نصف يوم في محمية رأس محمد الوطنية بالطريق البري: سنوركل وأشجار المانجروف والبحيرة السحرية والشق الأرضي.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/ras-mohamed-by-bus",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "حافلة مكيفة",
+            "مرشد سنوركل",
+            "رسوم دخول محمية رأس محمد الوطنية"
+          ],
+          "excludes": [
+            "الطعام والمشروبات"
+          ],
+          "knowBeforeYouGo": [
+            "معدات السنوركل وملابس السباحة ومنشفة",
+            "وجبات خفيفة ومياه",
+            "نظارة شمسية وواقٍ من الشمس وحذاء مريح"
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Рас-Мохаммед на автобусе",
+          "description": "Полдня в национальном парке Рас-Мохаммед на автобусе: снорклинг, мангровые заросли, Волшебное озеро и Трещина земли.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/ras-mohamed-by-bus",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Автобус с кондиционером",
+            "Гид по снорклингу",
+            "Входные билеты в национальный парк Рас-Мохаммед"
+          ],
+          "excludes": [
+            "Еда и напитки"
+          ],
+          "knowBeforeYouGo": [
+            "Снаряжение для снорклинга, купальник и полотенце",
+            "Перекус и вода",
+            "Солнцезащитные очки, солнцезащитный крем и удобная обувь"
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Ras Mohammed in bus",
+          "description": "Mezza giornata nel Parco Nazionale di Ras Mohammed su strada: snorkeling, mangrovie, il Magic Lake e la Earth Crack.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/ras-mohamed-by-bus",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Bus con aria condizionata",
+            "Guida per lo snorkeling",
+            "Biglietti d'ingresso al Parco Nazionale di Ras Mohammed"
+          ],
+          "excludes": [
+            "Cibo e bevande"
+          ],
+          "knowBeforeYouGo": [
+            "Attrezzatura per lo snorkeling, costume da bagno e telo mare",
+            "Snack e acqua",
+            "Occhiali da sole, crema solare e scarpe comode"
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000015",
+      "slug": "banana-boat",
+      "category": "SEA",
+      "durationText": "10–15 minutes",
+      "price": {
+        "amount": "25.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/banana-boat/banana-ride-1000.webp",
+          "isCover": true,
+          "alt": {
+            "en": "A group on an inflatable banana boat on the sea.",
+            "ar": "مجموعة على قارب الموز المطاطي في البحر.",
+            "ru": "Группа на надувном банане в море.",
+            "it": "Un gruppo su un banana boat gonfiabile in mare."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/banana-boat/banana-ride-closer-1000.webp",
+          "isCover": false,
+          "alt": {
+            "en": "Guests wearing life jackets on a banana boat.",
+            "ar": "ضيوف يرتدون سترات النجاة على قارب الموز.",
+            "ru": "Гости в спасательных жилетах на банане.",
+            "it": "Ospiti con giubbotti di salvataggio su un banana boat."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Banana Boat",
+          "description": "Hold on tight as a speedboat pulls your banana boat across the waves — a quick, fun water ride.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/banana-boat",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Air-conditioned transport",
+            "Banana boat ride",
+            "Life jacket and safety briefing"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Sun hat, sunglasses and a towel",
+            "Basic swimming skills are recommended.",
+            "Not suitable for pregnant women or people with back or heart problems.",
+            "Not suitable for children under 10."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": 10,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "بنانا بوت",
+          "description": "تمسّك جيدًا بينما يسحب قارب سريع البنانا بوت فوق الأمواج — جولة مائية سريعة وممتعة.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/banana-boat",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "مواصلات مكيفة",
+            "ركوب البنانا بوت",
+            "سترة نجاة وإرشادات السلامة"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "قبعة للشمس ونظارة شمسية ومنشفة",
+            "يُنصح بإجادة السباحة الأساسية.",
+            "غير مناسبة للحوامل أو لمن يعانون من مشكلات في الظهر أو القلب.",
+            "غير مناسبة للأطفال دون سن 10 سنوات."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": 10,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Катание на банане",
+          "description": "Держитесь крепче: скоростной катер тянет банан по волнам — быстрое и весёлое развлечение на воде.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/banana-boat",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Транспорт с кондиционером",
+            "Катание на банане",
+            "Спасательный жилет и инструктаж по безопасности"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Солнцезащитная шляпа, солнцезащитные очки и полотенце",
+            "Рекомендуются базовые навыки плавания.",
+            "Не подходит беременным женщинам и людям с проблемами спины или сердца.",
+            "Не подходит детям до 10 лет."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": 10,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Banana boat",
+          "description": "Tieniti forte mentre un motoscafo traina il tuo banana boat sulle onde: un giro in acqua breve e divertente.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/banana-boat",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Trasporto con aria condizionata",
+            "Giro in banana boat",
+            "Giubbotto di salvataggio e briefing di sicurezza"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Cappello, occhiali da sole e telo mare",
+            "Si consiglia di saper nuotare almeno a livello base.",
+            "Non adatto a donne in gravidanza o a persone con problemi alla schiena o al cuore.",
+            "Non adatto a bambini sotto i 10 anni."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": 10,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000016",
+      "slug": "parasailing-adventure",
+      "category": "SEA",
+      "durationText": "6–10 minutes flight",
+      "price": {
+        "amount": "25.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/parasailing-adventure/parasailing-boat-1600.webp",
+          "isCover": true,
+          "alt": {
+            "en": "Guests preparing their parasailing harnesses on a boat.",
+            "ar": "ضيوف يستعدون بأحزمة الباراسيل على القارب.",
+            "ru": "Гости готовят страховочные системы для парасейлинга на лодке.",
+            "it": "Ospiti preparano le imbracature da parasailing sulla barca."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/parasailing-adventure/parasailing-flight-853.webp",
+          "isCover": false,
+          "alt": {
+            "en": "A colourful parasail canopy above the sea.",
+            "ar": "مظلة باراسيل ملونة فوق البحر.",
+            "ru": "Красочный парашют для парасейлинга над морем.",
+            "it": "Una vela colorata da parasailing sopra il mare."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Parasailing Adventure",
+          "description": "Fly high above the Red Sea for a bird's-eye view of the coast — solo or with a partner.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/parasailing-adventure",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Air-conditioned transport",
+            "Parasailing flight",
+            "Boat ride",
+            "Safety equipment",
+            "Professional crew"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Sun hat, sunglasses and a towel",
+            "Not suitable for pregnant women or people with back or heart problems.",
+            "Not suitable for children under 10.",
+            "Weather dependent."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": 10,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "مغامرة الباراسيلنج",
+          "description": "حلّق عاليًا فوق البحر الأحمر لترى الساحل من الأعلى — بمفردك أو مع رفيقك.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/parasailing-adventure",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "مواصلات مكيفة",
+            "تحليق بالباراسيلنج",
+            "رحلة بالقارب",
+            "معدات السلامة",
+            "طاقم محترف"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "قبعة للشمس ونظارة شمسية ومنشفة",
+            "غير مناسبة للحوامل أو لمن يعانون من مشكلات في الظهر أو القلب.",
+            "غير مناسبة للأطفال دون سن 10 سنوات.",
+            "تعتمد الرحلة على الطقس."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": 10,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Парасейлинг",
+          "description": "Полёт высоко над Красным морем с видом на побережье с высоты птичьего полёта — в одиночку или с партнёром.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/parasailing-adventure",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Транспорт с кондиционером",
+            "Полёт на парашюте",
+            "Поездка на катере",
+            "Защитное снаряжение",
+            "Профессиональная команда"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Солнцезащитная шляпа, солнцезащитные очки и полотенце",
+            "Не подходит беременным женщинам и людям с проблемами спины или сердца.",
+            "Не подходит детям до 10 лет.",
+            "Полёт зависит от погоды."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": 10,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Parasailing",
+          "description": "Vola alto sopra il Mar Rosso per vedere la costa dall'alto, da solo o in coppia.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/parasailing-adventure",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Trasporto con aria condizionata",
+            "Volo in parasailing",
+            "Giro in barca",
+            "Attrezzatura di sicurezza",
+            "Equipaggio professionale"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Cappello, occhiali da sole e telo mare",
+            "Non adatto a donne in gravidanza o a persone con problemi alla schiena o al cuore.",
+            "Non adatto a bambini sotto i 10 anni.",
+            "Soggetto alle condizioni meteo."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": 10,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000017",
+      "slug": "speed-boat-adventure",
+      "category": "SEA",
+      "durationText": "3 hours (private boat)",
+      "price": {
+        "amount": "150.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_UNIT",
+      "priceOptions": [
+        {
+          "code": "boat",
+          "label": "Private speedboat",
+          "seatsPerUnit": 5,
+          "price": {
+            "amount": "150.00",
+            "currencyCode": "EUR"
+          }
+        }
+      ],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/speed-boat-adventure/speedboat-sea-680.webp",
+          "isCover": true,
+          "alt": {
+            "en": "Guests on a speedboat at sea.",
+            "ar": "ضيوف على قارب سريع في البحر.",
+            "ru": "Гости на скоростной лодке в море.",
+            "it": "Ospiti su un motoscafo in mare."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/speed-boat-adventure/speedboat-coast-680.webp",
+          "isCover": false,
+          "alt": {
+            "en": "A speedboat moving across coastal water.",
+            "ar": "قارب سريع يتحرك قرب الساحل.",
+            "ru": "Скоростная лодка движется вдоль побережья.",
+            "it": "Un motoscafo naviga vicino alla costa."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Speed Boat Adventure",
+          "description": "A private speedboat for your group to Tiran Island: snorkel the reefs, pass the shipwreck and look out for dolphins.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/speed-boat-adventure",
+          "includes": [
+            "Hotel pickup and drop-off by air-conditioned minibus",
+            "Private speedboat with captain",
+            "Snorkel mask",
+            "Cooler with drinks",
+            "Life jackets"
+          ],
+          "excludes": [
+            "Tips for the captain",
+            "Personal expenses"
+          ],
+          "knowBeforeYouGo": [
+            "Book at least 2 days in advance.",
+            "Up to 5 people per boat; the price is per boat.",
+            "Not suitable for pregnant women or people with back or neck problems.",
+            "Subject to sea and weather conditions."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "مغامرة القارب السريع",
+          "description": "قارب سريع خاص لمجموعتك إلى جزيرة تيران: سنوركل فوق الشعاب، ومرور بحطام السفينة، وترقّب الدلافين.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/speed-boat-adventure",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه بميني باص مكيف",
+            "قارب سريع خاص مع قبطان",
+            "قناع سنوركل",
+            "ثلاجة محمولة بها مشروبات",
+            "سترات نجاة"
+          ],
+          "excludes": [
+            "إكرامية القبطان",
+            "المصروفات الشخصية"
+          ],
+          "knowBeforeYouGo": [
+            "يُرجى الحجز قبل يومين على الأقل.",
+            "حتى 5 أشخاص لكل قارب؛ والسعر لكل قارب.",
+            "غير مناسبة للحوامل أو لمن يعانون من مشكلات في الظهر أو الرقبة.",
+            "تخضع الرحلة لأحوال البحر والطقس."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Приключение на скоростном катере",
+          "description": "Частный скоростной катер для вашей компании к острову Тиран: снорклинг на рифах, затонувший корабль и возможная встреча с дельфинами.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/speed-boat-adventure",
+          "includes": [
+            "Трансфер из отеля и обратно в отель на микроавтобусе с кондиционером",
+            "Частный скоростной катер с капитаном",
+            "Маска для снорклинга",
+            "Сумка-холодильник с напитками",
+            "Спасательные жилеты"
+          ],
+          "excludes": [
+            "Чаевые капитану",
+            "Личные расходы"
+          ],
+          "knowBeforeYouGo": [
+            "Бронируйте минимум за 2 дня.",
+            "До 5 человек на катер; цена указана за катер.",
+            "Не подходит беременным женщинам и людям с проблемами спины или шеи.",
+            "Программа зависит от состояния моря и погоды."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Avventura in motoscafo",
+          "description": "Un motoscafo privato per il tuo gruppo fino all'isola di Tiran: snorkeling sulle barriere, il relitto e, con un po' di fortuna, i delfini.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/speed-boat-adventure",
+          "includes": [
+            "Transfer da e per l'hotel in minibus con aria condizionata",
+            "Motoscafo privato con capitano",
+            "Maschera da snorkeling",
+            "Borsa frigo con bevande",
+            "Giubbotti di salvataggio"
+          ],
+          "excludes": [
+            "Mance per il capitano",
+            "Spese personali"
+          ],
+          "knowBeforeYouGo": [
+            "Prenota con almeno 2 giorni di anticipo.",
+            "Fino a 5 persone per barca; il prezzo è per barca.",
+            "Non adatto a donne in gravidanza o a persone con problemi alla schiena o al collo.",
+            "Soggetto alle condizioni del mare e del meteo."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000018",
+      "slug": "submarine",
+      "category": "SEA",
+      "durationText": "1.5–2 hours",
+      "price": {
+        "amount": "35.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/submarine/submarine-window-1000.webp",
+          "isCover": true,
+          "alt": {
+            "en": "A child looking at the reef through an underwater window.",
+            "ar": "طفل يشاهد الشعاب عبر نافذة تحت الماء.",
+            "ru": "Ребёнок смотрит на риф через подводное окно.",
+            "it": "Un bambino osserva la barriera corallina da una finestra subacquea."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/submarine/submarine-families-761.webp",
+          "isCover": false,
+          "alt": {
+            "en": "Visitors watching fish through a boat's underwater viewing windows.",
+            "ar": "زوار يشاهدون الأسماك عبر نوافذ القارب تحت الماء.",
+            "ru": "Посетители смотрят на рыб через подводные окна судна.",
+            "it": "Visitatori osservano i pesci dalle finestre subacquee della barca."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Submarine",
+          "description": "Watch fish and coral through large windows from an underwater viewing cabin — no swimming needed.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/submarine",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Air-conditioned transport",
+            "Submarine trip",
+            "Tour guide",
+            "Entrance fees"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Passport or ID (a copy is accepted)",
+            "A bottle of water",
+            "Not suitable for wheelchair users.",
+            "Subject to sea and weather conditions."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "الغواصة",
+          "description": "شاهد الأسماك والمرجان من خلال نوافذ كبيرة في كابينة مشاهدة تحت الماء — دون الحاجة للسباحة.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/submarine",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "مواصلات مكيفة",
+            "رحلة بالغواصة",
+            "مرشد سياحي",
+            "رسوم الدخول"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "جواز السفر أو بطاقة الهوية (تُقبل نسخة منه)",
+            "زجاجة مياه",
+            "غير مناسبة لمستخدمي الكراسي المتحركة.",
+            "تخضع الرحلة لأحوال البحر والطقس."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Подводная лодка",
+          "description": "Наблюдайте за рыбами и кораллами через большие окна подводной смотровой кабины — плавать не нужно.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/submarine",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Транспорт с кондиционером",
+            "Поездка на подводной лодке",
+            "Гид",
+            "Входные билеты"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Паспорт или удостоверение личности (подойдёт копия)",
+            "Бутылка воды",
+            "Не подходит для гостей на инвалидных колясках.",
+            "Программа зависит от состояния моря и погоды."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Sottomarino",
+          "description": "Osserva pesci e coralli da grandi finestre in una cabina subacquea: non serve nuotare.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/submarine",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Trasporto con aria condizionata",
+            "Gita in sottomarino",
+            "Guida turistica",
+            "Biglietti d'ingresso"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Passaporto o documento d'identità (è accettata una copia)",
+            "Una bottiglia d'acqua",
+            "Non adatto a persone in sedia a rotelle.",
+            "Soggetto alle condizioni del mare e del meteo."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000019",
+      "slug": "tiran-island-boat-trip",
+      "category": "SEA",
+      "durationText": "8–9 hours",
+      "price": {
+        "amount": "45.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/tiran-island-boat-trip/tiran-boat-water-1600.webp",
+          "isCover": true,
+          "alt": {
+            "en": "Boats and swimmers beside a rocky island.",
+            "ar": "قوارب وسباحون بجوار جزيرة صخرية.",
+            "ru": "Лодки и пловцы рядом со скалистым островом.",
+            "it": "Barche e nuotatori accanto a un’isola rocciosa."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/tiran-island-boat-trip/tiran-reef-fish-1600.webp",
+          "isCover": false,
+          "alt": {
+            "en": "Butterflyfish swimming above a coral reef.",
+            "ar": "أسماك الفراشة تسبح فوق الشعاب المرجانية.",
+            "ru": "Рыбы-бабочки над коралловым рифом.",
+            "it": "Pesci farfalla nuotano sopra una barriera corallina."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Tiran Island Boat Trip",
+          "description": "A full-day boat trip to Tiran Island with two snorkeling stops, buffet lunch on board and a chance to spot dolphins.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/tiran-island-boat-trip",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Air-conditioned transport",
+            "Entrance fees",
+            "Boat trip with two snorkeling stops",
+            "Buffet lunch on board",
+            "Unlimited soft and hot drinks"
+          ],
+          "excludes": [
+            "Snorkeling equipment (available to rent for an extra fee)",
+            "Introductory dive (optional, extra charge)"
+          ],
+          "knowBeforeYouGo": [
+            "Sunglasses, sunscreen and a towel",
+            "Passport or ID (a copy is accepted)",
+            "Scuba diving is not suitable for children under 10 or pregnant women."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "رحلة بالقارب إلى جزيرة تيران",
+          "description": "رحلة بحرية ليوم كامل إلى جزيرة تيران مع وقفتي سنوركل وغداء بوفيه على متن القارب وفرصة لرؤية الدلافين.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/tiran-island-boat-trip",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "مواصلات مكيفة",
+            "رسوم الدخول",
+            "رحلة بالقارب مع وقفتي سنوركل",
+            "غداء بوفيه على متن القارب",
+            "مشروبات غازية وساخنة غير محدودة"
+          ],
+          "excludes": [
+            "معدات السنوركل (متاحة للإيجار برسوم إضافية)",
+            "الغطسة التعريفية (اختيارية، برسوم إضافية)"
+          ],
+          "knowBeforeYouGo": [
+            "نظارة شمسية وواقٍ من الشمس ومنشفة",
+            "جواز السفر أو بطاقة الهوية (تُقبل نسخة منه)",
+            "الغوص بالأسطوانات غير مناسب للأطفال دون سن 10 سنوات أو للحوامل."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Остров Тиран: поездка на лодке",
+          "description": "Целый день на лодке к острову Тиран с двумя остановками для снорклинга, обедом шведским столом на борту и шансом увидеть дельфинов.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/tiran-island-boat-trip",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Транспорт с кондиционером",
+            "Входные билеты",
+            "Поездка на лодке с двумя остановками для снорклинга",
+            "Обед шведским столом на борту",
+            "Безлимитные безалкогольные и горячие напитки"
+          ],
+          "excludes": [
+            "Снаряжение для снорклинга (можно арендовать за дополнительную плату)",
+            "Вводное погружение (по желанию, за дополнительную плату)"
+          ],
+          "knowBeforeYouGo": [
+            "Солнцезащитные очки, солнцезащитный крем и полотенце",
+            "Паспорт или удостоверение личности (подойдёт копия)",
+            "Дайвинг не подходит детям до 10 лет и беременным женщинам."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Gita in barca all'isola di Tiran",
+          "description": "Gita in barca di un'intera giornata all'isola di Tiran con due soste snorkeling, pranzo a buffet a bordo e la possibilità di avvistare i delfini.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/tiran-island-boat-trip",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Trasporto con aria condizionata",
+            "Biglietti d'ingresso",
+            "Gita in barca con due soste snorkeling",
+            "Pranzo a buffet a bordo",
+            "Bevande analcoliche e calde a volontà"
+          ],
+          "excludes": [
+            "Attrezzatura per lo snorkeling (noleggio disponibile con supplemento)",
+            "Battesimo del mare (facoltativo, con supplemento)"
+          ],
+          "knowBeforeYouGo": [
+            "Occhiali da sole, crema solare e telo mare",
+            "Passaporto o documento d'identità (è accettata una copia)",
+            "Le immersioni con bombole non sono adatte a bambini sotto i 10 anni né a donne in gravidanza."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000020",
+      "slug": "tube-boat",
+      "category": "SEA",
+      "durationText": "10–15 minutes",
+      "price": {
+        "amount": "25.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/tube-boat/tube-action-1600.webp",
+          "isCover": true,
+          "alt": {
+            "en": "Guests riding a towable inflatable on the sea.",
+            "ar": "ضيوف على عوامة مطاطية تُسحب فوق البحر.",
+            "ru": "Гости на буксируемом надувном аттракционе в море.",
+            "it": "Ospiti su un gonfiabile trainato in mare."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/tube-boat/tube-guests-1000.webp",
+          "isCover": false,
+          "alt": {
+            "en": "A group seated on an inflatable water ride.",
+            "ar": "مجموعة تجلس على عوامة ألعاب مائية.",
+            "ru": "Группа сидит на надувном водном аттракционе.",
+            "it": "Un gruppo seduto su un gonfiabile acquatico."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Tube Boat",
+          "description": "Glide over the water on an inflatable tube pulled by a speedboat — a short, splashy thrill.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/tube-boat",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Air-conditioned transport",
+            "Tube ride",
+            "Life jacket and safety briefing"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Sun hat, sunglasses and a towel",
+            "Basic swimming skills are recommended.",
+            "Not suitable for pregnant women or people with back or heart problems.",
+            "Not suitable for children under 10."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": 10,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "تيوب بوت",
+          "description": "انزلق فوق الماء على إطار مطاطي منفوخ يسحبه قارب سريع — إثارة قصيرة ومليئة برذاذ الماء.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/tube-boat",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "مواصلات مكيفة",
+            "ركوب التيوب",
+            "سترة نجاة وإرشادات السلامة"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "قبعة للشمس ونظارة شمسية ومنشفة",
+            "يُنصح بإجادة السباحة الأساسية.",
+            "غير مناسبة للحوامل أو لمن يعانون من مشكلات في الظهر أو القلب.",
+            "غير مناسبة للأطفال دون سن 10 سنوات."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": 10,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Тюбинг на катере",
+          "description": "Скользите по воде на надувном тюбе, который тянет скоростной катер, — короткое весёлое развлечение с брызгами.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/tube-boat",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Транспорт с кондиционером",
+            "Катание на тюбе",
+            "Спасательный жилет и инструктаж по безопасности"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Солнцезащитная шляпа, солнцезащитные очки и полотенце",
+            "Рекомендуются базовые навыки плавания.",
+            "Не подходит беременным женщинам и людям с проблемами спины или сердца.",
+            "Не подходит детям до 10 лет."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": 10,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Tube boat",
+          "description": "Scivola sull'acqua su un tubo gonfiabile trainato da un motoscafo: un breve brivido tra gli schizzi.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/tube-boat",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Trasporto con aria condizionata",
+            "Giro sul tubo gonfiabile",
+            "Giubbotto di salvataggio e briefing di sicurezza"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Cappello, occhiali da sole e telo mare",
+            "Si consiglia di saper nuotare almeno a livello base.",
+            "Non adatto a donne in gravidanza o a persone con problemi alla schiena o al cuore.",
+            "Non adatto a bambini sotto i 10 anni."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": 10,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000021",
+      "slug": "cairo-by-bus",
+      "category": "CULTURAL",
+      "durationText": "20–24 hours",
+      "price": {
+        "amount": "75.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/cairo-by-bus/cairo-bus-pyramids-cover-1600.webp",
+          "isCover": true,
+          "alt": {
+            "en": "A group of visitors in front of the pyramids of Giza.",
+            "ar": "مجموعة زوار أمام أهرامات الجيزة.",
+            "ru": "Группа посетителей перед пирамидами Гизы.",
+            "it": "Un gruppo di visitatori davanti alle piramidi di Giza."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/cairo-by-bus/cairo-bus-sphinx-gallery-1000.webp",
+          "isCover": false,
+          "alt": {
+            "en": "A visitor looking towards the Great Sphinx at Giza.",
+            "ar": "زائر ينظر إلى تمثال أبي الهول في الجيزة.",
+            "ru": "Посетитель смотрит на Большого сфинкса в Гизе.",
+            "it": "Un visitatore osserva la Grande Sfinge a Giza."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Cairo by Bus",
+          "description": "A long day trip by road to Cairo: the Egyptian Museum with an Egyptologist, lunch by the Nile and the Pyramids of Giza.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/cairo-by-bus",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Air-conditioned bus",
+            "Egyptologist guide",
+            "Entrance fees to the sites in the program",
+            "Lunch and drinks"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Passport",
+            "Comfortable clothing, a hat and sunscreen",
+            "It is a very long day with many hours on the road."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "القاهرة بالحافلة",
+          "description": "رحلة يوم طويلة بالطريق البري إلى القاهرة: المتحف المصري مع عالم مصريات، وغداء على النيل، وأهرامات الجيزة.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/cairo-by-bus",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "حافلة مكيفة",
+            "عالم مصريات يرافقك كمرشد",
+            "رسوم الدخول إلى المواقع المدرجة في البرنامج",
+            "الغداء والمشروبات"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "جواز السفر",
+            "ملابس مريحة وقبعة وواقٍ من الشمس",
+            "يوم طويل جدًا مع ساعات كثيرة على الطريق."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Каир на автобусе",
+          "description": "Долгая поездка в Каир на автобусе: Египетский музей с египтологом, обед у Нила и пирамиды Гизы.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/cairo-by-bus",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Автобус с кондиционером",
+            "Гид-египтолог",
+            "Входные билеты на объекты программы",
+            "Обед и напитки"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Паспорт",
+            "Удобная одежда, головной убор и солнцезащитный крем",
+            "Очень долгий день: много часов в дороге."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Il Cairo in bus",
+          "description": "Una lunga gita in giornata su strada fino al Cairo: il Museo Egizio con un egittologo, pranzo sul Nilo e le Piramidi di Giza.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/cairo-by-bus",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Bus con aria condizionata",
+            "Egittologo come guida",
+            "Biglietti d'ingresso ai siti del programma",
+            "Pranzo e bevande"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Passaporto",
+            "Abbigliamento comodo, cappello e crema solare",
+            "È una giornata molto lunga, con molte ore di viaggio su strada."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000022",
+      "slug": "cairo-by-plane",
+      "category": "CULTURAL",
+      "durationText": "20–24 hours",
+      "price": {
+        "amount": "280.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "NON_REFUNDABLE",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/cairo-by-plane/cairo-plane-pyramids-cover-1600.webp",
+          "isCover": true,
+          "alt": {
+            "en": "Two visitors with the pyramids of Giza behind them.",
+            "ar": "زائران وخلفهما أهرامات الجيزة.",
+            "ru": "Два посетителя на фоне пирамид Гизы.",
+            "it": "Due visitatori con le piramidi di Giza sullo sfondo."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Cairo by Plane",
+          "description": "Fly to Cairo for the day: the Egyptian Museum, lunch by the Nile, the Pyramids and the Sphinx, then fly back.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/cairo-by-plane",
+          "includes": [
+            "Hotel–airport transfers in Sharm and all transfers in Cairo",
+            "Return flights Sharm–Cairo",
+            "English-speaking guide",
+            "Entrance fees to the sites in the program",
+            "Lunch in Cairo"
+          ],
+          "excludes": [
+            "Drinks at the restaurant",
+            "Optional felucca ride on the Nile",
+            "Entry inside the two larger pyramids"
+          ],
+          "knowBeforeYouGo": [
+            "Passport (required for the flight)",
+            "You may take a breakfast box from your hotel.",
+            "Pickup around 5:00, return around 22:00."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [
+              "en"
+            ],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "القاهرة بالطائرة",
+          "description": "سافر جوًا إلى القاهرة في يوم واحد: المتحف المصري، وغداء على النيل، والأهرامات وأبو الهول، ثم العودة بالطائرة.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/cairo-by-plane",
+          "includes": [
+            "التوصيل بين الفندق والمطار في شرم الشيخ وجميع التنقلات في القاهرة",
+            "تذاكر طيران ذهاب وعودة شرم الشيخ – القاهرة",
+            "مرشد ناطق بالإنجليزية",
+            "رسوم الدخول إلى المواقع المدرجة في البرنامج",
+            "الغداء في القاهرة"
+          ],
+          "excludes": [
+            "المشروبات في المطعم",
+            "رحلة فلوكة اختيارية على النيل",
+            "الدخول إلى داخل الهرمين الأكبر"
+          ],
+          "knowBeforeYouGo": [
+            "جواز السفر (مطلوب للرحلة الجوية)",
+            "يمكنك أخذ وجبة إفطار جاهزة من فندقك.",
+            "الاستقبال حوالي الساعة 5:00 والعودة حوالي الساعة 22:00."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [
+              "en"
+            ],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Каир на самолёте",
+          "description": "Однодневная поездка в Каир на самолёте: Египетский музей, обед у Нила, пирамиды и Сфинкс, затем перелёт обратно.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/cairo-by-plane",
+          "includes": [
+            "Трансферы отель — аэропорт в Шарме и все трансферы в Каире",
+            "Авиабилеты Шарм — Каир и обратно",
+            "Англоговорящий гид",
+            "Входные билеты на объекты программы",
+            "Обед в Каире"
+          ],
+          "excludes": [
+            "Напитки в ресторане",
+            "Прогулка на фелуке по Нилу (по желанию)",
+            "Вход внутрь двух больших пирамид"
+          ],
+          "knowBeforeYouGo": [
+            "Паспорт (необходим для перелёта)",
+            "Вы можете взять завтрак с собой в коробке в отеле.",
+            "Выезд около 5:00, возвращение около 22:00."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [
+              "en"
+            ],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Il Cairo in aereo",
+          "description": "Vola al Cairo in giornata: il Museo Egizio, pranzo sul Nilo, le Piramidi e la Sfinge, poi il volo di ritorno.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/cairo-by-plane",
+          "includes": [
+            "Transfer hotel–aeroporto a Sharm e tutti i trasferimenti al Cairo",
+            "Voli di andata e ritorno Sharm–Il Cairo",
+            "Guida in lingua inglese",
+            "Biglietti d'ingresso ai siti del programma",
+            "Pranzo al Cairo"
+          ],
+          "excludes": [
+            "Bevande al ristorante",
+            "Giro facoltativo in feluca sul Nilo",
+            "Ingresso all'interno delle due piramidi più grandi"
+          ],
+          "knowBeforeYouGo": [
+            "Passaporto (necessario per il volo)",
+            "Puoi chiedere al tuo hotel un cestino per la colazione.",
+            "Ritiro verso le 5:00, rientro verso le 22:00."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [
+              "en"
+            ],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000023",
+      "slug": "mount-sinai-st-catherine",
+      "category": "CULTURAL",
+      "durationText": "15–16 hours",
+      "price": {
+        "amount": "40.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/mount-sinai-st-catherine/sinai-sunrise-cover-1000.webp",
+          "isCover": true,
+          "alt": {
+            "en": "Visitors watching sunrise over the mountains of Sinai.",
+            "ar": "زوار يشاهدون شروق الشمس فوق جبال سيناء.",
+            "ru": "Посетители наблюдают восход солнца над горами Синая.",
+            "it": "Visitatori osservano l’alba sulle montagne del Sinai."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/mount-sinai-st-catherine/sinai-monastery-gallery-1000.webp",
+          "isCover": false,
+          "alt": {
+            "en": "St Catherine’s Monastery at the foot of rocky Sinai mountains.",
+            "ar": "دير سانت كاترين عند سفح جبال سيناء الصخرية.",
+            "ru": "Монастырь Святой Екатерины у подножия скалистых гор Синая.",
+            "it": "Il monastero di Santa Caterina ai piedi delle montagne rocciose del Sinai."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Mount Sinai & St. Catherine",
+          "description": "Climb Mount Sinai overnight to watch the sunrise from the summit, then visit St. Catherine's Monastery.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/mount-sinai-st-catherine",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Air-conditioned transport",
+            "Guided climb",
+            "Visit to St. Catherine's Monastery"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Passport or ID",
+            "Hiking shoes and a warm jacket (it is cold at the top, especially in winter)",
+            "Water, snacks and a power bank",
+            "Not suitable for pregnant women, children, older guests or people with back, heart or breathing problems.",
+            "Runs on Sundays, Wednesdays and Fridays."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": false,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "جبل موسى وسانت كاترين",
+          "description": "تسلّق جبل موسى ليلًا لمشاهدة الشروق من القمة، ثم زيارة دير سانت كاترين.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/mount-sinai-st-catherine",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "مواصلات مكيفة",
+            "تسلق مع مرشد",
+            "زيارة دير سانت كاترين"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "جواز السفر أو بطاقة الهوية",
+            "حذاء للمشي الجبلي وجاكيت دافئ (الجو بارد في القمة، خاصة في الشتاء)",
+            "مياه ووجبات خفيفة وشاحن متنقل (باور بانك)",
+            "غير مناسبة للحوامل أو الأطفال أو كبار السن أو لمن يعانون من مشكلات في الظهر أو القلب أو التنفس.",
+            "تُنظَّم الرحلة أيام الأحد والأربعاء والجمعة."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": false,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Гора Моисея и монастырь Святой Екатерины",
+          "description": "Ночное восхождение на гору Моисея (Синай), чтобы встретить рассвет на вершине, и посещение монастыря Святой Екатерины.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/mount-sinai-st-catherine",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Транспорт с кондиционером",
+            "Восхождение с гидом",
+            "Посещение монастыря Святой Екатерины"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Паспорт или удостоверение личности",
+            "Треккинговая обувь и тёплая куртка (на вершине холодно, особенно зимой)",
+            "Вода, перекус и повербанк",
+            "Не подходит беременным женщинам, детям, гостям старшего возраста и людям с проблемами спины, сердца или дыхания.",
+            "Экскурсия проходит по воскресеньям, средам и пятницам."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": false,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Monte Sinai e Santa Caterina",
+          "description": "Sali sul Monte Sinai di notte per vedere l'alba dalla cima, poi visita il Monastero di Santa Caterina.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/mount-sinai-st-catherine",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Trasporto con aria condizionata",
+            "Salita guidata",
+            "Visita al Monastero di Santa Caterina"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Passaporto o documento d'identità",
+            "Scarponcini da trekking e giacca calda (in cima fa freddo, soprattutto in inverno)",
+            "Acqua, snack e power bank",
+            "Non adatto a donne in gravidanza, bambini, persone anziane o persone con problemi alla schiena, al cuore o respiratori.",
+            "Si svolge di domenica, mercoledì e venerdì."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": false,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000024",
+      "slug": "luxor-by-plane",
+      "category": "CULTURAL",
+      "durationText": "20–24 hours",
+      "price": {
+        "amount": "280.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "NON_REFUNDABLE",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/media/tours/luxor-by-plane/d9afb1b3-ba93-4a4a-bd71-6528e4f1e299.jpg",
+          "isCover": true,
+          "alt": "Ancient columns and carved stone lintels at Karnak Temple in Luxor."
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Luxor by Plane",
+          "description": "Fly to Luxor for the day: the Valley of the Kings, Hatshepsut's temple, the Colossi of Memnon and Karnak.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/luxor-by-plane",
+          "includes": [
+            "Hotel–airport transfers",
+            "Return flights Sharm–Luxor",
+            "Egyptologist guide",
+            "Entrance fees to the sites in the program",
+            "Lunch at a local restaurant"
+          ],
+          "excludes": [
+            "Special tombs such as Tutankhamun's",
+            "Personal expenses and tips"
+          ],
+          "knowBeforeYouGo": [
+            "Passport (required for the flight)",
+            "Comfortable walking shoes",
+            "Hat, sunglasses and sunscreen"
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "الأقصر بالطائرة",
+          "description": "سافر جوًا إلى الأقصر في يوم واحد: وادي الملوك ومعبد حتشبسوت وتمثالا ممنون ومعبد الكرنك.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/luxor-by-plane",
+          "includes": [
+            "التوصيل بين الفندق والمطار",
+            "تذاكر طيران ذهاب وعودة شرم الشيخ – الأقصر",
+            "عالم مصريات يرافقك كمرشد",
+            "رسوم الدخول إلى المواقع المدرجة في البرنامج",
+            "الغداء في مطعم محلي"
+          ],
+          "excludes": [
+            "المقابر الخاصة مثل مقبرة توت عنخ آمون",
+            "المصروفات الشخصية والإكراميات"
+          ],
+          "knowBeforeYouGo": [
+            "جواز السفر (مطلوب للرحلة الجوية)",
+            "حذاء مريح للمشي",
+            "قبعة ونظارة شمسية وواقٍ من الشمس"
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Луксор на самолёте",
+          "description": "Однодневная поездка в Луксор на самолёте: Долина царей, храм Хатшепсут, Колоссы Мемнона и Карнак.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/luxor-by-plane",
+          "includes": [
+            "Трансферы отель — аэропорт",
+            "Авиабилеты Шарм — Луксор и обратно",
+            "Гид-египтолог",
+            "Входные билеты на объекты программы",
+            "Обед в местном ресторане"
+          ],
+          "excludes": [
+            "Особые гробницы, например гробница Тутанхамона",
+            "Личные расходы и чаевые"
+          ],
+          "knowBeforeYouGo": [
+            "Паспорт (необходим для перелёта)",
+            "Удобная обувь для ходьбы",
+            "Головной убор, солнцезащитные очки и солнцезащитный крем"
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Luxor in aereo",
+          "description": "Vola a Luxor in giornata: la Valle dei Re, il tempio di Hatshepsut, i Colossi di Memnone e Karnak.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/luxor-by-plane",
+          "includes": [
+            "Transfer hotel–aeroporto",
+            "Voli di andata e ritorno Sharm–Luxor",
+            "Egittologo come guida",
+            "Biglietti d'ingresso ai siti del programma",
+            "Pranzo in un ristorante locale"
+          ],
+          "excludes": [
+            "Tombe speciali, come quella di Tutankhamon",
+            "Spese personali e mance"
+          ],
+          "knowBeforeYouGo": [
+            "Passaporto (necessario per il volo)",
+            "Scarpe comode per camminare",
+            "Cappello, occhiali da sole e crema solare"
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000025",
+      "slug": "st-catherine-dahab",
+      "category": "CULTURAL",
+      "durationText": "11–12 hours",
+      "price": {
+        "amount": "45.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/st-catherine-dahab/st-catherine-monastery-cover-1600.webp",
+          "isCover": true,
+          "alt": {
+            "en": "The walls and buildings of St Catherine’s Monastery in Sinai.",
+            "ar": "أسوار ومباني دير سانت كاترين في سيناء.",
+            "ru": "Стены и здания монастыря Святой Екатерины на Синае.",
+            "it": "Le mura e gli edifici del monastero di Santa Caterina nel Sinai."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/st-catherine-dahab/st-catherine-church-gallery-1024.webp",
+          "isCover": false,
+          "alt": {
+            "en": "The decorated interior of the church at St Catherine’s Monastery.",
+            "ar": "الزخارف الداخلية لكنيسة دير سانت كاترين.",
+            "ru": "Украшенный интерьер церкви монастыря Святой Екатерины.",
+            "it": "L’interno decorato della chiesa del monastero di Santa Caterina."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "St. Catherine & Dahab",
+          "description": "Visit St. Catherine's Monastery, then lunch and free time in Dahab — a relaxed cultural day.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/st-catherine-dahab",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Air-conditioned transport",
+            "Visit to St. Catherine's Monastery",
+            "Lunch in Dahab",
+            "Free time in Dahab",
+            "Local guide"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Passport",
+            "Comfortable walking shoes",
+            "Runs on Mondays, Thursdays and Saturdays."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "سانت كاترين ودهب",
+          "description": "زيارة دير سانت كاترين، ثم غداء ووقت حر في دهب — يوم ثقافي هادئ.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/st-catherine-dahab",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "مواصلات مكيفة",
+            "زيارة دير سانت كاترين",
+            "الغداء في دهب",
+            "وقت حر في دهب",
+            "مرشد محلي"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "جواز السفر",
+            "حذاء مريح للمشي",
+            "تُنظَّم الرحلة أيام الاثنين والخميس والسبت."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Святая Екатерина и Дахаб",
+          "description": "Посещение монастыря Святой Екатерины, затем обед и свободное время в Дахабе — спокойный познавательный день.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/st-catherine-dahab",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Транспорт с кондиционером",
+            "Посещение монастыря Святой Екатерины",
+            "Обед в Дахабе",
+            "Свободное время в Дахабе",
+            "Местный гид"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Паспорт",
+            "Удобная обувь для ходьбы",
+            "Экскурсия проходит по понедельникам, четвергам и субботам."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Santa Caterina e Dahab",
+          "description": "Visita il Monastero di Santa Caterina, poi pranzo e tempo libero a Dahab: una giornata culturale rilassata.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/st-catherine-dahab",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Trasporto con aria condizionata",
+            "Visita al Monastero di Santa Caterina",
+            "Pranzo a Dahab",
+            "Tempo libero a Dahab",
+            "Guida locale"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Passaporto",
+            "Scarpe comode per camminare",
+            "Si svolge di lunedì, giovedì e sabato."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": null,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000026",
+      "slug": "turkish-bath",
+      "category": "SHOWS",
+      "durationText": "1–2 hours",
+      "price": {
+        "amount": "45.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/turkish-bath/turkish-bath-interior-668.webp",
+          "isCover": true,
+          "alt": {
+            "en": "The interior of a traditional hammam.",
+            "ar": "التصميم الداخلي للحمام التركي.",
+            "ru": "Интерьер традиционного хаммама.",
+            "it": "L’interno di un hammam tradizionale."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/turkish-bath/turkish-bath-foam-669.webp",
+          "isCover": false,
+          "alt": {
+            "en": "A foam treatment in a hammam.",
+            "ar": "جلسة رغوة في الحمام التركي.",
+            "ru": "Пенный уход в хаммаме.",
+            "it": "Un trattamento con schiuma in un hammam."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Turkish Bath",
+          "description": "A traditional hammam ritual: sauna, jacuzzi and steam, peeling, soap massage and a relaxing massage.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/turkish-bath",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Sauna, jacuzzi and steam room",
+            "Peeling and soap massage",
+            "Face mask",
+            "Body massage",
+            "Towels"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "For adults.",
+            "Book ahead in high season."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": false,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "الحمام التركي",
+          "description": "طقس الحمام التقليدي: ساونا وجاكوزي وبخار، وتقشير ومساج بالصابون ومساج للاسترخاء.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/turkish-bath",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "ساونا وجاكوزي وغرفة بخار",
+            "تقشير ومساج بالصابون",
+            "قناع للوجه",
+            "مساج للجسم",
+            "مناشف"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "للبالغين.",
+            "يُرجى الحجز مسبقًا في الموسم المرتفع."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": false,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Турецкая баня",
+          "description": "Традиционный ритуал хаммама: сауна, джакузи и парная, пилинг, мыльный массаж и расслабляющий массаж.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/turkish-bath",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Сауна, джакузи и парная",
+            "Пилинг и мыльный массаж",
+            "Маска для лица",
+            "Массаж тела",
+            "Полотенца"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Для взрослых.",
+            "В высокий сезон бронируйте заранее."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": false,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Bagno turco",
+          "description": "Un rituale tradizionale da hammam: sauna, jacuzzi e bagno di vapore, peeling, massaggio con sapone e massaggio rilassante.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/turkish-bath",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Sauna, jacuzzi e bagno di vapore",
+            "Peeling e massaggio con sapone",
+            "Maschera per il viso",
+            "Massaggio al corpo",
+            "Asciugamani"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Per adulti.",
+            "Prenota in anticipo in alta stagione."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": false,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000027",
+      "slug": "dolphin-show",
+      "category": "SHOWS",
+      "durationText": "1 hour",
+      "price": {
+        "amount": "20.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/dolphin-show/dolphin-show-jump-720.webp",
+          "isCover": true,
+          "alt": {
+            "en": "Dolphins jumping during a pool show.",
+            "ar": "دلافين تقفز أثناء عرض في الحوض.",
+            "ru": "Дельфины прыгают во время представления в бассейне.",
+            "it": "Delfini saltano durante uno spettacolo in piscina."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/dolphin-show/dolphin-show-guests-1600.webp",
+          "isCover": false,
+          "alt": {
+            "en": "Guests beside the dolphin show pool.",
+            "ar": "ضيوف بجوار حوض عرض الدلافين.",
+            "ru": "Гости возле бассейна с представлением дельфинов.",
+            "it": "Ospiti accanto alla piscina dello spettacolo dei delfini."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Dolphin Show",
+          "description": "An hour-long dolphin show in Sharm with jumps, spins and a look at how dolphins communicate.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/dolphin-show",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Air-conditioned transport",
+            "Show entrance ticket"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Photography only in designated areas.",
+            "Show times may vary by season."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "عرض الدلافين",
+          "description": "عرض للدلافين لمدة ساعة في شرم الشيخ مع قفزات ودورانات وتعرّف على طريقة تواصل الدلافين.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/dolphin-show",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "مواصلات مكيفة",
+            "تذكرة دخول العرض"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "التصوير مسموح في الأماكن المخصصة فقط.",
+            "قد تختلف مواعيد العروض حسب الموسم."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Шоу дельфинов",
+          "description": "Часовое шоу дельфинов в Шарме с прыжками, вращениями и рассказом о том, как общаются дельфины.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/dolphin-show",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Транспорт с кондиционером",
+            "Входной билет на шоу"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Фотосъёмка разрешена только в специально отведённых местах.",
+            "Время шоу может меняться в зависимости от сезона."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Spettacolo dei delfini",
+          "description": "Uno spettacolo di un'ora con i delfini a Sharm, tra salti, giravolte e uno sguardo a come comunicano.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/dolphin-show",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Trasporto con aria condizionata",
+            "Biglietto d'ingresso allo spettacolo"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Foto consentite solo nelle aree designate.",
+            "Gli orari dello spettacolo possono variare in base alla stagione."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000028",
+      "slug": "swimming-with-dolphins",
+      "category": "SHOWS",
+      "durationText": "15 minutes",
+      "price": {
+        "amount": "70.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "priceOptions": [],
+      "pricingNote": null,
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/swimming-with-dolphins/dolphin-swim-1600.webp",
+          "isCover": true,
+          "alt": {
+            "en": "A guest beside a dolphin in a swimming pool.",
+            "ar": "ضيفة بجوار دولفين في حوض السباحة.",
+            "ru": "Гостья рядом с дельфином в бассейне.",
+            "it": "Un’ospite accanto a un delfino in piscina."
+          }
+        },
+        {
+          "url": "https://safaritourssharm.com/images/catalog/swimming-with-dolphins/dolphin-swim-group-960.webp",
+          "isCover": false,
+          "alt": {
+            "en": "Guests in a pool with dolphins.",
+            "ar": "ضيوف في حوض سباحة مع الدلافين.",
+            "ru": "Гости в бассейне с дельфинами.",
+            "it": "Ospiti in piscina con i delfini."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Swimming with Dolphins",
+          "description": "Fifteen minutes in the water with dolphins, supervised by trainers, with a life jacket provided.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/swimming-with-dolphins",
+          "includes": [
+            "Hotel pickup and drop-off",
+            "Air-conditioned transport",
+            "Entrance ticket",
+            "15 minutes swimming with dolphins",
+            "Life jacket"
+          ],
+          "excludes": [
+            "Professional photos and videos (available to buy)"
+          ],
+          "knowBeforeYouGo": [
+            "Swimwear, towel, sunglasses and sunscreen",
+            "Phones are not allowed while swimming.",
+            "Non-swimmers may need assistance."
+          ],
+          "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ar": {
+          "title": "السباحة مع الدلافين",
+          "description": "خمس عشرة دقيقة في الماء مع الدلافين تحت إشراف المدربين، مع توفير سترة نجاة.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/swimming-with-dolphins",
+          "includes": [
+            "الاستقبال من الفندق والتوصيل إليه",
+            "مواصلات مكيفة",
+            "تذكرة الدخول",
+            "15 دقيقة سباحة مع الدلافين",
+            "سترة نجاة"
+          ],
+          "excludes": [
+            "الصور والفيديوهات الاحترافية (متاحة للشراء)"
+          ],
+          "knowBeforeYouGo": [
+            "ملابس سباحة ومنشفة ونظارة شمسية وواقٍ من الشمس",
+            "لا يُسمح بالهواتف أثناء السباحة.",
+            "قد يحتاج من لا يجيدون السباحة إلى مساعدة."
+          ],
+          "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "ru": {
+          "title": "Плавание с дельфинами",
+          "description": "Пятнадцать минут в воде с дельфинами под присмотром тренеров, спасательный жилет предоставляется.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/swimming-with-dolphins",
+          "includes": [
+            "Трансфер из отеля и обратно в отель",
+            "Транспорт с кондиционером",
+            "Входной билет",
+            "15 минут плавания с дельфинами",
+            "Спасательный жилет"
+          ],
+          "excludes": [
+            "Профессиональные фото и видео (можно купить)"
+          ],
+          "knowBeforeYouGo": [
+            "Купальник, полотенце, солнцезащитные очки и солнцезащитный крем",
+            "Телефоны нельзя брать с собой во время плавания.",
+            "Тем, кто не умеет плавать, может понадобиться помощь."
+          ],
+          "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        },
+        "it": {
+          "title": "Nuotare con i delfini",
+          "description": "Quindici minuti in acqua con i delfini, sotto la supervisione degli addestratori, con giubbotto di salvataggio incluso.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/swimming-with-dolphins",
+          "includes": [
+            "Transfer da e per l'hotel",
+            "Trasporto con aria condizionata",
+            "Biglietto d'ingresso",
+            "15 minuti di nuoto con i delfini",
+            "Giubbotto di salvataggio"
+          ],
+          "excludes": [
+            "Foto e video professionali (disponibili all'acquisto)"
+          ],
+          "knowBeforeYouGo": [
+            "Costume da bagno, telo mare, occhiali da sole e crema solare",
+            "I telefoni non sono ammessi durante il nuoto.",
+            "Chi non sa nuotare potrebbe aver bisogno di assistenza."
+          ],
+          "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+          "facts": {
+            "childrenAllowed": true,
+            "minimumAge": null,
+            "guideLanguages": [],
+            "hotelPickup": "INCLUDED"
+          }
+        }
+      },
+      "readinessIssues": []
+    },
+    {
+      "id": "a0000001-0000-0000-0000-000000000030",
+      "slug": "sharm-airport-transfer",
+      "category": "TRANSFERS",
+      "durationText": "30–60 minutes",
+      "price": {
+        "amount": "15.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_UNIT",
+      "priceOptions": [
+        {
+          "code": "sedan",
+          "label": "Sedan car",
+          "seatsPerUnit": 4,
+          "price": {
+            "amount": "15.00",
+            "currencyCode": "EUR"
+          }
+        },
+        {
+          "code": "suv",
+          "label": "SUV",
+          "seatsPerUnit": 4,
+          "price": {
+            "amount": "20.00",
+            "currencyCode": "EUR"
+          }
+        },
+        {
+          "code": "minibus",
+          "label": "Hiace minibus",
+          "seatsPerUnit": 8,
+          "price": {
+            "amount": "35.00",
+            "currencyCode": "EUR"
+          }
+        }
+      ],
+      "pricingNote": "Per vehicle: sedan €15 · SUV €20 · Hiace minibus €35",
+      "childPrice": null,
+      "cancellationPolicy": "STANDARD",
+      "bookingMode": "REQUEST_SUBJECT_TO_CONFIRMATION",
+      "inventoryStatus": "NOT_EXPORTED",
+      "images": [
+        {
+          "url": "https://safaritourssharm.com/images/catalog/sharm-airport-transfer/transfer-van-1600.webp",
+          "isCover": true,
+          "alt": {
+            "en": "Illustrative photo: a passenger minivan; assigned vehicle is confirmed by the office.",
+            "ar": "صورة توضيحية: ميني فان للركاب؛ المكتب يؤكد السيارة المخصصة.",
+            "ru": "Иллюстративное фото: пассажирский минивэн; автомобиль подтверждает офис.",
+            "it": "Foto illustrativa: un minivan; il veicolo assegnato viene confermato dall’ufficio."
+          }
+        }
+      ],
+      "copy": {
+        "en": {
+          "title": "Sharm Airport Transfer",
+          "description": "Private transfer between your hotel and Sharm El Sheikh airport by car or minibus.\n\nBooking request only. Our team checks availability before confirming. WhatsApp is for enquiries.",
+          "url": "https://safaritourssharm.com/en/tour/sharm-airport-transfer",
+          "includes": [
+            "Private vehicle for your group",
+            "Professional driver",
+            "Luggage assistance"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Please send your flight details when booking.",
+            "Sedan: up to 4 people and 3 suitcases. Hiace minibus: up to 8 guests."
+          ],
+          "meetingPoint": "Your hotel reception, or the arrivals hall at Sharm El Sheikh airport.",
+          "facts": null
+        },
+        "ar": {
+          "title": "التوصيل من وإلى مطار شرم الشيخ",
+          "description": "توصيل خاص بين فندقك ومطار شرم الشيخ بسيارة أو ميني باص.\n\nطلب حجز وليس تأكيدًا فوريًا. يراجع فريقنا التوافر قبل التأكيد. واتساب للاستفسارات.",
+          "url": "https://safaritourssharm.com/ar/tour/sharm-airport-transfer",
+          "includes": [
+            "مركبة خاصة لمجموعتك",
+            "سائق محترف",
+            "مساعدة في الحقائب"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "يُرجى إرسال تفاصيل رحلتك الجوية عند الحجز.",
+            "سيدان: حتى 4 أشخاص و3 حقائب. ميني باص هايس: حتى 8 ضيوف."
+          ],
+          "meetingPoint": "مكتب الاستقبال في فندقك، أو صالة الوصول في مطار شرم الشيخ.",
+          "facts": null
+        },
+        "ru": {
+          "title": "Трансфер: аэропорт Шарм-эль-Шейха — отель",
+          "description": "Индивидуальный трансфер между отелем и аэропортом Шарм-эль-Шейха на легковом автомобиле или микроавтобусе.\n\nЗаявка на бронирование, не мгновенное подтверждение. Наша команда проверит наличие мест. WhatsApp — для вопросов.",
+          "url": "https://safaritourssharm.com/ru/tour/sharm-airport-transfer",
+          "includes": [
+            "Отдельный автомобиль для вашей группы",
+            "Профессиональный водитель",
+            "Помощь с багажом"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Пожалуйста, отправьте данные рейса при бронировании.",
+            "Седан: до 4 человек и 3 чемодана. Микроавтобус Hiace: до 8 гостей."
+          ],
+          "meetingPoint": "Ресепшен вашего отеля или зал прилёта в аэропорту Шарм-эль-Шейха.",
+          "facts": null
+        },
+        "it": {
+          "title": "Transfer da e per l'aeroporto di Sharm",
+          "description": "Transfer privato tra il tuo hotel e l'aeroporto di Sharm El Sheikh, in auto o minibus.\n\nRichiesta di prenotazione, non conferma immediata. Il nostro team verifica la disponibilità. WhatsApp per informazioni.",
+          "url": "https://safaritourssharm.com/it/tour/sharm-airport-transfer",
+          "includes": [
+            "Veicolo privato per il tuo gruppo",
+            "Autista professionista",
+            "Assistenza con i bagagli"
+          ],
+          "excludes": [],
+          "knowBeforeYouGo": [
+            "Invia i dati del tuo volo al momento della prenotazione.",
+            "Berlina: fino a 4 persone e 3 valigie. Minibus Hiace: fino a 8 ospiti."
+          ],
+          "meetingPoint": "La reception del tuo hotel, oppure la sala arrivi dell'aeroporto di Sharm El Sheikh.",
+          "facts": null
+        }
+      },
+      "readinessIssues": []
+    }
+  ]
+}
