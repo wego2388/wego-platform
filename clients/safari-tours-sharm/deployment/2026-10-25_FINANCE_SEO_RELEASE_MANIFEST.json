@@ -1,0 +1,37 @@
+{
+ "releaseId": "str-2026.10.25-a728327-fin",
+ "releaseType": "SAFARI_BACKEND_SITE_ERP",
+ "previousReleaseId": "str-2026.10.25-50e35ea-mail",
+ "executor": "Claude",
+ "sourceCommit": "a728327",
+ "contents": [
+  "SAF-04 Slice A finance controls (Tier1 READY after F1-F5)",
+  "site cache headers + truthful JSON-LD + distinct descriptions (site audit 2026-10-25)",
+  "ERP finance columns/flags/messages"
+ ],
+ "images": {
+  "backend": "sha256:268eb95351a55e8775eec6ba7d86e87b1d8e0498090320e0cb29cde5460a1da2",
+  "site": "sha256:93a5d825944467747a1aab17ebfd3a7bcdd936c8a43015c4a582defd5fc56128",
+  "erp": "sha256:685ce56e92d385fedfea7b7279e5e1e36944c1c1048fda1bc6a832ebd8893faa"
+ },
+ "gates": {
+  "backend": "473 tests (implementer), FinanceOps 37+20 (reviewer)",
+  "web": "pnpm web check exit 0, 985 tests, six builds",
+  "isolatedE2E": "enquiry 44, history guard PASS, requests 8, checkout 13, site 11, launch 5, office inventory 5, operations cycle 1, documents 12; logs PII-free",
+  "ci": "code jobs; infra jobs blocked by public ECR data limit"
+ },
+ "flyway": "36 (no migration)",
+ "backup": "20261025T074256Z.bundle copied off-VPS, hashes verified",
+ "live": {
+  "resort": "protected containers unchanged; root/www/app/owner 200",
+  "safari": "public/staff 200, 27 tours, prices unchanged, JSON-LD TravelAgency/WebSite/TouristTrip/BreadcrumbList, static cache 7d, GA4 on, health OK"
+ },
+ "historicalFiguresChangeOnce": "SUPPLIER_COST_MISSING may blank some profits; past departures without same-day rate use the previous rate; under-review payments counted net and excluded from profit",
+ "ownerReviewDefaults": [
+  "CHARGE cap 5000 EGP/party/day",
+  "approval expiry 7 days",
+  "charge recorder cannot pay the party for 7 days",
+  "profit basis cash-collected"
+ ],
+ "rollback": "bash releases/str-2026.10.25-a728327-fin/rollback.sh str-2026.10.25-a728327-fin (previous images; no schema change)"
+}

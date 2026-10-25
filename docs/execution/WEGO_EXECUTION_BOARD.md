@@ -1,5 +1,24 @@
 # Wego Execution Board
 
+### 2026-10-25 — Release str-2026.10.25-a728327-fin deployed (SAF-04 Slice A + site SEO/cache)
+
+- Backend+site+ERP image swap; no migration (Flyway 36). Fresh encrypted bundle
+  `20261025T074256Z` copied off-VPS. Isolated E2E on the exact images: 99 browser
+  cases + history guard, logs PII-free. Resort unchanged; health OK.
+- SAF-04 Slice A (`a728327`, independent Opus Tier1 READY after F1–F5): cumulative
+  daily CHARGE cap under lock (EUR at rate in force when recorded); charge
+  recorder cannot pay the party for 7 days; approvals expire after 7 days; no
+  self-reversal of adjustments; back-dated costs need settlement:approve;
+  SUPPLIER_COST_MISSING gap; previous-rate fallback; under-review payments net
+  and excluded from profit with an explicit count; bookedValue/outstanding.
+  Owner-review defaults recorded in the manifest. Historical figures change once.
+- Site (`a006a5e`): static asset cache 7 days; JSON-LD Organization+WebSite,
+  Breadcrumbs, TouristTrip url/@id (no ratings/reviews/availability); distinct
+  terms/privacy/faq/category descriptions. Audit report `SITE_AUDIT_2026-10-25.md`.
+- Remaining SAF-04: Slice B reports (Tier2) and Slice C cost freeze (Tier1,
+  migration) after owner answers in the decision memo.
+- Manifest: `clients/safari-tours-sharm/deployment/2026-10-25_FINANCE_SEO_RELEASE_MANIFEST.json`.
+
 ### 2026-10-25 — SAF-03 automated operations acceptance and SAF-07 GA4 activation
 
 - SAF-03: isolated disposable stack (project safari-ops-e2e) on the production
