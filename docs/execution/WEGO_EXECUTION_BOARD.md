@@ -1,5 +1,31 @@
 # Wego Execution Board
 
+### 2026-10-25 — Release str-2026.10.25-b98aa55 deployed (SAF-01.07 / SAF-02.08)
+
+- Executor: Claude, single deploy executor. Scope: Safari backend + site images
+  only; ERP, edge config, gateway and Resort untouched (edge recreated, same config).
+- Gates: Tier1 READY for STQ lookup and V36 (prior independent review); new high
+  web advisories patched (`b98aa55`, full web check 974 tests + six builds);
+  CI code jobs green; CI infrastructure jobs blocked by public ECR
+  `toomanyrequests: Data limit exceeded` (registry quota, retained as failure).
+  Compensating isolated E2E on the exact release images: enquiry 44/44, history
+  startup guard PASS, website-request→ERP incl. STQ My Booking 8/8.
+- V36 rehearsed on a read-only production pg_dump restored in an isolated
+  container: exactly 5 base + 2 option prices changed; bookings, requests and
+  slots unchanged; dump shredded afterwards.
+- Backup: scheduled encrypted `20261025T021700Z.bundle` (Flyway35, 4 bookings,
+  8 requests) copied off-VPS, hashes verified. Encrypted restore drill not run:
+  the owner's decryption key is not on this machine (health WARN drill 10 days).
+- Live: Flyway36/0 failed; API prices match the owner corrections; submarine
+  EUR35 and SUV EUR20 unchanged pending owner answer; 27 active tours; lookup
+  404/400 no-store; four locales 200; Resort protected containers identical and
+  root/www/app/owner 200; health-check all OK except drill age.
+- Manifest: `clients/safari-tours-sharm/deployment/2026-10-25_CATALOG_STQ_RELEASE_MANIFEST.json`;
+  rollback script in the release dir (previous images; DB stays at data-only V36).
+- Also committed, NOT yet deployed: `19ed066` OFFICE cancellation email
+  (SAF-01.03/04), independent Opus Tier1 READY after N1–N4 fixes, 17 notification
+  PostgreSQL tests. Next backend release.
+
 ### 2026-10-25 — SAF-00 runtime/source reconciliation (Claude takes over execution)
 
 - Owner handed execution to Claude («استلم تنفيذ مشروع Safari Tours Sharm»);

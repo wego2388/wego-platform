@@ -1,0 +1,65 @@
+{
+ "releaseId": "str-2026.10.25-b98aa55",
+ "releaseType": "SAFARI_BACKEND_AND_SITE",
+ "previousReleaseId": "str-2026.10.15-36e8291-mail",
+ "executor": "Claude (single deploy executor, owner handoff 2026-10-25)",
+ "sourceCommit": "b98aa553f291c50fe2719ecb4718afeb41b48d81",
+ "ci": {
+  "run": 40151116333,
+  "codeJobs": "repository, contracts, backend, web, mobile, secrets/audit(after fix) = success on b98aa55 lineage",
+  "infrastructureJobs": "infrastructure and safari-container-gateway FAILED: public.ecr.aws 'toomanyrequests: Data limit exceeded' (registry quota, not code)"
+ },
+ "isolatedE2EOnReleaseImages": {
+  "safari-enquiry.spec": "44/44 PASS",
+  "historyStartupGuard": "PASS",
+  "safari-online-requests.spec (incl. STQ My Booking)": "8/8 PASS",
+  "erpImage": "safari-tours-sharm-erp:str-2026.10.10-1d5a6b6 (unchanged in production)"
+ },
+ "backend": {
+  "reference": "safari-tours-sharm-backend:str-2026.10.25-b98aa55",
+  "imageId": "sha256:dd3cf54ceb75ba486fa55d1b862d18651d4f7a5bf6453e12a552e4409de1f0d3",
+  "jarSha256": "064b5ccda6411aab0bab3a46bb0e7472319ebcb0826f0129afc73e5ac4eb9204",
+  "dockerfile": "safari-backend-from-jar.Dockerfile"
+ },
+ "site": {
+  "reference": "safari-tours-sharm-site:str-2026.10.25-b98aa55",
+  "imageId": "sha256:2f42393f3716149b96281b99e67229bc1c56e9e44ab0c1e1bf1738f1882b7924",
+  "outputSha256": "8cbe462c0748d6d89d7a05db42752dd109c6847ef8dc0311830fc20aa888336e",
+  "dockerfile": "safari-nuxt-from-output.Dockerfile"
+ },
+ "unchangedImages": {
+  "erp": "safari-tours-sharm-erp:str-2026.10.10-1d5a6b6",
+  "edge": "nginx 1.30.4-alpine (recreated, same config)",
+  "postgres": "18.4-alpine"
+ },
+ "flywayBefore": 35,
+ "flywayAfter": 36,
+ "flywayFailed": 0,
+ "v36RehearsalOnProductionCopy": {
+  "source": "read-only pg_dump streamed off-VPS 2026-10-25T01:15Z, restored in isolated internal-network container, then shredded",
+  "result": "V35->V36 applied; exactly 5 base + 2 option prices changed; bookings/requests/slots row hashes unchanged"
+ },
+ "backup": {
+  "preDeployBundle": "20261025T021700Z.bundle (scheduled, encrypted)",
+  "offVpsCopy": "/home/wego/Backups/safari-tours-sharm/20261025T021700Z.bundle",
+  "hashesVerified": true,
+  "encryptedDrill": "NOT RUN — owner decryption key not available on this machine; last drill 2026-10-15"
+ },
+ "bookingMode": "ENQUIRY_ONLY",
+ "onlinePaymentEnabled": false,
+ "notificationsEnabled": true,
+ "trackingIds": "empty (not activated)",
+ "liveVerification": {
+  "apiPrices": "sunset-quad 15, double-buggy 35 (+option 35), bedouin-dinner 25, evening-cruise 30, dahab 30, transfer sedan15/suv20/minibus30, glass-boat 15, submarine 35 (unchanged pending owner)",
+  "activeTours": 27,
+  "lookup": "unknown STQ/STR -> 404 no-store; invalid -> 400 no-store",
+  "pages": "en/ar/ru/it home, tours, two tour pages, my-booking = 200",
+  "resortProtectedContainers": "unchanged (image+StartedAt)",
+  "https": "Safari public/staff and Resort root/www/app/owner = 200"
+ },
+ "pendingOwner": [
+  "submarine EUR40 vs glass-bottom EUR15",
+  "keep or remove SUV EUR20 option"
+ ],
+ "rollback": "bash releases/str-2026.10.25-b98aa55/rollback.sh str-2026.10.25-b98aa55 — restores env and previous backend/site images; DB stays at V36 (data-only; old backend ignores future migration). Never run older backend schema-restores."
+}
