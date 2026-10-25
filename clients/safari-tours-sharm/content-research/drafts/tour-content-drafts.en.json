@@ -385,13 +385,13 @@
     {
       "slug": "diving-course",
       "content": {
-        "name": "Diving Course",
-        "shortDescription": "Take your diving further with an advanced course in the Red Sea, guided by professional instructors.",
-        "description": "Explore deeper dive sites, refine your technique and enjoy the Red Sea's world-famous reefs and marine life on a multi-day course with professional instructors at one of Sharm El Sheikh's leading dive centers. Designed for certified divers who want more challenge.",
+        "name": "PADI Open Water Diver Course",
+        "shortDescription": "Start diving with a three-day PADI Open Water Diver course in Sharm El Sheikh, including four open-water dives.",
+        "description": "A three-day PADI Open Water Diver course for beginners in Sharm El Sheikh, with a professional instructor, diving equipment and four open-water dives. No previous diving certification is required. Certification depends on successfully completing the course requirements; the training provider confirms participation requirements before the course.",
         "includes": [
-          "Professional instructor at a leading Sharm El Sheikh dive center",
+          "Professional diving instructor",
           "Diving equipment",
-          "Multiple dives"
+          "Four open-water dives"
         ],
         "excludes": [
           "Photos and videos (sold separately)",
@@ -399,9 +399,9 @@
           "Sunglasses"
         ],
         "knowBeforeYouGo": [
-          "An Open Water certification is required.",
-          "A medical declaration may be required.",
-          "Not suitable for beginners.",
+          "No previous diving certification is required.",
+          "A diving medical questionnaire is required. Physician approval may be required based on your answers and local requirements.",
+          "The training provider confirms health, age and swimming requirements before participation.",
           "Book at least one day in advance.",
           "Runs every day."
         ],
@@ -651,7 +651,7 @@
           "Life jackets"
         ],
         "excludes": [
-          "Tips for the captain",
+          "Optional tips for the captain (not required)",
           "Personal expenses",
           "Photos and videos (sold separately)",
           "Headscarf",
@@ -675,9 +675,7 @@
           "ru"
         ]
       },
-      "reviewFlags": [
-        "قراري: المدة «3 ساعات مركب خاص» (تناسب سعر 150€ للمركب) — لو غلط قولي."
-      ]
+      "reviewFlags": []
     },
     {
       "slug": "submarine",
@@ -1057,8 +1055,7 @@
         ],
         "knowBeforeYouGo": [
           "Photography only in designated areas.",
-          "The show starts at a fixed time: 14:30.",
-          "Runs every day."
+          "One show daily at 14:30."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
@@ -1072,9 +1069,7 @@
           "ru"
         ]
       },
-      "reviewFlags": [
-        "قراري: العرض مستمر. شِلت ادعاء «جهود الحماية» لأنه محتاج دليل."
-      ]
+      "reviewFlags": []
     },
     {
       "slug": "swimming-with-dolphins",
@@ -1155,16 +1150,17 @@
         "excludes": [],
         "knowBeforeYouGo": [
           "Please send your flight details when booking.",
-          "Sedan: up to 4 people and 3 suitcases. Hiace minibus: up to 8 guests."
+          "Sedan: up to 4 people and 3 suitcases. Hiace minibus: up to 8 guests.",
+          "40 minutes of free waiting are included from the agreed meeting time with the driver. Confirm with the office how delays or additional waiting are handled."
         ],
         "meetingPoint": "Your hotel reception, or the arrivals hall at Sharm El Sheikh airport. We confirm your hotel pickup time on WhatsApp.",
         "stops": []
       },
       "facts": {},
       "reviewFlags": [
-        "ملاحظة تقنية: الحجز حاليًا بسعر واحد للفرد. اختيار نوع العربية (15/20/35) محتاج إضافة في نظام الحجز — هعملها في UX-4."
+        "Owner confirmed on 2026-10-26: 40 minutes free waiting from the agreed driver meeting time; delay and extra-wait arrangements still require office confirmation."
       ]
     }
   ],
-  "ownerCorrectionsApplied": "2026-10-25"
+  "ownerCorrectionsApplied": "2026-10-26"
 }

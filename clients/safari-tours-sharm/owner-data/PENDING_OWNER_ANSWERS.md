@@ -1,5 +1,8 @@
 # Owner answers waiting to be copied into the workbook
 
+> أحدث قرارات معتمدة: [إجابات 26 أكتوبر وخطة تطبيقها](2026-10-26_OWNER_DECISIONS_AR.md).
+> تتقدم على الإجابات الأقدم عند التعارض. الاعتماد لا يعني النشر أو تحديث الإكسيل تلقائيًا.
+
 The prior answers were copied into `safari-tours-owner-data-hub.xlsx` on
 2026-10-01. New owner-supplied evidence is recorded without overwriting the
 workbook; copy only approved facts by key once the owner's open copy is closed.

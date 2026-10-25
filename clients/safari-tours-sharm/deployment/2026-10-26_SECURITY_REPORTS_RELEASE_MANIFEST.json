@@ -1,0 +1,125 @@
+{
+  "recordedAtUTC": "2026-10-25T22:13:24.791852+00:00",
+  "release": "str-2026.10.25-df846c1-sec",
+  "status": "DEPLOYED_VERIFIED",
+  "executor": "Codex",
+  "previousRelease": "str-2026.10.25-e3559bc-edge",
+  "scope": "Previously reviewed security + finance reports release; no schema/data migration",
+  "preflight": {
+    "archiveChecksumsVerified": true,
+    "privatePortsAndCapabilitiesVerified": true,
+    "scriptsReviewed": true,
+    "isolatedE2E": "Existing exact-image handoff evidence: enquiry44/requests8/checkout13/site11/launch5/office5/cycle1/documents12; not rerun for this image swap"
+  },
+  "live": {
+    "resortUnchanged": true,
+    "flyway": "36|0",
+    "https": [
+      "https://safaritourssharm.com/en 200",
+      "https://staff.safaritourssharm.com/ 200",
+      "https://elkheima.com/ 200",
+      "https://www.elkheima.com/ 200",
+      "https://app.elkheima.com/ 200",
+      "https://owner.elkheima.com/ 200"
+    ],
+    "services": [
+      {
+        "service": "edge",
+        "imageId": "sha256:97d490c12ba55b4946b01546d1c3ed324e8d41ab1c9fcb2a616aa470620e5b46",
+        "health": "healthy",
+        "capDrop": [
+          "ALL"
+        ],
+        "securityOpt": [
+          "no-new-privileges:true"
+        ]
+      },
+      {
+        "service": "web",
+        "imageId": "sha256:aec2e495ca1ef980df13eda35f034c7ccb247684d55e8f6ebf536806f73106fe",
+        "health": "healthy",
+        "capDrop": [
+          "ALL"
+        ],
+        "securityOpt": [
+          "no-new-privileges:true"
+        ]
+      },
+      {
+        "service": "safari-site",
+        "imageId": "sha256:67365a8db80ff7656d6553127750f2529357f70fafa88829b559a9c9070eb7f9",
+        "health": "healthy",
+        "capDrop": [
+          "ALL"
+        ],
+        "securityOpt": [
+          "no-new-privileges:true"
+        ]
+      },
+      {
+        "service": "backend",
+        "imageId": "sha256:30598f020ca02594b9470419f2a3964b286a788c2c3afefc641c5316025d769f",
+        "health": "healthy",
+        "capDrop": [
+          "ALL"
+        ],
+        "securityOpt": [
+          "no-new-privileges:true"
+        ]
+      },
+      {
+        "service": "postgres",
+        "imageId": "sha256:9a8afca54e7861fd90fab5fdf4c42477a6b1cb7d293595148e674e0a3181de15",
+        "health": "healthy",
+        "capDrop": [
+          "ALL"
+        ],
+        "securityOpt": [
+          "no-new-privileges:true"
+        ]
+      }
+    ],
+    "staffBrowserReports": {
+      "checked": true,
+      "languages": [
+        "ar",
+        "en"
+      ],
+      "sectionsLoaded": 4,
+      "csvButtonsEnabled": 4,
+      "csvDownloadExecuted": false,
+      "financialWritesPerformed": false
+    }
+  },
+  "backups": [
+    {
+      "stamp": "20261025T215003Z",
+      "encrypted": true,
+      "flywayVersion": "36",
+      "manifestSha256": "3063c9605e20073cf3a0b2bd04cd6bce90ba64f8553baadced24fc2afa54c03c",
+      "offsiteHashesVerified": true,
+      "restoreDrillCompleted": false
+    },
+    {
+      "stamp": "20261025T215253Z",
+      "encrypted": true,
+      "flywayVersion": "36",
+      "manifestSha256": "0f5a5bf3b164e7dac819dc2f1298dff1dc29329c7febcd21cf093fa7b17c8171",
+      "offsiteHashesVerified": true,
+      "restoreDrillCompleted": false
+    }
+  ],
+  "streamedBackup": {
+    "activated": true,
+    "sharedScriptDirectory": "/srv/safari-tours-sharm/shared/ops-backup-stream-20261026",
+    "systemdDropIn": "/etc/systemd/system/safari-backup.service.d/10-inventory-hotfix.conf",
+    "run": "20261025T215253Z",
+    "result": "success; all40 archived files hashed; DB streamed directly to GPG"
+  },
+  "knownRemaining": [
+    "Encrypted restore drill requires private key on owner device; last drill10daysold",
+    "V37 catalog follow-up not deployed by this release",
+    "Child-age financial model and refund approval/cost freeze are follow-up implementation"
+  ],
+  "rollback": "release rollback.sh with rid; restores prior env and previous images, including postgres capabilities; schema remains36"
+}

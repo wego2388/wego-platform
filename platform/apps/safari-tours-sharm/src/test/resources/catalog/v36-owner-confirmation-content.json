@@ -1,0 +1,370 @@
+[
+  {
+    "slug": "diving-course",
+    "locale": "en",
+    "content": {
+      "name": "Diving Course",
+      "shortDescription": "Take your diving further with an advanced course in the Red Sea, guided by professional instructors.",
+      "description": "Explore deeper dive sites, refine your technique and enjoy the Red Sea's world-famous reefs and marine life on a multi-day course with professional instructors at one of Sharm El Sheikh's leading dive centers. Designed for certified divers who want more challenge.",
+      "includes": [
+        "Professional instructor at a leading Sharm El Sheikh dive center",
+        "Diving equipment",
+        "Multiple dives"
+      ],
+      "excludes": [],
+      "knowBeforeYouGo": [
+        "An Open Water certification is required.",
+        "A medical declaration may be required.",
+        "Not suitable for beginners."
+      ],
+      "meetingPoint": "Pickup from your hotel or meeting at the dive center — confirmed on WhatsApp after booking.",
+      "stops": []
+    }
+  },
+  {
+    "slug": "dolphin-show",
+    "locale": "en",
+    "content": {
+      "name": "Dolphin Show",
+      "shortDescription": "An hour-long dolphin show in Sharm with jumps, spins and a look at how dolphins communicate.",
+      "description": "A pickup of about 20 minutes takes you to the venue for a one-hour show in which dolphins jump, spin and swim, with explanations about how they communicate and behave.",
+      "includes": [
+        "Hotel pickup and drop-off",
+        "Air-conditioned transport",
+        "Show entrance ticket"
+      ],
+      "excludes": [],
+      "knowBeforeYouGo": [
+        "Photography only in designated areas.",
+        "Show times may vary by season."
+      ],
+      "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+      "stops": []
+    }
+  },
+  {
+    "slug": "sharm-airport-transfer",
+    "locale": "en",
+    "content": {
+      "name": "Sharm Airport Transfer",
+      "shortDescription": "Private transfer between your hotel and Sharm El Sheikh airport by car or minibus.",
+      "description": "Our driver collects you from your hotel reception and takes you directly to Sharm El Sheikh International Airport, or meets you on arrival. Choose the vehicle that fits your group: a sedan (€15), a higher SUV (€20) or a Hiace minibus (€30) — the price is per vehicle, not per person.",
+      "includes": [
+        "Private vehicle for your group",
+        "Professional driver",
+        "Luggage assistance"
+      ],
+      "excludes": [],
+      "knowBeforeYouGo": [
+        "Please send your flight details when booking.",
+        "Sedan: up to 4 people and 3 suitcases. Hiace minibus: up to 8 guests."
+      ],
+      "meetingPoint": "Your hotel reception, or the arrivals hall at Sharm El Sheikh airport.",
+      "stops": []
+    }
+  },
+  {
+    "slug": "speed-boat-adventure",
+    "locale": "en",
+    "content": {
+      "name": "Speed Boat Adventure",
+      "shortDescription": "A private speedboat for your group to Tiran Island: snorkel the reefs, pass the shipwreck and look out for dolphins.",
+      "description": "Three hours on your own private RIB speedboat for up to 5 people, with an experienced captain. Snorkel at Tiran Island's reefs, pass the historic shipwreck and keep an eye out for dolphins in the wild. Life jackets, snorkel masks and a cooler with drinks are on board. Book at least 2 days in advance.",
+      "includes": [
+        "Hotel pickup and drop-off by air-conditioned minibus",
+        "Private speedboat with captain",
+        "Snorkel mask",
+        "Cooler with drinks",
+        "Life jackets"
+      ],
+      "excludes": [
+        "Tips for the captain",
+        "Personal expenses"
+      ],
+      "knowBeforeYouGo": [
+        "Book at least 2 days in advance.",
+        "Up to 5 people per boat; the price is per boat.",
+        "Not suitable for pregnant women or people with back or neck problems.",
+        "Subject to sea and weather conditions."
+      ],
+      "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+      "stops": []
+    }
+  },
+  {
+    "slug": "diving-course",
+    "locale": "ar",
+    "content": {
+      "name": "دورة غوص",
+      "shortDescription": "ارتقِ بغوصك بدورة متقدمة في البحر الأحمر مع مدربين محترفين.",
+      "description": "استكشف مواقع غوص أعمق، وطوّر مهارتك، واستمتع بالشعاب المرجانية والحياة البحرية الشهيرة عالميًا في البحر الأحمر خلال دورة من عدة أيام مع مدربين محترفين في أحد مراكز الغوص الرائدة في شرم الشيخ. مصممة للغواصين الحاصلين على شهادة غوص ممن يبحثون عن تحدٍّ أكبر.",
+      "includes": [
+        "مدرب محترف في أحد مراكز الغوص الرائدة في شرم الشيخ",
+        "معدات الغوص",
+        "عدة غطسات"
+      ],
+      "excludes": [],
+      "knowBeforeYouGo": [
+        "شهادة Open Water مطلوبة.",
+        "قد يُطلب إقرار طبي.",
+        "غير مناسبة للمبتدئين."
+      ],
+      "meetingPoint": "الاستقبال من فندقك أو اللقاء في مركز الغوص — يُؤكَّد الموعد عبر واتساب بعد الحجز.",
+      "stops": []
+    }
+  },
+  {
+    "slug": "dolphin-show",
+    "locale": "ar",
+    "content": {
+      "name": "عرض الدلافين",
+      "shortDescription": "عرض للدلافين لمدة ساعة في شرم الشيخ مع قفزات ودورانات وتعرّف على طريقة تواصل الدلافين.",
+      "description": "رحلة بالسيارة لمدة 20 دقيقة تقريبًا تأخذك إلى المكان لحضور عرض مدته ساعة، تقفز فيه الدلافين وتدور وتسبح، مع شروحات عن كيفية تواصلها وسلوكها.",
+      "includes": [
+        "الاستقبال من الفندق والتوصيل إليه",
+        "مواصلات مكيفة",
+        "تذكرة دخول العرض"
+      ],
+      "excludes": [],
+      "knowBeforeYouGo": [
+        "التصوير مسموح في الأماكن المخصصة فقط.",
+        "قد تختلف مواعيد العروض حسب الموسم."
+      ],
+      "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+      "stops": []
+    }
+  },
+  {
+    "slug": "sharm-airport-transfer",
+    "locale": "ar",
+    "content": {
+      "name": "التوصيل من وإلى مطار شرم الشيخ",
+      "shortDescription": "توصيل خاص بين فندقك ومطار شرم الشيخ بسيارة أو ميني باص.",
+      "description": "يستقبلك سائقنا من مكتب الاستقبال في فندقك ويوصلك مباشرة إلى مطار شرم الشيخ الدولي، أو يستقبلك عند وصولك. اختر المركبة المناسبة لمجموعتك: سيدان (15 يورو) أو سيارة SUV مرتفعة (20 يورو) أو ميني باص هايس (30 يورو) — والسعر لكل مركبة وليس للفرد.",
+      "includes": [
+        "مركبة خاصة لمجموعتك",
+        "سائق محترف",
+        "مساعدة في الحقائب"
+      ],
+      "excludes": [],
+      "knowBeforeYouGo": [
+        "يُرجى إرسال تفاصيل رحلتك الجوية عند الحجز.",
+        "سيدان: حتى 4 أشخاص و3 حقائب. ميني باص هايس: حتى 8 ضيوف."
+      ],
+      "meetingPoint": "مكتب الاستقبال في فندقك، أو صالة الوصول في مطار شرم الشيخ.",
+      "stops": []
+    }
+  },
+  {
+    "slug": "speed-boat-adventure",
+    "locale": "ar",
+    "content": {
+      "name": "مغامرة القارب السريع",
+      "shortDescription": "قارب سريع خاص لمجموعتك إلى جزيرة تيران: سنوركل فوق الشعاب، ومرور بحطام السفينة، وترقّب الدلافين.",
+      "description": "ثلاث ساعات على متن قارب سريع خاص من نوع RIB لما يصل إلى 5 أشخاص، مع قبطان ذي خبرة. تمارس السنوركل عند شعاب جزيرة تيران، وتمر بحطام السفينة التاريخي، وتترقب الدلافين في البحر. تتوفر على متن القارب سترات نجاة وأقنعة سنوركل وثلاجة محمولة بها مشروبات. يُرجى الحجز قبل يومين على الأقل.",
+      "includes": [
+        "الاستقبال من الفندق والتوصيل إليه بميني باص مكيف",
+        "قارب سريع خاص مع قبطان",
+        "قناع سنوركل",
+        "ثلاجة محمولة بها مشروبات",
+        "سترات نجاة"
+      ],
+      "excludes": [
+        "إكرامية القبطان",
+        "المصروفات الشخصية"
+      ],
+      "knowBeforeYouGo": [
+        "يُرجى الحجز قبل يومين على الأقل.",
+        "حتى 5 أشخاص لكل قارب؛ والسعر لكل قارب.",
+        "غير مناسبة للحوامل أو لمن يعانون من مشكلات في الظهر أو الرقبة.",
+        "تخضع الرحلة لأحوال البحر والطقس."
+      ],
+      "meetingPoint": "الاستقبال من فندقك في شرم الشيخ، ويُؤكَّد الموعد الدقيق عبر واتساب بعد الحجز.",
+      "stops": []
+    }
+  },
+  {
+    "slug": "diving-course",
+    "locale": "ru",
+    "content": {
+      "name": "Курс дайвинга",
+      "shortDescription": "Продолжите обучение дайвингу на углублённом курсе в Красном море под руководством профессиональных инструкторов.",
+      "description": "Исследуйте более глубокие места для погружений, отточите технику и насладитесь всемирно известными рифами и морской жизнью Красного моря на многодневном курсе с профессиональными инструкторами в одном из ведущих дайвинг-центров Шарм-эль-Шейха. Курс рассчитан на дайверов с сертификатом, которые хотят большего.",
+      "includes": [
+        "Профессиональный инструктор в ведущем дайвинг-центре Шарм-эль-Шейха",
+        "Снаряжение для дайвинга",
+        "Несколько погружений"
+      ],
+      "excludes": [],
+      "knowBeforeYouGo": [
+        "Требуется сертификат Open Water.",
+        "Может потребоваться медицинская анкета.",
+        "Не подходит для начинающих."
+      ],
+      "meetingPoint": "Трансфер из вашего отеля или встреча в дайвинг-центре — подтверждается в WhatsApp после бронирования.",
+      "stops": []
+    }
+  },
+  {
+    "slug": "dolphin-show",
+    "locale": "ru",
+    "content": {
+      "name": "Шоу дельфинов",
+      "shortDescription": "Часовое шоу дельфинов в Шарме с прыжками, вращениями и рассказом о том, как общаются дельфины.",
+      "description": "Дорога от отеля займёт около 20 минут, и вас привезут на площадку, где пройдёт часовое шоу: дельфины прыгают, крутятся и плавают, а ведущие объясняют, как они общаются и ведут себя.",
+      "includes": [
+        "Трансфер из отеля и обратно в отель",
+        "Транспорт с кондиционером",
+        "Входной билет на шоу"
+      ],
+      "excludes": [],
+      "knowBeforeYouGo": [
+        "Фотосъёмка разрешена только в специально отведённых местах.",
+        "Время шоу может меняться в зависимости от сезона."
+      ],
+      "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+      "stops": []
+    }
+  },
+  {
+    "slug": "sharm-airport-transfer",
+    "locale": "ru",
+    "content": {
+      "name": "Трансфер: аэропорт Шарм-эль-Шейха — отель",
+      "shortDescription": "Индивидуальный трансфер между отелем и аэропортом Шарм-эль-Шейха на легковом автомобиле или микроавтобусе.",
+      "description": "Наш водитель встретит вас на ресепшене отеля и отвезёт прямо в международный аэропорт Шарм-эль-Шейха или встретит вас по прилёте. Выберите транспорт под вашу компанию: седан (€15), внедорожник с высокой посадкой (€20) или микроавтобус Hiace (€30) — цена указана за автомобиль, а не за человека.",
+      "includes": [
+        "Отдельный автомобиль для вашей группы",
+        "Профессиональный водитель",
+        "Помощь с багажом"
+      ],
+      "excludes": [],
+      "knowBeforeYouGo": [
+        "Пожалуйста, отправьте данные рейса при бронировании.",
+        "Седан: до 4 человек и 3 чемодана. Микроавтобус Hiace: до 8 гостей."
+      ],
+      "meetingPoint": "Ресепшен вашего отеля или зал прилёта в аэропорту Шарм-эль-Шейха.",
+      "stops": []
+    }
+  },
+  {
+    "slug": "speed-boat-adventure",
+    "locale": "ru",
+    "content": {
+      "name": "Приключение на скоростном катере",
+      "shortDescription": "Частный скоростной катер для вашей компании к острову Тиран: снорклинг на рифах, затонувший корабль и возможная встреча с дельфинами.",
+      "description": "Три часа на собственном частном скоростном катере RIB, рассчитанном на группу до 5 человек с опытным капитаном. Вы займётесь снорклингом на рифах острова Тиран, проплывёте мимо исторического затонувшего корабля и будете высматривать диких дельфинов. На борту есть спасательные жилеты, маски для снорклинга и сумка-холодильник с напитками. Бронируйте минимум за 2 дня.",
+      "includes": [
+        "Трансфер из отеля и обратно в отель на микроавтобусе с кондиционером",
+        "Частный скоростной катер с капитаном",
+        "Маска для снорклинга",
+        "Сумка-холодильник с напитками",
+        "Спасательные жилеты"
+      ],
+      "excludes": [
+        "Чаевые капитану",
+        "Личные расходы"
+      ],
+      "knowBeforeYouGo": [
+        "Бронируйте минимум за 2 дня.",
+        "До 5 человек на катер; цена указана за катер.",
+        "Не подходит беременным женщинам и людям с проблемами спины или шеи.",
+        "Программа зависит от состояния моря и погоды."
+      ],
+      "meetingPoint": "Трансфер из вашего отеля в Шарм-эль-Шейхе; точное время подтверждается в WhatsApp после бронирования.",
+      "stops": []
+    }
+  },
+  {
+    "slug": "diving-course",
+    "locale": "it",
+    "content": {
+      "name": "Corso subacqueo",
+      "shortDescription": "Porta le tue immersioni a un livello superiore con un corso avanzato nel Mar Rosso, guidato da istruttori professionisti.",
+      "description": "Esplora siti di immersione più profondi, perfeziona la tecnica e goditi le celebri barriere coralline e la vita marina del Mar Rosso con un corso di più giorni condotto da istruttori professionisti in uno dei principali centri immersioni di Sharm El Sheikh. Pensato per subacquei già brevettati che desiderano più sfide.",
+      "includes": [
+        "Istruttore professionista in un importante centro immersioni di Sharm El Sheikh",
+        "Attrezzatura per l'immersione",
+        "Diverse immersioni"
+      ],
+      "excludes": [],
+      "knowBeforeYouGo": [
+        "È richiesto il brevetto Open Water.",
+        "Potrebbe essere richiesta una dichiarazione medica.",
+        "Non adatto ai principianti."
+      ],
+      "meetingPoint": "Ti veniamo a prendere in hotel oppure ci incontriamo al centro immersioni; tutto viene confermato su WhatsApp dopo la prenotazione.",
+      "stops": []
+    }
+  },
+  {
+    "slug": "dolphin-show",
+    "locale": "it",
+    "content": {
+      "name": "Spettacolo dei delfini",
+      "shortDescription": "Uno spettacolo di un'ora con i delfini a Sharm, tra salti, giravolte e uno sguardo a come comunicano.",
+      "description": "Un tragitto di circa 20 minuti ti porta alla struttura per uno spettacolo di un'ora in cui i delfini saltano, ruotano e nuotano, con spiegazioni su come comunicano e si comportano.",
+      "includes": [
+        "Transfer da e per l'hotel",
+        "Trasporto con aria condizionata",
+        "Biglietto d'ingresso allo spettacolo"
+      ],
+      "excludes": [],
+      "knowBeforeYouGo": [
+        "Foto consentite solo nelle aree designate.",
+        "Gli orari dello spettacolo possono variare in base alla stagione."
+      ],
+      "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+      "stops": []
+    }
+  },
+  {
+    "slug": "sharm-airport-transfer",
+    "locale": "it",
+    "content": {
+      "name": "Transfer da e per l'aeroporto di Sharm",
+      "shortDescription": "Transfer privato tra il tuo hotel e l'aeroporto di Sharm El Sheikh, in auto o minibus.",
+      "description": "Il nostro autista ti viene a prendere alla reception del tuo hotel e ti porta direttamente all'aeroporto internazionale di Sharm El Sheikh, oppure ti accoglie al tuo arrivo. Scegli il veicolo adatto al tuo gruppo: una berlina (€15), un SUV più alto (€20) o un minibus Hiace (€30). Il prezzo è per veicolo, non per persona.",
+      "includes": [
+        "Veicolo privato per il tuo gruppo",
+        "Autista professionista",
+        "Assistenza con i bagagli"
+      ],
+      "excludes": [],
+      "knowBeforeYouGo": [
+        "Invia i dati del tuo volo al momento della prenotazione.",
+        "Berlina: fino a 4 persone e 3 valigie. Minibus Hiace: fino a 8 ospiti."
+      ],
+      "meetingPoint": "La reception del tuo hotel, oppure la sala arrivi dell'aeroporto di Sharm El Sheikh.",
+      "stops": []
+    }
+  },
+  {
+    "slug": "speed-boat-adventure",
+    "locale": "it",
+    "content": {
+      "name": "Avventura in motoscafo",
+      "shortDescription": "Un motoscafo privato per il tuo gruppo fino all'isola di Tiran: snorkeling sulle barriere, il relitto e, con un po' di fortuna, i delfini.",
+      "description": "Tre ore su un motoscafo RIB privato per un massimo di 5 persone, con un capitano esperto. Fai snorkeling sulle barriere dell'isola di Tiran, passi accanto allo storico relitto e tieni gli occhi aperti per vedere i delfini in libertà. A bordo ci sono giubbotti di salvataggio, maschere da snorkeling e una borsa frigo con bevande. Prenota con almeno 2 giorni di anticipo.",
+      "includes": [
+        "Transfer da e per l'hotel in minibus con aria condizionata",
+        "Motoscafo privato con capitano",
+        "Maschera da snorkeling",
+        "Borsa frigo con bevande",
+        "Giubbotti di salvataggio"
+      ],
+      "excludes": [
+        "Mance per il capitano",
+        "Spese personali"
+      ],
+      "knowBeforeYouGo": [
+        "Prenota con almeno 2 giorni di anticipo.",
+        "Fino a 5 persone per barca; il prezzo è per barca.",
+        "Non adatto a donne in gravidanza o a persone con problemi alla schiena o al collo.",
+        "Soggetto alle condizioni del mare e del meteo."
+      ],
+      "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
+      "stops": []
+    }
+  }
+]

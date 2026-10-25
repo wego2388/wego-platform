@@ -291,13 +291,13 @@
     {
       "slug": "diving-course",
       "content": {
-        "name": "Corso subacqueo",
-        "shortDescription": "Porta le tue immersioni a un livello superiore con un corso avanzato nel Mar Rosso, guidato da istruttori professionisti.",
-        "description": "Esplora siti di immersione più profondi, perfeziona la tecnica e goditi le celebri barriere coralline e la vita marina del Mar Rosso con un corso di più giorni condotto da istruttori professionisti in uno dei principali centri immersioni di Sharm El Sheikh. Pensato per subacquei già brevettati che desiderano più sfide.",
+        "name": "Corso PADI Open Water Diver",
+        "shortDescription": "Inizia a immergerti a Sharm El Sheikh con un corso PADI Open Water Diver di tre giorni, che comprende quattro immersioni in acque libere.",
+        "description": "Un corso PADI Open Water Diver per principianti a Sharm El Sheikh della durata di tre giorni, con un istruttore professionista, attrezzatura subacquea e quattro immersioni in acque libere. Non è richiesto un brevetto subacqueo precedente. Il brevetto si ottiene completando con successo i requisiti del corso; il centro di formazione conferma i requisiti di partecipazione prima dell’inizio.",
         "includes": [
-          "Istruttore professionista in un importante centro immersioni di Sharm El Sheikh",
+          "Istruttore subacqueo professionista",
           "Attrezzatura per l'immersione",
-          "Diverse immersioni"
+          "Quattro immersioni in acque libere"
         ],
         "excludes": [
           "Foto e video (a pagamento a parte)",
@@ -305,9 +305,9 @@
           "Occhiali da sole"
         ],
         "knowBeforeYouGo": [
-          "È richiesto il brevetto Open Water.",
-          "Potrebbe essere richiesta una dichiarazione medica.",
-          "Non adatto ai principianti.",
+          "Non è richiesto un brevetto subacqueo precedente.",
+          "È obbligatorio compilare un questionario medico per le immersioni. In base alle risposte e ai requisiti locali potrebbe essere necessaria l’approvazione di un medico.",
+          "Il centro di formazione conferma i requisiti di salute, età e capacità di nuoto prima della partecipazione.",
           "Prenota con almeno 1 giorno di anticipo.",
           "Si svolge ogni giorno."
         ],
@@ -499,7 +499,7 @@
           "Giubbotti di salvataggio"
         ],
         "excludes": [
-          "Mance per il capitano",
+          "Mance facoltative per il capitano, non obbligatorie",
           "Spese personali",
           "Foto e video (a pagamento a parte)",
           "Foulard per la testa",
@@ -796,8 +796,7 @@
         ],
         "knowBeforeYouGo": [
           "Foto consentite solo nelle aree designate.",
-          "Lo spettacolo ha un orario fisso: 14:30.",
-          "Si svolge ogni giorno."
+          "Un solo spettacolo al giorno alle 14:30."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -865,7 +864,8 @@
         "excludes": [],
         "knowBeforeYouGo": [
           "Invia i dati del tuo volo al momento della prenotazione.",
-          "Berlina: fino a 4 persone e 3 valigie. Minibus Hiace: fino a 8 ospiti."
+          "Berlina: fino a 4 persone e 3 valigie. Minibus Hiace: fino a 8 ospiti.",
+          "Sono inclusi 40 minuti di attesa gratuita dall’orario concordato per l’incontro con l’autista. Conferma con l’ufficio come vengono gestiti eventuali ritardi o attese aggiuntive."
         ],
         "meetingPoint": "La reception del tuo hotel, oppure la sala arrivi dell'aeroporto di Sharm El Sheikh. Ti confermiamo l'orario di ritiro in hotel su WhatsApp.",
         "stops": []
@@ -882,5 +882,5 @@
     "date": "2026-10-01",
     "basis": "independent native-level review vs EN source; facts spot-checked (snorkel rental extra fee, VIP tent included)"
   },
-  "ownerCorrectionsApplied": "2026-10-25"
+  "ownerCorrectionsApplied": "2026-10-26"
 }

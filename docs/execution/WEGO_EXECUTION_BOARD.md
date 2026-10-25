@@ -1,5 +1,41 @@
 # Wego Execution Board
 
+### 2026-10-26 — Codex deployed reviewed security/reports release and streamed backup
+
+- Deployed `str-2026.10.25-df846c1-sec` using the handed-off exact images after SHA256 checks,
+  compose isolation/capability checks, script review and an encrypted pre-deploy bundle copied off-VPS.
+  Previous release `e3559bc-edge`; current pointer now the new absolute release path.
+- Five Safari services healthy, all drop ALL capabilities with no-new-privileges (postgres retains
+  only its reviewed entrypoint capabilities). Four public locales and staff HTTPS200; protected
+  Resort container images/start identities unchanged; four Resort HTTPS origins200. Flyway36/0failed.
+- Activated L1 via new shared `ops-backup-stream-20261026` scripts and the existing service drop-in;
+  daemon-reload and actual backup run succeeded. Post-deploy encrypted bundle `20261025T215253Z`
+  and pre-deploy `20261025T215003Z` copied to owner device; DB/media sizes and SHA256 verified.
+  This is encrypted backup creation, not a decryption/restore drill. Health PASS with the existing
+  WARN that the last restore drill is10daysold. Private key still needed locally for that drill.
+- Manifest: `clients/safari-tours-sharm/deployment/2026-10-26_SECURITY_REPORTS_RELEASE_MANIFEST.json`.
+  Owner UI acceptance of reports awaits staff login. No email/test booking created by this release.
+  V37 owner updates remain separate/unpublished until their exact-image gates pass.
+- OPS2-G remains ACTIVE and Codex the single deploy executor.
+
+### 2026-10-26 — Owner decisions received; bounded catalog follow-up in progress
+
+- Codex remains the sole deploy executor; OPS2-G remains the sole ACTIVE packet.
+- Owner decisions and unresolved facts: `clients/safari-tours-sharm/owner-data/2026-10-26_OWNER_DECISIONS_AR.md`.
+  Lunch only for St Catherine/Dahab; beginner PADI Open Water 3days/4dives; one dolphin show14:30;
+  transfer40min free from agreed driver meeting time; optional speedboat tips.
+  Do not publish the owner's no-medical-questionnaire wording: official PADI screening requirements apply.
+- Child bands <5free, 5..<10half adult, >=10adult; each infant/child consumes capacity;
+  unit prices remain fixed. Money/age-model changes are separate Tier1 follow-ups, not silently bundled into V37.
+  Correction to previous handoff: application/domain guards reject an unknown child price;
+  SQL COALESCE alone is not proof that website/office bookings silently make children free.
+- Finance recommendations accepted (both labeled revenue views, manual manager/owner close,
+  existing5000EGP/day/party and7day controls, >5000EGP-equivalent office refund approval by a different person).
+  Desired roles: admin accountant/manager and employee reception/bookings; no account grants performed.
+  Owner identifies current finance data as test data; no deletion or historical closing authorized by this record.
+- Read-only live check: current e3559bc-edge, backend/site/ERP a728327-fin; Flyway36, failed0.
+  V37 edits/testing in progress; no production mutation or new deployment claimed here.
+
 ### 2026-10-25 — Deploy executor handed from Claude to Codex (owner request)
 
 - Owner asked for a Codex handoff; from this entry Codex is the single deploy

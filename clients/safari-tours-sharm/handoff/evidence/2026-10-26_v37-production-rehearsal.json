@@ -1,0 +1,15 @@
+{
+  "scope": "read-only production dump; internal local Flyway rehearsal",
+  "productionMutated": false,
+  "dumpSha256": "16334e7150198d4f44005043a712f9119c8d35bf36d4dfbf597d8575af62fb1e",
+  "beforeVersion": "36",
+  "afterVersion": "37",
+  "failedMigrations": "0",
+  "nonCatalogTablesCompared": 41,
+  "nonCatalogTablesUnchanged": true,
+  "pricesUnchanged": true,
+  "course": "PADI Open Water Diver Course|3 days",
+  "suvOptions": "0",
+  "result": "PASS",
+  "migrationSha256": "29d8f21159c9af773de658c266f308df96cb8f00fd54d45cd37e8d986442859b"
+}

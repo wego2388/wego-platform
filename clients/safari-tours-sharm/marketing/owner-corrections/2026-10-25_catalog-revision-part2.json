@@ -1,11 +1,11 @@
 {
-  "approvedOn": "2026-10-25",
+  "approvedOn": "2026-10-26",
   "part": 2,
-  "source": "PENDING_OWNER_ANSWERS.md entries 2026-10-25 (تكملة, تكملة 2) and OWNER_TOUR_FACTS_QUESTIONS_2026-10-25_AR.md",
+  "source": "PENDING_OWNER_ANSWERS.md entries 2026-10-25 (تكملة, تكملة 2) and OWNER_TOUR_FACTS_QUESTIONS_2026-10-25_AR.md; owner replies in chat 2026-10-26 (recorded by Codex in owner-data)",
   "status": "PREPARED_NOT_DEPLOYED",
   "migration": "V37__tours_operator_owner_catalog_revision_part2.sql",
   "notImplemented": [
-    "child policy 1-4.5 free / 5-9 half adult price (pricing change; needs design)"
+    "Child-age pricing: under 5 free / age 5 to under 10 half adult price / age 10+ adult; separate Tier1 money change, not implemented by this migration."
   ],
   "scope": {
     "activeTours": [
@@ -101,7 +101,7 @@
       "swimming-with-dolphins"
     ],
     "excludedFromGenericFacts": {
-      "sharm-airport-transfer": "airport transfer has no guide and no photo/scarf/sunglasses context; owner list for exclusions did include it, kept out pending confirmation"
+      "sharm-airport-transfer": "Owner confirmed 2026-10-26: exclude airport transfer from the photo/scarf/sunglasses list; no guide is promised."
     }
   },
   "mealsAlreadyStated": [
@@ -112,9 +112,7 @@
     "cairo-by-bus",
     "cairo-by-plane"
   ],
-  "mealsPending": [
-    "st-catherine-dahab: owner said dinner but legacy content says lunch in Dahab; NOT changed, owner to confirm lunch vs dinner"
-  ],
+  "mealsPending": [],
   "suvOption": {
     "slug": "sharm-airport-transfer",
     "code": "suv",
@@ -415,9 +413,9 @@
         "Not suitable for beginners."
       ],
       "after": [
-        "An Open Water certification is required.",
-        "A medical declaration may be required.",
-        "Not suitable for beginners.",
+        "No previous diving certification is required.",
+        "A diving medical questionnaire is required. Physician approval may be required based on your answers and local requirements.",
+        "The training provider confirms health, age and swimming requirements before participation.",
         "Book at least one day in advance.",
         "Runs every day."
       ]
@@ -555,7 +553,7 @@
         "Personal expenses"
       ],
       "after": [
-        "Tips for the captain",
+        "Optional tips for the captain (not required)",
         "Personal expenses",
         "Photos and videos (sold separately)",
         "Headscarf",
@@ -850,8 +848,7 @@
       ],
       "after": [
         "Photography only in designated areas.",
-        "The show starts at a fixed time: 14:30.",
-        "Runs every day."
+        "One show daily at 14:30."
       ]
     },
     {
@@ -1189,9 +1186,9 @@
         "غير مناسبة للمبتدئين."
       ],
       "after": [
-        "شهادة Open Water مطلوبة.",
-        "قد يُطلب إقرار طبي.",
-        "غير مناسبة للمبتدئين.",
+        "لا تُشترط شهادة غوص سابقة.",
+        "يلزم استكمال استبيان طبي للغوص. قد تُطلب موافقة طبيب بحسب الإجابات والمتطلبات المحلية.",
+        "يؤكد مركز التدريب متطلبات الصحة والسن والسباحة قبل المشاركة.",
         "يُرجى الحجز قبل الرحلة بيوم واحد على الأقل.",
         "الرحلة متاحة كل يوم."
       ]
@@ -1329,7 +1326,7 @@
         "المصروفات الشخصية"
       ],
       "after": [
-        "إكرامية القبطان",
+        "إكرامية القبطان اختيارية وليست إلزامية",
         "المصروفات الشخصية",
         "الصور والفيديو (تُباع بشكل منفصل)",
         "وشاح الرأس (الشال)",
@@ -1624,8 +1621,7 @@
       ],
       "after": [
         "التصوير مسموح في الأماكن المخصصة فقط.",
-        "موعد العرض ثابت: 14:30.",
-        "الرحلة متاحة كل يوم."
+        "عرض واحد يوميًا الساعة 14:30."
       ]
     },
     {
@@ -1963,9 +1959,9 @@
         "Не подходит для начинающих."
       ],
       "after": [
-        "Требуется сертификат Open Water.",
-        "Может потребоваться медицинская анкета.",
-        "Не подходит для начинающих.",
+        "Предыдущий сертификат дайвера не требуется.",
+        "Необходимо заполнить медицинскую анкету для дайвинга. В зависимости от ответов и местных требований может потребоваться разрешение врача.",
+        "Учебный центр подтверждает требования к здоровью, возрасту и навыкам плавания до участия.",
         "Бронируйте минимум за 1 день до поездки.",
         "Проходит ежедневно."
       ]
@@ -2103,7 +2099,7 @@
         "Личные расходы"
       ],
       "after": [
-        "Чаевые капитану",
+        "Чаевые капитану по желанию, не обязательны",
         "Личные расходы",
         "Фото и видео (оплачиваются отдельно)",
         "Головной платок",
@@ -2398,8 +2394,7 @@
       ],
       "after": [
         "Фотосъёмка разрешена только в специально отведённых местах.",
-        "Шоу проходит в фиксированное время: 14:30.",
-        "Проходит ежедневно."
+        "Одно шоу ежедневно в 14:30."
       ]
     },
     {
@@ -2737,9 +2732,9 @@
         "Non adatto ai principianti."
       ],
       "after": [
-        "È richiesto il brevetto Open Water.",
-        "Potrebbe essere richiesta una dichiarazione medica.",
-        "Non adatto ai principianti.",
+        "Non è richiesto un brevetto subacqueo precedente.",
+        "È obbligatorio compilare un questionario medico per le immersioni. In base alle risposte e ai requisiti locali potrebbe essere necessaria l’approvazione di un medico.",
+        "Il centro di formazione conferma i requisiti di salute, età e capacità di nuoto prima della partecipazione.",
         "Prenota con almeno 1 giorno di anticipo.",
         "Si svolge ogni giorno."
       ]
@@ -2877,7 +2872,7 @@
         "Spese personali"
       ],
       "after": [
-        "Mance per il capitano",
+        "Mance facoltative per il capitano, non obbligatorie",
         "Spese personali",
         "Foto e video (a pagamento a parte)",
         "Foulard per la testa",
@@ -3172,8 +3167,7 @@
       ],
       "after": [
         "Foto consentite solo nelle aree designate.",
-        "Lo spettacolo ha un orario fisso: 14:30.",
-        "Si svolge ogni giorno."
+        "Un solo spettacolo al giorno alle 14:30."
       ]
     },
     {
@@ -3218,6 +3212,206 @@
       "field": "description",
       "before": "Il nostro autista ti viene a prendere alla reception del tuo hotel e ti porta direttamente all'aeroporto internazionale di Sharm El Sheikh, oppure ti accoglie al tuo arrivo. Scegli il veicolo adatto al tuo gruppo: una berlina (€15), un SUV più alto (€20) o un minibus Hiace (€30). Il prezzo è per veicolo, non per persona.",
       "after": "Il nostro autista ti viene a prendere alla reception del tuo hotel e ti porta direttamente all'aeroporto internazionale di Sharm El Sheikh, oppure ti accoglie al tuo arrivo. Scegli il veicolo adatto al tuo gruppo: una berlina (€15) o un minibus Hiace (€30). Il prezzo è per veicolo, non per persona."
+    },
+    {
+      "slug": "diving-course",
+      "locale": "en",
+      "field": "name",
+      "before": "Diving Course",
+      "after": "PADI Open Water Diver Course"
+    },
+    {
+      "slug": "diving-course",
+      "locale": "en",
+      "field": "shortDescription",
+      "before": "Take your diving further with an advanced course in the Red Sea, guided by professional instructors.",
+      "after": "Start diving with a three-day PADI Open Water Diver course in Sharm El Sheikh, including four open-water dives."
+    },
+    {
+      "slug": "diving-course",
+      "locale": "en",
+      "field": "description",
+      "before": "Explore deeper dive sites, refine your technique and enjoy the Red Sea's world-famous reefs and marine life on a multi-day course with professional instructors at one of Sharm El Sheikh's leading dive centers. Designed for certified divers who want more challenge.",
+      "after": "A three-day PADI Open Water Diver course for beginners in Sharm El Sheikh, with a professional instructor, diving equipment and four open-water dives. No previous diving certification is required. Certification depends on successfully completing the course requirements; the training provider confirms participation requirements before the course."
+    },
+    {
+      "slug": "diving-course",
+      "locale": "en",
+      "field": "includes",
+      "before": [
+        "Professional instructor at a leading Sharm El Sheikh dive center",
+        "Diving equipment",
+        "Multiple dives"
+      ],
+      "after": [
+        "Professional diving instructor",
+        "Diving equipment",
+        "Four open-water dives"
+      ]
+    },
+    {
+      "slug": "sharm-airport-transfer",
+      "locale": "en",
+      "field": "knowBeforeYouGo",
+      "before": [
+        "Please send your flight details when booking.",
+        "Sedan: up to 4 people and 3 suitcases. Hiace minibus: up to 8 guests."
+      ],
+      "after": [
+        "Please send your flight details when booking.",
+        "Sedan: up to 4 people and 3 suitcases. Hiace minibus: up to 8 guests.",
+        "40 minutes of free waiting are included from the agreed meeting time with the driver. Confirm with the office how delays or additional waiting are handled."
+      ]
+    },
+    {
+      "slug": "diving-course",
+      "locale": "ar",
+      "field": "name",
+      "before": "دورة غوص",
+      "after": "دورة PADI Open Water Diver"
+    },
+    {
+      "slug": "diving-course",
+      "locale": "ar",
+      "field": "shortDescription",
+      "before": "ارتقِ بغوصك بدورة متقدمة في البحر الأحمر مع مدربين محترفين.",
+      "after": "ابدأ تعلم الغوص في شرم الشيخ بدورة PADI Open Water Diver لمدة ثلاثة أيام، تشمل أربع غطسات في المياه المفتوحة."
+    },
+    {
+      "slug": "diving-course",
+      "locale": "ar",
+      "field": "description",
+      "before": "استكشف مواقع غوص أعمق، وطوّر مهارتك، واستمتع بالشعاب المرجانية والحياة البحرية الشهيرة عالميًا في البحر الأحمر خلال دورة من عدة أيام مع مدربين محترفين في أحد مراكز الغوص الرائدة في شرم الشيخ. مصممة للغواصين الحاصلين على شهادة غوص ممن يبحثون عن تحدٍّ أكبر.",
+      "after": "دورة PADI Open Water Diver للمبتدئين في شرم الشيخ لمدة ثلاثة أيام، مع مدرب غوص محترف ومعدات الغوص وأربع غطسات في المياه المفتوحة. لا تُشترط شهادة غوص سابقة. الحصول على الشهادة يعتمد على استيفاء متطلبات الدورة بنجاح، ويؤكد مركز التدريب متطلبات المشاركة قبل بدء الدورة."
+    },
+    {
+      "slug": "diving-course",
+      "locale": "ar",
+      "field": "includes",
+      "before": [
+        "مدرب محترف في أحد مراكز الغوص الرائدة في شرم الشيخ",
+        "معدات الغوص",
+        "عدة غطسات"
+      ],
+      "after": [
+        "مدرب غوص محترف",
+        "معدات الغوص",
+        "أربع غطسات في المياه المفتوحة"
+      ]
+    },
+    {
+      "slug": "sharm-airport-transfer",
+      "locale": "ar",
+      "field": "knowBeforeYouGo",
+      "before": [
+        "يُرجى إرسال تفاصيل رحلتك الجوية عند الحجز.",
+        "سيدان: حتى 4 أشخاص و3 حقائب. ميني باص هايس: حتى 8 ضيوف."
+      ],
+      "after": [
+        "يُرجى إرسال تفاصيل رحلتك الجوية عند الحجز.",
+        "سيدان: حتى 4 أشخاص و3 حقائب. ميني باص هايس: حتى 8 ضيوف.",
+        "تشمل الخدمة 40 دقيقة انتظار مجانية من موعد مقابلة السائق المتفق عليه. يُرجى تأكيد التعامل مع التأخير أو الانتظار الإضافي مع المكتب."
+      ]
+    },
+    {
+      "slug": "diving-course",
+      "locale": "ru",
+      "field": "name",
+      "before": "Курс дайвинга",
+      "after": "Курс PADI Open Water Diver"
+    },
+    {
+      "slug": "diving-course",
+      "locale": "ru",
+      "field": "shortDescription",
+      "before": "Продолжите обучение дайвингу на углублённом курсе в Красном море под руководством профессиональных инструкторов.",
+      "after": "Начните обучение дайвингу в Шарм-эль-Шейхе: трёхдневный курс PADI Open Water Diver с четырьмя погружениями в открытой воде."
+    },
+    {
+      "slug": "diving-course",
+      "locale": "ru",
+      "field": "description",
+      "before": "Исследуйте более глубокие места для погружений, отточите технику и насладитесь всемирно известными рифами и морской жизнью Красного моря на многодневном курсе с профессиональными инструкторами в одном из ведущих дайвинг-центров Шарм-эль-Шейха. Курс рассчитан на дайверов с сертификатом, которые хотят большего.",
+      "after": "Трёхдневный курс PADI Open Water Diver для начинающих в Шарм-эль-Шейхе: профессиональный инструктор, снаряжение для дайвинга и четыре погружения в открытой воде. Предыдущий сертификат дайвера не требуется. Сертификат выдаётся после успешного выполнения требований курса; учебный центр подтверждает требования к участию до начала обучения."
+    },
+    {
+      "slug": "diving-course",
+      "locale": "ru",
+      "field": "includes",
+      "before": [
+        "Профессиональный инструктор в ведущем дайвинг-центре Шарм-эль-Шейха",
+        "Снаряжение для дайвинга",
+        "Несколько погружений"
+      ],
+      "after": [
+        "Профессиональный инструктор по дайвингу",
+        "Снаряжение для дайвинга",
+        "Четыре погружения в открытой воде"
+      ]
+    },
+    {
+      "slug": "sharm-airport-transfer",
+      "locale": "ru",
+      "field": "knowBeforeYouGo",
+      "before": [
+        "Пожалуйста, отправьте данные рейса при бронировании.",
+        "Седан: до 4 человек и 3 чемодана. Микроавтобус Hiace: до 8 гостей."
+      ],
+      "after": [
+        "Пожалуйста, отправьте данные рейса при бронировании.",
+        "Седан: до 4 человек и 3 чемодана. Микроавтобус Hiace: до 8 гостей.",
+        "Включено 40 минут бесплатного ожидания с согласованного времени встречи с водителем. Уточните в офисе порядок действий при задержке или дополнительном ожидании."
+      ]
+    },
+    {
+      "slug": "diving-course",
+      "locale": "it",
+      "field": "name",
+      "before": "Corso subacqueo",
+      "after": "Corso PADI Open Water Diver"
+    },
+    {
+      "slug": "diving-course",
+      "locale": "it",
+      "field": "shortDescription",
+      "before": "Porta le tue immersioni a un livello superiore con un corso avanzato nel Mar Rosso, guidato da istruttori professionisti.",
+      "after": "Inizia a immergerti a Sharm El Sheikh con un corso PADI Open Water Diver di tre giorni, che comprende quattro immersioni in acque libere."
+    },
+    {
+      "slug": "diving-course",
+      "locale": "it",
+      "field": "description",
+      "before": "Esplora siti di immersione più profondi, perfeziona la tecnica e goditi le celebri barriere coralline e la vita marina del Mar Rosso con un corso di più giorni condotto da istruttori professionisti in uno dei principali centri immersioni di Sharm El Sheikh. Pensato per subacquei già brevettati che desiderano più sfide.",
+      "after": "Un corso PADI Open Water Diver per principianti a Sharm El Sheikh della durata di tre giorni, con un istruttore professionista, attrezzatura subacquea e quattro immersioni in acque libere. Non è richiesto un brevetto subacqueo precedente. Il brevetto si ottiene completando con successo i requisiti del corso; il centro di formazione conferma i requisiti di partecipazione prima dell’inizio."
+    },
+    {
+      "slug": "diving-course",
+      "locale": "it",
+      "field": "includes",
+      "before": [
+        "Istruttore professionista in un importante centro immersioni di Sharm El Sheikh",
+        "Attrezzatura per l'immersione",
+        "Diverse immersioni"
+      ],
+      "after": [
+        "Istruttore subacqueo professionista",
+        "Attrezzatura per l'immersione",
+        "Quattro immersioni in acque libere"
+      ]
+    },
+    {
+      "slug": "sharm-airport-transfer",
+      "locale": "it",
+      "field": "knowBeforeYouGo",
+      "before": [
+        "Invia i dati del tuo volo al momento della prenotazione.",
+        "Berlina: fino a 4 persone e 3 valigie. Minibus Hiace: fino a 8 ospiti."
+      ],
+      "after": [
+        "Invia i dati del tuo volo al momento della prenotazione.",
+        "Berlina: fino a 4 persone e 3 valigie. Minibus Hiace: fino a 8 ospiti.",
+        "Sono inclusi 40 minuti di attesa gratuita dall’orario concordato per l’incontro con l’autista. Conferma con l’ufficio come vengono gestiti eventuali ritardi o attese aggiuntive."
+      ]
     }
   ],
   "factPatches": [
@@ -3482,6 +3676,34 @@
         "it",
         "ru"
       ]
+    }
+  ],
+  "ownerConfirmations20261026": {
+    "st-catherine-dahab": "Lunch only; existing four-locale lunch wording retained. Supersedes the earlier dinner answer.",
+    "diving-course": "PADI Open Water Diver, 3 days, 4 open-water dives, beginner/no previous certification, book at least one day ahead. Owner no-medical/no-questionnaire wording is NOT published; required medical questionnaire and conditional physician approval follow PADI official requirements.",
+    "dolphin-show": "One show daily at 14:30.",
+    "sharm-airport-transfer": "40 minutes free waiting from the agreed meeting time with the driver (owner follow-up confirmed). Excluded from generic photo/scarf/sunglasses list. Extra-wait/delay terms remain unresolved.",
+    "speed-boat-adventure": "Tips optional, no mandatory gratuity."
+  },
+  "standardsSources": [
+    {
+      "url": "https://www.padi.com/help/scuba-certification-faq",
+      "checkedOn": "2026-10-26",
+      "facts": "All students complete a medical questionnaire; physician evaluation/approval may be required by the answers or local rules. No prior diving certification is required for Open Water. Certification is conditional on completing requirements."
+    }
+  ],
+  "tourPatches": [
+    {
+      "slug": "diving-course",
+      "field": "name_en",
+      "before": "Diving Course",
+      "after": "PADI Open Water Diver Course"
+    },
+    {
+      "slug": "diving-course",
+      "field": "duration_text",
+      "before": "2–3 days",
+      "after": "3 days"
     }
   ]
 }
