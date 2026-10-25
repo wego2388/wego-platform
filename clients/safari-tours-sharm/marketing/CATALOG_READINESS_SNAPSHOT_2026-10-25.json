@@ -1,0 +1,4132 @@
+{
+ "generatedAt": "2026-10-25",
+ "source": "GET https://safaritourssharm.com/api/v1/tours-operator/tours?locale=* and /tours/by-slug/content?slug=&locale=*",
+ "toursActive": 27,
+ "localesChecked": [
+  "en",
+  "ar",
+  "ru",
+  "it"
+ ],
+ "notExposedPublicly": [
+  "FAQ per tour",
+  "structured schedule/departure times",
+  "structured safety",
+  "structured weather",
+  "cancellation policy text (enum only)",
+  "child price"
+ ],
+ "tours": [
+  {
+   "slug": "super-safari-adventure",
+   "id": "a0000001-0000-0000-0000-000000000001",
+   "category": "DESERT",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "35.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "5–6 hours",
+   "timeSlots": [
+    "MORNING",
+    "SUNSET"
+   ],
+   "capacity": 20,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": true,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [
+     "Not suitable for pregnant women or people with back or heart problems.",
+     "Children under 10 ride only as passengers with an accompanying adult."
+    ],
+    "safety": [
+     "After a short drive of about 20 minutes to the quad center, our guides give you a safety briefing before you ride across the dunes towards the Echo Mountains."
+    ],
+    "weather": [],
+    "bring": [
+     "Headscarf",
+     "Sunglasses",
+     "Comfortable closed shoes"
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 9,
+     "excludes": 0,
+     "knowBeforeYouGo": 5,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 9,
+     "excludes": 0,
+     "knowBeforeYouGo": 5,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 9,
+     "excludes": 0,
+     "knowBeforeYouGo": 5,
+     "stops": 0
+    },
+    "it": {
+     "includes": 9,
+     "excludes": 0,
+     "knowBeforeYouGo": 5,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 9,
+     "excludes": 0,
+     "kb": 5,
+     "hasMeeting": true,
+     "listPrice": "35.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 1,
+     "cover": true,
+     "altPresent": 1,
+     "altSameAsEn": 1
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 9,
+     "excludes": 0,
+     "kb": 5,
+     "hasMeeting": true,
+     "listPrice": "35.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 1,
+     "cover": true,
+     "altPresent": 1,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 9,
+     "excludes": 0,
+     "kb": 5,
+     "hasMeeting": true,
+     "listPrice": "35.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 1,
+     "cover": true,
+     "altPresent": 1,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": true,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 9,
+     "excludes": 0,
+     "kb": 5,
+     "hasMeeting": true,
+     "listPrice": "35.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 1,
+     "cover": true,
+     "altPresent": 1,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [
+    {
+     "path": "/media/tours/super-safari-adventure/18e4d7d4-ac38-4f28-ae07-82a361d3d8c6.png",
+     "w": 1600,
+     "h": 1067,
+     "isCover": true
+    }
+   ],
+   "listCoverPresent": true,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "sunset-quad-bike",
+   "id": "a0000001-0000-0000-0000-000000000002",
+   "category": "DESERT",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "15.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "2–3 hours",
+   "timeSlots": [
+    "SUNSET"
+   ],
+   "capacity": 15,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": true,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [
+     "Not suitable for pregnant women or people with back or heart problems.",
+     "Children under 10 ride only as passengers with an accompanying adult."
+    ],
+    "safety": [],
+    "weather": [],
+    "bring": [
+     "Headscarf",
+     "Sunglasses",
+     "Comfortable closed shoes"
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 8,
+     "excludes": 0,
+     "knowBeforeYouGo": 5,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 8,
+     "excludes": 0,
+     "knowBeforeYouGo": 5,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 8,
+     "excludes": 0,
+     "knowBeforeYouGo": 5,
+     "stops": 0
+    },
+    "it": {
+     "includes": 8,
+     "excludes": 0,
+     "knowBeforeYouGo": 5,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 0,
+     "kb": 5,
+     "hasMeeting": true,
+     "listPrice": "15.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 0,
+     "kb": 5,
+     "hasMeeting": true,
+     "listPrice": "15.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 0,
+     "kb": 5,
+     "hasMeeting": true,
+     "listPrice": "15.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 0,
+     "kb": 5,
+     "hasMeeting": true,
+     "listPrice": "15.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "double-buggy-camel-ride",
+   "id": "a0000001-0000-0000-0000-000000000003",
+   "category": "DESERT",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "35.00",
+    "currency": "EUR",
+    "unit": "PER_UNIT",
+    "child": null,
+    "note": null
+   },
+   "options": [
+    {
+     "code": "buggy",
+     "label": "Two-seat buggy",
+     "seats": 2,
+     "amount": "35.00"
+    }
+   ],
+   "durationText": "2–3 hours",
+   "timeSlots": [
+    "MORNING",
+    "AFTERNOON"
+   ],
+   "capacity": 10,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": true,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [
+     "Not suitable for pregnant women or people with back or heart problems.",
+     "Children under 10 ride only as passengers with an accompanying adult."
+    ],
+    "safety": [
+     "After a short drive to the buggy center and a safety briefing, you and your partner drive a sand buggy across the dunes towards the Echo Mountains."
+    ],
+    "weather": [],
+    "bring": [
+     "Headscarf",
+     "Sunglasses",
+     "Comfortable closed shoes",
+     "The price is per buggy, which seats two."
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 8,
+     "excludes": 0,
+     "knowBeforeYouGo": 6,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 8,
+     "excludes": 0,
+     "knowBeforeYouGo": 6,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 8,
+     "excludes": 0,
+     "knowBeforeYouGo": 6,
+     "stops": 0
+    },
+    "it": {
+     "includes": 8,
+     "excludes": 0,
+     "knowBeforeYouGo": 6,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 0,
+     "kb": 6,
+     "hasMeeting": true,
+     "listPrice": "35.00",
+     "listUnit": "PER_UNIT",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 0,
+     "kb": 6,
+     "hasMeeting": true,
+     "listPrice": "35.00",
+     "listUnit": "PER_UNIT",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 0,
+     "kb": 6,
+     "hasMeeting": true,
+     "listPrice": "35.00",
+     "listUnit": "PER_UNIT",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 0,
+     "kb": 6,
+     "hasMeeting": true,
+     "listPrice": "35.00",
+     "listUnit": "PER_UNIT",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "bedouin-dinner-camel-ride",
+   "id": "a0000001-0000-0000-0000-000000000004",
+   "category": "DESERT",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "25.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "3–4 hours",
+   "timeSlots": [
+    "SUNSET"
+   ],
+   "capacity": 25,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": true,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [],
+    "safety": [],
+    "weather": [],
+    "bring": [
+     "Comfortable clothes and shoes",
+     "A light jacket for the evening"
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 8,
+     "excludes": 0,
+     "knowBeforeYouGo": 2,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 8,
+     "excludes": 0,
+     "knowBeforeYouGo": 2,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 8,
+     "excludes": 0,
+     "knowBeforeYouGo": 2,
+     "stops": 0
+    },
+    "it": {
+     "includes": 8,
+     "excludes": 0,
+     "knowBeforeYouGo": 2,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 0,
+     "kb": 2,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 0,
+     "kb": 2,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 0,
+     "kb": 2,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 0,
+     "kb": 2,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "dahab-colored-canyon",
+   "id": "a0000001-0000-0000-0000-000000000005",
+   "category": "CULTURAL",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "30.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "8–10 hours",
+   "timeSlots": [
+    "MORNING"
+   ],
+   "capacity": 20,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": null,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [
+     "Towel and swimwear"
+    ],
+    "safety": [],
+    "weather": [],
+    "bring": [
+     "Passport",
+     "Snorkeling gear",
+     "Drinking water",
+     "Comfortable shoes"
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 8,
+     "excludes": 0,
+     "knowBeforeYouGo": 5,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 8,
+     "excludes": 0,
+     "knowBeforeYouGo": 5,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 8,
+     "excludes": 0,
+     "knowBeforeYouGo": 5,
+     "stops": 0
+    },
+    "it": {
+     "includes": 8,
+     "excludes": 0,
+     "knowBeforeYouGo": 5,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 0,
+     "kb": 5,
+     "hasMeeting": true,
+     "listPrice": "30.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 0,
+     "kb": 5,
+     "hasMeeting": true,
+     "listPrice": "30.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 0,
+     "kb": 5,
+     "hasMeeting": true,
+     "listPrice": "30.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 0,
+     "kb": 5,
+     "hasMeeting": true,
+     "listPrice": "30.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "camel-horse-ride",
+   "id": "a0000001-0000-0000-0000-000000000006",
+   "category": "DESERT",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "25.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "1 hour",
+   "timeSlots": [
+    "MORNING",
+    "AFTERNOON",
+    "SUNSET"
+   ],
+   "capacity": 20,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": true,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [],
+    "safety": [],
+    "weather": [],
+    "bring": [
+     "Comfortable clothes",
+     "Sun protection",
+     "Help is available to get on and off the camel."
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "it": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "ras-mohamed-white-island-boat",
+   "id": "a0000001-0000-0000-0000-000000000007",
+   "category": "SEA",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "40.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "8–9 hours",
+   "timeSlots": [
+    "MORNING"
+   ],
+   "capacity": 30,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": null,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [
+     "8:00"
+    ],
+    "days": [],
+    "restrictions": [
+     "Scuba diving is not suitable for children under 10 or pregnant women."
+    ],
+    "safety": [],
+    "weather": [
+     "Plans may change with sea and weather conditions."
+    ],
+    "bring": [
+     "Sunglasses, sunscreen and a towel",
+     "Passport or ID (a copy is accepted)"
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 8,
+     "excludes": 2,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 8,
+     "excludes": 2,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 8,
+     "excludes": 2,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "it": {
+     "includes": 8,
+     "excludes": 2,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 2,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "40.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 2,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "40.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 2,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "40.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 8,
+     "excludes": 2,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "40.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "evening-cruise",
+   "id": "a0000001-0000-0000-0000-000000000008",
+   "category": "SEA",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "30.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "About 4 hours (18:00–22:00)",
+   "timeSlots": [
+    "SUNSET"
+   ],
+   "capacity": 40,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": null,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [
+     "18:00",
+     "22:00"
+    ],
+    "days": [],
+    "restrictions": [],
+    "safety": [],
+    "weather": [
+     "Warm clothes in winter",
+     "Subject to weather conditions."
+    ],
+    "bring": [
+     "Passport",
+     "Smart casual clothing is recommended."
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 5,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 5,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 5,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "it": {
+     "includes": 5,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "30.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "30.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "30.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "30.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "glass-bottom-boat",
+   "id": "a0000001-0000-0000-0000-000000000009",
+   "category": "SEA",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "15.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "1.5 hours",
+   "timeSlots": [
+    "MORNING",
+    "AFTERNOON"
+   ],
+   "capacity": 30,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": true,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [
+     "Not wheelchair accessible; strollers are fine and infants sit on laps."
+    ],
+    "safety": [],
+    "weather": [
+     "Subject to sea conditions."
+    ],
+    "bring": [
+     "Sunglasses and water",
+     "Passport or ID (a copy is accepted)"
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "it": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "15.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "15.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "15.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "15.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "diving-course",
+   "id": "a0000001-0000-0000-0000-000000000010",
+   "category": "SEA",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "400.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "2–3 days",
+   "timeSlots": [
+    "MORNING"
+   ],
+   "capacity": 8,
+   "cancellationPolicy": "NON_REFUNDABLE",
+   "facts": null,
+   "meetingPoint": "Pickup from your hotel or meeting at the dive center — confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [
+     "An Open Water certification is required.",
+     "A medical declaration may be required.",
+     "Not suitable for beginners."
+    ],
+    "safety": [
+     "Explore deeper dive sites, refine your technique and enjoy the Red Sea's world-famous reefs and marine life on a multi-day course with professional instructors at one of Sharm El Sheikh's leading dive centers."
+    ],
+    "weather": [],
+    "bring": []
+   },
+   "counts": {
+    "en": {
+     "includes": 3,
+     "excludes": 0,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 3,
+     "excludes": 0,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 3,
+     "excludes": 0,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "it": {
+     "includes": 3,
+     "excludes": 0,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 3,
+     "excludes": 0,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "400.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 3,
+     "excludes": 0,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "400.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 3,
+     "excludes": 0,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "400.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 3,
+     "excludes": 0,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "400.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "sinai-dream-sailboat",
+   "id": "a0000001-0000-0000-0000-000000000013",
+   "category": "SEA",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "65.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "5–8 hours",
+   "timeSlots": [
+    "MORNING"
+   ],
+   "capacity": 25,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": true,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [
+     "Swimwear"
+    ],
+    "safety": [],
+    "weather": [
+     "Subject to weather and sea conditions."
+    ],
+    "bring": [
+     "Towel",
+     "Sunscreen",
+     "Sunglasses",
+     "Limited number of guests on board."
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 7,
+     "excludes": 0,
+     "knowBeforeYouGo": 6,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 7,
+     "excludes": 0,
+     "knowBeforeYouGo": 6,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 7,
+     "excludes": 0,
+     "knowBeforeYouGo": 6,
+     "stops": 0
+    },
+    "it": {
+     "includes": 7,
+     "excludes": 0,
+     "knowBeforeYouGo": 6,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 7,
+     "excludes": 0,
+     "kb": 6,
+     "hasMeeting": true,
+     "listPrice": "65.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 7,
+     "excludes": 0,
+     "kb": 6,
+     "hasMeeting": true,
+     "listPrice": "65.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 7,
+     "excludes": 0,
+     "kb": 6,
+     "hasMeeting": true,
+     "listPrice": "65.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 7,
+     "excludes": 0,
+     "kb": 6,
+     "hasMeeting": true,
+     "listPrice": "65.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "ras-mohamed-by-bus",
+   "id": "a0000001-0000-0000-0000-000000000014",
+   "category": "SEA",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "30.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "4–6 hours",
+   "timeSlots": [
+    "MORNING"
+   ],
+   "capacity": 30,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": true,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [
+     "14:00",
+     "8:00"
+    ],
+    "days": [],
+    "restrictions": [
+     "Snorkeling gear, swimwear and a towel"
+    ],
+    "safety": [],
+    "weather": [],
+    "bring": [
+     "Snacks and water",
+     "Sunglasses, sunscreen and comfortable shoes"
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 4,
+     "excludes": 1,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 4,
+     "excludes": 1,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 4,
+     "excludes": 1,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "it": {
+     "includes": 4,
+     "excludes": 1,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 1,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "30.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 1,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "30.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 1,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "30.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 1,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "30.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "banana-boat",
+   "id": "a0000001-0000-0000-0000-000000000015",
+   "category": "SEA",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "25.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "10–15 minutes",
+   "timeSlots": [
+    "MORNING",
+    "AFTERNOON"
+   ],
+   "capacity": 8,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": null,
+    "minimumAge": 10,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [
+     "Basic swimming skills are recommended.",
+     "Not suitable for pregnant women or people with back or heart problems.",
+     "Not suitable for children under 10."
+    ],
+    "safety": [
+     "You are picked up from your hotel and taken to the beach, where the crew gives a safety briefing and life jackets."
+    ],
+    "weather": [],
+    "bring": [
+     "Sun hat, sunglasses and a towel"
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "it": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "parasailing-adventure",
+   "id": "a0000001-0000-0000-0000-000000000016",
+   "category": "SEA",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "25.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "6–10 minutes flight",
+   "timeSlots": [
+    "MORNING",
+    "AFTERNOON"
+   ],
+   "capacity": 2,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": null,
+    "minimumAge": 10,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [
+     "Not suitable for pregnant women or people with back or heart problems.",
+     "Not suitable for children under 10."
+    ],
+    "safety": [
+     "After hotel pickup and a safety briefing, a boat takes you out and you rise above the sea on a parachute for around 7 minutes, taking in the coastline from above, alone or with your partner."
+    ],
+    "weather": [
+     "Weather dependent."
+    ],
+    "bring": [
+     "Sun hat, sunglasses and a towel"
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 6,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 6,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 6,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "it": {
+     "includes": 6,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 6,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 6,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 6,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 6,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "speed-boat-adventure",
+   "id": "a0000001-0000-0000-0000-000000000017",
+   "category": "SEA",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "150.00",
+    "currency": "EUR",
+    "unit": "PER_UNIT",
+    "child": null,
+    "note": null
+   },
+   "options": [
+    {
+     "code": "boat",
+     "label": "Private speedboat",
+     "seats": 5,
+     "amount": "150.00"
+    }
+   ],
+   "durationText": "3 hours (private boat)",
+   "timeSlots": [
+    "MORNING",
+    "AFTERNOON"
+   ],
+   "capacity": 5,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": null,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [
+     "Not suitable for pregnant women or people with back or neck problems."
+    ],
+    "safety": [
+     "Life jackets, snorkel masks and a cooler with drinks are on board."
+    ],
+    "weather": [
+     "Subject to sea and weather conditions."
+    ],
+    "bring": [
+     "Book at least 2 days in advance.",
+     "Up to 5 people per boat; the price is per boat."
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 5,
+     "excludes": 2,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 5,
+     "excludes": 2,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 5,
+     "excludes": 2,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "it": {
+     "includes": 5,
+     "excludes": 2,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 2,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "150.00",
+     "listUnit": "PER_UNIT",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 2,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "150.00",
+     "listUnit": "PER_UNIT",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 2,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "150.00",
+     "listUnit": "PER_UNIT",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 2,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "150.00",
+     "listUnit": "PER_UNIT",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "submarine",
+   "id": "a0000001-0000-0000-0000-000000000018",
+   "category": "SEA",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "35.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "1.5–2 hours",
+   "timeSlots": [
+    "MORNING",
+    "AFTERNOON"
+   ],
+   "capacity": 30,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": true,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [
+     "Not suitable for wheelchair users."
+    ],
+    "safety": [],
+    "weather": [
+     "Subject to sea and weather conditions."
+    ],
+    "bring": [
+     "Passport or ID (a copy is accepted)",
+     "A bottle of water"
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 5,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 5,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 5,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "it": {
+     "includes": 5,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "35.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "35.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "35.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "35.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "tiran-island-boat-trip",
+   "id": "a0000001-0000-0000-0000-000000000019",
+   "category": "SEA",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "45.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "8–9 hours",
+   "timeSlots": [
+    "MORNING"
+   ],
+   "capacity": 30,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": true,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [
+     "8:00"
+    ],
+    "days": [],
+    "restrictions": [
+     "Scuba diving is not suitable for children under 10 or pregnant women."
+    ],
+    "safety": [],
+    "weather": [],
+    "bring": [
+     "Sunglasses, sunscreen and a towel",
+     "Passport or ID (a copy is accepted)"
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 6,
+     "excludes": 2,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 6,
+     "excludes": 2,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 6,
+     "excludes": 2,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "it": {
+     "includes": 6,
+     "excludes": 2,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 6,
+     "excludes": 2,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "45.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 6,
+     "excludes": 2,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "45.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 6,
+     "excludes": 2,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "45.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 6,
+     "excludes": 2,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "45.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "tube-boat",
+   "id": "a0000001-0000-0000-0000-000000000020",
+   "category": "SEA",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "25.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "10–15 minutes",
+   "timeSlots": [
+    "MORNING",
+    "AFTERNOON"
+   ],
+   "capacity": 4,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": null,
+    "minimumAge": 10,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [
+     "Basic swimming skills are recommended.",
+     "Not suitable for pregnant women or people with back or heart problems.",
+     "Not suitable for children under 10."
+    ],
+    "safety": [
+     "After hotel pickup and a safety briefing on the beach, you ride an inflatable tube pulled by a speedboat across the water."
+    ],
+    "weather": [],
+    "bring": [
+     "Sun hat, sunglasses and a towel"
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    },
+    "it": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 4,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 4,
+     "hasMeeting": true,
+     "listPrice": "25.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "cairo-by-bus",
+   "id": "a0000001-0000-0000-0000-000000000021",
+   "category": "CULTURAL",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "75.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "20–24 hours",
+   "timeSlots": [
+    "MORNING"
+   ],
+   "capacity": 30,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": null,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [],
+    "safety": [],
+    "weather": [],
+    "bring": [
+     "Passport",
+     "Comfortable clothing, a hat and sunscreen",
+     "It is a very long day with many hours on the road."
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 5,
+     "excludes": 0,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 5,
+     "excludes": 0,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 5,
+     "excludes": 0,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "it": {
+     "includes": 5,
+     "excludes": 0,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 0,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "75.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 0,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "75.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 0,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "75.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 0,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "75.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "cairo-by-plane",
+   "id": "a0000001-0000-0000-0000-000000000022",
+   "category": "CULTURAL",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "280.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "20–24 hours",
+   "timeSlots": [
+    "MORNING"
+   ],
+   "capacity": 20,
+   "cancellationPolicy": "NON_REFUNDABLE",
+   "facts": {
+    "childrenAllowed": null,
+    "minimumAge": null,
+    "guideLanguages": [
+     "en"
+    ],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [
+     "22:00",
+     "4–5 am",
+     "5:00"
+    ],
+    "days": [
+     "Sundays",
+     "Thursdays"
+    ],
+    "restrictions": [],
+    "safety": [],
+    "weather": [],
+    "bring": [
+     "Passport (required for the flight)",
+     "You may take a breakfast box from your hotel.",
+     "Pickup around 5:00, return around 22:00."
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 5,
+     "excludes": 3,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 5,
+     "excludes": 3,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 5,
+     "excludes": 3,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "it": {
+     "includes": 5,
+     "excludes": 3,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 3,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "280.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 3,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "280.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 3,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "280.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 3,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "280.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "mount-sinai-st-catherine",
+   "id": "a0000001-0000-0000-0000-000000000023",
+   "category": "CULTURAL",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "40.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "15–16 hours",
+   "timeSlots": [
+    "MORNING"
+   ],
+   "capacity": 25,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": false,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [
+     "13:30",
+     "20:00"
+    ],
+    "days": [
+     "Fridays",
+     "Sundays",
+     "Wednesdays"
+    ],
+    "restrictions": [
+     "Not suitable for pregnant women, children, older guests or people with back, heart or breathing problems."
+    ],
+    "safety": [],
+    "weather": [
+     "Hiking shoes and a warm jacket (it is cold at the top, especially in winter)"
+    ],
+    "bring": [
+     "Passport or ID",
+     "Water, snacks and a power bank",
+     "Runs on Sundays, Wednesdays and Fridays."
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 5,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 5,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 5,
+     "stops": 0
+    },
+    "it": {
+     "includes": 4,
+     "excludes": 0,
+     "knowBeforeYouGo": 5,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 5,
+     "hasMeeting": true,
+     "listPrice": "40.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 5,
+     "hasMeeting": true,
+     "listPrice": "40.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 5,
+     "hasMeeting": true,
+     "listPrice": "40.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 4,
+     "excludes": 0,
+     "kb": 5,
+     "hasMeeting": true,
+     "listPrice": "40.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "luxor-by-plane",
+   "id": "a0000001-0000-0000-0000-000000000024",
+   "category": "CULTURAL",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "280.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "20–24 hours",
+   "timeSlots": [
+    "MORNING"
+   ],
+   "capacity": 20,
+   "cancellationPolicy": "NON_REFUNDABLE",
+   "facts": {
+    "childrenAllowed": null,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [],
+    "safety": [],
+    "weather": [],
+    "bring": [
+     "Passport (required for the flight)",
+     "Comfortable walking shoes",
+     "Hat, sunglasses and sunscreen"
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 5,
+     "excludes": 2,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 5,
+     "excludes": 2,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 5,
+     "excludes": 2,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "it": {
+     "includes": 5,
+     "excludes": 2,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 2,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "280.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 1,
+     "cover": true,
+     "altPresent": 1,
+     "altSameAsEn": 1
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 2,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "280.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 1,
+     "cover": true,
+     "altPresent": 1,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 2,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "280.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 1,
+     "cover": true,
+     "altPresent": 1,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 2,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "280.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 1,
+     "cover": true,
+     "altPresent": 1,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [
+    {
+     "path": "/media/tours/luxor-by-plane/d9afb1b3-ba93-4a4a-bd71-6528e4f1e299.jpg",
+     "w": 2400,
+     "h": 1600,
+     "isCover": true
+    }
+   ],
+   "listCoverPresent": true,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "st-catherine-dahab",
+   "id": "a0000001-0000-0000-0000-000000000025",
+   "category": "CULTURAL",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "45.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "11–12 hours",
+   "timeSlots": [
+    "MORNING"
+   ],
+   "capacity": 25,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": null,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [
+     "Mondays",
+     "Saturdays",
+     "Thursdays"
+    ],
+    "restrictions": [],
+    "safety": [],
+    "weather": [],
+    "bring": [
+     "Passport",
+     "Comfortable walking shoes",
+     "Runs on Mondays, Thursdays and Saturdays."
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 6,
+     "excludes": 0,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 6,
+     "excludes": 0,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 6,
+     "excludes": 0,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "it": {
+     "includes": 6,
+     "excludes": 0,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 6,
+     "excludes": 0,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "45.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 6,
+     "excludes": 0,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "45.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 6,
+     "excludes": 0,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "45.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 6,
+     "excludes": 0,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "45.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "turkish-bath",
+   "id": "a0000001-0000-0000-0000-000000000026",
+   "category": "SHOWS",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "45.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "1–2 hours",
+   "timeSlots": [
+    "MORNING",
+    "AFTERNOON"
+   ],
+   "capacity": 20,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": false,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [
+     "For adults."
+    ],
+    "safety": [],
+    "weather": [],
+    "bring": [
+     "Book ahead in high season."
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 6,
+     "excludes": 0,
+     "knowBeforeYouGo": 2,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 6,
+     "excludes": 0,
+     "knowBeforeYouGo": 2,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 6,
+     "excludes": 0,
+     "knowBeforeYouGo": 2,
+     "stops": 0
+    },
+    "it": {
+     "includes": 6,
+     "excludes": 0,
+     "knowBeforeYouGo": 2,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 6,
+     "excludes": 0,
+     "kb": 2,
+     "hasMeeting": true,
+     "listPrice": "45.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 6,
+     "excludes": 0,
+     "kb": 2,
+     "hasMeeting": true,
+     "listPrice": "45.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 6,
+     "excludes": 0,
+     "kb": 2,
+     "hasMeeting": true,
+     "listPrice": "45.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 6,
+     "excludes": 0,
+     "kb": 2,
+     "hasMeeting": true,
+     "listPrice": "45.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "dolphin-show",
+   "id": "a0000001-0000-0000-0000-000000000027",
+   "category": "SHOWS",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "20.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "1 hour",
+   "timeSlots": [
+    "MORNING",
+    "AFTERNOON"
+   ],
+   "capacity": 50,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": true,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [],
+    "safety": [],
+    "weather": [
+     "Show times may vary by season."
+    ],
+    "bring": [
+     "Photography only in designated areas."
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 3,
+     "excludes": 0,
+     "knowBeforeYouGo": 2,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 3,
+     "excludes": 0,
+     "knowBeforeYouGo": 2,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 3,
+     "excludes": 0,
+     "knowBeforeYouGo": 2,
+     "stops": 0
+    },
+    "it": {
+     "includes": 3,
+     "excludes": 0,
+     "knowBeforeYouGo": 2,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 3,
+     "excludes": 0,
+     "kb": 2,
+     "hasMeeting": true,
+     "listPrice": "20.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 3,
+     "excludes": 0,
+     "kb": 2,
+     "hasMeeting": true,
+     "listPrice": "20.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 3,
+     "excludes": 0,
+     "kb": 2,
+     "hasMeeting": true,
+     "listPrice": "20.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 3,
+     "excludes": 0,
+     "kb": 2,
+     "hasMeeting": true,
+     "listPrice": "20.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "swimming-with-dolphins",
+   "id": "a0000001-0000-0000-0000-000000000028",
+   "category": "SHOWS",
+   "tourType": "TOUR",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "70.00",
+    "currency": "EUR",
+    "unit": "PER_PERSON",
+    "child": null,
+    "note": null
+   },
+   "options": [],
+   "durationText": "15 minutes",
+   "timeSlots": [
+    "MORNING",
+    "AFTERNOON"
+   ],
+   "capacity": 10,
+   "cancellationPolicy": "STANDARD",
+   "facts": {
+    "childrenAllowed": true,
+    "minimumAge": null,
+    "guideLanguages": [],
+    "hotelPickup": "INCLUDED"
+   },
+   "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [
+     "Swimwear, towel, sunglasses and sunscreen",
+     "Phones are not allowed while swimming.",
+     "Non-swimmers may need assistance."
+    ],
+    "safety": [
+     "After a 20-minute drive to the venue you spend 15 minutes in the water with dolphins under the supervision of trainers, with a life jacket provided."
+    ],
+    "weather": [],
+    "bring": []
+   },
+   "counts": {
+    "en": {
+     "includes": 5,
+     "excludes": 1,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 5,
+     "excludes": 1,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 5,
+     "excludes": 1,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    },
+    "it": {
+     "includes": 5,
+     "excludes": 1,
+     "knowBeforeYouGo": 3,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 1,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "70.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 1,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "70.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 1,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "70.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 5,
+     "excludes": 1,
+     "kb": 3,
+     "hasMeeting": true,
+     "listPrice": "70.00",
+     "listUnit": "PER_PERSON",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": true
+  },
+  {
+   "slug": "sharm-airport-transfer",
+   "id": "a0000001-0000-0000-0000-000000000030",
+   "category": "TRANSFERS",
+   "tourType": "TRANSFER",
+   "status": "ACTIVE",
+   "price": {
+    "amount": "15.00",
+    "currency": "EUR",
+    "unit": "PER_UNIT",
+    "child": null,
+    "note": "Per vehicle: sedan €15 · SUV €20 · Hiace minibus €30"
+   },
+   "options": [
+    {
+     "code": "sedan",
+     "label": "Sedan car",
+     "seats": 4,
+     "amount": "15.00"
+    },
+    {
+     "code": "suv",
+     "label": "SUV",
+     "seats": 4,
+     "amount": "20.00"
+    },
+    {
+     "code": "minibus",
+     "label": "Hiace minibus",
+     "seats": 8,
+     "amount": "30.00"
+    }
+   ],
+   "durationText": "30–60 minutes",
+   "timeSlots": [
+    "SUNRISE",
+    "MORNING",
+    "AFTERNOON",
+    "SUNSET"
+   ],
+   "capacity": 8,
+   "cancellationPolicy": "STANDARD",
+   "facts": null,
+   "meetingPoint": "Your hotel reception, or the arrivals hall at Sharm El Sheikh airport.",
+   "textFacts": {
+    "times": [],
+    "days": [],
+    "restrictions": [],
+    "safety": [],
+    "weather": [],
+    "bring": [
+     "Please send your flight details when booking.",
+     "Sedan: up to 4 people and 3 suitcases. Hiace minibus: up to 8 guests."
+    ]
+   },
+   "counts": {
+    "en": {
+     "includes": 3,
+     "excludes": 0,
+     "knowBeforeYouGo": 2,
+     "stops": 0
+    },
+    "ar": {
+     "includes": 3,
+     "excludes": 0,
+     "knowBeforeYouGo": 2,
+     "stops": 0
+    },
+    "ru": {
+     "includes": 3,
+     "excludes": 0,
+     "knowBeforeYouGo": 2,
+     "stops": 0
+    },
+    "it": {
+     "includes": 3,
+     "excludes": 0,
+     "knowBeforeYouGo": 2,
+     "stops": 0
+    }
+   },
+   "locales": {
+    "en": {
+     "servedLocale": "en",
+     "nameSameAsEn": true,
+     "descSameAsEn": true,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 3,
+     "excludes": 0,
+     "kb": 2,
+     "hasMeeting": true,
+     "listPrice": "15.00",
+     "listUnit": "PER_UNIT",
+     "listLocale": "en",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ar": {
+     "servedLocale": "ar",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 3,
+     "excludes": 0,
+     "kb": 2,
+     "hasMeeting": true,
+     "listPrice": "15.00",
+     "listUnit": "PER_UNIT",
+     "listLocale": "ar",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "ru": {
+     "servedLocale": "ru",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 3,
+     "excludes": 0,
+     "kb": 2,
+     "hasMeeting": true,
+     "listPrice": "15.00",
+     "listUnit": "PER_UNIT",
+     "listLocale": "ru",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    },
+    "it": {
+     "servedLocale": "it",
+     "nameSameAsEn": false,
+     "descSameAsEn": false,
+     "hasName": true,
+     "hasDescription": true,
+     "hasShort": true,
+     "includes": 3,
+     "excludes": 0,
+     "kb": 2,
+     "hasMeeting": true,
+     "listPrice": "15.00",
+     "listUnit": "PER_UNIT",
+     "listLocale": "it",
+     "media": 0,
+     "cover": false,
+     "altPresent": 0,
+     "altSameAsEn": 0
+    }
+   },
+   "media": [],
+   "listCoverPresent": false,
+   "legacyImageUrl": false
+  }
+ ]
+}
