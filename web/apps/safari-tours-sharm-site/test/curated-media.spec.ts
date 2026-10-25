@@ -7,7 +7,7 @@ describe("owner-approved bundled photos", () => {
   it("provides one cover per curated active tour, four captions and bounded actual WebP files", () => {
     const tours = [...new Set(images.map(image => image.tour))];
     expect(tours).toHaveLength(27);
-    expect(images.length).toBe(47);
+    expect(images.length).toBe(48);
     expect(new Set(images.map(image => image.id)).size).toBe(images.length);
     let total = 0;
     for (const slug of tours) expect(images.filter(image => image.tour === slug && image.isCover)).toHaveLength(1);
@@ -49,5 +49,12 @@ describe("owner-approved bundled photos", () => {
       expect(Object.keys(covers).sort()).toEqual(["CULTURAL", "DESERT", "SEA", "SHOWS", "TRANSFERS"]);
       for (const cover of Object.values(covers)) expect(cover.path).toMatch(/^\/images\/catalog\//);
     }
+  });
+  it("uses the sedan cover and separates glass-boat exterior from submarine viewing windows", () => {
+    expect(curatedCover("sharm-airport-transfer", "en")?.path).toContain("transfer-sedan-cover");
+    expect(curatedTourMedia("sharm-airport-transfer", "en").some(image => image.path.includes("transfer-van"))).toBe(true);
+    expect(curatedCover("glass-bottom-boat", "en")?.path).toContain("glass-boat-exterior");
+    expect(curatedTourMedia("glass-bottom-boat", "en").every(image => !image.path.includes("window"))).toBe(true);
+    expect(curatedTourMedia("submarine", "en").some(image => image.path.includes("submarine-viewing-window-gallery"))).toBe(true);
   });
 });

@@ -1,5 +1,12 @@
 # Safari Tours Sharm — legacy content source
 
+> **Owner correction overlay — 25 October 2026:** the legacy snapshot and
+> approved seed below are historical evidence. Current changes are recorded in
+> [the owner correction JSON](../marketing/owner-corrections/2026-10-25_catalog-revision.json)
+> and [execution handoff](../handoff/2026-10-25_OWNER_CORRECTIONS_AND_BOOKING_LOOKUP_AR.md).
+> The four draft locale sources and English builder include the approved overlay;
+> do not restore the old camel inclusions or Hiace35 copy from the snapshot.
+
 - **Source:** [safaritourssharm.com](https://safaritourssharm.com/)
 - **Captured:** 2026-09-27
 - **Status:** `RESEARCH_ONLY_UNTIL_OWNER_VERIFIED`

@@ -1,0 +1,438 @@
+{
+  "approvedOn": "2026-10-25",
+  "source": "Owner written instructions and five screenshots in the Safari conversation",
+  "status": "VERIFIED_LOCALLY_NOT_DEPLOYED",
+  "stableSlugsPreserved": true,
+  "existingBookingAndRequestSnapshotsUnchanged": true,
+  "prices": [
+    {
+      "slug": "double-buggy-camel-ride",
+      "beforeCents": 3000,
+      "afterCents": 3500
+    },
+    {
+      "slug": "sunset-quad-bike",
+      "beforeCents": 3500,
+      "afterCents": 1500
+    },
+    {
+      "slug": "bedouin-dinner-camel-ride",
+      "beforeCents": 3500,
+      "afterCents": 2500
+    },
+    {
+      "slug": "evening-cruise",
+      "beforeCents": 3500,
+      "afterCents": 3000
+    },
+    {
+      "slug": "dahab-colored-canyon",
+      "beforeCents": 3500,
+      "afterCents": 3000
+    }
+  ],
+  "unitPrices": [
+    {
+      "slug": "double-buggy-camel-ride",
+      "code": "buggy",
+      "beforeCents": 3000,
+      "afterCents": 3500
+    },
+    {
+      "slug": "sharm-airport-transfer",
+      "code": "minibus",
+      "beforeCents": 3500,
+      "afterCents": 3000
+    }
+  ],
+  "contentPatches": [
+    {
+      "slug": "double-buggy-camel-ride",
+      "locale": "en",
+      "field": "name",
+      "before": "Double Buggy & Camel Ride",
+      "after": "Double Buggy"
+    },
+    {
+      "slug": "double-buggy-camel-ride",
+      "locale": "en",
+      "field": "shortDescription",
+      "before": "Drive a two-seat sand buggy through the dunes, stop at the Valley of Echo and a Bedouin tent, then ride a camel.",
+      "after": "Drive a two-seat sand buggy through the dunes, stop at the Valley of Echo and a Bedouin tent."
+    },
+    {
+      "slug": "double-buggy-camel-ride",
+      "locale": "en",
+      "field": "description",
+      "before": "After a short drive to the buggy center and a safety briefing, you and your partner drive a sand buggy across the dunes towards the Echo Mountains. You stop at the Valley of Echo and a Bedouin tent for tea, take a camel ride across the sand, and drive back to the start before your transfer to the hotel.",
+      "after": "After a short drive to the buggy center and a safety briefing, you and your partner drive a sand buggy across the dunes towards the Echo Mountains. You stop at the Valley of Echo and a Bedouin tent for tea and drive back to the start before your transfer to the hotel."
+    },
+    {
+      "slug": "double-buggy-camel-ride",
+      "locale": "en",
+      "field": "includes",
+      "before": [
+        "Hotel pickup and drop-off",
+        "Air-conditioned transport",
+        "Two-seat sand buggy",
+        "Camel ride",
+        "Stops at the Valley of Echo and a Bedouin tent",
+        "Bedouin tea",
+        "Safety equipment",
+        "Tour guide",
+        "Entrance fees"
+      ],
+      "after": [
+        "Hotel pickup and drop-off",
+        "Air-conditioned transport",
+        "Two-seat sand buggy",
+        "Stops at the Valley of Echo and a Bedouin tent",
+        "Bedouin tea",
+        "Safety equipment",
+        "Tour guide",
+        "Entrance fees"
+      ]
+    },
+    {
+      "slug": "double-buggy-camel-ride",
+      "locale": "ar",
+      "field": "name",
+      "before": "بجي مزدوج وركوب الجمل",
+      "after": "بجي مزدوج"
+    },
+    {
+      "slug": "double-buggy-camel-ride",
+      "locale": "ar",
+      "field": "shortDescription",
+      "before": "قُد عربة بجي رملية بمقعدين عبر الكثبان، مع وقفة عند وادي الصدى وخيمة بدوية، ثم ركوب الجمل.",
+      "after": "قُد عربة بجي رملية بمقعدين عبر الكثبان، مع وقفة عند وادي الصدى وخيمة بدوية."
+    },
+    {
+      "slug": "double-buggy-camel-ride",
+      "locale": "ar",
+      "field": "description",
+      "before": "بعد رحلة قصيرة بالسيارة إلى مركز البجي وإرشادات السلامة، تقود أنت ورفيقك عربة بجي رملية عبر الكثبان باتجاه جبال الصدى. تتوقفان عند وادي الصدى وخيمة بدوية لتناول الشاي، ثم تركبان الجمل عبر الرمال، وتعودان بالبجي إلى نقطة البداية قبل توصيلكما إلى الفندق.",
+      "after": "بعد رحلة قصيرة بالسيارة إلى مركز البجي وإرشادات السلامة، تقود أنت ورفيقك عربة بجي رملية عبر الكثبان باتجاه جبال الصدى. تتوقفان عند وادي الصدى وخيمة بدوية لتناول الشاي، وتعودان بالبجي إلى نقطة البداية قبل توصيلكما إلى الفندق."
+    },
+    {
+      "slug": "double-buggy-camel-ride",
+      "locale": "ar",
+      "field": "includes",
+      "before": [
+        "الاستقبال من الفندق والتوصيل إليه",
+        "مواصلات مكيفة",
+        "عربة بجي رملية بمقعدين",
+        "ركوب الجمل",
+        "وقفات عند وادي الصدى وخيمة بدوية",
+        "الشاي البدوي",
+        "معدات السلامة",
+        "مرشد سياحي",
+        "رسوم الدخول"
+      ],
+      "after": [
+        "الاستقبال من الفندق والتوصيل إليه",
+        "مواصلات مكيفة",
+        "عربة بجي رملية بمقعدين",
+        "وقفات عند وادي الصدى وخيمة بدوية",
+        "الشاي البدوي",
+        "معدات السلامة",
+        "مرشد سياحي",
+        "رسوم الدخول"
+      ]
+    },
+    {
+      "slug": "double-buggy-camel-ride",
+      "locale": "ru",
+      "field": "name",
+      "before": "Двухместное багги и катание на верблюде",
+      "after": "Двухместное багги"
+    },
+    {
+      "slug": "double-buggy-camel-ride",
+      "locale": "ru",
+      "field": "shortDescription",
+      "before": "Управляйте двухместным песчаным багги по дюнам, остановитесь в Долине Эха и у бедуинского шатра, а затем прокатитесь на верблюде.",
+      "after": "Управляйте двухместным песчаным багги по дюнам, остановитесь в Долине Эха и у бедуинского шатра."
+    },
+    {
+      "slug": "double-buggy-camel-ride",
+      "locale": "ru",
+      "field": "description",
+      "before": "После короткой поездки до багги-центра и инструктажа по безопасности вы вдвоём с партнёром поедете на песчаном багги по дюнам в сторону гор Эха. Вы остановитесь в Долине Эха и у бедуинского шатра на чай, прокатитесь на верблюде по пескам и вернётесь на багги к месту старта, после чего вас отвезут в отель.",
+      "after": "После короткой поездки до багги-центра и инструктажа по безопасности вы вдвоём с партнёром поедете на песчаном багги по дюнам в сторону гор Эха. Вы остановитесь в Долине Эха и у бедуинского шатра на чай и вернётесь на багги к месту старта, после чего вас отвезут в отель."
+    },
+    {
+      "slug": "double-buggy-camel-ride",
+      "locale": "ru",
+      "field": "includes",
+      "before": [
+        "Трансфер из отеля и обратно в отель",
+        "Транспорт с кондиционером",
+        "Двухместное песчаное багги",
+        "Катание на верблюде",
+        "Остановки в Долине Эха и у бедуинского шатра",
+        "Бедуинский чай",
+        "Защитное снаряжение",
+        "Гид",
+        "Входные билеты"
+      ],
+      "after": [
+        "Трансфер из отеля и обратно в отель",
+        "Транспорт с кондиционером",
+        "Двухместное песчаное багги",
+        "Остановки в Долине Эха и у бедуинского шатра",
+        "Бедуинский чай",
+        "Защитное снаряжение",
+        "Гид",
+        "Входные билеты"
+      ]
+    },
+    {
+      "slug": "double-buggy-camel-ride",
+      "locale": "it",
+      "field": "name",
+      "before": "Buggy doppio e giro in cammello",
+      "after": "Buggy doppio"
+    },
+    {
+      "slug": "double-buggy-camel-ride",
+      "locale": "it",
+      "field": "shortDescription",
+      "before": "Guida un buggy a due posti tra le dune, fermati alla Valle dell'Eco e in una tenda beduina, poi fai un giro in cammello.",
+      "after": "Guida un buggy a due posti tra le dune, fermati alla Valle dell'Eco e in una tenda beduina."
+    },
+    {
+      "slug": "double-buggy-camel-ride",
+      "locale": "it",
+      "field": "description",
+      "before": "Dopo un breve tragitto fino al centro buggy e un briefing di sicurezza, tu e il tuo partner guidate un buggy sulle dune verso le montagne dell'Eco. Vi fermate alla Valle dell'Eco e in una tenda beduina per il tè, fate un giro in cammello sulla sabbia e tornate in buggy al punto di partenza prima del trasferimento in hotel.",
+      "after": "Dopo un breve tragitto fino al centro buggy e un briefing di sicurezza, tu e il tuo partner guidate un buggy sulle dune verso le montagne dell'Eco. Vi fermate alla Valle dell'Eco e in una tenda beduina per il tè e tornate in buggy al punto di partenza prima del trasferimento in hotel."
+    },
+    {
+      "slug": "double-buggy-camel-ride",
+      "locale": "it",
+      "field": "includes",
+      "before": [
+        "Transfer da e per l'hotel",
+        "Trasporto con aria condizionata",
+        "Buggy a due posti",
+        "Giro in cammello",
+        "Soste alla Valle dell'Eco e in una tenda beduina",
+        "Tè beduino",
+        "Attrezzatura di sicurezza",
+        "Guida turistica",
+        "Biglietti d'ingresso"
+      ],
+      "after": [
+        "Transfer da e per l'hotel",
+        "Trasporto con aria condizionata",
+        "Buggy a due posti",
+        "Soste alla Valle dell'Eco e in una tenda beduina",
+        "Tè beduino",
+        "Attrezzatura di sicurezza",
+        "Guida turistica",
+        "Biglietti d'ingresso"
+      ]
+    },
+    {
+      "slug": "sunset-quad-bike",
+      "locale": "en",
+      "field": "shortDescription",
+      "before": "Ride a quad bike across the dunes as the desert turns gold, with the Valley of Echo, Bedouin tea and a camel ride at sunset.",
+      "after": "Ride a quad bike across the dunes as the desert turns gold, with the Valley of Echo, Bedouin tea at sunset."
+    },
+    {
+      "slug": "sunset-quad-bike",
+      "locale": "en",
+      "field": "description",
+      "before": "A short drive takes you to the quad center, where guides brief you on safe riding. You ride through the dunes towards the Echo Mountains as the light turns golden, stop at the Valley of Echo, relax with Bedouin tea in a tent and take a camel ride at sunset before heading back to your hotel.",
+      "after": "A short drive takes you to the quad center, where guides brief you on safe riding. You ride through the dunes towards the Echo Mountains as the light turns golden, stop at the Valley of Echo, relax with Bedouin tea in a tent before heading back to your hotel."
+    },
+    {
+      "slug": "sunset-quad-bike",
+      "locale": "en",
+      "field": "includes",
+      "before": [
+        "Hotel pickup and drop-off",
+        "Air-conditioned transport",
+        "Quad bike ride",
+        "Camel ride",
+        "Helmet and safety briefing",
+        "Stops at the Valley of Echo and a Bedouin tent",
+        "Bedouin tea",
+        "Tour guide",
+        "Entrance fees"
+      ],
+      "after": [
+        "Hotel pickup and drop-off",
+        "Air-conditioned transport",
+        "Quad bike ride",
+        "Helmet and safety briefing",
+        "Stops at the Valley of Echo and a Bedouin tent",
+        "Bedouin tea",
+        "Tour guide",
+        "Entrance fees"
+      ]
+    },
+    {
+      "slug": "sunset-quad-bike",
+      "locale": "ar",
+      "field": "shortDescription",
+      "before": "انطلق بدراجة الكواد عبر الكثبان بينما تتحول الصحراء إلى لون الذهب، مع وقفة عند وادي الصدى وشاي بدوي وركوب الجمل وقت الغروب.",
+      "after": "انطلق بدراجة الكواد عبر الكثبان بينما تتحول الصحراء إلى لون الذهب، مع وقفة عند وادي الصدى وشاي بدوي وقت الغروب."
+    },
+    {
+      "slug": "sunset-quad-bike",
+      "locale": "ar",
+      "field": "description",
+      "before": "رحلة قصيرة بالسيارة تأخذك إلى مركز الكواد، حيث يشرح لك المرشدون قواعد القيادة الآمنة. تنطلق عبر الكثبان باتجاه جبال الصدى مع تحوّل الضوء إلى لون ذهبي، وتتوقف عند وادي الصدى، وتسترخي مع الشاي البدوي في خيمة، وتركب الجمل وقت الغروب قبل العودة إلى فندقك.",
+      "after": "رحلة قصيرة بالسيارة تأخذك إلى مركز الكواد، حيث يشرح لك المرشدون قواعد القيادة الآمنة. تنطلق عبر الكثبان باتجاه جبال الصدى مع تحوّل الضوء إلى لون ذهبي، وتتوقف عند وادي الصدى، وتسترخي مع الشاي البدوي في خيمة قبل العودة إلى فندقك."
+    },
+    {
+      "slug": "sunset-quad-bike",
+      "locale": "ar",
+      "field": "includes",
+      "before": [
+        "الاستقبال من الفندق والتوصيل إليه",
+        "مواصلات مكيفة",
+        "ركوب دراجة الكواد",
+        "ركوب الجمل",
+        "خوذة وإرشادات السلامة",
+        "وقفات عند وادي الصدى وخيمة بدوية",
+        "الشاي البدوي",
+        "مرشد سياحي",
+        "رسوم الدخول"
+      ],
+      "after": [
+        "الاستقبال من الفندق والتوصيل إليه",
+        "مواصلات مكيفة",
+        "ركوب دراجة الكواد",
+        "خوذة وإرشادات السلامة",
+        "وقفات عند وادي الصدى وخيمة بدوية",
+        "الشاي البدوي",
+        "مرشد سياحي",
+        "رسوم الدخول"
+      ]
+    },
+    {
+      "slug": "sunset-quad-bike",
+      "locale": "ru",
+      "field": "shortDescription",
+      "before": "Поездка на квадроцикле по дюнам, пока пустыня золотится на закате, с остановкой в Долине Эха, бедуинским чаем и катанием на верблюде.",
+      "after": "Поездка на квадроцикле по дюнам, пока пустыня золотится на закате, с остановкой в Долине Эха, бедуинским чаем."
+    },
+    {
+      "slug": "sunset-quad-bike",
+      "locale": "ru",
+      "field": "description",
+      "before": "Короткая поездка доставит вас в квадроцентр, где гиды проведут инструктаж по безопасной езде. Вы поедете по дюнам в сторону гор Эха в золотистом свете, остановитесь в Долине Эха, отдохнёте за бедуинским чаем в шатре и прокатитесь на верблюде на закате, после чего вернётесь в отель.",
+      "after": "Короткая поездка доставит вас в квадроцентр, где гиды проведут инструктаж по безопасной езде. Вы поедете по дюнам в сторону гор Эха в золотистом свете, остановитесь в Долине Эха, отдохнёте за бедуинским чаем в шатре, после чего вернётесь в отель."
+    },
+    {
+      "slug": "sunset-quad-bike",
+      "locale": "ru",
+      "field": "includes",
+      "before": [
+        "Трансфер из отеля и обратно в отель",
+        "Транспорт с кондиционером",
+        "Поездка на квадроцикле",
+        "Катание на верблюде",
+        "Шлем и инструктаж по безопасности",
+        "Остановки в Долине Эха и у бедуинского шатра",
+        "Бедуинский чай",
+        "Гид",
+        "Входные билеты"
+      ],
+      "after": [
+        "Трансфер из отеля и обратно в отель",
+        "Транспорт с кондиционером",
+        "Поездка на квадроцикле",
+        "Шлем и инструктаж по безопасности",
+        "Остановки в Долине Эха и у бедуинского шатра",
+        "Бедуинский чай",
+        "Гид",
+        "Входные билеты"
+      ]
+    },
+    {
+      "slug": "sunset-quad-bike",
+      "locale": "it",
+      "field": "shortDescription",
+      "before": "In quad tra le dune mentre il deserto si tinge d'oro, con Valle dell'Eco, tè beduino e giro in cammello al tramonto.",
+      "after": "In quad tra le dune mentre il deserto si tinge d'oro, con Valle dell'Eco, tè beduino al tramonto."
+    },
+    {
+      "slug": "sunset-quad-bike",
+      "locale": "it",
+      "field": "description",
+      "before": "Un breve tragitto ti porta al centro quad, dove le guide ti spiegano come guidare in sicurezza. Attraversi le dune verso le montagne dell'Eco mentre la luce diventa dorata, ti fermi alla Valle dell'Eco, ti rilassi con un tè beduino in una tenda e fai un giro in cammello al tramonto prima di tornare in hotel.",
+      "after": "Un breve tragitto ti porta al centro quad, dove le guide ti spiegano come guidare in sicurezza. Attraversi le dune verso le montagne dell'Eco mentre la luce diventa dorata, ti fermi alla Valle dell'Eco, ti rilassi con un tè beduino in una tenda prima di tornare in hotel."
+    },
+    {
+      "slug": "sunset-quad-bike",
+      "locale": "it",
+      "field": "includes",
+      "before": [
+        "Transfer da e per l'hotel",
+        "Trasporto con aria condizionata",
+        "Giro in quad",
+        "Giro in cammello",
+        "Casco e briefing di sicurezza",
+        "Soste alla Valle dell'Eco e in una tenda beduina",
+        "Tè beduino",
+        "Guida turistica",
+        "Biglietti d'ingresso"
+      ],
+      "after": [
+        "Transfer da e per l'hotel",
+        "Trasporto con aria condizionata",
+        "Giro in quad",
+        "Casco e briefing di sicurezza",
+        "Soste alla Valle dell'Eco e in una tenda beduina",
+        "Tè beduino",
+        "Guida turistica",
+        "Biglietti d'ingresso"
+      ]
+    },
+    {
+      "slug": "sharm-airport-transfer",
+      "locale": "en",
+      "field": "description",
+      "before": "Our driver collects you from your hotel reception and takes you directly to Sharm El Sheikh International Airport, or meets you on arrival. Choose the vehicle that fits your group: a sedan (€15), a higher SUV (€20) or a Hiace minibus (€35) — the price is per vehicle, not per person.",
+      "after": "Our driver collects you from your hotel reception and takes you directly to Sharm El Sheikh International Airport, or meets you on arrival. Choose the vehicle that fits your group: a sedan (€15), a higher SUV (€20) or a Hiace minibus (€30) — the price is per vehicle, not per person."
+    },
+    {
+      "slug": "sharm-airport-transfer",
+      "locale": "ar",
+      "field": "description",
+      "before": "يستقبلك سائقنا من مكتب الاستقبال في فندقك ويوصلك مباشرة إلى مطار شرم الشيخ الدولي، أو يستقبلك عند وصولك. اختر المركبة المناسبة لمجموعتك: سيدان (15 يورو) أو سيارة SUV مرتفعة (20 يورو) أو ميني باص هايس (35 يورو) — والسعر لكل مركبة وليس للفرد.",
+      "after": "يستقبلك سائقنا من مكتب الاستقبال في فندقك ويوصلك مباشرة إلى مطار شرم الشيخ الدولي، أو يستقبلك عند وصولك. اختر المركبة المناسبة لمجموعتك: سيدان (15 يورو) أو سيارة SUV مرتفعة (20 يورو) أو ميني باص هايس (30 يورو) — والسعر لكل مركبة وليس للفرد."
+    },
+    {
+      "slug": "sharm-airport-transfer",
+      "locale": "ru",
+      "field": "description",
+      "before": "Наш водитель встретит вас на ресепшене отеля и отвезёт прямо в международный аэропорт Шарм-эль-Шейха или встретит вас по прилёте. Выберите транспорт под вашу компанию: седан (€15), внедорожник с высокой посадкой (€20) или микроавтобус Hiace (€35) — цена указана за автомобиль, а не за человека.",
+      "after": "Наш водитель встретит вас на ресепшене отеля и отвезёт прямо в международный аэропорт Шарм-эль-Шейха или встретит вас по прилёте. Выберите транспорт под вашу компанию: седан (€15), внедорожник с высокой посадкой (€20) или микроавтобус Hiace (€30) — цена указана за автомобиль, а не за человека."
+    },
+    {
+      "slug": "sharm-airport-transfer",
+      "locale": "it",
+      "field": "description",
+      "before": "Il nostro autista ti viene a prendere alla reception del tuo hotel e ti porta direttamente all'aeroporto internazionale di Sharm El Sheikh, oppure ti accoglie al tuo arrivo. Scegli il veicolo adatto al tuo gruppo: una berlina (€15), un SUV più alto (€20) o un minibus Hiace (€35). Il prezzo è per veicolo, non per persona.",
+      "after": "Il nostro autista ti viene a prendere alla reception del tuo hotel e ti porta direttamente all'aeroporto internazionale di Sharm El Sheikh, oppure ti accoglie al tuo arrivo. Scegli il veicolo adatto al tuo gruppo: una berlina (€15), un SUV più alto (€20) o un minibus Hiace (€30). Il prezzo è per veicolo, non per persona."
+    }
+  ],
+  "pendingClarifications": [
+    {
+      "field": "submarine/glass-bottom-boat",
+      "question": "Does EUR40 apply to submarine only and glass boat stay EUR15?",
+      "noChangeUntilAnswer": true
+    },
+    {
+      "field": "sharm-airport-transfer:suv",
+      "question": "Keep existing SUV EUR20 or remove option?",
+      "noChangeUntilAnswer": true
+    }
+  ]
+}

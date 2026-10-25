@@ -38,13 +38,12 @@
       "slug": "sunset-quad-bike",
       "content": {
         "name": "Quad al tramonto",
-        "shortDescription": "In quad tra le dune mentre il deserto si tinge d'oro, con Valle dell'Eco, tè beduino e giro in cammello al tramonto.",
-        "description": "Un breve tragitto ti porta al centro quad, dove le guide ti spiegano come guidare in sicurezza. Attraversi le dune verso le montagne dell'Eco mentre la luce diventa dorata, ti fermi alla Valle dell'Eco, ti rilassi con un tè beduino in una tenda e fai un giro in cammello al tramonto prima di tornare in hotel.",
+        "shortDescription": "In quad tra le dune mentre il deserto si tinge d'oro, con Valle dell'Eco, tè beduino al tramonto.",
+        "description": "Un breve tragitto ti porta al centro quad, dove le guide ti spiegano come guidare in sicurezza. Attraversi le dune verso le montagne dell'Eco mentre la luce diventa dorata, ti fermi alla Valle dell'Eco, ti rilassi con un tè beduino in una tenda prima di tornare in hotel.",
         "includes": [
           "Transfer da e per l'hotel",
           "Trasporto con aria condizionata",
           "Giro in quad",
-          "Giro in cammello",
           "Casco e briefing di sicurezza",
           "Soste alla Valle dell'Eco e in una tenda beduina",
           "Tè beduino",
@@ -66,14 +65,13 @@
     {
       "slug": "double-buggy-camel-ride",
       "content": {
-        "name": "Buggy doppio e giro in cammello",
-        "shortDescription": "Guida un buggy a due posti tra le dune, fermati alla Valle dell'Eco e in una tenda beduina, poi fai un giro in cammello.",
-        "description": "Dopo un breve tragitto fino al centro buggy e un briefing di sicurezza, tu e il tuo partner guidate un buggy sulle dune verso le montagne dell'Eco. Vi fermate alla Valle dell'Eco e in una tenda beduina per il tè, fate un giro in cammello sulla sabbia e tornate in buggy al punto di partenza prima del trasferimento in hotel.",
+        "name": "Buggy doppio",
+        "shortDescription": "Guida un buggy a due posti tra le dune, fermati alla Valle dell'Eco e in una tenda beduina.",
+        "description": "Dopo un breve tragitto fino al centro buggy e un briefing di sicurezza, tu e il tuo partner guidate un buggy sulle dune verso le montagne dell'Eco. Vi fermate alla Valle dell'Eco e in una tenda beduina per il tè e tornate in buggy al punto di partenza prima del trasferimento in hotel.",
         "includes": [
           "Transfer da e per l'hotel",
           "Trasporto con aria condizionata",
           "Buggy a due posti",
-          "Giro in cammello",
           "Soste alla Valle dell'Eco e in una tenda beduina",
           "Tè beduino",
           "Attrezzatura di sicurezza",
@@ -732,7 +730,7 @@
       "content": {
         "name": "Transfer da e per l'aeroporto di Sharm",
         "shortDescription": "Transfer privato tra il tuo hotel e l'aeroporto di Sharm El Sheikh, in auto o minibus.",
-        "description": "Il nostro autista ti viene a prendere alla reception del tuo hotel e ti porta direttamente all'aeroporto internazionale di Sharm El Sheikh, oppure ti accoglie al tuo arrivo. Scegli il veicolo adatto al tuo gruppo: una berlina (€15), un SUV più alto (€20) o un minibus Hiace (€35). Il prezzo è per veicolo, non per persona.",
+        "description": "Il nostro autista ti viene a prendere alla reception del tuo hotel e ti porta direttamente all'aeroporto internazionale di Sharm El Sheikh, oppure ti accoglie al tuo arrivo. Scegli il veicolo adatto al tuo gruppo: una berlina (€15), un SUV più alto (€20) o un minibus Hiace (€30). Il prezzo è per veicolo, non per persona.",
         "includes": [
           "Veicolo privato per il tuo gruppo",
           "Autista professionista",
@@ -757,5 +755,6 @@
     "approvedBy": "Claude (delegated by owner Mohamed Wagdy, 2026-10-01)",
     "date": "2026-10-01",
     "basis": "independent native-level review vs EN source; facts spot-checked (snorkel rental extra fee, VIP tent included)"
-  }
+  },
+  "ownerCorrectionsApplied": "2026-10-25"
 }

@@ -43,13 +43,12 @@
       "slug": "sunset-quad-bike",
       "content": {
         "name": "Sunset Quad Bike",
-        "shortDescription": "Ride a quad bike across the dunes as the desert turns gold, with the Valley of Echo, Bedouin tea and a camel ride at sunset.",
-        "description": "A short drive takes you to the quad center, where guides brief you on safe riding. You ride through the dunes towards the Echo Mountains as the light turns golden, stop at the Valley of Echo, relax with Bedouin tea in a tent and take a camel ride at sunset before heading back to your hotel.",
+        "shortDescription": "Ride a quad bike across the dunes as the desert turns gold, with the Valley of Echo, Bedouin tea at sunset.",
+        "description": "A short drive takes you to the quad center, where guides brief you on safe riding. You ride through the dunes towards the Echo Mountains as the light turns golden, stop at the Valley of Echo, relax with Bedouin tea in a tent before heading back to your hotel.",
         "includes": [
           "Hotel pickup and drop-off",
           "Air-conditioned transport",
           "Quad bike ride",
-          "Camel ride",
           "Helmet and safety briefing",
           "Stops at the Valley of Echo and a Bedouin tent",
           "Bedouin tea",
@@ -76,14 +75,13 @@
     {
       "slug": "double-buggy-camel-ride",
       "content": {
-        "name": "Double Buggy & Camel Ride",
-        "shortDescription": "Drive a two-seat sand buggy through the dunes, stop at the Valley of Echo and a Bedouin tent, then ride a camel.",
-        "description": "After a short drive to the buggy center and a safety briefing, you and your partner drive a sand buggy across the dunes towards the Echo Mountains. You stop at the Valley of Echo and a Bedouin tent for tea, take a camel ride across the sand, and drive back to the start before your transfer to the hotel.",
+        "name": "Double Buggy",
+        "shortDescription": "Drive a two-seat sand buggy through the dunes, stop at the Valley of Echo and a Bedouin tent.",
+        "description": "After a short drive to the buggy center and a safety briefing, you and your partner drive a sand buggy across the dunes towards the Echo Mountains. You stop at the Valley of Echo and a Bedouin tent for tea and drive back to the start before your transfer to the hotel.",
         "includes": [
           "Hotel pickup and drop-off",
           "Air-conditioned transport",
           "Two-seat sand buggy",
-          "Camel ride",
           "Stops at the Valley of Echo and a Bedouin tent",
           "Bedouin tea",
           "Safety equipment",
@@ -894,7 +892,7 @@
       "content": {
         "name": "Sharm Airport Transfer",
         "shortDescription": "Private transfer between your hotel and Sharm El Sheikh airport by car or minibus.",
-        "description": "Our driver collects you from your hotel reception and takes you directly to Sharm El Sheikh International Airport, or meets you on arrival. Choose the vehicle that fits your group: a sedan (€15), a higher SUV (€20) or a Hiace minibus (€35) — the price is per vehicle, not per person.",
+        "description": "Our driver collects you from your hotel reception and takes you directly to Sharm El Sheikh International Airport, or meets you on arrival. Choose the vehicle that fits your group: a sedan (€15), a higher SUV (€20) or a Hiace minibus (€30) — the price is per vehicle, not per person.",
         "includes": [
           "Private vehicle for your group",
           "Professional driver",
@@ -913,5 +911,6 @@
         "ملاحظة تقنية: الحجز حاليًا بسعر واحد للفرد. اختيار نوع العربية (15/20/35) محتاج إضافة في نظام الحجز — هعملها في UX-4."
       ]
     }
-  ]
+  ],
+  "ownerCorrectionsApplied": "2026-10-25"
 }

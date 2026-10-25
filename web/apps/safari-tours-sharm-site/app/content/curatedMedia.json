@@ -209,31 +209,31 @@
     "sourceSha256": "1d6dd4896e3e60c880134763af58bc1a02568ec04b4120adb861e0c07e242530"
   },
   {
-    "id": "glass-boat-window",
-    "tour": "glass-bottom-boat",
-    "isCover": true,
+    "id": "submarine-viewing-window-gallery",
+    "tour": "submarine",
+    "isCover": false,
     "alt": {
       "en": "Guests looking through underwater viewing windows.",
       "ar": "ضيوف يشاهدون البحر عبر نوافذ الرؤية تحت الماء.",
       "ru": "Гости смотрят через подводные смотровые окна.",
       "it": "Ospiti osservano il mare dalle finestre subacquee."
     },
-    "path": "/images/catalog/glass-bottom-boat/glass-boat-window-1280.webp",
+    "path": "/images/catalog/submarine/submarine-viewing-window-gallery-1280.webp",
     "width": 1280,
     "height": 640,
     "variants": [
       {
-        "path": "/images/catalog/glass-bottom-boat/glass-boat-window-480.webp",
+        "path": "/images/catalog/submarine/submarine-viewing-window-gallery-480.webp",
         "width": 480,
         "height": 240
       },
       {
-        "path": "/images/catalog/glass-bottom-boat/glass-boat-window-960.webp",
+        "path": "/images/catalog/submarine/submarine-viewing-window-gallery-960.webp",
         "width": 960,
         "height": 480
       },
       {
-        "path": "/images/catalog/glass-bottom-boat/glass-boat-window-1280.webp",
+        "path": "/images/catalog/submarine/submarine-viewing-window-gallery-1280.webp",
         "width": 1280,
         "height": 640
       }
@@ -243,7 +243,7 @@
   {
     "id": "glass-boat-exterior",
     "tour": "glass-bottom-boat",
-    "isCover": false,
+    "isCover": true,
     "alt": {
       "en": "Illustrative photo: an example glass-bottom boat on the sea; the assigned boat may differ.",
       "ar": "صورة توضيحية: نموذج لقارب ذي أرضية زجاجية في البحر؛ القارب المخصص قد يختلف.",
@@ -929,7 +929,7 @@
   {
     "id": "transfer-van",
     "tour": "sharm-airport-transfer",
-    "isCover": true,
+    "isCover": false,
     "alt": {
       "en": "Illustrative photo: a passenger minivan; assigned vehicle is confirmed by the office.",
       "ar": "صورة توضيحية: ميني فان للركاب؛ المكتب يؤكد السيارة المخصصة.",
@@ -1427,5 +1427,32 @@
       }
     ],
     "sourceSha256": "9e57ee243d3fbb291ae47d7d25e97004f6cf65cb32fb257f8d9baac29bb5da97"
+  },
+  {
+    "id": "transfer-sedan-cover",
+    "tour": "sharm-airport-transfer",
+    "isCover": true,
+    "alt": {
+      "en": "Illustrative photo: a sedan car; the office confirms the assigned vehicle.",
+      "ar": "صورة توضيحية: سيارة سيدان صغيرة؛ المكتب يؤكد السيارة المخصصة.",
+      "ru": "Иллюстративное фото: легковой седан; назначенный автомобиль подтверждает офис.",
+      "it": "Foto illustrativa: una berlina; il veicolo assegnato viene confermato dall’ufficio."
+    },
+    "path": "/images/catalog/sharm-airport-transfer/transfer-sedan-cover-900.webp",
+    "width": 900,
+    "height": 500,
+    "variants": [
+      {
+        "path": "/images/catalog/sharm-airport-transfer/transfer-sedan-cover-480.webp",
+        "width": 480,
+        "height": 267
+      },
+      {
+        "path": "/images/catalog/sharm-airport-transfer/transfer-sedan-cover-900.webp",
+        "width": 900,
+        "height": 500
+      }
+    ],
+    "sourceSha256": "306441d9a33fa648d88c1f8372765e096ed56de15bbbab78d53cf02bb93171c1"
   }
 ]

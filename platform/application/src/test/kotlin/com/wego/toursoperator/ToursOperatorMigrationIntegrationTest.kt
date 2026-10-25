@@ -540,7 +540,7 @@ class ToursOperatorMigrationIntegrationTest(
                     .locations(*migrationLocations)
                     .load()
             upgraded.migrate()
-            assertThat(upgraded.info().applied().map { it.version.toString() }).contains("24", "25")
+            assertThat(upgraded.info().applied().map { it.version.toString() }).contains("24", "25", "36")
 
             upgradePostgres.createConnection("").use { connection ->
                 val dsl = DSL.using(connection, SQLDialect.POSTGRES)
@@ -558,7 +558,8 @@ class ToursOperatorMigrationIntegrationTest(
                         "SELECT price_adult_cents, price_basis, is_active, capacity, duration_text FROM wego.tours_operator_tour WHERE slug = ?",
                         slug,
                     )!!
-                assertThat(tour("sunset-quad-bike").get(0, Long::class.java)).isEqualTo(3500L)
+                // The upgrade runs to latest, including the owner's V36 price correction.
+                assertThat(tour("sunset-quad-bike").get(0, Long::class.java)).isEqualTo(1500L)
                 assertThat(tour("crocodile-show").get(2, Boolean::class.java)).isFalse()
                 assertThat(tour("evening-cruise").get(4, String::class.java)).isEqualTo("About 4 hours (18:00–22:00)")
                 assertThat(tour("double-buggy-camel-ride").get(1, String::class.java)).isEqualTo("PER_UNIT")
@@ -576,10 +577,10 @@ class ToursOperatorMigrationIntegrationTest(
                             """.trimIndent(),
                         ).map { "${it.get(0)}:${it.get(1)}:${it.get(2)}:${it.get(3)}" }
                 assertThat(options).containsExactly(
-                    "double-buggy-camel-ride:buggy:2:3000",
+                    "double-buggy-camel-ride:buggy:2:3500",
                     "sharm-airport-transfer:sedan:4:1500",
                     "sharm-airport-transfer:suv:4:2000",
-                    "sharm-airport-transfer:minibus:8:3500",
+                    "sharm-airport-transfer:minibus:8:3000",
                     "speed-boat-adventure:boat:5:15000",
                 )
 

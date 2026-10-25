@@ -7,6 +7,7 @@ not resolved silently — they become reviewFlags for the owner; nothing here is
 published until the owner approves it.
 """
 import json
+from pathlib import Path
 
 HOTEL = "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking."
 QUAD_BRING = ["Headscarf", "Sunglasses", "Comfortable closed shoes"]
@@ -268,9 +269,21 @@ t("sharm-airport-transfer", "Sharm Airport Transfer",
   flags=["ملاحظة تقنية: الحجز حاليًا بسعر واحد للفرد. اختيار نوع العربية (15/20/35) محتاج إضافة في نظام الحجز — هعملها في UX-4."]),
 ]
 
+# Preserve the latest explicit owner corrections when rebuilding legacy drafts.
+revision_path = Path(__file__).resolve().parents[2] / "marketing/owner-corrections/2026-10-25_catalog-revision.json"
+revision = json.loads(revision_path.read_text())
+for patch in revision["contentPatches"]:
+    if patch["locale"] != "en":
+        continue
+    content = next(tour["content"] for tour in tours if tour["slug"] == patch["slug"])
+    if content[patch["field"]] not in [patch["before"], patch["after"]]:
+        raise ValueError("Owner correction requires draft content re-review")
+    content[patch["field"]] = patch["after"]
+
 assert len(tours) == 30 and len({x["slug"] for x in tours}) == 30
 out = {
     "schemaVersion": 1,
+    "ownerCorrectionsApplied": "2026-10-25",
     "status": "OWNER_APPROVED",
     "approval": "Owner reviewed owner-edited-2026-09-30.xlsx and delegated the remaining decisions to Claude in writing on 2026-09-30 ('كمل شغلك ومعاك إذن صريح … التفكير والاقتراح والإضافة'). Claude's decisions are recorded as 'قراري' notes per tour.",
     "locale": "en",
