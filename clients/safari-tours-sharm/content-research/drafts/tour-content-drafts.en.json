@@ -22,20 +22,30 @@
           "Tour guide",
           "Entrance fees"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "Headscarf",
           "Sunglasses",
           "Comfortable closed shoes",
           "Not suitable for pregnant women or people with back or heart problems.",
-          "Children under 10 ride only as passengers with an accompanying adult."
+          "Children under 10 ride only as passengers with an accompanying adult.",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
         "hotelPickup": "INCLUDED",
-        "childrenAllowed": true
+        "childrenAllowed": true,
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": []
     },
@@ -55,20 +65,30 @@
           "Tour guide",
           "Entrance fees"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "Headscarf",
           "Sunglasses",
           "Comfortable closed shoes",
           "Not suitable for pregnant women or people with back or heart problems.",
-          "Children under 10 ride only as passengers with an accompanying adult."
+          "Children under 10 ride only as passengers with an accompanying adult.",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
         "hotelPickup": "INCLUDED",
-        "childrenAllowed": true
+        "childrenAllowed": true,
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": []
     },
@@ -88,21 +108,31 @@
           "Tour guide",
           "Entrance fees"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "Headscarf",
           "Sunglasses",
           "Comfortable closed shoes",
           "Not suitable for pregnant women or people with back or heart problems.",
           "Children under 10 ride only as passengers with an accompanying adult.",
-          "The price is per buggy, which seats two."
+          "The price is per buggy, which seats two.",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
         "hotelPickup": "INCLUDED",
-        "childrenAllowed": true
+        "childrenAllowed": true,
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": []
     },
@@ -122,17 +152,27 @@
           "Tour guide",
           "Entrance fees"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "Comfortable clothes and shoes",
-          "A light jacket for the evening"
+          "A light jacket for the evening",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
         "hotelPickup": "INCLUDED",
-        "childrenAllowed": true
+        "childrenAllowed": true,
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": [
         "محمد 2026-10-01: «العشاء البدوي في الخاص في اي بي انكلوديت» — الخيمة الخاصة VIP مشمولة."
@@ -154,19 +194,29 @@
           "Free time in Dahab",
           "Local guide"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "Passport",
           "Snorkeling gear",
           "Drinking water",
           "Comfortable shoes",
-          "Towel and swimwear"
+          "Towel and swimwear",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
-        "hotelPickup": "INCLUDED"
+        "hotelPickup": "INCLUDED",
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": []
     },
@@ -182,18 +232,28 @@
           "Photo stop",
           "Local guide"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "Comfortable clothes",
           "Sun protection",
-          "Help is available to get on and off the camel."
+          "Help is available to get on and off the camel.",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
         "hotelPickup": "INCLUDED",
-        "childrenAllowed": true
+        "childrenAllowed": true,
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": []
     },
@@ -215,20 +275,29 @@
         ],
         "excludes": [
           "Snorkeling equipment (available to rent for an extra fee)",
-          "Introductory dive (optional, extra charge)"
+          "Introductory dive (optional, extra charge)",
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
         ],
         "knowBeforeYouGo": [
           "Sunglasses, sunscreen and a towel",
           "Passport or ID (a copy is accepted)",
           "Scuba diving is not suitable for children under 10 or pregnant women.",
-          "Plans may change with sea and weather conditions."
+          "Plans may change with sea and weather conditions.",
+          "Book at least one day in advance."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
         "hotelPickup": "INCLUDED",
-        "minimumAge": null
+        "minimumAge": null,
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": [
         "محمد 2026-10-01: إيجار معدات السنوركل بفلوس إضافية."
@@ -247,18 +316,28 @@
           "Soft drinks",
           "Music and show"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "Warm clothes in winter",
           "Passport",
           "Smart casual clothing is recommended.",
-          "Subject to weather conditions."
+          "Subject to weather conditions.",
+          "Book at least one day in advance."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
-        "hotelPickup": "INCLUDED"
+        "hotelPickup": "INCLUDED",
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": []
     },
@@ -274,19 +353,30 @@
           "Glass-bottom boat trip",
           "Entrance fees"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "Sunglasses and water",
           "Passport or ID (a copy is accepted)",
           "Not wheelchair accessible; strollers are fine and infants sit on laps.",
-          "Subject to sea conditions."
+          "Subject to sea conditions.",
+          "Book at least one day in advance.",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
         "hotelPickup": "INCLUDED",
-        "childrenAllowed": true
+        "childrenAllowed": true,
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": [
         "قراري: ماكتبتش المشروبات والمرشد في المشمول (مش مؤكدين) — لو مشمولين قولي نضيفهم."
@@ -303,16 +393,28 @@
           "Diving equipment",
           "Multiple dives"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "An Open Water certification is required.",
           "A medical declaration may be required.",
-          "Not suitable for beginners."
+          "Not suitable for beginners.",
+          "Book at least one day in advance.",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel or meeting at the dive center — confirmed on WhatsApp after booking.",
         "stops": []
       },
-      "facts": {},
+      "facts": {
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
+      },
       "reviewFlags": []
     },
     {
@@ -388,21 +490,32 @@
           "Soft drinks",
           "Professional crew"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "Swimwear",
           "Towel",
           "Sunscreen",
           "Sunglasses",
           "Limited number of guests on board.",
-          "Subject to weather and sea conditions."
+          "Subject to weather and sea conditions.",
+          "Book at least one day in advance.",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
         "hotelPickup": "INCLUDED",
-        "childrenAllowed": true
+        "childrenAllowed": true,
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": []
     },
@@ -419,19 +532,28 @@
           "Ras Mohammed National Park entrance fees"
         ],
         "excludes": [
-          "Food and drinks"
+          "Food and drinks",
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
         ],
         "knowBeforeYouGo": [
           "Snorkeling gear, swimwear and a towel",
           "Snacks and water",
-          "Sunglasses, sunscreen and comfortable shoes"
+          "Sunglasses, sunscreen and comfortable shoes",
+          "Book at least one day in advance."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
         "hotelPickup": "INCLUDED",
-        "childrenAllowed": true
+        "childrenAllowed": true,
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": []
     },
@@ -447,19 +569,30 @@
           "Banana boat ride",
           "Life jacket and safety briefing"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "Sun hat, sunglasses and a towel",
           "Basic swimming skills are recommended.",
           "Not suitable for pregnant women or people with back or heart problems.",
-          "Not suitable for children under 10."
+          "Not suitable for children under 10.",
+          "Book at least one day in advance.",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
         "hotelPickup": "INCLUDED",
-        "minimumAge": 10
+        "minimumAge": 10,
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": []
     },
@@ -477,19 +610,30 @@
           "Safety equipment",
           "Professional crew"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "Sun hat, sunglasses and a towel",
           "Not suitable for pregnant women or people with back or heart problems.",
           "Not suitable for children under 10.",
-          "Weather dependent."
+          "Weather dependent.",
+          "Book at least one day in advance.",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
         "hotelPickup": "INCLUDED",
-        "minimumAge": 10
+        "minimumAge": 10,
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": []
     },
@@ -508,19 +652,28 @@
         ],
         "excludes": [
           "Tips for the captain",
-          "Personal expenses"
+          "Personal expenses",
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
         ],
         "knowBeforeYouGo": [
-          "Book at least 2 days in advance.",
+          "Book at least one day in advance.",
           "Up to 5 people per boat; the price is per boat.",
           "Not suitable for pregnant women or people with back or neck problems.",
-          "Subject to sea and weather conditions."
+          "Subject to sea and weather conditions.",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
-        "hotelPickup": "INCLUDED"
+        "hotelPickup": "INCLUDED",
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": [
         "قراري: المدة «3 ساعات مركب خاص» (تناسب سعر 150€ للمركب) — لو غلط قولي."
@@ -539,19 +692,30 @@
           "Tour guide",
           "Entrance fees"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "Passport or ID (a copy is accepted)",
           "A bottle of water",
           "Not suitable for wheelchair users.",
-          "Subject to sea and weather conditions."
+          "Subject to sea and weather conditions.",
+          "Book at least one day in advance.",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
         "hotelPickup": "INCLUDED",
-        "childrenAllowed": true
+        "childrenAllowed": true,
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": []
     },
@@ -571,19 +735,28 @@
         ],
         "excludes": [
           "Snorkeling equipment (available to rent for an extra fee)",
-          "Introductory dive (optional, extra charge)"
+          "Introductory dive (optional, extra charge)",
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
         ],
         "knowBeforeYouGo": [
           "Sunglasses, sunscreen and a towel",
           "Passport or ID (a copy is accepted)",
-          "Scuba diving is not suitable for children under 10 or pregnant women."
+          "Scuba diving is not suitable for children under 10 or pregnant women.",
+          "Book at least one day in advance."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
         "hotelPickup": "INCLUDED",
-        "childrenAllowed": true
+        "childrenAllowed": true,
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": []
     },
@@ -599,19 +772,30 @@
           "Tube ride",
           "Life jacket and safety briefing"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "Sun hat, sunglasses and a towel",
           "Basic swimming skills are recommended.",
           "Not suitable for pregnant women or people with back or heart problems.",
-          "Not suitable for children under 10."
+          "Not suitable for children under 10.",
+          "Book at least one day in advance.",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
         "hotelPickup": "INCLUDED",
-        "minimumAge": 10
+        "minimumAge": 10,
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": []
     },
@@ -628,17 +812,27 @@
           "Entrance fees to the sites in the program",
           "Lunch and drinks"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "Passport",
           "Comfortable clothing, a hat and sunscreen",
-          "It is a very long day with many hours on the road."
+          "It is a very long day with many hours on the road.",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
-        "hotelPickup": "INCLUDED"
+        "hotelPickup": "INCLUDED",
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": [
         "قراري: المدة 20–24 ساعة زي الكتالوج (الطريق من شرم طويل). وصلّحت عمر الأهرامات الغلط."
@@ -660,7 +854,10 @@
         "excludes": [
           "Drinks at the restaurant",
           "Optional felucca ride on the Nile",
-          "Entry inside the two larger pyramids"
+          "Entry inside the two larger pyramids",
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
         ],
         "knowBeforeYouGo": [
           "Passport (required for the flight)",
@@ -673,7 +870,9 @@
       "facts": {
         "hotelPickup": "INCLUDED",
         "guideLanguages": [
-          "en"
+          "en",
+          "it",
+          "ru"
         ]
       },
       "reviewFlags": [
@@ -692,7 +891,11 @@
           "Guided climb",
           "Visit to St. Catherine's Monastery"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "Passport or ID",
           "Hiking shoes and a warm jacket (it is cold at the top, especially in winter)",
@@ -705,7 +908,12 @@
       },
       "facts": {
         "hotelPickup": "INCLUDED",
-        "childrenAllowed": false
+        "childrenAllowed": false,
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": [
         "قراري: الأحد والأربع والجمعة — المواعيد في النظام هتتفتح الأيام دي بس."
@@ -726,18 +934,27 @@
         ],
         "excludes": [
           "Special tombs such as Tutankhamun's",
-          "Personal expenses and tips"
+          "Personal expenses and tips",
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
         ],
         "knowBeforeYouGo": [
           "Passport (required for the flight)",
           "Comfortable walking shoes",
-          "Hat, sunglasses and sunscreen"
+          "Hat, sunglasses and sunscreen",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
-        "hotelPickup": "INCLUDED"
+        "hotelPickup": "INCLUDED",
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": [
         "قراري: السعر المعروض €280 زي الكتالوج."
@@ -755,9 +972,14 @@
           "Visit to St. Catherine's Monastery",
           "Lunch in Dahab",
           "Free time in Dahab",
-          "Local guide"
+          "Local guide",
+          "Dinner"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "Passport",
           "Comfortable walking shoes",
@@ -767,7 +989,12 @@
         "stops": []
       },
       "facts": {
-        "hotelPickup": "INCLUDED"
+        "hotelPickup": "INCLUDED",
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": [
         "قراري: الأيام الاتنين والخميس والسبت. شِلت «مطعم 4 نجوم» لحد ما تتأكد."
@@ -787,17 +1014,27 @@
           "Body massage",
           "Towels"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "For adults.",
-          "Book ahead in high season."
+          "Book ahead in high season.",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
         "hotelPickup": "INCLUDED",
-        "childrenAllowed": false
+        "childrenAllowed": false,
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": [
         "قراري: ماكتبتش مدة المساج (30 ولا 50 متعارضين) — لو عايز نكتبها قولي."
@@ -814,17 +1051,27 @@
           "Air-conditioned transport",
           "Show entrance ticket"
         ],
-        "excludes": [],
+        "excludes": [
+          "Photography",
+          "Headscarf",
+          "Sunglasses"
+        ],
         "knowBeforeYouGo": [
           "Photography only in designated areas.",
-          "Show times may vary by season."
+          "The show starts at a fixed time: 14:30.",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
         "hotelPickup": "INCLUDED",
-        "childrenAllowed": true
+        "childrenAllowed": true,
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": [
         "قراري: العرض مستمر. شِلت ادعاء «جهود الحماية» لأنه محتاج دليل."
@@ -844,19 +1091,27 @@
           "Life jacket"
         ],
         "excludes": [
-          "Professional photos and videos (available to buy)"
+          "Professional photos and videos (available to buy)",
+          "Headscarf",
+          "Sunglasses"
         ],
         "knowBeforeYouGo": [
           "Swimwear, towel, sunglasses and sunscreen",
           "Phones are not allowed while swimming.",
-          "Non-swimmers may need assistance."
+          "Non-swimmers may need assistance.",
+          "Runs every day."
         ],
         "meetingPoint": "Pickup from your hotel in Sharm El Sheikh; the exact time is confirmed on WhatsApp after booking.",
         "stops": []
       },
       "facts": {
         "hotelPickup": "INCLUDED",
-        "childrenAllowed": true
+        "childrenAllowed": true,
+        "guideLanguages": [
+          "en",
+          "it",
+          "ru"
+        ]
       },
       "reviewFlags": []
     },
@@ -892,7 +1147,7 @@
       "content": {
         "name": "Sharm Airport Transfer",
         "shortDescription": "Private transfer between your hotel and Sharm El Sheikh airport by car or minibus.",
-        "description": "Our driver collects you from your hotel reception and takes you directly to Sharm El Sheikh International Airport, or meets you on arrival. Choose the vehicle that fits your group: a sedan (€15), a higher SUV (€20) or a Hiace minibus (€30) — the price is per vehicle, not per person.",
+        "description": "Our driver collects you from your hotel reception and takes you directly to Sharm El Sheikh International Airport, or meets you on arrival. Choose the vehicle that fits your group: a sedan (€15) or a Hiace minibus (€30) — the price is per vehicle, not per person.",
         "includes": [
           "Private vehicle for your group",
           "Professional driver",
@@ -903,7 +1158,7 @@
           "Please send your flight details when booking.",
           "Sedan: up to 4 people and 3 suitcases. Hiace minibus: up to 8 guests."
         ],
-        "meetingPoint": "Your hotel reception, or the arrivals hall at Sharm El Sheikh airport.",
+        "meetingPoint": "Your hotel reception, or the arrivals hall at Sharm El Sheikh airport. We confirm your hotel pickup time on WhatsApp.",
         "stops": []
       },
       "facts": {},

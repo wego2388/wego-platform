@@ -22,13 +22,18 @@
           "Guida turistica",
           "Biglietti d'ingresso"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "Foulard per la testa",
           "Occhiali da sole",
           "Scarpe comode e chiuse",
           "Non adatto a donne in gravidanza o a persone con problemi alla schiena o al cuore.",
-          "I bambini sotto i 10 anni salgono solo come passeggeri, con un adulto accompagnatore."
+          "I bambini sotto i 10 anni salgono solo come passeggeri, con un adulto accompagnatore.",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -50,13 +55,18 @@
           "Guida turistica",
           "Biglietti d'ingresso"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "Foulard per la testa",
           "Occhiali da sole",
           "Scarpe comode e chiuse",
           "Non adatto a donne in gravidanza o a persone con problemi alla schiena o al cuore.",
-          "I bambini sotto i 10 anni salgono solo come passeggeri, con un adulto accompagnatore."
+          "I bambini sotto i 10 anni salgono solo come passeggeri, con un adulto accompagnatore.",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -78,14 +88,19 @@
           "Guida turistica",
           "Biglietti d'ingresso"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "Foulard per la testa",
           "Occhiali da sole",
           "Scarpe comode e chiuse",
           "Non adatto a donne in gravidanza o a persone con problemi alla schiena o al cuore.",
           "I bambini sotto i 10 anni salgono solo come passeggeri, con un adulto accompagnatore.",
-          "Il prezzo è per buggy, che ha due posti."
+          "Il prezzo è per buggy, che ha due posti.",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -107,10 +122,15 @@
           "Guida turistica",
           "Biglietti d'ingresso"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "Abbigliamento e scarpe comodi",
-          "Una giacca leggera per la sera"
+          "Una giacca leggera per la sera",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -132,13 +152,18 @@
           "Tempo libero a Dahab",
           "Guida locale"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "Passaporto",
           "Attrezzatura per lo snorkeling",
           "Acqua da bere",
           "Scarpe comode",
-          "Telo mare e costume da bagno"
+          "Telo mare e costume da bagno",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -156,11 +181,16 @@
           "Sosta per le foto",
           "Guida locale"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "Abbigliamento comodo",
           "Protezione solare",
-          "È disponibile aiuto per salire e scendere dal cammello."
+          "È disponibile aiuto per salire e scendere dal cammello.",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -184,13 +214,17 @@
         ],
         "excludes": [
           "Attrezzatura per lo snorkeling (noleggio disponibile con supplemento)",
-          "Battesimo del mare (facoltativo, con supplemento)"
+          "Battesimo del mare (facoltativo, con supplemento)",
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
         ],
         "knowBeforeYouGo": [
           "Occhiali da sole, crema solare e telo mare",
           "Passaporto o documento d'identità (è accettata una copia)",
           "Le immersioni con bombole non sono adatte a bambini sotto i 10 anni né a donne in gravidanza.",
-          "Il programma può cambiare in base alle condizioni del mare e del meteo."
+          "Il programma può cambiare in base alle condizioni del mare e del meteo.",
+          "Prenota con almeno 1 giorno di anticipo."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -209,12 +243,17 @@
           "Bevande analcoliche",
           "Musica e spettacolo"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "Abiti caldi in inverno",
           "Passaporto",
           "Si consiglia un abbigliamento elegante ma casual.",
-          "Soggetto alle condizioni meteo."
+          "Soggetto alle condizioni meteo.",
+          "Prenota con almeno 1 giorno di anticipo."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -232,12 +271,18 @@
           "Gita in barca con fondo di vetro",
           "Biglietti d'ingresso"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "Occhiali da sole e acqua",
           "Passaporto o documento d'identità (è accettata una copia)",
           "Non accessibile a persone in sedia a rotelle; i passeggini sono ammessi e i neonati stanno in braccio.",
-          "Soggetto alle condizioni del mare."
+          "Soggetto alle condizioni del mare.",
+          "Prenota con almeno 1 giorno di anticipo.",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -254,11 +299,17 @@
           "Attrezzatura per l'immersione",
           "Diverse immersioni"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "È richiesto il brevetto Open Water.",
           "Potrebbe essere richiesta una dichiarazione medica.",
-          "Non adatto ai principianti."
+          "Non adatto ai principianti.",
+          "Prenota con almeno 1 giorno di anticipo.",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel oppure ci incontriamo al centro immersioni; tutto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -327,14 +378,20 @@
           "Bevande analcoliche",
           "Equipaggio professionale"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "Costume da bagno",
           "Telo mare",
           "Crema solare",
           "Occhiali da sole",
           "Numero limitato di ospiti a bordo.",
-          "Soggetto alle condizioni meteo e del mare."
+          "Soggetto alle condizioni meteo e del mare.",
+          "Prenota con almeno 1 giorno di anticipo.",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -353,12 +410,16 @@
           "Biglietti d'ingresso al Parco Nazionale di Ras Mohammed"
         ],
         "excludes": [
-          "Cibo e bevande"
+          "Cibo e bevande",
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
         ],
         "knowBeforeYouGo": [
           "Attrezzatura per lo snorkeling, costume da bagno e telo mare",
           "Snack e acqua",
-          "Occhiali da sole, crema solare e scarpe comode"
+          "Occhiali da sole, crema solare e scarpe comode",
+          "Prenota con almeno 1 giorno di anticipo."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -376,12 +437,18 @@
           "Giro in banana boat",
           "Giubbotto di salvataggio e briefing di sicurezza"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "Cappello, occhiali da sole e telo mare",
           "Si consiglia di saper nuotare almeno a livello base.",
           "Non adatto a donne in gravidanza o a persone con problemi alla schiena o al cuore.",
-          "Non adatto a bambini sotto i 10 anni."
+          "Non adatto a bambini sotto i 10 anni.",
+          "Prenota con almeno 1 giorno di anticipo.",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -401,12 +468,18 @@
           "Attrezzatura di sicurezza",
           "Equipaggio professionale"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "Cappello, occhiali da sole e telo mare",
           "Non adatto a donne in gravidanza o a persone con problemi alla schiena o al cuore.",
           "Non adatto a bambini sotto i 10 anni.",
-          "Soggetto alle condizioni meteo."
+          "Soggetto alle condizioni meteo.",
+          "Prenota con almeno 1 giorno di anticipo.",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -427,13 +500,17 @@
         ],
         "excludes": [
           "Mance per il capitano",
-          "Spese personali"
+          "Spese personali",
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
         ],
         "knowBeforeYouGo": [
-          "Prenota con almeno 2 giorni di anticipo.",
+          "Prenota con almeno 1 giorno di anticipo.",
           "Fino a 5 persone per barca; il prezzo è per barca.",
           "Non adatto a donne in gravidanza o a persone con problemi alla schiena o al collo.",
-          "Soggetto alle condizioni del mare e del meteo."
+          "Soggetto alle condizioni del mare e del meteo.",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -452,12 +529,18 @@
           "Guida turistica",
           "Biglietti d'ingresso"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "Passaporto o documento d'identità (è accettata una copia)",
           "Una bottiglia d'acqua",
           "Non adatto a persone in sedia a rotelle.",
-          "Soggetto alle condizioni del mare e del meteo."
+          "Soggetto alle condizioni del mare e del meteo.",
+          "Prenota con almeno 1 giorno di anticipo.",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -479,12 +562,16 @@
         ],
         "excludes": [
           "Attrezzatura per lo snorkeling (noleggio disponibile con supplemento)",
-          "Battesimo del mare (facoltativo, con supplemento)"
+          "Battesimo del mare (facoltativo, con supplemento)",
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
         ],
         "knowBeforeYouGo": [
           "Occhiali da sole, crema solare e telo mare",
           "Passaporto o documento d'identità (è accettata una copia)",
-          "Le immersioni con bombole non sono adatte a bambini sotto i 10 anni né a donne in gravidanza."
+          "Le immersioni con bombole non sono adatte a bambini sotto i 10 anni né a donne in gravidanza.",
+          "Prenota con almeno 1 giorno di anticipo."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -502,12 +589,18 @@
           "Giro sul tubo gonfiabile",
           "Giubbotto di salvataggio e briefing di sicurezza"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "Cappello, occhiali da sole e telo mare",
           "Si consiglia di saper nuotare almeno a livello base.",
           "Non adatto a donne in gravidanza o a persone con problemi alla schiena o al cuore.",
-          "Non adatto a bambini sotto i 10 anni."
+          "Non adatto a bambini sotto i 10 anni.",
+          "Prenota con almeno 1 giorno di anticipo.",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -526,11 +619,16 @@
           "Biglietti d'ingresso ai siti del programma",
           "Pranzo e bevande"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "Passaporto",
           "Abbigliamento comodo, cappello e crema solare",
-          "È una giornata molto lunga, con molte ore di viaggio su strada."
+          "È una giornata molto lunga, con molte ore di viaggio su strada.",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -552,7 +650,10 @@
         "excludes": [
           "Bevande al ristorante",
           "Giro facoltativo in feluca sul Nilo",
-          "Ingresso all'interno delle due piramidi più grandi"
+          "Ingresso all'interno delle due piramidi più grandi",
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
         ],
         "knowBeforeYouGo": [
           "Passaporto (necessario per il volo)",
@@ -575,7 +676,11 @@
           "Salita guidata",
           "Visita al Monastero di Santa Caterina"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "Passaporto o documento d'identità",
           "Scarponcini da trekking e giacca calda (in cima fa freddo, soprattutto in inverno)",
@@ -602,12 +707,16 @@
         ],
         "excludes": [
           "Tombe speciali, come quella di Tutankhamon",
-          "Spese personali e mance"
+          "Spese personali e mance",
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
         ],
         "knowBeforeYouGo": [
           "Passaporto (necessario per il volo)",
           "Scarpe comode per camminare",
-          "Cappello, occhiali da sole e crema solare"
+          "Cappello, occhiali da sole e crema solare",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -625,9 +734,14 @@
           "Visita al Monastero di Santa Caterina",
           "Pranzo a Dahab",
           "Tempo libero a Dahab",
-          "Guida locale"
+          "Guida locale",
+          "Cena"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "Passaporto",
           "Scarpe comode per camminare",
@@ -651,10 +765,15 @@
           "Massaggio al corpo",
           "Asciugamani"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "Per adulti.",
-          "Prenota in anticipo in alta stagione."
+          "Prenota in anticipo in alta stagione.",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -671,10 +790,15 @@
           "Trasporto con aria condizionata",
           "Biglietto d'ingresso allo spettacolo"
         ],
-        "excludes": [],
+        "excludes": [
+          "Foto e riprese",
+          "Foulard per la testa",
+          "Occhiali da sole"
+        ],
         "knowBeforeYouGo": [
           "Foto consentite solo nelle aree designate.",
-          "Gli orari dello spettacolo possono variare in base alla stagione."
+          "Lo spettacolo ha un orario fisso: 14:30.",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -694,12 +818,15 @@
           "Giubbotto di salvataggio"
         ],
         "excludes": [
-          "Foto e video professionali (disponibili all'acquisto)"
+          "Foto e video professionali (disponibili all'acquisto)",
+          "Foulard per la testa",
+          "Occhiali da sole"
         ],
         "knowBeforeYouGo": [
           "Costume da bagno, telo mare, occhiali da sole e crema solare",
           "I telefoni non sono ammessi durante il nuoto.",
-          "Chi non sa nuotare potrebbe aver bisogno di assistenza."
+          "Chi non sa nuotare potrebbe aver bisogno di assistenza.",
+          "Si svolge ogni giorno."
         ],
         "meetingPoint": "Ti veniamo a prendere in hotel a Sharm El Sheikh; l'orario esatto viene confermato su WhatsApp dopo la prenotazione.",
         "stops": []
@@ -730,7 +857,7 @@
       "content": {
         "name": "Transfer da e per l'aeroporto di Sharm",
         "shortDescription": "Transfer privato tra il tuo hotel e l'aeroporto di Sharm El Sheikh, in auto o minibus.",
-        "description": "Il nostro autista ti viene a prendere alla reception del tuo hotel e ti porta direttamente all'aeroporto internazionale di Sharm El Sheikh, oppure ti accoglie al tuo arrivo. Scegli il veicolo adatto al tuo gruppo: una berlina (€15), un SUV più alto (€20) o un minibus Hiace (€30). Il prezzo è per veicolo, non per persona.",
+        "description": "Il nostro autista ti viene a prendere alla reception del tuo hotel e ti porta direttamente all'aeroporto internazionale di Sharm El Sheikh, oppure ti accoglie al tuo arrivo. Scegli il veicolo adatto al tuo gruppo: una berlina (€15) o un minibus Hiace (€30). Il prezzo è per veicolo, non per persona.",
         "includes": [
           "Veicolo privato per il tuo gruppo",
           "Autista professionista",
@@ -741,7 +868,7 @@
           "Invia i dati del tuo volo al momento della prenotazione.",
           "Berlina: fino a 4 persone e 3 valigie. Minibus Hiace: fino a 8 ospiti."
         ],
-        "meetingPoint": "La reception del tuo hotel, oppure la sala arrivi dell'aeroporto di Sharm El Sheikh.",
+        "meetingPoint": "La reception del tuo hotel, oppure la sala arrivi dell'aeroporto di Sharm El Sheikh. Ti confermiamo l'orario di ritiro in hotel su WhatsApp.",
         "stops": []
       }
     }

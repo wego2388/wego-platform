@@ -540,7 +540,7 @@ class ToursOperatorMigrationIntegrationTest(
                     .locations(*migrationLocations)
                     .load()
             upgraded.migrate()
-            assertThat(upgraded.info().applied().map { it.version.toString() }).contains("24", "25", "36")
+            assertThat(upgraded.info().applied().map { it.version.toString() }).contains("24", "25", "36", "37")
 
             upgradePostgres.createConnection("").use { connection ->
                 val dsl = DSL.using(connection, SQLDialect.POSTGRES)
@@ -579,7 +579,6 @@ class ToursOperatorMigrationIntegrationTest(
                 assertThat(options).containsExactly(
                     "double-buggy-camel-ride:buggy:2:3500",
                     "sharm-airport-transfer:sedan:4:1500",
-                    "sharm-airport-transfer:suv:4:2000",
                     "sharm-airport-transfer:minibus:8:3000",
                     "speed-boat-adventure:boat:5:15000",
                 )

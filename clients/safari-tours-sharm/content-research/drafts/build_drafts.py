@@ -280,6 +280,23 @@ for patch in revision["contentPatches"]:
         raise ValueError("Owner correction requires draft content re-review")
     content[patch["field"]] = patch["after"]
 
+# Part 2 (owner answers, 2026-10-25): exclusions, meals, operating days, advance
+# booking, show time, pickup wording, SUV removal and guide languages.
+part2_path = Path(__file__).resolve().parents[2] / "marketing/owner-corrections/2026-10-25_catalog-revision-part2.json"
+part2 = json.loads(part2_path.read_text())
+for patch in part2["contentPatches"]:
+    if patch["locale"] != "en":
+        continue
+    content = next(tour["content"] for tour in tours if tour["slug"] == patch["slug"])
+    if content[patch["field"]] not in [patch["before"], patch["after"]]:
+        raise ValueError("Owner part-2 correction requires draft content re-review")
+    content[patch["field"]] = patch["after"]
+for patch in part2["factPatches"]:
+    facts = next(tour["facts"] for tour in tours if tour["slug"] == patch["slug"])
+    if facts.get(patch["field"], []) not in [patch["before"], patch["after"]]:
+        raise ValueError("Owner part-2 facts require draft re-review")
+    facts[patch["field"]] = patch["after"]
+
 assert len(tours) == 30 and len({x["slug"] for x in tours}) == 30
 out = {
     "schemaVersion": 1,

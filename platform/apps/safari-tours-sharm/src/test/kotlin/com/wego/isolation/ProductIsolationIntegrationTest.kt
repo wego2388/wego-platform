@@ -52,6 +52,7 @@ class ProductIsolationIntegrationTest(
                 "34",
                 "35",
                 "36",
+                "37",
             )
 
         postgres.createConnection("").use { connection ->

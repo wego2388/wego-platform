@@ -59,6 +59,9 @@ val stageSelectedMigrations by tasks.registering(Sync::class) {
     from(sharedMigrationDirectory.resolve("data/V36__tours_operator_owner_catalog_corrections.sql")) {
         into("db/migration/data")
     }
+    from(sharedMigrationDirectory.resolve("data/V37__tours_operator_owner_catalog_revision_part2.sql")) {
+        into("db/migration/data")
+    }
 }
 val stageJooqMigrations by tasks.registering(Sync::class) {
     into(generatedJooqMigrations)
