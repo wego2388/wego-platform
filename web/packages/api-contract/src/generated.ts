@@ -2904,7 +2904,7 @@ export interface paths {
         put?: never;
         /**
          * Add a cost component
-         * @description Requires tours-operator.cost:manage. Effective-dated, in EGP or EUR; never edited afterwards (replace or end it).
+         * @description Requires tours-operator.cost:manage. Effective-dated, in EGP or EUR; never edited afterwards (replace or end it). A change effective before today (Cairo) also needs tours-operator.settlement:approve (403 backdated_cost_needs_approval): it restates past profit and payables.
          */
         post: operations["createToursOperatorCost"];
         delete?: never;
@@ -2924,7 +2924,7 @@ export interface paths {
         put?: never;
         /**
          * Change a cost from a date
-         * @description Requires tours-operator.cost:manage. Ends the component the day before validFrom and adds the new value from validFrom (keeping the old end). Same owner and category only.
+         * @description Requires tours-operator.cost:manage. Ends the component the day before validFrom and adds the new value from validFrom (keeping the old end). Same owner and category only. A change effective before today (Cairo) also needs tours-operator.settlement:approve (403 backdated_cost_needs_approval): it restates past profit and payables.
          */
         post: operations["replaceToursOperatorCost"];
         delete?: never;
@@ -2944,7 +2944,7 @@ export interface paths {
         put?: never;
         /**
          * End a cost component
-         * @description Requires tours-operator.cost:manage. lastDay is inclusive; validFrom − 1 withdraws one that never applied. A component is ended once.
+         * @description Requires tours-operator.cost:manage. lastDay is inclusive; validFrom − 1 withdraws one that never applied. A component is ended once. Ending so that the component stops applying before today (lastDay + 1 is before today, Cairo) also needs tours-operator.settlement:approve (403 backdated_cost_needs_approval).
          */
         post: operations["endToursOperatorCost"];
         delete?: never;
@@ -3088,7 +3088,7 @@ export interface paths {
         put?: never;
         /**
          * Record a payment to a supplier or driver
-         * @description Requires tours-operator.settlement:pay. The manager limit is per party per Cairo day: today's non-reversed payments to the party plus this one ≤ 5000.00 EGP need no approval. EUR is valued at a rate set today; with no rate today, no previous day's rate, or a rate more than 20 % away from the previous day's, it needs approval. Above the limit the payment must name an unused owner approval of the same party, currency and amount, recorded by someone other than the approver (403 approver_cannot_pay). Never above the current balance (party lock). Non-cash needs a reference. CASH is refused once today's cash box is closed.
+         * @description Requires tours-operator.settlement:pay. The manager limit is per party per Cairo day: today's non-reversed payments to the party plus this one ≤ 5000.00 EGP need no approval. EUR is valued at a rate set today; with no rate today, no previous day's rate, or a rate more than 20 % away from the previous day's, it needs approval. Above the limit the payment must name an unused owner approval of the same party, currency and amount, recorded by someone other than the approver (403 approver_cannot_pay). Never above the current balance (party lock). Non-cash needs a reference. CASH is refused once today's cash box is closed. A user who recorded a non-reversed CHARGE for the party within the last 7 days cannot record a payment to it (403 charge_recorder_cannot_pay). An approval unused for more than 7 days is expired (409 approval_expired; default, owner review).
          */
         post: operations["payToursOperatorParty"];
         delete?: never;
@@ -3148,7 +3148,7 @@ export interface paths {
         put?: never;
         /**
          * Add a documented charge or deduction
-         * @description Requires tours-operator.settlement:pay. CHARGE adds to what is owed (e.g. a driver with no fixed trip rate), DEDUCTION lowers it. Never edited: reverse it. A CHARGE above 5000 EGP (EUR at a trusted rate set today; otherwise unknown) needs tours-operator.settlement:approve (403 charge_needs_approval). A named departure must have been served by the party (422 slot_not_served_by_party).
+         * @description Requires tours-operator.settlement:pay. CHARGE adds to what is owed (e.g. a driver with no fixed trip rate), DEDUCTION lowers it. Never edited: reverse it. Without tours-operator.settlement:approve, a party's CHARGEs recorded today (Cairo, non-reversed) plus this one must be ≤ 5000 EGP in total (EUR at a trusted rate set today; otherwise unknown), checked under the party lock; otherwise 403 charge_needs_approval (default, owner review). A named departure must have been served by the party (422 slot_not_served_by_party).
          */
         post: operations["adjustToursOperatorPayable"];
         delete?: never;
@@ -3168,7 +3168,7 @@ export interface paths {
         put?: never;
         /**
          * Reverse an adjustment
-         * @description Requires tours-operator.settlement:approve. Once only; dated today.
+         * @description Requires tours-operator.settlement:approve. Once only; dated today. Never by the person who recorded the adjustment (403 cannot_reverse_own_adjustment).
          */
         post: operations["reverseToursOperatorPayableAdjustment"];
         delete?: never;
@@ -4585,7 +4585,7 @@ export interface components {
             ended: boolean;
             endedAt: string | null;
         };
-        /** @description EUR. onlineRevenue = recognised Paymob payments; officeRevenue = office collections net of reversals minus office refunds — never mixed. cost/profit/marginPercent are null as soon as one booking's cost is incomplete (see gaps). */
+        /** @description EUR. bookedValue = total of the live bookings and outstanding = booked value not yet collected (informational: profit stays cash-collected). flags: PAYMENT_UNDER_REVIEW hides that booking's profit (its revenue is net of recorded partial refunds) and leaves it out of the profit of aggregate lines (see excludedBookings); REFUND_PENDING is a flag only. PREVIOUS = a past day valued at its nearest earlier rate, never a later one. onlineRevenue = recognised Paymob payments; officeRevenue = office collections net of reversals minus office refunds — never mixed. cost/profit/marginPercent are null as soon as one booking's cost is incomplete (see gaps). */
         ToursOperatorProfitTotals: {
             bookings: number;
             guests: number;
@@ -4596,8 +4596,13 @@ export interface components {
             profit: components["schemas"]["ToursOperatorAmount"] | null;
             marginPercent: string | null;
             incompleteBookings: number;
-            gaps: ("NO_COST_COMPONENTS" | "UNIT_COST_ON_PER_PERSON_BOOKING" | "DRIVER_COST_MISSING" | "FX_RATE_MISSING")[];
-            rateSources: ("DEPARTURE_DATE" | "LATEST" | "NONE")[];
+            gaps: ("NO_COST_COMPONENTS" | "UNIT_COST_ON_PER_PERSON_BOOKING" | "DRIVER_COST_MISSING" | "FX_RATE_MISSING" | "SUPPLIER_COST_MISSING")[];
+            rateSources: ("DEPARTURE_DATE" | "PREVIOUS" | "LATEST" | "NONE")[];
+            bookedValue: components["schemas"]["ToursOperatorAmount"];
+            outstanding: components["schemas"]["ToursOperatorAmount"];
+            flags: ("PAYMENT_UNDER_REVIEW" | "REFUND_PENDING")[];
+            /** @description Bookings whose online payment is under review: left out of profit and marginPercent of this line. */
+            excludedBookings: number;
         };
         ToursOperatorProfitGroup: {
             key: string;
@@ -4611,7 +4616,7 @@ export interface components {
             status: components["schemas"]["BookingStatus"] | null;
             channel: ("ONLINE" | "OFFICE") | null;
             egpPerEur: string | null;
-            rateSource: ("DEPARTURE_DATE" | "LATEST" | "NONE") | null;
+            rateSource: ("DEPARTURE_DATE" | "PREVIOUS" | "LATEST" | "NONE") | null;
             totals: components["schemas"]["ToursOperatorProfitTotals"];
         };
         ToursOperatorProfitReport: {
@@ -4751,6 +4756,11 @@ export interface components {
             /** Format: date-time */
             approvedAt: string;
             usedByPaymentId: string | null;
+            /**
+             * Format: date-time
+             * @description An unused approval cannot be used after this instant (409 approval_expired).
+             */
+            expiresAt: string;
         };
         /** @description amount raises (+) or lowers (−) what is owed. */
         ToursOperatorStatementMovement: {
@@ -12969,7 +12979,15 @@ export interface operations {
             };
             400: components["responses"]["ToursOperatorValidationResponse"];
             401: components["responses"]["UnauthenticatedResponse"];
-            403: components["responses"]["ForbiddenResponse"];
+            /** @description backdated_cost_needs_approval, or missing permission. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
             /** @description cost_component_duplicate (details.existingId) or idempotency_key_reused. */
             409: {
                 headers: {
@@ -13025,7 +13043,15 @@ export interface operations {
             };
             400: components["responses"]["ToursOperatorValidationResponse"];
             401: components["responses"]["UnauthenticatedResponse"];
-            403: components["responses"]["ForbiddenResponse"];
+            /** @description backdated_cost_needs_approval, or missing permission. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
             /** @description Not found. */
             404: {
                 headers: {
@@ -13079,7 +13105,15 @@ export interface operations {
             };
             400: components["responses"]["ToursOperatorValidationResponse"];
             401: components["responses"]["UnauthenticatedResponse"];
-            403: components["responses"]["ForbiddenResponse"];
+            /** @description backdated_cost_needs_approval, or missing permission. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
             /** @description Not found. */
             404: {
                 headers: {
@@ -13398,7 +13432,7 @@ export interface operations {
             };
             400: components["responses"]["ToursOperatorValidationResponse"];
             401: components["responses"]["UnauthenticatedResponse"];
-            /** @description approver_cannot_pay, or missing permission. */
+            /** @description approver_cannot_pay, charge_recorder_cannot_pay, or missing permission. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -13414,7 +13448,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description approval_required (details.limitEgp, details.paidTodayEgp), approval_mismatch, approval_already_used, amount_exceeds_balance (details.balance), cash_day_closed or idempotency_key_reused. */
+            /** @description approval_required (details.limitEgp, details.paidTodayEgp), approval_mismatch, approval_already_used, approval_expired (details.expiresAt), amount_exceeds_balance (details.balance), cash_day_closed or idempotency_key_reused. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -13662,7 +13696,15 @@ export interface operations {
             };
             400: components["responses"]["ToursOperatorValidationResponse"];
             401: components["responses"]["UnauthenticatedResponse"];
-            403: components["responses"]["ForbiddenResponse"];
+            /** @description cannot_reverse_own_adjustment, or missing permission. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToursOperatorFinanceError"];
+                };
+            };
             /** @description Not found. */
             404: {
                 headers: {

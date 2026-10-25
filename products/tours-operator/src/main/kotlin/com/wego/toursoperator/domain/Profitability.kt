@@ -10,7 +10,10 @@ enum class RateSource {
     /** The manager-set rate of the departure day. */
     DEPARTURE_DATE,
 
-    /** No rate that day: the most recent rate set before or after it. */
+    /** A past day with no rate of its own: the nearest earlier rate (never a later one), so the figure cannot drift. */
+    PREVIOUS,
+
+    /** A future day: the most recent rate set so far. */
     LATEST,
 
     /** No rate at all: EGP costs cannot be converted, so the profit is not shown. */
@@ -35,6 +38,18 @@ enum class CostGap {
 
     /** EGP costs and no EUR→EGP rate at all. */
     FX_RATE_MISSING,
+
+    /** A supplier serves the departure but no SUPPLIER price (linked to it, or unlinked) is in force, even if other components are. */
+    SUPPLIER_COST_MISSING,
+}
+
+/** Revenue that is not settled enough to show a profit; the money is still shown, the profit is hidden. */
+enum class RevenueFlag {
+    /** An online payment is in REVIEW_REQUIRED (for example partly refunded): the booking's profit is hidden and left out of totals. */
+    PAYMENT_UNDER_REVIEW,
+
+    /** The booking is cancelled but its online payment is still PAID: a refund may be due. A flag only; profit is still shown (owner decision pending). */
+    REFUND_PENDING,
 }
 
 /** One booking as the profitability report sees it. Revenue is EUR; office revenue is collected minus refunded. */
@@ -48,10 +63,14 @@ data class ProfitBooking(
     val status: BookingStatus,
     val channel: BookingChannel,
     val pricing: BookingPricing,
-    /** Recognised Paymob revenue (PAID with a recognition time); zero otherwise. */
+    /** Recognised Paymob revenue (PAID, or REVIEW_REQUIRED net of recorded partial refunds, with a recognition time); zero otherwise. */
     val onlineRevenue: BigDecimal,
     /** Office collections net of reversals, minus office refunds net of reversals. */
     val officeRevenue: BigDecimal,
+    /** The online payment is in REVIEW_REQUIRED. */
+    val paymentUnderReview: Boolean = false,
+    /** Cancelled while its online payment is still PAID (refund not yet done). */
+    val refundPending: Boolean = false,
 ) {
     /** A booking that actually ran (or will): it carries cost. A cancelled one keeps only the money it retained. */
     val live: Boolean get() = status == BookingStatus.CONFIRMED || status == BookingStatus.COMPLETED
@@ -62,6 +81,8 @@ data class ProfitDeparture(
     val driverId: UUID?,
     /** Payable adjustments recorded against this departure (reversals included). */
     val adjustments: List<PayableAdjustment>,
+    /** Suppliers assigned to the departure (each needs a SUPPLIER price in force). */
+    val supplierIds: Set<UUID> = emptySet(),
 )
 
 data class BookingProfit(
@@ -72,6 +93,11 @@ data class BookingProfit(
     val marginPercent: BigDecimal?,
     val gaps: Set<CostGap>,
     val rate: RateChoice,
+    /** Booked value of a live booking (its total in EUR); zero for a cancelled one. Informational: profit stays cash-collected. */
+    val bookedValue: BigDecimal = BigDecimal.ZERO.setScale(2),
+    /** Booked value not yet collected (never negative); zero for a cancelled booking. */
+    val outstanding: BigDecimal = BigDecimal.ZERO.setScale(2),
+    val flags: Set<RevenueFlag> = emptySet(),
 )
 
 object ProfitCalculator {
@@ -108,6 +134,23 @@ object ProfitCalculator {
         val tourComponents = components.filter { it.tourId == first.tourId && it.effectiveOn(first.tourDate) }
         val gaps = mutableSetOf<CostGap>()
         if (tourComponents.isEmpty()) gaps += CostGap.NO_COST_COMPONENTS
+        // Every assigned supplier needs a SUPPLIER price in force (its own, or an unlinked one), whatever else is priced.
+        // A manual CHARGE recorded for that supplier on this departure covers it too (as for a driver without a trip rate).
+        val supplierPrices = tourComponents.filter { it.category == CostCategory.SUPPLIER }
+        val manualSuppliers =
+            departure
+                ?.adjustments
+                .orEmpty()
+                .let { all ->
+                    val undone = all.mapNotNull { it.reversesAdjustmentId }.toSet()
+                    all.filter { it.kind == AdjustmentKind.CHARGE && it.id !in undone && it.party.type == PartyType.SUPPLIER }
+                }.map { it.party.id }
+                .toSet()
+        val uncovered =
+            departure?.supplierIds.orEmpty().any { id ->
+                id !in manualSuppliers && supplierPrices.none { it.supplierId == id || it.supplierId == null }
+            }
+        if (uncovered) gaps += CostGap.SUPPLIER_COST_MISSING
 
         val departureNative = mutableMapOf<PaidCurrency, BigDecimal>()
 
@@ -185,9 +228,28 @@ object ProfitCalculator {
         rate: RateChoice,
     ): BookingProfit {
         val revenue = booking.onlineRevenue.add(booking.officeRevenue).setScale(2)
-        if (gaps.isNotEmpty()) return BookingProfit(booking, revenue, null, null, null, gaps, rate)
+        val booked =
+            if (booking.live) {
+                booking.pricing.totalEur.amount
+                    .setScale(2)
+            } else {
+                ZERO
+            }
+        val outstanding = if (booking.live) booked.subtract(revenue).max(ZERO) else ZERO
+        val flags =
+            buildSet {
+                if (booking.paymentUnderReview) add(RevenueFlag.PAYMENT_UNDER_REVIEW)
+                if (booking.refundPending) add(RevenueFlag.REFUND_PENDING)
+            }
+        if (gaps.isNotEmpty()) return BookingProfit(booking, revenue, null, null, null, gaps, rate, booked, outstanding, flags)
+        // A booking whose online revenue is under review keeps its cost but shows no profit; REFUND_PENDING is a flag only.
+        if (RevenueFlag.PAYMENT_UNDER_REVIEW in
+            flags
+        ) {
+            return BookingProfit(booking, revenue, cost, null, null, gaps, rate, booked, outstanding, flags)
+        }
         val profit = revenue.subtract(cost)
-        return BookingProfit(booking, revenue, cost, profit, margin(profit, revenue), gaps, rate)
+        return BookingProfit(booking, revenue, cost, profit, margin(profit, revenue), gaps, rate, booked, outstanding, flags)
     }
 
     fun margin(
@@ -209,6 +271,13 @@ data class ProfitTotals(
     val incompleteBookings: Int,
     val gaps: Set<CostGap>,
     val rateSources: Set<RateSource>,
+    /** Booked value of live bookings (informational; profit is still cash-collected). */
+    val bookedValue: BigDecimal = BigDecimal.ZERO.setScale(2),
+    /** Booked value not yet collected. */
+    val outstanding: BigDecimal = BigDecimal.ZERO.setScale(2),
+    val flags: Set<RevenueFlag> = emptySet(),
+    /** Bookings left out of [profit] because their online payment is under review (shown as "excludes N flagged"). */
+    val excludedBookings: Int = 0,
 ) {
     companion object {
         fun of(rows: List<BookingProfit>): ProfitTotals {
@@ -216,7 +285,16 @@ data class ProfitTotals(
             val revenue = rows.fold(zero) { acc, r -> acc.add(r.revenue) }
             val incomplete = rows.count { it.cost == null }
             val cost = if (incomplete == 0) rows.fold(zero) { acc, r -> acc.add(checkNotNull(r.cost)) } else null
-            val profit = cost?.let { revenue.subtract(it) }
+            // Profit counts the unflagged bookings only; a line made only of flagged bookings shows none.
+            val counted = rows.filter { RevenueFlag.PAYMENT_UNDER_REVIEW !in it.flags }
+            val excluded = rows.size - counted.size
+            val profit =
+                if (cost == null || (counted.isEmpty() && excluded > 0)) {
+                    null
+                } else {
+                    counted.fold(zero) { acc, r -> acc.add(r.revenue).subtract(checkNotNull(r.cost)) }
+                }
+            val profitRevenue = counted.fold(zero) { acc, r -> acc.add(r.revenue) }
             return ProfitTotals(
                 bookings = rows.size,
                 guests = rows.filter { it.booking.live }.sumOf { it.booking.pricing.guests },
@@ -225,10 +303,14 @@ data class ProfitTotals(
                 revenue = revenue,
                 cost = cost,
                 profit = profit,
-                marginPercent = profit?.let { ProfitCalculator.margin(it, revenue) },
+                marginPercent = profit?.let { ProfitCalculator.margin(it, profitRevenue) },
                 incompleteBookings = incomplete,
                 gaps = rows.flatMap { it.gaps }.toSet(),
                 rateSources = rows.filter { it.booking.live }.map { it.rate.source }.toSet(),
+                bookedValue = rows.fold(zero) { acc, r -> acc.add(r.bookedValue) },
+                outstanding = rows.fold(zero) { acc, r -> acc.add(r.outstanding) },
+                flags = rows.flatMap { it.flags }.toSet(),
+                excludedBookings = excluded,
             )
         }
     }

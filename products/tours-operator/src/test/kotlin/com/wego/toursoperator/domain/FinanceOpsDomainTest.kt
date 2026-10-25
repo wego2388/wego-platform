@@ -168,6 +168,114 @@ class FinanceOpsDomainTest {
     }
 
     @Test
+    fun `an assigned supplier without a SUPPLIER price is a gap even when other components exist`() {
+        val single = listOf(booking("A", perPerson(2, 0), office = "70.00"))
+        val supplier = UUID.randomUUID()
+        val other = UUID.randomUUID()
+        val departure = mapOf(slot to ProfitDeparture(slot, null, emptyList(), setOf(supplier)))
+        val own = component(CostCategory.OWN_EXTRA, CostBasis.PER_PERSON, PaidCurrency.EGP, "50.00")
+        assertTrue(CostGap.SUPPLIER_COST_MISSING in ProfitCalculator.compute(single, departure, listOf(own)) { rate50 }.single().gaps)
+        // A price linked to a different supplier does not cover this one.
+        val others = component(CostCategory.SUPPLIER, CostBasis.PER_PERSON, PaidCurrency.EGP, "600.00", supplier = other)
+        assertTrue(
+            CostGap.SUPPLIER_COST_MISSING in ProfitCalculator.compute(single, departure, listOf(own, others)) { rate50 }.single().gaps,
+        )
+        // Its own price, or an unlinked one, covers it; with no supplier assigned there is nothing to flag.
+        val linked = component(CostCategory.SUPPLIER, CostBasis.PER_PERSON, PaidCurrency.EGP, "600.00", supplier = supplier)
+        assertFalse(
+            CostGap.SUPPLIER_COST_MISSING in ProfitCalculator.compute(single, departure, listOf(own, linked)) { rate50 }.single().gaps,
+        )
+        val unlinked = component(CostCategory.SUPPLIER, CostBasis.PER_PERSON, PaidCurrency.EGP, "600.00")
+        assertFalse(CostGap.SUPPLIER_COST_MISSING in ProfitCalculator.compute(single, departure, listOf(unlinked)) { rate50 }.single().gaps)
+        assertFalse(CostGap.SUPPLIER_COST_MISSING in ProfitCalculator.compute(single, emptyMap(), listOf(own)) { rate50 }.single().gaps)
+        // A manual CHARGE to that supplier on the departure covers it, unless reversed.
+        val charge =
+            PayableAdjustment(
+                UUID.randomUUID(),
+                PartyRef(PartyType.SUPPLIER, supplier),
+                slot,
+                day,
+                AdjustmentKind.CHARGE,
+                PaidCurrency.EGP,
+                d("300.00"),
+                "Agreed",
+                null,
+                null,
+                UUID.randomUUID(),
+                now,
+            )
+        val manual = mapOf(slot to ProfitDeparture(slot, null, listOf(charge), setOf(supplier)))
+        assertFalse(CostGap.SUPPLIER_COST_MISSING in ProfitCalculator.compute(single, manual, listOf(own)) { rate50 }.single().gaps)
+        val reversal = charge.copy(id = UUID.randomUUID(), kind = AdjustmentKind.REVERSAL, reversesAdjustmentId = charge.id)
+        val undone = mapOf(slot to ProfitDeparture(slot, null, listOf(charge, reversal), setOf(supplier)))
+        assertTrue(CostGap.SUPPLIER_COST_MISSING in ProfitCalculator.compute(single, undone, listOf(own)) { rate50 }.single().gaps)
+    }
+
+    @Test
+    fun `booked value and outstanding are shown without changing the cash-collected profit`() {
+        val fixed = listOf(component(CostCategory.FIXED, CostBasis.PER_DEPARTURE, PaidCurrency.EUR, "10.00"))
+        val partly =
+            ProfitCalculator
+                .compute(
+                    listOf(booking("A", perPerson(2, 1), office = "50.00")),
+                    emptyMap(),
+                    fixed,
+                ) { rate50 }
+                .single()
+        assertEquals(d("87.50"), partly.bookedValue)
+        assertEquals(d("37.50"), partly.outstanding)
+        assertEquals(d("40.00"), partly.profit) // 50.00 collected - 10.00 cost, as before
+        val cancelled =
+            ProfitCalculator
+                .compute(
+                    listOf(booking("B", perPerson(1, 0), office = "20.00", status = BookingStatus.CANCELLED)),
+                    emptyMap(),
+                    fixed,
+                ) { rate50 }
+                .single()
+        assertEquals(d("0.00"), cancelled.bookedValue)
+        assertEquals(d("0.00"), cancelled.outstanding)
+        val totals = ProfitTotals.of(listOf(partly, cancelled))
+        assertEquals(d("87.50"), totals.bookedValue)
+        assertEquals(d("37.50"), totals.outstanding)
+    }
+
+    @Test
+    fun `a payment under review or a refund pending hides the profit and says why`() {
+        val fixed = listOf(component(CostCategory.FIXED, CostBasis.PER_DEPARTURE, PaidCurrency.EUR, "10.00"))
+        val review = booking("A", perPerson(1, 0), online = "35.00").copy(paymentUnderReview = true)
+        val row = ProfitCalculator.compute(listOf(review), emptyMap(), fixed) { rate50 }.single()
+        assertEquals(setOf(RevenueFlag.PAYMENT_UNDER_REVIEW), row.flags)
+        assertEquals(d("35.00"), row.revenue)
+        assertEquals(d("10.00"), row.cost)
+        assertNull(row.profit)
+        assertNull(row.marginPercent)
+        val pending = booking("B", perPerson(1, 0), online = "35.00", status = BookingStatus.CANCELLED).copy(refundPending = true)
+        val retained = ProfitCalculator.compute(listOf(pending), emptyMap(), fixed) { rate50 }.single()
+        assertEquals(setOf(RevenueFlag.REFUND_PENDING), retained.flags)
+        assertEquals(d("35.00"), retained.profit) // a flag only: owner decision on retained money is pending
+        val clean = booking("C", perPerson(1, 0), office = "35.00")
+        val totals = ProfitTotals.of(ProfitCalculator.compute(listOf(clean, review), emptyMap(), fixed) { rate50 })
+        // Profit counts the unflagged booking only (35.00 - 5.00) and says one was left out.
+        assertEquals(d("30.00"), totals.profit) // 35.00 - its 5.00 share of the cost
+        assertEquals(1, totals.excludedBookings)
+        assertEquals(setOf(RevenueFlag.PAYMENT_UNDER_REVIEW), totals.flags)
+        val onlyFlagged = ProfitTotals.of(ProfitCalculator.compute(listOf(review), emptyMap(), fixed) { rate50 })
+        assertNull(onlyFlagged.profit)
+    }
+
+    @Test
+    fun `the cumulative charge cap, and the approval validity window`() {
+        assertFalse(SettlementPolicy.chargeNeedsApproval(d("3000.00"), d("2000.00")))
+        assertTrue(SettlementPolicy.chargeNeedsApproval(d("3000.00"), d("2000.01")))
+        assertTrue(SettlementPolicy.chargeNeedsApproval(null, d("1.00"))) // an earlier EUR charge without a trusted rate
+        assertTrue(SettlementPolicy.chargeNeedsApproval(d("0.00"), null))
+        val approvedAt = Instant.parse("2027-03-01T09:00:00Z")
+        assertFalse(SettlementPolicy.approvalExpired(approvedAt, approvedAt.plusSeconds(7 * 86_400L)))
+        assertTrue(SettlementPolicy.approvalExpired(approvedAt, approvedAt.plusSeconds(7 * 86_400L + 1)))
+    }
+
+    @Test
     fun `adjustments of a departure count, reversed ones do not, and a cancelled booking keeps only its retained money`() {
         val driver = UUID.randomUUID()
         val party = PartyRef(PartyType.DRIVER, driver)

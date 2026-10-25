@@ -6,6 +6,7 @@ import com.wego.toursoperator.domain.ProfitDeparture
 import com.wego.toursoperator.domain.ProfitTotals
 import com.wego.toursoperator.domain.RateChoice
 import com.wego.toursoperator.domain.RateSource
+import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -38,13 +39,14 @@ data class OfficeFinanceSummary(
  * `tours-operator.payment:view`. Bookings are taken by tour day. Revenue in
  * EUR: recognised Paymob payments (online) and office collections minus office
  * refunds (office), shown apart and never mixed. Cost: components × guests at
- * the rate of the departure day, or the latest rate when that day has none
- * (the report says which); a booking with any unknown cost shows no profit.
+ * the rate of the departure day; a past day without one uses its nearest earlier
+ * rate (never a later one), a future day the latest rate (the report says which); a booking with any unknown cost shows no profit.
  */
 class ProfitabilityService(
     private val reads: FinanceReadRepository,
     private val costs: CostComponentRepository,
     private val settlements: SettlementRepository,
+    private val clock: Clock,
 ) {
     fun report(
         from: LocalDate,
@@ -54,6 +56,7 @@ class ProfitabilityService(
         val bookings = reads.profitBookings(from, to)
         val slotIds = bookings.map { it.slotId }.toSet()
         val drivers = reads.drivers(slotIds)
+        val suppliers = reads.suppliers(slotIds)
         val adjustments = settlements.adjustmentsForSlots(slotIds).groupBy { it.slotId }
         // Reversals carry no slot (dated the day they are recorded): attach them to the departure of what they reverse.
         val reversals =
@@ -63,14 +66,21 @@ class ProfitabilityService(
             slotIds.associateWith { slotId ->
                 val own = adjustments[slotId].orEmpty()
                 val reversing = reversals.filter { byId[it.reversesAdjustmentId]?.slotId == slotId }
-                ProfitDeparture(slotId, drivers[slotId], own + reversing)
+                ProfitDeparture(slotId, drivers[slotId], own + reversing, suppliers[slotId].orEmpty())
             }
-        val rates = reads.ratesBetween(from, to)
+        val today = FxRateService.todayInSharm(clock)
+        val rates = java.util.TreeMap(reads.ratesUpTo(minOf(to, today)))
         val latest = reads.latestRate()
         val rateFor: (LocalDate) -> RateChoice = { day ->
-            rates[day]?.let { RateChoice(it, RateSource.DEPARTURE_DATE) }
-                ?: latest?.let { RateChoice(it, RateSource.LATEST) }
-                ?: RateChoice(null, RateSource.NONE)
+            val own = rates[day]
+            val previous = rates.floorEntry(day)?.value
+            when {
+                own != null -> RateChoice(own, RateSource.DEPARTURE_DATE)
+                // A day that has begun is valued at its nearest earlier rate (never a later one), so it cannot drift.
+                !day.isAfter(today) -> RateChoice(previous, if (previous != null) RateSource.PREVIOUS else RateSource.NONE)
+                latest != null -> RateChoice(latest, RateSource.LATEST)
+                else -> RateChoice(null, RateSource.NONE)
+            }
         }
         val results = ProfitCalculator.compute(bookings, departures, costs.findAll(), rateFor)
         val keyOf: (BookingProfit) -> String =

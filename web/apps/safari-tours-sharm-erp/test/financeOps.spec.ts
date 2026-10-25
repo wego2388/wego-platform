@@ -228,7 +228,7 @@ describe("settlements page", () => {
     party, from: "2026-10-01", to: "2026-10-31", balances: party.balances, managerLimitEgp: "5000.00", paidTodayEgp: "0.00",
     movements: [{ date: "2026-10-07", kind: "DEPARTURE", amount: egp("15000.00"), slotId: "s1", tourId: "t1", timeSlot: "MORNING", guests: 3, labels: ["Supplier price"], adjustment: null, payment: null }],
     issues: [{ date: "2026-10-07", slotId: "s2", tourId: "t1", timeSlot: "MORNING", code: "MANUAL_AMOUNT_NEEDED" }],
-    approvals: [{ id: "ap1", amount: egp("6000.00"), note: null, approvedByEmail: "owner@x.y", approvedAt: "2026-10-07T10:00:00Z", usedByPaymentId: null }],
+    approvals: [{ id: "ap1", amount: egp("6000.00"), note: null, approvedByEmail: "owner@x.y", approvedAt: "2026-10-07T10:00:00Z", usedByPaymentId: null, expiresAt: "2099-10-14T10:00:00Z" }],
   };
   it("changing the statement dates hides payment/print actions until the new range is loaded", async () => {
     setup("en", ["tours-operator.settlement:pay"]);
@@ -240,6 +240,20 @@ describe("settlements page", () => {
     expect(w.find("#pay-form").exists()).toBe(false); expect(w.html()).not.toContain(`/documents/settlement-statement/suppliers_${PARTY}_`);
     expect(api.paySettlement).not.toHaveBeenCalled();
     expect(w.text()).toContain("Apply the filters before recording");
+  });
+
+  it("does not offer an expired approval and says it expired", async () => {
+    setup("en", ["tours-operator.settlement:pay"]);
+    vi.mocked(api.listPayables).mockResolvedValue([party]);
+    vi.mocked(api.getStatement).mockResolvedValue({ ...statement, approvals: [{ ...statement.approvals[0]!, expiresAt: "2020-01-01T00:00:00Z" }] });
+    vi.mocked(api.getFxRateToday).mockResolvedValue({ date: "2026-10-07", rate: null });
+    const w = mount(SettlementsPage, link);
+    await flushPromises();
+    await w.get("tbody button").trigger("click");
+    await flushPromises();
+    expect(w.text()).toContain("expired (not used within 7 days)");
+    await w.get("#pay-amount").setValue("6000");
+    expect(w.find("#pay-form option[value='ap1']").exists()).toBe(false);
   });
 
   it("asks for the owner's approval above 5000 EGP and sends it with the payment", async () => {
@@ -274,6 +288,7 @@ describe("profitability page", () => {
       bookings: 1, guests: 3, onlineRevenue: eur("0.00"), officeRevenue: eur("87.50"), revenue: eur("87.50"),
       cost: complete ? eur("78.50") : null, profit: complete ? eur("9.00") : null, marginPercent: complete ? "10.3" : null,
       incompleteBookings: complete ? 0 : 1, gaps: complete ? [] : ["DRIVER_COST_MISSING" as const], rateSources: ["LATEST" as const],
+      bookedValue: eur("87.50"), outstanding: eur("0.00"), flags: [] as ("PAYMENT_UNDER_REVIEW" | "REFUND_PENDING")[], excludedBookings: 0,
     });
     vi.mocked(api.getProfitability).mockResolvedValue({
       from: "2026-10-01", to: "2026-10-31", groupBy: "DEPARTURE", totals: totals(false),
@@ -290,6 +305,31 @@ describe("profitability page", () => {
     expect(w.text()).toContain("Rate 50.0000 (latest rate)");
     expect(w.text()).toContain("1 booking(s) with an unknown cost: profit hidden.");
     expect(w.findAll("tfoot td")[5]!.text()).toBe("—");
+  });
+
+  it("shows booked value and outstanding, the previous-rate label and the review flags", async () => {
+    setup("en", ["tours-operator.payment:view"]);
+    const totals = {
+      bookings: 1, guests: 3, onlineRevenue: eur("35.00"), officeRevenue: eur("0.00"), revenue: eur("35.00"),
+      cost: eur("10.00"), profit: null, marginPercent: null, incompleteBookings: 0, gaps: ["SUPPLIER_COST_MISSING" as const],
+      rateSources: ["PREVIOUS" as const], bookedValue: eur("87.50"), outstanding: eur("52.50"),
+      flags: ["PAYMENT_UNDER_REVIEW" as const, "REFUND_PENDING" as const], excludedBookings: 2,
+    };
+    vi.mocked(api.getProfitability).mockResolvedValue({
+      from: "2026-10-01", to: "2026-10-31", groupBy: "DEPARTURE", totals,
+      groups: [{ key: "s1", tourId: "t1", slotId: "s1", date: "2026-10-07", timeSlot: "MORNING", month: null, bookingId: null, reference: null, status: null, channel: null, egpPerEur: "48.0000", rateSource: "PREVIOUS", totals }],
+    });
+    const w = mount(ProfitabilityPage);
+    await flushPromises();
+    expect(w.text()).toContain("Booked value");
+    expect(w.text()).toContain("Outstanding");
+    expect(w.text()).toContain("€87.50");
+    expect(w.text()).toContain("€52.50");
+    expect(w.text()).toContain("Supplier price missing");
+    expect(w.text()).toContain("Online payment under review");
+    expect(w.text()).toContain("Cancelled: refund may be due");
+    expect(w.text()).toContain("Revenue and cost include 2 booking(s) with a payment under review; profit and margin exclude them");
+    expect(w.text()).toContain("Rate 48.0000 (previous rate)");
   });
 });
 
@@ -355,6 +395,11 @@ describe("review follow-ups (M2, M3, L1, L2)", () => {
     expect(financeErrorMessage(new api.ToursApiError(409, "cost_component_duplicate", {})).key).toBe("fops.err.cost_component_duplicate");
     const ownReversal = financeErrorMessage(new api.ToursApiError(403, "cannot_reverse_own_payment", { error: "cannot_reverse_own_payment", details: {} }));
     expect(erpMessage("en", ownReversal.key, ownReversal.params)).toBe("You recorded this payment: another person must reverse it.");
+    for (const [status, code] of [[409, "approval_expired"], [403, "charge_recorder_cannot_pay"], [403, "cannot_reverse_own_adjustment"], [403, "backdated_cost_needs_approval"]] as const) {
+      const refused = financeErrorMessage(new api.ToursApiError(status, code, { error: code, details: {} }));
+      expect(refused.key).toBe(`fops.err.${code}`);
+      expect(erpMessage("en", refused.key, refused.params)).not.toBe(erpMessage("ar", refused.key, refused.params));
+    }
   });
 
   it("warns that a past start restates history and sends one idempotency key per save", async () => {

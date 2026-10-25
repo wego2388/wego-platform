@@ -37,6 +37,16 @@ class JooqFxRateRepository(
             .fetchOne()
             ?.let(::toDomain)
 
+    @Transactional(readOnly = true)
+    override fun inForceAt(instant: java.time.Instant): FxRate? =
+        dsl
+            .selectFrom(t)
+            .where(t.SET_AT.le(OffsetDateTime.ofInstant(instant, ZoneOffset.UTC)))
+            .orderBy(t.SET_AT.desc(), t.ID.desc())
+            .limit(1)
+            .fetchOne()
+            ?.let(::toDomain)
+
     @Transactional
     override fun append(rate: FxRate) {
         dsl

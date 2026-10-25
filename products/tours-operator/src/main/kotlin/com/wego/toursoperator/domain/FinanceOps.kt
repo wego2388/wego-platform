@@ -345,6 +345,16 @@ object SettlementPolicy {
             PaidCurrency.EUR -> rate?.let { amount.multiply(it.egpPerEur).setScale(2, RoundingMode.HALF_UP) }
         }
 
+    /** SAF-04 G5 (owner-delegated default, owner review): an approval not used within this many days can no longer be used. */
+    const val APPROVAL_VALID_DAYS: Long = 7
+
+    fun approvalExpiresAt(approvedAt: Instant): Instant = approvedAt.plus(APPROVAL_VALID_DAYS, java.time.temporal.ChronoUnit.DAYS)
+
+    fun approvalExpired(
+        approvedAt: Instant,
+        now: Instant,
+    ): Boolean = now.isAfter(approvalExpiresAt(approvedAt))
+
     fun needsApproval(egpEquivalent: BigDecimal?): Boolean = egpEquivalent == null || egpEquivalent > MANAGER_LIMIT_EGP
 
     /** Today's rate may differ from the previous day's by at most 20 %; beyond that EUR values are not trusted without approval. */
@@ -379,6 +389,16 @@ object SettlementPolicy {
             paidTodayEgp == null ||
             (currency == PaidCurrency.EUR && !rateTrusted) ||
             paidTodayEgp.add(egpEquivalent) > MANAGER_LIMIT_EGP
+
+    /**
+     * SAF-04 G1 (owner-delegated default, owner review): CHARGEs a non-approver may record are capped at 5000 EGP
+     * per party per Cairo day in total. Today's non-reversed CHARGEs plus this one must stay ≤ the limit; an
+     * unknown EGP value (EUR without a trusted rate) needs approval.
+     */
+    fun chargeNeedsApproval(
+        chargedTodayEgp: BigDecimal?,
+        egpEquivalent: BigDecimal?,
+    ): Boolean = egpEquivalent == null || chargedTodayEgp == null || chargedTodayEgp.add(egpEquivalent) > MANAGER_LIMIT_EGP
 
     /** Today's non-reversed payments to one party, in EGP; null when one of them has no EGP value. */
     fun paidTodayEgp(

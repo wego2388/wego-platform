@@ -139,7 +139,12 @@ class PayablesService(
             val (owed, issues) = PayablesCalculator.derive(info.party, departures, components, partyAdjustments)
             val movements = PayablesCalculator.movements(owed, partyAdjustments, payments[info.party].orEmpty(), ::cairoDay)
             val balances = PayablesCalculator.balances(movements, null, today())
-            val pending = settlements.approvals(info.party).count { it.usedByPaymentId == null }
+            val now = Instant.now(clock)
+            val pending =
+                settlements.approvals(info.party).count {
+                    it.usedByPaymentId == null &&
+                        !SettlementPolicy.approvalExpired(it.approvedAt, now)
+                }
             if (!info.active && balances.all { it.closing.signum() == 0 } && issues.isEmpty() && pending == 0) {
                 null
             } else {
@@ -188,6 +193,12 @@ class PayablesService(
                     ?.takeIf { it.isNotEmpty() }
                     ?.let(CollectionReference::of)
             if (!command.method.isCash && reference == null) return@runInTransaction invalid("reference_required")
+            // SAF-04 G1/F1: whoever recorded a (non-reversed) CHARGE for this party in the last 7 days (the approval window)
+            // cannot also pay it, however the days are split (no charge-and-pay loop).
+            val since = Instant.now(clock).minus(SettlementPolicy.APPROVAL_VALID_DAYS, java.time.temporal.ChronoUnit.DAYS)
+            if (liveCharges(command.party).any { !it.recordedAt.isBefore(since) && it.recordedByUserId == command.actorUserId }) {
+                return@runInTransaction forbidden("charge_recorder_cannot_pay")
+            }
             val amount = FinanceAmount.positive(command.amount)
             val note = FinanceAmount.text(command.note, "note", 500)
 
@@ -213,6 +224,15 @@ class PayablesService(
                 // Review L2: four eyes — whoever approved a payment cannot also record it.
                 if (approval.approvedByUserId == command.actorUserId) return@runInTransaction forbidden("approver_cannot_pay")
                 if (approval.usedByPaymentId != null) return@runInTransaction conflict("approval_already_used")
+                // SAF-04 G5: an approval not used within the validity window is no longer usable (computed from approvedAt).
+                if (SettlementPolicy.approvalExpired(approval.approvedAt, Instant.now(clock))) {
+                    return@runInTransaction conflict(
+                        "approval_expired",
+                        mapOf(
+                            "expiresAt" to SettlementPolicy.approvalExpiresAt(approval.approvedAt).toString(),
+                        ),
+                    )
+                }
             }
             val balance = balance(command.party, command.currency)
             if (amount > balance) return@runInTransaction conflict("amount_exceeds_balance", mapOf("balance" to balance.toPlainString()))
@@ -279,12 +299,6 @@ class PayablesService(
             if (serviceDate.isAfter(today())) return@runInTransaction invalid("service_date_in_future")
             // Review M2/L6: an adjustment named to a departure must be for a party that served it.
             if (slot != null && command.party !in reads.slotParties(slot.id)) return@runInTransaction invalid("slot_not_served_by_party")
-            if (command.kind == AdjustmentKind.CHARGE && !command.actorCanApprove) {
-                val amount = FinanceAmount.positive(command.amount)
-                val trusted = command.currency == PaidCurrency.EGP || rateTrusted()
-                val egp = if (trusted) SettlementPolicy.egpEquivalent(command.currency, amount, fxRates.latestFor(today())) else null
-                if (egp == null || egp > SettlementPolicy.MANAGER_LIMIT_EGP) return@runInTransaction forbidden("charge_needs_approval")
-            }
             settlements.lockParty(command.party)
             settlements.findAdjustmentByRequest(command.actorUserId, command.clientRequestId)?.let { existing ->
                 val same =
@@ -294,6 +308,31 @@ class PayablesService(
                         existing.amount.compareTo(command.amount) == 0 &&
                         existing.slotId == command.slotId
                 return@runInTransaction if (same) FinanceResult.Ok(existing, created = false) else conflict("idempotency_key_reused")
+            }
+            // SAF-04 G1: the cap is cumulative per party per Cairo day and is checked under the party lock, so concurrent charges cannot race it.
+            if (command.kind == AdjustmentKind.CHARGE && !command.actorCanApprove) {
+                val amount = FinanceAmount.positive(command.amount)
+                val rate = fxRates.latestFor(today())
+                val egp =
+                    when {
+                        command.currency == PaidCurrency.EGP -> amount
+                        rateTrusted() -> SettlementPolicy.egpEquivalent(command.currency, amount, rate)
+                        else -> null
+                    }
+                // SAF-04 F2: an earlier EUR charge keeps the value it had when recorded, so re-setting today's rate cannot free cap room.
+                val chargedToday =
+                    chargesToday(command.party).fold(BigDecimal.ZERO.setScale(2) as BigDecimal?) { acc, c ->
+                        val value =
+                            if (c.currency ==
+                                PaidCurrency.EGP
+                            ) {
+                                c.amount
+                            } else {
+                                SettlementPolicy.egpEquivalent(c.currency, c.amount, fxRates.inForceAt(c.recordedAt))
+                            }
+                        value?.let { acc?.add(it) }
+                    }
+                if (SettlementPolicy.chargeNeedsApproval(chargedToday, egp)) return@runInTransaction forbidden("charge_needs_approval")
             }
             val adjustment =
                 PayableAdjustment(
@@ -330,6 +369,8 @@ class PayablesService(
             val target = all.firstOrNull { it.id == command.entryId } ?: return@runInTransaction notFound()
             if (target.kind == AdjustmentKind.REVERSAL) return@runInTransaction conflict("entry_not_reversible")
             if (all.any { it.reversesAdjustmentId == target.id }) return@runInTransaction conflict("entry_already_reversed")
+            // SAF-04 G6: four eyes — nobody reverses an adjustment they recorded (mirrors cannot_reverse_own_payment).
+            if (target.recordedByUserId == command.actorUserId) return@runInTransaction forbidden("cannot_reverse_own_adjustment")
             val reversal =
                 target.copy(
                     id = UUID.randomUUID(),
@@ -408,6 +449,15 @@ class PayablesService(
     }
 
     private fun cairoDay(instant: Instant): LocalDate = instant.atZone(CAIRO).toLocalDate()
+
+    private fun liveCharges(party: PartyRef): List<PayableAdjustment> {
+        val all = settlements.adjustments(party)
+        val reversed = all.mapNotNull { it.reversesAdjustmentId }.toSet()
+        return all.filter { it.kind == AdjustmentKind.CHARGE && it.id !in reversed }
+    }
+
+    /** Today's (Cairo) non-reversed CHARGEs recorded for the party, by the day each was recorded. */
+    private fun chargesToday(party: PartyRef): List<PayableAdjustment> = liveCharges(party).filter { cairoDay(it.recordedAt) == today() }
 
     private fun paidTodayEgp(party: PartyRef): BigDecimal? =
         SettlementPolicy.paidTodayEgp(settlements.payments(party)) { cairoDay(it) == today() }

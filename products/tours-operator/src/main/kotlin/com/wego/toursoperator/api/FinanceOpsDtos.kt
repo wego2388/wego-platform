@@ -29,6 +29,7 @@ import com.wego.toursoperator.domain.PayableAdjustment
 import com.wego.toursoperator.domain.ProfitTotals
 import com.wego.toursoperator.domain.RateSource
 import com.wego.toursoperator.domain.RefundMethod
+import com.wego.toursoperator.domain.RevenueFlag
 import com.wego.toursoperator.domain.SettlementApproval
 import com.wego.toursoperator.domain.SettlementMethod
 import com.wego.toursoperator.domain.SettlementPayment
@@ -147,6 +148,14 @@ data class ProfitTotalsResponse(
     val incompleteBookings: Int,
     val gaps: List<CostGap>,
     val rateSources: List<RateSource>,
+    /** Booked value of the live bookings, EUR. Informational: profit stays based on cash collected. */
+    val bookedValue: AmountResponse,
+    /** Booked value not yet collected, EUR. */
+    val outstanding: AmountResponse,
+    /** Revenue that is not settled: PAYMENT_UNDER_REVIEW hides that booking's profit and leaves it out of line profit (see excludedBookings); REFUND_PENDING is a flag only. */
+    val flags: List<RevenueFlag>,
+    /** Bookings whose online payment is under review: left out of profit and marginPercent of this line. */
+    val excludedBookings: Int,
 )
 
 private fun ProfitTotals.toResponse() =
@@ -162,6 +171,10 @@ private fun ProfitTotals.toResponse() =
         incompleteBookings = incompleteBookings,
         gaps = gaps.sorted(),
         rateSources = rateSources.sorted(),
+        bookedValue = eur(bookedValue),
+        outstanding = eur(outstanding),
+        flags = flags.sorted(),
+        excludedBookings = excludedBookings,
     )
 
 data class ProfitGroupResponse(
@@ -410,10 +423,20 @@ data class SettlementApprovalResponse(
     val approvedByEmail: String?,
     val approvedAt: Instant,
     val usedByPaymentId: UUID?,
+    /** An unused approval cannot be used after this instant (409 approval_expired). */
+    val expiresAt: Instant,
 )
 
 fun SettlementApproval.toResponse() =
-    SettlementApprovalResponse(id, amount(amount, currency), note, approvedByEmail, approvedAt, usedByPaymentId)
+    SettlementApprovalResponse(
+        id,
+        amount(amount, currency),
+        note,
+        approvedByEmail,
+        approvedAt,
+        usedByPaymentId,
+        SettlementPolicy.approvalExpiresAt(approvedAt),
+    )
 
 data class StatementMovementResponse(
     val date: LocalDate,

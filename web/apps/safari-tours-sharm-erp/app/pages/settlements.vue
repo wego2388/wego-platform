@@ -50,9 +50,14 @@ const pay = reactive({ method: "CASH" as SettlementMethod, currency: "EGP" as Pa
 const approve = reactive({ currency: "EGP" as PaidCurrency, amount: "", note: "", key: newRequestId() });
 const adjust = reactive({ kind: "CHARGE" as "CHARGE" | "DEDUCTION", currency: "EGP" as PaidCurrency, amount: "", slotId: "", serviceDate: "", reason: "", key: newRequestId() });
 
+/** An unused approval stops being usable at expiresAt (the server answers 409 approval_expired). */
+function isExpired(expiresAt: string): boolean {
+  return Date.parse(expiresAt) < Date.now();
+}
+
 const payNeedsApproval = computed(() => needsApprovalToday(pay.amount, pay.currency, rate.value, statement.value ? statement.value.paidTodayEgp : "0.00"));
 const usableApprovals = computed(() =>
-  (statement.value?.approvals ?? []).filter((a) => !a.usedByPaymentId && a.amount.currencyCode === pay.currency
+  (statement.value?.approvals ?? []).filter((a) => !a.usedByPaymentId && !isExpired(a.expiresAt) && a.amount.currencyCode === pay.currency
     && toCents(a.amount.amount) === toCents(pay.amount)),
 );
 const printLink = computed(() =>
@@ -289,7 +294,7 @@ const k = (key: string) => t(key as ErpMessageKey);
             <template v-if="statement.approvals.length">
               <h3 class="mt-5 text-sm font-semibold">{{ t('fops.set.approvals') }}</h3>
               <ul class="mt-2 space-y-1 text-sm">
-                <li v-for="a in statement.approvals" :key="a.id">{{ signedMoney(a.amount) }} · {{ instantLabel(a.approvedAt) }} · {{ a.usedByPaymentId ? t('fops.set.used') : t('fops.set.unused') }}</li>
+                <li v-for="a in statement.approvals" :key="a.id">{{ signedMoney(a.amount) }} · {{ instantLabel(a.approvedAt) }} · {{ a.usedByPaymentId ? t('fops.set.used') : isExpired(a.expiresAt) ? t('fops.set.expired') : t('fops.set.unused') }}</li>
               </ul>
             </template>
           </template>

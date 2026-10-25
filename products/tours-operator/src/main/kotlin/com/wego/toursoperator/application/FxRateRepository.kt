@@ -11,6 +11,9 @@ interface FxRateRepository {
     /** The latest rate of the most recent day before [date] that has one (the previous day's rate). */
     fun latestBefore(date: LocalDate): FxRate? = null
 
+    /** The rate in force at [instant]: the newest one set at or before it, whatever its day (null when none yet). */
+    fun inForceAt(instant: java.time.Instant): FxRate? = null
+
     fun append(rate: FxRate)
 
     /** Newest first. */

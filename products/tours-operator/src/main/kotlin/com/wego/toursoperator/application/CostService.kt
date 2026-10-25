@@ -86,14 +86,27 @@ class CostService(
                 compareBy({ it.tourId?.value?.toString() ?: "" }, { it.driverId?.toString() ?: "" }, { it.category }, { it.validFrom }),
             )
 
+    /**
+     * SAF-04 G3 (stop-gap until departure costs can be frozen): a change that takes effect before today (Cairo)
+     * restates past profit and payables, so it needs `settlement:approve` on top of `cost:manage`.
+     */
+    private fun backdatedWithoutApproval(
+        effectiveFrom: LocalDate,
+        canApprove: Boolean,
+    ): FinanceResult.Failed? =
+        if (!canApprove && effectiveFrom.isBefore(FxRateService.todayInSharm(clock))) forbidden("backdated_cost_needs_approval") else null
+
     fun create(
         input: CostInput,
         actorUserId: UUID,
+        canApprove: Boolean = false,
     ): FinanceResult<CostComponent> =
         transactionRunner.runInTransaction {
             // Re-check F7: lock the owner before the replay check so concurrent retries of one key serialise (200, not 500).
             ownerOf(input)?.let(costs::lockOwner)
             replay(input, actorUserId, replaces = null)?.let { return@runInTransaction it }
+            // SAF-04 F5: after the replay, so a later retry of an accepted request still returns it.
+            backdatedWithoutApproval(input.validFrom, canApprove)?.let { return@runInTransaction it }
             val component =
                 when (val built = build(input, actorUserId, replaces = null)) {
                     is FinanceResult.Ok -> built.value
@@ -141,10 +154,13 @@ class CostService(
         id: UUID,
         input: CostInput,
         actorUserId: UUID,
+        canApprove: Boolean = false,
     ): FinanceResult<CostComponent> =
         transactionRunner.runInTransaction {
             ownerOf(input)?.let(costs::lockOwner)
             replay(input, actorUserId, replaces = id)?.let { return@runInTransaction it }
+            // SAF-04 F5: after the replay, so a later retry of an accepted request still returns it.
+            backdatedWithoutApproval(input.validFrom, canApprove)?.let { return@runInTransaction it }
             val old = costs.findByIdForUpdate(id) ?: return@runInTransaction notFound()
             if (old.ended) return@runInTransaction conflict("cost_already_ended")
             if (old.tourId?.value != input.tourId || old.driverId != input.driverId || old.category != input.category) {
@@ -172,10 +188,13 @@ class CostService(
         id: UUID,
         lastDay: LocalDate,
         actorUserId: UUID,
+        canApprove: Boolean = false,
     ): FinanceResult<CostComponent> =
         transactionRunner.runInTransaction {
             val old = costs.findByIdForUpdate(id) ?: return@runInTransaction notFound()
             if (old.ended) return@runInTransaction conflict("cost_already_ended")
+            // The component stops applying on the day after lastDay: that is the effective date of an end.
+            backdatedWithoutApproval(lastDay.plusDays(1), canApprove)?.let { return@runInTransaction it }
             if (lastDay.isBefore(old.validFrom.minusDays(1))) return@runInTransaction invalid("end_before_start")
             if (old.validUntil != null && lastDay.isAfter(old.validUntil)) return@runInTransaction invalid("end_after_current")
             val now = Instant.now(clock)

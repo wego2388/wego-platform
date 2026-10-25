@@ -44,6 +44,8 @@ function label(g: ProfitGroup): string {
 
 function flags(totals: ProfitTotals, g?: ProfitGroup): string[] {
   const out = totals.gaps.map((gap) => t(`fops.gap.${gap}` as ErpMessageKey));
+  out.push(...totals.flags.map((flag) => t(`fops.flag.${flag}` as ErpMessageKey)));
+  if (totals.excludedBookings > 0) out.push(t("fops.profit.excluded", { count: count(totals.excludedBookings) }));
   if (g?.rateSource && g.rateSource !== "DEPARTURE_DATE") {
     out.push(t("fops.profit.rate", { rate: g.egpPerEur ?? "—", source: t(`fops.rate.${g.rateSource}` as ErpMessageKey) }));
   }
@@ -114,6 +116,8 @@ const FIELD = "rounded-xl border border-sts-border bg-sts-surface px-4 py-2.5 te
                   <th scope="col" class="px-3 py-2 text-end">{{ t('fops.profit.cost') }}</th>
                   <th scope="col" class="px-3 py-2 text-end">{{ t('fops.profit.profit') }}</th>
                   <th scope="col" class="px-3 py-2 text-end">{{ t('fops.profit.margin') }}</th>
+                  <th scope="col" class="px-3 py-2 text-end">{{ t('fops.profit.booked') }}</th>
+                  <th scope="col" class="px-3 py-2 text-end">{{ t('fops.profit.outstanding') }}</th>
                   <th scope="col" class="px-3 py-2 text-start">{{ t('fops.profit.flags') }}</th>
                 </tr>
               </thead>
@@ -127,6 +131,8 @@ const FIELD = "rounded-xl border border-sts-border bg-sts-surface px-4 py-2.5 te
                   <td class="px-3 py-2 text-end tabular-nums">{{ g.totals.cost ? signedMoney(g.totals.cost) : '—' }}</td>
                   <td class="px-3 py-2 text-end tabular-nums font-semibold" :class="g.totals.profit?.amount.startsWith('-') ? 'text-rose-700' : ''">{{ g.totals.profit ? signedMoney(g.totals.profit) : '—' }}</td>
                   <td class="px-3 py-2 text-end tabular-nums">{{ g.totals.marginPercent !== null ? `${g.totals.marginPercent}%` : '—' }}</td>
+                  <td class="px-3 py-2 text-end tabular-nums">{{ signedMoney(g.totals.bookedValue) }}</td>
+                  <td class="px-3 py-2 text-end tabular-nums">{{ signedMoney(g.totals.outstanding) }}</td>
                   <td class="px-3 py-2"><WegoBadge v-for="f in flags(g.totals, g)" :key="f" tone="warning" class="me-1">{{ f }}</WegoBadge></td>
                 </tr>
               </tbody>
@@ -140,6 +146,8 @@ const FIELD = "rounded-xl border border-sts-border bg-sts-surface px-4 py-2.5 te
                   <td class="px-3 py-2 text-end tabular-nums">{{ report.totals.cost ? signedMoney(report.totals.cost) : '—' }}</td>
                   <td class="px-3 py-2 text-end tabular-nums">{{ report.totals.profit ? signedMoney(report.totals.profit) : '—' }}</td>
                   <td class="px-3 py-2 text-end tabular-nums">{{ report.totals.marginPercent !== null ? `${report.totals.marginPercent}%` : '—' }}</td>
+                  <td class="px-3 py-2 text-end tabular-nums">{{ signedMoney(report.totals.bookedValue) }}</td>
+                  <td class="px-3 py-2 text-end tabular-nums">{{ signedMoney(report.totals.outstanding) }}</td>
                   <td class="px-3 py-2" />
                 </tr>
               </tfoot>

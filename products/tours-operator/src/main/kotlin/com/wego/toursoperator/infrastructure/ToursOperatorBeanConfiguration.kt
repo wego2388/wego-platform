@@ -361,7 +361,8 @@ class ToursOperatorBeanConfiguration {
         @Qualifier("stoFinanceReadRepositoryImpl") reads: FinanceReadRepository,
         @Qualifier("stoCostComponentRepositoryImpl") costs: CostComponentRepository,
         @Qualifier("stoSettlementRepositoryImpl") settlements: SettlementRepository,
-    ): ProfitabilityService = ProfitabilityService(reads, costs, settlements)
+        clock: Clock,
+    ): ProfitabilityService = ProfitabilityService(reads, costs, settlements, clock)
 
     @Bean("stoOfficeDocumentService")
     fun officeDocumentService(

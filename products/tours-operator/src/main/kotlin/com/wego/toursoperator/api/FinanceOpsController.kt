@@ -48,6 +48,9 @@ import java.util.UUID
 
 private fun actorOf(authentication: Authentication): UUID = (authentication.principal as AuthenticatedUser).userId
 
+private fun canApprove(authentication: Authentication): Boolean =
+    authentication.authorities.any { it.authority == "tours-operator.settlement:approve" }
+
 private fun <T : Any> finance(body: T): ResponseEntity<Any> = ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(body)
 
 /** Maps an OPS2-F write outcome: 201 when written, 200 for an idempotent replay, otherwise the failure's status and code. */
@@ -114,7 +117,8 @@ class CostController(
     fun create(
         @Valid @RequestBody request: CostComponentRequest,
         authentication: Authentication,
-    ): ResponseEntity<Any> = respond(costs.create(request.toInput(), actorOf(authentication))) { it.toResponse() }
+    ): ResponseEntity<Any> =
+        respond(costs.create(request.toInput(), actorOf(authentication), canApprove(authentication))) { it.toResponse() }
 
     @PostMapping("/{id}/replace")
     @PreAuthorize("hasAuthority('tours-operator.cost:manage')")
@@ -122,7 +126,10 @@ class CostController(
         @PathVariable id: UUID,
         @Valid @RequestBody request: CostComponentRequest,
         authentication: Authentication,
-    ): ResponseEntity<Any> = respond(costs.replace(id, request.toInput(), actorOf(authentication))) { it.toResponse() }
+    ): ResponseEntity<Any> =
+        respond(costs.replace(id, request.toInput(), actorOf(authentication), canApprove(authentication))) {
+            it.toResponse()
+        }
 
     @PostMapping("/{id}/end")
     @PreAuthorize("hasAuthority('tours-operator.cost:manage')")
@@ -131,7 +138,7 @@ class CostController(
         @Valid @RequestBody request: CostEndRequest,
         authentication: Authentication,
     ): ResponseEntity<Any> =
-        respond(costs.end(id, request.lastDay, actorOf(authentication))) { it.toResponse() }.let {
+        respond(costs.end(id, request.lastDay, actorOf(authentication), canApprove(authentication))) { it.toResponse() }.let {
             // Ending changes an existing row: 200, not 201.
             if (it.statusCode == HttpStatus.CREATED) ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(it.body) else it
         }
@@ -357,7 +364,7 @@ class PayablesController(
                     request.reason,
                     actorOf(authentication),
                     request.clientRequestId,
-                    authentication.authorities.any { it.authority == "tours-operator.settlement:approve" },
+                    canApprove(authentication),
                 ),
             ),
         ) { it.toResponse() }

@@ -156,11 +156,11 @@ interface FinanceReadRepository {
         toExclusive: Instant,
     ): OfficeMoneySummary
 
-    /** The latest manager-set rate for each day of the range that has one. */
-    fun ratesBetween(
-        from: LocalDate,
-        to: LocalDate,
-    ): Map<LocalDate, BigDecimal>
+    /** The latest manager-set rate for each day up to and including [to] that has one (a past day's rate never moves). */
+    fun ratesUpTo(to: LocalDate): Map<LocalDate, BigDecimal>
+
+    /** Suppliers assigned to each of the given departures. */
+    fun suppliers(slotIds: Collection<TourSlotId>): Map<TourSlotId, Set<UUID>>
 
     /** The most recently set rate, whatever its day. */
     fun latestRate(): BigDecimal?

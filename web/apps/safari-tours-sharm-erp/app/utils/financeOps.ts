@@ -95,6 +95,7 @@ const CODES = new Set<string>([
   "entry_already_reversed", "refund_already_reversed", "reference_required", "reference_not_allowed", "fx_rate_not_set",
   "fx_rate_changed", "cost_already_ended", "effective_before_current", "basis_must_be_per_departure", "child_amount_per_person_only",
   "idempotency_key_reused", "approver_cannot_pay", "cannot_reverse_own_payment", "charge_needs_approval", "slot_not_served_by_party", "cost_component_duplicate",
+  "approval_expired", "charge_recorder_cannot_pay", "cannot_reverse_own_adjustment", "backdated_cost_needs_approval",
 ]);
 
 /** Plain-language message for an OPS2-F refusal, with the server's details (balance, refundable, expected) as parameters. */

@@ -225,6 +225,17 @@ class ToursOperatorFinanceOpsHttpTest {
         return reply.read("$.id")
     }
 
+    /** The booking API refuses past departures, so a booking is made today and moved onto a past departure. */
+    private fun officeInPast(
+        tour: UUID,
+        pastSlot: UUID,
+        day: LocalDate,
+    ): String {
+        val id = office(seedSlot(tour, today().plusDays(1L + (UUID.randomUUID().hashCode().toLong() and 0xFFF) % 300)), 1, 0)
+        dsl.execute("UPDATE wego.tours_operator_booking SET slot_id = ?, tour_date = ? WHERE id = ?::uuid", pastSlot, day, id)
+        return id
+    }
+
     private fun collect(
         bookingId: String,
         amount: String,
@@ -343,7 +354,8 @@ class ToursOperatorFinanceOpsHttpTest {
         currency: String = "EGP",
         slotId: UUID? = null,
         kind: String = "CHARGE",
-        token: String = admin(),
+        // SAF-04 G1: whoever records a CHARGE cannot pay that party the same day, so charges default to the second owner.
+        token: String = admin2(),
     ): Reply {
         val where = slotId?.let { """"slotId":"$it"""" } ?: """"serviceDate":"${today()}""""
         return call(
@@ -938,13 +950,17 @@ class ToursOperatorFinanceOpsHttpTest {
     fun `a rate jump over 20 percent or a large charge needs the owner, and a charge must name a departure the party served`() {
         setRate("50.0000")
         val manager = tokenWith("tours-operator.settlement:pay")
+        val payer = tokenWith("tours-operator.settlement:pay", who = "-payer")
         val supplier = newSupplier()
         assertThat(charge("suppliers", supplier, "100.00", currency = "EUR", token = manager).status).isEqualTo(201) // 100 × 50 = 5000 EGP
         assertThat(
             charge("suppliers", supplier, "100.01", currency = "EUR", token = manager).str("$.error"),
         ).isEqualTo("charge_needs_approval")
         assertThat(charge("suppliers", supplier, "5000.01", token = manager).status).isEqualTo(403)
-        assertThat(charge("suppliers", supplier, "5000.00", token = manager).status).isEqualTo(201)
+        // SAF-04 G1: the cap is cumulative per party per day, so a manager's 5000 EGP is already used up.
+        assertThat(charge("suppliers", supplier, "0.01", token = manager).str("$.error")).isEqualTo("charge_needs_approval")
+        assertThat(charge("suppliers", supplier, "5000.00", token = tokenWith("tours-operator.settlement:pay", who = "-c2")).status)
+            .isEqualTo(403)
         assertThat(charge("suppliers", supplier, "9000.00", token = admin()).status).isEqualTo(201) // owner permission
         // A departure the supplier did not serve.
         val slot = seedSlot(seedTour())
@@ -959,15 +975,15 @@ class ToursOperatorFinanceOpsHttpTest {
             today().minusDays(1),
         )
         try {
-            assertThat(pay("suppliers", supplier, "1.00", currency = "EUR", token = manager).str("$.error")).isEqualTo("approval_required")
+            assertThat(pay("suppliers", supplier, "1.00", currency = "EUR", token = payer).str("$.error")).isEqualTo("approval_required")
             assertThat(
                 charge("suppliers", supplier, "1.00", currency = "EUR", token = manager).str("$.error"),
             ).isEqualTo("charge_needs_approval")
-            assertThat(pay("suppliers", supplier, "10.00", token = manager).status).isEqualTo(201) // EGP needs no rate
+            assertThat(pay("suppliers", supplier, "10.00", token = payer).status).isEqualTo(201) // EGP needs no rate
         } finally {
             dsl.execute("DELETE FROM wego.tours_operator_fx_rate WHERE id = ?", yesterday)
         }
-        assertThat(pay("suppliers", supplier, "1.00", currency = "EUR", token = manager).status).isEqualTo(201)
+        assertThat(pay("suppliers", supplier, "1.00", currency = "EUR", token = payer).status).isEqualTo(201)
     }
 
     @Test
@@ -1022,6 +1038,10 @@ class ToursOperatorFinanceOpsHttpTest {
         val adjustments = statement("drivers", driver).read<List<String>>("$.movements[?(@.kind == 'CHARGE')].adjustment.id")
         val adjustmentPath = "$staff/payables/drivers/$driver/adjustments/${adjustments.first()}/reverse"
         assertThat(call("POST", adjustmentPath, tokenWith("tours-operator.settlement:pay"), body).status).isEqualTo(403)
+        // SAF-04 G6: the owner who recorded the charge cannot reverse it; another owner can.
+        val ownAdjustment = call("POST", adjustmentPath, admin2(), body)
+        assertThat(ownAdjustment.status).isEqualTo(403)
+        assertThat(ownAdjustment.str("$.error")).isEqualTo("cannot_reverse_own_adjustment")
         assertThat(call("POST", adjustmentPath, admin(), body).status).isEqualTo(201)
         assertThat(call("POST", adjustmentPath, admin(), """{"clientRequestId":"${UUID.randomUUID()}","reason":"x"}""").str("$.error"))
             .isEqualTo("entry_already_reversed")
@@ -1034,6 +1054,374 @@ class ToursOperatorFinanceOpsHttpTest {
             .hasMessageContaining("append-only")
         assertThatThrownBy { dsl.execute("DELETE FROM wego.tours_operator_payable_adjustment WHERE driver_id = ?::uuid", driver) }
             .hasMessageContaining("append-only")
+    }
+
+    // ── SAF-04 Slice A ───────────────────────────────────────────────────────
+
+    @Test
+    fun `G1 charges are capped per party per Cairo day in total, under the party lock, and reversed ones free the cap`() {
+        setRate("50.0000")
+        val manager = tokenWith("tours-operator.settlement:pay")
+        val supplier = newSupplier()
+        val first = charge("suppliers", supplier, "3000.00", token = manager)
+        assertThat(first.status).isEqualTo(201)
+        assertThat(charge("suppliers", supplier, "2000.00", token = manager).status).isEqualTo(201) // exactly 5000.00 today
+        val over = charge("suppliers", supplier, "0.01", token = manager)
+        assertThat(over.status).isEqualTo(403)
+        assertThat(over.str("$.error")).isEqualTo("charge_needs_approval")
+        // Another party has its own cap; a DEDUCTION is not a charge; the owner is not capped.
+        assertThat(charge("suppliers", newSupplier(), "5000.00", token = manager).status).isEqualTo(201)
+        assertThat(charge("suppliers", supplier, "100.00", kind = "DEDUCTION", token = manager).status).isEqualTo(201)
+        assertThat(charge("suppliers", supplier, "7000.00", token = admin()).status).isEqualTo(201)
+        // Reversing a charge gives its amount back to a manager only when the owner cap is not exceeded by others: reverse the 3000.
+        val reverse =
+            "$staff/payables/suppliers/$supplier/adjustments/${first.read<String>("$.id")}/reverse"
+        assertThat(
+            call("POST", reverse, admin2(), """{"clientRequestId":"${UUID.randomUUID()}","reason":"Mistake"}""").status,
+        ).isEqualTo(201)
+        // 2000 + 7000 are still counted: 9000 today, so no manager charge fits.
+        assertThat(charge("suppliers", supplier, "0.01", token = manager).str("$.error")).isEqualTo("charge_needs_approval")
+
+        // EUR counts at today's trusted rate (100 EUR = 5000 EGP); the same key retried is a replay, not a second charge.
+        val eurSupplier = newSupplier()
+        val key = UUID.randomUUID()
+        val body = """{"clientRequestId":"$key","kind":"CHARGE","currency":"EUR","amount":60.00,"serviceDate":"${today()}","reason":"x"}"""
+        val path = "$staff/payables/suppliers/$eurSupplier/adjustments"
+        assertThat(call("POST", path, manager, body).status).isEqualTo(201)
+        assertThat(call("POST", path, manager, body).status).isEqualTo(200)
+        assertThat(charge("suppliers", eurSupplier, "40.00", currency = "EUR", token = manager).status).isEqualTo(201)
+        assertThat(charge("suppliers", eurSupplier, "0.01", currency = "EUR", token = manager).str("$.error"))
+            .isEqualTo("charge_needs_approval")
+
+        // Concurrent charges cannot race past the cap.
+        val racing = newSupplier()
+        val replies = concurrently(6) { charge("suppliers", racing, "2000.00", token = manager) }
+        assertThat(replies.count { it.status == 201 }).withFailMessage(replies.toString()).isEqualTo(2)
+        assertThat(replies.filter { it.status != 201 }.map { it.str("$.error") }).containsOnly("charge_needs_approval")
+    }
+
+    @Test
+    fun `G1 whoever recorded a charge for a party today cannot pay that party today`() {
+        val manager = tokenWith("tours-operator.settlement:pay")
+        val other = tokenWith("tours-operator.settlement:pay", who = "-other")
+        val supplier = newSupplier()
+        val charged = charge("suppliers", supplier, "400.00", token = manager)
+        assertThat(charged.status).isEqualTo(201)
+        val self = pay("suppliers", supplier, "100.00", token = manager)
+        assertThat(self.status).isEqualTo(403)
+        assertThat(self.str("$.error")).isEqualTo("charge_recorder_cannot_pay")
+        // An owner who recorded the charge is held to the same rule; a second person can pay.
+        val ownerCharge = newSupplier()
+        assertThat(charge("suppliers", ownerCharge, "400.00", token = admin2()).status).isEqualTo(201)
+        assertThat(pay("suppliers", ownerCharge, "100.00", token = admin2()).str("$.error")).isEqualTo("charge_recorder_cannot_pay")
+        assertThat(pay("suppliers", supplier, "100.00", token = other).status).isEqualTo(201)
+        // Another party is unaffected, and a reversed charge no longer blocks the recorder.
+        val unrelated = newSupplier()
+        assertThat(charge("suppliers", unrelated, "50.00", token = admin()).status).isEqualTo(201)
+        assertThat(pay("suppliers", supplier, "50.00", token = other).status).isEqualTo(201)
+        val reverse = "$staff/payables/suppliers/$supplier/adjustments/${charged.read<String>("$.id")}/reverse"
+        assertThat(call("POST", reverse, admin2(), """{"clientRequestId":"${UUID.randomUUID()}","reason":"Mistake"}""").status)
+            .isEqualTo(201)
+        // The balance is now negative, so the manager is refused for the balance, not for having charged.
+        assertThat(pay("suppliers", supplier, "1.00", token = manager).str("$.error")).isEqualTo("amount_exceeds_balance")
+    }
+
+    @Test
+    fun `G5 an approval unused for more than 7 days expires`() {
+        val supplier = newSupplier()
+        assertThat(charge("suppliers", supplier, "20000.00").status).isEqualTo(201)
+        val approver = userRepository.findByEmail(EmailAddress.of("fin-admin2@example.com"))!!.id.value
+
+        fun approvalAged(days: Long): String {
+            val id = UUID.randomUUID()
+            dsl.execute(
+                """INSERT INTO wego.tours_operator_settlement_approval (id, party_type, supplier_id, currency, amount, approved_by_user_id,
+                   client_request_id, approved_at) VALUES (?, 'SUPPLIER', ?::uuid, 'EGP', 6000.00, ?, ?, now() - make_interval(days => ?) - interval '1 minute')""",
+                id,
+                supplier,
+                approver,
+                UUID.randomUUID(),
+                days.toInt(),
+            )
+            return id.toString()
+        }
+        val stale = approvalAged(7)
+        val expired = pay("suppliers", supplier, "6000.00", approvalId = stale)
+        assertThat(expired.status).isEqualTo(409)
+        assertThat(expired.str("$.error")).isEqualTo("approval_expired")
+        assertThat(statement("suppliers", supplier).str("$.approvals[?(@.id == '$stale')].expiresAt")).isNotBlank()
+        assertThat(pay("suppliers", supplier, "6000.00", approvalId = approvalAged(6)).status).isEqualTo(201)
+        // A fresh approval made through the API is usable.
+        val fresh =
+            call(
+                "POST",
+                "$staff/payables/suppliers/$supplier/approvals",
+                admin2(),
+                """{"clientRequestId":"${UUID.randomUUID()}","currency":"EGP","amount":6000}""",
+            )
+        assertThat(pay("suppliers", supplier, "6000.00", approvalId = fresh.read("$.id")).status).isEqualTo(201)
+    }
+
+    @Test
+    fun `G3 a cost change effective before today needs the owner permission`() {
+        val tour = seedTour()
+        val owner = """"tourId":"$tour""""
+        val manager = tokenWith("tours-operator.cost:manage")
+        val owning = tokenWith("tours-operator.cost:manage", "tours-operator.settlement:approve")
+        val past = cost(owner, "FIXED", "PER_DEPARTURE", "EUR", "10.00", validFrom = today().minusDays(1), token = manager)
+        assertThat(past.status).isEqualTo(403)
+        assertThat(past.str("$.error")).isEqualTo("backdated_cost_needs_approval")
+        val today = cost(owner, "FIXED", "PER_DEPARTURE", "EUR", "10.00", validFrom = today(), token = manager)
+        assertThat(today.status).withFailMessage(today.toString()).isEqualTo(201)
+        val id: String = today.read("$.id")
+        val body = { from: LocalDate ->
+            """{"clientRequestId":"${UUID.randomUUID()}",$owner,"category":"FIXED","label":"Fixed","basis":"PER_DEPARTURE","currency":"EUR",
+               "amount":12,"validFrom":"$from"}"""
+        }
+        assertThat(call("POST", "$staff/costs/$id/replace", manager, body(today().minusDays(1))).status).isEqualTo(403)
+        assertThat(call("POST", "$staff/costs/$id/end", manager, """{"lastDay":"${today().minusDays(2)}"}""").str("$.error"))
+            .isEqualTo("backdated_cost_needs_approval")
+        // Ending after yesterday only stops it from today: not a back-dated change. A future change is also free.
+        assertThat(call("POST", "$staff/costs/$id/end", manager, """{"lastDay":"${today().minusDays(1)}"}""").status).isEqualTo(200)
+        val future = cost(owner, "FIXED", "PER_DEPARTURE", "EUR", "11.00", validFrom = today().plusDays(5), token = manager)
+        assertThat(future.status).isEqualTo(201)
+        assertThat(
+            call("POST", "$staff/costs/${future.read<String>("$.id")}/replace", manager, body(today().plusDays(6))).status,
+        ).isEqualTo(201)
+        // With settlement:approve the same back-dated changes go through.
+        assertThat(
+            cost(owner, "OWN_EXTRA", "PER_DEPARTURE", "EUR", "3.00", validFrom = today().minusDays(9), token = owning).status,
+        ).isEqualTo(201)
+        assertThat(call("POST", "$staff/costs/$id/replace", owning, body(today().minusDays(1))).status).isEqualTo(409) // already ended
+        val endable = cost(owner, "OWN_EXTRA", "PER_DEPARTURE", "EUR", "4.00", validFrom = today().minusDays(20), token = owning)
+        assertThat(endable.status).isEqualTo(201)
+        val endId: String = endable.read("$.id")
+        assertThat(call("POST", "$staff/costs/$endId/end", manager, """{"lastDay":"${today().minusDays(5)}"}""").status).isEqualTo(403)
+        assertThat(call("POST", "$staff/costs/$endId/end", owning, """{"lastDay":"${today().minusDays(5)}"}""").status).isEqualTo(200)
+    }
+
+    @Test
+    fun `D3 a supplier without a SUPPLIER price is a gap even when other components exist`() {
+        setRate("50.0000")
+        val tour = seedTour()
+        val owner = """"tourId":"$tour""""
+        assertThat(cost(owner, "OWN_EXTRA", "PER_PERSON", "EGP", "100.00").status).isEqualTo(201)
+        val supplier = newSupplier()
+        val other = newSupplier()
+        val slot = seedSlot(tour)
+        assertThat(collect(office(slot, 1, 0), "35.00").status).isEqualTo(201)
+        assign(slot, null, listOf(supplier))
+
+        fun gaps() = departure(call("GET", "$staff/finance/profitability?from=${today()}&to=${today()}"), slot)
+        assertThat(gaps()["gaps"].toString()).isEqualTo("[\"SUPPLIER_COST_MISSING\"]")
+        assertThat(gaps()["profit"]).isNull()
+        // A price linked to a different supplier does not cover this one.
+        assertThat(cost(owner, "SUPPLIER", "PER_PERSON", "EGP", "600.00", ""","supplierId":"$other"""").status).isEqualTo(201)
+        assertThat(gaps()["gaps"].toString()).isEqualTo("[\"SUPPLIER_COST_MISSING\"]")
+        assertThat(cost(owner, "SUPPLIER", "PER_PERSON", "EGP", "600.00", ""","supplierId":"$supplier"""").status).isEqualTo(201)
+        assertThat(gaps()["gaps"].toString()).isEqualTo("[]")
+        assertThat(amountOf(gaps(), "cost")).isEqualTo("26.00") // every tour cost counts: (100 + 600 + 600) / 50
+    }
+
+    @Test
+    fun `D4 a past departure without a rate of its day uses the nearest earlier rate, never a later one`() {
+        fun rateOn(
+            day: LocalDate,
+            value: String,
+        ) = dsl.execute(
+            "INSERT INTO wego.tours_operator_fx_rate (id, rate_date, egp_per_eur, set_at) VALUES (?, ?, ?::numeric, now())",
+            UUID.randomUUID(),
+            day,
+            value,
+        )
+        rateOn(today().minusDays(100), "40.0000")
+        rateOn(today().minusDays(50), "60.0000")
+        val tour = seedTour()
+        assertThat(cost(""""tourId":"$tour"""", "SUPPLIER", "PER_PERSON", "EGP", "600.00", validFrom = today().minusDays(200)).status)
+            .isEqualTo(201)
+        val day = today().minusDays(90)
+        val slot = seedSlot(tour, day)
+        val booking = officeInPast(tour, slot, day)
+        assertThat(collect(booking, "35.00").status).isEqualTo(201)
+        val report = call("GET", "$staff/finance/profitability?from=$day&to=$day&groupBy=DEPARTURE")
+        assertThat(report.str("$.groups[?(@.key == '$slot')].rateSource")).contains("PREVIOUS")
+        assertThat(report.str("$.groups[?(@.key == '$slot')].egpPerEur")).contains("40")
+        assertThat(amountOf(departure(report, slot), "cost")).isEqualTo("15.00") // 600 / 40, not / 60 or / today's
+        // Setting a newer rate later does not move it.
+        setRate("80.0000")
+        assertThat(amountOf(departure(call("GET", "$staff/finance/profitability?from=$day&to=$day"), slot), "cost")).isEqualTo("15.00")
+        // Before the first rate there is nothing earlier: the profit is hidden, not valued at a later rate.
+        val early = today().minusDays(110)
+        val earlySlot = seedSlot(tour, early)
+        assertThat(collect(officeInPast(tour, earlySlot, early), "35.00").status).isEqualTo(201)
+        val earlyTotals = departure(call("GET", "$staff/finance/profitability?from=$early&to=$early"), earlySlot)
+        assertThat(earlyTotals["gaps"].toString()).contains("FX_RATE_MISSING")
+        assertThat(earlyTotals["profit"]).isNull()
+    }
+
+    @Test
+    fun `D2 and D5 a payment under review or a refund pending is flagged, not dropped or shown at 100 percent`() {
+        setRate("50.0000")
+        val tour = seedTour()
+        assertThat(cost(""""tourId":"$tour"""", "FIXED", "PER_DEPARTURE", "EUR", "5.00").status).isEqualTo(201)
+        val slot = seedSlot(tour)
+
+        fun onlinePayment(
+            bookingId: String,
+            status: String,
+        ) {
+            dsl.execute(
+                "UPDATE wego.tours_operator_booking SET channel = 'ONLINE', created_by_user_id = NULL, client_request_id = NULL WHERE id = ?::uuid",
+                bookingId,
+            )
+            val id = UUID.randomUUID()
+            dsl.execute(
+                """INSERT INTO wego.tours_operator_payment (id, booking_id, amount_eur, amount_minor_units, currency_code, status, created_at,
+                   paid_at, revenue_recognised_at, provider_reference) VALUES (?, ?::uuid, 35.00, 3500, 'EUR', ?, now(), now(), now(), ?)""",
+                id,
+                bookingId,
+                status,
+                "sts-$id",
+            )
+        }
+        val reviewed = office(slot, 1, 0)
+        onlinePayment(reviewed, "REVIEW_REQUIRED")
+        var report = call("GET", "$staff/finance/profitability?from=${today()}&to=${today()}&groupBy=BOOKING")
+        var totals = report.read<List<Map<String, Any?>>>("$.groups[?(@.key == '$reviewed')].totals").single()
+        assertThat(amountOf(totals, "onlineRevenue")).isEqualTo("35.00") // the capture does not disappear
+        assertThat(totals["profit"]).isNull()
+        assertThat(totals["flags"].toString()).isEqualTo("[\"PAYMENT_UNDER_REVIEW\"]")
+
+        val cancelled = office(slot, 1, 0)
+        onlinePayment(cancelled, "PAID")
+        cancel(cancelled)
+        report = call("GET", "$staff/finance/profitability?from=${today()}&to=${today()}&groupBy=BOOKING")
+        totals = report.read<List<Map<String, Any?>>>("$.groups[?(@.key == '$cancelled')].totals").single()
+        // REFUND_PENDING is a flag only: the profit is still computed (owner decision on retained money is pending).
+        assertThat(totals["profit"]).isNotNull()
+        assertThat(totals["flags"].toString()).isEqualTo("[\"REFUND_PENDING\"]")
+        // The departure line carries both flags; the booking under review is excluded from its profit, and it says how many.
+        val line = departure(call("GET", "$staff/finance/profitability?from=${today()}&to=${today()}"), slot)
+        assertThat(line["flags"].toString()).contains("PAYMENT_UNDER_REVIEW", "REFUND_PENDING")
+        assertThat(line["excludedBookings"]).isEqualTo(1)
+        assertThat(line["profit"]).isNotNull()
+        // Net of a partial refund recorded on the review payment: 35.00 - 10.00.
+        dsl.execute(
+            """INSERT INTO wego.tours_operator_payment_refund_event (id, payment_id, provider_refund_id, amount_minor_units, received_at)
+               SELECT ?, id, 'r-1', 1000, now() FROM wego.tours_operator_payment WHERE booking_id = ?::uuid""",
+            UUID.randomUUID(),
+            reviewed,
+        )
+        report = call("GET", "$staff/finance/profitability?from=${today()}&to=${today()}&groupBy=BOOKING")
+        totals = report.read<List<Map<String, Any?>>>("$.groups[?(@.key == '$reviewed')].totals").single()
+        assertThat(amountOf(totals, "onlineRevenue")).isEqualTo("25.00")
+    }
+
+    @Test
+    fun `D1 profitability shows booked value and outstanding without changing the profit`() {
+        setRate("50.0000")
+        val tour = seedTour()
+        assertThat(cost(""""tourId":"$tour"""", "FIXED", "PER_DEPARTURE", "EUR", "10.00").status).isEqualTo(201)
+        val slot = seedSlot(tour)
+        val booking = office(slot, 2, 1) // 87.50 EUR
+        assertThat(collect(booking, "50.00").status).isEqualTo(201)
+        val totals = departure(call("GET", "$staff/finance/profitability?from=${today()}&to=${today()}"), slot)
+        assertThat(amountOf(totals, "bookedValue")).isEqualTo("87.50")
+        assertThat(amountOf(totals, "outstanding")).isEqualTo("37.50")
+        assertThat(amountOf(totals, "revenue")).isEqualTo("50.00")
+        assertThat(amountOf(totals, "profit")).isEqualTo("40.00")
+        assertThat(totals["flags"].toString()).isEqualTo("[]")
+    }
+
+    @Test
+    fun `F1 a charge recorder cannot pay for 7 days, another user can`() {
+        val manager = tokenWith("tours-operator.settlement:pay", who = "-f1")
+        val other = tokenWith("tours-operator.settlement:pay", who = "-f1other")
+        val managerId = userRepository.findByEmail(EmailAddress.of("fin-test-settlement-pay-f1@example.com"))!!.id.value
+        val supplier = newSupplier()
+
+        fun oldCharge(daysAgo: Int) =
+            dsl.execute(
+                """INSERT INTO wego.tours_operator_payable_adjustment (id, party_type, supplier_id, service_date, kind, currency, amount, reason,
+                   recorded_by_user_id, client_request_id, recorded_at) VALUES (?, 'SUPPLIER', ?::uuid, ?, 'CHARGE', 'EGP', 400.00, 'Earlier',
+                   ?, ?, now() - make_interval(days => ?))""",
+                UUID.randomUUID(),
+                supplier,
+                today().minusDays(daysAgo.toLong()),
+                managerId,
+                UUID.randomUUID(),
+                daysAgo,
+            )
+        oldCharge(8) // outside the window: does not block
+        assertThat(pay("suppliers", supplier, "100.00", token = manager).status).isEqualTo(201)
+        oldCharge(1) // yesterday's charge, paid today
+        val refused = pay("suppliers", supplier, "100.00", token = manager)
+        assertThat(refused.status).isEqualTo(403)
+        assertThat(refused.str("$.error")).isEqualTo("charge_recorder_cannot_pay")
+        assertThat(pay("suppliers", supplier, "100.00", token = other).status).isEqualTo(201)
+    }
+
+    @Test
+    fun `F2 lowering today's rate after a EUR charge does not free cap room`() {
+        setRate("50.0000")
+        val manager = tokenWith("tours-operator.settlement:pay", who = "-f2")
+        val supplier = newSupplier()
+        assertThat(charge("suppliers", supplier, "60.00", currency = "EUR", token = manager).status).isEqualTo(201) // 3000 EGP at 50
+        Thread.sleep(20)
+        setRate("40.0000") // within the 20 % band of yesterday's 50
+        // 51 EUR at 40 = 2040: the earlier charge still counts 3000 (not 2400), so 5040 is over the cap.
+        assertThat(charge("suppliers", supplier, "51.00", currency = "EUR", token = manager).str("$.error"))
+            .isEqualTo("charge_needs_approval")
+        assertThat(charge("suppliers", supplier, "50.00", currency = "EUR", token = manager).status).isEqualTo(201) // 3000 + 2000
+        setRate("50.0000")
+    }
+
+    @Test
+    fun `F4 a manual supplier charge on the departure covers a missing supplier price`() {
+        setRate("50.0000")
+        val tour = seedTour()
+        assertThat(cost(""""tourId":"$tour"""", "OWN_EXTRA", "PER_PERSON", "EGP", "100.00").status).isEqualTo(201)
+        val supplier = newSupplier()
+        val slot = seedSlot(tour)
+        assertThat(collect(office(slot, 1, 0), "35.00").status).isEqualTo(201)
+        assign(slot, null, listOf(supplier))
+
+        fun gaps() = departure(call("GET", "$staff/finance/profitability?from=${today()}&to=${today()}"), slot)
+        assertThat(gaps()["gaps"].toString()).contains("SUPPLIER_COST_MISSING")
+        assertThat(charge("suppliers", supplier, "300.00", slotId = slot).status).isEqualTo(201)
+        assertThat(gaps()["gaps"].toString()).isEqualTo("[]")
+        assertThat(amountOf(gaps(), "cost")).isEqualTo("8.00") // (100 + 300) / 50
+    }
+
+    @Test
+    fun `F5 a retry of an accepted back-dated cost returns it even without the owner permission`() {
+        val tour = seedTour()
+        val role = "f5-role-${unique()}"
+        dsl
+            .insertInto(IDENTITY_ROLE)
+            .set(IDENTITY_ROLE.CODE, role)
+            .set(IDENTITY_ROLE.DESCRIPTION, "F5")
+            .execute()
+        for (permission in listOf("tours-operator.cost:manage", "tours-operator.settlement:approve")) {
+            dsl
+                .insertInto(IDENTITY_ROLE_PERMISSION)
+                .set(IDENTITY_ROLE_PERMISSION.ROLE_CODE, role)
+                .set(IDENTITY_ROLE_PERMISSION.PERMISSION_CODE, permission)
+                .execute()
+        }
+        seedUser("$role@example.com", setOf(role))
+        val body =
+            """{"clientRequestId":"${UUID.randomUUID()}","tourId":"$tour","category":"FIXED","label":"Fixed","basis":"PER_DEPARTURE","currency":"EUR",
+               "amount":7,"validFrom":"${today().minusDays(3)}"}"""
+        assertThat(call("POST", "$staff/costs", login("$role@example.com"), body).status).isEqualTo(201)
+        dsl.execute(
+            "DELETE FROM wego.identity_role_permission WHERE role_code = ? AND permission_code = 'tours-operator.settlement:approve'",
+            role,
+        )
+        // The owner permission is gone (a later day, a changed role): the same request still returns what was created.
+        assertThat(call("POST", "$staff/costs", login("$role@example.com"), body).status).isEqualTo(200)
+        val fresh = body.replace(Regex("\"clientRequestId\":\"[^\"]+\""), "\"clientRequestId\":\"${UUID.randomUUID()}\"")
+        assertThat(call("POST", "$staff/costs", login("$role@example.com"), fresh).status).isEqualTo(403)
     }
 
     @Test

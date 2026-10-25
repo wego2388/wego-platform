@@ -9,6 +9,7 @@ import com.wego.generated.jooq.tables.ToursOperatorOfficeCollection.TOURS_OPERAT
 import com.wego.generated.jooq.tables.ToursOperatorOfficeRefund.TOURS_OPERATOR_OFFICE_REFUND
 import com.wego.generated.jooq.tables.ToursOperatorPayableAdjustment.TOURS_OPERATOR_PAYABLE_ADJUSTMENT
 import com.wego.generated.jooq.tables.ToursOperatorPayment.TOURS_OPERATOR_PAYMENT
+import com.wego.generated.jooq.tables.ToursOperatorPaymentRefundEvent.TOURS_OPERATOR_PAYMENT_REFUND_EVENT
 import com.wego.generated.jooq.tables.ToursOperatorSettlementApproval.TOURS_OPERATOR_SETTLEMENT_APPROVAL
 import com.wego.generated.jooq.tables.ToursOperatorSettlementPayment.TOURS_OPERATOR_SETTLEMENT_PAYMENT
 import com.wego.generated.jooq.tables.ToursOperatorSlotAssignment.TOURS_OPERATOR_SLOT_ASSIGNMENT
@@ -640,6 +641,7 @@ class JooqFinanceReadRepository(
 ) : FinanceReadRepository {
     private val b = TOURS_OPERATOR_BOOKING
     private val pay = TOURS_OPERATOR_PAYMENT
+    private val rf = TOURS_OPERATOR_PAYMENT_REFUND_EVENT
     private val c = TOURS_OPERATOR_OFFICE_COLLECTION
     private val r = TOURS_OPERATOR_OFFICE_REFUND
     private val sa = TOURS_OPERATOR_SLOT_ASSIGNMENT
@@ -661,15 +663,30 @@ class JooqFinanceReadRepository(
                 .fetch()
         if (rows.isEmpty()) return emptyList()
         val ids = rows.map { it.id }
-        val online =
+        val payments =
             dsl
-                .select(pay.BOOKING_ID, pay.AMOUNT_EUR)
+                .select(pay.ID, pay.BOOKING_ID, pay.AMOUNT_EUR, pay.STATUS)
                 .from(pay)
                 .where(pay.BOOKING_ID.`in`(ids))
-                .and(pay.STATUS.eq(PaymentStatus.PAID.name))
+                .and(pay.STATUS.`in`(PaymentStatus.PAID.name, PaymentStatus.REVIEW_REQUIRED.name))
                 .and(pay.REVENUE_RECOGNISED_AT.isNotNull)
                 .fetch()
-                .associate { it.value1() to it.value2().money2() }
+        // A payment in REVIEW_REQUIRED (for example partly refunded) counts net of the partial refunds recorded on it, and is flagged;
+        // one still PAID on a cancelled booking is a refund due.
+        val partlyRefunded =
+            dsl
+                .select(rf.PAYMENT_ID, DSL.sum(rf.AMOUNT_MINOR_UNITS))
+                .from(rf)
+                .where(rf.PAYMENT_ID.`in`(payments.filter { it.value4() == PaymentStatus.REVIEW_REQUIRED.name }.map { it.value1() }))
+                .groupBy(rf.PAYMENT_ID)
+                .fetch()
+                .associate { it.value1() to (it.value2() ?: BigDecimal.ZERO).movePointLeft(2) }
+        val online =
+            payments.associate { row ->
+                val net = row.value3().subtract(partlyRefunded[row.value1()] ?: BigDecimal.ZERO).max(BigDecimal.ZERO)
+                row.value2() to net.money2()
+            }
+        val statuses = payments.associate { it.value2() to it.value4() }
         val collected = signedSums(c.BOOKING_ID, c.KIND.eq("COLLECTION"), c.AMOUNT_EUR, c.BOOKING_ID.`in`(ids), c)
         val refunded = signedSums(r.BOOKING_ID, r.KIND.eq(OfficeRefundKind.REFUND.name), r.AMOUNT_EUR, r.BOOKING_ID.`in`(ids), r)
         return rows.map { row ->
@@ -685,6 +702,8 @@ class JooqFinanceReadRepository(
                 pricing = pricing(row),
                 onlineRevenue = online[row.id] ?: ZERO,
                 officeRevenue = (collected[row.id] ?: ZERO).subtract(refunded[row.id] ?: ZERO),
+                paymentUnderReview = statuses[row.id] == PaymentStatus.REVIEW_REQUIRED.name,
+                refundPending = row.status == BookingStatus.CANCELLED.name && statuses[row.id] == PaymentStatus.PAID.name,
             )
         }
     }
@@ -800,17 +819,26 @@ class JooqFinanceReadRepository(
     }
 
     @Transactional(readOnly = true)
-    override fun ratesBetween(
-        from: LocalDate,
-        to: LocalDate,
-    ): Map<LocalDate, BigDecimal> =
+    override fun ratesUpTo(to: LocalDate): Map<LocalDate, BigDecimal> =
         dsl
             .selectFrom(fx)
-            .where(fx.RATE_DATE.between(from, to))
+            .where(fx.RATE_DATE.le(to))
             .orderBy(fx.RATE_DATE, fx.SET_AT.asc(), fx.ID.asc())
             .fetch()
             // Ascending by set time: the last row of a day wins, as everywhere else.
             .associate { it.rateDate to it.egpPerEur }
+
+    @Transactional(readOnly = true)
+    override fun suppliers(slotIds: Collection<TourSlotId>): Map<TourSlotId, Set<UUID>> {
+        if (slotIds.isEmpty()) return emptyMap()
+        return dsl
+            .select(sas.SLOT_ID, sas.SUPPLIER_ID)
+            .from(sas)
+            .where(sas.SLOT_ID.`in`(slotIds.map { it.value }))
+            .fetch()
+            .groupBy({ TourSlotId(checkNotNull(it.value1())) }, { checkNotNull(it.value2()) })
+            .mapValues { it.value.toSet() }
+    }
 
     @Transactional(readOnly = true)
     override fun latestRate(): BigDecimal? =
