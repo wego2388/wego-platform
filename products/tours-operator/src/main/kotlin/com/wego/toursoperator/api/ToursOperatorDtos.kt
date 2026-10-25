@@ -404,5 +404,4 @@ data class PublicBookingLookupResponse(
     val unit: BookingUnitResponse? = null,
     val hotelName: String,
     val status: BookingStatus,
-    val cancellationReason: String?,
 )

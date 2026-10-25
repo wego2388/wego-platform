@@ -759,6 +759,7 @@ class ToursOperatorHttpTest {
                 jsonPath("$.id") { doesNotExist() }
                 jsonPath("$.hotelRoom") { doesNotExist() }
                 jsonPath("$.specialRequests") { doesNotExist() }
+                jsonPath("$.cancellationReason") { doesNotExist() }
             }
     }
 

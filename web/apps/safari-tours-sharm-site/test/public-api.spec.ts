@@ -53,7 +53,6 @@ const BOOKING: BookingConfirmation = {
   createdAt: "2026-09-27T10:00:00Z",
   confirmedAt: null,
   cancelledAt: null,
-  cancellationReason: null,
   completedAt: null,
   expiredAt: null,
 };

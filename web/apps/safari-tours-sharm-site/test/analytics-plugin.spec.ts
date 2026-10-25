@@ -10,6 +10,7 @@ type TrackingWindow = Window & { dataLayer?: unknown[]; gtag?: (...args: unknown
 const w = window as unknown as TrackingWindow;
 let scope = effectScope();
 let loadedScripts: string[] = [];
+let routeRef: { value: { path: string } } = { value: { path: "/" } };
 let navigationHook: ((to: { path: string }, from: { path: string }) => void) | null = null;
 
 beforeEach(() => {
@@ -29,9 +30,10 @@ beforeEach(() => {
 
 afterEach(() => { scope.stop(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
-async function setup(ga4Id: string, metaPixelId: string): Promise<Track> {
+async function setup(ga4Id: string, metaPixelId: string, path = "/en/tour/sunset-quad-bike"): Promise<Track> {
   const config = { public: { ga4Id, metaPixelId } };
-  const currentRoute = ref({ path: "/en/tour/sunset-quad-bike" });
+  const currentRoute = ref({ path });
+  routeRef = currentRoute;
   vi.stubGlobal("useRuntimeConfig", () => config);
   vi.stubGlobal("useRouter", () => ({ currentRoute, isReady: () => Promise.resolve(), afterEach: (hook: typeof navigationHook) => { navigationHook = hook; } }));
   const plugin = (await import("../app/plugins/analytics.client")).default as unknown as (app: { provide: (key: string, value: Track) => void }) => void;
@@ -134,5 +136,25 @@ describe("request lead provider adapters", () => {
     expect(provider).toHaveBeenCalledTimes(1);
     consent.granted.value = true;
     expect(provider).toHaveBeenCalledWith("consent", "grant");
+  });
+
+  it("never loads providers or sends events on payment-return paths, and starts on the next normal page", async () => {
+    const { isPaymentSensitivePath } = await import("../app/plugins/analytics.client");
+    for (const path of ["/booking/payment-result", "/en/booking/payment-result", "/ar/booking/confirmation"]) {
+      expect(isPaymentSensitivePath(path)).toBe(true);
+    }
+    for (const path of ["/", "/en", "/en/tour/booking-tips", "/en/my-booking"]) expect(isPaymentSensitivePath(path)).toBe(false);
+    const track = await setup("G-TEST123", "123456789", "/en/booking/payment-result");
+    consent.granted.value = true;
+    await flushPromises();
+    track("purchase", { value: 10 });
+    navigationHook?.({ path: "/en/booking/confirmation" }, { path: "/en/booking/payment-result" });
+    expect(w.dataLayer).toBeUndefined();
+    expect(w.fbq).toBeUndefined();
+    expect(loadedScripts).toEqual([]);
+    routeRef.value = { path: "/en" };
+    navigationHook?.({ path: "/en" }, { path: "/en/booking/confirmation" });
+    await flushPromises();
+    expect(loadedScripts).toHaveLength(2);
   });
 });

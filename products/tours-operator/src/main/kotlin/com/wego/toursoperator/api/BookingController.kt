@@ -328,7 +328,6 @@ private fun Booking.toPublicLookupResponse() =
         unit = pricing.unit?.toResponse(),
         hotelName = hotelName,
         status = status,
-        cancellationReason = cancellationReason,
     )
 
 internal fun UnitPurchase.toResponse() =

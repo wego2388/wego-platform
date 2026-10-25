@@ -23,6 +23,16 @@ const META_EVENT: Partial<Record<AnalyticsEvent, string>> = {
   search: "Search",
 };
 
+/**
+ * Payment-return pages (`/booking/payment-result?...`) carry Paymob's query
+ * (transaction/order ids, masked card, hmac). fbevents.js reads
+ * `document.location.href` itself, so on these paths no provider may load or
+ * send anything at all. Locale prefixes (`/en/booking/...`) are covered.
+ */
+export function isPaymentSensitivePath(path: string): boolean {
+  return /^(\/[a-z]{2})?\/booking(\/|$)/i.test(path);
+}
+
 function loadScript(src: string) {
   const script = document.createElement("script");
   script.async = true;
@@ -53,8 +63,13 @@ export default defineNuxtPlugin((nuxtApp) => {
     if (config.metaPixelId) w.fbq?.("consent", granted ? "grant" : "revoke");
   }
 
+  /** Real browser location too: the router is still at "/" on a hard landing before it is ready. */
+  function blocked(path: string = router.currentRoute.value.path) {
+    return isPaymentSensitivePath(path) || isPaymentSensitivePath(window.location.pathname);
+  }
+
   function start() {
-    if (ready || !consent.granted.value) return;
+    if (ready || !consent.granted.value || blocked()) return;
     ready = true;
     if (config.ga4Id) {
       w.dataLayer = w.dataLayer ?? [];
@@ -90,6 +105,9 @@ export default defineNuxtPlugin((nuxtApp) => {
       // No automatic advanced matching or auto-collected button/form data:
       // the checkout has names, phones and emails that must never reach Meta.
       w.fbq("set", "autoConfig", false, String(config.metaPixelId));
+      // fbevents.js would otherwise fire its own PageView with the full URL on
+      // every history pushState, bypassing the /booking/* block below.
+      (w.fbq as unknown as { disablePushState?: boolean }).disablePushState = true;
       w.fbq("init", String(config.metaPixelId));
     }
     void router.isReady().then(pageView);
@@ -102,13 +120,13 @@ export default defineNuxtPlugin((nuxtApp) => {
   }
 
   function pageView() {
-    if (!ready || !consent.granted.value) return;
+    if (!ready || !consent.granted.value || blocked()) return;
     w.gtag?.("event", "page_view", location());
     w.fbq?.("track", "PageView");
   }
 
   function track(event: AnalyticsEvent, params: Params) {
-    if (!ready || !consent.granted.value) return;
+    if (!ready || !consent.granted.value || blocked()) return;
     w.gtag?.("event", event, { ...params, ...location() });
     const metaEvent = META_EVENT[event];
     if (metaEvent) {
@@ -125,7 +143,10 @@ export default defineNuxtPlugin((nuxtApp) => {
     } else start();
   }, { immediate: true, flush: "sync" });
   router.afterEach((to, from) => {
-    if (to.path !== from.path) pageView();
+    if (to.path === from.path) return;
+    // Providers that were held back on a payment-return landing start on the first normal page.
+    if (!ready) start();
+    else pageView();
   });
 
   nuxtApp.provide("stsTrack", track);

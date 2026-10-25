@@ -14,6 +14,9 @@ interface OnlineRequestRepository {
         lock: Boolean = false,
     ): OnlineRequest?
 
+    /** Exact match on the unique stored reference; legacy rows store `STQ-<id hex>`. */
+    fun findByReference(reference: String): OnlineRequest?
+
     fun list(
         status: OnlineRequestStatus?,
         page: Int,

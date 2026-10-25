@@ -70,6 +70,14 @@ class JooqOnlineRequestRepository(
     }
 
     @Transactional(readOnly = true)
+    override fun findByReference(reference: String): OnlineRequest? =
+        dsl
+            .selectFrom(t)
+            .where(t.REFERENCE.eq(reference))
+            .fetchOne()
+            ?.domain()
+
+    @Transactional(readOnly = true)
     override fun list(
         status: OnlineRequestStatus?,
         page: Int,

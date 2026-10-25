@@ -5,7 +5,7 @@ export interface MyBookingCopy {
   title: string; intro: string;
   reference: string; referenceHint: string; phone: string; phoneHint: string; submit: string;
   notFound: string; tooMany: string; network: string; required: string;
-  result: { heading: string; status: string; date: string; time: string; guests: string; units: string; total: string; hotel: string; reason: string };
+  result: { heading: string; status: string; date: string; time: string; guests: string; units: string; total: string; hotel: string };
   statuses: { NEW: string; CONFIRMED: string; COMPLETED: string; CANCELLED: string; EXPIRED: string };
   statusHelp: { NEW: string; CONFIRMED: string; COMPLETED: string; CANCELLED: string; EXPIRED: string };
   help: string; whatsapp: string; another: string;
@@ -21,7 +21,7 @@ const en: MyBookingCopy = {
   reference: "Request or booking reference", referenceHint: "Use the complete STQ- request reference or STR- booking reference.", phone: "Phone number", phoneHint: "Use your original number including the country code, for example +20.", submit: "Find my booking",
   notFound: "We could not find a booking with these details. Check the reference and phone number.", tooMany: "Too many attempts. Please wait a minute and try again.",
   network: "We could not reach the server. Please try again.", required: "Please fill in both fields.",
-  result: { heading: "Your booking", status: "Status", date: "Date", time: "Departure", guests: "Guests", units: "Booked as", total: "Total", hotel: "Pickup hotel", reason: "Reason" },
+  result: { heading: "Your booking", status: "Status", date: "Date", time: "Departure", guests: "Guests", units: "Booked as", total: "Total", hotel: "Pickup hotel" },
   statuses: { NEW: "Awaiting payment", CONFIRMED: "Confirmed", COMPLETED: "Completed", CANCELLED: "Cancelled", EXPIRED: "Expired (not paid)" },
   statusHelp: {
     NEW: "We have not received the payment for this booking yet.",
@@ -48,7 +48,7 @@ const ar: MyBookingCopy = {
   reference: "رقم الطلب أو الحجز", referenceHint: "اكتب المرجع كاملًا: STQ- لطلب الموقع، أو STR- للحجز.", phone: "رقم الهاتف", phoneHint: "نفس الرقم الذي استخدمته، شاملًا كود الدولة مثل +20.", submit: "اعرض حجزي",
   notFound: "لم نجد حجزًا بهذه البيانات. تأكد من رقم الحجز ورقم الهاتف.", tooMany: "محاولات كثيرة. انتظر دقيقة ثم حاول مرة أخرى.",
   network: "تعذّر الاتصال بالخادم. حاول مرة أخرى.", required: "من فضلك اكتب الخانتين.",
-  result: { heading: "حجزك", status: "الحالة", date: "التاريخ", time: "الموعد", guests: "الأفراد", units: "الحجز", total: "الإجمالي", hotel: "فندق الاستلام", reason: "السبب" },
+  result: { heading: "حجزك", status: "الحالة", date: "التاريخ", time: "الموعد", guests: "الأفراد", units: "الحجز", total: "الإجمالي", hotel: "فندق الاستلام" },
   statuses: { NEW: "في انتظار الدفع", CONFIRMED: "مؤكد", COMPLETED: "تمت الرحلة", CANCELLED: "ملغي", EXPIRED: "منتهي (لم يُدفع)" },
   statusHelp: {
     NEW: "لم يصلنا الدفع لهذا الحجز بعد.",
@@ -75,7 +75,7 @@ const ru: MyBookingCopy = {
   reference: "Номер заявки или бронирования", referenceHint: "Полный номер STQ- для заявки или STR- для бронирования.", phone: "Телефон", phoneHint: "Исходный номер с кодом страны, например +20.", submit: "Найти бронирование",
   notFound: "Бронирование с такими данными не найдено. Проверьте номер и телефон.", tooMany: "Слишком много попыток. Подождите минуту и попробуйте снова.",
   network: "Не удалось связаться с сервером. Попробуйте снова.", required: "Заполните оба поля.",
-  result: { heading: "Ваше бронирование", status: "Статус", date: "Дата", time: "Отправление", guests: "Гости", units: "Бронь", total: "Итого", hotel: "Отель для трансфера", reason: "Причина" },
+  result: { heading: "Ваше бронирование", status: "Статус", date: "Дата", time: "Отправление", guests: "Гости", units: "Бронь", total: "Итого", hotel: "Отель для трансфера" },
   statuses: { NEW: "Ожидает оплаты", CONFIRMED: "Подтверждено", COMPLETED: "Завершено", CANCELLED: "Отменено", EXPIRED: "Истекло (не оплачено)" },
   statusHelp: {
     NEW: "Оплата за это бронирование ещё не поступила.",
@@ -102,7 +102,7 @@ const it: MyBookingCopy = {
   reference: "Codice richiesta o prenotazione", referenceHint: "Codice completo STQ- per la richiesta o STR- per la prenotazione.", phone: "Telefono", phoneHint: "Il numero originale con prefisso internazionale, ad esempio +20.", submit: "Trova la prenotazione",
   notFound: "Nessuna prenotazione trovata con questi dati. Controlla codice e telefono.", tooMany: "Troppi tentativi. Attendi un minuto e riprova.",
   network: "Impossibile contattare il server. Riprova.", required: "Compila entrambi i campi.",
-  result: { heading: "La tua prenotazione", status: "Stato", date: "Data", time: "Partenza", guests: "Partecipanti", units: "Prenotato come", total: "Totale", hotel: "Hotel di prelievo", reason: "Motivo" },
+  result: { heading: "La tua prenotazione", status: "Stato", date: "Data", time: "Partenza", guests: "Partecipanti", units: "Prenotato come", total: "Totale", hotel: "Hotel di prelievo" },
   statuses: { NEW: "In attesa di pagamento", CONFIRMED: "Confermata", COMPLETED: "Completata", CANCELLED: "Annullata", EXPIRED: "Scaduta (non pagata)" },
   statusHelp: {
     NEW: "Non abbiamo ancora ricevuto il pagamento per questa prenotazione.",

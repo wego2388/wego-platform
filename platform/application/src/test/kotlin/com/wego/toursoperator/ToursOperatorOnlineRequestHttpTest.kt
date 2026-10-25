@@ -250,6 +250,30 @@ class ToursOperatorOnlineRequestHttpTest {
         }
     }
 
+    @Test fun `reference is server generated, replay returns it and legacy id-derived references still resolve`() {
+        val (tour, _) = seed()
+        val id = UUID.randomUUID()
+        val first = submit(body(id, tour))
+        val reference: String = JsonPath.read(first.contentAsString, "$.reference")
+        val idDerived = "STQ-${id.toString().replace("-", "").uppercase()}"
+        assertThat(reference).isNotEqualTo(idDerived)
+        val replay = submit(body(id, tour))
+        assertThat(replay.status).isEqualTo(200)
+        assertThat(JsonPath.read<String>(replay.contentAsString, "$.reference")).isEqualTo(reference)
+        assertThat(lookup(idDerived).status).isEqualTo(404)
+        assertThat(lookup(reference).status).isEqualTo(200)
+        // A row written before this change stored STQ-<id hex>; it must keep resolving.
+        dsl
+            .update(com.wego.generated.jooq.tables.ToursOperatorOnlineRequest.TOURS_OPERATOR_ONLINE_REQUEST)
+            .set(com.wego.generated.jooq.tables.ToursOperatorOnlineRequest.TOURS_OPERATOR_ONLINE_REQUEST.REFERENCE, idDerived)
+            .where(
+                com.wego.generated.jooq.tables.ToursOperatorOnlineRequest.TOURS_OPERATOR_ONLINE_REQUEST.ID
+                    .eq(id),
+            ).execute()
+        assertThat(lookup(idDerived).status).isEqualTo(200)
+        assertThat(JsonPath.read<String>(submit(body(id, tour)).contentAsString, "$.reference")).isEqualTo(idDerived)
+    }
+
     @Test fun `public saves only intent and returns reference without PII`() {
         val (tour, slot) = seed()
         val id = UUID.randomUUID()
@@ -344,6 +368,8 @@ class ToursOperatorOnlineRequestHttpTest {
             }.andExpect { status { isOk() } }
         val cancelled = lookup(reference)
         assertThat(JsonPath.read<String>(cancelled.contentAsString, "$.booking.status")).isEqualTo("CANCELLED")
+        assertThat(cancelled.contentAsString).doesNotContain("cancellationReason")
+        assertThat(cancelled.contentAsString).doesNotContain("Synthetic recovery test cancellation")
         assertThat(seats(slot)).isZero()
     }
 

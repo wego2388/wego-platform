@@ -4361,7 +4361,6 @@ export interface components {
             unit: components["schemas"]["ToursOperatorBookingUnit"] | null;
             hotelName: string;
             status: components["schemas"]["ToursOperatorBookingStatus"];
-            cancellationReason: string | null;
         };
         CancelToursOperatorBookingRequest: {
             reason: string;

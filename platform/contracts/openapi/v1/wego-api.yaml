@@ -8960,7 +8960,6 @@ components:
         - unit
         - hotelName
         - status
-        - cancellationReason
       properties:
         reference:
           type: string
@@ -8986,10 +8985,6 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/ToursOperatorBookingStatus"
-        cancellationReason:
-          type:
-            - string
-            - "null"
     CancelToursOperatorBookingRequest:
       type: object
       additionalProperties: false

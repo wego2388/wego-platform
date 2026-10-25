@@ -20,7 +20,7 @@ const request: PublicOnlineRequestLookup = {
 const booking = {
   reference: "STR-2026-123", tourDate: "2026-11-02", timeSlot: "MORNING" as const,
   adultsCount: 1, childrenCount: 0, totalPrice: { amount: "35.00", currencyCode: "EUR" },
-  unit: null, hotelName: "Synthetic hotel", status: "CONFIRMED" as const, cancellationReason: null,
+  unit: null, hotelName: "Synthetic hotel", status: "CONFIRMED" as const,
 };
 function make() {
   return mount(MyBooking, { global: { stubs: { UiField: Field, UiInput: Input, UiButton: Button, UiBadge: { template: '<span><slot /></span>' }, ReviewRequest: true } } });

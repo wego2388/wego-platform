@@ -35,6 +35,8 @@ sealed interface OnlineRequestResult {
     ) : OnlineRequestResult
 }
 
+private val secureRandom = java.security.SecureRandom()
+
 /** Request row → existing office slot lock → booking. Conversion is one transaction. */
 class OnlineRequestService(
     private val repository: OnlineRequestRepository,
@@ -70,7 +72,7 @@ class OnlineRequestService(
             val request =
                 OnlineRequest(
                     id,
-                    "STQ-${id.toString().replace("-", "").uppercase()}",
+                    newReference(),
                     hash,
                     details,
                     pricing.totalEur,
@@ -103,15 +105,19 @@ class OnlineRequestService(
         phone: String,
     ): Pair<OnlineRequest, Booking?>? {
         if (!reference.matches(Regex("^STQ-[0-9A-F]{32}$"))) return null
-        val hex = reference.removePrefix("STQ-")
-        val id =
-            UUID.fromString(
-                "${hex.take(8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}",
-            )
-        val request = repository.find(id) ?: return null
+        val request = repository.findByReference(reference) ?: return null
         if (request.reference != reference || request.details.customer.phone != phone) return null
         val booking = request.bookingId?.let(bookings::findById)?.takeIf { it.customer.phone == phone }
         return request to booking
+    }
+
+    /**
+     * The public reference is the guest's lookup secret, so it is always server-generated (128 random bits).
+     * The client key only provides idempotency. Legacy rows keep their stored `STQ-<id hex>` reference.
+     */
+    private fun newReference(): String {
+        val bytes = ByteArray(16).also(secureRandom::nextBytes)
+        return "STQ-" + bytes.joinToString("") { "%02X".format(it) }
     }
 
     /** Operational catalog context is authorized by booking:view, not tour administration. */

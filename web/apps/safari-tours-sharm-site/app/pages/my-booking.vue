@@ -131,7 +131,6 @@ const requestDateLabel = computed(() => requestResult.value
           <div class="flex justify-between gap-3"><dt class="text-sts-muted">{{ copy.result.guests }}</dt><dd class="text-end font-medium">{{ guests }}</dd></div>
           <div v-if="unitLabel" class="flex justify-between gap-3"><dt class="text-sts-muted">{{ copy.result.units }}</dt><dd class="text-end font-medium">{{ unitLabel }}</dd></div>
           <div class="flex justify-between gap-3"><dt class="text-sts-muted">{{ copy.result.hotel }}</dt><dd class="text-end font-medium">{{ booking.hotelName }}</dd></div>
-          <div v-if="booking.cancellationReason" class="flex justify-between gap-3"><dt class="text-sts-muted">{{ copy.result.reason }}</dt><dd class="text-end font-medium">{{ booking.cancellationReason }}</dd></div>
           <div class="flex justify-between gap-3 border-t border-dashed border-sts-border pt-3 text-base font-bold"><dt>{{ copy.result.total }}</dt><dd class="tabular-nums">{{ formatMoney(booking.totalPrice) }}</dd></div>
         </dl>
       </div>
