@@ -30,11 +30,19 @@
       "shell-quote@<1.11.0": "^1.11.0",
       "seroval@<1.6.3": "^1.6.3",
       "source-map-js@>=1.0.0 <1.2.2": "^1.2.2",
-      "@vue/server-renderer@<3.5.42": "3.5.43",
       "undici@>=8.0.0 <8.12.2": "^8.12.2",
       "vite@>=8.2.0 <8.2.4": "8.2.4",
       "launch-editor@<2.14.2": "^2.14.2",
-      "happy-dom@>=17.0.0 <21.0.4": "21.0.4"
+      "happy-dom@>=17.0.0 <21.0.4": "21.0.4",
+      "vue": "3.5.44",
+      "@vue/server-renderer": "3.5.44",
+      "@vue/runtime-core": "3.5.44",
+      "@vue/runtime-dom": "3.5.44",
+      "@vue/shared": "3.5.44",
+      "@vue/reactivity": "3.5.44",
+      "@vue/compiler-sfc": "3.5.44",
+      "@vue/compiler-dom": "3.5.44",
+      "@vue/compiler-ssr": "3.5.44"
     },
     "auditConfig": {
       "ignoreGhsas": [
