@@ -1,5 +1,22 @@
 # Wego Execution Board
 
+### 2026-10-25 — Security review, H1 edge fix deployed; SAF-04 Slice B committed
+
+- Independent Opus security review (read-only, `2026-10-25_SECURITY_REVIEW.md`):
+  no CRITICAL; H1 staff origin proxied public customer write endpoints without
+  the public rate limits. Fixed in edge nginx (`e3559bc`): POST booking-requests,
+  bookings, bookings/{id}/pay and the Paymob callback return 404 on staff.*,
+  staff GET /bookings still proxied; CI probes added. Verified on a disposable
+  stack (checkout 13, office inventory 5, operations cycle 1) and on production
+  (staff POSTs 404, staff GET 401, public 400 for empty body, Resort unchanged).
+  Edge-only release `str-2026.10.25-e3559bc-edge` (nginx -t passed; only edge recreated).
+- Open from the review (in progress): L5 public cancellationReason, L4 STQ
+  server-generated id, M2 pixel on payment-return URLs (pixel currently off),
+  L1 streamed encrypted dump, L2 cap_drop/no-new-privileges, M3 Nuxt advisories.
+  M1 seat-hold cap is moot while ENQUIRY_ONLY refuses holds; required before Paymob.
+- SAF-04 Slice B (`70c5534`, Tier2): read-only reports + CSV for reversals, cash
+  variances, request conversion and departure money; not yet deployed.
+
 ### 2026-10-25 — Release str-2026.10.25-a728327-fin deployed (SAF-04 Slice A + site SEO/cache)
 
 - Backend+site+ERP image swap; no migration (Flyway 36). Fresh encrypted bundle
