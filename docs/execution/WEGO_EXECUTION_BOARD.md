@@ -1,6 +1,307 @@
 # Wego Execution Board
 
+### 2026-10-25 — SAF-00 runtime/source reconciliation (Claude takes over execution)
+
+- Owner handed execution to Claude («استلم تنفيذ مشروع Safari Tours Sharm»);
+  Claude is the single deploy executor from here. OPS2-G remains the sole ACTIVE packet.
+- Read-only VPS facts (no mutation): `current` →
+  `str-2026.10.15-36e8291-mail`; backend `…:str-2026.10.15-36e8291-mail`, site
+  `…:str-2026.10.15-36e8291`, ERP `…:str-2026.10.10-1d5a6b6`, edge nginx 1.30.4;
+  5/5 Safari services healthy 8 days. Flyway max 35, 0 failed. Production now
+  holds 4 bookings and 8 website requests (real data — no test writes).
+  Daily encrypted bundles present through `20261024T021800Z`. Resort nginx was
+  recreated ~9h earlier by a Resort deploy and still mounts `safari-loader.conf`;
+  public/staff Safari and Resort root/app returned HTTPS 200.
+- Source: deployed backend/site = `36e8291`; HEAD `f199b51` only added docs.
+  ERP image `1d5a6b6` differs from `36e8291` only in `erpLocale.ts` (not released).
+- Uncommitted tree split into scoped commits without rewriting work:
+  `c295ab6` Search Console proof in gateway source (already live 2026-10-20);
+  `22b60f3` consent-withdrawal fix (Tier1-reviewed, not yet released);
+  `81b95cd` FAQ standard-vs-tour cancellation terms; `ecfb802` marketing
+  handoffs/exporters; `acbfd16` STQ lookup (Tier1 READY); `575cef6` V36 +
+  imagery (Tier1 READY); plus this documentation commit.
+- NEXT: isolated E2E, V36 rehearsal on a restored production bundle off-VPS,
+  exact-source CI, then a backend+site release (ERP unchanged).
+
+### 2026-10-25 — Owner catalog corrections and STQ request recovery scope
+
+- OPS2-G remains the sole ACTIVE packet. Owner approved the master plan and
+  requested bounded catalog corrections plus repair of My Booking recovery.
+- Observed defect: the public form accepts STQ references from website requests,
+  but backend validation permits only STR bookings; the resulting 400 is shown
+  misleadingly as a network failure. Extend the existing rate-limited POST
+  recovery endpoint with a minimized request projection and converted-booking
+  state. Both reference and original phone remain mandatory and body-only.
+- Owner facts: double buggy EUR35 without camel; Sunset Quad Bike EUR15 without
+  camel; Bedouin dinner EUR25; evening cruise EUR30; Dahab EUR30; Hiace EUR30,
+  sedan EUR15. Submarine EUR40 vs glass boat EUR15 and retention of SUV EUR20
+  are awaiting the concise clarification already sent. Do not guess new facts.
+- Correct glass-boat/submarine imagery and transfer sedan cover using verified
+  existing assets. Preserve stable slugs, existing bookings and request price
+  snapshots. Review the task handoff to include these changes before execution.
+- Tier1 for the customer-data recovery boundary and any catalog data migration;
+  independent executable review is required before commit/release. Acceptance:
+  old STR recovery intact; STQ correct/wrong phone and converted/cancelled state;
+  no PII/knowledge factors in URLs/logs; rate limit/no-store unchanged; matching
+  localized catalog prices and inclusions; focused tests and documented gates.
+
+### 2026-10-25 — Catalog/STQ implementation and independent review checkpoint
+
+- Extended the same throttled POST lookup to accept full STQ reference plus
+  original phone. Request fields exclude contact, hotel, notes and internal
+  IDs; converted requests include the existing verified booking projection
+  (including its existing pickup-hotel field).
+  STR behavior is retained; success/no-match are no-store. Site supports all
+  request states in four locales and distinguishes validation from network errors.
+- Owner-approved V36 DML updates five base prices, two unit-option prices and32
+  localized fields, locks targeted rows and rejects unreviewed drift. Existing
+  booking/request/payment/capacity snapshots are untouched. V36 is staged as data,
+  excluded from jOOQ DDL simulation and registered in the isolated release.
+- Corrected glass-boat/submarine membership and sedan cover, using reviewed owner
+  originals. Four content import sources and English regeneration preserve the
+  correction overlay; October20 social feeds are marked historical for updates.
+- Independent Tier1 reviewer `safari_stq_recovery_review`: READY, zero open
+  BLOCKING/NON-BLOCKING findings. Independently reran PostgreSQL/Flyway21/21,
+  focused frontend47 plus final media4/4, API-contract8/8 and typechecks. Initial
+  media count failure and stale-source replay caveat are resolved. Root's first
+  wrong-phone test exposed a nullable result passed to a non-null transaction
+  runner; lookup now uses ordinary read-only repository queries, verified on DB.
+- Full web check passed (contracts/lint/types/tests/six production builds),
+  Foundry/OpenAPI/YAML and repository/diff checks passed. Full isolated backend
+  check + bootJar passed in3m33s:447 tests across36 files, zero failures/errors/
+  skips. Full-stack E2E/CI and deployment remain open.
+  No commit/push/deploy, production catalog write, account mutation or tracking
+  provider activation. Pending commercial clarifications are not applied.
+- Handoff and master plan updated to76 task IDs with this owner scope first:
+  [owner correction and booking recovery handoff](../../clients/safari-tours-sharm/handoff/2026-10-25_OWNER_CORRECTIONS_AND_BOOKING_LOOKUP_AR.md).
+- Sanitized final local results and scoped file fingerprints:
+  [local verification evidence](../../clients/safari-tours-sharm/handoff/evidence/2026-10-25_owner-corrections-local-verification.json).
+
+### 2026-10-23 — Safari consolidated execution handoff (documentation only)
+
+- Owner requested a complete staged handoff usable by either Codex or Claude,
+  including remaining work, operational improvements, priorities and evidence.
+  OPS2-G remains the sole ACTIVE packet; no packet activation or closure.
+- Read current governance, dated deployment/account handoffs and relevant source.
+  Corrected stale entry-point claims: website-request confirmation mail was
+  deployed and received on 15 October; OFFICE cancellation mail remains a P1.
+  Office booking, documents, registries and finance operations already exist.
+- Added SAF-00..SAF-11 task identifiers, dependencies, file/test maps, acceptance
+  gates and session handoff format. These identifiers are planning metadata,
+  not new ACTIVE packets. Start with runtime/source reconciliation, then scope
+  the cancellation-mail fix with Tier1 review before implementing it.
+- Updated handoff/owner/roadmap entry points to mark older snapshots historical.
+  No new production audit, account mutation, code change, commit, push or deploy.
+  Existing uncommitted application/marketing/gateway changes are preserved.
+- Current plan: [23 October master execution handoff](../../clients/safari-tours-sharm/handoff/2026-10-23_SAFARI_MASTER_EXECUTION_HANDOFF_AR.md).
+- Verification: `bash scripts/repository-check.sh` passed; documentation checks
+  found 74 unique sequential task IDs across 12 phases, 11 exit gates plus
+  deferred-expansion conditions, and 42 existing local links across the plan
+  and its entry points. Scoped `git diff --check` passed. No application test,
+  build or live-production acceptance is claimed for this documentation edit.
+
+### 2026-10-21 — Safari Telegram browser setup (no application release)
+
+- OPS2-G remains the sole ACTIVE packet. Owner requested professional setup
+  of the existing Safari Telegram account/channel; no new execution packet,
+  deployment, provider activation, bot credential or booking integration.
+- Verified Safari business phone/account; saved support username/bio and
+  channel identity/description while retaining the existing `safari831` URL.
+  Edited the pinned welcome and six existing tour texts using live catalog
+  facts, correct WhatsApp links and request-before-confirmation semantics.
+- Existing channel displayed on the support account's public profile;
+  persistence verified after reload. Nine bilingual manual reply templates
+  saved locally and in the business account's own Saved Messages, not sent
+  to customers and not described as enabled native automation.
+- Owner manually uploaded the approved logo and two approved catalog photos;
+  saved results verified. Owner then stopped further manual-upload steps.
+  Four planned photo replacements remain unperformed, not silently completed.
+- Native Telegram Business automation and current channel-DM pricing remain
+  unverified in Web A. Existing three-person administration was inspected,
+  not changed. No contact import, private-chat inspection or customer outreach.
+- Evidence, exact remaining work and reusable operator copy:
+  [Telegram handoff](../../clients/safari-tours-sharm/handoff/2026-10-21_TELEGRAM_BUSINESS_SETUP_AR.md).
+
+### 2026-10-20 — Safari browser marketing and owner-approved Search Console proof
+
+- OPS2-G stays the sole ACTIVE packet. Owner requested Google/Meta/measurement
+  completion and explicitly approved WAGDIO partner access, GA4 service terms,
+  and Search Console ownership for `safaritourssharm@gmail.com` using an HTML
+  proof file without DNS changes. No ad spend or ownership transfer to WAGDIO.
+- Bounded repository/deployment change: one exact public Safari verification
+  URL backed by a public proof file in the existing gateway mount. No app,
+  payment, database, authentication or staff-route changes. Keep the proof in
+  source and render paths so a later gateway deployment retains verification.
+- Acceptance: disposable gateway regression passes; exact proof works with
+  Safari upstream absent; live gateway syntax check and reload only; protected
+  container identities remain stable; Safari/Resort HTTPS remain healthy;
+  Search Console confirms verification and accepts the sitemap submission.
+- Browser results and remaining work are tracked in
+  [2026-10-20 marketing execution](../../clients/safari-tours-sharm/handoff/2026-10-20_BROWSER_MARKETING_EXECUTION_AR.md).
+
 Rule: exactly one implementation packet may be `ACTIVE` in a worktree. Parent mission status is tracking metadata and does not authorize parallel packet implementation.
+
+### 2026-10-20 — Browser execution evidence follow-up (OPS2-G remains ACTIVE)
+
+- Exact Search Console HTML proof deployed after disposable gateway regression;
+  live nginx syntax/reload passed, protected 14 container identities unchanged.
+  Evidence: `/srv/safari-tours-sharm/shared/google-proof-ttkcryqi/evidence.json`.
+  Safari public/staff and Resort root/www/owner stayed200. Resort app503 was
+  present before this work and unchanged; do not call that origin healthy.
+- Google ownership verified, sitemap processed successfully (164 discovered
+  URLs), `/en` indexed, GA4/Search Console link saved. No application release
+  or analytics provider activation took place.
+- WAGDIO Page/Instagram partnership and Mohamed Wagdy operating assignment
+  saved after separate owner confirmations; no ownership/billing transfer.
+- Bilingual welcome/contact/location saved; three FAQs saved and reopened on
+  Messenger and WhatsApp. Owner explicitly approved removal of eight stale
+  Google activities; empty activities setup verified, website catalog untouched.
+- Follow-up blocker before analytics activation: loaded provider libraries are
+  not notified on consent withdrawal by current plugin. Scope a tested Tier1
+  fix/review rather than activate IDs with app-only event suppression.
+- Meta catalog2505660239941576 exists but empty; WhatsApp catalog2174874126401460
+  open failed with redirect loop. No duplicate catalog or unverified feed import.
+
+### 2026-10-20 — Bounded consent-withdrawal hardening scope
+
+- Within sole ACTIVE OPS2-G, fix the identified provider-level withdrawal gap
+  before any provider ID activation. Tier1 (consent/privacy); independent fresh
+  review required. No booking, schema, auth, payment, or customer-data changes.
+- Acceptance: no provider load before grant; revoke reaches loaded GA/Meta,
+  GA per-property disable flag is synchronous; regrant restores tracking without
+  duplicate loaders; denied/reset state prevents app events and pending pageviews.
+  Run focused/regression tests, lint/typecheck/build and record review outcome.
+- No production analytics activation is authorized by a green unit test alone;
+  actual browser consent/network and provider receipt verification still needed.
+
+### 2026-10-20 — Consent Tier1 review/fix evidence
+
+- Independent fresh-context reviewer `consent_withdrawal_review` found BLOCKING:
+  the plugin's sync watcher alone was insufficient; distinct Nuxt useCookie refs
+  delivered UI withdrawal asynchronously. Actual installed cookie.js plus Vue/
+  BroadcastChannel reproduced a post-reset GA event before synchronization.
+- Fixed `useConsent.ts`: one cookie ref per Nuxt app/request, initialized by the
+  startup plugin; no module-global consent. Regression covers UI/plugin shared
+  identity, immediate reset/deny and independent app/request isolation.
+- Provider tests cover GA disable, denied consent commands, Meta queued revoke
+  and loaded callMethod revoke, regrant without duplicate loaders and suppressed
+  pending startup pageviews. Reviewer reran real-Nuxt reproduction: no remaining
+  BLOCKING or NON-BLOCKING code findings. Browser/provider gate remains open.
+- Final site suite196/196 (24 files), lint and typecheck passed. First builds
+  caught window dynamic-property typing; corrected before rerunning production
+  build. No commit/push/application deploy or provider activation in this round.
+- Social review export:27 active API tours ×4 actual locales,27 verified image
+  destinations,3 PER_UNIT tours. Exporter tests4/4. NOT_IMPORTED, no stock claims.
+- WhatsApp profile/privacy writes returned platform error; reopening proved old
+  hotel category/description and auto event identification ON. These are NOT
+  completed despite temporary changed UI. FAQ and welcome saves verified
+  separately. Owner asked to open Business Web for original catalog source.
+- Final production build rerun completed successfully (exit0,28.4MB) after
+  typing fix. Owner then said mobile unavailable: defer app/QR tasks, continue
+  independently; never disconnect/rebind WhatsApp as a workaround.
+- GBP follow-up:27 bilingual custom services saved under existing tour-agency
+  category (plus3 existing generic services), pending Google review. No forced
+  EGP price. Super Safari description saved and reopened with no-price option;
+  remaining26 descriptions not yet entered. Distinct from deleted Activities.
+- GBP booking link saved/reopened pointing to `/en/tours` with fixed non-PII
+  source/medium/campaign/content UTMs. Destination returnedHTTP200. No claim
+  that GA4 has received attribution or any production booking was created.
+
+### 2026-10-20 — Second browser/content continuation
+
+- Google service descriptions now27/27: each of the remaining26 was saved and
+  reopened to verify exact content, no assumed EGP price, request-only wording.
+  Google approval remains pending; this is Services, not Things-to-do inventory.
+- Local built-site browser QA with real GA4 ID: no tag before fresh choice or
+  after decline/reload; explicit grant adds one Google script, no Meta. After
+  withdrawal/decline and About navigation the resulting document has no tag.
+  DOM proof does not claim comprehensive network-capture proof.
+- Correct GA4 Realtime property showed2 page_view/first_visit/session_start
+  during owner-local test. Production IDs still unset. No purchase/request test
+  event was fabricated to make the report green.
+- Added truthful homepage standard-policy exceptions in4 locales, matching
+  existing NON_REFUNDABLE catalog flags. No policy/price/domain change. New
+  regression passes; site197/197 plus lint/typecheck/production build passed.
+- Catalog sample XML renderer/tests2/2, review exporter4/4, repository and
+  Foundry/OpenAPI gates passed. Owner manually selected sample after file-upload
+  permission denied; agent set EUR and clear source name and began hidden import.
+  No bulk publish/ads/WhatsApp rebinding. Await saved-item validation.
+
+### 2026-10-20 — Hidden catalog sample accepted; full update staged
+
+- Meta source1808922023592263 in existing catalog2505660239941576 imported
+  one sample with0 failed/removed/issues. Inspected image, canonical URL,
+  production UUID and EUR35 per person; hidden state verified. No publication.
+  Meta displays available-for-order as unavailable for immediate purchase;
+  never change to in-stock without actual inventory truth.
+- Prepared27 hidden items after fresh live price/basis/options/policy checks.
+  Owner manual file selection requested for UPDATE of the same source, not
+  REPLACE/new source. Full import remains pending, WhatsApp sync unverified.
+- Complete `pnpm --dir web run check` passed exit0 (all web applications,
+  contracts, tests, lint/typechecks and builds). No application deploy yet.
+
+### 2026-10-20 — Full hidden Meta import and category organization verified
+
+- Owner manually uploaded the full XML to existing source1808922023592263.
+  Session16:55 Egypt:27 added/updated,0 removed/failed/issues; catalog total27.
+  Browser table check matched all27 UUIDs, EUR prices, price basis and hidden
+  states against the review source. No duplicate sample, public publish or ads.
+- Transfer editor retained sedan15/SUV20/Hiace35 EUR per vehicle, loaded image
+  and canonical URL. Inspection exited without saving manual provider edits.
+- Five dynamic product-type sets saved and verified: desert5, sea12,
+  cultural6, shows3, transfers1. Existing All Products preserved; automatic
+  product recommendations OFF. These are not WhatsApp collections or Shop proof.
+- WhatsApp source/destination remains unverified pending owner phone access.
+  GA4 production activation/application release gates remain open; no new
+  deployment, Pixel/CAPI connection or customer outreach in this continuation.
+
+### 2026-10-20 — WhatsApp source/access audit and bounded fixes
+
+- Correct live messaging account1452927319985281 has customer number2690,
+  connected/high quality. Account1431818925553858 has no phone numbers and
+  was linked to new catalog2505660239941576; safely unlinked ONLY that empty
+  account/catalog association with Meta success confirmation. No catalog,
+  customer number, product or permission deleted. Real-number migration pending.
+- Owner opened WhatsApp Business Web: corrected bilingual description and
+  category to Travel/Transport only, preserving office258/map; saved/reopened.
+  Cart disabled and reopened OFF. Eight operational quick replies saved and
+  listed; existing thanks retained. No customer message sent.
+- Owner explicitly retained trusted Gegy full access and confirmed WhatsApp
+  support24h (not office opening hours). WAGDIO remains partial Page/IG partner.
+- Old app catalog has four unknown-name full-control partner records; three
+  system users have no assigned assets, but Conversions API user has an installed
+  application. No blind deletion/token revocation; dependencies/provenance open.
+- Phone Connect catalog screenshot requested. Web later reports open in another
+  window; did not displace owner session. Business verification rejected/more
+  info required; no fabricated identity documents or authentication changes.
+- Evidence and next steps: [WhatsApp access audit](../../clients/safari-tours-sharm/handoff/2026-10-20_WHATSAPP_LINKS_ACCESS_AUDIT_AR.md).
+
+### 2026-10-20 — Phone catalog link verified; source publication prepared
+
+- Owner screenshots plus fresh WhatsApp Manager reload confirm number2690/
+  account1452927319985281 linked to catalog2505660239941576, cart OFF. Do not
+  disconnect this correct link. Hidden staging source explains empty app catalog.
+- UI Show returned success but refreshed sample row remained hidden; no claimed
+  publication. Prepared explicit reviewed-visible feed update on same source,
+  keeping available-for-order and all commercial fields; no fake in-stock.
+- Generator3/3 and exporter4/4 tests pass. Fresh public API matches27 commercial
+  records. Owner manual file selection requested; import and actual app visibility
+  remain open. No paid ad, new permission or catalog deletion.
+
+### 2026-10-20 — Reviewed catalog publication imported and app display verified partially
+
+- Owner selected reviewed-visible file; agent imported UPDATE on same source
+  at22:03 Egypt. Meta reports27 added/updated,0 removed/failed/issues. Saved
+  products table verified27 eligible,0 hidden. Availability remains available
+  for order; no stock or booking guarantee manufactured.
+- Source renamed Safari Tours Sharm — Wego reviewed tours — EUR and verified.
+  Catalog icon ON/cart OFF persisted through WhatsApp Manager reload for2690.
+- WhatsApp Web now displays five sets and20 unique tour titles observed; all27
+  app display not yet proven. Airport-transfer detail has correct per-vehicle
+  price, UUID/canonical link and no cart. No ad, customer message or duplicate.
+- Do not delete old catalog/unknown partners or repeatedly import to force
+  propagation. Remaining7 app titles and exact verification scope are recorded
+  in WhatsApp audit. No VPS/application deployment in this continuation.
 
 ## Mission
 

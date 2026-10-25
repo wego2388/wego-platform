@@ -1,0 +1,71 @@
+{
+  "createdAt": "2026-10-25T01:06:36.862210+00:00",
+  "kind": "LOCAL_VERIFICATION_NOT_PRODUCTION_ACCEPTANCE",
+  "activePacket": "WEGO-016-OPS2-G",
+  "sourceHead": "f199b519617aa7d52b946ea9c2ee2a97b80bd75e",
+  "workingTreeDirty": true,
+  "preExistingChangesPreserved": true,
+  "backend": {
+    "command": "./gradlew :platform:apps:safari-tours-sharm:check :platform:apps:safari-tours-sharm:bootJar",
+    "exitCode": 0,
+    "reportFiles": 36,
+    "tests": 447,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration": "3m33s"
+  },
+  "web": {
+    "command": "pnpm --dir web run check",
+    "exitCode": 0,
+    "coverage": [
+      "contract generation parity",
+      "lint",
+      "typecheck",
+      "unit/component tests",
+      "six production builds"
+    ]
+  },
+  "independentReview": {
+    "reviewer": "safari_stq_recovery_review",
+    "verdict": "READY_FOR_REVIEWED_LOCAL_SCOPE",
+    "blocking": 0,
+    "nonBlocking": 0,
+    "postgresTests": 21,
+    "focusedFrontendTests": 47,
+    "finalMediaTests": 4,
+    "contractTests": 8
+  },
+  "additionalChecks": [
+    "Foundry manifests/OpenAPI/YAML PASS",
+    "repository-check PASS",
+    "diff whitespace PASS",
+    "76 unique plan task IDs and local links PASS",
+    "four draft sources match32 patches PASS",
+    "offline English draft regeneration preserves overlay PASS"
+  ],
+  "pending": [
+    "clarify submarine/glass price EUR40",
+    "clarify retention of SUV EUR20",
+    "live disposable full-stack browser E2E",
+    "CI for exact final committed source",
+    "restored-production-copy V36 rehearsal",
+    "backend/site deployment and owner-only smoke",
+    "re-export social catalog after new API is live"
+  ],
+  "productionChangesMade": false,
+  "commitPushMade": false,
+  "scopedFileSha256": {
+    "products/tours-operator/src/main/kotlin/com/wego/toursoperator/application/OnlineRequestService.kt": "b1958c006a1630bc0bf47ad6ef996923e94a50fdea59bc83c5f2639a4bb3b70c",
+    "products/tours-operator/src/main/kotlin/com/wego/toursoperator/api/BookingController.kt": "a06a22706526c1309ab38a0c5e93eb2802af0451e38855873dcc55916adca992",
+    "products/tours-operator/src/main/kotlin/com/wego/toursoperator/api/OnlineRequestController.kt": "bbde75cfd79a4a3c1f7ac8f2ff99cc132392d711c43a8b4a1acb68358ce46f9a",
+    "products/tours-operator/src/main/kotlin/com/wego/toursoperator/api/ToursOperatorDtos.kt": "efe9d62e3803bb6f53e2a71508db9f2def83b81dce880ae25f37da01a27c56f7",
+    "platform/contracts/openapi/v1/wego-api.yaml": "417173dd5658ac3ffabfc6acf9cda63a85315bddd5751a419e6270f871eeeaf8",
+    "platform/application/src/main/resources/db/migration/data/V36__tours_operator_owner_catalog_corrections.sql": "f9c524435b11b514216df6886145f5a8fb430fa7b4d23f9477482cce4cce4ff8",
+    "clients/safari-tours-sharm/marketing/owner-corrections/2026-10-25_catalog-revision.json": "0deac6314f79949ec687a99c0fbe455591593c623ea09342207e01e7244e3c92",
+    "web/apps/safari-tours-sharm-site/app/pages/my-booking.vue": "c3188841cba210776e1f3ab66a31d9a7a111e16ad5637e95053b960bd24dad6a",
+    "web/apps/safari-tours-sharm-site/app/content/myBooking.ts": "a9565926cc5564b43b3d9e35d9694b2421700748bec87cf056c9b151dc2a1fca",
+    "web/apps/safari-tours-sharm-site/app/content/curatedMedia.json": "96c102c91fec9711228172de79b6b178ccb944e5492f5388a03bf1a7e401c6b6",
+    "e2e/tests/safari-online-requests.spec.ts": "2c9187f80565bd5a40848ed5539f34830b246d515d7d4a19785b7ee70b9d3c09"
+  }
+}
