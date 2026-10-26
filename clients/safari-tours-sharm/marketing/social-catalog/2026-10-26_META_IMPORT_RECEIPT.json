@@ -1,0 +1,298 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-26T00:07:51.822284+00:00",
+  "status": "IMPORTED_META_VERIFIED_WHATSAPP_PARTIAL",
+  "provider": "Meta Commerce Manager browser UI",
+  "catalogId": "2505660239941576",
+  "dataSourceId": "1808922023592263",
+  "operatorPortfolioId": "1001011593013309",
+  "ownerPortfolioId": "7845733532195095",
+  "feed": "2026-10-26_meta-reviewed-visible.xml",
+  "feedSha256": "35f5eec92d22f11d6fe9b37a4d2265fbaf5b3b7372cb6ac5d8242721c4f9fc4c",
+  "mode": "UPDATE_EXISTING_SOURCE_NO_DELETION",
+  "providerUploadSessionLabel": "26 Oct at 02:57 GMT+03:00",
+  "receipt": {
+    "uiHeading": "Data file updated",
+    "updatedOrAdded": 27,
+    "removed": 0,
+    "failed": 0,
+    "issues": 0
+  },
+  "access": {
+    "person": "Mohamed Wagdy",
+    "personId": "61572060585925",
+    "basicSaved": true,
+    "basicUploadButtonDisabled": true,
+    "catalogManageEverythingOwnerExplicitlyConfirmed": true,
+    "fullSavedUiHeading": "This person's access to business assets was updated.",
+    "ownershipTransferred": false,
+    "businessOrPageOrBillingAccessGranted": false
+  },
+  "metaReadback": {
+    "total": 27,
+    "eligible": 27,
+    "titlesAndPricesMatched": 27,
+    "stableIdsVisibleInTable": 26,
+    "submarineUuidPreviouslyVerifiedNotVisibleInLowerVirtualRow": true,
+    "items": [
+      {
+        "id": "a0000001-0000-0000-0000-000000000001",
+        "title": "Super Safari Adventure — per person",
+        "price": "35.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000002",
+        "title": "Sunset Quad Bike — per person",
+        "price": "15.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000003",
+        "title": "Double Buggy — per unit",
+        "price": "35.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000004",
+        "title": "Bedouin Dinner & Camel Ride — per person",
+        "price": "25.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000005",
+        "title": "Dahab 5×1 / Colored Canyon — per person",
+        "price": "30.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000006",
+        "title": "Camel & Horse Ride — per person",
+        "price": "25.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000007",
+        "title": "Ras Mohamed & White Island Boat Trip — per person",
+        "price": "40.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000008",
+        "title": "Evening Cruise — per person",
+        "price": "30.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000009",
+        "title": "Glass Bottom Boat — per person",
+        "price": "15.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000010",
+        "title": "PADI Open Water Diver Course — per person",
+        "price": "400.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000013",
+        "title": "Sinai Dream Sailboat — per person",
+        "price": "65.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000014",
+        "title": "Ras Mohamed by Bus — per person",
+        "price": "30.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000015",
+        "title": "Banana Boat — per person",
+        "price": "25.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000016",
+        "title": "Parasailing Adventure — per person",
+        "price": "25.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000017",
+        "title": "Speed Boat Adventure — per unit",
+        "price": "150.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000018",
+        "title": "Submarine — per person",
+        "price": "35.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000019",
+        "title": "Tiran Island Boat Trip — per person",
+        "price": "45.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000020",
+        "title": "Tube Boat — per person",
+        "price": "25.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000021",
+        "title": "Cairo by Bus — per person",
+        "price": "75.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000022",
+        "title": "Cairo by Plane — per person",
+        "price": "280.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000023",
+        "title": "Mount Sinai & St. Catherine — per person",
+        "price": "40.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000024",
+        "title": "Luxor by Plane — per person",
+        "price": "280.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000025",
+        "title": "St. Catherine & Dahab — per person",
+        "price": "45.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000026",
+        "title": "Turkish Bath — per person",
+        "price": "45.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000027",
+        "title": "Dolphin Show — per person",
+        "price": "20.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000028",
+        "title": "Swimming with Dolphins — per person",
+        "price": "70.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      },
+      {
+        "id": "a0000001-0000-0000-0000-000000000030",
+        "title": "Sharm Airport Transfer — per unit",
+        "price": "15.00 EUR",
+        "tableTitlePriceMatched": true,
+        "eligible": true
+      }
+    ],
+    "padiDetail": {
+      "priceEUR": "400.00",
+      "duration": "three-day",
+      "openWaterDives": 4,
+      "availability": "Available for order",
+      "canonicalLink": "https://safaritourssharm.com/en/tour/diving-course",
+      "imageDimensions": "960 × 540"
+    }
+  },
+  "whatsapp": {
+    "pageInboxAccessVerified": true,
+    "accountIdFromManageCataloguesLink": "1452927319985281",
+    "source": "Safari Page Inbox > Share products picker; no selections or messages sent",
+    "uniqueProductsReadBack": 10,
+    "observedProducts": [
+      {
+        "title": "Dahab 5×1 / Colored Canyon — per person",
+        "priceEUR": "30.00"
+      },
+      {
+        "title": "Bedouin Dinner & Camel Ride — per person",
+        "priceEUR": "25.00"
+      },
+      {
+        "title": "Evening Cruise — per person",
+        "priceEUR": "30.00"
+      },
+      {
+        "title": "Tube Boat — per person",
+        "priceEUR": "25.00"
+      },
+      {
+        "title": "Super Safari Adventure — per person",
+        "priceEUR": "35.00"
+      },
+      {
+        "title": "Turkish Bath — per person",
+        "priceEUR": "45.00"
+      },
+      {
+        "title": "Submarine — per person",
+        "priceEUR": "35.00"
+      },
+      {
+        "title": "Ras Mohamed by Bus — per person",
+        "priceEUR": "30.00"
+      },
+      {
+        "title": "Cairo by Bus — per person",
+        "priceEUR": "75.00"
+      },
+      {
+        "title": "Luxor by Plane — per person",
+        "priceEUR": "280.00"
+      }
+    ],
+    "updatedPricesReadBack": [
+      "Dahab 30",
+      "Bedouin Dinner 25",
+      "Evening Cruise 30"
+    ],
+    "all27CustomerVisibilityVerified": false,
+    "limitation": "Picker search/scroll exposed only ten unique items in this session. This does not prove the other seventeen are hidden. Owner mobile/catalog customer-view check remains required.",
+    "ownerManagerUnavailable": true,
+    "foreignBusinessContextReturnedByManageCataloguesWasNotModified": true
+  },
+  "messagesSent": 0,
+  "adsCreated": 0,
+  "newCatalogsCreated": 0,
+  "newDataSourcesCreated": 0
+}

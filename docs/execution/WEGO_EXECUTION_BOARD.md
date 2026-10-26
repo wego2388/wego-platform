@@ -1,5 +1,41 @@
 # Wego Execution Board
 
+### 2026-10-26 — Social batch: one published, one scheduled, final browser action deferred by owner
+
+- Sunset Quad post published to Facebook and Instagram26October03:13 with both language
+  cards/EUR15; public Instagram caption, both photos and custom alt texts read back.
+  Facebook post1692095372927805; Instagram De79-tCiu0e. Active Facebook story also verified.
+- Ras Mohamed/White Island scheduled successfully: Facebook27October16:00 and Instagram
+ 27October19:00 Egypt time. UI success then separate provider rows/Public/Not currently boosted.
+- Safari composer explicitly reported0external-link posts remaining this month (2/month,
+  renew1November). No Meta One subscription/paid ad. Remaining captions omit external
+  text URLs and point to the website printed on the approved cards. Original drafted
+  UTM captions remain authoring sources, not a claim they were published.
+- Dahab cards/copy ready locally; final schedule NOT saved/submitted. Browser control became
+  unattached while editing the schedule; owner explicitly chose to resume the browser later.
+  Read current UI and check scheduled entries before completing only that remaining post.
+- Per-platform records: marketing/social-posts/2026-10-26_launch-batch/POSTS.json;
+  operational handoff:2026-10-26_SOCIAL_PUBLISHING_CHECKPOINT_AR.md. No runtime code,
+  schema, credentials, DNS or deployments changed. OPS2-G stays ACTIVE.
+
+### 2026-10-26 — Meta catalog imported through owner-authorized catalog access
+
+- Owner explicitly confirmed Basic for Mohamed Wagdy61572060585925 in WAGDIO, then
+  separately confirmed Manage everything for catalog2505660239941576 after Basic left
+  upload disabled. Saved Full access enabled upload. Ownership and business/page/billing
+  access unchanged; no other person's access changed.
+- Updated existing source1808922023592263 at26October02:57 GMT+03:00 using the new V37
+  feed and Update mode:27updated/added,0removed,0failed,0issues. Read back all27titles,
+  prices and eligible states; PADI detail3days/4dives/EUR400/Available for order verified.
+- Safari Page Inbox WhatsApp access proven despite empty direct asset lists. Product picker
+  independently showed10unique tours including new Dahab30/Bedouin25/Evening30 prices.
+  All27customer-visible WhatsApp items remain unverified; ten-item picker is not proof
+  that the others are hidden. Owner manager session unavailable; no new catalog/source,
+  detach, customer message or paid ad. Receipt in social-catalog/2026-10-26_META_IMPORT_RECEIPT.json.
+- Owner subsequently authorized three bilingual varied Facebook/Instagram posts and stories;
+  per-platform receipts tracked in marketing/social-posts/2026-10-26_launch-batch/POSTS.json.
+  OPS2-G remains ACTIVE. No code/runtime deployment needed for these account/content actions.
+
 ### 2026-10-26 — WAGDIO browser check and one published contact correction
 
 - Current WAGDIO session can edit Safari page content. Corrected existing post1684792680324741

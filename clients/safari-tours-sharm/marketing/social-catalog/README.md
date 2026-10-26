@@ -4,9 +4,18 @@
 > (UTC capture date;26October Cairo), feed `2026-10-26_meta-reviewed-visible.xml`.
 >27active tours,27verified image sets,3per-unit. Includes approved beginner PADI course,
 > fixed daily dolphin show, transfer waiting terms, optional tips and retired SUV removal.
-> **NOT IMPORTED**: update the existing Meta source1808922023592263 after owner access is available;
-> do not create another catalog. Current WAGDIO session has page/Instagram access but no
-> WhatsApp/Messaging accounts listed and cannot open the owner portfolio settings.
+> **IMPORTED AND META VERIFIED —26October02:57 GMT+03:00:** updated the existing
+> source1808922023592263 in catalog2505660239941576 with **Update your data file**,
+>27updated/added,0removed,0failed,0issues. All27table titles/prices and eligible states
+> read back; the PADI detail shows3days/4dives/EUR400 and Available for order.
+> [Import receipt](2026-10-26_META_IMPORT_RECEIPT.json) records the exact file hash and checks.
+> Owner explicitly confirmed Basic for Mohamed Wagdy within WAGDIO, then separately
+> confirmed Manage everything for this catalog only when Basic left upload disabled.
+> Saved Full access enabled upload; ownership/business/page/billing access did not change.
+> Safari Page Inbox gives WhatsApp access despite empty direct account lists. The product
+> picker independently showed10unique tours, including new Dahab30/Bedouin25/Evening30 prices.
+> **All27customer-visible WhatsApp items remain unverified**; the ten-item picker does not
+> establish that the others are hidden. No customer message or product share was sent.
 > Public-edge loopback with canonical Host verified all images/content after local TLS timeouts;
 > public HTTPS smoke was independently successful. Website booking remains request/confirmation.
 

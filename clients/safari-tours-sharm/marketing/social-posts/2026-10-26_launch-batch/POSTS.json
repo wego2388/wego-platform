@@ -1,0 +1,248 @@
+{
+  "schemaVersion": 1,
+  "brand": "Safari Tours Sharm",
+  "ownerAuthorization": "26 October: three varied bilingual posts on Facebook/Instagram; additional useful publishing setup and stories allowed. One now, two on following days as communicated. No paid ads.",
+  "factsSource": "clients/safari-tours-sharm/marketing/social-catalog/2026-10-25T22-40-44.084Z.json",
+  "factsSha256": "380cb680e3ddc985efaed5bd0fe63b07a3ed9cd6712d4e94f9f45acdebd7ec1f",
+  "mediaRoot": "/home/wego/business/client-media/safari-tours-sharm/2026-10-25-tour-cards-v03",
+  "publicPageId": "104180979683761",
+  "instagram": "safari_tours_sharm",
+  "operatorPortfolioId": "1001011593013309",
+  "catalogId": "2505660239941576",
+  "publicationState": "ONE_PUBLISHED_ONE_SCHEDULED_ONE_DEFERRED",
+  "posts": [
+    {
+      "slug": "sunset-quad-bike",
+      "ar": "غروب شرم بطعم المغامرة 🏜️\nكواد بين كثبان سيناء، وقفة عند وادي الصدى، وشاي بدوي. تجربة من ساعتين إلى ٣ ساعات، مع استقبال من الفندق وإرشادات سلامة.\nابتداءً من ١٥€ للفرد البالغ.",
+      "en": "Take the scenic route to sunset 🏜️\nRide the Sinai dunes, stop at the Valley of Echo and enjoy Bedouin tea. A 2–3 hour experience with hotel pickup and a safety briefing.\nFrom €15 per adult.",
+      "schedule": null,
+      "alt_ar": "كارت كواد وقت الغروب: راكب كواد بخوذة أمام جبال سيناء، ابتداءً من ١٥ يورو للفرد البالغ. تأكيد الحجز بعد مراجعة التوافر.",
+      "alt_en": "Sunset Quad Bike tour card: a helmeted quad rider in the Sinai desert, from EUR15 per adult. Booking subject to availability confirmation.",
+      "sequence": 1,
+      "tourId": "a0000001-0000-0000-0000-000000000002",
+      "price": {
+        "amount": "15.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "status": "PUBLISHED_BOTH_PLATFORMS",
+      "providerResults": {
+        "facebook": {
+          "status": "PUBLISHED",
+          "contentId": "1692095372927805",
+          "url": "https://facebook.com/permalink.php?story_fbid=pfbid0nPc4gyupA6ooCSR5mdiXMn6PkcRcrriRqVcKPsf68rMvDPJmSeoSNZA1S3TQ6nSKl&id=100063820752767",
+          "providerPublishedLabel": "26 October 03:13",
+          "readback": "Published list and Meta Facebook preview, two photos and bilingual price EUR15"
+        },
+        "instagram": {
+          "status": "PUBLISHED",
+          "url": "https://www.instagram.com/p/De79-tCiu0e/",
+          "providerPublishedLabel": "26 October 03:13",
+          "readback": "Public Instagram post loaded with the correct bilingual caption, EUR15, both cards and both custom alt texts"
+        },
+        "facebookStory": {
+          "requested": true,
+          "verified": true,
+          "status": "ACTIVE",
+          "providerPublishedLabel": "26 October 03:13",
+          "readback": "Active stories table: Facebook Photo · 6 seconds; 23 hours remaining"
+        },
+        "paidBoost": false
+      },
+      "media": [
+        {
+          "locale": "ar",
+          "path": "/home/wego/business/client-media/safari-tours-sharm/2026-10-25-tour-cards-v03/02_Exports/Feed/STS-Feed-sunset-quad-bike-AR-v01.png",
+          "sha256": "f91453d8cfea1ac72d00377b30ec9c9a4915055e58e11d1d39da32f07a89a1d5",
+          "size": [
+            1080,
+            1350
+          ],
+          "visuallyReviewed": true,
+          "source": "owner-authorized library; inherited provenance in v03/04_Assets-and-Licenses/IMAGE_SOURCES.json",
+          "alt": "كارت كواد وقت الغروب: راكب كواد بخوذة أمام جبال سيناء، ابتداءً من ١٥ يورو للفرد البالغ. تأكيد الحجز بعد مراجعة التوافر.",
+          "customAltPublished": true
+        },
+        {
+          "locale": "en",
+          "path": "/home/wego/business/client-media/safari-tours-sharm/2026-10-25-tour-cards-v03/02_Exports/Feed/STS-Feed-sunset-quad-bike-EN-v01.png",
+          "sha256": "60416f3fdc0a2bfa11c4f6bc608de99c558829ba5679f5f65eca59d201cf0663",
+          "size": [
+            1080,
+            1350
+          ],
+          "visuallyReviewed": true,
+          "source": "owner-authorized library; inherited provenance in v03/04_Assets-and-Licenses/IMAGE_SOURCES.json",
+          "alt": "Sunset Quad Bike tour card: a helmeted quad rider in the Sinai desert, from EUR15 per adult. Booking subject to availability confirmation.",
+          "customAltPublished": true
+        }
+      ],
+      "captionFacebook": "غروب شرم بطعم المغامرة 🏜️\nكواد بين كثبان سيناء، وقفة عند وادي الصدى، وشاي بدوي. تجربة من ساعتين إلى ٣ ساعات، مع استقبال من الفندق وإرشادات سلامة.\nابتداءً من ١٥€ للفرد البالغ.\n\nTake the scenic route to sunset 🏜️\nRide the Sinai dunes, stop at the Valley of Echo and enjoy Bedouin tea. A 2–3 hour experience with hotel pickup and a safety briefing.\nFrom €15 per adult.\n\nطلب الحجز يخضع لمراجعة التوافر وتأكيد الفريق. واتساب للاستفسارات.\nBooking requests are confirmed by our team after checking availability. WhatsApp is for enquiries.\n+20 111 129 2690\n\nالتفاصيل وطلب الحجز | Details & booking request:\nhttps://safaritourssharm.com/en/tour/sunset-quad-bike?utm_source=facebook&utm_medium=organic_social&utm_campaign=tour_cards_2026_10&utm_content=sunset-quad-bike_ar_en\n\n#SafariToursSharm #SharmElSheikh #RedSea #شرم_الشيخ",
+      "captionInstagram": "غروب شرم بطعم المغامرة 🏜️\nكواد بين كثبان سيناء، وقفة عند وادي الصدى، وشاي بدوي. تجربة من ساعتين إلى ٣ ساعات، مع استقبال من الفندق وإرشادات سلامة.\nابتداءً من ١٥€ للفرد البالغ.\n\nTake the scenic route to sunset 🏜️\nRide the Sinai dunes, stop at the Valley of Echo and enjoy Bedouin tea. A 2–3 hour experience with hotel pickup and a safety briefing.\nFrom €15 per adult.\n\nطلب الحجز يخضع لمراجعة التوافر وتأكيد الفريق. واتساب للاستفسارات.\nBooking requests are confirmed by our team after checking availability. WhatsApp is for enquiries.\n+20 111 129 2690\n\nالتفاصيل وطلب الحجز على موقعنا | Details & booking requests:\nsafaritourssharm.com\nSunset Quad Bike\n\n#SafariToursSharm #SharmElSheikh #RedSea #شرم_الشيخ"
+    },
+    {
+      "slug": "ras-mohamed-white-island-boat",
+      "ar": "يومك على ألوان البحر الأحمر 🌊\nرأس محمد والجزيرة البيضاء: رحلة بالقارب مع وقفتي سنوركل، وغداء ومشروبات على المركب، واستقبال من الفندق ورسوم دخول المحمية.\nابتداءً من ٤٠€ للفرد البالغ. معدات السنوركل والغطسة الاختيارية برسوم إضافية.\nاطلب قبل الموعد بيوم على الأقل؛ قد تتغير الخطة حسب البحر والطقس.",
+      "en": "Spend the day in Red Sea blues 🌊\nRas Mohamed & White Island: a boat trip with two snorkeling stops, lunch and drinks on board, hotel pickup and park entrance fees.\nFrom €40 per adult. Snorkeling equipment and the optional introductory dive cost extra.\nRequest at least one day ahead; sea and weather conditions may change the plan.",
+      "schedule": {
+        "facebook": "2026-10-27T16:00:00+03:00",
+        "instagram": "2026-10-27T19:00:00+03:00"
+      },
+      "alt_ar": "كارت رأس محمد والجزيرة البيضاء: قوارب وسنوركل في مياه البحر الأحمر الصافية، ابتداءً من ٤٠ يورو للفرد البالغ.",
+      "alt_en": "Ras Mohamed and White Island boat-trip card: boats and snorkelers in clear Red Sea water, from EUR40 per adult.",
+      "sequence": 2,
+      "tourId": "a0000001-0000-0000-0000-000000000007",
+      "price": {
+        "amount": "40.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "status": "SCHEDULED_BOTH_PLATFORMS",
+      "providerResults": {
+        "facebook": {
+          "status": "SCHEDULED",
+          "scheduledFor": "2026-10-27T16:00:00+03:00",
+          "providerDateLabel": "27 October 16:00",
+          "readback": "Separate Facebook row in Scheduled list, bilingual price EUR40 and both photos; Public, Not currently boosted",
+          "providerId": null
+        },
+        "instagram": {
+          "status": "SCHEDULED",
+          "scheduledFor": "2026-10-27T19:00:00+03:00",
+          "providerDateLabel": "27 October 19:00",
+          "readback": "Separate Instagram safari_tours_sharm row in Scheduled list, bilingual price EUR40; Public, Not currently boosted",
+          "providerId": null
+        },
+        "uiConfirmation": "Your post is scheduled",
+        "facebookStory": {
+          "requested": true,
+          "verified": false,
+          "note": "Future share request is not an active story; only first-post active Facebook story proven"
+        },
+        "paidBoost": false
+      },
+      "media": [
+        {
+          "locale": "ar",
+          "path": "/home/wego/business/client-media/safari-tours-sharm/2026-10-25-tour-cards-v03/02_Exports/Feed/STS-Feed-ras-mohamed-white-island-boat-AR-v01.png",
+          "sha256": "8581f4e7c4f55cf91f28f5eedae16a9bc97905a830aee8310f9ea9b3970d0761",
+          "size": [
+            1080,
+            1350
+          ],
+          "visuallyReviewed": true,
+          "source": "owner-authorized library; inherited provenance in v03/04_Assets-and-Licenses/IMAGE_SOURCES.json",
+          "alt": "كارت رأس محمد والجزيرة البيضاء: قوارب وسنوركل في مياه البحر الأحمر الصافية، ابتداءً من ٤٠ يورو للفرد البالغ.",
+          "customAltPublished": false
+        },
+        {
+          "locale": "en",
+          "path": "/home/wego/business/client-media/safari-tours-sharm/2026-10-25-tour-cards-v03/02_Exports/Feed/STS-Feed-ras-mohamed-white-island-boat-EN-v01.png",
+          "sha256": "e300358d108b8d44e232bd0cb8285df8170a67903ae1cc664197459e088a8475",
+          "size": [
+            1080,
+            1350
+          ],
+          "visuallyReviewed": true,
+          "source": "owner-authorized library; inherited provenance in v03/04_Assets-and-Licenses/IMAGE_SOURCES.json",
+          "alt": "Ras Mohamed and White Island boat-trip card: boats and snorkelers in clear Red Sea water, from EUR40 per adult.",
+          "customAltPublished": false
+        }
+      ],
+      "captionFacebook": "يومك على ألوان البحر الأحمر 🌊\nرأس محمد والجزيرة البيضاء: رحلة بالقارب مع وقفتي سنوركل، وغداء ومشروبات على المركب، واستقبال من الفندق ورسوم دخول المحمية.\nابتداءً من ٤٠€ للفرد البالغ. معدات السنوركل والغطسة الاختيارية برسوم إضافية.\nاطلب قبل الموعد بيوم على الأقل؛ قد تتغير الخطة حسب البحر والطقس.\n\nSpend the day in Red Sea blues 🌊\nRas Mohamed & White Island: a boat trip with two snorkeling stops, lunch and drinks on board, hotel pickup and park entrance fees.\nFrom €40 per adult. Snorkeling equipment and the optional introductory dive cost extra.\nRequest at least one day ahead; sea and weather conditions may change the plan.\n\nطلب الحجز يخضع لمراجعة التوافر وتأكيد الفريق. واتساب للاستفسارات.\nBooking requests are confirmed by our team after checking availability. WhatsApp is for enquiries.\n+20 111 129 2690\n\nالتفاصيل وطلب الحجز | Details & booking request:\nhttps://safaritourssharm.com/en/tour/ras-mohamed-white-island-boat?utm_source=facebook&utm_medium=organic_social&utm_campaign=tour_cards_2026_10&utm_content=ras-mohamed-white-island-boat_ar_en\n\n#SafariToursSharm #SharmElSheikh #RedSea #شرم_الشيخ",
+      "captionInstagram": "يومك على ألوان البحر الأحمر 🌊\nرأس محمد والجزيرة البيضاء: رحلة بالقارب مع وقفتي سنوركل، وغداء ومشروبات على المركب، واستقبال من الفندق ورسوم دخول المحمية.\nابتداءً من ٤٠€ للفرد البالغ. معدات السنوركل والغطسة الاختيارية برسوم إضافية.\nاطلب قبل الموعد بيوم على الأقل؛ قد تتغير الخطة حسب البحر والطقس.\n\nSpend the day in Red Sea blues 🌊\nRas Mohamed & White Island: a boat trip with two snorkeling stops, lunch and drinks on board, hotel pickup and park entrance fees.\nFrom €40 per adult. Snorkeling equipment and the optional introductory dive cost extra.\nRequest at least one day ahead; sea and weather conditions may change the plan.\n\nطلب الحجز يخضع لمراجعة التوافر وتأكيد الفريق. واتساب للاستفسارات.\nBooking requests are confirmed by our team after checking availability. WhatsApp is for enquiries.\n+20 111 129 2690\n\nالتفاصيل وطلب الحجز على موقعنا | Details & booking requests:\nsafaritourssharm.com\nRas Mohamed & White Island Boat Trip\n\n#SafariToursSharm #SharmElSheikh #RedSea #شرم_الشيخ",
+      "composerFallback": {
+        "mode": "SHARED_BILINGUAL_CAPTION_WITHOUT_EXTERNAL_TEXT_LINK",
+        "reason": "Definitive platform UI link-post quota (0 remaining); no paid subscription authorized or started. Earlier editor/race theories not established.",
+        "caption": "يومك على ألوان البحر الأحمر 🌊\nرأس محمد والجزيرة البيضاء: رحلة بالقارب مع وقفتي سنوركل، وغداء ومشروبات على المركب، واستقبال من الفندق ورسوم دخول المحمية.\nابتداءً من ٤٠€ للفرد البالغ. معدات السنوركل والغطسة الاختيارية برسوم إضافية.\nاطلب قبل الموعد بيوم على الأقل؛ قد تتغير الخطة حسب البحر والطقس.\n\nSpend the day in Red Sea blues 🌊\nRas Mohamed & White Island: a boat trip with two snorkeling stops, lunch and drinks on board, hotel pickup and park entrance fees.\nFrom €40 per adult. Snorkeling equipment and the optional introductory dive cost extra.\nRequest at least one day ahead; sea and weather conditions may change the plan.\n\nطلب الحجز يخضع لمراجعة التوافر وتأكيد الفريق. واتساب للاستفسارات.\nBooking requests are confirmed by our team after checking availability. WhatsApp is for enquiries.\n+20 111 129 2690\n\nتفاصيل الرحلة وطلب الحجز على موقعنا؛ عنوان الموقع واضح على الكارت.\nSee the website address on the card for tour details and booking requests.\n\n#SafariToursSharm #SharmElSheikh #RedSea #شرم_الشيخ",
+        "attribution": "No caption URL/UTM on these two posts. Do not report per-platform link clicks from them.",
+        "altTextApplied": false,
+        "note": "Source alt copy remains in media records; only published first-post custom alt texts were directly verified."
+      },
+      "actualCaptionFacebook": "يومك على ألوان البحر الأحمر 🌊\nرأس محمد والجزيرة البيضاء: رحلة بالقارب مع وقفتي سنوركل، وغداء ومشروبات على المركب، واستقبال من الفندق ورسوم دخول المحمية.\nابتداءً من ٤٠€ للفرد البالغ. معدات السنوركل والغطسة الاختيارية برسوم إضافية.\nاطلب قبل الموعد بيوم على الأقل؛ قد تتغير الخطة حسب البحر والطقس.\n\nSpend the day in Red Sea blues 🌊\nRas Mohamed & White Island: a boat trip with two snorkeling stops, lunch and drinks on board, hotel pickup and park entrance fees.\nFrom €40 per adult. Snorkeling equipment and the optional introductory dive cost extra.\nRequest at least one day ahead; sea and weather conditions may change the plan.\n\nطلب الحجز يخضع لمراجعة التوافر وتأكيد الفريق. واتساب للاستفسارات.\nBooking requests are confirmed by our team after checking availability. WhatsApp is for enquiries.\n+20 111 129 2690\n\nتفاصيل الرحلة وطلب الحجز على موقعنا؛ عنوان الموقع واضح على الكارت.\nSee the website address on the card for tour details and booking requests.\n\n#SafariToursSharm #SharmElSheikh #RedSea #شرم_الشيخ",
+      "actualCaptionInstagram": "يومك على ألوان البحر الأحمر 🌊\nرأس محمد والجزيرة البيضاء: رحلة بالقارب مع وقفتي سنوركل، وغداء ومشروبات على المركب، واستقبال من الفندق ورسوم دخول المحمية.\nابتداءً من ٤٠€ للفرد البالغ. معدات السنوركل والغطسة الاختيارية برسوم إضافية.\nاطلب قبل الموعد بيوم على الأقل؛ قد تتغير الخطة حسب البحر والطقس.\n\nSpend the day in Red Sea blues 🌊\nRas Mohamed & White Island: a boat trip with two snorkeling stops, lunch and drinks on board, hotel pickup and park entrance fees.\nFrom €40 per adult. Snorkeling equipment and the optional introductory dive cost extra.\nRequest at least one day ahead; sea and weather conditions may change the plan.\n\nطلب الحجز يخضع لمراجعة التوافر وتأكيد الفريق. واتساب للاستفسارات.\nBooking requests are confirmed by our team after checking availability. WhatsApp is for enquiries.\n+20 111 129 2690\n\nتفاصيل الرحلة وطلب الحجز على موقعنا؛ عنوان الموقع واضح على الكارت.\nSee the website address on the card for tour details and booking requests.\n\n#SafariToursSharm #SharmElSheikh #RedSea #شرم_الشيخ"
+    },
+    {
+      "slug": "dahab-colored-canyon",
+      "ar": "دهب… مشهد جديد في كل وقفة 🏞️\nيوم كامل من شرم: الكانيون الملون بسيارة جيب، مشي مع مرشد، غداء على البحر، ركوب الجمل على الساحل ووقت في دهب.\nابتداءً من ٣٠€ للفرد البالغ. راجع تفاصيل الرحلة وما يلزم إحضاره على الموقع.",
+      "en": "Dahab: a different view at every stop 🏞️\nA full day from Sharm: jeep transport to the Colored Canyon, a guided walk, seaside lunch, a coastal camel ride and time in Dahab.\nFrom €30 per adult. Check the tour page for the full itinerary and what to bring.",
+      "schedule": {
+        "facebook": "2026-10-28T18:00:00+03:00",
+        "instagram": "2026-10-28T19:00:00+03:00"
+      },
+      "alt_ar": "كارت دهب ٥ في ١ والكانيون الملون: ساحل دهب والجبال ومياه البحر، ابتداءً من ٣٠ يورو للفرد البالغ.",
+      "alt_en": "Dahab 5-in-1 and Colored Canyon tour card: the Dahab coastline, mountains and sea, from EUR30 per adult.",
+      "sequence": 3,
+      "tourId": "a0000001-0000-0000-0000-000000000005",
+      "price": {
+        "amount": "30.00",
+        "currencyCode": "EUR"
+      },
+      "priceBasis": "PER_PERSON",
+      "status": "LOCAL_READY_BROWSER_DEFERRED_NOT_SUBMITTED",
+      "providerResults": {},
+      "media": [
+        {
+          "locale": "ar",
+          "path": "/home/wego/business/client-media/safari-tours-sharm/2026-10-25-tour-cards-v03/02_Exports/Feed/STS-Feed-dahab-colored-canyon-AR-v01.png",
+          "sha256": "160f6a33ef3bc97a9f6b904ecfde8bf51e64b7cadfaa0f9ddc3b63eb15fc2ee8",
+          "size": [
+            1080,
+            1350
+          ],
+          "visuallyReviewed": true,
+          "source": "owner-authorized library; inherited provenance in v03/04_Assets-and-Licenses/IMAGE_SOURCES.json",
+          "alt": "كارت دهب ٥ في ١ والكانيون الملون: ساحل دهب والجبال ومياه البحر، ابتداءً من ٣٠ يورو للفرد البالغ.",
+          "customAltPublished": false
+        },
+        {
+          "locale": "en",
+          "path": "/home/wego/business/client-media/safari-tours-sharm/2026-10-25-tour-cards-v03/02_Exports/Feed/STS-Feed-dahab-colored-canyon-EN-v01.png",
+          "sha256": "56b8c177efb90d7145dbde2771ebf5f2dd9b9143d966b468f416c6e1f731c042",
+          "size": [
+            1080,
+            1350
+          ],
+          "visuallyReviewed": true,
+          "source": "owner-authorized library; inherited provenance in v03/04_Assets-and-Licenses/IMAGE_SOURCES.json",
+          "alt": "Dahab 5-in-1 and Colored Canyon tour card: the Dahab coastline, mountains and sea, from EUR30 per adult.",
+          "customAltPublished": false
+        }
+      ],
+      "captionFacebook": "دهب… مشهد جديد في كل وقفة 🏞️\nيوم كامل من شرم: الكانيون الملون بسيارة جيب، مشي مع مرشد، غداء على البحر، ركوب الجمل على الساحل ووقت في دهب.\nابتداءً من ٣٠€ للفرد البالغ. راجع تفاصيل الرحلة وما يلزم إحضاره على الموقع.\n\nDahab: a different view at every stop 🏞️\nA full day from Sharm: jeep transport to the Colored Canyon, a guided walk, seaside lunch, a coastal camel ride and time in Dahab.\nFrom €30 per adult. Check the tour page for the full itinerary and what to bring.\n\nطلب الحجز يخضع لمراجعة التوافر وتأكيد الفريق. واتساب للاستفسارات.\nBooking requests are confirmed by our team after checking availability. WhatsApp is for enquiries.\n+20 111 129 2690\n\nالتفاصيل وطلب الحجز | Details & booking request:\nhttps://safaritourssharm.com/en/tour/dahab-colored-canyon?utm_source=facebook&utm_medium=organic_social&utm_campaign=tour_cards_2026_10&utm_content=dahab-colored-canyon_ar_en\n\n#SafariToursSharm #SharmElSheikh #RedSea #شرم_الشيخ",
+      "captionInstagram": "دهب… مشهد جديد في كل وقفة 🏞️\nيوم كامل من شرم: الكانيون الملون بسيارة جيب، مشي مع مرشد، غداء على البحر، ركوب الجمل على الساحل ووقت في دهب.\nابتداءً من ٣٠€ للفرد البالغ. راجع تفاصيل الرحلة وما يلزم إحضاره على الموقع.\n\nDahab: a different view at every stop 🏞️\nA full day from Sharm: jeep transport to the Colored Canyon, a guided walk, seaside lunch, a coastal camel ride and time in Dahab.\nFrom €30 per adult. Check the tour page for the full itinerary and what to bring.\n\nطلب الحجز يخضع لمراجعة التوافر وتأكيد الفريق. واتساب للاستفسارات.\nBooking requests are confirmed by our team after checking availability. WhatsApp is for enquiries.\n+20 111 129 2690\n\nالتفاصيل وطلب الحجز على موقعنا | Details & booking requests:\nsafaritourssharm.com\nDahab 5×1 / Colored Canyon\n\n#SafariToursSharm #SharmElSheikh #RedSea #شرم_الشيخ",
+      "composerFallback": {
+        "mode": "SHARED_BILINGUAL_CAPTION_WITHOUT_EXTERNAL_TEXT_LINK",
+        "reason": "Definitive platform UI link-post quota (0 remaining); no paid subscription authorized or started. Earlier editor/race theories not established.",
+        "caption": "دهب… مشهد جديد في كل وقفة 🏞️\nيوم كامل من شرم: الكانيون الملون بسيارة جيب، مشي مع مرشد، غداء على البحر، ركوب الجمل على الساحل ووقت في دهب.\nابتداءً من ٣٠€ للفرد البالغ. راجع تفاصيل الرحلة وما يلزم إحضاره على الموقع.\n\nDahab: a different view at every stop 🏞️\nA full day from Sharm: jeep transport to the Colored Canyon, a guided walk, seaside lunch, a coastal camel ride and time in Dahab.\nFrom €30 per adult. Check the tour page for the full itinerary and what to bring.\n\nطلب الحجز يخضع لمراجعة التوافر وتأكيد الفريق. واتساب للاستفسارات.\nBooking requests are confirmed by our team after checking availability. WhatsApp is for enquiries.\n+20 111 129 2690\n\nتفاصيل الرحلة وطلب الحجز على موقعنا؛ عنوان الموقع واضح على الكارت.\nSee the website address on the card for tour details and booking requests.\n\n#SafariToursSharm #SharmElSheikh #RedSea #شرم_الشيخ",
+        "attribution": "No caption URL/UTM on these two posts. Do not report per-platform link clicks from them.",
+        "altTextApplied": false,
+        "note": "Source alt copy remains in media records; only published first-post custom alt texts were directly verified."
+      },
+      "actualCaptionFacebook": "دهب… مشهد جديد في كل وقفة 🏞️\nيوم كامل من شرم: الكانيون الملون بسيارة جيب، مشي مع مرشد، غداء على البحر، ركوب الجمل على الساحل ووقت في دهب.\nابتداءً من ٣٠€ للفرد البالغ. راجع تفاصيل الرحلة وما يلزم إحضاره على الموقع.\n\nDahab: a different view at every stop 🏞️\nA full day from Sharm: jeep transport to the Colored Canyon, a guided walk, seaside lunch, a coastal camel ride and time in Dahab.\nFrom €30 per adult. Check the tour page for the full itinerary and what to bring.\n\nطلب الحجز يخضع لمراجعة التوافر وتأكيد الفريق. واتساب للاستفسارات.\nBooking requests are confirmed by our team after checking availability. WhatsApp is for enquiries.\n+20 111 129 2690\n\nتفاصيل الرحلة وطلب الحجز على موقعنا؛ عنوان الموقع واضح على الكارت.\nSee the website address on the card for tour details and booking requests.\n\n#SafariToursSharm #SharmElSheikh #RedSea #شرم_الشيخ",
+      "actualCaptionInstagram": "دهب… مشهد جديد في كل وقفة 🏞️\nيوم كامل من شرم: الكانيون الملون بسيارة جيب، مشي مع مرشد، غداء على البحر، ركوب الجمل على الساحل ووقت في دهب.\nابتداءً من ٣٠€ للفرد البالغ. راجع تفاصيل الرحلة وما يلزم إحضاره على الموقع.\n\nDahab: a different view at every stop 🏞️\nA full day from Sharm: jeep transport to the Colored Canyon, a guided walk, seaside lunch, a coastal camel ride and time in Dahab.\nFrom €30 per adult. Check the tour page for the full itinerary and what to bring.\n\nطلب الحجز يخضع لمراجعة التوافر وتأكيد الفريق. واتساب للاستفسارات.\nBooking requests are confirmed by our team after checking availability. WhatsApp is for enquiries.\n+20 111 129 2690\n\nتفاصيل الرحلة وطلب الحجز على موقعنا؛ عنوان الموقع واضح على الكارت.\nSee the website address on the card for tour details and booking requests.\n\n#SafariToursSharm #SharmElSheikh #RedSea #شرم_الشيخ",
+      "scheduleStatus": "PLANNED_NOT_SAVED"
+    }
+  ],
+  "platformConstraint": {
+    "observedIn": "Safari Meta Business Suite composer,26October2026",
+    "title": "Post more links with Meta One",
+    "reason": "You can add links to 2 posts per month, and you have used them all. You can add links to 2 new posts on 1 November.",
+    "remaining": 0,
+    "paidSubscriptionStarted": false,
+    "resolution": "Remaining two posts use bilingual captions without external text URLs, directing to the website address already printed on the cards. This follows the platform offered delete-link route; no masked links or quota circumvention."
+  },
+  "updatedAt": "2026-10-26T00:58:43.265885+00:00",
+  "browserContinuation": {
+    "ownerDecision": "نكمل المتصفح لاحقًا",
+    "reason": "Browser debugger connection became unattached while entering the last post schedule. Owner chose to resume later.",
+    "pendingSlug": "dahab-colored-canyon",
+    "providerDraftSaved": false,
+    "submitted": false,
+    "lastUi": "Fresh scheduled composer; schedule modal for28October partly edited. Final date/time values not verified after interruption; media and caption not attached in this final composer.",
+    "action": "Rediscover mohamed profile by its name/extension identity, read current UI, check scheduled/published entries for duplicates, then finish exactly one Dahab post on each platform. Do not repeat the saved Ras Mohamed post.",
+    "tabIdAtStop": "1971272764",
+    "urlAtStop": "https://business.facebook.com/latest/composer/?asset_id=104180979683761&business_id=1001011593013309&ir_qe_exposed=1&nav_ref=internal_nav&ref=biz_web_content_manager_scheduled_posts&context_ref=POSTS",
+    "browserIdsAreEphemeral": true
+  }
+}
